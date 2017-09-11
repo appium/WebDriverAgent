@@ -62,6 +62,7 @@
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
     [[FBRoute POST:@"/wda/element/:uuid/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTap:)],
     [[FBRoute POST:@"/wda/element/:uuid/twoFingerTap"] respondWithTarget:self action:@selector(handleTwoFingerTap:)],
+    [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self action:@selector(handleTapWithNumberOfTaps:)],
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
@@ -219,6 +220,16 @@
     XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
     [element twoFingerTap];
     return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleTapWithNumberOfTaps:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  NSUInteger taps = (NSUInteger)[request.arguments[@"taps"] integerValue];
+  NSUInteger touches = (NSUInteger)[request.arguments[@"touches"] integerValue];
+  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
+  [element tapWithNumberOfTaps:taps numberOfTouches:touches];
+  return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTouchAndHold:(FBRouteRequest *)request
