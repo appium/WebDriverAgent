@@ -25,6 +25,29 @@ static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 
 @implementation XCUIDevice (FBHelpers)
 
+// We can assume that the screen is not locked when the test starts
+static bool locked = FALSE;
+
++ (void) load {
+  [self registerAppforDetectLockState];
+}
+
++ (void)registerAppforDetectLockState {
+  
+  int notify_token;
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+  notify_register_dispatch("com.apple.springboard.lockstate", &notify_token,dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(int token) {
+    uint64_t state = UINT64_MAX;
+    notify_get_state(token, &state);
+    if(state == 0) {
+      locked = FALSE;
+    } else {
+      locked = TRUE;
+    }
+  });
+  
+}
+
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error
 {
   [self pressButton:XCUIDeviceButtonHome];
@@ -39,6 +62,48 @@ static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
   }
   return YES;
 }
+
+- (BOOL)fb_lockScreen:(NSError **)error
+{
+  if (locked) {
+    return TRUE;
+  }
+  SEL mSelector = NSSelectorFromString(@"pressLockButton");
+  [self methodSignatureForSelector:mSelector];
+  NSMethodSignature *mSignature = [self methodSignatureForSelector:mSelector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
+  [invocation setTarget:self];
+  [invocation setSelector:mSelector];
+  [invocation invoke];
+  return [[[[FBRunLoopSpinner new]
+            timeout:10.]
+           timeoutErrorMessage:@"Timeout waiting until screen getting locked"]
+          spinUntilTrue:^BOOL{
+            return locked;
+          } error:error];
+}
+
+- (BOOL)fb_isScreenLocked
+{
+  return locked;
+}
+
+- (BOOL)fb_unlockScreen:(NSError **)error
+{
+  if (!locked) {
+    return TRUE;
+  }
+  [self fb_goToHomescreenWithError:NULL];
+  [self fb_goToHomescreenWithError:NULL];
+  
+  return [[[[FBRunLoopSpinner new]
+            timeout:10.]
+           timeoutErrorMessage:@"Timeout waiting until screen getting unlocked"]
+          spinUntilTrue:^BOOL{
+            return !locked;
+          } error:error];
+}
+
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {

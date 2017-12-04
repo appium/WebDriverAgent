@@ -30,6 +30,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error;
 
 /**
+ Checks if the screen is locked or not
+ @return YES if if screen is locked
+ */
+- (BOOL)fb_isScreenLocked;
+
+/**
+ Forces devices to go to lock screen
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_lockScreen:(NSError **)error;
+
+/**
+ Forces devices to unlock
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_unlockScreen:(NSError **)error;
+
+/**
  Returns screenshot
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG-encoded data or nil in case of failure
