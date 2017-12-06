@@ -33,7 +33,7 @@
 
 + (id<FBResponsePayload>)handlePerformAppiumTouchActions:(FBRouteRequest *)request
 {
-  XCUIApplication *application = request.session.application;
+  XCUIApplication *application = request.session.activeApplication;
   NSArray *actions = (NSArray *)request.arguments[@"actions"];
   NSError *error;
   if (![application fb_performAppiumTouchActions:actions elementCache:request.session.elementCache error:&error]) {
@@ -44,7 +44,7 @@
 
 + (id<FBResponsePayload>)handlePerformW3CTouchActions:(FBRouteRequest *)request
 {
-  XCUIApplication *application = request.session.application;
+  XCUIApplication *application = request.session.activeApplication;
   NSArray *actions = (NSArray *)request.arguments[@"actions"];
   NSError *error;
   if (![application fb_performW3CTouchActions:actions elementCache:request.session.elementCache error:&error]) {
