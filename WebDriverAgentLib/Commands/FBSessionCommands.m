@@ -32,7 +32,7 @@
     [[FBRoute POST:@"/session/apps/launch"] respondWithTarget:self action:@selector(handleSessionAppLaunch:)],
     [[FBRoute POST:@"/session/apps/activate"] respondWithTarget:self action:@selector(handleSessionAppActivate:)],
     [[FBRoute POST:@"/session/apps/terminate"] respondWithTarget:self action:@selector(handleSessionAppTerminate:)],
-    [[FBRoute GET:@"/session/apps/state"] respondWithTarget:self action:@selector(handleSessionAppState:)],
+    [[FBRoute POST:@"/session/apps/state"] respondWithTarget:self action:@selector(handleSessionAppState:)],
     [[FBRoute GET:@""] respondWithTarget:self action:@selector(handleGetActiveSession:)],
     [[FBRoute DELETE:@""] respondWithTarget:self action:@selector(handleDeleteSession:)],
     [[FBRoute GET:@"/status"].withoutSession respondWithTarget:self action:@selector(handleGetStatus:)],
