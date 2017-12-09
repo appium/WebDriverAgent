@@ -130,15 +130,15 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   } else {
     // An offset relative to an element is defined
     XCElementSnapshot *snapshot = element.fb_lastSnapshot;
-    CGRect visibleFrame = snapshot.fb_frameInWindow;
-    if (CGRectIsEmpty(visibleFrame)) {
+    if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
       NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element];
       if (error) {
         *error = [[FBErrorBuilder.builder withDescription:description] build];
       }
       return nil;
     }
-    hitPoint = CGPointMake(visibleFrame.origin.x + visibleFrame.size.width / 2, visibleFrame.origin.y + visibleFrame.size.height / 2);
+    CGRect frame = snapshot.frame;
+    hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
     if (nil != positionOffset) {
       CGPoint offsetValue = [positionOffset CGPointValue];
       hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);

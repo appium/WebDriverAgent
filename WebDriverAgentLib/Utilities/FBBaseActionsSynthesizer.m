@@ -56,15 +56,15 @@
         return [NSValue valueWithCGPoint:hitPoint];
       }
     }
-    CGRect visibleFrame = snapshot.fb_frameInWindow;
-    if (CGRectIsEmpty(visibleFrame)) {
+    if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
       NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element];
       if (error) {
         *error = [[FBErrorBuilder.builder withDescription:description] build];
       }
       return nil;
     }
-    hitPoint = CGPointMake(visibleFrame.origin.x, visibleFrame.origin.y);
+    CGPoint origin = snapshot.frame.origin;
+    hitPoint = CGPointMake(origin.x, origin.y);
     if (nil != positionOffset) {
       CGPoint offsetValue = [positionOffset CGPointValue];
       hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
