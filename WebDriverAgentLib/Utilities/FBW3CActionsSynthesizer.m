@@ -16,6 +16,7 @@
 #import "FBMathUtils.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement.h"
 #import "XCSynthesizedEventRecord.h"
@@ -129,13 +130,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   } else {
     // An offset relative to an element is defined
     XCElementSnapshot *snapshot = element.fb_lastSnapshot;
-    XCElementSnapshot *containerWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
-    CGRect visibleFrame;
-    if (nil == containerWindow) {
-      visibleFrame = snapshot.frame;
-    } else {
-      visibleFrame = [self.class visibleFrameWithSnapshot:snapshot currentIntersection:nil containerWindow:containerWindow];
-    }
+    CGRect visibleFrame = snapshot.fb_frameInWindow;
     if (CGRectIsEmpty(visibleFrame)) {
       NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element];
       if (error) {

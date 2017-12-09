@@ -12,6 +12,7 @@
 #import "FBErrorBuilder.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
+#import "XCUIElement+FBIsVisible.h"
 #import "XCElementSnapshot.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot+FBHitPoint.h"
@@ -40,18 +41,6 @@
   return YES;
 }
 
-+ (CGRect)visibleFrameWithSnapshot:(XCElementSnapshot *)selfSnapshot currentIntersection:(nullable NSValue *)frame containerWindow:(XCElementSnapshot *)window
-{
-  XCElementSnapshot *parent = selfSnapshot.parent;
-  CGRect intersectionRect = frame == nil ?
-    CGRectIntersection(selfSnapshot.frame, parent.frame) :
-    CGRectIntersection([frame CGRectValue], parent.frame);
-  if (CGRectIsEmpty(intersectionRect) || parent == window) {
-    return intersectionRect;
-  }
-  return [self.class visibleFrameWithSnapshot:parent currentIntersection:[NSValue valueWithCGRect:intersectionRect] containerWindow:window];
-}
-
 - (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element positionOffset:(nullable NSValue *)positionOffset error:(NSError **)error
 {
   CGPoint hitPoint;
@@ -67,13 +56,7 @@
         return [NSValue valueWithCGPoint:hitPoint];
       }
     }
-    XCElementSnapshot *containerWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
-    CGRect visibleFrame;
-    if (nil == containerWindow) {
-      visibleFrame = snapshot.frame;
-    } else {
-      visibleFrame = [self.class visibleFrameWithSnapshot:snapshot currentIntersection:nil containerWindow:containerWindow];
-    }
+    CGRect visibleFrame = snapshot.fb_frameInWindow;
     if (CGRectIsEmpty(visibleFrame)) {
       NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element];
       if (error) {
