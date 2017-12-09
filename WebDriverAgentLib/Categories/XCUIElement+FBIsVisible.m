@@ -34,9 +34,6 @@
 
 - (CGRect)fb_frameInContainer:(XCElementSnapshot *)container hierarchyIntersection:(nullable NSValue *)intersectionRectange
 {
-  if (![container _isAncestorOfElement:self]) {
-    return CGRectZero;
-  }
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
   CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parent.frame);
