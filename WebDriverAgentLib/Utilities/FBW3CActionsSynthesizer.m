@@ -128,10 +128,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     // Only absolute offset is defined
     hitPoint = [positionOffset CGPointValue];
   } else {
-    // An offset relative to an element is defined
+    // An offset relative to the element is defined
     XCElementSnapshot *snapshot = element.fb_lastSnapshot;
     if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
-      NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element];
+      NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.debugDescription];
       if (error) {
         *error = [[FBErrorBuilder.builder withDescription:description] build];
       }
@@ -142,6 +142,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     if (nil != positionOffset) {
       CGPoint offsetValue = [positionOffset CGPointValue];
       hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
+      // TODO: Shall we throw an exception if hitPoint is out of the element frame?
     }
   }
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
