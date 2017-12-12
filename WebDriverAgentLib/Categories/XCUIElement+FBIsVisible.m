@@ -9,7 +9,9 @@
 
 #import "XCUIElement+FBIsVisible.h"
 
+#import "FBApplication.h"
 #import "FBConfiguration.h"
+#import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIElement+FBUtilities.h"
@@ -62,17 +64,28 @@
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
     return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
   }
+
+  CGRect frameInWindow = frame;
   XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
-  if (nil != parentWindow &&
-      CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
+  if (nil != parentWindow) {
+    frameInWindow = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  }
+  if (CGRectIsEmpty(frameInWindow)) {
     return NO;
   }
+  
+  CGRect appFrame = [self fb_rootElement].frame;
+  
   CGPoint midPoint = [self.suggestedHitpoints.lastObject CGPointValue];
+  if (!CGRectEqualToRect(appFrame, frameInWindow)) {
+    midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
+  }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (self == hitElement || [self._allDescendants.copy containsObject:hitElement]) {
+  if (nil != hitElement &&
+      (self == hitElement || [hitElement _isAncestorOfElement:self] || [self._allDescendants.copy containsObject:hitElement])) {
     return YES;
   }
-  CGRect appFrame = [self fb_rootElement].frame;
+  
   if (CGRectContainsPoint(appFrame, self.fb_hitPoint)) {
     return YES;
   }
