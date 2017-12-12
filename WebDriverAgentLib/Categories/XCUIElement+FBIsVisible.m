@@ -65,24 +65,20 @@
     return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
   }
 
-  CGRect frameInWindow = frame;
   XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
-  if (nil != parentWindow) {
-    frameInWindow = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
-  }
-  if (CGRectIsEmpty(frameInWindow)) {
+  if (nil != parentWindow &&
+      CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
     return NO;
   }
   
   CGRect appFrame = [self fb_rootElement].frame;
   
   CGPoint midPoint = [self.suggestedHitpoints.lastObject CGPointValue];
-  if (!CGRectEqualToRect(appFrame, frameInWindow)) {
+  if (!CGRectEqualToRect(appFrame, nil == parentWindow ? frame : parentWindow.frame)) {
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil != hitElement &&
-      (self == hitElement || [hitElement _isAncestorOfElement:self] || [self._allDescendants.copy containsObject:hitElement])) {
+  if (self == hitElement || [self._allDescendants.copy containsObject:hitElement]) {
     return YES;
   }
   
