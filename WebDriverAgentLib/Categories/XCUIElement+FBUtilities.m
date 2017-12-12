@@ -161,26 +161,7 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   if (nil == imageData) {
     return nil;
   }
-
-  UIImage *image = [UIImage imageWithData:imageData];
-  UIInterfaceOrientation orientation = self.application.interfaceOrientation;
-  UIImageOrientation imageOrientation = UIImageOrientationUp;
-  // The received element screenshot will be rotated, if the current interface orientation differs from portrait, so we need to fix that first
-  if (orientation == UIInterfaceOrientationLandscapeRight) {
-    imageOrientation = UIImageOrientationLeft;
-  } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
-    imageOrientation = UIImageOrientationRight;
-  } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
-    imageOrientation = UIImageOrientationDown;
-  }
-  CGSize size = image.size;
-  UIGraphicsBeginImageContext(CGSizeMake(size.width, size.height));
-  [[UIImage imageWithCGImage:(CGImageRef)[image CGImage] scale:1.0 orientation:imageOrientation] drawInRect:CGRectMake(0, 0, size.width, size.height)];
-  UIImage *fixedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
-  // The resulting data is a JPEG image, so we need to convert it to PNG representation
-  return (NSData *)UIImagePNGRepresentation(fixedImage);
+  return FBAdjustScreenshotOrientationForApplication(imageData, self.application.interfaceOrientation);
 }
 
 @end
