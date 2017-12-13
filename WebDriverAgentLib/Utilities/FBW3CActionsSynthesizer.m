@@ -123,40 +123,33 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element positionOffset:(nullable NSValue *)positionOffset error:(NSError **)error
 {
-  CGPoint hitPoint;
   if (nil == element) {
-    // Only absolute offset is defined
-    hitPoint = [positionOffset CGPointValue];
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
-      /*
-       Since iOS 10.0 XCTest has a bug when it always returns portrait coordinates for UI elements
-       even if the device is not in portait mode. That is why we need to recalculate them manually
-       based on the current orientation value
-       */
-      hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
+    return [super hitpointWithElement:element positionOffset:positionOffset error:error];
+  }
+
+  // An offset relative to the element is defined
+  CGPoint hitPoint;
+  XCElementSnapshot *snapshot = element.fb_lastSnapshot;
+  if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.debugDescription];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
-  } else {
-    // An offset relative to the element is defined
-    XCElementSnapshot *snapshot = element.fb_lastSnapshot;
-    if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
-      NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.debugDescription];
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:description] build];
-      }
-      return nil;
-    }
-    CGRect frame = snapshot.frame;
-    hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
-    if (nil != positionOffset) {
-      CGPoint offsetValue = [positionOffset CGPointValue];
-      hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
-      // TODO: Shall we throw an exception if hitPoint is out of the element frame?
-    }
-    XCElementSnapshot *parentWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
-    CGRect parentWindowFrame = nil == parentWindow ? frame : parentWindow.frame;
-    if (!CGRectEqualToRect(self.application.frame, parentWindowFrame)) {
-      hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
-    }
+    return nil;
+  }
+  CGRect frame = snapshot.frame;
+  hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
+  if (nil != positionOffset) {
+    CGPoint offsetValue = [positionOffset CGPointValue];
+    hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
+    // TODO: Shall we throw an exception if hitPoint is out of the element frame?
+  }
+  XCElementSnapshot *parentWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
+  CGRect parentWindowFrame = nil == parentWindow ? frame : parentWindow.frame;
+  if (!CGRectEqualToRect(self.application.frame, parentWindowFrame) ||
+      self.application.interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+    // Fix the hitpoint if the element frame is inverted
+    hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
   }
   return [NSValue valueWithCGPoint:hitPoint];
 }

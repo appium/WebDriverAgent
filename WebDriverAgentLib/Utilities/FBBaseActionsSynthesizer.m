@@ -82,7 +82,9 @@
     }
     XCElementSnapshot *parentWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
     CGRect parentWindowFrame = nil == parentWindow ? snapshot.frame : parentWindow.frame;
-    if (!CGRectEqualToRect(self.application.frame, parentWindowFrame)) {
+    if (!CGRectEqualToRect(self.application.frame, parentWindowFrame) ||
+        self.application.interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+      // Fix the hitpoint if the element frame is inverted
       hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
     }
   }
