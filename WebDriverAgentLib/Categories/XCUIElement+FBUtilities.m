@@ -161,13 +161,7 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   if (nil == imageData) {
     return nil;
   }
-  
-  XCElementSnapshot *parentWindow = [self.fb_lastSnapshot fb_parentMatchingType:XCUIElementTypeWindow];
-  if (!CGRectEqualToRect(self.application.frame, nil == parentWindow ? self.frame : parentWindow.frame)) {
-    // Fix screenshot orientation if the corresponding element frame is inverted
-    return FBAdjustScreenshotOrientationForApplication(imageData, self.application.interfaceOrientation);
-  }
-  return FBAdjustScreenshotOrientationForApplication(imageData, UIInterfaceOrientationPortrait);
+  return FBAdjustScreenshotOrientationForApplication(imageData, self.application.interfaceOrientation);
 }
 
 @end
