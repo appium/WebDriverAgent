@@ -153,6 +153,17 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   NSUInteger quality = 1;
   [invocation setArgument:&quality atIndex:2];
   CGRect elementRect = self.frame;
+  if (self.application.interfaceOrientation != UIInterfaceOrientationPortrait) {
+    XCElementSnapshot *parentWindow = [self.fb_lastSnapshot fb_parentMatchingType:XCUIElementTypeWindow];
+    if (CGRectEqualToRect(self.application.frame, nil == parentWindow ? elementRect : parentWindow.frame)) {
+      // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
+      CGPoint fixedOrigin = self.application.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ?
+        CGPointMake(self.application.frame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x) :
+        CGPointMake(elementRect.origin.y, self.application.frame.size.width - elementRect.origin.x - elementRect.size.width);
+      // TODO: Add calculation for upside-down orientation
+      elementRect = CGRectMake(fixedOrigin.x, fixedOrigin.y, elementRect.size.height, elementRect.size.width);
+    }
+  }
   [invocation setArgument:&elementRect atIndex:3];
   [invocation setArgument:&error atIndex:4];
   [invocation invoke];
