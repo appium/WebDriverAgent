@@ -131,7 +131,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   CGPoint hitPoint;
   XCElementSnapshot *snapshot = element.fb_lastSnapshot;
   if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.debugDescription];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
