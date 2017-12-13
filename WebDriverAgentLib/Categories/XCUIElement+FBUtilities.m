@@ -157,8 +157,8 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
     XCElementSnapshot *parentWindow = [self.fb_lastSnapshot fb_parentMatchingType:XCUIElementTypeWindow];
-    if (CGRectEqualToRect(self.application.frame, nil == parentWindow ? elementRect : parentWindow.frame)) {
-      CGRect appFrame = self.application.frame;
+    CGRect appFrame = self.application.frame;
+    if (CGRectEqualToRect(appFrame, nil == parentWindow ? elementRect : parentWindow.frame)) {
       CGPoint fixedOrigin = orientation == UIInterfaceOrientationLandscapeLeft ?
         CGPointMake(appFrame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x) :
         CGPointMake(elementRect.origin.y, appFrame.size.width - elementRect.origin.x - elementRect.size.width);
