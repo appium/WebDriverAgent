@@ -128,18 +128,22 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  CGPoint hitPoint;
   XCElementSnapshot *snapshot = element.fb_lastSnapshot;
-  if (CGRectIsEmpty(snapshot.fb_frameInWindow)) {
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen", element.description];
+  CGRect frameInWindow = snapshot.fb_frameInWindow;
+  if (CGRectIsEmpty(frameInWindow)) {
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
     return nil;
   }
   CGRect frame = snapshot.frame;
-  hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
-  if (nil != positionOffset) {
+  CGPoint hitPoint;
+  if (nil == positionOffset) {
+    hitPoint = CGPointMake(frameInWindow.origin.x + frameInWindow.size.width / 2,
+                           frameInWindow.origin.y + frameInWindow.size.height / 2);
+  } else {
+    hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
     CGPoint offsetValue = [positionOffset CGPointValue];
     hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
     // TODO: Shall we throw an exception if hitPoint is out of the element frame?
