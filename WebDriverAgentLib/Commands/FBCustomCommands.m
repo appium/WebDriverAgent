@@ -38,8 +38,10 @@
     [[FBRoute POST:@"/wda/homescreen"].withoutSession respondWithTarget:self action:@selector(handleHomescreenCommand:)],
     [[FBRoute POST:@"/wda/deactivateApp"] respondWithTarget:self action:@selector(handleDeactivateAppCommand:)],
     [[FBRoute POST:@"/wda/keyboard/dismiss"] respondWithTarget:self action:@selector(handleDismissKeyboardCommand:)],
-    [[FBRoute GET:@"/lock"].withoutSession respondWithTarget:self action:@selector(handleLock:)]
-  ];
+    [[FBRoute PUT:@"/lock"].withoutSession respondWithTarget:self action:@selector(handleLock:)],
+    [[FBRoute POST:@"/lock"].withoutSession respondWithTarget:self action:@selector(handleLock:)],
+    [[FBRoute PUT:@"/unlock"].withoutSession respondWithTarget:self action:@selector(handleUnlock:)]
+    ];
 }
 
 
@@ -96,15 +98,19 @@
 
 + (id<FBResponsePayload>)handleLock:(FBRouteRequest *)request
 {
-  
-  dispatch_async(dispatch_get_main_queue(), ^{
-    @try{
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-      [[XCUIDevice sharedDevice] performSelector:NSSelectorFromString(@"pressLockButton")];
-    }@catch(NSException *exception){
-      NSLog(@"Exception cought in the main thread %@",exception);
-    }
-  });
+  NSError *error;
+  if (![[XCUIDevice sharedDevice] fb_lockScreen:&error]) {
+    return FBResponseWithError(error);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleUnlock:(FBRouteRequest *)request
+{
+  NSError *error;
+  if (![[XCUIDevice sharedDevice] fb_unlockScreen:&error]) {
+    return FBResponseWithError(error);
+  }
   return FBResponseWithOK();
 }
 
