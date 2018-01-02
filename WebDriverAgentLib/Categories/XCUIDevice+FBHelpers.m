@@ -16,10 +16,11 @@
 
 #import "FBSpringboardApplication.h"
 #import "FBErrorBuilder.h"
+#import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
 
-#import "FBMacros.h"
+#import "XCUIDevice.h"
 #import "XCAXClient_iOS.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
@@ -67,13 +68,7 @@ static bool fb_isLocked;
   if (fb_isLocked) {
     return YES;
   }
-  SEL mSelector = NSSelectorFromString(@"pressLockButton");
-  [self methodSignatureForSelector:mSelector];
-  NSMethodSignature *mSignature = [self methodSignatureForSelector:mSelector];
-  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
-  [invocation setTarget:self];
-  [invocation setSelector:mSelector];
-  [invocation invoke];
+  [self pressLockButton];
   return [[[[FBRunLoopSpinner new]
             timeout:FBScreenLockTimeout]
            timeoutErrorMessage:@"Timed out while waiting until the screen gets locked"]
