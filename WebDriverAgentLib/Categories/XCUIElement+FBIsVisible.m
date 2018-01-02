@@ -11,9 +11,13 @@
 
 #import "FBApplication.h"
 #import "FBConfiguration.h"
+#import "FBElementUtils.h"
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "XCAccessibilityElement.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot+FBHitPoint.h"
@@ -64,34 +68,33 @@
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
     return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
   }
-
-  XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
-  if (nil != parentWindow &&
-      CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
-    return NO;
-  }
   
   CGRect appFrame = [self fb_rootElement].frame;
-  
-  CGPoint midPoint = [self.suggestedHitpoints.lastObject CGPointValue];
+  XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
+  if (nil == parentWindow) {
+    return CGRectContainsPoint(appFrame, self.fb_hitPoint);
+  }
+  CGRect rectInContainer = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  if (CGRectIsEmpty(rectInContainer)) {
+    return NO;
+  }
+  CGPoint visibleRectCenter = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
   if (!CGRectEqualToRect(appFrame, nil == parentWindow ? frame : parentWindow.frame)) {
-    midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
+    visibleRectCenter = FBInvertPointForApplication(visibleRectCenter, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
-  XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (self == hitElement || [self._allDescendants.copy containsObject:hitElement]) {
+  XCAccessibilityElement *match = [FBXCTestDaemonsProxy accessibilityElementAtPoint:visibleRectCenter error:NULL];
+  if (nil == match) {
+    return NO;
+  }
+  NSUInteger matchUID = [FBElementUtils uidWithAccessibilityElement:match];
+  if (self.fb_uid == matchUID) {
     return YES;
   }
-  
-  if (CGRectContainsPoint(appFrame, self.fb_hitPoint)) {
-    return YES;
+  NSMutableArray<NSValue *> *accessibilityDescendantUIDs = [NSMutableArray array];
+  for (XCElementSnapshot *descendant in self._allDescendants) {
+    [accessibilityDescendantUIDs addObject:@([FBElementUtils uidWithAccessibilityElement:descendant.accessibilityElement])];
   }
-  for (XCElementSnapshot *elementSnapshot in self.children.copy) {
-    if (elementSnapshot.fb_isVisible) {
-      return YES;
-    }
-  }
-
-  return NO;
+  return [accessibilityDescendantUIDs containsObject:@(matchUID)];
 }
 
 @end
