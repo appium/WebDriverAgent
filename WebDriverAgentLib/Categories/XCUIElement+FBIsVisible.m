@@ -70,9 +70,11 @@
     if (CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
       return NO;
     }
-    XCElementSnapshot *parentCell = [self fb_parentMatchingType:XCUIElementTypeCell];
-    if (nil != parentCell) {
-      return parentCell.fb_isVisible;
+    if (self.elementType != XCUIElementTypeCell) {
+      XCElementSnapshot *parentCell = [self fb_parentMatchingType:XCUIElementTypeCell];
+      if (nil != parentCell) {
+        return parentCell.fb_isVisible;
+      }
     }
   }
   
