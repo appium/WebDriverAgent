@@ -66,9 +66,14 @@
   }
 
   XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
-  if (nil != parentWindow &&
-      CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
-    return NO;
+  if (nil != parentWindow) {
+    if (CGRectIsEmpty([self fb_frameInContainer:parentWindow hierarchyIntersection:nil])) {
+      return NO;
+    }
+    XCElementSnapshot *parentCell = [self fb_parentMatchingType:XCUIElementTypeCell];
+    if (nil != parentCell) {
+      return parentCell.fb_isVisible;
+    }
   }
   
   CGRect appFrame = [self fb_rootElement].frame;
