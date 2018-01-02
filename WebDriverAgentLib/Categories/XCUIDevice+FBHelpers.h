@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch;
 
 /**
- Forces devices to go to homescreen
+ Forces the device under test to switch to the home screen
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
@@ -30,13 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error;
 
 /**
- Checks if the screen is locked or not
+ Checks if the screen is locked or not.
+ 
  @return YES if if screen is locked
  */
 - (BOOL)fb_isScreenLocked;
 
 /**
- Forces devices to go to lock screen
+ Forces the device under test to switch to the lock screen. An immediate return will happen if the device is already locked and an error is going to be thrown if the screen has not been locked after the timeout.
  
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
@@ -44,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_lockScreen:(NSError **)error;
 
 /**
- Forces devices to unlock
+ Forces the device under test to unlock. An immediate return will happen if the device is already unlocked and an error is going to be thrown if the screen has not been unlocked after the timeout.
  
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
