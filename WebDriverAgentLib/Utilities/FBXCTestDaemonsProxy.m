@@ -57,31 +57,35 @@
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record error:(NSError *__autoreleasing*)error
 {
   __block BOOL didSucceed = NO;
-  Class runnerClass = objc_lookUpClass("XCTRunnerDaemonSession");
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    if (nil == runnerClass) {
-      [[FBXCTestDaemonsProxy testRunnerProxy] _XCT_synthesizeEvent:record completion:^(NSError *commandError) {
-        if (error) {
-          *error = commandError;
-        }
-        didSucceed = (commandError == nil);
-        completion();
-      }];
-    } else {
-      // XCTRunnerDaemonSession class is only available since Xcode 8.3
-      XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *commandError) {
-        if (error) {
-          *error = commandError;
-        }
-        didSucceed = (commandError == nil);
-        completion();
-      };
-      [[runnerClass sharedSession] synthesizeEvent:record completion:^(NSError *invokeError){
-        handlerBlock(record, invokeError);
-      }];
-    }
+    [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:^(NSError *commandError) {
+      if (error) {
+        *error = commandError;
+      }
+      didSucceed = (commandError == nil);
+      completion();
+    }];
   }];
   return didSucceed;
+}
+
++ (XCAccessibilityElement *)accessibilityElementAtPoint:(CGPoint)point error:(NSError *__autoreleasing*)error
+{
+  __block BOOL didSucceed = NO;
+  __block XCAccessibilityElement *resultingAccessiblityElement = nil;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [[self testRunnerProxy] _XCT_requestElementAtPoint:point reply:^(XCAccessibilityElement *commandResult, NSError *commandError) {
+      if (error) {
+        *error = commandError;
+      }
+      didSucceed = (commandError == nil);
+      if (didSucceed) {
+        resultingAccessiblityElement = commandResult;
+      }
+      completion();
+    }];
+  }];
+  return resultingAccessiblityElement;
 }
 
 @end
