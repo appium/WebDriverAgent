@@ -64,19 +64,35 @@
   if (CGRectIsEmpty(frame)) {
     return NO;
   }
-
+  
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
     return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
   }
   
+  NSMutableArray<XCElementSnapshot *> *parentsChain = [NSMutableArray array];
+  XCElementSnapshot *parent = self.parent;
+  while (parent) {
+    [parentsChain addObject:parent];
+    parent = parent.parent;
+  }
+  XCElementSnapshot *parentWindow = nil;
+  for (parent in parentsChain) {
+    if (parent.elementType == XCUIElementTypeWindow) {
+      parentWindow = parent;
+      break;
+    }
+  }
   CGRect appFrame = [self fb_rootElement].frame;
-  XCElementSnapshot *parentWindow = [self fb_parentMatchingType:XCUIElementTypeWindow];
   if (nil == parentWindow) {
     return CGRectContainsPoint(appFrame, self.fb_hitPoint);
   }
   CGRect rectInContainer = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
   if (CGRectIsEmpty(rectInContainer)) {
     return NO;
+  }
+  if (self.elementType == XCUIElementTypeCell) {
+    // Special case - detect visibility based on gesture recognizer presence
+    return self.parent.fb_isVisible;
   }
   CGPoint visibleRectCenter = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
   if (!CGRectEqualToRect(appFrame, nil == parentWindow ? frame : parentWindow.frame)) {
@@ -93,6 +109,25 @@
   for (XCElementSnapshot *descendant in self._allDescendants) {
     if (matchUID == [FBElementUtils uidWithAccessibilityElement:descendant.accessibilityElement]) {
       return YES;
+    }
+  }
+  // Special case - detect visibility based on gesture recognizer presence
+  XCElementSnapshot *parentCell = nil;
+  for (parent in parentsChain) {
+    if (parent.elementType == XCUIElementTypeCell) {
+      parentCell = parent;
+      break;
+    }
+  }
+  if (nil == parentCell) {
+    return NO;
+  }
+  for (parent in parentsChain) {
+    if (matchUID == [FBElementUtils uidWithAccessibilityElement:parent.accessibilityElement]) {
+      return YES;
+    }
+    if (parent == parentCell) {
+      break;
     }
   }
   return NO;
