@@ -69,19 +69,23 @@
     return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
   }
   
-  NSMutableArray<XCElementSnapshot *> *parentsChain = [NSMutableArray array];
+  NSMutableArray<XCElementSnapshot *> *ancestorsUntilCell = [NSMutableArray array];
+  XCElementSnapshot *parentWindow = nil;
+  NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
   XCElementSnapshot *parent = self.parent;
   while (parent) {
-    [parentsChain addObject:parent];
-    parent = parent.parent;
-  }
-  XCElementSnapshot *parentWindow = nil;
-  for (parent in parentsChain) {
-    if (parent.elementType == XCUIElementTypeWindow) {
+    XCUIElementType type = parent.elementType;
+    if (type == XCUIElementTypeWindow) {
       parentWindow = parent;
       break;
     }
+    [ancestors addObject:parent];
+    if (type == XCUIElementTypeCell && 0 == ancestorsUntilCell.count) {
+      [ancestorsUntilCell addObjectsFromArray:ancestors];
+    }
+    parent = parent.parent;
   }
+  
   CGRect appFrame = [self fb_rootElement].frame;
   if (nil == parentWindow) {
     return CGRectContainsPoint(appFrame, self.fb_hitPoint);
@@ -112,22 +116,9 @@
     }
   }
   // Special case - detect visibility based on gesture recognizer presence
-  XCElementSnapshot *parentCell = nil;
-  for (parent in parentsChain) {
-    if (parent.elementType == XCUIElementTypeCell) {
-      parentCell = parent;
-      break;
-    }
-  }
-  if (nil == parentCell) {
-    return NO;
-  }
-  for (parent in parentsChain) {
+  for (parent in ancestorsUntilCell) {
     if (matchUID == [FBElementUtils uidWithAccessibilityElement:parent.accessibilityElement]) {
       return YES;
-    }
-    if (parent == parentCell) {
-      break;
     }
   }
   return NO;
