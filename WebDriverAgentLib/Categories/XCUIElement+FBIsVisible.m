@@ -90,11 +90,12 @@
   if (self.fb_uid == matchUID) {
     return YES;
   }
-  NSMutableArray<NSValue *> *accessibilityDescendantUIDs = [NSMutableArray array];
   for (XCElementSnapshot *descendant in self._allDescendants) {
-    [accessibilityDescendantUIDs addObject:@([FBElementUtils uidWithAccessibilityElement:descendant.accessibilityElement])];
+    if (matchUID == [FBElementUtils uidWithAccessibilityElement:descendant.accessibilityElement]) {
+      return YES;
+    }
   }
-  return [accessibilityDescendantUIDs containsObject:@(matchUID)];
+  return NO;
 }
 
 @end
