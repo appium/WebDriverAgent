@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Checks if the screen is locked or not.
  
- @return YES if if screen is locked
+ @return YES if screen is locked
  */
 - (BOOL)fb_isScreenLocked;
 
