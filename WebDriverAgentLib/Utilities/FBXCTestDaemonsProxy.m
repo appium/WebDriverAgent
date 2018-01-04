@@ -67,21 +67,19 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 {
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    void (^errorHandler)(NSError *) = ^(NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      didSucceed = (invokeError == nil);
+      completion();
+    };
+    
     if (nil == FBXCTRunnerDaemonSessionClass) {
-      [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:^(NSError *commandError) {
-        if (error) {
-          *error = commandError;
-        }
-        didSucceed = (commandError == nil);
-        completion();
-      }];
+      [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:errorHandler];
     } else {
-      XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *commandError) {
-        if (error) {
-          *error = commandError;
-        }
-        didSucceed = (commandError == nil);
-        completion();
+      XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
+        errorHandler(invokeError);
       };
       [[FBXCTRunnerDaemonSessionClass sharedSession] synthesizeEvent:record completion:^(NSError *invokeError){
         handlerBlock(record, invokeError);
@@ -93,19 +91,23 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (XCAccessibilityElement *)accessibilityElementAtPoint:(CGPoint)point error:(NSError *__autoreleasing*)error
 {
-  __block BOOL didSucceed = NO;
   __block XCAccessibilityElement *resultingAccessiblityElement = nil;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    [[self testRunnerProxy] _XCT_requestElementAtPoint:point reply:^(XCAccessibilityElement *commandResult, NSError *commandError) {
+    void (^resultBlock)(XCAccessibilityElement *, NSError *) = ^(XCAccessibilityElement *commandResult, NSError *invokeError) {
       if (error) {
-        *error = commandError;
+        *error = invokeError;
       }
-      didSucceed = (commandError == nil);
-      if (didSucceed) {
+      if (invokeError == nil) {
         resultingAccessiblityElement = commandResult;
       }
       completion();
-    }];
+    };
+    
+    if (nil == FBXCTRunnerDaemonSessionClass) {
+      [[self testRunnerProxy] _XCT_requestElementAtPoint:point reply:resultBlock];
+    } else {
+      [[FBXCTRunnerDaemonSessionClass sharedSession] requestElementAtPoint:point reply:(id)resultBlock];
+    }
   }];
   return resultingAccessiblityElement;
 }
