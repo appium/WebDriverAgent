@@ -18,6 +18,16 @@
 
 @implementation FBXCTestDaemonsProxy
 
+static Class FBXCTRunnerDaemonSessionClass = nil;
+static dispatch_once_t onceTestRunnerDaemonClass;
++ (void)load
+{
+  // XCTRunnerDaemonSession class is only available since Xcode 8.3
+  dispatch_once(&onceTestRunnerDaemonClass, ^{
+    FBXCTRunnerDaemonSessionClass = objc_lookUpClass("XCTRunnerDaemonSession");
+  });
+}
+
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy
 {
   static id<XCTestManager_ManagerInterface> proxy = nil;
@@ -40,15 +50,14 @@
   if ([[XCTestDriver sharedTestDriver] respondsToSelector:@selector(managerProxy)]) {
     return [XCTestDriver sharedTestDriver].managerProxy;
   } else {
-    Class runnerClass = objc_lookUpClass("XCTRunnerDaemonSession");
-    return ((XCTRunnerDaemonSession *)[runnerClass sharedSession]).daemonProxy;
+    return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;
   }
 }
 
 + (UIInterfaceOrientation)orientationWithApplication:(XCUIApplication *)application
 {
-  Class runnerClass = objc_lookUpClass("XCTRunnerDaemonSession");
-  if (nil == runnerClass || [[runnerClass sharedSession] useLegacyEventCoordinateTransformationPath]) {
+  if (nil == FBXCTRunnerDaemonSessionClass ||
+      [[FBXCTRunnerDaemonSessionClass sharedSession] useLegacyEventCoordinateTransformationPath]) {
     return application.interfaceOrientation;
   }
   return UIInterfaceOrientationPortrait;
@@ -58,13 +67,26 @@
 {
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:^(NSError *commandError) {
-      if (error) {
-        *error = commandError;
-      }
-      didSucceed = (commandError == nil);
-      completion();
-    }];
+    if (nil == FBXCTRunnerDaemonSessionClass) {
+      [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:^(NSError *commandError) {
+        if (error) {
+          *error = commandError;
+        }
+        didSucceed = (commandError == nil);
+        completion();
+      }];
+    } else {
+      XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *commandError) {
+        if (error) {
+          *error = commandError;
+        }
+        didSucceed = (commandError == nil);
+        completion();
+      };
+      [[FBXCTRunnerDaemonSessionClass sharedSession] synthesizeEvent:record completion:^(NSError *invokeError){
+        handlerBlock(record, invokeError);
+      }];
+    }
   }];
   return didSucceed;
 }
