@@ -13,12 +13,14 @@
 #import "FBKeyboard.h"
 #import "NSString+FBVisualLength.h"
 #import "XCUIElement+FBTap.h"
+#import "XCUIElement+FBUtilities.h"
 
 @implementation XCUIElement (FBTyping)
 
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  if (self.hasKeyboardFocus && [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error]) {
+  BOOL isKeyboardAlredyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
+  if (isKeyboardAlredyVisible && self.hasKeyboardFocus) {
     return YES;
   }
   
@@ -28,8 +30,11 @@
     if (![self fb_tapWithError:error]) {
       return NO;
     }
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.]];
-    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:2. error:error]) {
+    if (isKeyboardAlredyVisible) {
+      return YES;
+    }
+    [self fb_waitUntilSnapshotIsStable];
+    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:1. error:error]) {
       return YES;
     }
     // Sometimes the keyboard is not opened after the first try, so we need to retry
