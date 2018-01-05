@@ -80,12 +80,18 @@
       hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
       // TODO: Shall we throw an exception if hitPoint is out of the element frame?
     }
-    XCElementSnapshot *parentWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
-    CGRect parentWindowFrame = nil == parentWindow ? snapshot.frame : parentWindow.frame;
-    if (!CGRectEqualToRect(self.application.frame, parentWindowFrame) ||
-        self.application.interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-      // Fix the hitpoint if the element frame is inverted
-      hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
+    UIInterfaceOrientation interfaceOrientation = self.application.interfaceOrientation;
+    if (interfaceOrientation != UIInterfaceOrientationPortrait) {
+      XCElementSnapshot *parentWindow = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
+      CGRect parentWindowFrame = nil == parentWindow ? snapshot.frame : parentWindow.frame;
+      CGRect appFrame = self.application.frame;
+      if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
+          (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
+        // This is the indication of the fact that transformation is broken and coordinates should be
+        // recalculated manually.
+        // However, upside-down case cannot be covered this way, which is not important for Appium
+        hitPoint = FBInvertPointForApplication(hitPoint, appFrame.size, interfaceOrientation);
+      }
     }
   }
   return [NSValue valueWithCGPoint:hitPoint];
