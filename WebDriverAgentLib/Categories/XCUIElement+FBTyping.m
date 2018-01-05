@@ -19,26 +19,23 @@
 
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  BOOL isKeyboardAlredyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
-  if (isKeyboardAlredyVisible && self.hasKeyboardFocus) {
+  BOOL isKeyboardAlreadyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
+  if (isKeyboardAlreadyVisible && self.hasKeyboardFocus) {
     return YES;
   }
   
-  int retriesCount = 2;
-  int tryNum = 0;
-  while (tryNum < retriesCount) {
+  // Sometimes the keyboard is not opened after the first tap, so we need to retry
+  for (int tryNum = 0; tryNum < 2; ++tryNum) {
     if (![self fb_tapWithError:error]) {
       return NO;
     }
-    if (isKeyboardAlredyVisible) {
+    if (isKeyboardAlreadyVisible) {
       return YES;
     }
     [self fb_waitUntilSnapshotIsStable];
     if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:1. error:error]) {
       return YES;
     }
-    // Sometimes the keyboard is not opened after the first try, so we need to retry
-    ++tryNum;
   }
   return NO;
 }
