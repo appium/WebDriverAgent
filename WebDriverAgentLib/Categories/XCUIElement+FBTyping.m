@@ -28,8 +28,8 @@
     if (![self fb_tapWithError:error]) {
       return NO;
     }
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:3.]];
-    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:1. error:error]) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.]];
+    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:2. error:error]) {
       return YES;
     }
     // Sometimes the keyboard is not opened after the first try, so we need to retry
