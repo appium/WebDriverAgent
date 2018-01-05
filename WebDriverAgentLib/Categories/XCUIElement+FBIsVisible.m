@@ -99,18 +99,13 @@
     return self.parent.fb_isVisible;
   }
   CGPoint visibleRectCenter = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
-  XCElementSnapshot *mainWindow = [parentWindow.parent.children firstObject];
-  CGRect mainWindowFrame = mainWindow.frame;
-  if ((appFrame.size.height > appFrame.size.width && mainWindowFrame.size.height < mainWindowFrame.size.width) ||
-      (appFrame.size.height < appFrame.size.width && mainWindowFrame.size.height > mainWindowFrame.size.width)) {
+  CGRect parentWindowFrame = parentWindow.frame;
+  if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
+      (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
     // This is the indication of the fact that transformation is broken and coordinates should be
     // recalculated manually.
     // However, upside-down case cannot be covered this way, which is not important for Appium
-    CGRect parentWindowFrame = parentWindow.frame;
-    if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
-        (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
-      visibleRectCenter = FBInvertPointForApplication(visibleRectCenter, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
-    }
+    visibleRectCenter = FBInvertPointForApplication(visibleRectCenter, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCAccessibilityElement *match = [FBXCTestDaemonsProxy accessibilityElementAtPoint:visibleRectCenter error:NULL];
   if (nil == match) {
