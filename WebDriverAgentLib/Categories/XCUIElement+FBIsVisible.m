@@ -33,7 +33,7 @@
 
 @implementation XCElementSnapshot (FBIsVisible)
 
-static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_generationsCache;
+static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_generationsCache;
 
 + (void)load
 {
