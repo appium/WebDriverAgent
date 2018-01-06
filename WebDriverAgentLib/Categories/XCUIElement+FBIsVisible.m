@@ -33,21 +33,21 @@
 
 @implementation XCElementSnapshot (FBIsVisible)
 
-static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_cache;
+static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_generationsCache;
 
 + (void)load
 {
-  fb_cache = [NSMutableDictionary dictionary];
+  fb_generationsCache = [NSMutableDictionary dictionary];
 }
 
-- (nullable NSNumber *)fb_loadVisibilityFromCache
+- (nullable NSNumber *)fb_cachedVisibilityValue
 {
   unsigned long long generation = self.generation;
-  NSDictionary<NSString *, NSNumber *> *result = [fb_cache objectForKey:@(generation)];
+  NSDictionary<NSString *, NSNumber *> *result = [fb_generationsCache objectForKey:@(generation)];
   if (nil == result) {
     // There is no need to keep the cached data for the previous generations
-    [fb_cache removeAllObjects];
-    [fb_cache setObject:[NSMutableDictionary dictionary] forKey:@(generation)];
+    [fb_generationsCache removeAllObjects];
+    [fb_generationsCache setObject:[NSMutableDictionary dictionary] forKey:@(generation)];
     return nil;
   }
   return [result objectForKey:[NSString stringWithFormat:@"%p", (void *)self]];
@@ -55,7 +55,7 @@ static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *
 
 - (void)fb_cacheVisibilityWithValue:(BOOL)isVisible
 {
-  NSMutableDictionary<NSString *, NSNumber *> *destination = [fb_cache objectForKey:@(self.generation)];
+  NSMutableDictionary<NSString *, NSNumber *> *destination = [fb_generationsCache objectForKey:@(self.generation)];
   [destination setObject:@(isVisible) forKey:[NSString stringWithFormat:@"%p", (void *)self]];
 }
 
@@ -79,7 +79,7 @@ static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *
   return self.frame;
 }
 
-- (BOOL)hasAnyVisibleLeafs
+- (BOOL)fb_hasAnyVisibleLeafs
 {
   NSArray<XCElementSnapshot *> *children = self.children;
   if (0 == children.count) {
@@ -87,7 +87,7 @@ static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *
   }
   
   for (XCElementSnapshot *child in children) {
-    if ([child hasAnyVisibleLeafs]) {
+    if ([child fb_hasAnyVisibleLeafs]) {
       return YES;
     }
   }
@@ -97,7 +97,7 @@ static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *
 
 - (BOOL)fb_isVisible
 {
-  NSNumber *cachedValue = [self fb_loadVisibilityFromCache];
+  NSNumber *cachedValue = [self fb_cachedVisibilityValue];
   if (nil != cachedValue) {
     return [cachedValue boolValue];
   }
@@ -141,10 +141,9 @@ static NSMutableDictionary<NSValue *, NSMutableDictionary<NSString *, NSNumber *
     [self fb_cacheVisibilityWithValue:NO];
     return NO;
   }
-  if (self.children.count > 0) {
-    BOOL isVisible = [self hasAnyVisibleLeafs];
-    [self fb_cacheVisibilityWithValue:isVisible];
-    return isVisible;
+  if (self.children.count > 0 && [self fb_hasAnyVisibleLeafs]) {
+    [self fb_cacheVisibilityWithValue:YES];
+    return YES;
   }
   CGPoint midPoint = CGPointMake(rectInContainer.origin.x + rectInContainer.size.width / 2,
                                  rectInContainer.origin.y + rectInContainer.size.height / 2);
