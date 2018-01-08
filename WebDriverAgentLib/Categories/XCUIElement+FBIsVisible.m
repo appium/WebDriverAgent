@@ -160,6 +160,14 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
       return [self fb_cacheVisibilityWithValue:YES];
     }
   }
+  XCUIElementType selfType = self.elementType;
+  if (selfType == XCUIElementTypeCollectionView ||
+      selfType == XCUIElementTypeScrollView ||
+      selfType == XCUIElementTypeWebView ||
+      selfType == XCUIElementTypeTable) {
+    // All container types are visible, since they cannot intercept clicks
+    return [self fb_cacheVisibilityWithValue:YES];
+  }
   return [self fb_cacheVisibilityWithValue:NO];
 }
 
