@@ -126,9 +126,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     }
     [ancestors addObject:parent];
     if (type == XCUIElementTypeCell && isFirstCellMatch) {
-      if (ancestors.count > 1) {
-        [ancestorsUntilCell addObjectsFromArray:ancestors];
-      }
+      [ancestorsUntilCell addObjectsFromArray:ancestors];
       isFirstCellMatch = NO;
     }
     parent = parent.parent;
