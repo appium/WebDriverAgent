@@ -64,7 +64,17 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
 {
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
-  CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parent.frame);
+  CGRect parentFrame = parent.frame;
+  CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
+  if (CGRectIsEmpty(intersectionWithParent)
+      && parent != container
+      && CGSizeEqualToSize(parentFrame.size, container.frame.size)
+      && parent.elementType == XCUIElementTypeOther) {
+    // Special case (or a XCTest bug). We need to shift the origin
+    currentRectangle.origin.x += parentFrame.origin.x;
+    currentRectangle.origin.y += parentFrame.origin.y;
+    intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
+  }
   if (CGRectIsEmpty(intersectionWithParent) || parent == container) {
     return intersectionWithParent;
   }

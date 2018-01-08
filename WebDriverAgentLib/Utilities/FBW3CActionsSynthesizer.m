@@ -131,6 +131,11 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   XCElementSnapshot *snapshot = element.fb_lastSnapshot;
   CGRect frameInWindow = snapshot.fb_frameInWindow;
   if (CGRectIsEmpty(frameInWindow)) {
+    XCElementSnapshot *root = [snapshot fb_parentMatchingType:XCUIElementTypeWindow];
+    if (nil == root) {
+      root = snapshot;
+    }
+    [FBLogger logFmt:@"Window source: %@", root.debugDescription];
     NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
