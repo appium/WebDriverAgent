@@ -113,11 +113,9 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     return [self fb_cacheVisibilityWithValue:isVisible];
   }
   
-  NSMutableArray<XCElementSnapshot *> *ancestorsUntilCell = [NSMutableArray array];
   XCElementSnapshot *parentWindow = nil;
   NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
   XCElementSnapshot *parent = self.parent;
-  BOOL isFirstCellMatch = YES;
   while (parent) {
     XCUIElementType type = parent.elementType;
     if (type == XCUIElementTypeWindow) {
@@ -125,10 +123,6 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
       break;
     }
     [ancestors addObject:parent];
-    if (type == XCUIElementTypeCell && isFirstCellMatch) {
-      [ancestorsUntilCell addObjectsFromArray:ancestors];
-      isFirstCellMatch = NO;
-    }
     parent = parent.parent;
   }
   
@@ -151,21 +145,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (self == hitElement) {
-    return [self fb_cacheVisibilityWithValue:YES];
-  }
-  // Special case - detect visibility based on gesture recognizer presence
-  for (parent in ancestorsUntilCell) {
-    if (hitElement == parent) {
-      return [self fb_cacheVisibilityWithValue:YES];
-    }
-  }
-  XCUIElementType selfType = self.elementType;
-  if (selfType == XCUIElementTypeCollectionView ||
-      selfType == XCUIElementTypeScrollView ||
-      selfType == XCUIElementTypeWebView ||
-      selfType == XCUIElementTypeTable) {
-    // All container types are visible, since they cannot intercept clicks
+  if (nil != hitElement && (self == hitElement || [ancestors containsObject:hitElement])) {
     return [self fb_cacheVisibilityWithValue:YES];
   }
   return [self fb_cacheVisibilityWithValue:NO];
