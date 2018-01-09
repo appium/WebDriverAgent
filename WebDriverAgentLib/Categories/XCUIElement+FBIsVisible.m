@@ -117,12 +117,12 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
   XCElementSnapshot *parent = self.parent;
   while (parent) {
+    [ancestors addObject:parent];
     XCUIElementType type = parent.elementType;
     if (type == XCUIElementTypeWindow) {
       parentWindow = parent;
       break;
     }
-    [ancestors addObject:parent];
     parent = parent.parent;
   }
   
