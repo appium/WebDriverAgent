@@ -64,7 +64,22 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
 {
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
+  CGRect parentFrame = parent.frame;
   CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parent.frame);
+  if (CGRectIsEmpty(intersectionWithParent) && parent != container) {
+    if (CGSizeEqualToSize(parentFrame.size, container.frame.size) && parent.elementType == XCUIElementTypeOther) {
+      // Special case (or XCTest bug). We need to shift the origin
+      currentRectangle.origin.x += parentFrame.origin.x;
+      currentRectangle.origin.y += parentFrame.origin.y;
+      intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
+    }
+    if (CGSizeEqualToSize(parentFrame.size, CGSizeZero) &&
+        CGPointEqualToPoint(parentFrame.origin, CGPointZero) &&
+        parent.elementType == XCUIElementTypeOther) {
+      // Special case (or XCTest bug). Skip such parent
+      intersectionWithParent = currentRectangle;
+    }
+  }
   if (CGRectIsEmpty(intersectionWithParent) || parent == container) {
     return intersectionWithParent;
   }
@@ -148,7 +163,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil != hitElement && (self == hitElement || [ancestorsUntilWindow containsObject:hitElement])) {
+  if (nil == hitElement || self == hitElement || [ancestorsUntilWindow containsObject:hitElement]) {
     return [self fb_cacheVisibilityWithValue:YES];
   }
   return [self fb_cacheVisibilityWithValue:NO];
