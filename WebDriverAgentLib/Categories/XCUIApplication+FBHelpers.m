@@ -14,6 +14,7 @@
 #import "FBElementTypeTransformer.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXPath.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -106,6 +107,28 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
     return nil;
   }
   return info;
+}
+
+- (NSString *)fb_xmlRepresentation
+{
+  [self fb_waitUntilSnapshotIsStable];
+  NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
+  for (XCUIElement *window in [self childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+    [windowsSnapshots addObject:window.fb_lastSnapshot];
+  }
+  return [FBXPath xmlStringWithSnapshot:self.fb_lastSnapshot containingWindows:windowsSnapshots.copy];
+}
+
+- (NSString *)fb_descriptionRepresentation
+{
+  NSMutableArray<NSString *> *childrenDescriptions = [NSMutableArray array];
+  for (XCUIElement *child in [self childrenMatchingType:XCUIElementTypeAny].allElementsBoundByIndex) {
+    [childrenDescriptions addObject:child.debugDescription];
+  }
+  // debugDescription property of XCUIApplication instance shows descendants addresses in memory
+  // instead of the actual information about them, however the representation works properly
+  // for all descendant elements
+  return (0 == childrenDescriptions.count) ? self.debugDescription : [childrenDescriptions componentsJoinedByString:@"\n\n"];
 }
 
 @end

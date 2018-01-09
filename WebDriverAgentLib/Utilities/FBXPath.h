@@ -7,8 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <Foundation/Foundation.h>
-#import <XCTest/XCUIElementTypes.h>
+#import <XCTest/XCTest.h>
 #import <WebDriverAgentLib/FBElement.h>
 #import <WebDriverAgentLib/XCElementSnapshot.h>
 
@@ -45,19 +44,21 @@ extern NSString *const XCElementSnapshotXPathQueryEvaluationException;
  Returns an array of descendants matching given xpath query
  
  @param root the root element to execute XPath query for
+ @param windows the list of children windows snapshots if the root element is of XCUIElementTypeApplication type
  @param xpathQuery requested xpath query
- @return an array of descendants matching given xpath query
+ @return an array of descendants matching the given xpath query or an empty array if no matches were found. nil is retunred if some unexpected internal error happens
  */
-+ (nullable NSArray<XCElementSnapshot *> *)findMatchesIn:(XCElementSnapshot *)root xpathQuery:(NSString *)xpathQuery;
++ (nullable NSArray<XCElementSnapshot *> *)matchesWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows forQuery:(NSString *)xpathQuery;
 
 /**
  Gets XML representation of XCElementSnapshot with all its descendants. This method generates the same
  representation, which is used for XPath search
  
- @param root the root element
+ @param application the root element
+ @param windows the list of children windows snapshots if the root element is of XCUIElementTypeApplication type
  @return valid XML document as string or nil in case of failure
  */
-+ (nullable NSString *)xmlStringWithSnapshot:(XCElementSnapshot *)root;
++ (nullable NSString *)xmlStringWithSnapshot:(XCElementSnapshot *)application containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows;
 
 @end
 

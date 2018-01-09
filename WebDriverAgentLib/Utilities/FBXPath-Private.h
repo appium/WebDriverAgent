@@ -17,12 +17,13 @@ NS_ASSUME_NONNULL_BEGIN
  Gets xmllib2-compatible XML representation of n XCElementSnapshot instance
  
  @param root the root element to execute XPath query for
+ @param windows the list of children windows snapshots if the root element is of XCUIElementTypeApplication type
  @param writer the correspondig libxml2 writer object
  @param elementStore an empty dictionary to store indexes mapping or nil if no mappings should be stored
  @param query Optional XPath query value. By analyzing this query we may optimize the lookup speed.
  @return zero if the method has completed successfully
  */
-+ (int)getSnapshotAsXML:(XCElementSnapshot *)root writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query;
++ (int)xmlRepresentationWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query;
 
 /**
  Gets the list of matched snapshots from xmllib2-compatible xmlNodeSetPtr structure

@@ -99,11 +99,11 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   @throw [NSException exceptionWithName:name reason:reason userInfo:@{}];
 }
 
-+ (nullable NSString *)xmlStringWithSnapshot:(XCElementSnapshot *)root
++ (nullable NSString *)xmlStringWithSnapshot:(XCElementSnapshot *)application containingWindows:(NSArray<XCElementSnapshot *> *)windows
 {
   xmlDocPtr doc;
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
-  int rc = [FBXPath getSnapshotAsXML:(XCElementSnapshot *)root writer:writer elementStore:nil query:nil];
+  int rc = [self xmlRepresentationWithSnapshot:application containingWindows:windows writer:writer elementStore:nil query:nil];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -117,7 +117,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
 }
 
-+ (NSArray<XCElementSnapshot *> *)findMatchesIn:(XCElementSnapshot *)root xpathQuery:(NSString *)xpathQuery
++ (nullable NSArray<XCElementSnapshot *> *)matchesWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows forQuery:(NSString *)xpathQuery
 {
   xmlDocPtr doc;
 
@@ -128,7 +128,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return nil;
   }
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
-  int rc = [FBXPath getSnapshotAsXML:root writer:writer elementStore:elementStore query:xpathQuery];
+  int rc = [self xmlRepresentationWithSnapshot:root containingWindows:windows writer:writer elementStore:elementStore query:xpathQuery];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -136,7 +136,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return nil;
   }
 
-  xmlXPathObjectPtr queryResult = [FBXPath evaluate:xpathQuery document:doc];
+  xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery document:doc];
   if (NULL == queryResult) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -144,7 +144,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return nil;
   }
 
-  NSArray *matchingSnapshots = [FBXPath collectMatchingSnapshots:queryResult->nodesetval elementStore:elementStore];
+  NSArray *matchingSnapshots = [self collectMatchingSnapshots:queryResult->nodesetval elementStore:elementStore];
   xmlXPathFreeObject(queryResult);
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);
@@ -192,7 +192,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return result.copy;
 }
 
-+ (int)getSnapshotAsXML:(XCElementSnapshot *)root writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query
++ (int)xmlRepresentationWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query
 {
   int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
   if (rc < 0) {
@@ -201,7 +201,12 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   }
   // Trying to be smart here and only including attributes, that were asked in the query, to the resulting document.
   // This may speed up the lookup significantly in some cases
-  rc = [FBXPath generateXMLPresentation:root indexPath:(elementStore != nil ? topNodeIndexPath : nil) elementStore:elementStore includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query]) writer:writer];
+  rc = [FBXPath xmlPresentationWithSnapshot:root
+                                 forWindows:windows
+                                  indexPath:(elementStore != nil ? topNodeIndexPath : nil)
+                               elementStore:elementStore
+                         includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query])
+                                     writer:writer];
   if (rc < 0) {
     [FBLogger log:@"Failed to generate XML presentation of a screen element"];
     return rc;
@@ -298,11 +303,11 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return 0;
 }
 
-+ (int)generateXMLPresentation:(XCElementSnapshot *)root indexPath:(nullable NSString *)indexPath elementStore:(nullable NSMutableDictionary *)elementStore includedAttributes:(nullable NSSet<Class> *)includedAttributes writer:(xmlTextWriterPtr)writer
++ (int)xmlPresentationWithSnapshot:(XCElementSnapshot *)root forWindows:(nullable NSArray<XCElementSnapshot *> *)windows indexPath:(nullable NSString *)indexPath elementStore:(nullable NSMutableDictionary *)elementStore includedAttributes:(nullable NSSet<Class> *)includedAttributes writer:(xmlTextWriterPtr)writer
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  int rc = xmlTextWriterStartElement(writer, [FBXPath xmlCharPtrForInput:[root.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
+  int rc = xmlTextWriterStartElement(writer, [self xmlCharPtrForInput:[root.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement. Error code: %d", rc];
     return rc;
@@ -313,14 +318,14 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return rc;
   }
 
-  NSArray *children = root.children;
+  NSArray *children = nil == windows ? root.children : windows;
   for (NSUInteger i = 0; i < [children count]; i++) {
-    XCElementSnapshot *childSnapshot = children[i];
+    XCElementSnapshot *childSnapshot = [children objectAtIndex:i];
     NSString *newIndexPath = (indexPath != nil) ? [indexPath stringByAppendingFormat:@",%lu", (unsigned long)i] : nil;
     if (elementStore != nil && newIndexPath != nil) {
       elementStore[newIndexPath] = childSnapshot;
     }
-    rc = [self generateXMLPresentation:childSnapshot indexPath:newIndexPath elementStore:elementStore includedAttributes:includedAttributes writer:writer];
+    rc = [self xmlPresentationWithSnapshot:childSnapshot forWindows:nil indexPath:newIndexPath elementStore:elementStore includedAttributes:includedAttributes writer:writer];
     if (rc < 0) {
       return rc;
     }

@@ -20,6 +20,7 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "FBElementUtils.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXPath.h"
 
 @implementation XCUIElement (FBFind)
 
@@ -108,17 +109,24 @@
 
 #pragma mark - Search by xpath
 
-- (NSArray<XCElementSnapshot *> *)getMatchedSnapshotsByXPathQuery:(NSString *)xpathQuery
+- (NSArray<XCElementSnapshot *> *)fb_matchingSnapshotsWithXPathQuery:(NSString *)xpathQuery
 {
   // XPath will try to match elements only class name, so requesting elements by XCUIElementTypeAny will not work. We should use '*' instead.
   xpathQuery = [xpathQuery stringByReplacingOccurrencesOfString:@"XCUIElementTypeAny" withString:@"*"];
   [self fb_waitUntilSnapshotIsStable];
+  if (self.elementType == XCUIElementTypeApplication) {
+    NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
+    for (XCUIElement *window in [self childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+      [windowsSnapshots addObject:window.fb_lastSnapshot];
+    }
+    return [FBXPath matchesWithSnapshot:self.fb_lastSnapshot containingWindows:windowsSnapshots.copy forQuery:xpathQuery];
+  }
   return [self.fb_lastSnapshot fb_descendantsMatchingXPathQuery:xpathQuery];
 }
 
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSArray *matchingSnapshots = [self getMatchedSnapshotsByXPathQuery:xpathQuery];
+  NSArray *matchingSnapshots = [self fb_matchingSnapshotsWithXPathQuery:xpathQuery];
   if (0 == [matchingSnapshots count]) {
     return @[];
   }
