@@ -114,7 +114,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   }
   
   XCElementSnapshot *parentWindow = nil;
-  NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
+  NSMutableArray<XCElementSnapshot *> *ancestorsUntilWindow = [NSMutableArray array];
   XCElementSnapshot *parent = self.parent;
   while (parent) {
     XCUIElementType type = parent.elementType;
@@ -122,8 +122,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
       parentWindow = parent;
       break;
     }
-    [ancestors addObject:parent];
+    [ancestorsUntilWindow addObject:parent];
     parent = parent.parent;
+  }
+  if (nil == parentWindow) {
+    [ancestorsUntilWindow removeAllObjects];
   }
   
   CGRect appFrame = [self fb_rootElement].frame;
@@ -131,7 +134,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (CGRectIsEmpty(rectInContainer)) {
     return [self fb_cacheVisibilityWithValue:NO];
   }
-  if (self.children.count > 0 && [self fb_hasAnyVisibleLeafs]) {
+  if (self.children.count > 0 && self.fb_hasAnyVisibleLeafs) {
     return [self fb_cacheVisibilityWithValue:YES];
   }
   CGPoint midPoint = CGPointMake(rectInContainer.origin.x + rectInContainer.size.width / 2,
@@ -145,7 +148,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil != hitElement && (self == hitElement || [ancestors containsObject:hitElement])) {
+  if (nil != hitElement && (self == hitElement || [ancestorsUntilWindow containsObject:hitElement])) {
     return [self fb_cacheVisibilityWithValue:YES];
   }
   return [self fb_cacheVisibilityWithValue:NO];
