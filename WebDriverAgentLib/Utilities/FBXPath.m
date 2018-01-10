@@ -9,12 +9,14 @@
 
 #import "FBXPath.h"
 
+#import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "XCAXClient_iOS.h"
 #import "XCTestDriver.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCUIElement+FBUtilities.h"
 #import "NSString+FBXMLSafeString.h"
 
 
@@ -99,11 +101,11 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   @throw [NSException exceptionWithName:name reason:reason userInfo:@{}];
 }
 
-+ (nullable NSString *)xmlStringWithSnapshot:(XCElementSnapshot *)application containingWindows:(NSArray<XCElementSnapshot *> *)windows
++ (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
 {
   xmlDocPtr doc;
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
-  int rc = [self xmlRepresentationWithSnapshot:application containingWindows:windows writer:writer elementStore:nil query:nil];
+  int rc = [self xmlRepresentationWithRootElement:root writer:writer elementStore:nil query:nil];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -117,7 +119,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
 }
 
-+ (nullable NSArray<XCElementSnapshot *> *)matchesWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows forQuery:(NSString *)xpathQuery
++ (nullable NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root forQuery:(NSString *)xpathQuery
 {
   xmlDocPtr doc;
 
@@ -128,7 +130,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return nil;
   }
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
-  int rc = [self xmlRepresentationWithSnapshot:root containingWindows:windows writer:writer elementStore:elementStore query:xpathQuery];
+  int rc = [self xmlRepresentationWithRootElement:root writer:writer elementStore:elementStore query:xpathQuery];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -192,7 +194,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return result.copy;
 }
 
-+ (int)xmlRepresentationWithSnapshot:(XCElementSnapshot *)root containingWindows:(nullable NSArray<XCElementSnapshot *> *)windows writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query
++ (int)xmlRepresentationWithRootElement:(id<FBElement>)root writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query
 {
   int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
   if (rc < 0) {
@@ -201,19 +203,14 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   }
   // Trying to be smart here and only including attributes, that were asked in the query, to the resulting document.
   // This may speed up the lookup significantly in some cases
-  rc = [FBXPath xmlPresentationWithSnapshot:root
-                                 forWindows:windows
-                                  indexPath:(elementStore != nil ? topNodeIndexPath : nil)
-                               elementStore:elementStore
-                         includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query])
-                                     writer:writer];
+  rc = [FBXPath writeXmlWithRootElement:root
+                         indexPath:(elementStore != nil ? topNodeIndexPath : nil)
+                      elementStore:elementStore
+                includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query])
+                            writer:writer];
   if (rc < 0) {
     [FBLogger log:@"Failed to generate XML presentation of a screen element"];
     return rc;
-  }
-  if (nil != elementStore) {
-    // The current node should be in the store as well
-    elementStore[topNodeIndexPath] = root;
   }
   rc = xmlTextWriterEndDocument(writer);
   if (rc < 0) {
@@ -303,29 +300,58 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return 0;
 }
 
-+ (int)xmlPresentationWithSnapshot:(XCElementSnapshot *)root forWindows:(nullable NSArray<XCElementSnapshot *> *)windows indexPath:(nullable NSString *)indexPath elementStore:(nullable NSMutableDictionary *)elementStore includedAttributes:(nullable NSSet<Class> *)includedAttributes writer:(xmlTextWriterPtr)writer
++ (int)writeXmlWithRootElement:(id<FBElement>)root indexPath:(nullable NSString *)indexPath elementStore:(nullable NSMutableDictionary *)elementStore includedAttributes:(nullable NSSet<Class> *)includedAttributes writer:(xmlTextWriterPtr)writer
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  int rc = xmlTextWriterStartElement(writer, [self xmlCharPtrForInput:[root.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
+  XCElementSnapshot *currentSnapshot;
+  NSArray<XCElementSnapshot *> *children;
+  if ([root isKindOfClass:XCUIElement.class]) {
+    if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
+      [((XCUIElement *)root).application fb_waitUntilSnapshotIsStable];
+    }
+    if (((XCUIElement *)root).elementType == XCUIElementTypeApplication) {
+      NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
+      for (XCUIElement *window in [((XCUIElement *)root) childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+        [windowsSnapshots addObject:window.fb_lastSnapshot];
+      }
+      children = windowsSnapshots.copy;
+      currentSnapshot = ((XCUIElement *)root).fb_lastSnapshot;
+    } else {
+      currentSnapshot = ((XCUIElement *)root).fb_lastSnapshot;
+      children = currentSnapshot.children;
+    }
+  } else {
+    currentSnapshot = (XCElementSnapshot *)root;
+    children = currentSnapshot.children;
+  }
+  
+  if (elementStore != nil && indexPath != nil && [indexPath isEqualToString:topNodeIndexPath]) {
+    [elementStore setObject:currentSnapshot forKey:topNodeIndexPath];
+  }
+  
+  int rc = xmlTextWriterStartElement(writer, [self xmlCharPtrForInput:[currentSnapshot.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement. Error code: %d", rc];
     return rc;
   }
-
-  rc = [FBXPath recordElementAttributes:writer forElement:root indexPath:indexPath includedAttributes:includedAttributes];
+  
+  rc = [FBXPath recordElementAttributes:writer forElement:currentSnapshot indexPath:indexPath includedAttributes:includedAttributes];
   if (rc < 0) {
     return rc;
   }
 
-  NSArray *children = nil == windows ? root.children : windows;
   for (NSUInteger i = 0; i < [children count]; i++) {
     XCElementSnapshot *childSnapshot = [children objectAtIndex:i];
     NSString *newIndexPath = (indexPath != nil) ? [indexPath stringByAppendingFormat:@",%lu", (unsigned long)i] : nil;
     if (elementStore != nil && newIndexPath != nil) {
-      elementStore[newIndexPath] = childSnapshot;
+      [elementStore setObject:childSnapshot forKey:(id)newIndexPath];
     }
-    rc = [self xmlPresentationWithSnapshot:childSnapshot forWindows:nil indexPath:newIndexPath elementStore:elementStore includedAttributes:includedAttributes writer:writer];
+    rc = [self writeXmlWithRootElement:childSnapshot
+                        indexPath:newIndexPath
+                     elementStore:elementStore
+               includedAttributes:includedAttributes
+                           writer:writer];
     if (rc < 0) {
       return rc;
     }

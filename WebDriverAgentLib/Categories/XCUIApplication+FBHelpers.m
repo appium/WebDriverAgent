@@ -111,12 +111,7 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 
 - (NSString *)fb_xmlRepresentation
 {
-  [self fb_waitUntilSnapshotIsStable];
-  NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-  for (XCUIElement *window in [self childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
-    [windowsSnapshots addObject:window.fb_lastSnapshot];
-  }
-  return [FBXPath xmlStringWithSnapshot:self.fb_lastSnapshot containingWindows:windowsSnapshots.copy];
+  return [FBXPath xmlStringWithRootElement:self];
 }
 
 - (NSString *)fb_descriptionRepresentation

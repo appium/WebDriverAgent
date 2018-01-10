@@ -113,15 +113,7 @@
 {
   // XPath will try to match elements only class name, so requesting elements by XCUIElementTypeAny will not work. We should use '*' instead.
   xpathQuery = [xpathQuery stringByReplacingOccurrencesOfString:@"XCUIElementTypeAny" withString:@"*"];
-  [self fb_waitUntilSnapshotIsStable];
-  if (self.elementType == XCUIElementTypeApplication) {
-    NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-    for (XCUIElement *window in [self childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
-      [windowsSnapshots addObject:window.fb_lastSnapshot];
-    }
-    return [FBXPath matchesWithSnapshot:self.fb_lastSnapshot containingWindows:windowsSnapshots.copy forQuery:xpathQuery];
-  }
-  return [self.fb_lastSnapshot fb_descendantsMatchingXPathQuery:xpathQuery];
+  return [FBXPath matchesWithRootElement:self forQuery:xpathQuery];
 }
 
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
