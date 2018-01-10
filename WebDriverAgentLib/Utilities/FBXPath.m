@@ -92,10 +92,11 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
 
 @implementation FBXPath
 
-+ (void)throwException:(NSString *)name forQuery:(NSString *)xpathQuery __attribute__((noreturn))
++ (id)throwException:(NSString *)name forQuery:(NSString *)xpathQuery
 {
   NSString *reason = [NSString stringWithFormat:@"Cannot evaluate results for XPath expression \"%@\"", xpathQuery];
   @throw [NSException exceptionWithName:name reason:reason userInfo:@{}];
+  return nil;
 }
 
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
@@ -116,31 +117,28 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   return [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
 }
 
-+ (nullable NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root forQuery:(NSString *)xpathQuery
++ (NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root forQuery:(NSString *)xpathQuery
 {
   xmlDocPtr doc;
 
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
   if (NULL == writer) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlNewTextWriterDoc for XPath query \"%@\"", xpathQuery];
-    [FBXPath throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
-    return nil;
+    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
   }
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int rc = [self xmlRepresentationWithRootElement:root writer:writer elementStore:elementStore query:xpathQuery];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
-    [FBXPath throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
-    return nil;
+    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
   }
 
   xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery document:doc];
   if (NULL == queryResult) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
-    [FBXPath throwException:XCElementSnapshotInvalidXPathException forQuery:xpathQuery];
-    return nil;
+    return [self throwException:XCElementSnapshotInvalidXPathException forQuery:xpathQuery];
   }
 
   NSArray *matchingSnapshots = [self collectMatchingSnapshots:queryResult->nodesetval elementStore:elementStore];
@@ -148,8 +146,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);
   if (nil == matchingSnapshots) {
-    [FBXPath throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
-    return nil;
+    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
   }
   return matchingSnapshots;
 }
@@ -160,7 +157,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return @[];
   }
   NSMutableArray *matchingSnapshots = [NSMutableArray array];
-  const xmlChar *indexPathKeyName = [FBXPath xmlCharPtrForInput:[kXMLIndexPathKey cStringUsingEncoding:NSUTF8StringEncoding]];
+  const xmlChar *indexPathKeyName = [self xmlCharPtrForInput:[kXMLIndexPathKey cStringUsingEncoding:NSUTF8StringEncoding]];
   for (NSInteger i = 0; i < nodeSet->nodeNr; i++) {
     xmlNodePtr currentNode = nodeSet->nodeTab[i];
     xmlChar *attrValue = xmlGetProp(currentNode, indexPathKeyName);
@@ -200,11 +197,11 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   }
   // Trying to be smart here and only including attributes, that were asked in the query, to the resulting document.
   // This may speed up the lookup significantly in some cases
-  rc = [FBXPath writeXmlWithRootElement:root
-                         indexPath:(elementStore != nil ? topNodeIndexPath : nil)
-                      elementStore:elementStore
-                includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query])
-                            writer:writer];
+  rc = [self writeXmlWithRootElement:root
+                           indexPath:(elementStore != nil ? topNodeIndexPath : nil)
+                        elementStore:elementStore
+                  includedAttributes:(query == nil ? nil : [self.class elementAttributesWithXPathQuery:query])
+                              writer:writer];
   if (rc < 0) {
     [FBLogger log:@"Failed to generate XML presentation of a screen element"];
     return rc;
@@ -257,7 +254,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   }
   xpathCtx->node = doc->children;
 
-  xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression([FBXPath xmlCharPtrForInput:[xpathQuery cStringUsingEncoding:NSUTF8StringEncoding]], xpathCtx);
+  xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression([self xmlCharPtrForInput:[xpathQuery cStringUsingEncoding:NSUTF8StringEncoding]], xpathCtx);
   if (NULL == xpathObj) {
     xmlXPathFreeContext(xpathCtx);
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathEvalExpression for XPath query \"%@\"", xpathQuery];
@@ -333,7 +330,10 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     return rc;
   }
   
-  rc = [FBXPath recordElementAttributes:writer forElement:currentSnapshot indexPath:indexPath includedAttributes:includedAttributes];
+  rc = [self recordElementAttributes:writer
+                          forElement:currentSnapshot
+                           indexPath:indexPath
+                  includedAttributes:includedAttributes];
   if (rc < 0) {
     return rc;
   }

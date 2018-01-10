@@ -114,7 +114,7 @@
   // XPath will try to match elements only class name, so requesting elements by XCUIElementTypeAny will not work. We should use '*' instead.
   xpathQuery = [xpathQuery stringByReplacingOccurrencesOfString:@"XCUIElementTypeAny" withString:@"*"];
   NSArray<XCElementSnapshot *> *matchingSnapshots = [FBXPath matchesWithRootElement:self forQuery:xpathQuery];
-  if (nil == matchingSnapshots || 0 == [matchingSnapshots count]) {
+  if (0 == [matchingSnapshots count]) {
     return @[];
   }
   if (shouldReturnAfterFirstMatch) {
