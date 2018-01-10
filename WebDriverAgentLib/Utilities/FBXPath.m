@@ -170,7 +170,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
       [matchingSnapshots addObject:element];
     }
   }
-  return matchingSnapshots;
+  return matchingSnapshots.copy;
 }
 
 + (NSSet<Class> *)elementAttributesWithXPathQuery:(NSString *)query
