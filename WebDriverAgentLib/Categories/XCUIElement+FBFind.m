@@ -109,17 +109,12 @@
 
 #pragma mark - Search by xpath
 
-- (NSArray<XCElementSnapshot *> *)fb_matchingSnapshotsWithXPathQuery:(NSString *)xpathQuery
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   // XPath will try to match elements only class name, so requesting elements by XCUIElementTypeAny will not work. We should use '*' instead.
   xpathQuery = [xpathQuery stringByReplacingOccurrencesOfString:@"XCUIElementTypeAny" withString:@"*"];
-  return [FBXPath matchesWithRootElement:self forQuery:xpathQuery];
-}
-
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
-{
-  NSArray *matchingSnapshots = [self fb_matchingSnapshotsWithXPathQuery:xpathQuery];
-  if (0 == [matchingSnapshots count]) {
+  NSArray<XCElementSnapshot *> *matchingSnapshots = [FBXPath matchesWithRootElement:self forQuery:xpathQuery];
+  if (nil == matchingSnapshots || 0 == [matchingSnapshots count]) {
     return @[];
   }
   if (shouldReturnAfterFirstMatch) {
