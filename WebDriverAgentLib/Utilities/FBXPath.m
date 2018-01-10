@@ -11,13 +11,10 @@
 
 #import "FBConfiguration.h"
 #import "FBLogger.h"
-#import "XCAXClient_iOS.h"
-#import "XCTestDriver.h"
-#import "XCTestPrivateSymbols.h"
-#import "XCUIElement.h"
-#import "XCUIElement+FBWebDriverAttributes.h"
-#import "XCUIElement+FBUtilities.h"
 #import "NSString+FBXMLSafeString.h"
+#import "XCUIElement.h"
+#import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 
 @interface FBElementAttribute : NSObject
