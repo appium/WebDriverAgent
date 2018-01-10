@@ -348,10 +348,10 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
       [elementStore setObject:childSnapshot forKey:(id)newIndexPath];
     }
     rc = [self writeXmlWithRootElement:childSnapshot
-                        indexPath:newIndexPath
-                     elementStore:elementStore
-               includedAttributes:includedAttributes
-                           writer:writer];
+                             indexPath:newIndexPath
+                          elementStore:elementStore
+                    includedAttributes:includedAttributes
+                                writer:writer];
     if (rc < 0) {
       return rc;
     }

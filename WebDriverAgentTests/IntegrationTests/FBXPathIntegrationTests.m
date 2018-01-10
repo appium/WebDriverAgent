@@ -48,10 +48,6 @@
 
 - (void)testFindMatchesInElement
 {
-  NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-  for (XCUIElement *window in [self.testedApplication childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
-    [windowsSnapshots addObject:window.fb_lastSnapshot];
-  }
   NSArray *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@"//XCUIElementTypeButton"];
   XCTAssertEqual([matchingSnapshots count], 4);
   for (id<FBElement> element in matchingSnapshots) {
