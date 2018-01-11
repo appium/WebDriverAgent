@@ -304,13 +304,14 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
     if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
       [((XCUIElement *)root).application fb_waitUntilSnapshotIsStable];
     }
-    if (((XCUIElement *)root).elementType == XCUIElementTypeApplication) {
+    if ([root isKindOfClass:XCUIApplication.class]) {
       NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-      for (XCUIElement *window in [((XCUIElement *)root) childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+      NSArray<XCUIElement *> *windows = [((XCUIElement *)root) childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex;
+      for (XCUIElement *window in windows) {
         [windowsSnapshots addObject:window.fb_lastSnapshot];
       }
       children = windowsSnapshots.copy;
-      currentSnapshot = ((XCUIElement *)root).fb_lastSnapshot;
+      currentSnapshot = ((XCUIApplication *)root).fb_lastSnapshot;
     } else {
       currentSnapshot = ((XCUIElement *)root).fb_lastSnapshot;
       children = currentSnapshot.children;
