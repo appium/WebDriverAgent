@@ -143,10 +143,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
   }
 
   id (^labelGetter)(void) = ^id(void) {
+    NSString *label = self.label;
     if (self.elementType == XCUIElementTypeTextField) {
-      return self.label;
+      return label;
     }
-    return FBTransferEmptyStringToNil(self.label);
+    return FBTransferEmptyStringToNil(label);
   };
   
   return [self fb_cacheValue:labelGetter() forAttributeName:attributeName];
