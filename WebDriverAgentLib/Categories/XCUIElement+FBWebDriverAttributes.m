@@ -127,8 +127,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
   
   id (^nameGetter)(void) = ^id(void) {
     NSString *identifier = self.identifier;
+    if (nil != identifier && identifier.length != 0) {
+      return identifier;
+    }
     NSString *label = self.label;
-    return FBTransferEmptyStringToNil(FBFirstNonEmptyValue(identifier, label));
+    return FBTransferEmptyStringToNil(label);
   };
   
   return [self fb_cacheValue:nameGetter() forAttributeName:attributeName];
