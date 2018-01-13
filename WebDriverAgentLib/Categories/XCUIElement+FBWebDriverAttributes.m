@@ -50,31 +50,29 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
   fb_wdAttributesCache = [NSMutableDictionary dictionary];
 }
 
-- (nullable id)fb_cachedValueWithAttributeName:(NSString *)name
+- (id)fb_cachedValueWithAttributeName:(NSString *)name valueGetter:(id (^)(void))valueGetter
 {
   NSNumber *generation = [NSNumber numberWithUnsignedLongLong:self.generation];
   NSMutableDictionary<NSString *, NSMutableDictionary<NSString*, id> *> *cachedSnapshotsForGeneration = [fb_wdAttributesCache objectForKey:generation];
   if (nil == cachedSnapshotsForGeneration) {
     [fb_wdAttributesCache removeAllObjects];
-    [fb_wdAttributesCache setObject:[NSMutableDictionary dictionary] forKey:generation];
+    cachedSnapshotsForGeneration = [NSMutableDictionary dictionary];
+    [fb_wdAttributesCache setObject:cachedSnapshotsForGeneration forKey:generation];
   }
   NSString *selfId = [NSString stringWithFormat:@"%p", (void *)self];
   NSMutableDictionary<NSString*, id> *snapshotAttributes = [cachedSnapshotsForGeneration objectForKey:selfId];
   if (nil == snapshotAttributes) {
-    [cachedSnapshotsForGeneration setObject:[NSMutableDictionary dictionary] forKey:selfId];
-    return nil;
+    snapshotAttributes = [NSMutableDictionary dictionary];
+    [cachedSnapshotsForGeneration setObject:snapshotAttributes forKey:selfId];
   }
-  return [snapshotAttributes objectForKey:name];
-}
-
-- (id)fb_cacheValue:(nullable id)value forAttributeName:(NSString *)name
-{
-  NSNumber *generation = [NSNumber numberWithUnsignedLongLong:self.generation];
-  NSMutableDictionary<NSString *, NSMutableDictionary<NSString*, id> *> *cachedSnapshotsForGeneration = [fb_wdAttributesCache objectForKey:generation];
-  NSString *selfId = [NSString stringWithFormat:@"%p", (void *)self];
-  NSMutableDictionary<NSString*, id> *snapshotAttributes = [cachedSnapshotsForGeneration objectForKey:selfId];
-  [snapshotAttributes setObject:(nil == value ? [NSNull null] : (id)value) forKey:name];
-  return value;
+  id cachedValue = [snapshotAttributes objectForKey:name];
+  if (nil != cachedValue) {
+    return cachedValue == [NSNull null] ? nil : cachedValue;
+  }
+  
+  id computedValue = valueGetter();
+  [snapshotAttributes setObject:(nil == computedValue ? [NSNull null] : computedValue) forKey:name];
+  return computedValue;
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name
@@ -84,13 +82,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
 
 - (NSString *)wdValue
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return cachedValue == [NSNull null] ? nil : cachedValue;
-  }
-  
-  id (^valueGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     id value = self.value;
     XCUIElementType elementType = self.elementType;
     if (elementType == XCUIElementTypeStaticText) {
@@ -114,18 +106,12 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     return value;
   };
   
-  return [self fb_cacheValue:valueGetter() forAttributeName:attributeName];
+  return [self fb_cachedValueWithAttributeName:@"wdValue" valueGetter:getter];
 }
 
 - (NSString *)wdName
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return cachedValue == [NSNull null] ? nil : cachedValue;
-  }
-  
-  id (^nameGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     NSString *identifier = self.identifier;
     if (nil != identifier && identifier.length != 0) {
       return identifier;
@@ -134,18 +120,12 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     return FBTransferEmptyStringToNil(label);
   };
   
-  return [self fb_cacheValue:nameGetter() forAttributeName:attributeName];
+  return [self fb_cachedValueWithAttributeName:@"wdName" valueGetter:getter];
 }
 
 - (NSString *)wdLabel
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return cachedValue == [NSNull null] ? nil : cachedValue;
-  }
-
-  id (^labelGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     NSString *label = self.label;
     if (self.elementType == XCUIElementTypeTextField) {
       return label;
@@ -153,62 +133,48 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     return FBTransferEmptyStringToNil(label);
   };
   
-  return [self fb_cacheValue:labelGetter() forAttributeName:attributeName];
+  return [self fb_cachedValueWithAttributeName:@"wdLabel" valueGetter:getter];
 }
 
 - (NSString *)wdType
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return cachedValue == [NSNull null] ? nil : cachedValue;
-  }
+  id (^getter)(void) = ^id(void) {
+    return [FBElementTypeTransformer stringWithElementType:self.elementType];
+  };
   
-  return [self fb_cacheValue:[FBElementTypeTransformer stringWithElementType:self.elementType] forAttributeName:attributeName];
+  return [self fb_cachedValueWithAttributeName:@"wdType" valueGetter:getter];
 }
 
 - (NSUInteger)wdUID
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue integerValue];
-  }
+  id (^getter)(void) = ^id(void) {
+    return @(self.fb_uid);
+  };
   
-  return [[self fb_cacheValue:@(self.fb_uid) forAttributeName:attributeName] integerValue];
+  return [[self fb_cachedValueWithAttributeName:@"wdUID" valueGetter:getter] integerValue];
 }
 
 - (CGRect)wdFrame
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue CGRectValue];
-  }
+  id (^getter)(void) = ^id(void) {
+    return @(CGRectIntegral(self.frame));
+  };
   
-  return [[self fb_cacheValue:@(CGRectIntegral(self.frame)) forAttributeName:attributeName] CGRectValue];
+  return [[self fb_cachedValueWithAttributeName:@"wdFrame" valueGetter:getter] CGRectValue];
 }
 
 - (BOOL)isWDVisible
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue boolValue];
-  }
+  id (^getter)(void) = ^id(void) {
+    return @(self.fb_isVisible);
+  };
   
-  return [[self fb_cacheValue:@(self.fb_isVisible) forAttributeName:attributeName] boolValue];
+  return [[self fb_cachedValueWithAttributeName:@"isWDVisible" valueGetter:getter] boolValue];
 }
 
 - (BOOL)isWDAccessible
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue boolValue];
-  }
-  
-  id (^isAccessibleGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     XCUIElementType elementType = self.elementType;
     // Special cases:
     // Table view cell: we consider it accessible if it's container is accessible
@@ -238,18 +204,12 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     return @YES;
   };
   
-  return [[self fb_cacheValue:isAccessibleGetter() forAttributeName:attributeName] boolValue];
+  return [[self fb_cachedValueWithAttributeName:@"isWDAccessible" valueGetter:getter] boolValue];
 }
 
 - (BOOL)isWDAccessibilityContainer
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue boolValue];
-  }
-  
-  id (^isAccessibilityContainerGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     NSArray<XCElementSnapshot *> *children = self.children;
     for (XCElementSnapshot *child in children) {
       if (child.isWDAccessibilityContainer || child.fb_isAccessibilityElement) {
@@ -259,29 +219,21 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     return @NO;
   };
   
-  return [[self fb_cacheValue:isAccessibilityContainerGetter() forAttributeName:attributeName] boolValue];
+  return [[self fb_cachedValueWithAttributeName:@"isWDAccessibilityContainer" valueGetter:getter] boolValue];
 }
 
 - (BOOL)isWDEnabled
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return [cachedValue boolValue];
-  }
+  id (^getter)(void) = ^id(void) {
+    return @(self.isEnabled);
+  };
   
-  return [[self fb_cacheValue:@(self.isEnabled) forAttributeName:attributeName] boolValue];
+  return [[self fb_cachedValueWithAttributeName:@"isWDEnabled" valueGetter:getter] boolValue];
 }
 
 - (NSDictionary *)wdRect
 {
-  NSString *attributeName = NSStringFromSelector(_cmd);
-  id cachedValue = [self fb_cachedValueWithAttributeName:attributeName];
-  if (nil != cachedValue) {
-    return cachedValue == [NSNull null] ? nil : cachedValue;
-  }
-  
-  id (^rectGetter)(void) = ^id(void) {
+  id (^getter)(void) = ^id(void) {
     CGRect frame = self.wdFrame;
     return @{
       @"x": @(CGRectGetMinX(frame)),
@@ -291,7 +243,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     };
   };
   
-  return [self fb_cacheValue:rectGetter() forAttributeName:attributeName];
+  return [self fb_cachedValueWithAttributeName:@"wdRect" valueGetter:getter];
 }
 
 @end
