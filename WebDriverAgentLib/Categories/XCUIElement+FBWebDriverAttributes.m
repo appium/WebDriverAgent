@@ -287,7 +287,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
     };
   };
   
-  return [self fb_cacheValue:rectGetter() forAttributeName:attributeNament ];
+  return [self fb_cacheValue:rectGetter() forAttributeName:attributeName];
 }
 
 @end
