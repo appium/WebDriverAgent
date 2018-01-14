@@ -75,7 +75,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
   CGRect parentFrame = parent.frame;
-  CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parent.frame);
+  CGRect intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
   if (CGRectIsEmpty(intersectionWithParent) && parent != container) {
     CGSize containerSize = container.frame.size;
     if ((CGSizeEqualToSize(parentFrame.size, containerSize) ||
