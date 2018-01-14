@@ -173,9 +173,22 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil == hitElement || self == hitElement || [ancestors containsObject:hitElement] ||
-      (hasChilren && [self._allDescendants containsObject:hitElement])) {
+  if (nil == hitElement || self == hitElement || [ancestors containsObject:hitElement]) {
     return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
+  }
+  if (self.children.count > 0) {
+    if (nil != hitElement && [hitElement _isDescendantOfElement:self]) {
+      NSMutableArray<XCElementSnapshot *> *hitElementAncestors = [NSMutableArray array];
+      XCElementSnapshot *hitElementParent = hitElement.parent;
+      while (hitElementParent) {
+        [hitElementAncestors addObject:hitElementParent];
+        hitElementParent = hitElementParent.parent;
+      }
+      return [hitElement fb_cacheVisibilityWithValue:YES forAncestors:hitElementAncestors.copy];
+    }
+    if (self.fb_hasAnyVisibleLeafs) {
+      return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
+    }
   }
   return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors.copy];
 }
