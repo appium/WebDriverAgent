@@ -61,7 +61,10 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (isVisible && nil != ancestors) {
     // if an element is visible then all its ancestors must be visible as well
     for (XCElementSnapshot *ancestor in ancestors) {
-      [destination setObject:visibleObj forKey:[NSString stringWithFormat:@"%p", (void *)ancestor]];
+      NSString *ancestorId = [NSString stringWithFormat:@"%p", (void *)ancestor];
+      if (nil == [destination objectForKey:ancestorId]) {
+        [destination setObject:visibleObj forKey:ancestorId];
+      }
     }
   }
   return isVisible;
@@ -140,29 +143,24 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   }
   
   XCElementSnapshot *parentWindow = nil;
-  NSMutableArray<XCElementSnapshot *> *ancestorsUntilWindow = [NSMutableArray array];
+  NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
   XCElementSnapshot *parent = self.parent;
   while (parent) {
-    XCUIElementType type = parent.elementType;
-    if (type == XCUIElementTypeWindow) {
+    if (parent.elementType == XCUIElementTypeWindow) {
       parentWindow = parent;
-      break;
     }
-    [ancestorsUntilWindow addObject:parent];
+    [ancestors addObject:parent];
     parent = parent.parent;
-  }
-  if (nil == parentWindow) {
-    [ancestorsUntilWindow removeAllObjects];
   }
   
   CGRect appFrame = [self fb_rootElement].frame;
   CGRect rectInContainer = nil == parentWindow ? self.frame : [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
   if (CGRectIsEmpty(rectInContainer)) {
-    return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestorsUntilWindow];
+    return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors.copy];
   }
   BOOL hasChilren = self.children.count > 0;
   if (hasChilren && self.fb_hasAnyVisibleLeafs) {
-    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestorsUntilWindow];
+    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
   }
   CGPoint midPoint = CGPointMake(rectInContainer.origin.x + rectInContainer.size.width / 2,
                                  rectInContainer.origin.y + rectInContainer.size.height / 2);
@@ -175,12 +173,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil == hitElement || self == hitElement || [ancestorsUntilWindow containsObject:hitElement] ||
+  if (nil == hitElement || self == hitElement || [ancestors containsObject:hitElement] ||
       (hasChilren && [self._allDescendants containsObject:hitElement])) {
-    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestorsUntilWindow];
+    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
   }
-  return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestorsUntilWindow];
+  return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors.copy];
 }
 
 @end
-
