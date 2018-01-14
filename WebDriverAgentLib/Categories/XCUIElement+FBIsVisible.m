@@ -132,8 +132,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     return [cachedValue boolValue];
   }
   
-  CGRect frame = self.frame;
-  if (CGRectIsEmpty(frame)) {
+  CGRect selfFrame = self.frame;
+  if (CGRectIsEmpty(selfFrame)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:nil];
   }
   
@@ -154,7 +154,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   }
   
   CGRect appFrame = [self fb_rootElement].frame;
-  CGRect rectInContainer = nil == parentWindow ? self.frame : [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  CGRect rectInContainer = nil == parentWindow ? selfFrame : [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
   if (CGRectIsEmpty(rectInContainer)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors.copy];
   }
