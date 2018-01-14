@@ -158,15 +158,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (CGRectIsEmpty(rectInContainer)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors.copy];
   }
-  BOOL hasChilren = self.children.count > 0;
-  if (hasChilren && self.fb_hasAnyVisibleLeafs) {
-    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
-  }
   CGPoint midPoint = CGPointMake(rectInContainer.origin.x + rectInContainer.size.width / 2,
                                  rectInContainer.origin.y + rectInContainer.size.height / 2);
-  CGRect parentWindowFrame = parentWindow.frame;
-  if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
-      (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
+  CGRect windowFrame = nil == parentWindow ? selfFrame : parentWindow.frame;
+  if ((appFrame.size.height > appFrame.size.width && windowFrame.size.height < windowFrame.size.width) ||
+      (appFrame.size.height < appFrame.size.width && windowFrame.size.height > windowFrame.size.width)) {
     // This is the indication of the fact that transformation is broken and coordinates should be
     // recalculated manually.
     // However, upside-down case cannot be covered this way, which is not important for Appium
