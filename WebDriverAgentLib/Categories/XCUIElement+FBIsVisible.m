@@ -169,7 +169,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil == hitElement || self == hitElement || [ancestors containsObject:hitElement]) {
+  if (nil != hitElement && (self == hitElement || [ancestors containsObject:hitElement])) {
     return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors.copy];
   }
   if (self.children.count > 0) {
