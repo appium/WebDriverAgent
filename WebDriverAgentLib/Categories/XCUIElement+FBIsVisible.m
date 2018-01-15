@@ -175,10 +175,10 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (self.children.count > 0) {
     if (nil != hitElement && [hitElement _isDescendantOfElement:self]) {
       NSMutableArray<XCElementSnapshot *> *hitElementAncestors = [NSMutableArray array];
-      XCElementSnapshot *hitElementParent = hitElement.parent;
-      while (hitElementParent) {
-        [hitElementAncestors addObject:hitElementParent];
-        hitElementParent = hitElementParent.parent;
+      XCElementSnapshot *hitElementAncestor = hitElement.parent;
+      while (hitElementAncestor) {
+        [hitElementAncestors addObject:hitElementAncestor];
+        hitElementAncestor = hitElementAncestor.parent;
       }
       return [hitElement fb_cacheVisibilityWithValue:YES forAncestors:hitElementAncestors.copy];
     }
