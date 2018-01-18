@@ -157,7 +157,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
 - (CGRect)wdFrame
 {
   id (^getter)(void) = ^id(void) {
-    return @(CGRectIntegral(self.frame));
+    return [NSValue valueWithCGRect:CGRectIntegral(self.frame)];
   };
   
   return [[self fb_cachedValueWithAttributeName:@"wdFrame" valueGetter:getter] CGRectValue];
