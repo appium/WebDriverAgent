@@ -254,23 +254,16 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
-  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
-  if (nil != eventPath && currentItemIndex < allItems.count) {
+  if (nil != eventPath) {
     if (0 == currentItemIndex) {
       return @[eventPath];
     }
     FBBaseGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
-    if (![preceedingItem isKindOfClass:FBPointerUpItem.class]){
-      if (currentItemIndex == allItems.count - 1) {
-        [eventPath moveToPoint:self.atPosition atOffset:currentOffset];
-      }
+    if (![preceedingItem isKindOfClass:FBPointerUpItem.class] && currentItemIndex < allItems.count - 1) {
       return @[eventPath];
     }
   }
-  // Emulate pause by tapping non-existing coordinates
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:CGPointMake(CGFLOAT_MIN, CGFLOAT_MIN) offset:FBMillisToSeconds(self.offset)];
-  [result liftUpAtOffset:currentOffset];
-  return @[result];
+  return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)]];
 }
 
 @end
