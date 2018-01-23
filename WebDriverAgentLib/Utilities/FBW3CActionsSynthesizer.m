@@ -263,8 +263,11 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return @[eventPath];
     }
   }
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)];
-  [result liftUpAtOffset:FBMillisToSeconds(self.offset + self.duration)];
+  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
+  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
+  if (currentItemIndex == allItems.count - 1) {
+    [result liftUpAtOffset:currentOffset];
+  }
   return @[result];
 }
 
