@@ -323,7 +323,7 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeRight];
 }
 
-- (void)testLongPressWithPressure
+- (void)testLongPress
 {
   UIDeviceOrientation orientation = UIDeviceOrientationLandscapeLeft;
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
@@ -335,7 +335,7 @@
       @"parameters": @{@"pointerType": @"touch"},
       @"actions": @[
           @{@"type": @"pointerMove", @"duration": @0, @"x": @(elementFrame.origin.x + 1), @"y": @(elementFrame.origin.y + 1)},
-          @{@"type": @"pointerDown", @"pressure": @0.1},
+          @{@"type": @"pointerDown"},
           @{@"type": @"pause", @"duration": @500},
           @{@"type": @"pointerUp"},
           ],
