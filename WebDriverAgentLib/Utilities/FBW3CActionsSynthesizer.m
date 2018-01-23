@@ -243,7 +243,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
   if (nil == eventPath) {
-    return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)]];
+    return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)]];
   }
   [eventPath moveToPoint:self.atPosition atOffset:FBMillisToSeconds(self.offset)];
   return @[eventPath];
