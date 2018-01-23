@@ -263,7 +263,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return @[eventPath];
     }
   }
-  return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)]];
+  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)];
+  [result liftUpAtOffset:FBMillisToSeconds(self.offset + self.duration)];
+  return @[result];
 }
 
 @end
