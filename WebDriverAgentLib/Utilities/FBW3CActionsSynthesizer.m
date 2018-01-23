@@ -166,6 +166,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
+  if (nil != eventPath && currentItemIndex == 1) {
+    FBBaseGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
+    if ([preceedingItem isKindOfClass:FBPointerMoveItem.class]) {
+      return @[eventPath];
+    }
+  }
   return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)]];
 }
 
