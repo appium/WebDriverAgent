@@ -32,7 +32,7 @@
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
   @throw [[FBErrorBuilder.builder withDescription:@"Override this method in subclasses"] build];
-  return NO;
+  return nil;
 }
 
 - (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(XCElementSnapshot *)snapshot
