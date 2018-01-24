@@ -9,6 +9,8 @@
 
 #import "FBMathUtils.h"
 
+#import "XCUIApplication.h"
+
 CGFloat FBDefaultFrameFuzzyThreshold = 2.0;
 
 CGPoint FBRectGetCenter(CGRect rect)
@@ -83,11 +85,16 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
   return actualSize;
 }
 
-NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation)
+NSData *FBAdjustScreenshotOrientationForApplication(XCUIApplication *application, NSData *screenshotData)
 {
   UIImage *image = [UIImage imageWithData:screenshotData];
+  UIInterfaceOrientation orientation = application.interfaceOrientation;
+  CGSize screenSize = application.frame.size;
   UIImageOrientation imageOrientation;
-  if (orientation == UIInterfaceOrientationLandscapeRight) {
+  if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad && MAX(screenSize.width, screenSize.height) > 1024) {
+    // iPad Pro does not require orientation adjustment
+    imageOrientation = UIImageOrientationUp;
+  } else if (orientation == UIInterfaceOrientationLandscapeRight) {
     imageOrientation = UIImageOrientationLeft;
   } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
     imageOrientation = UIImageOrientationRight;

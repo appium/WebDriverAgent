@@ -140,12 +140,7 @@ static bool fb_isLocked;
   if (nil == imageData) {
     return nil;
   }
-  
-  if (IS_IPAD_PRO_1366) {
-    // iPad Pro does not require orientation adjustment
-    orientation = UIInterfaceOrientationPortrait;
-  }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+  return FBAdjustScreenshotOrientationForApplication(activeApplication, imageData);
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch
