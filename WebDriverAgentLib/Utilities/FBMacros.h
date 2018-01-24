@@ -52,3 +52,9 @@
 
 /*! Converts the given number of milliseconds into seconds */
 #define FBMillisToSeconds(ms) ((ms) / 1000.0)
+
+/*! Several helpers for identifying the model of the current device */
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
+#define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+#define IS_IPAD_PRO_1366 (IS_IPAD && MAX(SCREEN_WIDTH,SCREEN_HEIGHT) == 1366.0)
