@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <XCTest/XCTest.h>
 
 @class XCUIApplication;
 
@@ -38,4 +38,4 @@ CGPoint FBInvertOffsetForOrientation(CGPoint offset, UIInterfaceOrientation orie
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation);
 
 /*! Fixes the screenshot orientation if necessary to match current screen orientation */
-NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);
+NSData *FBAdjustScreenshotOrientationForApplication(XCUIApplication *application, NSData *screenshotData);

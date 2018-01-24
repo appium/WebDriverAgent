@@ -140,7 +140,7 @@ static bool fb_isLocked;
   if (nil == imageData) {
     return nil;
   }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+  return FBAdjustScreenshotOrientationForApplication(activeApplication, imageData);
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch

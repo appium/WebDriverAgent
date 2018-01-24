@@ -172,7 +172,7 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   if (nil == imageData) {
     return nil;
   }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+  return FBAdjustScreenshotOrientationForApplication(self.application, imageData);
 }
 
 @end
