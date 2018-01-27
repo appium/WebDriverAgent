@@ -169,16 +169,20 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
   XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil == hitElement || self == hitElement || [ancestors containsObject:hitElement]) {
+  if (nil != hitElement && (self == hitElement || [ancestors containsObject:hitElement])) {
     return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
   }
   if (self.children.count > 0) {
-    if ([self._allDescendants containsObject:hitElement]) {
+    if (nil != hitElement && [self._allDescendants containsObject:hitElement]) {
       return [hitElement fb_cacheVisibilityWithValue:YES forAncestors:hitElement.fb_ancestors];
     }
     if (self.fb_hasAnyVisibleLeafs) {
       return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
     }
+  } else if (nil == hitElement) {
+    // Sometimes XCTest returns nil for leaf elements hit test even if such elements are hittable
+    // Assume such elements are visible if their rectInContainer is visible
+    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
   }
   return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors];
 }
