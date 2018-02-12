@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBApplication.h"
+#import "FBMacros.h"
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 #import "FBSpringboardApplication.h"
@@ -80,6 +81,16 @@
   XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
   XCTAssertTrue([FBApplication fb_activeApplication].icons[@"Safari"].fb_isVisible);
+}
+
+- (void)testUrlSchemeActivation
+{
+  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+    return;
+  }
+     
+  [self.testedApplication fb_openUrl:@"https://apple.com"];
+  FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
 }
 
 @end

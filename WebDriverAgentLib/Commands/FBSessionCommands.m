@@ -15,6 +15,7 @@
 #import "FBSession.h"
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
+#import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
@@ -54,16 +55,13 @@
   NSURL *url = [NSURL URLWithString:urlString];
   if (!url) {
     return FBResponseWithStatus(
-      FBCommandStatusInvalidArgument,
-      [NSString stringWithFormat:@"%@ is not a valid URL", url]
-    );
+                                FBCommandStatusInvalidArgument,
+                                [NSString stringWithFormat:@"%@ is not a valid URL", url]
+                                );
   }
-  #pragma clang diagnostic push
-  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  if (![[UIApplication sharedApplication] openURL:url]) {
+  if (![request.session.activeApplication fb_openUrl:urlString]) {
     return FBResponseWithErrorFormat(@"Failed to open %@", url);
   }
-  #pragma clang diagnostic pop
   return FBResponseWithOK();
 }
 
