@@ -131,21 +131,18 @@ static dispatch_once_t onceSiriService;
 
 - (BOOL)fb_openUrl:(NSString *)url
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
   XCUIDevice *device = [XCUIDevice sharedDevice];
   dispatch_once(&onceSiriService, ^{
-    SEL siriServiceSelector = NSSelectorFromString(@"siriService");
-    if (siriServiceSelector && [device respondsToSelector:siriServiceSelector]) {
-      FBSiriService = [device performSelector:siriServiceSelector];
-    }
+    FBSiriService = [device valueForKey:@"siriService"];
   });
   if (nil != FBSiriService) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [FBSiriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
                         withObject:[NSString stringWithFormat:@"Open {%@}", url]];
     return YES;
-  }
 #pragma clang diagnostic pop
+  }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   // The link never gets opened by this method: https://forums.developer.apple.com/thread/25355
