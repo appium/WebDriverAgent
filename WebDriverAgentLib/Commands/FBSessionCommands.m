@@ -15,7 +15,6 @@
 #import "FBSession.h"
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
-#import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
@@ -52,15 +51,9 @@
   if (!urlString) {
     return FBResponseWithStatus(FBCommandStatusInvalidArgument, @"URL is required");
   }
-  NSURL *url = [NSURL URLWithString:urlString];
-  if (!url) {
-    return FBResponseWithStatus(
-                                FBCommandStatusInvalidArgument,
-                                [NSString stringWithFormat:@"%@ is not a valid URL", url]
-                                );
-  }
-  if (![request.session.activeApplication fb_openUrl:urlString]) {
-    return FBResponseWithErrorFormat(@"Failed to open %@", url);
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_openUrl:urlString error:&error]) {
+    return FBResponseWithError(error);
   }
   return FBResponseWithOK();
 }

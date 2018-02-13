@@ -15,6 +15,7 @@
 #import "FBTestMacros.h"
 #import "FBSpringboardApplication.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 
 @interface XCUIApplicationHelperTests : FBIntegrationTestCase
@@ -88,9 +89,11 @@
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;
   }
-     
-  [self.testedApplication fb_openUrl:@"https://apple.com"];
+  
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com" error:&error]);
   FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
+  XCTAssertNil(error);
 }
 
 @end

@@ -44,15 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)fb_descriptionRepresentation;
 
-/**
- Opens the particular url scheme using Siri voice recognition helpers.
- This will only work since XCode 8.3/iOS 10.3
- 
- @param url The url scheme represented as a string, for example https://apple.com
- @return YES if the operation was successful
- */
-- (BOOL)fb_openUrl:(NSString *)url;
-
 @end
 
 NS_ASSUME_NONNULL_END

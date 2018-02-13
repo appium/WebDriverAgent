@@ -9,6 +9,7 @@
 
 #import "XCUIApplication+FBHelpers.h"
 
+#import "FBErrorBuilder.h"
 #import "FBSpringboardApplication.h"
 #import "XCElementSnapshot.h"
 #import "FBElementTypeTransformer.h"
@@ -124,30 +125,6 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   // instead of the actual information about them, however the representation works properly
   // for all descendant elements
   return (0 == childrenDescriptions.count) ? self.debugDescription : [childrenDescriptions componentsJoinedByString:@"\n\n"];
-}
-
-static id FBSiriService = nil;
-static dispatch_once_t onceSiriService;
-
-- (BOOL)fb_openUrl:(NSString *)url
-{
-  XCUIDevice *device = [XCUIDevice sharedDevice];
-  dispatch_once(&onceSiriService, ^{
-    FBSiriService = [device valueForKey:@"siriService"];
-  });
-  if (nil != FBSiriService) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [FBSiriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
-                        withObject:[NSString stringWithFormat:@"Open {%@}", url]];
-    return YES;
-#pragma clang diagnostic pop
-  }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // The link never gets opened by this method: https://forums.developer.apple.com/thread/25355
-  return [[UIApplication sharedApplication] openURL:(id)[NSURL URLWithString:url]];
-#pragma clang diagnostic pop
 }
 
 @end

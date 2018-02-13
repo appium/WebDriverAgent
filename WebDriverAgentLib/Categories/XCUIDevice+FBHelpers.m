@@ -183,4 +183,39 @@ static bool fb_isLocked;
   return address;
 }
 
+static id FBSiriService = nil;
+static dispatch_once_t onceSiriService;
+
+- (BOOL)fb_openUrl:(NSString *)url error:(NSError **)error
+{
+  NSURL *parsedUrl = [NSURL URLWithString:url];
+  if (nil == parsedUrl) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"%@ is not a valid URL", url]
+            buildError:error];
+  }
+  
+  dispatch_once(&onceSiriService, ^{
+    FBSiriService = [self valueForKey:@"siriService"];
+  });
+  if (nil != FBSiriService) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [FBSiriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
+                        withObject:[NSString stringWithFormat:@"Open {%@}", url]];
+    return YES;
+#pragma clang diagnostic pop
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // The link never gets opened by this method: https://forums.developer.apple.com/thread/25355
+  if (![[UIApplication sharedApplication] openURL:parsedUrl]) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"%@ url cannot be opened", url]
+            buildError:error];
+  }
+  return YES;
+#pragma clang diagnostic pop
+}
+
 @end
