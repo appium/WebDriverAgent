@@ -191,7 +191,7 @@ static dispatch_once_t onceSiriService;
   NSURL *parsedUrl = [NSURL URLWithString:url];
   if (nil == parsedUrl) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"%@ is not a valid URL", url]
+             withDescriptionFormat:@"'%@' is not a valid URL", url]
             buildError:error];
   }
   
@@ -203,19 +203,19 @@ static dispatch_once_t onceSiriService;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [FBSiriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
                         withObject:[NSString stringWithFormat:@"Open {%@}", url]];
-    return YES;
 #pragma clang diagnostic pop
+    return YES;
   }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   // The link never gets opened by this method: https://forums.developer.apple.com/thread/25355
   if (![[UIApplication sharedApplication] openURL:parsedUrl]) {
+#pragma clang diagnostic pop
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"%@ url cannot be opened", url]
+             withDescriptionFormat:@"The URL %@ cannot be opened", url]
             buildError:error];
   }
   return YES;
-#pragma clang diagnostic pop
 }
 
 @end
