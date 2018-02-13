@@ -183,9 +183,6 @@ static bool fb_isLocked;
   return address;
 }
 
-static id FBSiriService = nil;
-static dispatch_once_t onceSiriService;
-
 - (BOOL)fb_openUrl:(NSString *)url error:(NSError **)error
 {
   NSURL *parsedUrl = [NSURL URLWithString:url];
@@ -195,14 +192,12 @@ static dispatch_once_t onceSiriService;
             buildError:error];
   }
   
-  dispatch_once(&onceSiriService, ^{
-    FBSiriService = [self valueForKey:@"siriService"];
-  });
-  if (nil != FBSiriService) {
+  id siriService = [self valueForKey:@"siriService"];
+  if (nil != siriService) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [FBSiriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
-                        withObject:[NSString stringWithFormat:@"Open {%@}", url]];
+    [siriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
+                      withObject:[NSString stringWithFormat:@"Open {%@}", url]];
 #pragma clang diagnostic pop
     return YES;
   }
