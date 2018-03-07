@@ -114,13 +114,9 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
 
 NSDictionary<NSString *, NSNumber *> *FBwdRectNoInf(NSDictionary<NSString *, NSNumber *> *wdRect)
 {
-  NSMutableDictionary<NSString *, NSNumber *> *result = wdRect.mutableCopy;
-  if (isinf(result[@"x"].doubleValue) || isinf(result[@"y"].doubleValue) ||
-      isinf(result[@"width"].doubleValue) || isinf(result[@"height"].doubleValue)) {
-    [result setObject:@-1 forKey:@"x"];
-    [result setObject:@-1 forKey:@"y"];
-    [result setObject:@0 forKey:@"width"];
-    [result setObject:@0 forKey:@"height"];
+  if (isinf(wdRect[@"x"].doubleValue) || isinf(wdRect[@"y"].doubleValue) ||
+      isinf(wdRect[@"width"].doubleValue) || isinf(wdRect[@"height"].doubleValue)) {
+    return @{@"x": @-1, @"y": @-1, @"width": @0, @"height": @0};
   }
-  return result.copy;
+  return wdRect;
 }
