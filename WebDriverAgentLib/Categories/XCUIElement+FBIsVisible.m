@@ -70,7 +70,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return isVisible;
 }
 
-- (CGRect)fb_frameInContainer:(XCElementSnapshot *)container hierarchyIntersection:(nullable NSValue *)intersectionRectange
+- (nullable NSValue *)fb_frameInContainer:(XCElementSnapshot *)container hierarchyIntersection:(nullable NSValue *)intersectionRectange
 {
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
@@ -80,8 +80,9 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     if (CGSizeEqualToSize(parentFrame.size, CGSizeZero) &&
         CGPointEqualToPoint(parentFrame.origin, CGPointZero) &&
         parent.elementType == XCUIElementTypeOther) {
-      // Special case (or XCTest bug). Skip such parent
-      intersectionWithParent = currentRectangle;
+      // Special case. We cannot reliably calculate visible frame
+      // for such element and rely on visibleFrame property intead
+      return nil;
     } else {
       CGSize containerSize = container.frame.size;
       CGRect selfFrame = self.frame;
@@ -109,7 +110,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     }
   }
   if (CGRectIsEmpty(intersectionWithParent) || parent == container) {
-    return intersectionWithParent;
+    return [NSValue valueWithCGRect:intersectionWithParent];
   }
   return [parent fb_frameInContainer:container hierarchyIntersection:[NSValue valueWithCGRect:intersectionWithParent]];
 }
@@ -121,7 +122,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (nil == parentWindow) {
     return self.frame;
   }
-  return [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  NSValue *frame = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  return nil == frame ? self.visibleFrame : frame.CGRectValue;
 }
 
 - (BOOL)fb_hasAnyVisibleLeafs
@@ -162,7 +164,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   XCElementSnapshot *appElement = ancestors.count > 0 ? [ancestors lastObject] : self;
   
   CGRect appFrame = appElement.frame;
-  CGRect rectInContainer = nil == parentWindow ? selfFrame : [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+  CGRect rectInContainer = selfFrame;
+  if (nil != parentWindow) {
+    NSValue *selfRect = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+    rectInContainer = nil == selfRect ? self.visibleFrame : selfRect.CGRectValue;
+  }
   if (CGRectIsEmpty(rectInContainer)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors];
   }
