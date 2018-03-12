@@ -84,30 +84,29 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
       // for such element and rely on visibleFrame property
       // provided by XCTest
       return nil;
-    } else {
-      CGSize containerSize = container.frame.size;
-      CGRect selfFrame = self.frame;
-      if (self.elementType == XCUIElementTypeOther) {
-        // Special case (or XCTest bug). Shift the origin
-        if (CGSizeEqualToSize(selfFrame.size, CGSizeZero)) {
-          // Covers ActivityListView case
+    }
+    CGSize containerSize = container.frame.size;
+    CGRect selfFrame = self.frame;
+    if (self.elementType == XCUIElementTypeOther) {
+      // Special case (or XCTest bug). Shift the origin
+      if (CGSizeEqualToSize(selfFrame.size, CGSizeZero)) {
+        // Covers ActivityListView case
+        currentRectangle.origin.x += parentFrame.origin.x;
+        currentRectangle.origin.y += parentFrame.origin.y;
+      } else if (CGSizeEqualToSize(parentFrame.size, containerSize) ||
+                 // The size might be inverted in landscape
+                 CGSizeEqualToSize(parentFrame.size, CGSizeMake(containerSize.height, containerSize.width))) {
+        if (CGPointEqualToPoint(parentFrame.origin, CGPointZero)) {
+          // Covers ScrollView case
+          currentRectangle.origin.x -= selfFrame.origin.x;
+          currentRectangle.origin.y -= selfFrame.origin.y;
+        } else {
+          // Covers RemoteBridgeView case
           currentRectangle.origin.x += parentFrame.origin.x;
           currentRectangle.origin.y += parentFrame.origin.y;
-        } else if (CGSizeEqualToSize(parentFrame.size, containerSize) ||
-                   // The size might be inverted in landscape
-                   CGSizeEqualToSize(parentFrame.size, CGSizeMake(containerSize.height, containerSize.width))) {
-          if (CGPointEqualToPoint(parentFrame.origin, CGPointZero)) {
-            // Covers ScrollView case
-            currentRectangle.origin.x -= selfFrame.origin.x;
-            currentRectangle.origin.y -= selfFrame.origin.y;
-          } else {
-            // Covers RemoteBridgeView case
-            currentRectangle.origin.x += parentFrame.origin.x;
-            currentRectangle.origin.y += parentFrame.origin.y;
-          }
         }
-        intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
       }
+      intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
     }
   }
   if (CGRectIsEmpty(intersectionWithParent) || parent == container) {
