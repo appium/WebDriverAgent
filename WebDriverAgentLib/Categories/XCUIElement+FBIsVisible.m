@@ -14,6 +14,7 @@
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "XCElementSnapshot+FBHitPoint.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCTestPrivateSymbols.h"
 
@@ -22,11 +23,6 @@
 - (BOOL)fb_isVisible
 {
   return self.fb_lastSnapshot.fb_isVisible;
-}
-
-- (CGRect)fb_frameInWindow
-{
-  return self.fb_lastSnapshot.fb_frameInWindow;
 }
 
 @end
@@ -115,17 +111,6 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return [parent fb_frameInContainer:container hierarchyIntersection:[NSValue valueWithCGRect:intersectionWithParent]];
 }
 
-- (CGRect)fb_frameInWindow
-{
-  NSArray<XCElementSnapshot *> *ancestors = self.fb_ancestors;
-  XCElementSnapshot *parentWindow = ancestors.count > 1 ? [ancestors objectAtIndex:ancestors.count - 2] : nil;
-  if (nil == parentWindow) {
-    return self.frame;
-  }
-  NSValue *frame = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
-  return nil == frame ? self.visibleFrame : frame.CGRectValue;
-}
-
 - (BOOL)fb_hasAnyVisibleLeafs
 {
   NSArray<XCElementSnapshot *> *children = self.children;
@@ -166,8 +151,15 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   CGRect appFrame = appElement.frame;
   CGRect rectInContainer = selfFrame;
   if (nil != parentWindow) {
-    NSValue *selfRect = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
-    rectInContainer = nil == selfRect ? self.visibleFrame : selfRect.CGRectValue;
+    NSValue *calculatedRect = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
+    if (nil == calculatedRect) {
+      if (self.children.count > 0) {
+        return [self fb_cacheVisibilityWithValue:self.fb_hasAnyVisibleLeafs forAncestors:ancestors];
+      }
+      return [self fb_cacheVisibilityWithValue:CGRectContainsPoint(appFrame, self.fb_hitPoint)
+                                  forAncestors:ancestors];
+    }
+    rectInContainer = calculatedRect.CGRectValue;
   }
   if (CGRectIsEmpty(rectInContainer)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors];
