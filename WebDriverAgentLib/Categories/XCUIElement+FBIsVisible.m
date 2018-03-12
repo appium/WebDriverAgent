@@ -81,7 +81,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
         CGPointEqualToPoint(parentFrame.origin, CGPointZero) &&
         parent.elementType == XCUIElementTypeOther) {
       // Special case. We cannot reliably calculate visible frame
-      // for such element and rely on visibleFrame property intead
+      // for such element and rely on visibleFrame property
+      // provided by XCTest
       return nil;
     } else {
       CGSize containerSize = container.frame.size;
