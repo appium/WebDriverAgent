@@ -151,9 +151,15 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (nil != parentWindow) {
     calculatedRect = [self fb_frameInContainer:parentWindow hierarchyIntersection:nil];
   }
-  CGRect visibleRect = nil == calculatedRect ? selfFrame : calculatedRect.CGRectValue;
-  if (CGRectIsEmpty(visibleRect) ||
-      (nil == calculatedRect && nil != parentWindow && !CGRectIntersectsRect(visibleRect, parentWindow.frame))) {
+  CGRect visibleRect = selfFrame;
+  if (nil == calculatedRect) {
+    if (nil != parentWindow) {
+      visibleRect = CGRectIntersection(visibleRect, parentWindow.frame);
+    }
+  } else {
+    visibleRect = calculatedRect.CGRectValue;
+  }
+  if (CGRectIsEmpty(visibleRect)) {
     return [self fb_cacheVisibilityWithValue:NO forAncestors:ancestors];
   }
   CGPoint midPoint = CGPointMake(visibleRect.origin.x + visibleRect.size.width / 2,
