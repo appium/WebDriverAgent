@@ -102,16 +102,16 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   if (CGRectIsEmpty(intersectionWithParent) &&
       parent != container &&
       self.elementType == XCUIElementTypeOther) {
-    // Special case (or XCTest bug). Shift the origin and continue
-    if (CGSizeEqualToSize(parentFrame.size, containerFrame.size) ||
+    // Special case (or XCTest bug). Shift the origin
+    if (CGSizeEqualToSize(self.frame.size, CGSizeZero) ||
+        CGSizeEqualToSize(parentFrame.size, containerFrame.size) ||
         // The size might be inverted in landscape
-        CGSizeEqualToSize(parentFrame.size, CGSizeMake(containerFrame.size.height, containerFrame.size.width)) ||
-        CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
+        CGSizeEqualToSize(parentFrame.size, CGSizeMake(containerFrame.size.height, containerFrame.size.width))) {
       // Covers ActivityListView and RemoteBridgeView cases
       currentRectangle.origin.x += parentFrame.origin.x;
       currentRectangle.origin.y += parentFrame.origin.y;
+      return CGRectIntersection(currentRectangle, containerFrame);
     }
-    intersectionWithParent = CGRectIntersection(currentRectangle, parentFrame);
   }
   if (CGRectIsEmpty(intersectionWithParent) || parent == container) {
     return intersectionWithParent;
