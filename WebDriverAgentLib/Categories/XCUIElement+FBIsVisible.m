@@ -75,8 +75,16 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
       CGPointEqualToPoint(parentFrame.origin, CGPointZero)) {
     // Special case (or XCTest bug). Shift the origin and return immediately
     XCElementSnapshot *nextParent = parent.parent;
+    BOOL isGrandparent = YES;
     while (nextParent && nextParent != container) {
       CGRect nextParentFrame = nextParent.frame;
+      if (isGrandparent &&
+          CGSizeEqualToSize(nextParentFrame.size, CGSizeZero) &&
+          CGPointEqualToPoint(nextParentFrame.origin, CGPointZero)) {
+        // Double zero-size inclusion means that element coordinates are absolute
+        return CGRectIntersection(currentRectangle, container.frame);
+      }
+      isGrandparent = NO;
       if (!CGPointEqualToPoint(nextParentFrame.origin, CGPointZero)) {
         currentRectangle.origin.x += nextParentFrame.origin.x;
         currentRectangle.origin.y += nextParentFrame.origin.y;
