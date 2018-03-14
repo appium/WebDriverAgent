@@ -90,6 +90,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
         currentRectangle.origin.y += nextParentFrame.origin.y;
         return CGRectIntersection(currentRectangle, container.frame);
       }
+      nextParent = nextParent.parent;
     }
     return CGRectIntersection(currentRectangle, container.frame);
   }
