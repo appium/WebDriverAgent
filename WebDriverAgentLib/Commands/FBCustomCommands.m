@@ -14,6 +14,7 @@
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBExceptionHandler.h"
+#import "FBPasteboard.h"
 #import "FBResponsePayload.h"
 #import "FBRoute.h"
 #import "FBRouteRequest.h"
@@ -46,7 +47,9 @@
     [[FBRoute GET:@"/wda/locked"] respondWithTarget:self action:@selector(handleIsLocked:)],
     [[FBRoute GET:@"/wda/screen"] respondWithTarget:self action:@selector(handleGetScreen:)],
     [[FBRoute GET:@"/wda/activeAppInfo"] respondWithTarget:self action:@selector(handleActiveAppInfo:)],
-    [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)]
+    [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)],
+    [[FBRoute POST:@"/wda/setPasteboard"] respondWithTarget:self action:@selector(handleSetPasteboard:)],
+    [[FBRoute POST:@"/wda/getPasteboard"] respondWithTarget:self action:@selector(handleGetPasteboard:)],
   ];
 }
 
@@ -147,6 +150,32 @@
     @"bundleId": app.bundleID,
     @"name": app.identifier
   });
+}
+
++ (id<FBResponsePayload>)handleSetPasteboard:(FBRouteRequest *)request
+{
+  NSString *contentType = request.arguments[@"contentType"];
+  NSData *content = [[NSData alloc] initWithBase64EncodedString:(NSString *)request.arguments[@"content"]
+                                                        options:0];
+  NSError *error;
+  if (![FBPasteboard setData:content forType:contentType error:&error]) {
+    return FBResponseWithError(error);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleGetPasteboard:(FBRouteRequest *)request
+{
+  NSString *contentType = request.arguments[@"contentType"];
+  NSError *error;
+  id result = [FBPasteboard dataForType:contentType error:&error];
+  if (nil == result) {
+    return FBResponseWithError(error);
+  }
+  if ([result isKindOfClass:NSData.class]) {
+    return FBResponseWithStatus(FBCommandStatusNoError, [result base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]);
+  }
+  return FBResponseWithStatus(FBCommandStatusNoError, result);
 }
 
 @end
