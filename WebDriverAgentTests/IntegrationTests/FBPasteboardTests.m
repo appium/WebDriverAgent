@@ -40,7 +40,8 @@
   [textField tap];
   XCTAssertTrue([textField fb_clearTextWithError:&error]);
   [textField pressForDuration:2.0];
-  XCUIElement *pasteItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"Paste"].fb_firstMatch;
+  XCUIElement *pasteItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
+                            matchingIdentifier:@"Paste"].fb_firstMatch;
   XCTAssertNotNil(pasteItem);
   [pasteItem tap];
   FBAssertWaitTillBecomesTrue([textField.value isEqualToString:text]);
