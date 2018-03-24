@@ -154,9 +154,9 @@
 
 + (id<FBResponsePayload>)handleSetPasteboard:(FBRouteRequest *)request
 {
-  NSString *contentType = request.arguments[@"contentType"];
+  NSString *contentType = request.arguments[@"contentType"] ?: @"plaintext";
   NSData *content = [[NSData alloc] initWithBase64EncodedString:(NSString *)request.arguments[@"content"]
-                                                        options:0];
+                                                        options:NSDataBase64DecodingIgnoreUnknownCharacters];
   NSError *error;
   if (![FBPasteboard setData:content forType:contentType error:&error]) {
     return FBResponseWithError(error);
@@ -166,7 +166,7 @@
 
 + (id<FBResponsePayload>)handleGetPasteboard:(FBRouteRequest *)request
 {
-  NSString *contentType = request.arguments[@"contentType"];
+  NSString *contentType = request.arguments[@"contentType"] ?: @"plaintext";
   NSError *error;
   id result = [FBPasteboard dataForType:contentType error:&error];
   if (nil == result) {
