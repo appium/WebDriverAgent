@@ -157,6 +157,9 @@
   NSString *contentType = request.arguments[@"contentType"] ?: @"plaintext";
   NSData *content = [[NSData alloc] initWithBase64EncodedString:(NSString *)request.arguments[@"content"]
                                                         options:NSDataBase64DecodingIgnoreUnknownCharacters];
+  if (nil == content) {
+    return FBResponseWithStatus(FBCommandStatusInvalidArgument, @"Cannot decode the pasteboard content from base64");
+  }
   NSError *error;
   if (![FBPasteboard setData:content forType:contentType error:&error]) {
     return FBResponseWithError(error);
