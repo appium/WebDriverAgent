@@ -175,10 +175,8 @@
   if (nil == result) {
     return FBResponseWithError(error);
   }
-  if ([result isKindOfClass:NSData.class]) {
-    return FBResponseWithStatus(FBCommandStatusNoError, [result base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]);
-  }
-  return FBResponseWithStatus(FBCommandStatusNoError, result);
+  return FBResponseWithStatus(FBCommandStatusNoError,
+                              [result base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]);
 }
 
 @end

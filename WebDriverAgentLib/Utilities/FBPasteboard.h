@@ -28,10 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param type one of the possible data types to get: plaintext, url, image
  @param error If there is an error, upon return contains an NSError object that describes the problem
- @return NSData object, containing the pasteboard content or [NSNull null] if the pasteboard is empty.
+ @return NSData object, containing the pasteboard content or an empty string if the pasteboard is empty.
  nil is returned if there was an error while getting the data from the pasteboard
  */
-+ (nullable id)dataForType:(NSString *)type error:(NSError **)error;
++ (nullable NSData *)dataForType:(NSString *)type error:(NSError **)error;
 
 @end
 

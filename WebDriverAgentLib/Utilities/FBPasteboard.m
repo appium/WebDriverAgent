@@ -33,7 +33,7 @@
   return YES;
 }
 
-+ (id)dataForType:(NSString *)type error:(NSError **)error
++ (NSData *)dataForType:(NSString *)type error:(NSError **)error
 {
   UIPasteboard *pb = UIPasteboard.generalPasteboard;
   if ([type.lowercaseString isEqualToString:@"plaintext"]) {
@@ -55,7 +55,7 @@
     }
     return nil;
   }
-  return [NSNull null];
+  return [@"" dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 @end
