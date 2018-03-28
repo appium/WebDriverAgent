@@ -271,7 +271,7 @@
 - (void)testSingleDescendantWithClassChain
 {
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeButton" shouldReturnAfterFirstMatch:YES];
-  
+
   XCTAssertEqual(matchingSnapshots.count, 1);
   XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
   XCTAssertTrue([matchingSnapshots.lastObject.label isEqualToString:@"Alerts"]);
@@ -281,11 +281,11 @@
 {
   NSArray<XCUIElement *> *matchingSnapshots;
   matchingSnapshots = [self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeButton[-1]" shouldReturnAfterFirstMatch:YES];
-  
+
   XCTAssertEqual(matchingSnapshots.count, 1);
   XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
   XCTAssertTrue([matchingSnapshots.lastObject.label isEqualToString:@"Scrolling"]);
-  
+
   matchingSnapshots = [self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeButton[-10]" shouldReturnAfterFirstMatch:YES];
   XCTAssertEqual(matchingSnapshots.count, 0);
 }
@@ -305,8 +305,6 @@
 
 @interface XCUIElementFBFindTests_AttributesPage : FBIntegrationTestCase
 @end
-
-
 @implementation XCUIElementFBFindTests_AttributesPage
 
 - (void)setUp
@@ -336,6 +334,30 @@
   NSArray<XCUIElement *> *matches = [datePicker fb_descendantsMatchingClassChain:@"XCUIElementTypeOther" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matches.count, 1);
   XCTAssertEqual([matches firstObject].elementType, XCUIElementTypeOther);
+}
+
+@end
+
+@interface XCUIElementFBFindTests_ScrollPage : FBIntegrationTestCase
+@end
+@implementation XCUIElementFBFindTests_ScrollPage
+
+- (void)setUp
+{
+  [super setUp];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self launchApplication];
+    [self goToScrollPageWithCells:YES];
+  });
+}
+
+- (void)testInvisibleDescendantWithXPathQuery
+{
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedApplication fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeStaticText[@visible='false']" shouldReturnAfterFirstMatch:NO];
+  XCTAssertGreaterThan(matchingSnapshots.count, 1);
+  XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeStaticText);
+  XCTAssertFalse(matchingSnapshots.lastObject.fb_isVisible);
 }
 
 @end

@@ -19,9 +19,15 @@ function define_xc_macros() {
     *) echo "Unknown TARGET"; exit 1 ;;
   esac
 
+  # temporarily allow unset variables, to allow for defaults
+  set +u
+  [[ -z "${PLATFORM_VERSION}" ]] && platformVersion="11.2" || platformVersion="${PLATFORM_VERSION}"
+  [[ -z "${DEVICE_NAME_IPHONE}" ]] && deviceNameIphone="iPhone SE" || deviceNameIphone="${DEVICE_NAME_IPHONE}"
+  [[ -z "${DEVICE_NAME_IPAD}" ]] && deviceNameIpad="iPad Air 2" || deviceNameIpad="${DEVICE_NAME_IPAD}"
+  set -u
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="-destination \"name=iPhone SE,OS=10.3.1\"";;
-    "ipad" ) XC_DESTINATION="-destination \"name=iPad Air 2,OS=10.3.1\"";;
+    "iphone" ) XC_DESTINATION="-destination \"name=${deviceNameIphone},OS=${platformVersion}\"";;
+    "ipad" ) XC_DESTINATION="-destination \"name=${deviceNameIpad},OS=${platformVersion}\"";;
   esac
 
   case "$ACTION" in
