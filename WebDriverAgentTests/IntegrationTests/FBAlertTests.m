@@ -13,6 +13,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
+#import "FBMacros.h"
 #import "XCUIElement+FBTap.h"
 
 @interface FBAlertTests : FBIntegrationTestCase
@@ -162,6 +163,10 @@
 
 - (void)testSheetAlert
 {
+  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+    // This test is unstable under Xcode8
+    return;
+  }
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
   BOOL isIpad = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad;
   [self showApplicationSheet];
