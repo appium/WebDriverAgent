@@ -69,16 +69,11 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
 - (XCElementSnapshot *)fb_lastSnapshot
 {
   XCUIElementQuery *query = [self query];
-  __block XCElementSnapshot *result = nil;
   dispatch_once(&onceUseSnapshotForDebugDescriptionToken, ^{
-    result = [query valueForKey:@"elementSnapshotForDebugDescription"];
-    FBShouldUseSnapshotForDebugDescription = result != nil;
+    FBShouldUseSnapshotForDebugDescription = [query respondsToSelector:NSSelectorFromString(@"elementSnapshotForDebugDescription")];
   });
   if (FBShouldUseSnapshotForDebugDescription) {
-    if (nil == result) {
-      return (XCElementSnapshot *)[query valueForKey:@"elementSnapshotForDebugDescription"];
-    }
-    return result;
+    return (XCElementSnapshot *)[query valueForKey:@"elementSnapshotForDebugDescription"];
   }
   [self resolve];
   return self.lastSnapshot;
