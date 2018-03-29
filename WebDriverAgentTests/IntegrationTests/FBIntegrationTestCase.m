@@ -45,6 +45,10 @@ NSString *const FBShowSheetAlertButtonName = @"Create Sheet Alert";
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
+  // Force resolving XCUIApplication
+  [self.testedApplication query];
+  [self.testedApplication resolve];
+
   // Reset orientation
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
 }

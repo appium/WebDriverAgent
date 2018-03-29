@@ -33,6 +33,8 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
   dispatch_once(&onceToken, ^{
     _springboardApp = [[FBSpringboardApplication alloc] initPrivateWithPath:nil bundleID:SPRINGBOARD_BUNDLE_ID];
   });
+  [_springboardApp query];
+  [_springboardApp resolve];
   return _springboardApp;
 }
 
