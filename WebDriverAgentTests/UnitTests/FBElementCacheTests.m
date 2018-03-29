@@ -63,7 +63,9 @@
   NSMutableArray *elements = [NSMutableArray arrayWithCapacity:ELEMENT_COUNT];
   NSMutableArray *elementIds = [NSMutableArray arrayWithCapacity:ELEMENT_COUNT];
   for(int i = 0; i < ELEMENT_COUNT; i++) {
-    [elements addObject:(XCUIElement *)XCUIElementDouble.new];
+    XCUIElementDouble *el = XCUIElementDouble.new;
+    el.wdUID = [NSString stringWithFormat:@"%@", @(i)];
+    [elements addObject:(XCUIElement *)el];
   }
   
   // The capacity of the cache is limited to 1024 elements. Add 1050
@@ -90,7 +92,9 @@
   NSMutableArray *elements = [NSMutableArray arrayWithCapacity:ELEMENT_COUNT];
   NSMutableArray *elementIds = [NSMutableArray arrayWithCapacity:ELEMENT_COUNT];
   for(int i = 0; i < ELEMENT_COUNT; i++) {
-    [elements addObject:(XCUIElement *)XCUIElementDouble.new];
+    XCUIElementDouble *el = XCUIElementDouble.new;
+    el.wdUID = [NSString stringWithFormat:@"%@", @(i)];
+    [elements addObject:(XCUIElement *)el];
   }
   
   // The capacity of the cache is limited to 1024 elements. Add 1050
