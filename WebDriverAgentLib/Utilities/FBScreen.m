@@ -8,6 +8,7 @@
  */
 
 #import "FBScreen.h"
+#import "XCUIElement+FBIsVisible.h"
 
 @implementation FBScreen
 
@@ -27,8 +28,8 @@
   if (0 == statusBars.count) {
     return CGSizeZero;
   }
-  XCUIElement *mainStatusBar = [statusBars objectAtIndex:0];
-  if (!mainStatusBar.exists || CGRectIsEmpty(mainStatusBar.frame) || !mainStatusBar.hittable) {
+  XCUIElement *mainStatusBar = statusBars.firstObject;
+  if (!mainStatusBar.fb_isVisible) {
     return CGSizeZero;
   }
   return mainStatusBar.frame.size;
