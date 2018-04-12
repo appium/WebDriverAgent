@@ -23,7 +23,7 @@
 
 + (CGSize)statusBarSizeForApplication:(XCUIApplication *)application
 {
-  NSArray<XCUIElement *> *statusBars = application.statusBars.allElementsBoundByIndex;
+  NSArray<XCUIElement *> *statusBars = application.statusBars.allElementsBoundByAccessibilityElement;
   if (0 == statusBars.count) {
     return CGSizeZero;
   }
