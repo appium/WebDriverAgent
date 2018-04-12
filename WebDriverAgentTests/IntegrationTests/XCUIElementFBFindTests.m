@@ -321,7 +321,7 @@
 - (void)testNestedQueryWithClassChain
 {
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Button"].fb_isVisible);
-  XCUIElement *datePicker = self.testedApplication descendantsMatchingType:XCUIElementTypeDatePicker.fb_firstMatch;
+  XCUIElement *datePicker = [self.testedApplication descendantsMatchingType:XCUIElementTypeDatePicker].fb_firstMatch;
   NSArray<XCUIElement *> *matches = [datePicker fb_descendantsMatchingClassChain:@"XCUIElementTypeOther" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matches.count, 1);
   XCTAssertEqual([matches firstObject].elementType, XCUIElementTypeOther);
