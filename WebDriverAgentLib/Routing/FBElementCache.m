@@ -9,7 +9,7 @@
 
 #import "FBElementCache.h"
 
-#import <YYCache/YYCache.h>
+#import "YYCache.h"
 #import "FBAlert.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
