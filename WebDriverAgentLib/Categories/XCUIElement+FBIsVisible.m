@@ -22,7 +22,7 @@
 
 - (BOOL)fb_isVisible
 {
-  return self.fb_lastSnapshot.fb_isVisible;
+  return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot).fb_isVisible;
 }
 
 @end
