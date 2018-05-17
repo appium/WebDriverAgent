@@ -38,7 +38,7 @@ static NSString *const FB_OPTION_PRESSURE = @"pressure";
 // https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/view/ViewConfiguration.java
 static const double FB_TAP_DURATION_MS = 100.0;
 static const double FB_INTERTAP_MIN_DURATION_MS = 40.0;
-static const double FB_LONG_TAP_DURATION_MS = 500.0;
+static const double FB_LONG_TAP_DURATION_MS = 600.0;
 static NSString *const FB_OPTIONS_KEY = @"options";
 static NSString *const FB_ELEMENT_KEY = @"element";
 
