@@ -12,14 +12,40 @@
 
 @implementation XCElementSnapshot (FBHitPoint)
 
+static BOOL FBHasHitPointProperty = NO;
+static BOOL FBHasHitPointResult = NO;
+static dispatch_once_t onceHitPoint;
+
 - (CGPoint)fb_hitPoint
 {
+  dispatch_once(&onceHitPoint, ^{
+    FBHasHitPointProperty = [self respondsToSelector:@selector(hitPoint)];
+    FBHasHitPointResult = [self respondsToSelector:NSSelectorFromString(@"hitPoint:")];
+  });
   @try {
-    return [self hitPoint];
+    if (FBHasHitPointProperty) {
+      return [self hitPoint];
+    }
+    // https://github.com/facebook/WebDriverAgent/issues/934
+    if (FBHasHitPointResult) {
+      NSError *error;
+      SEL mSelector = NSSelectorFromString(@"hitPoint:");
+      NSMethodSignature *mSignature = [self methodSignatureForSelector:mSelector];
+      NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
+      [invocation setTarget:self];
+      [invocation setSelector:mSelector];
+      [invocation setArgument:&error atIndex:2];
+      [invocation invoke];
+      id __unsafe_unretained result;
+      [invocation getReturnValue:&result];
+      if (nil == error && nil != result && nil != [result valueForKey:@"hitPoint"]) {
+        return [[result valueForKey:@"hitPoint"] CGPointValue];
+      }
+    }
   } @catch (NSException *e) {
     [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.debugDescription, e.reason];
-    return CGPointMake(-1, -1); // Same what XCTest does
   }
+  return CGPointMake(-1, -1); // Same what XCTest does
 }
 
 @end
