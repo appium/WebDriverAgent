@@ -9,6 +9,7 @@
 
 #import "XCUIElement+FBTyping.h"
 
+#import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBKeyboard.h"
 #import "NSString+FBVisualLength.h"
@@ -42,11 +43,15 @@
 
 - (BOOL)fb_typeText:(NSString *)text error:(NSError **)error
 {
+  return [self fb_typeText:text frequency:[FBConfiguration maxTypingFrequency] error:error];
+}
+
+- (BOOL)fb_typeText:(NSString *)text frequency:(NSUInteger)frequency error:(NSError **)error
+{
   if (![self fb_prepareForTextInputWithError:error]) {
     return NO;
   }
-  
-  if (![FBKeyboard typeText:text error:error]) {
+  if (![FBKeyboard typeText:text frequency:frequency error:error]) {
     return NO;
   }
   return YES;
