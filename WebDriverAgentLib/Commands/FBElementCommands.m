@@ -76,8 +76,7 @@
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
-    [[FBRoute POST:@"/wda/element/forceTouch/:uuid"] respondWithTarget:self action:@selector(handleForceTouch:)],
-    [[FBRoute POST:@"/wda/element/forceTouchByCoordinate/:uuid"] respondWithTarget:self action:@selector(handleForceTouchByCoordinateOnElement:)]
+    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
 
@@ -250,23 +249,16 @@
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
   double pressure = [request.arguments[@"pressure"] doubleValue];
   double duration = [request.arguments[@"duration"] doubleValue];
-  NSError *error = nil;
-  if (![element fb_forceTouchWithPressure:pressure duration:duration error:&error]) {
-    return FBResponseWithError(error);
-  }
-  return FBResponseWithOK();
-}
-
-+ (id<FBResponsePayload>)handleForceTouchByCoordinateOnElement:(FBRouteRequest *)request
-{
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  double pressure = [request.arguments[@"pressure"] doubleValue];
-  double duration = [request.arguments[@"duration"] doubleValue];
-  CGPoint forceTouchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  NSError *error = nil;
-  if (![element fb_forceTouchCoordinate:forceTouchPoint pressure:pressure duration:duration error:&error]) {
-    return FBResponseWithError(error);
+  NSError *error;
+  if (nil != request.arguments[@"x"] && nil != request.arguments[@"y"]) {
+    CGPoint forceTouchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
+    if (![element fb_forceTouchCoordinate:forceTouchPoint pressure:pressure duration:duration error:&error]) {
+      return FBResponseWithError(error);
+    }
+  } else {
+    if (![element fb_forceTouchWithPressure:pressure duration:duration error:&error]) {
+      return FBResponseWithError(error);
+    }
   }
   return FBResponseWithOK();
 }
