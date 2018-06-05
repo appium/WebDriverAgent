@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return YES If the touch action has been successfully performed without errors
  */
-- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error;
+- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError * _Nullable*)error;
 
 /**
  Perform complex touch action in scope of the current application.
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return YES If the touch action has been successfully performed without errors
  */
-- (BOOL)fb_performW3CTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error;
+- (BOOL)fb_performW3CTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError * _Nullable*)error;
 
 @end
 
