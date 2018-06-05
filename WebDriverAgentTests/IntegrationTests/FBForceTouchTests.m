@@ -55,12 +55,12 @@
   [self verifyForceTapWithOrientation:UIDeviceOrientationPortrait];
 }
 
-- (void)testForceTapInLandscapeLeft
+- (void)disabled_testForceTapInLandscapeLeft
 {
   [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeLeft];
 }
 
-- (void)testForceTapInLandscapeRight
+- (void)disabled_testForceTapInLandscapeRight
 {
   [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeRight];
 }
