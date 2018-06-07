@@ -41,6 +41,11 @@
   }
   FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
   NSAssert(nil != application, @"Active application instance is not expected to be equal to nil", nil);
+  if (!application.fb_isActivateSupported) {
+    // This is needed for Xcode8 compatibility
+    [application query];
+    [application resolve];
+  }
   return application;
 }
 

@@ -23,7 +23,7 @@
   [self launchApplication];
   [self goToAttributesPage];
   XCUIElement *element = self.testedApplication.buttons[@"not_accessible"];
-  XCTAssertTrue(FBPointFuzzyEqualToPoint(element.fb_lastSnapshot.fb_hitPoint, CGPointMake(200, 220), 0.1));
+  XCTAssertTrue(FBPointFuzzyEqualToPoint([element.fb_lastSnapshot.fb_hitPoint CGPointValue], CGPointMake(200, 220), 0.1));
 }
 
 @end

@@ -84,10 +84,10 @@
       return nil;
     }
     if (nil == positionOffset) {
-      hitPoint = snapshot.fb_hitPoint;
-      if (hitPoint.x >= 0 && hitPoint.y >= 0) {
+      NSValue *hitPointValue = snapshot.fb_hitPoint;
+      if (nil != hitPointValue) {
         // short circuit element hitpoint
-        return [NSValue valueWithCGPoint:hitPoint];
+        return hitPointValue;
       }
       [FBLogger logFmt:@"Failed to fetch hit point for %@. Will use element frame for hit point calculation instead", element.debugDescription];
     }

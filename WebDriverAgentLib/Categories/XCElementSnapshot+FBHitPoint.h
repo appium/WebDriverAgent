@@ -14,8 +14,8 @@
 /**
  Wrapper for Apple's hitpoint, thats resolves few known issues
 
- @return Element's hitpoint if exists {-1, -1} otherwise
+ @return Element's hitpoint if exists nil otherwise
  */
-- (CGPoint)fb_hitPoint;
+- (nullable NSValue *)fb_hitPoint;
 
 @end

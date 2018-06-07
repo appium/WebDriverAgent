@@ -16,7 +16,7 @@ static BOOL FBHasHitPointProperty = NO;
 static BOOL FBHasHitPointResult = NO;
 static dispatch_once_t onceHitPoint;
 
-- (CGPoint)fb_hitPoint
+- (NSValue *)fb_hitPoint
 {
   dispatch_once(&onceHitPoint, ^{
     FBHasHitPointProperty = [self respondsToSelector:@selector(hitPoint)];
@@ -24,7 +24,7 @@ static dispatch_once_t onceHitPoint;
   });
   @try {
     if (FBHasHitPointProperty) {
-      return [self hitPoint];
+      return [NSValue valueWithCGPoint:[self hitPoint]];
     }
     // https://github.com/facebook/WebDriverAgent/issues/934
     if (FBHasHitPointResult) {
@@ -39,13 +39,16 @@ static dispatch_once_t onceHitPoint;
       id __unsafe_unretained result;
       [invocation getReturnValue:&result];
       if (nil == error && nil != result && nil != [result valueForKey:@"hitPoint"]) {
-        return [[result valueForKey:@"hitPoint"] CGPointValue];
+        return [result valueForKey:@"hitPoint"];
+      }
+      if (nil != error) {
+        [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.debugDescription, error.description];
       }
     }
   } @catch (NSException *e) {
     [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.debugDescription, e.reason];
   }
-  return CGPointMake(-1, -1); // Same what XCTest does
+  return nil;
 }
 
 @end
