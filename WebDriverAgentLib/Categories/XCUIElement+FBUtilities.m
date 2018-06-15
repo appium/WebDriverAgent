@@ -83,6 +83,8 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
   return self.lastSnapshot;
 }
 
+static const NSTimeInterval AX_TIMEOUT = 15.;
+
 - (nullable XCElementSnapshot *)fb_snapshotWithAttributes {
   if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
     return nil;
@@ -116,27 +118,28 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
   });
   
   __block XCElementSnapshot *snapshotWithAttributes = nil;
-  dispatch_group_t resolveGroup = dispatch_group_create();
-  dispatch_group_enter(resolveGroup);
-  
+  __block NSError *innerError = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  
-  [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
-                      attributes:axAttributes
-                      parameters:defaultParameters
-                           reply:^(XCElementSnapshot *snapshot, NSError *error) {
-                             if (error != nil) {
-                               dispatch_group_leave(resolveGroup);
-                               return;
-                             }
-                             snapshotWithAttributes = snapshot;
-                             dispatch_group_leave(resolveGroup);
-                           }];
-  
-  static const unsigned int SNAPSHOT_TIMEOUT_SEC = 5;
-  if (dispatch_group_wait(resolveGroup, dispatch_time(DISPATCH_TIME_NOW, SNAPSHOT_TIMEOUT_SEC * NSEC_PER_SEC)) != 0) {
-    [FBLogger logFmt:@"Getting the snapshot timed out after %u seconds", SNAPSHOT_TIMEOUT_SEC];
-    return nil;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_setAXTimeout:AX_TIMEOUT reply:^(int res) {
+    [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
+                        attributes:axAttributes
+                        parameters:defaultParameters
+                             reply:^(XCElementSnapshot *snapshot, NSError *error) {
+                               if (nil == error) {
+                                 snapshotWithAttributes = snapshot;
+                               } else {
+                                 innerError = error;
+                               }
+                               dispatch_semaphore_signal(sem);
+                             }];
+  }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AX_TIMEOUT * NSEC_PER_SEC)));
+  if (nil == snapshotWithAttributes) {
+    [FBLogger logFmt:@"Getting the snapshot timed out after %@ seconds", @(AX_TIMEOUT)];
+    if (nil != innerError) {
+      [FBLogger logFmt:@"Internal error: %@", innerError.description];
+    }
   }
   return snapshotWithAttributes;
 }
