@@ -52,6 +52,12 @@
   return result.copy;
 }
 
+- (NSInteger) fb_descendantsCountMatchingClassName:(NSString *)className
+{
+  XCUIElementType type = [FBElementTypeTransformer elementTypeWithTypeName:className];
+  XCUIElementQuery *query = [self descendantsMatchingType:type];
+  return query.count;
+}
 
 #pragma mark - Search by property value
 

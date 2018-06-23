@@ -131,6 +131,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
   NSArray *foundElements = @[];
   @try {
+    if ([request.arguments[@"countOnly"] boolValue]) {
+      return [self handleCountSubElements:request.arguments[@"using"] withValue:request.arguments[@"value"] under:element];
+    }
     foundElements = [self.class elementsUsing:request.arguments[@"using"]
                                     withValue:request.arguments[@"value"]
                                         under:element
@@ -143,6 +146,17 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
     @throw e;
   }
   return FBResponseWithCachedElements(foundElements, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+}
+
++ (id<FBResponsePayload>)handleCountSubElements:(NSString *)usingText withValue:(NSString *)value under:(XCUIElement *)element
+{
+  NSInteger count;
+  if ([usingText isEqualToString:@"class name"]) {
+    count = [element fb_descendantsCountMatchingClassName:value];
+  } else {
+    [[NSException exceptionWithName:FBElementAttributeUnknownException reason:[NSString stringWithFormat:@"Invalid locator requested: %@", usingText] userInfo:nil] raise];
+  }
+  return FBResponseWithObject(@{@"count": @(count)});
 }
 
 + (id<FBResponsePayload>)handleGetActiveElement:(FBRouteRequest *)request

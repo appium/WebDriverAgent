@@ -26,6 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingClassName:(NSString *)className shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch;
 
 /**
+ Returns the count of descendants matching given class name
+ 
+ @param className requested class name
+ @return the number of descendants matching given class name
+ */
+- (NSInteger)fb_descendantsCountMatchingClassName:(NSString *)className;
+
+/**
  Returns an array of descendants matching given accessibility id
 
  @param accessibilityId requested accessibility id
