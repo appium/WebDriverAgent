@@ -84,6 +84,9 @@
   if (requirements[@"shouldUseSingletonTestManager"]) {
     [FBConfiguration setShouldUseSingletonTestManager:[requirements[@"shouldUseSingletonTestManager"] boolValue]];
   }
+  if (requirements[@"autoAlertAction"]) {
+    [FBConfiguration setAutoAlertAction:[((id) requirements[@"autoAlertAction"]) stringValue]];
+  }
 
   FBApplication *app = [[FBApplication alloc] initPrivateWithPath:appPath bundleID:bundleID];
   app.fb_shouldWaitForQuiescence = [requirements[@"shouldWaitForQuiescence"] boolValue];
@@ -174,7 +177,8 @@
   return FBResponseWithObject(
     @{
       @"shouldUseCompactResponses": @([FBConfiguration shouldUseCompactResponses]),
-      @"elementResponseAttributes": [FBConfiguration elementResponseAttributes]
+      @"elementResponseAttributes": [FBConfiguration elementResponseAttributes],
+      @"autoAlertAction": [FBConfiguration autoAlertAction]
     }
   );
 }
@@ -193,6 +197,10 @@
   if ([settings objectForKey:@"elementResponseAttributes"]) {
     NSString* elementResponseAttribute = [settings objectForKey:@"elementResponseAttributes"];
     [FBConfiguration setElementResponseAttributes:elementResponseAttribute];
+  }
+
+  if ([settings objectForKey:@"autoAlertAction"]) {
+    [FBConfiguration setAutoAlertAction:[(id)[settings objectForKey:@"autoAlertAction"] stringValue]];
   }
   
   return [self handleGetSettings:request];

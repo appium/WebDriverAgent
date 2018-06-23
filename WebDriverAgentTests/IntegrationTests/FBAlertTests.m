@@ -11,6 +11,8 @@
 
 #import <WebDriverAgentLib/FBAlert.h>
 
+#import "FBAlert.h"
+#import "FBConfiguration.h"
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 #import "FBMacros.h"
@@ -178,6 +180,61 @@
   } else {
     XCTAssertThrowsSpecificNamed([alert filterObstructedElements:@[showSheetButton]], NSException, FBAlertObstructingElementException, @"should throw FBAlertObstructingElementException");
   }
+}
+
+@end
+
+
+@interface FBAutoAlertTests : FBIntegrationTestCase
+@property (nonatomic) id<NSObject> interruptionMonitorToken;
+@end
+
+@implementation FBAutoAlertTests
+
+- (void)setUp
+{
+  [super setUp];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self launchApplication];
+    [self goToAlertsPage];
+  });
+  self.interruptionMonitorToken = [self addUIInterruptionMonitorWithDescription:@"WebDriverAgent Alerts Handler" handler:^BOOL(XCUIElement * _Nonnull interruptingElement) {
+    FBAlert *alert = [FBAlert alertWithElement:interruptingElement];
+    NSError *error;
+    if ([FBConfiguration.autoAlertAction isEqualToString:FB_ALERT_ACCEPT_ACTION]) {
+      [alert acceptWithError:&error];
+    }
+    if ([FBConfiguration.autoAlertAction isEqualToString:FB_ALERT_DISMISS_ACTION]) {
+      [alert dismissWithError:&error];
+    }
+
+    return YES;
+  }];
+  [FBConfiguration setAutoAlertAction:FB_ALERT_ACCEPT_ACTION];
+}
+
+- (void)tearDown
+{
+  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  [FBConfiguration setAutoAlertAction:FB_ALERT_NONE_ACTION];
+  [self removeUIInterruptionMonitor:self.interruptionMonitorToken];
+  [super tearDown];
+}
+
+- (void)showApplicationAlert
+{
+  [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:nil];
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count != 0);
+}
+
+- (void)testAutomaticAlertsHandling
+{
+  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
+  [self showApplicationAlert];
+  // it is necessary to interact with the app otherwise the callback does not work
+  [self.testedApplication tap];
+  FBAssertWaitTillBecomesTrue(!alert.isPresent);
 }
 
 @end

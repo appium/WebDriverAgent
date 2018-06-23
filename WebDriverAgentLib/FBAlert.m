@@ -65,7 +65,8 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 @end
 
 @interface FBAlert ()
-@property (nonatomic, strong) XCUIApplication *application;
+@property (nonatomic, strong, nullable) XCUIApplication *application;
+@property (nonatomic, strong, nullable) XCUIElement *element;
 @end
 
 @implementation FBAlert
@@ -79,6 +80,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 {
   FBAlert *alert = [FBAlert new];
   alert.application = application;
+  alert.element = nil;
+  return alert;
+}
+
++ (instancetype)alertWithElement:(XCUIElement *)element
+{
+  FBAlert *alert = [FBAlert new];
+  alert.application = nil;
+  alert.element = element;
   return alert;
 }
 
@@ -248,8 +258,14 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 
 - (XCUIElement *)alertElement
 {
-  XCUIElement *alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
-  if (!alert.exists) {
+  XCUIElement *alert = nil;
+  if (nil != self.element) {
+    alert = self.element;
+  }
+  if (nil != self.application) {
+    alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  }
+  if (nil == alert || !alert.exists) {
     return nil;
   }
   [alert resolve];

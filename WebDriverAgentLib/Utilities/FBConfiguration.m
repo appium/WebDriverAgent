@@ -15,12 +15,17 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
 
+NSString *const FB_ALERT_ACCEPT_ACTION = @"accept";
+NSString *const FB_ALERT_DISMISS_ACTION = @"dismiss";
+NSString *const FB_ALERT_NONE_ACTION = @"none";
+
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultPortRange = 100;
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
+static NSString *FBAutoAlertAction = nil;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 
@@ -134,6 +139,16 @@ static NSUInteger FBMaxTypingFrequency = 60;
     return NSMakeRange(NSNotFound, 0);
   }
   return NSMakeRange(port, 1);
+}
+
++ (void)setAutoAlertAction:(NSString *)value
+{
+  FBAutoAlertAction = [value lowercaseString];
+}
+
++ (NSString *)autoAlertAction
+{
+  return FBAutoAlertAction ?: FB_ALERT_NONE_ACTION;
 }
 
 @end

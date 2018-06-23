@@ -9,6 +9,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <WebDriverAgentLib/FBalert.h>
 #import <WebDriverAgentLib/FBDebugLogDelegateDecorator.h>
 #import <WebDriverAgentLib/FBConfiguration.h>
 #import <WebDriverAgentLib/FBFailureProofTestCase.h>
@@ -16,6 +17,7 @@
 #import <WebDriverAgentLib/XCTestCase.h>
 
 @interface UITestingUITests : FBFailureProofTestCase <FBWebServerDelegate>
+@property (nonatomic) id<NSObject> interruptionMonitorToken;
 @end
 
 @implementation UITestingUITests
@@ -25,6 +27,29 @@
   [FBDebugLogDelegateDecorator decorateXCTestLogger];
   [FBConfiguration disableRemoteQueryEvaluation];
   [super setUp];
+}
+
+- (void)setUp
+{
+  [super setUp];
+  self.interruptionMonitorToken = [self addUIInterruptionMonitorWithDescription:@"WebDriverAgent Alerts Handler" handler:^BOOL(XCUIElement * _Nonnull interruptingElement) {
+    FBAlert *alert = [FBAlert alertWithElement:interruptingElement];
+    NSError *error;
+    if ([FBConfiguration.autoAlertAction isEqualToString:FB_ALERT_ACCEPT_ACTION]) {
+      [alert acceptWithError:&error];
+    }
+    if ([FBConfiguration.autoAlertAction isEqualToString:FB_ALERT_DISMISS_ACTION]) {
+      [alert dismissWithError:&error];
+    }
+
+    return YES;
+  }];
+}
+
+- (void)tearDown
+{
+  [self removeUIInterruptionMonitor:self.interruptionMonitorToken];
+  [super tearDown];
 }
 
 /**

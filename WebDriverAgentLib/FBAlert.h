@@ -33,6 +33,11 @@ extern NSString *const FBAlertObstructingElementException;
 + (instancetype)alertWithApplication:(XCUIApplication *)application;
 
 /**
+ Creates alert helper for the given element
+ */
++ (instancetype)alertWithElement:(XCUIElement *)element;
+
+/**
  Determines whether alert is present
  */
 - (BOOL)isPresent;

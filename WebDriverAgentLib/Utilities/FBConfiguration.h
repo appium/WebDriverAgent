@@ -12,6 +12,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ The set of available actions for automated alerts handling
+ */
+extern NSString *const FB_ALERT_ACCEPT_ACTION;
+extern NSString *const FB_ALERT_DISMISS_ACTION;
+extern NSString *const FB_ALERT_NONE_ACTION;
+
+/**
  Accessors for Global Constants.
  */
 @interface FBConfiguration : NSObject
@@ -41,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 /* Use singleton test manager proxy */
 + (void)setShouldUseSingletonTestManager:(BOOL)value;
 + (BOOL)shouldUseSingletonTestManager;
+
+/* Control automatic resposne on UI interruption events */
++ (void)setAutoAlertAction:(NSString *)value;
++ (NSString *)autoAlertAction;
 
 /**
  The range of ports that the HTTP Server should attempt to bind on launch
