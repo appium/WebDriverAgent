@@ -42,26 +42,28 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 
 - (NSDictionary *)fb_tree
 {
-  [self fb_waitUntilSnapshotIsStable];
-  XCElementSnapshot *snapshot = self.fb_snapshotWithAttributes;
-
-  if (snapshot) {
-    NSArray<XCElementSnapshot *> *children;
-
-    NSArray<XCUIElement *> *windows = [((XCUIElement *)self) fb_filterDescendantsWithSnapshots:snapshot.children];
-    NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-
-    for (XCUIElement* window in windows) {
-      [windowsSnapshots addObject:window.fb_snapshotWithAttributes ?: window.fb_lastSnapshot];
-    }
-
-    children = windowsSnapshots.copy;
-    snapshot.children = children;
-  } else {
-    snapshot = self.fb_lastSnapshot;
+  if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
+    [self fb_waitUntilSnapshotIsStable];
   }
 
-  return [self.class dictionaryForElement:snapshot];
+  // If getting the snapshot with attributes fails we use the snapshot with lazily initialized attributes
+  XCElementSnapshot *snapshot = self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot;
+
+  NSMutableDictionary *snapshotTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
+
+  NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children];
+  NSMutableArray<NSDictionary *> *childrenTree = [NSMutableArray arrayWithCapacity:children.count];
+
+  for (XCUIElement* child in children) {
+    XCElementSnapshot *childSnapshot = child.fb_snapshotWithAttributes ?: child.fb_lastSnapshot;
+    [childrenTree addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];
+  }
+
+  if (childrenTree.count > 0) {
+    [snapshotTree setObject:childrenTree.copy forKey:@"children"];
+  }
+
+  return snapshotTree.copy;
 }
 
 - (NSDictionary *)fb_accessibilityTree
@@ -71,7 +73,7 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   return [self.class accessibilityInfoForElement:self.fb_lastSnapshot];
 }
 
-+ (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot
++ (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive
 {
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
@@ -87,11 +89,15 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   info[@"isEnabled"] = [@([snapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([snapshot isWDVisible]) stringValue];
 
+  if (!recursive) {
+    return info.copy;
+  }
+
   NSArray *childElements = snapshot.children;
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (XCElementSnapshot *childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot]];
+      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot recursive:YES]];
     }
   }
   return info;
