@@ -43,7 +43,25 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 - (NSDictionary *)fb_tree
 {
   [self fb_waitUntilSnapshotIsStable];
-  return [self.class dictionaryForElement:self.fb_lastSnapshot];
+  XCElementSnapshot *snapshot = self.fb_snapshotWithAttributes;
+
+  if (snapshot) {
+    NSArray<XCElementSnapshot *> *children;
+
+    NSArray<XCUIElement *> *windows = [((XCUIElement *)self) fb_filterDescendantsWithSnapshots:snapshot.children];
+    NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
+
+    for (XCUIElement* window in windows) {
+      [windowsSnapshots addObject:window.fb_snapshotWithAttributes ?: window.fb_lastSnapshot];
+    }
+
+    children = windowsSnapshots.copy;
+    snapshot.children = children;
+  } else {
+    snapshot = self.fb_lastSnapshot;
+  }
+
+  return [self.class dictionaryForElement:snapshot];
 }
 
 - (NSDictionary *)fb_accessibilityTree
