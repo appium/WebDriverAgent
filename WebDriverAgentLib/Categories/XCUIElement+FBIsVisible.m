@@ -139,6 +139,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
 {
   if ([FBConfiguration shouldLoadSnapshotWithAttributes]) {
     NSNumber *isVisible = self.additionalAttributes[FB_XCAXAIsVisibleAttribute];
+    // We can only rely on the system attribute if it is true
+    // Unfortunately, XCTest often sets this attribute to false for elements that are actually visible in the UI
     if (nil != isVisible && isVisible.boolValue) {
       return isVisible.boolValue;
     }
