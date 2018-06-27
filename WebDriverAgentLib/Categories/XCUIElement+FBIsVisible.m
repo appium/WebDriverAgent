@@ -139,7 +139,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
 {
   if ([FBConfiguration shouldLoadSnapshotWithAttributes]) {
     NSNumber *isVisible = self.additionalAttributes[FB_XCAXAIsVisibleAttribute];
-    if (isVisible != nil) {
+    if (nil != isVisible && isVisible.boolValue) {
       return isVisible.boolValue;
     }
   }
