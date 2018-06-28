@@ -139,7 +139,8 @@
 {
   // For updatedWDABundleId capability by Appium
   NSString *productBundleIdentifier = @"com.facebook.WebDriverAgentRunner";
-  if (NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"]) {
+  NSString *envproductBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
+  if (envproductBundleIdentifier && ([envproductBundleIdentifier length] != 0)) {
     productBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
   }
 
