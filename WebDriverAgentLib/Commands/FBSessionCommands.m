@@ -39,7 +39,7 @@
 
     // Health check might modify simulator state so it should only be called in-between testing sessions
     [[FBRoute GET:@"/wda/healthcheck"].withoutSession respondWithTarget:self action:@selector(handleGetHealthCheck:)],
-    
+
     // Settings endpoints
     [[FBRoute GET:@"/appium/settings"] respondWithTarget:self action:@selector(handleGetSettings:)],
     [[FBRoute POST:@"/appium/settings"] respondWithTarget:self action:@selector(handleSetSettings:)],
@@ -137,6 +137,12 @@
 
 + (id<FBResponsePayload>)handleGetStatus:(FBRouteRequest *)request
 {
+  // For updatedWDABundleId capability by Appium
+  NSString *productBundleIdentifier = @"com.facebook.WebDriverAgentRunner";
+  if (NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"]) {
+    productBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
+  }
+
   return
   FBResponseWithStatus(
     FBCommandStatusNoError,
@@ -156,6 +162,7 @@
       @"build" :
         @{
           @"time" : [self.class buildTimestamp],
+          @"productBundleIdentifier" : productBundleIdentifier,
         },
     }
   );
@@ -184,17 +191,17 @@
 + (id<FBResponsePayload>)handleSetSettings:(FBRouteRequest *)request
 {
   NSDictionary* settings = request.arguments[@"settings"];
-  
+
   if ([settings objectForKey:@"shouldUseCompactResponses"]) {
     BOOL shouldUseCompactResponses = [[settings objectForKey:@"shouldUseCompactResponses"] boolValue];
     [FBConfiguration setShouldUseCompactResponses:shouldUseCompactResponses];
   }
-  
+
   if ([settings objectForKey:@"elementResponseAttributes"]) {
     NSString* elementResponseAttribute = [settings objectForKey:@"elementResponseAttributes"];
     [FBConfiguration setElementResponseAttributes:elementResponseAttribute];
   }
-  
+
   return [self handleGetSettings:request];
 }
 
