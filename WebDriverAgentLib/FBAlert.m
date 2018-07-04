@@ -107,8 +107,8 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   if (resultText.count) {
     return [resultText componentsJoinedByString:@"\n"];
   }
-  // return null to reflect the fact there is an alert, but it does not contain any text
-  return (id)[NSNull null];
+  // return an empty string to reflect the fact there is an alert, but it does not contain any text
+  return @"";
 }
 
 - (BOOL)typeText:(NSString *)text error:(NSError **)error
