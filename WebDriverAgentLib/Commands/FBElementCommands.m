@@ -24,7 +24,6 @@
 #import "FBMathUtils.h"
 #import "FBRuntimeUtils.h"
 #import "NSPredicate+FBFormat.h"
-#import "XCEventGenerator.h"
 #import "XCUICoordinate.h"
 #import "XCUIDevice.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -487,7 +486,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   if (shouldApplyOrientationWorkaround) {
     point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
   }
-  
+
   /**
    If SDK >= 11, the tap coordinate based on application is not correct when
    the application orientation is landscape and
@@ -515,7 +514,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
 /**
  Returns gesture coordinate based on the specified element.
- 
+
  @param coordinate absolute coordinates based on the element
  @param element the element in the current application under test
  @return translated gesture coordinates ready to be passed to XCUICoordinate methods
