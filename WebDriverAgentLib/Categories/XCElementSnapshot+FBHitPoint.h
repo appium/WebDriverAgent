@@ -9,6 +9,8 @@
 
 #import <WebDriverAgentLib/XCElementSnapshot.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface XCElementSnapshot (FBHitPoint)
 
 /**
@@ -19,3 +21,5 @@
 - (nullable NSValue *)fb_hitPoint;
 
 @end
+
+NS_ASSUME_NONNULL_END
