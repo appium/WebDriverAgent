@@ -56,6 +56,9 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 
   for (XCUIElement* child in children) {
     XCElementSnapshot *childSnapshot = child.fb_snapshotWithAttributes ?: child.fb_lastSnapshot;
+    if (nil == childSnapshot) {
+      continue;
+    }
     [childrenTree addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];
   }
 

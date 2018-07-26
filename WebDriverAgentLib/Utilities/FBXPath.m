@@ -310,7 +310,12 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
       NSArray<XCUIElement *> *windows = [((XCUIElement *)root) fb_filterDescendantsWithSnapshots:currentSnapshot.children];
       NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
       for (XCUIElement* window in windows) {
-        [windowsSnapshots addObject:window.fb_snapshotWithAttributes ?: window.fb_lastSnapshot];
+        XCElementSnapshot *windowSnapshot = window.fb_snapshotWithAttributes ?: window.fb_lastSnapshot;
+        if (nil == windowSnapshot) {
+          [FBLogger logFmt:@"Skipping source dumping for %@ because its snapshot cannot be resolved", window.description];
+          continue;
+        }
+        [windowsSnapshots addObject:windowSnapshot];
       }
       children = windowsSnapshots.copy;
     } else {
