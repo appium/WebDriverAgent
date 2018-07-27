@@ -112,7 +112,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
   id text = FBFirstNonEmptyValue(element.wdValue, element.wdLabel);
-  text = text ?: [NSNull null];
+  text = text ?: @"";
   return FBResponseWithStatus(FBCommandStatusNoError, text);
 }
 
