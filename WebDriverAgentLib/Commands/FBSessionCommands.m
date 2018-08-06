@@ -144,6 +144,15 @@
     productBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
   }
 
+  NSMutableDictionary *buildInfo = [NSMutableDictionary dictionaryWithDictionary:@{
+    @"time" : [self.class buildTimestamp],
+    @"productBundleIdentifier" : productBundleIdentifier,
+  }];
+  NSString *gitRevision = NSProcessInfo.processInfo.environment[@"GIT_REV"];
+  if (nil != gitRevision && gitRevision.length > 0) {
+    [buildInfo setObject:gitRevision forKey:@"git-rev"];
+  }
+
   return
   FBResponseWithStatus(
     FBCommandStatusNoError,
@@ -160,11 +169,7 @@
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null],
         },
-      @"build" :
-        @{
-          @"time" : [self.class buildTimestamp],
-          @"productBundleIdentifier" : productBundleIdentifier,
-        },
+      @"build" : buildInfo.copy
     }
   );
 }

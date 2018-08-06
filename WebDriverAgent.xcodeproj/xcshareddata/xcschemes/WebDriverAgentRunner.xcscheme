@@ -71,6 +71,11 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "GIT_REV"
+            value = "$(GIT_REV)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "WDA_PRODUCT_BUNDLE_IDENTIFIER"
             value = "$(WDA_PRODUCT_BUNDLE_IDENTIFIER)"
             isEnabled = "YES">
