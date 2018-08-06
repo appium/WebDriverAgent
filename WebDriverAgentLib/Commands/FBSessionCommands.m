@@ -148,9 +148,9 @@
     @"time" : [self.class buildTimestamp],
     @"productBundleIdentifier" : productBundleIdentifier,
   }];
-  NSString *gitRevision = NSProcessInfo.processInfo.environment[@"GIT_REV"];
-  if (nil != gitRevision && gitRevision.length > 0) {
-    [buildInfo setObject:gitRevision forKey:@"git-rev"];
+  NSString *commitHash = NSProcessInfo.processInfo.environment[@"COMMIT_HASH"];
+  if (nil != commitHash && commitHash.length > 0) {
+    [buildInfo setObject:commitHash forKey:@"commitHash"];
   }
 
   return

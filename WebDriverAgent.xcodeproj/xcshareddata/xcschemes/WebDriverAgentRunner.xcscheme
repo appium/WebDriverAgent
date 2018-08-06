@@ -71,8 +71,8 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "GIT_REV"
-            value = "$(GIT_REV)"
+            key = "COMMIT_HASH"
+            value = "$(COMMIT_HASH)"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
