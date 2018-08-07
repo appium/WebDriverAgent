@@ -74,7 +74,7 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
 {
   XCUIElementQuery *query = [self query];
   dispatch_once(&onceUseSnapshotForDebugDescriptionToken, ^{
-    FBShouldUseSnapshotForDebugDescription = [query respondsToSelector:NSSelectorFromString(@"elementSnapshotForDebugDescription")];
+    FBShouldUseSnapshotForDebugDescription = [query respondsToSelector:@selector(elementSnapshotForDebugDescription)];
   });
   if (FBShouldUseSnapshotForDebugDescription) {
     return (XCElementSnapshot *)[query valueForKey:@"elementSnapshotForDebugDescription"];
@@ -236,7 +236,7 @@ static dispatch_once_t onceHasScreenshot;
   }
 
   dispatch_once(&onceHasScreenshot, ^{
-    FBHasScreenshotProperty = [self respondsToSelector:NSSelectorFromString(@"screenshot")];
+    FBHasScreenshotProperty = [self respondsToSelector:@selector(screenshot)];
   });
   if (FBHasScreenshotProperty) {
     return [self.screenshot valueForKey:@"PNGRepresentation"];
