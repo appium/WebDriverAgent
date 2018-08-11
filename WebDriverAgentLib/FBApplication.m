@@ -133,7 +133,7 @@
     return;
   }
   XCUIApplicationProcess *applicationProcess = change[NSKeyValueChangeNewKey];
-  if (!applicationProcess || ![applicationProcess isMemberOfClass:XCUIApplicationProcess.class]) {
+  if (!applicationProcess || [applicationProcess isProxy] || ![applicationProcess isMemberOfClass:XCUIApplicationProcess.class]) {
     return;
   }
   [object setValue:[FBApplicationProcessProxy proxyWithApplicationProcess:applicationProcess] forKey:keyPath];
