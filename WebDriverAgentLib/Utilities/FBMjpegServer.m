@@ -10,6 +10,7 @@
 @import CocoaAsyncSocket;
 
 #import "FBApplication.h"
+#import "FBMathUtils.h"
 #import "FBMjpegServer.h"
 #import "XCUIDevice+FBHelpers.h"
 
@@ -70,14 +71,8 @@ static NSString *const SERVER_NAME = @"WDA MJPEG Server";
   dispatch_async(dispatch_get_main_queue(), ^{
     FBApplication *systemApp = FBApplication.fb_systemApplication;
     UIInterfaceOrientation orientation = systemApp.interfaceOrientation;
-    CGRect screenRect = [systemApp frame];
-    if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
-      CGFloat previousWidth = screenRect.size.width;
-      CGFloat previousHeigth = screenRect.size.height;
-      screenRect.size.width = previousHeigth;
-      screenRect.size.height = previousWidth;
-    }
-    self.screenRect = screenRect;
+    CGSize screenSize = FBAdjustDimensionsForApplication([systemApp frame].size, orientation);
+    self.screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
   });
 }
 
