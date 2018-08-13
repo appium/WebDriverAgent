@@ -70,8 +70,7 @@ static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 {
   dispatch_async(dispatch_get_main_queue(), ^{
     FBApplication *systemApp = FBApplication.fb_systemApplication;
-    UIInterfaceOrientation orientation = systemApp.interfaceOrientation;
-    CGSize screenSize = FBAdjustDimensionsForApplication([systemApp frame].size, orientation);
+    CGSize screenSize = FBAdjustDimensionsForApplication([systemApp frame].size, systemApp.interfaceOrientation);
     self.screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
   });
 }
