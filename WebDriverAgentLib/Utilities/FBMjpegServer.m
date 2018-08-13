@@ -11,8 +11,6 @@
 
 #import "FBApplication.h"
 #import "FBMjpegServer.h"
-#import "FBXCodeCompatibility.h"
-#import "XCAXClient_iOS.h"
 #import "XCUIDevice+FBHelpers.h"
 
 static const NSTimeInterval FPS = 10;
@@ -70,8 +68,7 @@ static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 - (void)refreshScreenRect
 {
   dispatch_async(dispatch_get_main_queue(), ^{
-    XCUIApplication *systemApp = [FBApplication fb_applicationWithPID:
-                                  [[[XCAXClient_iOS sharedClient] systemApplication] processIdentifier]];
+    FBApplication *systemApp = FBApplication.fb_systemApplication;
     UIInterfaceOrientation orientation = systemApp.interfaceOrientation;
     CGRect screenRect = [systemApp frame];
     if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {

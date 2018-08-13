@@ -49,6 +49,12 @@
   return application;
 }
 
++ (instancetype)fb_systemApplication
+{
+  return [self fb_applicationWithPID:
+   [[[XCAXClient_iOS sharedClient] systemApplication] processIdentifier]];
+}
+
 + (instancetype)appWithPID:(pid_t)processID
 {
   if ([NSProcessInfo processInfo].processIdentifier == processID) {

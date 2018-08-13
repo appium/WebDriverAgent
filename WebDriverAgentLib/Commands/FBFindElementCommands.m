@@ -18,7 +18,6 @@
 #import "FBPredicate.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
-#import "FBXPath.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBFind.h"
@@ -57,18 +56,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleFindElement:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  XCUIElement *element = nil;
-  @try {
-    element = [self.class elementUsing:request.arguments[@"using"]
-                             withValue:request.arguments[@"value"]
-                                 under:session.activeApplication];
-  } @catch (NSException *e) {
-    id response = [self webdriverResponseWithException:e];
-    if (response) {
-      return response;
-    }
-    @throw e;
-  }
+  XCUIElement *element = [self.class elementUsing:request.arguments[@"using"]
+                                        withValue:request.arguments[@"value"]
+                                            under:session.activeApplication];
   if (!element) {
     return FBNoSuchElementErrorResponseForRequest(request);
   }
@@ -78,19 +68,10 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleFindElements:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  NSArray *elements = @[];
-  @try {
-    elements = [self.class elementsUsing:request.arguments[@"using"]
-                               withValue:request.arguments[@"value"]
-                                   under:session.activeApplication
-             shouldReturnAfterFirstMatch:NO];
-  } @catch (NSException *e) {
-    id response = [self webdriverResponseWithException:e];
-    if (response) {
-      return response;
-    }
-    @throw e;
-  }
+  NSArray *elements = [self.class elementsUsing:request.arguments[@"using"]
+                                      withValue:request.arguments[@"value"]
+                                          under:session.activeApplication
+                    shouldReturnAfterFirstMatch:NO];
   return FBResponseWithCachedElements(elements, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }
 
@@ -107,18 +88,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  XCUIElement *foundElement = nil;
-  @try {
-    foundElement = [self.class elementUsing:request.arguments[@"using"]
-                                  withValue:request.arguments[@"value"]
-                                      under:element];
-  } @catch (NSException *e) {
-    id response = [self webdriverResponseWithException:e];
-    if (response) {
-      return response;
-    }
-    @throw e;
-  }
+  XCUIElement *foundElement = [self.class elementUsing:request.arguments[@"using"]
+                                             withValue:request.arguments[@"value"]
+                                                 under:element];
   if (!foundElement) {
     return FBNoSuchElementErrorResponseForRequest(request);
   }
@@ -129,19 +101,10 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  NSArray *foundElements = @[];
-  @try {
-    foundElements = [self.class elementsUsing:request.arguments[@"using"]
-                                    withValue:request.arguments[@"value"]
-                                        under:element
-                  shouldReturnAfterFirstMatch:NO];
-  } @catch (NSException *e) {
-    id response = [self webdriverResponseWithException:e];
-    if (response) {
-      return response;
-    }
-    @throw e;
-  }
+  NSArray *foundElements = [self.class elementsUsing:request.arguments[@"using"]
+                                           withValue:request.arguments[@"value"]
+                                               under:element
+                         shouldReturnAfterFirstMatch:NO];
   return FBResponseWithCachedElements(foundElements, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }
 
@@ -157,20 +120,12 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 
 #pragma mark - Helpers
 
-+ (nullable id)webdriverResponseWithException:(NSException *)e
-{
-  if ([e.name isEqualToString:XCElementSnapshotInvalidXPathException]) {
-    return FBResponseWithStatus(FBCommandStatusInvalidXPathSelector, e.description);
-  }
-  if ([e.name isEqualToString:FBClassChainQueryParseException]) {
-    return FBResponseWithStatus(FBCommandStatusInvalidSelector, e.description);
-  }
-  return nil;
-}
-
 + (XCUIElement *)elementUsing:(NSString *)usingText withValue:(NSString *)value under:(XCUIElement *)element
 {
-  return [[self elementsUsing:usingText withValue:value under:element shouldReturnAfterFirstMatch:YES] firstObject];
+  return [[self elementsUsing:usingText
+                    withValue:value
+                        under:element
+  shouldReturnAfterFirstMatch:YES] firstObject];
 }
 
 + (NSArray *)elementsUsing:(NSString *)usingText withValue:(NSString *)value under:(XCUIElement *)element shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch

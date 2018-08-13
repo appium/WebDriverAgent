@@ -87,8 +87,8 @@ const static char *_UTF8Encoding = "UTF-8";
 
 static NSString *const kXMLIndexPathKey = @"private_indexPath";
 static NSString *const topNodeIndexPath = @"top";
-NSString *const XCElementSnapshotInvalidXPathException = @"XCElementSnapshotInvalidXPathException";
-NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnapshotXPathQueryEvaluationException";
+NSString *const FBInvalidXPathException = @"FBInvalidXPathException";
+NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationException";
 
 @implementation FBXPath
 
@@ -124,21 +124,21 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
   if (NULL == writer) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlNewTextWriterDoc for XPath query \"%@\"", xpathQuery];
-    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
+    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
   }
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int rc = [self xmlRepresentationWithRootElement:root writer:writer elementStore:elementStore query:xpathQuery];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
-    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
+    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
   }
 
   xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery document:doc];
   if (NULL == queryResult) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
-    return [self throwException:XCElementSnapshotInvalidXPathException forQuery:xpathQuery];
+    return [self throwException:FBInvalidXPathException forQuery:xpathQuery];
   }
 
   NSArray *matchingSnapshots = [self collectMatchingSnapshots:queryResult->nodesetval elementStore:elementStore];
@@ -146,7 +146,7 @@ NSString *const XCElementSnapshotXPathQueryEvaluationException = @"XCElementSnap
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);
   if (nil == matchingSnapshots) {
-    return [self throwException:XCElementSnapshotXPathQueryEvaluationException forQuery:xpathQuery];
+    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
   }
   return matchingSnapshots;
 }
