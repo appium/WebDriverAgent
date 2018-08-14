@@ -105,6 +105,17 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
+  if (nil == NSClassFromString(@"XCUIScreen")) {
+    NSData *result = [[XCAXClient_iOS sharedClient] screenshotData];
+    if (nil == result) {
+      if (error) {
+        *error = [[FBErrorBuilder.builder withDescription:@"Cannot take a screenshot of the current screen state"] build];
+      }
+      return nil;
+    }
+    return result;
+  }
+
   FBApplication *activeApplication = FBApplication.fb_activeApplication;
   UIInterfaceOrientation orientation = activeApplication.interfaceOrientation;
   CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
@@ -129,6 +140,9 @@ static bool fb_isLocked;
         *error = [[FBErrorBuilder.builder withDescription:@"Cannot take a screenshot of the current screen state"] build];
       }
       return nil;
+    }
+    if (quality > 0) {
+      return (NSData *)UIImageJPEGRepresentation((id)[UIImage imageWithData:result], 100 / quality);
     }
     return result;
   }
