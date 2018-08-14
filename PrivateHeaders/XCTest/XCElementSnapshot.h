@@ -94,7 +94,9 @@
 /*! DO NOT USE DIRECTLY! Please use fb_rootElement instead */
 - (XCElementSnapshot *)rootElement;
 
-// Available from Xcode 9.0 on
+// Available only in Xcode 9.0
 + (id)snapshotAttributesForElementSnapshotKeyPaths:(id)arg1;
+// Available since Xcode 10.0-beta4 on
++ (id)axAttributesForElementSnapshotKeyPaths:(id)arg1;
 
 @end

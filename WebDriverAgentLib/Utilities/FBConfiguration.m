@@ -12,6 +12,7 @@
 #import <UIKit/UIKit.h>
 
 #include "TargetConditionals.h"
+#import "FBXCodeCompatibility.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
 
@@ -121,14 +122,7 @@ static NSUInteger FBMaxTypingFrequency = 60;
 }
 
 + (BOOL)shouldLoadSnapshotWithAttributes {
-  static BOOL shouldLoadSnapshotWithAttributes = NO;
-  static dispatch_once_t shouldLoadSnapshotWithAttributesToken;
-  dispatch_once(&shouldLoadSnapshotWithAttributesToken, ^{
-    if ([XCElementSnapshot.class respondsToSelector:@selector(snapshotAttributesForElementSnapshotKeyPaths:)]) {
-      shouldLoadSnapshotWithAttributes = YES;
-    }
-  });
-  return shouldLoadSnapshotWithAttributes;
+  return [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector] != nil;
 }
 
 #pragma mark Private
