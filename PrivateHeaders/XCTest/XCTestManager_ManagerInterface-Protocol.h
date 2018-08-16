@@ -6,7 +6,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class NSArray, NSDictionary, NSNumber, NSString, NSUUID, XCAccessibilityElement, XCDeviceEvent, XCSynthesizedEventRecord, XCTouchGesture, NSXPCListenerEndpoint;
+@class NSArray, NSDictionary, NSNumber, NSString, NSUUID, XCAccessibilityElement, XCDeviceEvent, XCSynthesizedEventRecord, XCTouchGesture, NSXPCListenerEndpoint, XCElementSnapshot;
 
 @protocol XCTestManager_ManagerInterface
 - (void)_XCT_loadAccessibilityWithTimeout:(double)arg1 reply:(void (^)(BOOL, NSError *))arg2;
@@ -39,4 +39,8 @@
 - (void)_XCT_requestEndpointForTestTargetWithPID:(int)arg1 preferredBackendPath:(NSString *)arg2 reply:(void (^)(NSXPCListenerEndpoint *, NSError *))arg3;
 - (void)_XCT_requestSocketForSessionIdentifier:(NSUUID *)arg1 reply:(void (^)(NSFileHandle *))arg2;
 - (void)_XCT_exchangeProtocolVersion:(unsigned long long)arg1 reply:(void (^)(unsigned long long))arg2;
+
+// Available since Xcode9
+- (void)_XCT_requestScreenshotOfScreenWithID:(unsigned int)arg1 withRect:(struct CGRect)arg2 uti:(NSString *)arg3 compressionQuality:(double)arg4 withReply:(void (^)(NSData *, NSError *))arg5;
+- (void)_XCT_requestScreenshotOfScreenWithID:(unsigned int)arg1 withRect:(struct CGRect)arg2 withReply:(void (^)(NSData *, NSError *))arg3;
 @end
