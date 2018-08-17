@@ -21,6 +21,7 @@
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCUIApplication+FBAlert.h"
 #import "XCUICoordinate.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
@@ -31,41 +32,9 @@
 
 NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElementException";
 
-@interface XCUIApplication (FBAlert)
-
-- (XCUIElement *)fb_alertElement;
-
-@end
-
-@implementation XCUIApplication (FBAlert)
-
-- (XCUIElement *)fb_alertElement
-{
-  XCUIElement *alert = self.alerts.element;
-  if (alert.exists) {
-    return alert;
-  }
-
-  alert = self.sheets.element;
-  if (alert.exists) {
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-      return alert;
-    }
-    // In case of iPad we want to check if sheet isn't contained by popover.
-    // In that case we ignore it.
-    NSPredicate *predicateString = [NSPredicate predicateWithFormat:@"identifier == 'PopoverDismissRegion'"];
-    XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicateString];
-    if (!query.fb_firstMatch) {
-      return alert;
-    }
-  }
-  return nil;
-}
-
-@end
-
 @interface FBAlert ()
 @property (nonatomic, strong) XCUIApplication *application;
+@property (nonatomic, strong, nullable) XCUIElement *element;
 @end
 
 @implementation FBAlert
@@ -79,6 +48,14 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 {
   FBAlert *alert = [FBAlert new];
   alert.application = application;
+  return alert;
+}
+
++ (instancetype)alertWithElement:(XCUIElement *)element
+{
+  FBAlert *alert = [FBAlert new];
+  alert.element = element;
+  alert.application = element.application;
   return alert;
 }
 
@@ -248,7 +225,10 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 
 - (XCUIElement *)alertElement
 {
-  XCUIElement *alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  XCUIElement *alert = self.element;
+  if (nil == alert) {
+    alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  }
   if (!alert.exists) {
     return nil;
   }

@@ -94,7 +94,12 @@
   if (app.processID == 0) {
     return FBResponseWithErrorFormat(@"Failed to launch %@ application", bundleID);
   }
-  [FBSession sessionWithApplication:app];
+  if (requirements[@"defaultAlertAction"]) {
+    [FBSession sessionWithApplication:app defaultAlertAction:(id)requirements[@"defaultAlertAction"]];
+  } else {
+    [FBSession sessionWithApplication:app];
+  }
+
   return FBResponseWithObject(FBSessionCommands.sessionInformation);
 }
 

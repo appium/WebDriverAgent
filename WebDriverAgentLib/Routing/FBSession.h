@@ -8,7 +8,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "XCUIApplication.h"
 
 @class FBApplication;
 @class FBElementCache;
@@ -50,6 +49,15 @@ extern NSString *const FBApplicationCrashedException;
  @return new session
  */
 + (instancetype)sessionWithApplication:(nullable FBApplication *)application;
+
+/**
+ Creates and saves new session for application with default alert handling behaviour
+
+ @param application The application that we want to create session for
+ @param defaultAlertAction The default reaction to on-screen alert. Either 'accept' or 'dismiss'
+ @return new session
+ */
++ (instancetype)sessionWithApplication:(nullable FBApplication *)application defaultAlertAction:(NSString *)defaultAlertAction;
 
 /**
  Kills application associated with that session and removes session
