@@ -106,9 +106,18 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 - (void)refreshScreenRect
 {
+  if (![self.class canStreamScreenshots]) {
+    return;
+  }
+
   dispatch_async(dispatch_get_main_queue(), ^{
     FBApplication *systemApp = FBApplication.fb_systemApplication;
-    CGSize screenSize = FBAdjustDimensionsForApplication([systemApp frame].size, systemApp.interfaceOrientation);
+    CGRect appFrame = [systemApp frame];
+    if (CGRectIsEmpty(appFrame)) {
+      [FBLogger logFmt:@"Cannot retrieve the actual screen size. Will continue using the current value: %@", self.screenRect];
+      return;
+    }
+    CGSize screenSize = FBAdjustDimensionsForApplication(appFrame.size, systemApp.interfaceOrientation);
     @synchronized (self.screenRect) {
       self.screenRect = [NSValue valueWithCGRect:CGRectMake(0, 0, screenSize.width, screenSize.height)];
     }
@@ -117,6 +126,10 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 - (void)didClientConnect:(GCDAsyncSocket *)newClient activeClients:(NSArray<GCDAsyncSocket *> *)activeClients
 {
+  if (![self.class canStreamScreenshots]) {
+    return;
+  }
+
   [self refreshScreenRect];
 
   dispatch_async(self.backgroundQueue, ^{
@@ -132,6 +145,10 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 - (void)didClientDisconnect:(NSArray<GCDAsyncSocket *> *)activeClients
 {
+  if (![self.class canStreamScreenshots]) {
+    return;
+  }
+
   @synchronized (self.activeClients) {
     [self.activeClients removeAllObjects];
     [self.activeClients addObjectsFromArray:activeClients];
