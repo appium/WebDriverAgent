@@ -45,6 +45,10 @@
 
 - (void)testAutoAcceptingOfAlerts
 {
+  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+    return;
+  }
+  
   self.session = [FBSession
                   sessionWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
@@ -57,6 +61,10 @@
 
 - (void)testAutoDismissingOfAlerts
 {
+  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+    return;
+  }
+
   self.session = [FBSession
                   sessionWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];
