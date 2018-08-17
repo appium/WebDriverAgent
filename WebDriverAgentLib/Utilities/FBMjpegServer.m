@@ -17,12 +17,13 @@
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "FBXCTestDaemonsProxy.h"
 
-static const NSTimeInterval FPS = 10;
+static const NSUInteger FPS = 10;
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 0.5;
 static const double SCREENSHOT_QUALITY = 0.25;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
+
 
 @interface FBMjpegServer()
 
@@ -33,8 +34,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 @end
 
-@implementation FBMjpegServer
 
+@implementation FBMjpegServer
 
 - (instancetype)init
 {
