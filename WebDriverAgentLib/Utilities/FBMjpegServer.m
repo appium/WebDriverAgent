@@ -30,7 +30,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 @property (nonatomic, nullable) NSTimer *mainTimer;
 @property (nonatomic) dispatch_queue_t backgroundQueue;
 @property (nonatomic) NSMutableArray<GCDAsyncSocket *> *activeClients;
-@property (nonatomic, nullable) NSValue *screenRect;
+@property (nonatomic) CGRect screenRect;
 
 @end
 
@@ -41,58 +41,60 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 {
   if ((self = [super init])) {
     _activeClients = [NSMutableArray array];
-    _screenRect = nil;
+    _screenRect = CGRectZero;
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, DISPATCH_QUEUE_SERIAL);
     if (![self.class canStreamScreenshots]) {
       [FBLogger log:@"MJPEG server cannot start because the current iOS version is not supoprted"];
       return self;
     }
     _mainTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 / FPS repeats:YES block:^(NSTimer * _Nonnull timer) {
-      @synchronized (self.activeClients) {
-        if (0 == self.activeClients.count) {
-          return;
-        }
-      }
-
-      @synchronized(self.screenRect) {
-        if (nil == self.screenRect || CGRectIsEmpty(self.screenRect.CGRectValue)) {
-          return;
-        }
-
-        __block NSData *screenshotData = nil;
-        id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-        [proxy _XCT_setAXTimeout:SCREENSHOT_TIMEOUT reply:^(int res) {
-          [proxy _XCT_requestScreenshotOfScreenWithID:1
-                                             withRect:self.screenRect.CGRectValue
-                                                  uti:nil
-                                   compressionQuality:SCREENSHOT_QUALITY
-                                            withReply:^(NSData *data, NSError *error) {
-                                              screenshotData = data;
-                                              dispatch_semaphore_signal(sem);
-                                            }];
-        }];
-        dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
-        if (nil == screenshotData) {
-          return;
-        }
-
-        dispatch_async(self.backgroundQueue, ^{
-          NSString *chunkHeader = [NSString stringWithFormat:@"--BoundaryString\r\nContent-type: image/jpg\r\nContent-Length: %@\r\n\r\n", @(screenshotData.length)];
-          NSString *chunkTail = @"\r\n\r\n";
-          NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
-          [chunk appendData:screenshotData];
-          [chunk appendData:(id)[chunkTail dataUsingEncoding:NSUTF8StringEncoding]];
-          @synchronized (self.activeClients) {
-            for (GCDAsyncSocket *client in self.activeClients) {
-              [client writeData:chunk.copy withTimeout:-1 tag:0];
-            }
-          }
-        });
-      }
+      [self streamScreenshot];
     }];
   }
   return self;
+}
+
+- (void)streamScreenshot
+{
+  @synchronized (self.activeClients) {
+    if (0 == self.activeClients.count) {
+      return;
+    }
+  }
+
+  if (CGRectIsEmpty(self.screenRect)) {
+    return;
+  }
+  __block NSData *screenshotData = nil;
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_setAXTimeout:SCREENSHOT_TIMEOUT reply:^(int res) {
+    [proxy _XCT_requestScreenshotOfScreenWithID:1
+                                       withRect:self.screenRect
+                                            uti:nil
+                             compressionQuality:SCREENSHOT_QUALITY
+                                      withReply:^(NSData *data, NSError *error) {
+      screenshotData = data;
+      dispatch_semaphore_signal(sem);
+    }];
+  }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
+  if (nil == screenshotData) {
+    return;
+  }
+
+  dispatch_async(self.backgroundQueue, ^{
+    NSString *chunkHeader = [NSString stringWithFormat:@"--BoundaryString\r\nContent-type: image/jpg\r\nContent-Length: %@\r\n\r\n", @(screenshotData.length)];
+    NSString *chunkTail = @"\r\n\r\n";
+    NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
+    [chunk appendData:screenshotData];
+    [chunk appendData:(id)[chunkTail dataUsingEncoding:NSUTF8StringEncoding]];
+    @synchronized (self.activeClients) {
+      for (GCDAsyncSocket *client in self.activeClients) {
+        [client writeData:chunk.copy withTimeout:-1 tag:0];
+      }
+    }
+  });
 }
 
 + (BOOL)canStreamScreenshots
@@ -115,13 +117,11 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     FBApplication *systemApp = FBApplication.fb_systemApplication;
     CGRect appFrame = [systemApp frame];
     if (CGRectIsEmpty(appFrame)) {
-      [FBLogger logFmt:@"Cannot retrieve the actual screen size. Will continue using the current value: %@", self.screenRect];
+      [FBLogger logFmt:@"Cannot retrieve the actual screen size. Will continue using the current value: %@", [NSValue valueWithCGRect:self.screenRect]];
       return;
     }
     CGSize screenSize = FBAdjustDimensionsForApplication(appFrame.size, systemApp.interfaceOrientation);
-    @synchronized (self.screenRect) {
-      self.screenRect = [NSValue valueWithCGRect:CGRectMake(0, 0, screenSize.width, screenSize.height)];
-    }
+    self.screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
   });
 }
 
