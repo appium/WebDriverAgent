@@ -153,9 +153,9 @@
     @"time" : [self.class buildTimestamp],
     @"productBundleIdentifier" : productBundleIdentifier,
   }];
-  NSString *commitHash = NSProcessInfo.processInfo.environment[@"COMMIT_HASH"];
-  if (nil != commitHash && commitHash.length > 0) {
-    [buildInfo setObject:commitHash forKey:@"commitHash"];
+  NSString *upgradeTimestamp = NSProcessInfo.processInfo.environment[@"UPGRADE_TIMESTAMP"];
+  if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
+    [buildInfo setObject:upgradeTimestamp forKey:@"upgraded"];
   }
 
   return

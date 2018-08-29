@@ -71,8 +71,8 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "COMMIT_HASH"
-            value = "$(COMMIT_HASH)"
+            key = "UPGRADE_TIMESTAMP"
+            value = "$(UPGRADE_TIMESTAMP)"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
