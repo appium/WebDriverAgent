@@ -155,7 +155,7 @@
   }];
   NSString *upgradeTimestamp = NSProcessInfo.processInfo.environment[@"UPGRADE_TIMESTAMP"];
   if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
-    [buildInfo setObject:upgradeTimestamp forKey:@"upgraded_at"];
+    [buildInfo setObject:upgradeTimestamp forKey:@"upgradedAt"];
   }
 
   return
