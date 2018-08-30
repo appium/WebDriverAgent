@@ -68,7 +68,10 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     magicStartData = [NSData dataWithBytesNoCopy:(void*)magic length:magicLen freeWhenDone:NO];
   });
 
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wassign-enum"
   NSRange range = [data rangeOfData:magicStartData options:kNilOptions range:NSMakeRange(0, magicLen)];
+  #pragma clang diagnostic pop
   return range.location != NSNotFound;
 }
 
