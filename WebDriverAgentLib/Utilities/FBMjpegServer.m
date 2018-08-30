@@ -19,7 +19,7 @@
 
 static const NSUInteger FPS = 10;
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 0.5;
-static const double SCREENSHOT_QUALITY = 0.25;
+static const CGFloat SCREENSHOT_QUALITY = 0.25;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
@@ -52,6 +52,24 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     }];
   }
   return self;
+}
+
++ (BOOL)isJPEGData:(nullable NSData *)data
+{
+  static const NSUInteger magicLen = 2;
+  if (nil == data || [data length] < magicLen) {
+    return NO;
+  }
+
+  static NSData* magicStartData = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    static uint8_t magic[] = { 0xff, 0xd8 };
+    magicStartData = [NSData dataWithBytesNoCopy:(void*)magic length:magicLen freeWhenDone:NO];
+  });
+
+  NSRange range = [data rangeOfData:magicStartData options:0 range:NSMakeRange(0, magicLen)];
+  return range.location != NSNotFound;
 }
 
 - (void)streamScreenshot
@@ -87,7 +105,21 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     NSString *chunkHeader = [NSString stringWithFormat:@"--BoundaryString\r\nContent-type: image/jpg\r\nContent-Length: %@\r\n\r\n", @(screenshotData.length)];
     NSString *chunkTail = @"\r\n\r\n";
     NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
-    [chunk appendData:screenshotData];
+    NSData *jpegData;
+    // Sometimes XCTest might still return PNG screenshots
+    if ([self.class isJPEGData:screenshotData]) {
+      jpegData = screenshotData;
+    } else {
+      UIImage *image = [UIImage imageWithData:screenshotData];
+      if (nil == image) {
+        return;
+      }
+      jpegData = UIImageJPEGRepresentation(image, SCREENSHOT_QUALITY);
+      if (nil == jpegData) {
+        return;
+      }
+    }
+    [chunk appendData:jpegData];
     [chunk appendData:(id)[chunkTail dataUsingEncoding:NSUTF8StringEncoding]];
     @synchronized (self.activeClients) {
       for (GCDAsyncSocket *client in self.activeClients) {
