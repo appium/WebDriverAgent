@@ -68,7 +68,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     magicStartData = [NSData dataWithBytesNoCopy:(void*)magic length:magicLen freeWhenDone:NO];
   });
 
-  NSRange range = [data rangeOfData:magicStartData options:0 range:NSMakeRange(0, magicLen)];
+  NSRange range = [data rangeOfData:magicStartData options:kNilOptions range:NSMakeRange(0, magicLen)];
   return range.location != NSNotFound;
 }
 
