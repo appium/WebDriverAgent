@@ -62,7 +62,7 @@
     }
   } else if ([type.lowercaseString isEqualToString:@"url"]) {
     if (pb.hasURLs) {
-      NSMutableArray<NSString *> *urls = [NSMutableArray arrayWithCapacity:pb.URLs.count];
+      NSMutableArray<NSString *> *urls = [NSMutableArray array];
       for (NSURL *url in pb.URLs) {
         if (nil != url.absoluteString) {
           [urls addObject:(id)url.absoluteString];
