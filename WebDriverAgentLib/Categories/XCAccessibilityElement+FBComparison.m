@@ -14,10 +14,7 @@
 
 - (BOOL)isEqualToElement:(XCAccessibilityElement *)other
 {
-  if (nil == other) {
-    return NO;
-  }
-  return [[FBElementUtils uidWithAccessibilityElement:self] isEqualToString:[FBElementUtils uidWithAccessibilityElement:other]];
+  return nil == other ? NO : [[FBElementUtils uidWithAccessibilityElement:self] isEqualToString:[FBElementUtils uidWithAccessibilityElement:other]];
 }
 
 @end
