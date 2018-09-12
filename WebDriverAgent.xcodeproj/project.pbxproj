@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1FC3B2E32121ECF600B61EE0 /* FBApplicationProcessProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */; };
 		710181F8211DF584002FD3A8 /* CocoaAsyncSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */; };
 		71018201211DF62C002FD3A8 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 71018200211DF62C002FD3A8 /* libxml2.tbd */; };
 		7101820D211E026B002FD3A8 /* libAccessibility.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7101820C211E026B002FD3A8 /* libAccessibility.tbd */; };
 		7101820E211E1E19002FD3A8 /* CocoaAsyncSocket.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7101820F211E3EC9002FD3A8 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1FC3B2E32121ECF600B61EE0 /* FBApplicationProcessProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */; };
+		710C16CD21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h in Headers */ = {isa = PBXBuildFile; fileRef = 710C16CB21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h */; };
+		710C16CE21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m in Sources */ = {isa = PBXBuildFile; fileRef = 710C16CC21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
 		7119E1EC1E891F8600D0B125 /* FBPickerWheelSelectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */; };
@@ -444,12 +446,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBApplicationProcessProxyTests.m; sourceTree = "<group>"; };
 		1BA7DD8C206D694B007C7C26 /* XCTElementSetTransformer-Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTElementSetTransformer-Protocol.h"; sourceTree = "<group>"; };
+		1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBApplicationProcessProxyTests.m; sourceTree = "<group>"; };
 		44757A831D42CE8300ECF35E /* XCUIDeviceRotationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XCUIDeviceRotationTests.m; sourceTree = "<group>"; };
 		710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaAsyncSocket.framework; path = Carthage/Build/iOS/CocoaAsyncSocket.framework; sourceTree = "<group>"; };
 		71018200211DF62C002FD3A8 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		7101820C211E026B002FD3A8 /* libAccessibility.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libAccessibility.tbd; path = usr/lib/libAccessibility.tbd; sourceTree = SDKROOT; };
+		710C16CB21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCAccessibilityElement+FBComparison.h"; sourceTree = "<group>"; };
+		710C16CC21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCAccessibilityElement+FBComparison.m"; sourceTree = "<group>"; };
 		711084421DA3AA7500F913D6 /* FBXPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBXPath.h; sourceTree = "<group>"; };
 		711084431DA3AA7500F913D6 /* FBXPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPath.m; sourceTree = "<group>"; };
 		7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPickerWheelSelectTests.m; sourceTree = "<group>"; };
@@ -959,6 +963,8 @@
 				EE0D1F601EBCDCF7006A3123 /* NSString+FBVisualLength.m */,
 				716E0BCC1E917E810087A825 /* NSString+FBXMLSafeString.h */,
 				716E0BCD1E917E810087A825 /* NSString+FBXMLSafeString.m */,
+				710C16CB21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h */,
+				710C16CC21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m */,
 				EEE3763B1D59F81400ED88DD /* XCElementSnapshot+FBHelpers.h */,
 				EEE3763C1D59F81400ED88DD /* XCElementSnapshot+FBHelpers.m */,
 				EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */,
@@ -1546,6 +1552,7 @@
 				EE35AD681E3B77D600A02D78 /* XCTWaiterManagement-Protocol.h in Headers */,
 				EE006EB01EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h in Headers */,
 				EE35AD451E3B77D600A02D78 /* XCTestContext.h in Headers */,
+				710C16CD21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h in Headers */,
 				EE35AD661E3B77D600A02D78 /* XCTWaiterDelegate-Protocol.h in Headers */,
 				EE35AD0E1E3B77D600A02D78 /* _XCTestExpectationImplementation.h in Headers */,
 				EE35AD291E3B77D600A02D78 /* XCAXClient_iOS.h in Headers */,
@@ -1882,6 +1889,7 @@
 				719CD8F92126C78F00C7D0C2 /* FBAlertsMonitor.m in Sources */,
 				71A7EAFA1E224648001DA4F2 /* FBClassChainQueryParser.m in Sources */,
 				71A224E61DE2F56600844D55 /* NSPredicate+FBFormat.m in Sources */,
+				710C16CE21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m in Sources */,
 				EEE376441D59F81400ED88DD /* XCUIDevice+FBRotation.m in Sources */,
 				71B49EC81ED1A58100D51AD6 /* XCUIElement+FBUID.m in Sources */,
 				EE158AE21CBD456F00A3E3F0 /* FBRouteRequest.m in Sources */,
@@ -2229,7 +2237,10 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = "-Wl,-U,\"_OBJC_CLASS_$_XCElementSnapshot\"";
+				OTHER_LDFLAGS = (
+					"-Wl,-U,\"_OBJC_CLASS_$_XCElementSnapshot\"",
+					"-Wl,-U,\"_OBJC_CLASS_$_XCAccessibilityElement\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2257,7 +2268,10 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = "-Wl,-U,\"_OBJC_CLASS_$_XCElementSnapshot\"";
+				OTHER_LDFLAGS = (
+					"-Wl,-U,\"_OBJC_CLASS_$_XCElementSnapshot\"",
+					"-Wl,-U,\"_OBJC_CLASS_$_XCAccessibilityElement\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

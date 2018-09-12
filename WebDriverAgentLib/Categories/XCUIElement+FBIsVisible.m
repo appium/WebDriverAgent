@@ -13,10 +13,16 @@
 #import "FBElementUtils.h"
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "XCAccessibilityElement+FBComparison.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
+#import "XCTRunnerDaemonSession.h"
+
+static const NSTimeInterval AX_TIMEOUT = 1.0;
 
 @implementation XCUIElement (FBIsVisible)
 
@@ -135,6 +141,30 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return NO;
 }
 
+- (XCAccessibilityElement *)elementAtPoint:(CGPoint)point
+{
+  __block XCAccessibilityElement *result = nil;
+  __block NSError *innerError = nil;
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_setAXTimeout:AX_TIMEOUT reply:^(int res) {
+    [proxy _XCT_requestElementAtPoint:point
+                                reply:^(XCAccessibilityElement *element, NSError *error) {
+      if (nil == error) {
+        result = element;
+      } else {
+        innerError = error;
+      }
+      dispatch_semaphore_signal(sem);
+    }];
+  }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AX_TIMEOUT * NSEC_PER_SEC)));
+  if (nil != innerError) {
+    [FBLogger logFmt:@"Cannot get the accessibility element for the point where %@ snapshot is located. Original error: '%@'", innerError.description, self.description];
+  }
+  return result;
+}
+
 - (BOOL)fb_isVisible
 {
   if ([FBConfiguration shouldLoadSnapshotWithAttributes]) {
@@ -181,13 +211,24 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     // However, upside-down case cannot be covered this way, which is not important for Appium
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
-  XCElementSnapshot *hitElement = [self hitTest:midPoint];
-  if (nil != hitElement && (self == hitElement || [ancestors containsObject:hitElement])) {
-    return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
+  XCAccessibilityElement *hitElement = [self elementAtPoint:midPoint];
+  if (nil != hitElement) {
+    if ([self.accessibilityElement isEqualToElement:hitElement]) {
+      return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
+    }
+    for (XCElementSnapshot *ancestor in ancestors) {
+      if ([hitElement isEqualToElement:ancestor.accessibilityElement]) {
+        return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
+      }
+    }
   }
   if (self.children.count > 0) {
-    if (nil != hitElement && [self._allDescendants containsObject:hitElement]) {
-      return [hitElement fb_cacheVisibilityWithValue:YES forAncestors:hitElement.fb_ancestors];
+    if (nil != hitElement) {
+      for (XCElementSnapshot *descendant in self._allDescendants) {
+        if ([hitElement isEqualToElement:descendant.accessibilityElement]) {
+          return [self fb_cacheVisibilityWithValue:YES forAncestors:descendant.fb_ancestors];
+        }
+      }
     }
     if (self.fb_hasAnyVisibleLeafs) {
       return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
