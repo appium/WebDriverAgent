@@ -26,6 +26,7 @@
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
+#import "XCUIScreen.h"
 
 @implementation XCUIElement (FBUtilities)
 
@@ -67,20 +68,9 @@ static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
   return YES;
 }
 
-static BOOL FBShouldUseSnapshotForDebugDescription = NO;
-static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
-
 - (XCElementSnapshot *)fb_lastSnapshot
 {
-  XCUIElementQuery *query = [self query];
-  dispatch_once(&onceUseSnapshotForDebugDescriptionToken, ^{
-    FBShouldUseSnapshotForDebugDescription = [query respondsToSelector:NSSelectorFromString(@"elementSnapshotForDebugDescription")];
-  });
-  if (FBShouldUseSnapshotForDebugDescription) {
-    return (XCElementSnapshot *)[query valueForKey:@"elementSnapshotForDebugDescription"];
-  }
-  [self resolve];
-  return self.lastSnapshot;
+  return [self.query elementSnapshotForDebugDescription];
 }
 
 static const NSTimeInterval AX_TIMEOUT = 15.;
@@ -230,9 +220,6 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
   return result;
 }
 
-static BOOL FBHasScreenshotProperty = NO;
-static dispatch_once_t onceHasScreenshot;
-
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   if (CGRectIsEmpty(self.frame)) {
@@ -242,29 +229,6 @@ static dispatch_once_t onceHasScreenshot;
     return nil;
   }
 
-  dispatch_once(&onceHasScreenshot, ^{
-    FBHasScreenshotProperty = [self respondsToSelector:NSSelectorFromString(@"screenshot")];
-  });
-  if (FBHasScreenshotProperty) {
-    return [self.screenshot valueForKey:@"PNGRepresentation"];
-  }
-
-  Class xcScreenClass = NSClassFromString(@"XCUIScreen");
-  if (nil == xcScreenClass) {
-    if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:@"Element screenshots are only available since Xcode9 SDK"] build];
-    }
-    return nil;
-  }
-
-  id mainScreen = [xcScreenClass valueForKey:@"mainScreen"];
-  SEL mSelector = NSSelectorFromString(@"screenshotDataForQuality:rect:error:");
-  NSMethodSignature *mSignature = [mainScreen methodSignatureForSelector:mSelector];
-  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
-  [invocation setTarget:mainScreen];
-  [invocation setSelector:mSelector];
-  NSUInteger quality = 1;
-  [invocation setArgument:&quality atIndex:2];
   CGRect elementRect = self.frame;
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
@@ -290,11 +254,7 @@ static dispatch_once_t onceHasScreenshot;
       }
     }
   }
-  [invocation setArgument:&elementRect atIndex:3];
-  [invocation setArgument:&error atIndex:4];
-  [invocation invoke];
-  NSData __unsafe_unretained *imageData;
-  [invocation getReturnValue:&imageData];
+  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:1 rect:elementRect error:error];
   if (nil == imageData) {
     return nil;
   }

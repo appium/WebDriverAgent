@@ -10,17 +10,13 @@
 #import "FBScreen.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIScreen.h"
 
 @implementation FBScreen
 
 + (double)scale
 {
-  id xcScreen = NSClassFromString(@"XCUIScreen");
-  if (nil == xcScreen) {
-    return [[UIScreen mainScreen] scale];
-  }
-  id mainScreen = [xcScreen valueForKey:@"mainScreen"];
-  return [[mainScreen valueForKey:@"scale"] doubleValue];
+  return [XCUIScreen.mainScreen scale];
 }
 
 + (CGSize)statusBarSizeForApplication:(XCUIApplication *)application

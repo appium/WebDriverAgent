@@ -21,7 +21,7 @@
 #import "FBXCodeCompatibility.h"
 
 #import "XCUIDevice.h"
-#import "XCAXClient_iOS.h"
+#import "XCUIScreen.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
@@ -105,17 +105,6 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  if (nil == NSClassFromString(@"XCUIScreen")) {
-    NSData *result = [[XCAXClient_iOS sharedClient] screenshotData];
-    if (nil == result) {
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:@"Cannot take a screenshot of the current screen state"] build];
-      }
-      return nil;
-    }
-    return result;
-  }
-
   FBApplication *activeApplication = FBApplication.fb_activeApplication;
   UIInterfaceOrientation orientation = activeApplication.interfaceOrientation;
   CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
@@ -132,33 +121,7 @@ static bool fb_isLocked;
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
 {
-  id xcScreen = NSClassFromString(@"XCUIScreen");
-  if (nil == xcScreen) {
-    NSData *result = [[XCAXClient_iOS sharedClient] screenshotData];
-    if (nil == result) {
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:@"Cannot take a screenshot of the current screen state"] build];
-      }
-      return nil;
-    }
-    if (quality > 0) {
-      return (NSData *)UIImageJPEGRepresentation((id)[UIImage imageWithData:result], 100 / quality);
-    }
-    return result;
-  }
-
-  id mainScreen = [xcScreen valueForKey:@"mainScreen"];
-  SEL mSelector = NSSelectorFromString(@"screenshotDataForQuality:rect:error:");
-  NSMethodSignature *mSignature = [mainScreen methodSignatureForSelector:mSelector];
-  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
-  [invocation setTarget:mainScreen];
-  [invocation setSelector:mSelector];
-  [invocation setArgument:&quality atIndex:2];
-  [invocation setArgument:&rect atIndex:3];
-  [invocation setArgument:&error atIndex:4];
-  [invocation invoke];
-  NSData __unsafe_unretained *imageData;
-  [invocation getReturnValue:&imageData];
+  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:rect error:error];
   if (nil == imageData) {
     return nil;
   }
