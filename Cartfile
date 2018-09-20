@@ -2,4 +2,7 @@
 github "marekcirkos/RoutingHTTPServer"
 
 # Used by the element cache
-github "ibireme/YYCache"
+github "appium/YYCache"
+
+# Used by screenshots broadcaster
+github "robbiehanson/CocoaAsyncSocket"

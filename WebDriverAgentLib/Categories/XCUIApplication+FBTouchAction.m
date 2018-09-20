@@ -20,7 +20,7 @@
 
 @implementation XCUIApplication (FBTouchAction)
 
-- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType actions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType actions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
   FBBaseActionsSynthesizer *synthesizer = [[synthesizerType alloc] initWithActions:actions forApplication:self elementCache:elementCache error:error];
   if (nil == synthesizer) {
@@ -33,12 +33,12 @@
   return [self fb_synthesizeEvent:eventRecord error:error];
 }
 
-- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
   return [self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
 }
 
-- (BOOL)fb_performW3CTouchActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performW3CTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
   return [self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
 }

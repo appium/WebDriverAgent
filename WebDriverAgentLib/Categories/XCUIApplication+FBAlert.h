@@ -7,15 +7,15 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "FBXPathCreator.h"
+#import <XCTest/XCTest.h>
 
-#import "FBElementTypeTransformer.h"
+@interface XCUIApplication (FBAlert)
 
-@implementation FBXPathCreator
+/**
+ Retrieve the current alert element
 
-+ (NSString *)xpathWithSubelementsOfType:(XCUIElementType)elementType
-{
-  return [NSString stringWithFormat:@"//%@", [FBElementTypeTransformer stringWithElementType:elementType]];
-}
+ @return Alert element instance
+ */
+- (XCUIElement *)fb_alertElement;
 
 @end

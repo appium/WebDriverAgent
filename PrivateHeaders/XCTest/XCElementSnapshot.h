@@ -61,8 +61,11 @@
 @property(readonly) NSString *recursiveDescription;
 @property(readonly, copy) NSArray *identifiers;
 @property(nonatomic) unsigned long long generation; // @synthesize generation=_generation;
+/*! DO NOT USE DIRECTLY! */
 @property(nonatomic) XCUIApplication *application; // @synthesize application=_application;
+/*! DO NOT USE DIRECTLY! */
 @property(readonly) struct CGPoint hitPointForScrolling;
+/*! DO NOT USE DIRECTLY! Please use fb_hitPoint instead */
 @property(readonly) struct CGPoint hitPoint;
 
 - (id)_uniquelyIdentifyingObjectiveCCode;
@@ -90,5 +93,10 @@
 - (XCElementSnapshot *)_rootElement;
 /*! DO NOT USE DIRECTLY! Please use fb_rootElement instead */
 - (XCElementSnapshot *)rootElement;
+
+// Available only in Xcode 9.0
++ (id)snapshotAttributesForElementSnapshotKeyPaths:(id)arg1;
+// Available since Xcode 10.0-beta4 on
++ (id)axAttributesForElementSnapshotKeyPaths:(id)arg1;
 
 @end

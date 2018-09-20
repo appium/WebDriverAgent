@@ -26,13 +26,16 @@
 {
   struct objc_method_description descr = protocol_getMethodDescription(@protocol(FBElement), aSelector, YES, YES);
   BOOL isWebDriverAttributesSelector = descr.name != nil;
-  if(!isWebDriverAttributesSelector) {
+  if (!isWebDriverAttributesSelector) {
     return nil;
   }
   if (!self.exists) {
     return [XCElementSnapshot new];
   }
 
+  if (descr.name == @selector(isWDVisible)) {
+    return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  }
   // If lastSnapshot is still missing aplication is probably not active. Returning empty element instead of crashing.
   // This will work well, if element search is requested (will not match anything) and reqesting properties values (will return nils).
   return self.fb_lastSnapshot ?: [XCElementSnapshot new];

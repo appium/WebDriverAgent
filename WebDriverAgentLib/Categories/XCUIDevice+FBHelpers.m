@@ -105,8 +105,7 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  id xcScreen = NSClassFromString(@"XCUIScreen");
-  if (nil == xcScreen) {
+  if (nil == NSClassFromString(@"XCUIScreen")) {
     NSData *result = [[XCAXClient_iOS sharedClient] screenshotData];
     if (nil == result) {
       if (error) {
@@ -116,23 +115,46 @@ static bool fb_isLocked;
     }
     return result;
   }
-  
-  id mainScreen = [xcScreen valueForKey:@"mainScreen"];
+
   FBApplication *activeApplication = FBApplication.fb_activeApplication;
   UIInterfaceOrientation orientation = activeApplication.interfaceOrientation;
+  CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
+  CGRect screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
+  // https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
+  // Select lower quality, since XCTest crashes randomly if the maximum quality (zero value) is selected
+  // and the resulting screenshot does not fit the memory buffer preallocated for it by the operating system
+  NSData *imageData = [self fb_rawScreenshotWithQuality:1 rect:screenRect error:error];
+  if (nil == imageData) {
+    return nil;
+  }
+  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+}
+
+- (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
+{
+  id xcScreen = NSClassFromString(@"XCUIScreen");
+  if (nil == xcScreen) {
+    NSData *result = [[XCAXClient_iOS sharedClient] screenshotData];
+    if (nil == result) {
+      if (error) {
+        *error = [[FBErrorBuilder.builder withDescription:@"Cannot take a screenshot of the current screen state"] build];
+      }
+      return nil;
+    }
+    if (quality > 0) {
+      return (NSData *)UIImageJPEGRepresentation((id)[UIImage imageWithData:result], 100 / quality);
+    }
+    return result;
+  }
+
+  id mainScreen = [xcScreen valueForKey:@"mainScreen"];
   SEL mSelector = NSSelectorFromString(@"screenshotDataForQuality:rect:error:");
   NSMethodSignature *mSignature = [mainScreen methodSignatureForSelector:mSelector];
   NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:mSignature];
   [invocation setTarget:mainScreen];
   [invocation setSelector:mSelector];
-  // https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
-  // Select lower quality, since XCTest crashes randomly if the maximum quality (zero value) is selected
-  // and the resulting screenshot does not fit the memory buffer preallocated for it by the operating system
-  NSUInteger quality = 1;
   [invocation setArgument:&quality atIndex:2];
-  CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
-  CGRect screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
-  [invocation setArgument:&screenRect atIndex:3];
+  [invocation setArgument:&rect atIndex:3];
   [invocation setArgument:&error atIndex:4];
   [invocation invoke];
   NSData __unsafe_unretained *imageData;
@@ -140,7 +162,7 @@ static bool fb_isLocked;
   if (nil == imageData) {
     return nil;
   }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+  return imageData;
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch

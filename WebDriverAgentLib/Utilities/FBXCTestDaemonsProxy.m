@@ -32,9 +32,9 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 {
   static id<XCTestManager_ManagerInterface> proxy = nil;
   if ([FBConfiguration shouldUseSingletonTestManager]) {
-    [FBLogger logFmt:@"Using singleton test manager"];
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+      [FBLogger logFmt:@"Using singleton test manager"];
       proxy = [self.class retrieveTestRunnerProxy];
     });
   } else {

@@ -10,6 +10,7 @@
 #import "FBElementCommands.h"
 
 #import "FBApplication.h"
+#import "FBConfiguration.h"
 #import "FBKeyboard.h"
 #import "FBPredicate.h"
 #import "FBRoute.h"
@@ -29,12 +30,14 @@
 #import "XCUIElement+FBPickerWheel.h"
 #import "XCUIElement+FBScrolling.h"
 #import "XCUIElement+FBTap.h"
+#import "XCUIElement+FBForceTouch.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "FBElementTypeTransformer.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
+#import "FBXCodeCompatibility.h"
 
 @interface FBElementCommands ()
 @end
@@ -57,7 +60,10 @@
     [[FBRoute POST:@"/element/:uuid/value"] respondWithTarget:self action:@selector(handleSetValue:)],
     [[FBRoute POST:@"/element/:uuid/click"] respondWithTarget:self action:@selector(handleClick:)],
     [[FBRoute POST:@"/element/:uuid/clear"] respondWithTarget:self action:@selector(handleClear:)],
+    // W3C element screenshot
     [[FBRoute GET:@"/element/:uuid/screenshot"] respondWithTarget:self action:@selector(handleElementScreenshot:)],
+    // JSONWP element screenshot
+    [[FBRoute GET:@"/screenshot/:uuid"] respondWithTarget:self action:@selector(handleElementScreenshot:)],
     [[FBRoute GET:@"/wda/element/:uuid/accessible"] respondWithTarget:self action:@selector(handleGetAccessible:)],
     [[FBRoute GET:@"/wda/element/:uuid/accessibilityContainer"] respondWithTarget:self action:@selector(handleGetIsAccessibilityContainer:)],
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
@@ -72,7 +78,8 @@
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
-    [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)]
+    [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
 
@@ -108,7 +115,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
   id text = FBFirstNonEmptyValue(element.wdValue, element.wdLabel);
-  text = text ?: [NSNull null];
+  text = text ?: @"";
   return FBResponseWithStatus(FBCommandStatusNoError, text);
 }
 
@@ -167,9 +174,9 @@
     [element adjustToNormalizedSliderPosition:sliderValue];
     return FBResponseWithOK();
   }
-
+  NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error = nil;
-  if (![element fb_typeText:textToType error:&error]) {
+  if (![element fb_typeText:textToType frequency:frequency error:&error]) {
     return FBResponseWithError(error);
   }
   return FBResponseWithElementUUID(elementUUID);
@@ -239,6 +246,26 @@
   return FBResponseWithOK();
 }
 
++ (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
+  double pressure = [request.arguments[@"pressure"] doubleValue];
+  double duration = [request.arguments[@"duration"] doubleValue];
+  NSError *error;
+  if (nil != request.arguments[@"x"] && nil != request.arguments[@"y"]) {
+    CGPoint forceTouchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
+    if (![element fb_forceTouchCoordinate:forceTouchPoint pressure:pressure duration:duration error:&error]) {
+      return FBResponseWithError(error);
+    }
+  } else {
+    if (![element fb_forceTouchWithPressure:pressure duration:duration error:&error]) {
+      return FBResponseWithError(error);
+    }
+  }
+  return FBResponseWithOK();
+}
+
 + (id<FBResponsePayload>)handleScroll:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -248,7 +275,7 @@
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
   if (name) {
-    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:name] allElementsBoundByIndex] lastObject];
+    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:name] allElementsBoundByAccessibilityElement] lastObject];
     if (!childElement) {
       return FBResponseWithErrorFormat(@"'%@' identifier didn't match any elements", name);
     }
@@ -274,7 +301,7 @@
   NSString *const predicateString = request.arguments[@"predicateString"];
   if (predicateString) {
     NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:[FBPredicate predicateWithFormat:predicateString]];
-    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate] allElementsBoundByIndex] lastObject];
+    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate] allElementsBoundByAccessibilityElement] lastObject];
     if (!childElement) {
       return FBResponseWithErrorFormat(@"'%@' predicate didn't match any elements", predicateString);
     }
@@ -366,8 +393,9 @@
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
   NSString *textToType = [request.arguments[@"value"] componentsJoinedByString:@""];
+  NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error;
-  if (![FBKeyboard typeText:textToType error:&error]) {
+  if (![FBKeyboard typeText:textToType frequency:frequency error:&error]) {
     return FBResponseWithError(error);
   }
   return FBResponseWithOK();
@@ -461,8 +489,43 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   if (shouldApplyOrientationWorkaround) {
     point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
   }
-  XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:application normalizedOffset:CGVectorMake(0, 0)];
-  return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(point.x, point.y)];
+
+  /**
+   If SDK >= 11, the tap coordinate based on application is not correct when
+   the application orientation is landscape and
+   tapX > application portrait width or tapY > application portrait height.
+   Pass the window element to the method [FBElementCommands gestureCoordinateWithCoordinate:element:]
+   will resolve the problem.
+   More details about the bug, please see the following issues:
+   #705: https://github.com/facebook/WebDriverAgent/issues/705
+   #798: https://github.com/facebook/WebDriverAgent/issues/798
+   #856: https://github.com/facebook/WebDriverAgent/issues/856
+   Notice: On iOS 10, if the application is not launched by wda, no elements will be found.
+   See issue #732: https://github.com/facebook/WebDriverAgent/issues/732
+   */
+  XCUIElement *element = application;
+  if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
+    XCUIElement *window = application.windows.fb_firstMatch;
+    if (window) {
+      element = window;
+      point.x -= element.frame.origin.x;
+      point.y -= element.frame.origin.y;
+    }
+  }
+  return [self gestureCoordinateWithCoordinate:point element:element];
+}
+
+/**
+ Returns gesture coordinate based on the specified element.
+
+ @param coordinate absolute coordinates based on the element
+ @param element the element in the current application under test
+ @return translated gesture coordinates ready to be passed to XCUICoordinate methods
+ */
++ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate element:(XCUIElement *)element
+{
+  XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element normalizedOffset:CGVectorMake(0, 0)];
+  return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
 }
 
 @end

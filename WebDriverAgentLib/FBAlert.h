@@ -29,8 +29,17 @@ extern NSString *const FBAlertObstructingElementException;
 
 /**
  Creates alert helper for given application
+
+ @param application The application that contains the alert
  */
 + (instancetype)alertWithApplication:(XCUIApplication *)application;
+
+/**
+ Creates alert helper for given application
+
+ @param element The element which represents the alert
+ */
++ (instancetype)alertWithElement:(XCUIElement *)element;
 
 /**
  Determines whether alert is present

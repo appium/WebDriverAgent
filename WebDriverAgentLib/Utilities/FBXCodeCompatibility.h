@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable XCElementSnapshot *)fb_rootElement;
 
++ (nullable SEL)fb_attributesForElementSnapshotKeyPathsSelector;
+
 @end
 
 /**

@@ -70,6 +70,21 @@
             value = "$(USE_PORT)"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "UPGRADE_TIMESTAMP"
+            value = "$(UPGRADE_TIMESTAMP)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MJPEG_SERVER_PORT"
+            value = "$(MJPEG_SERVER_PORT)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "WDA_PRODUCT_BUNDLE_IDENTIFIER"
+            value = "$(WDA_PRODUCT_BUNDLE_IDENTIFIER)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>

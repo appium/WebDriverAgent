@@ -39,4 +39,7 @@
 - (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
 - (void)forcePress;
 
+// Available since Xcode 10.0
+- (id)screenshot;
+
 @end

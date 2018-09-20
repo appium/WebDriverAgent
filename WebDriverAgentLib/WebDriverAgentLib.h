@@ -39,8 +39,6 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/FBRuntimeUtils.h>
 #import <WebDriverAgentLib/FBSession.h>
 #import <WebDriverAgentLib/FBSpringboardApplication.h>
-#import <WebDriverAgentLib/FBSpringboardApplication.h>
-#import <WebDriverAgentLib/FBXPathCreator.h>
 #import <WebDriverAgentLib/FBWebServer.h>
 #import <WebDriverAgentLib/XCElementSnapshot+FBHelpers.h>
 #import <WebDriverAgentLib/XCUIApplication+FBHelpers.h>
@@ -51,5 +49,6 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/XCUIElement+FBIsVisible.h>
 #import <WebDriverAgentLib/XCUIElement+FBScrolling.h>
 #import <WebDriverAgentLib/XCUIElement+FBTap.h>
+#import <WebDriverAgentLib/XCUIElement+FBForceTouch.h>
 #import <WebDriverAgentLib/XCUIElement+FBUtilities.h>
 #import <WebDriverAgentLib/XCUIElement+FBWebDriverAttributes.h>

@@ -12,6 +12,7 @@
 
 #import <objc/runtime.h>
 
+#import "FBAlertsMonitor.h"
 #import "FBApplication.h"
 #import "FBElementCache.h"
 #import "FBMacros.h"
@@ -27,6 +28,38 @@ NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException"
 @property (nonatomic) NSString *testedApplicationBundleId;
 @property (nonatomic) NSDictionary<NSString *, XCUIApplication *> *applications;
 @property (nonatomic, strong, readwrite) FBApplication *testedApplication;
+@property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
+@property (nonatomic, nullable) NSString *defaultAlertAction;
+@end
+
+@interface FBSession (FBAlertsMonitorDelegate)
+
+- (void)didDetectAlert:(FBAlert *)alert;
+
+@end
+
+@implementation FBSession (FBAlertsMonitorDelegate)
+
+- (void)didDetectAlert:(FBAlert *)alert
+{
+  if (nil == self.defaultAlertAction) {
+    return;
+  }
+
+  NSError *error;
+  if ([self.defaultAlertAction isEqualToString:@"accept"]) {
+    if (![alert acceptWithError:&error]) {
+      [FBLogger logFmt:@"Cannot accept the alert. Original error: %@", error.description];
+    }
+  } else if ([self.defaultAlertAction isEqualToString:@"dismiss"]) {
+    if (![alert dismissWithError:&error]) {
+      [FBLogger logFmt:@"Cannot dismiss the alert. Original error: %@", error.description];
+    }
+  } else {
+    [FBLogger logFmt:@"'%@' default alert action is unsupported", self.defaultAlertAction];
+  }
+}
+
 @end
 
 @implementation FBSession
@@ -59,6 +92,8 @@ static FBSession *_activeSession;
 + (instancetype)sessionWithApplication:(FBApplication *)application
 {
   FBSession *session = [FBSession new];
+  session.alertsMonitor = nil;
+  session.defaultAlertAction = nil;
   session.identifier = [[NSUUID UUID] UUIDString];
   session.testedApplicationBundleId = nil;
   NSMutableDictionary *apps = [NSMutableDictionary dictionary];
@@ -72,8 +107,24 @@ static FBSession *_activeSession;
   return session;
 }
 
++ (instancetype)sessionWithApplication:(nullable FBApplication *)application defaultAlertAction:(NSString *)defaultAlertAction
+{
+  FBSession *session = [self.class sessionWithApplication:application];
+  session.alertsMonitor = [[FBAlertsMonitor alloc] init];
+  session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
+  session.alertsMonitor.application = FBApplication.fb_activeApplication;
+  session.defaultAlertAction = [defaultAlertAction lowercaseString];
+  [session.alertsMonitor enable];
+  return session;
+}
+
 - (void)kill
 {
+  if (nil != self.alertsMonitor) {
+    [self.alertsMonitor disable];
+    self.alertsMonitor = nil;
+  }
+
   if (self.testedApplicationBundleId) {
     [[self.applications objectForKey:self.testedApplicationBundleId] terminate];
   }
@@ -90,6 +141,9 @@ static FBSession *_activeSession;
   if (testedApplication && !testedApplication.running) {
     NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplicationBundleId];
     [[NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil] raise];
+  }
+  if (nil != self.alertsMonitor) {
+    self.alertsMonitor.application = application;
   }
   return application;
 }

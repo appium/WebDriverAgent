@@ -26,6 +26,20 @@ static dispatch_once_t onceRootElementToken;
   return [self rootElement];
 }
 
++ (nullable SEL)fb_attributesForElementSnapshotKeyPathsSelector
+{
+  static SEL attributesForElementSnapshotKeyPathsSelector = nil;
+  static dispatch_once_t attributesForElementSnapshotKeyPathsSelectorToken;
+  dispatch_once(&attributesForElementSnapshotKeyPathsSelectorToken, ^{
+    if ([self.class respondsToSelector:@selector(snapshotAttributesForElementSnapshotKeyPaths:)]) {
+      attributesForElementSnapshotKeyPathsSelector = @selector(snapshotAttributesForElementSnapshotKeyPaths:);
+    } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
+      attributesForElementSnapshotKeyPathsSelector = @selector(axAttributesForElementSnapshotKeyPaths:);
+    }
+  });
+  return attributesForElementSnapshotKeyPathsSelector;
+}
+
 @end
 
 
@@ -92,7 +106,7 @@ static dispatch_once_t onceFirstMatchToken;
   if (!self.element.exists) {
     return nil;
   }
-  return [self elementBoundByIndex:0];
+  return self.allElementsBoundByAccessibilityElement.firstObject;
 }
 
 @end

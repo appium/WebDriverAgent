@@ -17,6 +17,7 @@
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
 #import "FBRunLoopSpinner.h"
+#import "FBXCodeCompatibility.h"
 
 @interface FBAppiumTouchActionsIntegrationTestsPart1 : FBIntegrationTestCase
 @end
@@ -268,6 +269,31 @@
   [self verifyGesture:gesture orientation:orientation];
 }
 
+- (void)testForcePress
+{
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[@{
+      @"action": @"press",
+      @"options": @{
+          @"element": self.testedApplication.buttons[FBShowAlertForceTouchButtonName],
+          @"x": @1,
+          @"y": @1,
+          @"pressure": @1
+          }
+      },
+    @{
+      @"action": @"wait",
+      @"options": @{
+          @"ms": @300
+          }
+      },
+    @{
+      @"action": @"release"
+      }
+    ];
+  [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
+}
+
 @end
 
 
@@ -281,7 +307,7 @@
     [self launchApplication];
     [self goToAttributesPage];
   });
-  self.pickerWheel = [self.testedApplication.pickerWheels elementBoundByIndex:0];
+  self.pickerWheel = self.testedApplication.pickerWheels.fb_firstMatch;
 }
 
 - (void)tearDown

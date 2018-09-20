@@ -18,11 +18,14 @@
 #import "FBPredicate.h"
 #import "FBRunLoopSpinner.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "XCAXClient_iOS.h"
+#import "XCTElementSetTransformer-Protocol.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTestPrivateSymbols.h"
+#import "XCTRunnerDaemonSession.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
-#import "XCTElementSetTransformer-Protocol.h"
-
 
 @implementation XCUIElement (FBUtilities)
 
@@ -80,6 +83,74 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
   return self.lastSnapshot;
 }
 
+static const NSTimeInterval AX_TIMEOUT = 15.;
+
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes {
+  if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
+    return nil;
+  }
+  
+  [self resolve];
+  
+  static NSDictionary *defaultParameters;
+  static NSArray *axAttributes = nil;
+  
+  static dispatch_once_t initializeAttributesAndParametersToken;
+  dispatch_once(&initializeAttributesAndParametersToken, ^{
+    defaultParameters = [[XCAXClient_iOS sharedClient] defaultParameters];
+    // Names of the properties to load. There won't be lazy loading for missing properties,
+    // thus missing properties will lead to wrong results
+    NSArray<NSString *> *propertyNames = @[
+                      @"identifier",
+                      @"value",
+                      @"label",
+                      @"frame",
+                      @"enabled",
+                      @"elementType"
+                      ];
+
+    SEL attributesForElementSnapshotKeyPathsSelector = [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector];
+    NSSet *attributes = (nil == attributesForElementSnapshotKeyPathsSelector) ? nil
+      : [XCElementSnapshot performSelector:attributesForElementSnapshotKeyPathsSelector withObject:propertyNames];
+    if (nil != attributes) {
+      axAttributes = XCAXAccessibilityAttributesForStringAttributes(attributes);
+      if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
+        axAttributes = [axAttributes arrayByAddingObject:FB_XCAXAIsVisibleAttribute];
+      }
+    }
+  });
+
+  if (nil == axAttributes) {
+    return nil;
+  }
+  
+  __block XCElementSnapshot *snapshotWithAttributes = nil;
+  __block NSError *innerError = nil;
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_setAXTimeout:AX_TIMEOUT reply:^(int res) {
+    [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
+                        attributes:axAttributes
+                        parameters:defaultParameters
+                             reply:^(XCElementSnapshot *snapshot, NSError *error) {
+                               if (nil == error) {
+                                 snapshotWithAttributes = snapshot;
+                               } else {
+                                 innerError = error;
+                               }
+                               dispatch_semaphore_signal(sem);
+                             }];
+  }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AX_TIMEOUT * NSEC_PER_SEC)));
+  if (nil == snapshotWithAttributes) {
+    [FBLogger logFmt:@"Getting the snapshot timed out after %@ seconds", @(AX_TIMEOUT)];
+    if (nil != innerError) {
+      [FBLogger logFmt:@"Internal error: %@", innerError.description];
+    }
+  }
+  return snapshotWithAttributes;
+}
+
 - (XCElementSnapshot *)fb_lastSnapshotFromQuery
 {
   XCElementSnapshot *snapshot = nil;
@@ -125,7 +196,7 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  [matchedElements addObjectsFromArray:query.allElementsBoundByIndex];
+  [matchedElements addObjectsFromArray:query.allElementsBoundByAccessibilityElement];
   if (matchedElements.count <= 1) {
     // There is no need to sort elements if count of matches is not greater than one
     return matchedElements.copy;
@@ -159,6 +230,9 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
   return result;
 }
 
+static BOOL FBHasScreenshotProperty = NO;
+static dispatch_once_t onceHasScreenshot;
+
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   if (CGRectIsEmpty(self.frame)) {
@@ -166,6 +240,13 @@ static dispatch_once_t onceUseSnapshotForDebugDescriptionToken;
       *error = [[FBErrorBuilder.builder withDescription:@"Cannot get a screenshot of zero-sized element"] build];
     }
     return nil;
+  }
+
+  dispatch_once(&onceHasScreenshot, ^{
+    FBHasScreenshotProperty = [self respondsToSelector:NSSelectorFromString(@"screenshot")];
+  });
+  if (FBHasScreenshotProperty) {
+    return [self.screenshot valueForKey:@"PNGRepresentation"];
   }
 
   Class xcScreenClass = NSClassFromString(@"XCUIScreen");

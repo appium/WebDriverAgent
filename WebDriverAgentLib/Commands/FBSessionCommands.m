@@ -39,7 +39,7 @@
 
     // Health check might modify simulator state so it should only be called in-between testing sessions
     [[FBRoute GET:@"/wda/healthcheck"].withoutSession respondWithTarget:self action:@selector(handleGetHealthCheck:)],
-    
+
     // Settings endpoints
     [[FBRoute GET:@"/appium/settings"] respondWithTarget:self action:@selector(handleGetSettings:)],
     [[FBRoute POST:@"/appium/settings"] respondWithTarget:self action:@selector(handleSetSettings:)],
@@ -94,7 +94,12 @@
   if (app.processID == 0) {
     return FBResponseWithErrorFormat(@"Failed to launch %@ application", bundleID);
   }
-  [FBSession sessionWithApplication:app];
+  if (requirements[@"defaultAlertAction"]) {
+    [FBSession sessionWithApplication:app defaultAlertAction:(id)requirements[@"defaultAlertAction"]];
+  } else {
+    [FBSession sessionWithApplication:app];
+  }
+
   return FBResponseWithObject(FBSessionCommands.sessionInformation);
 }
 
@@ -137,6 +142,22 @@
 
 + (id<FBResponsePayload>)handleGetStatus:(FBRouteRequest *)request
 {
+  // For updatedWDABundleId capability by Appium
+  NSString *productBundleIdentifier = @"com.facebook.WebDriverAgentRunner";
+  NSString *envproductBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
+  if (envproductBundleIdentifier && [envproductBundleIdentifier length] != 0) {
+    productBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
+  }
+
+  NSMutableDictionary *buildInfo = [NSMutableDictionary dictionaryWithDictionary:@{
+    @"time" : [self.class buildTimestamp],
+    @"productBundleIdentifier" : productBundleIdentifier,
+  }];
+  NSString *upgradeTimestamp = NSProcessInfo.processInfo.environment[@"UPGRADE_TIMESTAMP"];
+  if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
+    [buildInfo setObject:upgradeTimestamp forKey:@"upgradedAt"];
+  }
+
   return
   FBResponseWithStatus(
     FBCommandStatusNoError,
@@ -153,10 +174,7 @@
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null],
         },
-      @"build" :
-        @{
-          @"time" : [self.class buildTimestamp],
-        },
+      @"build" : buildInfo.copy
     }
   );
 }
@@ -184,17 +202,17 @@
 + (id<FBResponsePayload>)handleSetSettings:(FBRouteRequest *)request
 {
   NSDictionary* settings = request.arguments[@"settings"];
-  
+
   if ([settings objectForKey:@"shouldUseCompactResponses"]) {
     BOOL shouldUseCompactResponses = [[settings objectForKey:@"shouldUseCompactResponses"] boolValue];
     [FBConfiguration setShouldUseCompactResponses:shouldUseCompactResponses];
   }
-  
+
   if ([settings objectForKey:@"elementResponseAttributes"]) {
     NSString* elementResponseAttribute = [settings objectForKey:@"elementResponseAttributes"];
     [FBConfiguration setElementResponseAttributes:elementResponseAttribute];
   }
-  
+
   return [self handleGetSettings:request];
 }
 

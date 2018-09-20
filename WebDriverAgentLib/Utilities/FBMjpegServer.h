@@ -7,18 +7,19 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <XCTest/XCTest.h>
+#import "FBTCPSocket.h"
 
-#import "FBXPathCreator.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FBXPathCreatorTests : XCTestCase
+@interface FBMjpegServer : NSObject <FBTCPSocketDelegate>
+
+/**
+ The default constructor for the screenshot bradcaster service.
+ This service sends low resolution screenshots 10 times per seconds
+ to all connected clients.
+ */
+- (instancetype)init;
+
 @end
 
-@implementation FBXPathCreatorTests
-
-- (void)testXPathForSubelementsOfType
-{
-  XCTAssertEqualObjects(@"//XCUIElementTypeCell", [FBXPathCreator xpathWithSubelementsOfType:XCUIElementTypeCell]);
-}
-
-@end
+NS_ASSUME_NONNULL_END

@@ -14,6 +14,9 @@
 #import "FBAlert.h"
 #import "FBResponsePayload.h"
 #import "FBSession.h"
+#import "XCUIElement+FBClassChain.h"
+#import "FBXPath.h"
+
 
 NSString *const FBInvalidArgumentException = @"FBInvalidArgumentException";
 NSString *const FBSessionDoesNotExistException = @"FBSessionDoesNotExistException";
@@ -54,6 +57,16 @@ NSString *const FBElementAttributeUnknownException = @"FBElementAttributeUnknown
   }
   if ([exception.name isEqualToString:FBApplicationCrashedException]) {
     id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusApplicationCrashDetected, [exception description]);
+    [payload dispatchWithResponse:response];
+    return YES;
+  }
+  if ([exception.name isEqualToString:FBInvalidXPathException]) {
+    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidXPathSelector, [exception description]);
+    [payload dispatchWithResponse:response];
+    return YES;
+  }
+  if ([exception.name isEqualToString:FBClassChainQueryParseException]) {
+    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidSelector, [exception description]);
     [payload dispatchWithResponse:response];
     return YES;
   }

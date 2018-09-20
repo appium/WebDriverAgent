@@ -16,6 +16,7 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCElementSnapshot.h"
+#import "XCElementSnapshot+FBHitPoint.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCPointerEventPath.h"
 #import "XCSynthesizedEventRecord.h"
@@ -83,12 +84,12 @@
       return nil;
     }
     if (nil == positionOffset) {
-      @try {
+      NSValue *hitPointValue = snapshot.fb_hitPoint;
+      if (nil != hitPointValue) {
         // short circuit element hitpoint
-        return [NSValue valueWithCGPoint:[snapshot hitPoint]];
-      } @catch (NSException *e) {
-        [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@. Will use element frame for hit point calculation instead", element.debugDescription, e.reason];
+        return hitPointValue;
       }
+      [FBLogger logFmt:@"Failed to fetch hit point for %@. Will use element frame for hit point calculation instead", element.debugDescription];
     }
     CGRect visibleFrame = snapshot.visibleFrame;
     frame = CGRectIsEmpty(visibleFrame) ? frame : visibleFrame;

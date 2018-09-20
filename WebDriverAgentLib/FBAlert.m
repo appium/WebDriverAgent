@@ -21,6 +21,7 @@
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCUIApplication+FBAlert.h"
 #import "XCUICoordinate.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
@@ -31,41 +32,9 @@
 
 NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElementException";
 
-@interface XCUIApplication (FBAlert)
-
-- (XCUIElement *)fb_alertElement;
-
-@end
-
-@implementation XCUIApplication (FBAlert)
-
-- (XCUIElement *)fb_alertElement
-{
-  XCUIElement *alert = self.alerts.element;
-  if (alert.exists) {
-    return alert;
-  }
-
-  alert = self.sheets.element;
-  if (alert.exists) {
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-      return alert;
-    }
-    // In case of iPad we want to check if sheet isn't contained by popover.
-    // In that case we ignore it.
-    NSPredicate *predicateString = [NSPredicate predicateWithFormat:@"identifier == 'PopoverDismissRegion'"];
-    XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicateString];
-    if (!query.fb_firstMatch) {
-      return alert;
-    }
-  }
-  return nil;
-}
-
-@end
-
 @interface FBAlert ()
 @property (nonatomic, strong) XCUIApplication *application;
+@property (nonatomic, strong, nullable) XCUIElement *element;
 @end
 
 @implementation FBAlert
@@ -82,6 +51,14 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   return alert;
 }
 
++ (instancetype)alertWithElement:(XCUIElement *)element
+{
+  FBAlert *alert = [FBAlert new];
+  alert.element = element;
+  alert.application = element.application;
+  return alert;
+}
+
 - (BOOL)isPresent
 {
   return self.alertElement.exists;
@@ -93,7 +70,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   if (!alert) {
     return nil;
   }
-  NSArray<XCUIElement *> *staticTextList = [alert descendantsMatchingType:XCUIElementTypeStaticText].allElementsBoundByIndex;
+  NSArray<XCUIElement *> *staticTextList = [alert descendantsMatchingType:XCUIElementTypeStaticText].allElementsBoundByAccessibilityElement;
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
   for (XCUIElement *staticText in staticTextList) {
     if (staticText.isWDVisible) {
@@ -107,15 +84,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   if (resultText.count) {
     return [resultText componentsJoinedByString:@"\n"];
   }
-  // return null to reflect the fact there is an alert, but it does not contain any text
-  return (id)[NSNull null];
+  // return an empty string to reflect the fact there is an alert, but it does not contain any text
+  return @"";
 }
 
 - (BOOL)typeText:(NSString *)text error:(NSError **)error
 {
   XCUIElement *alert = self.alertElement;
-  NSArray<XCUIElement *> *textFields = alert.textFields.allElementsBoundByIndex;
-  NSArray<XCUIElement *> *secureTextFiels = alert.secureTextFields.allElementsBoundByIndex;
+  NSArray<XCUIElement *> *textFields = alert.textFields.allElementsBoundByAccessibilityElement;
+  NSArray<XCUIElement *> *secureTextFiels = alert.secureTextFields.allElementsBoundByAccessibilityElement;
   if (textFields.count + secureTextFiels.count > 1) {
     return [[[FBErrorBuilder builder]
       withDescriptionFormat:@"The alert contains more than one input field"]
@@ -139,7 +116,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   if (!alertElement) {
     return nil;
   }
-  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
   for(XCUIElement *button in buttons) {
     [value addObject:[button wdLabel]];
   }
@@ -149,7 +126,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 - (BOOL)acceptWithError:(NSError **)error
 {
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
 
   XCUIElement *defaultButton;
   if (alertElement.elementType == XCUIElementTypeAlert) {
@@ -170,7 +147,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 {
   XCUIElement *cancelButton;
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
 
   if (alertElement.elementType == XCUIElementTypeAlert) {
     cancelButton = buttons.firstObject;
@@ -190,7 +167,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error {
 
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
   XCUIElement *requestedButton;
 
   for(XCUIElement *button in buttons) {
@@ -248,7 +225,10 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 
 - (XCUIElement *)alertElement
 {
-  XCUIElement *alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  XCUIElement *alert = self.element;
+  if (nil == alert) {
+    alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  }
   if (!alert.exists) {
     return nil;
   }

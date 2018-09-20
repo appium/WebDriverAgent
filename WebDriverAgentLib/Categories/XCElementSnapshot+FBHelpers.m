@@ -10,7 +10,6 @@
 #import "XCElementSnapshot+FBHelpers.h"
 
 #import "FBFindElementCommands.h"
-#import "FBXPathCreator.h"
 #import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
 #import "XCAXClient_iOS.h"
@@ -18,22 +17,16 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXPath.h"
 
-inline static BOOL valuesAreEqual(id value1, id value2);
 inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types);
 
 @implementation XCElementSnapshot (FBHelpers)
 
 - (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
 {
-  NSString *xpathQuery = [FBXPathCreator xpathWithSubelementsOfType:type];
-  return [self fb_descendantsMatchingXPathQuery:xpathQuery];
-}
-
-- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery
-{
-  return [FBXPath matchesWithRootElement:self forQuery:xpathQuery];
+  return [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
+    return snapshot.elementType == type;
+  }];
 }
 
 - (XCElementSnapshot *)fb_parentMatchingType:(XCUIElementType)type
@@ -66,12 +59,7 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 
 - (BOOL)fb_framelessFuzzyMatchesElement:(XCElementSnapshot *)snapshot
 {
-  return self.elementType == snapshot.elementType &&
-    valuesAreEqual(self.identifier, snapshot.identifier) &&
-    valuesAreEqual(self.title, snapshot.title) &&
-    valuesAreEqual(self.label, snapshot.label) &&
-    valuesAreEqual(self.value, snapshot.value) &&
-    valuesAreEqual(self.placeholderValue, snapshot.placeholderValue);
+  return [self.wdUID isEqualToString:snapshot.wdUID];
 }
 
 - (NSArray<XCElementSnapshot *> *)fb_descendantsCellSnapshots
@@ -116,11 +104,6 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
     return targetCellSnapshot;
 }
 @end
-
-inline static BOOL valuesAreEqual(id value1, id value2)
-{
-  return value1 == value2 || [value1 isEqual:value2];
-}
 
 inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types)
 {

@@ -54,7 +54,7 @@
   UIPasteboard *pb = UIPasteboard.generalPasteboard;
   if ([type.lowercaseString isEqualToString:@"plaintext"]) {
     if (pb.hasStrings) {
-      return [pb.string dataUsingEncoding:NSUTF8StringEncoding];
+      return [[pb.strings componentsJoinedByString:@"\n"] dataUsingEncoding:NSUTF8StringEncoding];
     }
   } else if ([type.lowercaseString isEqualToString:@"image"]) {
     if (pb.hasImages) {
@@ -62,7 +62,13 @@
     }
   } else if ([type.lowercaseString isEqualToString:@"url"]) {
     if (pb.hasURLs) {
-      return [pb.URL.absoluteString dataUsingEncoding:NSUTF8StringEncoding];
+      NSMutableArray<NSString *> *urls = [NSMutableArray array];
+      for (NSURL *url in pb.URLs) {
+        if (nil != url.absoluteString) {
+          [urls addObject:(id)url.absoluteString];
+        }
+      }
+      return [[urls componentsJoinedByString:@"\n"] dataUsingEncoding:NSUTF8StringEncoding];
     }
   } else {
     NSString *description = [NSString stringWithFormat:@"Unsupported content type: %@", type];

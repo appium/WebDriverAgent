@@ -10,7 +10,9 @@
 #import "XCUIElement+FBPickerWheel.h"
 
 #import "FBRunLoopSpinner.h"
+#import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
+#import "XCUICoordinate+FBFix.h"
 
 @implementation XCUIElement (FBPickerWheel)
 
@@ -21,7 +23,19 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
   NSString *previousValue = self.value;
   XCUICoordinate *startCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
   XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * self.frame.size.height)];
-  [endCoord tap];
+  CGPoint tapPoint = endCoord.fb_screenPoint;
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[@{
+      @"action": @"tap",
+      @"options": @{
+          @"x": @(tapPoint.x),
+          @"y": @(tapPoint.y),
+          }
+      }
+    ];
+  if (![self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error]) {
+    return NO;
+  }
   return [[[[FBRunLoopSpinner new]
      timeout:VALUE_CHANGE_TIMEOUT]
     timeoutErrorMessage:[NSString stringWithFormat:@"Picker wheel value has not been changed after %@ seconds timeout", @(VALUE_CHANGE_TIMEOUT)]]
