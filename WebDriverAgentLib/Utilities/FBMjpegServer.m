@@ -106,7 +106,6 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
   dispatch_async(self.backgroundQueue, ^{
     NSString *chunkHeader = [NSString stringWithFormat:@"--BoundaryString\r\nContent-type: image/jpg\r\nContent-Length: %@\r\n\r\n", @(screenshotData.length)];
-    NSString *chunkTail = @"\r\n\r\n";
     NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
     NSData *jpegData;
     // Sometimes XCTest might still return PNG screenshots
@@ -123,10 +122,10 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
       }
     }
     [chunk appendData:jpegData];
-    [chunk appendData:(id)[chunkTail dataUsingEncoding:NSUTF8StringEncoding]];
+    [chunk appendData:(id)[@"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
     @synchronized (self.activeClients) {
       for (GCDAsyncSocket *client in self.activeClients) {
-        [client writeData:chunk.copy withTimeout:-1 tag:0];
+        [client writeData:chunk withTimeout:-1 tag:0];
       }
     }
   });
