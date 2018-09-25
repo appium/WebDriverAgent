@@ -42,6 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setShouldUseSingletonTestManager:(BOOL)value;
 + (BOOL)shouldUseSingletonTestManager;
 
+/* Whether to wait for quiescence on application startup */
++ (void)setShouldWaitForQuiescence:(BOOL)value;
++ (BOOL)shouldWaitForQuiescence;
+
 /**
  The range of ports that the HTTP Server should attempt to bind on launch
  */

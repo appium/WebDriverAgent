@@ -85,8 +85,10 @@
     [FBConfiguration setShouldUseSingletonTestManager:[requirements[@"shouldUseSingletonTestManager"] boolValue]];
   }
 
+  [FBConfiguration setShouldWaitForQuiescence:[requirements[@"shouldWaitForQuiescence"] boolValue]];
+
   FBApplication *app = [[FBApplication alloc] initPrivateWithPath:appPath bundleID:bundleID];
-  app.fb_shouldWaitForQuiescence = [requirements[@"shouldWaitForQuiescence"] boolValue];
+  app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
   app.launchArguments = (NSArray<NSString *> *)requirements[@"arguments"] ?: @[];
   app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)requirements[@"environment"] ?: @{};
   [app launch];

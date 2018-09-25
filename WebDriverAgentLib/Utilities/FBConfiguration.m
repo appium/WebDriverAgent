@@ -23,6 +23,7 @@ static NSUInteger const DefaultPortRange = 100;
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
+static BOOL FBShouldWaitForQuiescence = YES;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 
@@ -121,8 +122,19 @@ static NSUInteger FBMaxTypingFrequency = 60;
   return FBShouldUseSingletonTestManager;
 }
 
-+ (BOOL)shouldLoadSnapshotWithAttributes {
++ (BOOL)shouldLoadSnapshotWithAttributes
+{
   return [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector] != nil;
+}
+
++ (BOOL)shouldWaitForQuiescence
+{
+  return FBShouldWaitForQuiescence;
+}
+
++ (void)setShouldWaitForQuiescence:(BOOL)value
+{
+  FBShouldWaitForQuiescence = value;
 }
 
 #pragma mark Private
