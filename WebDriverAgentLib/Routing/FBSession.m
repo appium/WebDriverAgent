@@ -174,12 +174,15 @@ static FBSession *_activeSession;
 }
 
 - (void)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+              shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
                             arguments:(nullable NSArray<NSString *> *)arguments
                           environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   if (app.fb_state < 2) {
-    if ([bundleIdentifier isEqualToString:self.testedApplicationBundleId]) {
+    if (nil != shouldWaitForQuiescence) {
+      app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
+    } else if ([bundleIdentifier isEqualToString:self.testedApplicationBundleId]) {
       app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
     }
     app.launchArguments = arguments ?: @[];

@@ -108,6 +108,7 @@
 + (id<FBResponsePayload>)handleSessionAppLaunch:(FBRouteRequest *)request
 {
   [request.session launchApplicationWithBundleId:(id)request.arguments[@"bundleId"]
+                         shouldWaitForQuiescence:request.arguments[@"shouldWaitForQuiescence"]
                                        arguments:request.arguments[@"arguments"]
                                      environment:request.arguments[@"environment"]];
   return FBResponseWithOK();
