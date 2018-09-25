@@ -23,7 +23,7 @@ static NSUInteger const DefaultPortRange = 100;
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
-static BOOL FBShouldWaitForQuiescence = YES;
+static BOOL FBShouldWaitForQuiescence = NO;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 
