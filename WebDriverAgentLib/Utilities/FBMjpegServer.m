@@ -12,14 +12,13 @@
 #import "FBMjpegServer.h"
 
 #import "FBApplication.h"
+#import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBMathUtils.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "FBXCTestDaemonsProxy.h"
 
-static const NSUInteger FPS = 10;
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 0.5;
-static const CGFloat SCREENSHOT_QUALITY = 0.25;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
@@ -27,10 +26,11 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 @interface FBMjpegServer()
 
-@property (nonatomic, nullable) NSTimer *mainTimer;
+@property (nonatomic) NSTimer *mainTimer;
 @property (nonatomic) dispatch_queue_t backgroundQueue;
 @property (nonatomic) NSMutableArray<GCDAsyncSocket *> *activeClients;
 @property (nonatomic) CGRect screenRect;
+@property (nonatomic) NSUInteger currentFramerate;
 
 @end
 
@@ -47,11 +47,26 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
       [FBLogger log:@"MJPEG server cannot start because the current iOS version is not supported"];
       return self;
     }
-    _mainTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 / FPS repeats:YES block:^(NSTimer * _Nonnull timer) {
-      [self streamScreenshot];
-    }];
+    [self resetTimer:FBConfiguration.mjpegServerFramerate];
   }
   return self;
+}
+
+- (void)resetTimer:(NSUInteger)framerate
+{
+  if (self.mainTimer && self.mainTimer.valid) {
+    [self.mainTimer invalidate];
+  }
+  self.currentFramerate = framerate;
+  self.mainTimer = [NSTimer scheduledTimerWithTimeInterval:self.currentFramerate > 0 ? (1.0 / self.currentFramerate) : 0
+                                                   repeats:YES
+                                                     block:^(NSTimer * _Nonnull timer) {
+                                                       if (self.currentFramerate == FBConfiguration.mjpegServerFramerate) {
+                                                         [self streamScreenshot];
+                                                       } else {
+                                                         [self resetTimer:FBConfiguration.mjpegServerFramerate];
+                                                       }
+                                                     }];
 }
 
 + (BOOL)isJPEGData:(nullable NSData *)data
@@ -87,13 +102,14 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     return;
   }
   __block NSData *screenshotData = nil;
+  CGFloat compressionQuality = FBConfiguration.mjpegServerScreenshotQuality / 100.0f;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_setAXTimeout:SCREENSHOT_TIMEOUT reply:^(int res) {
     [proxy _XCT_requestScreenshotOfScreenWithID:1
                                        withRect:self.screenRect
                                             uti:nil
-                             compressionQuality:SCREENSHOT_QUALITY
+                             compressionQuality:compressionQuality
                                       withReply:^(NSData *data, NSError *error) {
       screenshotData = data;
       dispatch_semaphore_signal(sem);
@@ -114,7 +130,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
       if (nil == image) {
         return;
       }
-      jpegData = UIImageJPEGRepresentation(image, SCREENSHOT_QUALITY);
+      jpegData = UIImageJPEGRepresentation(image, compressionQuality);
       if (nil == jpegData) {
         return;
       }

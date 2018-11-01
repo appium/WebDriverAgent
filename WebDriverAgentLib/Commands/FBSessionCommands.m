@@ -19,6 +19,11 @@
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
 
+static NSString* const USE_COMPACT_RESPONSES = @"shouldUseCompactResponses";
+static NSString* const ELEMENT_RESPONSE_ATTRIBUTES = @"elementResponseAttributes";
+static NSString* const MJPEG_SERVER_SCREENSHOT_QUALITY = @"mjpegServerScreenshotQuality";
+static NSString* const MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
+
 @implementation FBSessionCommands
 
 #pragma mark - <FBCommandHandler>
@@ -79,7 +84,7 @@
     [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
   }
   if (requirements[@"maxTypingFrequency"]) {
-    [FBConfiguration setMaxTypingFrequency:[requirements[@"maxTypingFrequency"] integerValue]];
+    [FBConfiguration setMaxTypingFrequency:[requirements[@"maxTypingFrequency"] unsignedIntegerValue]];
   }
   if (requirements[@"shouldUseSingletonTestManager"]) {
     [FBConfiguration setShouldUseSingletonTestManager:[requirements[@"shouldUseSingletonTestManager"] boolValue]];
@@ -194,8 +199,10 @@
 {
   return FBResponseWithObject(
     @{
-      @"shouldUseCompactResponses": @([FBConfiguration shouldUseCompactResponses]),
-      @"elementResponseAttributes": [FBConfiguration elementResponseAttributes]
+      USE_COMPACT_RESPONSES: @([FBConfiguration shouldUseCompactResponses]),
+      ELEMENT_RESPONSE_ATTRIBUTES: [FBConfiguration elementResponseAttributes],
+      MJPEG_SERVER_SCREENSHOT_QUALITY: @([FBConfiguration mjpegServerScreenshotQuality]),
+      MJPEG_SERVER_FRAMERATE: @([FBConfiguration mjpegServerFramerate]),
     }
   );
 }
@@ -206,14 +213,17 @@
 {
   NSDictionary* settings = request.arguments[@"settings"];
 
-  if ([settings objectForKey:@"shouldUseCompactResponses"]) {
-    BOOL shouldUseCompactResponses = [[settings objectForKey:@"shouldUseCompactResponses"] boolValue];
-    [FBConfiguration setShouldUseCompactResponses:shouldUseCompactResponses];
+  if ([settings objectForKey:USE_COMPACT_RESPONSES]) {
+    [FBConfiguration setShouldUseCompactResponses:[[settings objectForKey:USE_COMPACT_RESPONSES] boolValue]];
   }
-
-  if ([settings objectForKey:@"elementResponseAttributes"]) {
-    NSString* elementResponseAttribute = [settings objectForKey:@"elementResponseAttributes"];
-    [FBConfiguration setElementResponseAttributes:elementResponseAttribute];
+  if ([settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
+    [FBConfiguration setElementResponseAttributes:(NSString *)[settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]];
+  }
+  if ([settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
+    [FBConfiguration setMjpegServerScreenshotQuality:[[settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY] unsignedIntegerValue]];
+  }
+  if ([settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
+    [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
   }
 
   return [self handleGetSettings:request];
