@@ -19,6 +19,7 @@
 #import "FBXCTestDaemonsProxy.h"
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 0.5;
+static const NSUInteger MAX_FPS = 60;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
@@ -58,7 +59,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     [self.mainTimer invalidate];
   }
   self.currentFramerate = framerate;
-  self.mainTimer = [NSTimer scheduledTimerWithTimeInterval:self.currentFramerate > 0 ? (1.0 / self.currentFramerate) : 0
+  NSTimeInterval timerInterval = 1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate);
+  self.mainTimer = [NSTimer scheduledTimerWithTimeInterval:timerInterval
                                                    repeats:YES
                                                      block:^(NSTimer * _Nonnull timer) {
                                                        if (self.currentFramerate == FBConfiguration.mjpegServerFramerate) {

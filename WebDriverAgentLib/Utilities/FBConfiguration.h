@@ -57,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  The framerate at which the background screenshots broadcaster should broadcast
- screenshots. The default value is 10 (FPS).
+ screenshots in range 1..60. The default value is 10 (Frames Per Second).
+ Setting zero value will cause the framerate to be at its maximum possible value.
  */
 + (NSUInteger)mjpegServerFramerate;
 + (void)setMjpegServerFramerate:(NSUInteger)framerate;
