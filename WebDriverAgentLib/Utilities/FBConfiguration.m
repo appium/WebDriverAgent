@@ -61,6 +61,10 @@ static NSUInteger FBMjpegServerFramerate = 10;
 
 + (NSInteger)mjpegServerPort
 {
+  if (self.mjpegServerPortFromArguments != NSNotFound) {
+    return self.mjpegServerPortFromArguments;
+  }
+  
   if (NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] &&
       [NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] length] > 0) {
     return [NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] integerValue];
@@ -160,6 +164,21 @@ static NSUInteger FBMjpegServerFramerate = 10;
 }
 
 #pragma mark Private
+
++ (NSUInteger)mjpegServerPortFromArguments
+{
+  NSArray *arguments = NSProcessInfo.processInfo.arguments;
+  NSUInteger index = [arguments indexOfObject:@"--mjpeg-server-port"];
+  if (index == NSNotFound || index == arguments.count - 1) {
+    return NSNotFound;
+  }
+  NSString *portNumberString = arguments[index + 1];
+  NSUInteger port = (NSUInteger)[portNumberString integerValue];
+  if (port == 0) {
+    return NSNotFound;
+  }
+  return port;
+}
 
 + (NSRange)bindingPortRangeFromArguments
 {
