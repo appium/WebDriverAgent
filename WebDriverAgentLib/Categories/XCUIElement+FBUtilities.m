@@ -254,7 +254,9 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
       }
     }
   }
-  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:1 rect:elementRect error:error];
+  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
+                                                                 rect:elementRect
+                                                                error:error];
   if (nil == imageData) {
     return nil;
   }

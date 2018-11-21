@@ -105,10 +105,7 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  // https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
-  // Select lower quality, since XCTest crashes randomly if the maximum quality (zero value) is selected
-  // and the resulting screenshot does not fit the memory buffer preallocated for it by the operating system
-  return [self fb_rawScreenshotWithQuality:1 rect:CGRectNull error:error];
+  return [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
 }
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
