@@ -74,6 +74,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setMjpegServerFramerate:(NSUInteger)framerate;
 
 /**
+ The quality of phone display screenshots. The higher quality you set is the bigger screenshot size is.
+ The highest quality value is 0 (lossless PNG). The lowest quality is 2 (highly compressed JPEG).
+ The default quality value is 1 (high quality JPEG).
+ See https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
+ */
++ (NSUInteger)screenshotQuality;
++ (void)setScreenshotQuality:(NSUInteger)quality;
+
+/**
  The range of ports that the HTTP Server should attempt to bind on launch
  */
 + (NSRange)bindingPortRange;

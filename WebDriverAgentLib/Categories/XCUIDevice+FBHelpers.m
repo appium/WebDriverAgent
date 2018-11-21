@@ -105,27 +105,15 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  FBApplication *activeApplication = FBApplication.fb_activeApplication;
-  UIInterfaceOrientation orientation = activeApplication.interfaceOrientation;
-  CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
-  CGRect screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
   // https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
   // Select lower quality, since XCTest crashes randomly if the maximum quality (zero value) is selected
   // and the resulting screenshot does not fit the memory buffer preallocated for it by the operating system
-  NSData *imageData = [self fb_rawScreenshotWithQuality:1 rect:screenRect error:error];
-  if (nil == imageData) {
-    return nil;
-  }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
+  return [self fb_rawScreenshotWithQuality:1 rect:CGRectNull error:error];
 }
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
 {
-  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:rect error:error];
-  if (nil == imageData) {
-    return nil;
-  }
-  return imageData;
+  return [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:rect error:error];
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch

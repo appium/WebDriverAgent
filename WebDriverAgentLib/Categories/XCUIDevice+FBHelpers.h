@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Returns screenshot
 
- @param rect The actual screen rect
+ @param rect The actual screen rect. Set it to CGRectNull to get a screenshot of the whole screen.
  @param quality The number in range 0-2, where 2 (JPG) is the lowest and 0 (PNG) is the highest quality.
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure

@@ -28,6 +28,7 @@ static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
+static NSUInteger FBScreenshotQuality = 1;
 
 @implementation FBConfiguration
 
@@ -161,6 +162,16 @@ static NSUInteger FBMjpegServerFramerate = 10;
 + (void)setMjpegServerScreenshotQuality:(NSUInteger)quality
 {
   FBMjpegServerScreenshotQuality = quality;
+}
+
++ (NSUInteger)screenshotQuality
+{
+  return FBScreenshotQuality;
+}
+
++ (void)setScreenshotQuality:(NSUInteger)quality
+{
+  FBScreenshotQuality = quality;
 }
 
 #pragma mark Private

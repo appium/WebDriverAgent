@@ -23,6 +23,7 @@ static NSString* const USE_COMPACT_RESPONSES = @"shouldUseCompactResponses";
 static NSString* const ELEMENT_RESPONSE_ATTRIBUTES = @"elementResponseAttributes";
 static NSString* const MJPEG_SERVER_SCREENSHOT_QUALITY = @"mjpegServerScreenshotQuality";
 static NSString* const MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
+static NSString* const SCREENSHOT_QUALITY = @"screenshotQuality";
 
 @implementation FBSessionCommands
 
@@ -203,6 +204,7 @@ static NSString* const MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
       ELEMENT_RESPONSE_ATTRIBUTES: [FBConfiguration elementResponseAttributes],
       MJPEG_SERVER_SCREENSHOT_QUALITY: @([FBConfiguration mjpegServerScreenshotQuality]),
       MJPEG_SERVER_FRAMERATE: @([FBConfiguration mjpegServerFramerate]),
+      SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
     }
   );
 }
@@ -224,6 +226,9 @@ static NSString* const MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
   }
   if ([settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
     [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
+  }
+  if ([settings objectForKey:SCREENSHOT_QUALITY]) {
+    [FBConfiguration setScreenshotQuality:[[settings objectForKey:SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
 
   return [self handleGetSettings:request];
