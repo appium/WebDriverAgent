@@ -23,8 +23,8 @@ BOOL FBIsJpegImage(NSData *imageData)
   }
 
   static NSData* jpegMagicStartData = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
+  static dispatch_once_t onceJpegToken;
+  dispatch_once(&onceJpegToken, ^{
     jpegMagicStartData = [NSData dataWithBytesNoCopy:(void*)JPEG_MAGIC length:JPEG_MAGIC_LEN freeWhenDone:NO];
   });
 
@@ -42,8 +42,8 @@ BOOL FBIsPngImage(NSData *imageData)
   }
 
   static NSData* pngMagicStartData = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
+  static dispatch_once_t oncePngToken;
+  dispatch_once(&oncePngToken, ^{
     pngMagicStartData = [NSData dataWithBytesNoCopy:(void*)PNG_MAGIC length:PNG_MAGIC_LEN freeWhenDone:NO];
   });
 
