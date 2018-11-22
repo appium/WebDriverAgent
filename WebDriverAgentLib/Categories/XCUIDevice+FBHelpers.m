@@ -105,7 +105,12 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  return [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
+  NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
+  if (nil == screenshotData) {
+    return nil;
+  }
+  UIImage *image = [UIImage imageWithData:screenshotData];
+  return (NSData *)UIImagePNGRepresentation(image);
 }
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
