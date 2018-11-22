@@ -38,6 +38,8 @@
 		7140974C1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */; };
 		7140974E1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7140974D1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m */; };
 		714801D11FA9D9FA00DC5997 /* FBSDKVersionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 714801D01FA9D9FA00DC5997 /* FBSDKVersionTests.m */; };
+		7150348721A6DAD600A0F4BA /* FBImageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 7150348521A6DAD600A0F4BA /* FBImageUtils.h */; };
+		7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7150348621A6DAD600A0F4BA /* FBImageUtils.m */; };
 		7152EB301F41F9960047EEFF /* FBSessionIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7152EB2F1F41F9960047EEFF /* FBSessionIntegrationTests.m */; };
 		715557D3211DBCE700613B26 /* FBTCPSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 715557D1211DBCE700613B26 /* FBTCPSocket.h */; };
 		715557D4211DBCE700613B26 /* FBTCPSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 715557D2211DBCE700613B26 /* FBTCPSocket.m */; };
@@ -480,6 +482,8 @@
 		7140974D1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBBaseActionsSynthesizer.m; sourceTree = "<group>"; };
 		714801D01FA9D9FA00DC5997 /* FBSDKVersionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSDKVersionTests.m; sourceTree = "<group>"; };
 		714CA3C61DC23186000F12C9 /* FBXPathIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPathIntegrationTests.m; sourceTree = "<group>"; };
+		7150348521A6DAD600A0F4BA /* FBImageUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBImageUtils.h; sourceTree = "<group>"; };
+		7150348621A6DAD600A0F4BA /* FBImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBImageUtils.m; sourceTree = "<group>"; };
 		7152EB2F1F41F9960047EEFF /* FBSessionIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSessionIntegrationTests.m; sourceTree = "<group>"; };
 		715557D1211DBCE700613B26 /* FBTCPSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBTCPSocket.h; sourceTree = "<group>"; };
 		715557D2211DBCE700613B26 /* FBTCPSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTCPSocket.m; sourceTree = "<group>"; };
@@ -1120,6 +1124,8 @@
 				EE3A18611CDE618F00DE4205 /* FBErrorBuilder.m */,
 				EE6A89381D0B38640083E92B /* FBFailureProofTestCase.h */,
 				EE6A89391D0B38640083E92B /* FBFailureProofTestCase.m */,
+				7150348521A6DAD600A0F4BA /* FBImageUtils.h */,
+				7150348621A6DAD600A0F4BA /* FBImageUtils.m */,
 				EE9B76A31CF7A43900275851 /* FBLogger.h */,
 				EE9B76A41CF7A43900275851 /* FBLogger.m */,
 				EE9B76A51CF7A43900275851 /* FBMacros.h */,
@@ -1598,6 +1604,7 @@
 				EE35AD2A1E3B77D600A02D78 /* XCDebugLogDelegate-Protocol.h in Headers */,
 				EE35AD1C1E3B77D600A02D78 /* NSString-XCTAdditions.h in Headers */,
 				EE35AD581E3B77D600A02D78 /* XCTestWaiter.h in Headers */,
+				7150348721A6DAD600A0F4BA /* FBImageUtils.h in Headers */,
 				EE35AD1D1E3B77D600A02D78 /* NSValue-XCTestAdditions.h in Headers */,
 				EE35AD141E3B77D600A02D78 /* _XCTWaiterImpl.h in Headers */,
 				EE9B76A81CF7A43900275851 /* FBLogger.h in Headers */,
@@ -1928,6 +1935,7 @@
 				EE6B64FE1D0F86EF00E85F5D /* XCTestPrivateSymbols.m in Sources */,
 				AD76723E1D6B7CC000610457 /* XCUIElement+FBTyping.m in Sources */,
 				EE158AAF1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.m in Sources */,
+				7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */,
 				EE158AE51CBD456F00A3E3F0 /* FBSession.m in Sources */,
 				EE158AC11CBD456F00A3E3F0 /* FBFindElementCommands.m in Sources */,
 				EE7E271D1D06C69F001BEC7B /* FBDebugLogDelegateDecorator.m in Sources */,

@@ -16,6 +16,7 @@
 
 #import "FBSpringboardApplication.h"
 #import "FBErrorBuilder.h"
+#import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
@@ -108,6 +109,9 @@ static bool fb_isLocked;
   NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
   if (nil == screenshotData) {
     return nil;
+  }
+  if (FBIsJpegImage(screenshotData)) {
+    return screenshotData;
   }
   UIImage *image = [UIImage imageWithData:screenshotData];
   return (NSData *)UIImagePNGRepresentation(image);

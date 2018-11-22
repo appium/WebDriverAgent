@@ -13,6 +13,7 @@
 
 #import "FBAlert.h"
 #import "FBLogger.h"
+#import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBPredicate.h"
