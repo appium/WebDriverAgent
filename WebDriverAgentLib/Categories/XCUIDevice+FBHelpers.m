@@ -110,11 +110,7 @@ static bool fb_isLocked;
   if (nil == screenshotData) {
     return nil;
   }
-  if (FBIsPngImage(screenshotData)) {
-    return screenshotData;
-  }
-  UIImage *image = [UIImage imageWithData:screenshotData];
-  return (NSData *)UIImagePNGRepresentation(image);
+  return FBAdjustScreenshotOrientationForApplication(screenshotData, FBApplication.fb_activeApplication.interfaceOrientation);
 }
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error

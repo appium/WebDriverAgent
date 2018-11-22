@@ -56,7 +56,6 @@ BOOL FBIsPngImage(NSData *imageData)
 
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation)
 {
-  UIImage *image = [UIImage imageWithData:screenshotData];
   UIImageOrientation imageOrientation;
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     // In iOS < 11.0 screenshots are already adjusted properly
@@ -68,9 +67,14 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
   } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
     imageOrientation = UIImageOrientationDown;
   } else {
+    if (FBIsPngImage(screenshotData)) {
+      return screenshotData;
+    }
+    UIImage *image = [UIImage imageWithData:screenshotData];
     return (NSData *)UIImagePNGRepresentation(image);
   }
 
+  UIImage *image = [UIImage imageWithData:screenshotData];
   UIGraphicsBeginImageContext(CGSizeMake(image.size.width, image.size.height));
   [[UIImage imageWithCGImage:(CGImageRef)[image CGImage] scale:1.0 orientation:imageOrientation]
    drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
