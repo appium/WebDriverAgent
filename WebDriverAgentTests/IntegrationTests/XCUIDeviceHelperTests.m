@@ -11,6 +11,7 @@
 
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
+#import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
@@ -35,6 +36,7 @@
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   XCTAssertNotNil([UIImage imageWithData:screenshotData]);
   XCTAssertNil(error);
+  XCTAssertTrue(FBIsPngImage(screenshotData));
 }
 
 - (void)testWifiAddress

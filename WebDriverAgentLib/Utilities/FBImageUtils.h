@@ -7,10 +7,13 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <XCTest/XcTest.h>
+#import <XCTest/XCTest.h>
 
 /*! Returns YES if the data contains a JPEG image */
 BOOL FBIsJpegImage(NSData *imageData);
+
+/*! Returns YES if the data contains a PNG image */
+BOOL FBIsPngImage(NSData *imageData);
 
 /*! Fixes the screenshot orientation if necessary to match current screen orientation */
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);

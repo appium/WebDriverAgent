@@ -110,7 +110,7 @@ static bool fb_isLocked;
   if (nil == screenshotData) {
     return nil;
   }
-  if (FBIsJpegImage(screenshotData)) {
+  if (FBIsPngImage(screenshotData)) {
     return screenshotData;
   }
   UIImage *image = [UIImage imageWithData:screenshotData];
