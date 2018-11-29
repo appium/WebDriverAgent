@@ -59,8 +59,13 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 
 inline static BOOL valuesAreEqual(id value1, id value2);
 
+inline static BOOL isNilOrEmpty(id value);
+
 - (BOOL)fb_framelessFuzzyMatchesElement:(XCElementSnapshot *)snapshot
 {
+  if (isNilOrEmpty(self.identifier) && isNilOrEmpty(self.title) && isNilOrEmpty(self.label) &&
+      isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue))
+    return [self.wdUID isEqualToString:snapshot.wdUID];
   return self.elementType == snapshot.elementType &&
   valuesAreEqual(self.identifier, snapshot.identifier) &&
   valuesAreEqual(self.title, snapshot.title) &&
@@ -125,4 +130,11 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 inline static BOOL valuesAreEqual(id value1, id value2)
 {
   return value1 == value2 || [value1 isEqual:value2];
+}
+
+inline static BOOL isNilOrEmpty(id value)
+{
+  if ([value respondsToSelector:@selector(length)])
+    return [(NSData*)value length] == 0;
+  return value == nil;
 }
