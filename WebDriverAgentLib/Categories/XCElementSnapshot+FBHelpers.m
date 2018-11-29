@@ -63,15 +63,17 @@ inline static BOOL isNilOrEmpty(id value);
 
 - (BOOL)fb_framelessFuzzyMatchesElement:(XCElementSnapshot *)snapshot
 {
+  // Pure payload-based comparison sometimes yield false negatives, therefore relying on it only if all of the identifying properties are blank
   if (isNilOrEmpty(self.identifier) && isNilOrEmpty(self.title) && isNilOrEmpty(self.label) &&
-      isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue))
+      isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue)) {
     return [self.wdUID isEqualToString:snapshot.wdUID];
+  }
   return self.elementType == snapshot.elementType &&
-  valuesAreEqual(self.identifier, snapshot.identifier) &&
-  valuesAreEqual(self.title, snapshot.title) &&
-  valuesAreEqual(self.label, snapshot.label) &&
-  valuesAreEqual(self.value, snapshot.value) &&
-  valuesAreEqual(self.placeholderValue, snapshot.placeholderValue);
+    valuesAreEqual(self.identifier, snapshot.identifier) &&
+    valuesAreEqual(self.title, snapshot.title) &&
+    valuesAreEqual(self.label, snapshot.label) &&
+    valuesAreEqual(self.value, snapshot.value) &&
+    valuesAreEqual(self.placeholderValue, snapshot.placeholderValue);
 }
 
 - (NSArray<XCElementSnapshot *> *)fb_descendantsCellSnapshots
@@ -135,6 +137,6 @@ inline static BOOL valuesAreEqual(id value1, id value2)
 inline static BOOL isNilOrEmpty(id value)
 {
   if ([value respondsToSelector:@selector(length)])
-    return [(NSData*)value length] == 0;
+    return [value performSelector:@selector(length)] == 0;
   return value == nil;
 }
