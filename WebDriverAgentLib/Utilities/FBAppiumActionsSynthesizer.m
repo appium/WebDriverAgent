@@ -19,6 +19,7 @@
 #import "XCUIElement.h"
 #import "XCSynthesizedEventRecord.h"
 #import "XCPointerEventPath.h"
+#import "XCPointerEvent.h"
 
 static NSString *const FB_ACTION_KEY = @"action";
 static NSString *const FB_ACTION_TAP = @"tap";
@@ -217,7 +218,10 @@ static NSString *const FB_ELEMENT_KEY = @"element";
 {
   XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)];
   if (nil != self.pressure) {
-    [result pressDownWithPressure:self.pressure.doubleValue atOffset:self.offset];
+    XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents[0];
+    pointerEvent.eventType = 1;
+    pointerEvent.pressure = self.pressure.doubleValue;
+    [result pressDownAtOffset:self.offset];
   }
   return @[result];
 }
