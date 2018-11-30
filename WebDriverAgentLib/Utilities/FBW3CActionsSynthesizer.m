@@ -65,6 +65,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 @interface FBPointerDownItem : FBW3CGestureItem
 @property (nullable, readonly, nonatomic) NSNumber *pressure;
+@property (nullable, readonly, nonatomic) NSNumber *pressDuration;
 @end
 
 @interface FBPauseItem : FBW3CGestureItem
@@ -159,7 +160,8 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 {
   self = [super initWithActionItem:actionItem application:application previousItem:previousItem offset:offset error:error];
   if (self) {
-    _pressure = [actionItem objectForKey:FB_ACTION_ITEM_KEY_PRESSURE];;
+    _pressure = [actionItem objectForKey:FB_ACTION_ITEM_KEY_PRESSURE];
+    _pressDuration = [actionItem objectForKey:FB_ACTION_ITEM_KEY_DURATION];
   }
   return self;
 }
@@ -182,7 +184,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents[0];
     pointerEvent.eventType = 1;
     pointerEvent.pressure = self.pressure.doubleValue;
-    [result pressDownAtOffset:FBMillisToSeconds(self.offset)];
+    [result pressDownAtOffset:FBMillisToSeconds(self.offset) + FBMillisToSeconds(self.pressDuration.doubleValue)];
   }
   return @[result];
 }

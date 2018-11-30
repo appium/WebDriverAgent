@@ -53,7 +53,7 @@ static NSString *const FB_ELEMENT_KEY = @"element";
 
 @interface FBPressItem : FBAppiumGestureItem
 @property (nonatomic, nullable, readonly) NSNumber *pressure;
-@property (nonatomic, nullable, readonly) NSNumber *duration;
+@property (nonatomic, nullable, readonly) NSNumber *pressDuration;
 @end
 
 @interface FBLongPressItem : FBAppiumGestureItem
@@ -197,12 +197,12 @@ static NSString *const FB_ELEMENT_KEY = @"element";
   self = [super initWithActionItem:item application:application atPosition:atPosition offset:offset error:error];
   if (self) {
     _pressure = nil;
-    _duration = nil;
+    _pressDuration = nil;
 
     id options = [item objectForKey:FB_OPTIONS_KEY];
     if ([options isKindOfClass:NSDictionary.class]) {
       _pressure = [options objectForKey:FB_OPTION_PRESSURE];
-      _duration = [options objectForKey:FB_OPTION_DURATION];
+      _pressDuration = [options objectForKey:FB_OPTION_DURATION];
     }
   }
   return self;
@@ -225,7 +225,7 @@ static NSString *const FB_ELEMENT_KEY = @"element";
     XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents[0];
     pointerEvent.eventType = 1;
     pointerEvent.pressure = self.pressure.doubleValue;
-    [result pressDownAtOffset:FBMillisToSeconds(self.offset) + FBMillisToSeconds(self.duration.doubleValue)];
+    [result pressDownAtOffset:FBMillisToSeconds(self.offset) + FBMillisToSeconds(self.pressDuration.doubleValue)];
   }
   return @[result];
 }
