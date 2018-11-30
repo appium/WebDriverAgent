@@ -20,7 +20,8 @@
       @"action": @"press",
       @"options": @{
           @"element": self,
-          @"pressure": @(pressure)
+          @"pressure": @(pressure),
+          @"duration": @(duration * 1000)
           }
       },
     @{
@@ -29,9 +30,6 @@
           @"ms": @(duration * 1000)
           }
       },
-    @{
-      @"action": @"release"
-      }
     ];
   return [self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
 }
@@ -45,7 +43,8 @@
           @"element": self,
           @"x": @(relativeCoordinate.x),
           @"y": @(relativeCoordinate.y),
-          @"pressure": @(pressure)
+          @"pressure": @(pressure),
+          @"duration": @(duration * 1000)
           }
       },
     @{
@@ -54,9 +53,6 @@
           @"ms": @(duration * 1000)
           }
       },
-    @{
-      @"action": @"release"
-      }
     ];
   return [self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
 }
