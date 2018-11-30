@@ -137,7 +137,7 @@ inline static BOOL valuesAreEqual(id value1, id value2)
 
 inline static BOOL isNilOrEmpty(id value)
 {
-  if ([value isKindOfClass:NSClassFromString(@"NSString")]) {
+  if ([value isKindOfClass:NSString.class]) {
     return [(NSString*)value length] == 0;
   }
   return value == nil;
