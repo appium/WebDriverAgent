@@ -278,7 +278,8 @@
           @"element": self.testedApplication.buttons[FBShowAlertForceTouchButtonName],
           @"x": @1,
           @"y": @1,
-          @"pressure": @1
+          @"pressure": @1,
+          @"duration": @300
           }
       },
     @{
@@ -286,9 +287,6 @@
       @"options": @{
           @"ms": @300
           }
-      },
-    @{
-      @"action": @"release"
       }
     ];
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
