@@ -22,6 +22,7 @@
 #import "XCUIElement.h"
 #import "XCSynthesizedEventRecord.h"
 #import "XCPointerEventPath.h"
+#import "XCPointerEvent.h"
 
 
 static NSString *const FB_KEY_TYPE = @"type";
@@ -178,7 +179,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)];
   if (nil != self.pressure) {
-    [result pressDownWithPressure:self.pressure.doubleValue atOffset:FBMillisToSeconds(self.offset)];
+    XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents[0];
+    pointerEvent.eventType = 1;
+    pointerEvent.pressure = self.pressure.doubleValue;
+    [result pressDownAtOffset:FBMillisToSeconds(self.offset)];
   }
   return @[result];
 }
