@@ -278,8 +278,7 @@
           @"element": self.testedApplication.buttons[FBShowAlertForceTouchButtonName],
           @"x": @1,
           @"y": @1,
-          @"pressure": @1,
-          @"duration": @300
+          @"pressure": @1
           }
       },
     @{
