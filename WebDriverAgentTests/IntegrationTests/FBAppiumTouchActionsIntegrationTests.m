@@ -286,6 +286,9 @@
       @"options": @{
           @"ms": @300
           }
+      },
+    @{
+      @"action": @"release"
       }
     ];
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];

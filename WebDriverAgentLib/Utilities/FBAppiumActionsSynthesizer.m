@@ -196,7 +196,6 @@ static NSString *const FB_ELEMENT_KEY = @"element";
   self = [super initWithActionItem:item application:application atPosition:atPosition offset:offset error:error];
   if (self) {
     _pressure = nil;
-
     id options = [item objectForKey:FB_OPTIONS_KEY];
     if ([options isKindOfClass:NSDictionary.class]) {
       _pressure = [options objectForKey:FB_OPTION_PRESSURE];
