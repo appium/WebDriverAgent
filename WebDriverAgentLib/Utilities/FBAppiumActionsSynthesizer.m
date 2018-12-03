@@ -217,9 +217,8 @@ static NSString *const FB_ELEMENT_KEY = @"element";
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
   XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)];
-  if (nil != self.pressure) {
-    XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents[0];
-    pointerEvent.eventType = 1;
+  if (nil != self.pressure && nil != result.pointerEvents.lastObject) {
+    XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents.lastObject;
     pointerEvent.pressure = self.pressure.doubleValue;
   }
   return @[result];
