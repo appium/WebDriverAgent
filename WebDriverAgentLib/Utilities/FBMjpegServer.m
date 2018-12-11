@@ -82,16 +82,14 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   CGFloat compressionQuality = FBConfiguration.mjpegServerScreenshotQuality / 100.0f;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [proxy _XCT_setAXTimeout:SCREENSHOT_TIMEOUT reply:^(int res) {
-    [proxy _XCT_requestScreenshotOfScreenWithID:[[XCUIScreen mainScreen] displayID]
+  [proxy _XCT_requestScreenshotOfScreenWithID:[[XCUIScreen mainScreen] displayID]
                                        withRect:CGRectNull
                                             uti:(__bridge id)kUTTypeJPEG
                              compressionQuality:compressionQuality
                                       withReply:^(NSData *data, NSError *error) {
       screenshotData = data;
       dispatch_semaphore_signal(sem);
-    }];
-  }];
+                                      }];
   dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
   if (nil == screenshotData) {
     return;
