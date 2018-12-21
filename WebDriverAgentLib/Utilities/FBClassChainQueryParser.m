@@ -394,7 +394,7 @@ static NSString *const FBAbstractMethodInvocationException = @"FBAbstractMethodI
 
 @implementation FBClassChainItem
 
-- (instancetype)initWithType:(XCUIElementType)type position:(NSInteger)position predicates:(NSArray<FBAbstractPredicateItem *> *)predicates isDescendant:(BOOL)isDescendant
+- (instancetype)initWithType:(XCUIElementType)type position:(NSNumber *)position predicates:(NSArray<FBAbstractPredicateItem *> *)predicates isDescendant:(BOOL)isDescendant
 {
   self = [super init];
   if (self) {
@@ -507,7 +507,7 @@ static NSNumberFormatter *numberFormatter = nil;
 {
   NSMutableArray *result = [NSMutableArray array];
   XCUIElementType chainElementType = XCUIElementTypeAny;
-  int chainElementPosition = 1;
+  NSNumber *chainElementPosition = nil;
   BOOL isTypeSet = NO;
   BOOL isPositionSet = NO;
   BOOL isDescendantSet = NO;
@@ -577,11 +577,11 @@ static NSNumberFormatter *numberFormatter = nil;
         *error = [self.class compilationErrorWithQuery:originalQuery description:description];
         return nil;
       }
-      chainElementPosition = [position intValue];
+      chainElementPosition = position;
       isPositionSet = YES;
     } else if ([token isKindOfClass:FBSplitterToken.class]) {
       if (!isPositionSet) {
-        chainElementPosition = 1;
+        chainElementPosition = nil;
       }
       if (isDescendantSet) {
         if (isTypeSet) {
@@ -597,8 +597,7 @@ static NSNumberFormatter *numberFormatter = nil;
     }
   }
   if (!isPositionSet) {
-    // pick all siblings by default for the last item in the chain
-    chainElementPosition = 0;
+    chainElementPosition = nil;
   }
   if (isDescendantSet) {
     if (isTypeSet) {

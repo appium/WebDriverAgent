@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FBClassChainItem : NSObject
 
 /*! Element's position */
-@property (readonly, nonatomic) NSInteger position;
+@property (readonly, nonatomic, nullable) NSNumber *position;
 /*! Element's type */
 @property (readonly, nonatomic) XCUIElementType type;
 /*! Whether an element is a descendant of the previos element */
@@ -53,14 +53,15 @@ NS_ASSUME_NONNULL_BEGIN
  @param position element position relative to its sibling element. Numeration
    starts with 1. Zero value means that all sibling element should be selected.
    Negative value means that numeration starts from the last element, for example
-   -1 is the last child element and -2 is the second last element
+   -1 is the last child element and -2 is the second last element.
+   nil value means that no element position has been set explicitly.
  @param predicates the list of matching descendant/self predicates
  @param isDescendant equals to YES if the element is a descendantt element of
    the previous element in the chain. NO value means the element is the direct
    child of the previous element
  @return FBClassChainElement instance
  */
-- (instancetype)initWithType:(XCUIElementType)type position:(NSInteger)position predicates:(NSArray<FBAbstractPredicateItem *> *)predicates isDescendant:(BOOL)isDescendant;
+- (instancetype)initWithType:(XCUIElementType)type position:(nullable NSNumber *)position predicates:(NSArray<FBAbstractPredicateItem *> *)predicates isDescendant:(BOOL)isDescendant;
 
 @end
 
