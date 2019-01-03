@@ -11,6 +11,7 @@
 
 #import "FBMjpegServer.h"
 
+#import <mach/mach_time.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FBApplication.h"
 #import "FBConfiguration.h"
@@ -28,8 +29,9 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 @interface FBMjpegServer()
 
-@property (nonatomic) dispatch_queue_t backgroundQueue;
-@property (nonatomic) NSMutableArray<GCDAsyncSocket *> *activeClients;
+@property (nonatomic, readonly) dispatch_queue_t backgroundQueue;
+@property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *activeClients;
+@property (nonatomic, readonly) mach_timebase_info_data_t timebaseInfo;
 
 @end
 
@@ -40,12 +42,30 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 {
   if ((self = [super init])) {
     _activeClients = [NSMutableArray array];
-    _backgroundQueue = dispatch_queue_create(QUEUE_NAME, DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
+    _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
+    mach_timebase_info(&_timebaseInfo);
     dispatch_async(_backgroundQueue, ^{
       [self streamScreenshot];
     });
   }
   return self;
+}
+
+- (void)scheduleNextScreenshotWithInterval:(uint64_t)timerInterval timeStarted:(uint64_t)timeStarted
+{
+  uint64_t timeElapsed = mach_absolute_time() - timeStarted;
+  int64_t nextTickDelta = timerInterval - timeElapsed * self.timebaseInfo.numer / self.timebaseInfo.denom;
+  if (nextTickDelta > 0) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, nextTickDelta), self.backgroundQueue, ^{
+      [self streamScreenshot];
+    });
+  } else {
+    // Try to do our best to keep the FPS at a decent level
+    dispatch_async(self.backgroundQueue, ^{
+      [self streamScreenshot];
+    });
+  }
 }
 
 - (void)streamScreenshot
@@ -56,13 +76,11 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   }
 
   NSUInteger framerate = FBConfiguration.mjpegServerFramerate;
-  NSTimeInterval timerInterval = 1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate);
-  int64_t delta = (int64_t)(timerInterval * NSEC_PER_SEC);
+  uint64_t timerInterval = (uint64_t)(1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate) * NSEC_PER_SEC);
+  uint64_t timeStarted = mach_absolute_time();
   @synchronized (self.activeClients) {
     if (0 == self.activeClients.count) {
-      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delta), self.backgroundQueue, ^{
-        [self streamScreenshot];
-      });
+      [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
       return;
     }
   }
@@ -81,9 +99,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   }];
   dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
   if (nil == screenshotData) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delta), self.backgroundQueue, ^{
-      [self streamScreenshot];
-    });
+    [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
     return;
   }
 
@@ -96,9 +112,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
       [client writeData:chunk withTimeout:-1 tag:0];
     }
   }
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delta), self.backgroundQueue, ^{
-    [self streamScreenshot];
-  });
+  [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
 }
 
 + (BOOL)canStreamScreenshots
