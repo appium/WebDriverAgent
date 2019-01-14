@@ -32,7 +32,7 @@ NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
   static dispatch_once_t onceExceptionsMapping;
   dispatch_once(&onceExceptionsMapping, ^{
     exceptionsMapping = @{
-      FBApplicationDeadlockDetectedException:@[@(FBCommandStatusApplicationDeadlockDetected)],
+      FBApplicationDeadlockDetectedException: @[@(FBCommandStatusApplicationDeadlockDetected)],
       FBSessionDoesNotExistException: @[@(FBCommandStatusNoSuchSession)],
       FBInvalidArgumentException: @[@(FBCommandStatusInvalidArgument)],
       FBElementAttributeUnknownException: @[@(FBCommandStatusInvalidSelector)],
