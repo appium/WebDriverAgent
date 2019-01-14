@@ -22,54 +22,42 @@ NSString *const FBInvalidArgumentException = @"FBInvalidArgumentException";
 NSString *const FBSessionDoesNotExistException = @"FBSessionDoesNotExistException";
 NSString *const FBApplicationDeadlockDetectedException = @"FBApplicationDeadlockDetectedException";
 NSString *const FBElementAttributeUnknownException = @"FBElementAttributeUnknownException";
+NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
 
 @implementation FBExceptionHandler
 
 - (BOOL)webServer:(FBWebServer *)webServer handleException:(NSException *)exception forResponse:(RouteResponse *)response
 {
-  if ([exception.name isEqualToString:FBApplicationDeadlockDetectedException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusApplicationDeadlockDetected, [exception description]);
+  static NSDictionary<NSString *, NSArray *> *exceptionsMapping;
+  static dispatch_once_t onceExceptionsMapping;
+  dispatch_once(&onceExceptionsMapping, ^{
+    exceptionsMapping = @{
+      FBApplicationDeadlockDetectedException:@[@(FBCommandStatusApplicationDeadlockDetected)],
+      FBSessionDoesNotExistException: @[@(FBCommandStatusNoSuchSession)],
+      FBInvalidArgumentException: @[@(FBCommandStatusInvalidArgument)],
+      FBElementAttributeUnknownException: @[@(FBCommandStatusInvalidSelector)],
+      FBAlertObstructingElementException: @[@(FBCommandStatusUnexpectedAlertPresent), @"Alert is obstructing view"],
+      FBApplicationCrashedException: @[@(FBCommandStatusApplicationCrashDetected)],
+      FBInvalidXPathException: @[@(FBCommandStatusInvalidXPathSelector)],
+      FBClassChainQueryParseException: @[@(FBCommandStatusInvalidSelector)],
+      FBElementNotVisibleException: @[@(FBCommandStatusElementNotVisible)],
+    };
+  });
+
+  for (NSString *exceptionName in exceptionsMapping) {
+    NSArray *status = [exceptionsMapping valueForKey:exceptionName];
+    if (nil == status) {
+      continue;
+    }
+
+    NSUInteger statusValue = [[status objectAtIndex:0] integerValue];
+    id<FBResponsePayload> payload = [status count] < 2
+      ? FBResponseWithStatus(statusValue, [exception description])
+      : FBResponseWithStatus(statusValue, [[status objectAtIndex:1] stringValue]);
     [payload dispatchWithResponse:response];
     return YES;
   }
 
-  if ([exception.name isEqualToString:FBSessionDoesNotExistException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusNoSuchSession, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-
-  if ([exception.name isEqualToString:FBInvalidArgumentException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidArgument, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-
-  if ([exception.name isEqualToString:FBElementAttributeUnknownException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidSelector, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-  if ([exception.name isEqualToString:FBAlertObstructingElementException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusUnexpectedAlertPresent, @"Alert is obstructing view");
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-  if ([exception.name isEqualToString:FBApplicationCrashedException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusApplicationCrashDetected, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-  if ([exception.name isEqualToString:FBInvalidXPathException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidXPathSelector, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
-  if ([exception.name isEqualToString:FBClassChainQueryParseException]) {
-    id<FBResponsePayload> payload = FBResponseWithStatus(FBCommandStatusInvalidSelector, [exception description]);
-    [payload dispatchWithResponse:response];
-    return YES;
-  }
   return NO;
 }
 

@@ -24,6 +24,9 @@ extern NSString *const FBElementAttributeUnknownException;
 /*! Exception used to notify about invalid argument */
 extern NSString *const FBInvalidArgumentException;
 
+/*! Exception used to notify about invisibility of an element while trying to interact with it */
+extern NSString *const FBElementNotVisibleException;
+
 /**
  Class used to handle exceptions raised by command handlers
  */

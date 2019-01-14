@@ -12,6 +12,7 @@
 
 #import "FBAppiumActionsSynthesizer.h"
 #import "FBBaseActionsSynthesizer.h"
+#import "FBExceptionHandler.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBW3CActionsSynthesizer.h"
@@ -19,6 +20,14 @@
 #import "XCEventGenerator.h"
 
 @implementation XCUIApplication (FBTouchAction)
+
++ (BOOL)handleEventSynthesWithError:(NSError *)error
+{
+  if ([error.localizedDescription containsString:@"not visible"]) {
+    [[NSException exceptionWithName:FBElementNotVisibleException reason:error.localizedDescription userInfo:error.userInfo] raise];
+  }
+  return NO;
+}
 
 - (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType actions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
@@ -28,7 +37,7 @@
   }
   XCSynthesizedEventRecord *eventRecord = [synthesizer synthesizeWithError:error];
   if (nil == eventRecord) {
-    return NO;
+    return [self.class handleEventSynthesWithError:*error];
   }
   return [self fb_synthesizeEvent:eventRecord error:error];
 }
