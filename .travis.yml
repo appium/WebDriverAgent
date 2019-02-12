@@ -9,10 +9,6 @@ cache:
 
 script: ./Scripts/build.sh
 
-branches:
-  only:
-    - master
-
 env:
 # Builds
 - ACTION=build TARGET=runner SDK=sim
