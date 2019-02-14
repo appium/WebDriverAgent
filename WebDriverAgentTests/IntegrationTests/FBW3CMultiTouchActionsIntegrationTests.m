@@ -29,9 +29,9 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue(self.testedApplication.alerts.count == 0);
+  NSInteger initialCount = self.testedApplication.alerts.count;
   XCTAssertTrue([self.testedApplication fb_performW3CTouchActions:gesture elementCache:nil error:&error]);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > initialCount);
 }
 
 - (void)setUp
@@ -79,9 +79,9 @@
             ],
         },
       ],
-    
+
     ];
-  
+
   for (NSArray<NSDictionary<NSString *, id> *> *invalidGesture in invalidGestures) {
     NSError *error;
     XCTAssertFalse([self.testedApplication fb_performW3CTouchActions:invalidGesture elementCache:nil  error:&error]);
@@ -117,9 +117,8 @@
           ],
       },
     ];
-  
+
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
 }
 
 @end
-

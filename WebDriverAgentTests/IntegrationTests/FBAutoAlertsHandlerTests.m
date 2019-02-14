@@ -27,7 +27,6 @@
 - (void)setUp
 {
   [super setUp];
-
   [self launchApplication];
   [self goToAlertsPage];
 }
@@ -48,7 +47,7 @@
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;
   }
-  
+
   self.session = [FBSession
                   sessionWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];

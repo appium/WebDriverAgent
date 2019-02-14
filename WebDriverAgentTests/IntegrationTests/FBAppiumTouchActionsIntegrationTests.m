@@ -33,9 +33,10 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue(self.testedApplication.alerts.count == 0);
+  NSInteger initialCount = self.testedApplication.alerts.count;
   XCTAssertTrue([self.testedApplication fb_performAppiumTouchActions:gesture elementCache:nil error:&error]);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+  XCTAssertNil(error);
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > initialCount);
 }
 
 - (void)setUp
@@ -57,12 +58,12 @@
 - (void)testErroneousGestures
 {
   XCUIElement *dstButton = self.testedApplication.buttons[FBShowAlertButtonName];
-  
+
   NSArray<NSArray<NSDictionary<NSString *, id> *> *> *invalidGestures =
   @[
     // Empty chain
     @[],
-    
+
     // Chain element without 'action' key
     @[@{
         @"options": @{
@@ -70,7 +71,7 @@
             }
         },
       ],
-    
+
     // Empty chain because of cancel
     @[@{
         @"action": @"moveTo",
@@ -82,7 +83,7 @@
         @"action": @"cancel"
         },
       ],
-    
+
     // Chain with unknown action
     @[@{
         @"action": @"tapP",
@@ -91,7 +92,7 @@
             }
         },
       ],
-    
+
     // Wait without preceeding coordinate
     @[@{
         @"action": @"wait"
@@ -141,7 +142,7 @@
             }
         },
       ],
-    
+
     // longPress with negative duration
     @[@{
         @"action": @"longPress",
@@ -152,9 +153,9 @@
             }
         },
       ],
-    
+
   ];
-  
+
   for (NSArray<NSDictionary<NSString *, id> *> *invalidGesture in invalidGestures) {
     NSError *error;
     XCTAssertFalse([self.testedApplication fb_performAppiumTouchActions:invalidGesture elementCache:nil error:&error]);
@@ -423,4 +424,3 @@
 }
 
 @end
-

@@ -33,9 +33,10 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue(self.testedApplication.alerts.count == 0);
+  NSInteger initialCount = self.testedApplication.alerts.count;
   XCTAssertTrue([self.testedApplication fb_performW3CTouchActions:gesture elementCache:nil error:&error]);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+  XCTAssertNil(error);
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > initialCount);
 }
 
 - (void)setUp
@@ -60,7 +61,7 @@
   @[
     // Empty chain
     @[],
-    
+
     // Chain element without 'actions' key
     @[@{
         @"type": @"pointer",
@@ -68,7 +69,7 @@
         @"parameters": @{@"pointerType": @"touch"},
         },
       ],
-    
+
     // Chain element with empty 'actions'
     @[@{
         @"type": @"pointer",
@@ -77,7 +78,7 @@
         @"actions": @[],
         },
       ],
-    
+
     // Chain element without type
     @[@{
         @"id": @"finger1",
@@ -87,7 +88,7 @@
             ],
         },
       ],
-    
+
     // Chain element without id
     @[@{
         @"type": @"pointer",
@@ -97,7 +98,7 @@
             ],
         },
       ],
-    
+
     // Chain element with empty id
     @[@{
         @"type": @"pointer",
@@ -108,7 +109,7 @@
             ],
         },
       ],
-    
+
     // Chain element with unsupported type
     @[@{
         @"type": @"key",
@@ -119,7 +120,7 @@
             ],
         },
       ],
-    
+
     // Chain element with unsupported pointerType (default)
     @[@{
         @"type": @"pointer",
@@ -129,7 +130,7 @@
             ],
         },
       ],
- 
+
     // Chain element with unsupported pointerType (non-default)
     @[@{
         @"type": @"pointer",
@@ -140,7 +141,7 @@
             ],
         },
       ],
-    
+
     // Chain element without action item type
     @[@{
         @"type": @"pointer",
@@ -154,7 +155,7 @@
             ],
         },
       ],
-    
+
     // Chain element containing action item without y coordinate
     @[@{
         @"type": @"pointer",
@@ -168,7 +169,7 @@
             ],
         },
       ],
-    
+
     // Chain element containing action item with an unknown type
     @[@{
         @"type": @"pointer",
@@ -182,7 +183,7 @@
             ],
         },
       ],
-    
+
     // Chain element where action items start with an incorrect item
     @[@{
         @"type": @"pointer",
@@ -197,7 +198,7 @@
             ],
         },
       ],
-    
+
     // Chain element where pointerMove action item does not contain coordinates
     @[@{
         @"type": @"pointer",
@@ -211,7 +212,7 @@
             ],
         },
       ],
-    
+
     // Chain element where pointerMove action item cannot use coordinates of the previous item
     @[@{
         @"type": @"pointer",
@@ -225,7 +226,7 @@
             ],
         },
       ],
-    
+
     // Chain element where action items contains negative duration
     @[@{
         @"type": @"pointer",
@@ -239,7 +240,7 @@
             ],
         },
       ],
-    
+
     // Chain element where action items start with an incorrect one, because the correct one is canceled
     @[@{
         @"type": @"pointer",
@@ -254,9 +255,9 @@
             ],
         },
       ],
-    
+
     ];
-  
+
   for (NSArray<NSDictionary<NSString *, id> *> *invalidGesture in invalidGestures) {
     NSError *error;
     XCTAssertFalse([self.testedApplication fb_performW3CTouchActions:invalidGesture elementCache:nil error:&error]);
@@ -444,5 +445,3 @@
 }
 
 @end
-
-

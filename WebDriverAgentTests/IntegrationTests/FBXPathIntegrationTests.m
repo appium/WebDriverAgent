@@ -39,6 +39,7 @@
   NSString *expectedType = @"XCUIElementTypeButton";
   XCUIElement *matchingElement = [[self.testedView fb_descendantsMatchingXPathQuery:[NSString stringWithFormat:@"//%@", expectedType] shouldReturnAfterFirstMatch:YES] firstObject];
   XCElementSnapshot *matchingSnapshot = matchingElement.fb_lastSnapshot;
+  XCTAssertNotNil(matchingSnapshot);
   NSString *xmlStr = [FBXPath xmlStringWithRootElement:matchingSnapshot];
   XCTAssertNotNil(xmlStr);
 

@@ -60,14 +60,14 @@
   XCTAssertTrue(buttons.count > 0);
   NSArray<XCUIElement *> *windows = self.testedApplication.windows.allElementsBoundByAccessibilityElement;
   XCTAssertTrue(windows.count > 0);
-  
+
   NSMutableArray<XCUIElement *> *allElements = [NSMutableArray array];
   [allElements addObjectsFromArray:buttons];
   [allElements addObjectsFromArray:windows];
-  
+
   NSMutableArray<XCElementSnapshot *> *buttonSnapshots = [NSMutableArray array];
   [buttonSnapshots addObject:[buttons.firstObject fb_lastSnapshot]];
-  
+
   NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots];
   XCTAssertEqual(1, result.count);
   XCTAssertEqual([result.firstObject elementType], XCUIElementTypeButton);
