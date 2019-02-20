@@ -14,12 +14,12 @@
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement.h"
-#import "XCAXClient_iOS.h"
 #import "XCUIApplication.h"
 #import "XCUIApplicationImpl.h"
 #import "XCUIApplicationProcess.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
+#import "FBXCAXClientProxy.h"
 
 @interface FBApplication ()
 @property (nonatomic, assign) BOOL fb_isObservingAppImplCurrentProcess;
@@ -32,10 +32,10 @@
   [[[FBRunLoopSpinner new]
     timeout:5]
    spinUntilTrue:^BOOL{
-     return [[XCAXClient_iOS sharedClient] activeApplications].count == 1;
+     return [FBXCAXClientProxy.sharedClient activeApplications].count == 1;
    }];
 
-  XCAccessibilityElement *activeApplicationElement = [[[XCAXClient_iOS sharedClient] activeApplications] firstObject];
+  XCAccessibilityElement *activeApplicationElement = [[FBXCAXClientProxy.sharedClient activeApplications] firstObject];
   if (!activeApplicationElement) {
     return nil;
   }
@@ -52,7 +52,7 @@
 + (instancetype)fb_systemApplication
 {
   return [self fb_applicationWithPID:
-   [[[XCAXClient_iOS sharedClient] systemApplication] processIdentifier]];
+   [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
 + (instancetype)appWithPID:(pid_t)processID
@@ -78,7 +78,11 @@
   if (application) {
     return application;
   }
-  application = [super applicationWithPID:processID];
+  if ([FBXCAXClientProxy.sharedClient providesProcessIdentifier]) {
+    application = (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
+  } else {
+    application = [super applicationWithPID:processID];
+  }
   [FBApplication fb_registerApplication:application withProcessID:processID];
   return application;
 }
@@ -149,7 +153,7 @@ static NSMutableDictionary *FBPidToApplicationMapping;
   return FBPidToApplicationMapping[@(processID)];
 }
 
-+ (void)fb_registerApplication:(FBApplication *)application withProcessID:(pid_t)processID
++ (void)fb_registerApplication:(XCUIApplication *)application withProcessID:(pid_t)processID
 {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{

@@ -12,7 +12,7 @@
 #import "FBFindElementCommands.h"
 #import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
-#import "XCAXClient_iOS.h"
+#import "FBXCAXClientProxy.h"
 #import "XCTestDriver.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCUIElement.h"
@@ -53,7 +53,7 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 
 - (id)fb_attributeValue:(NSNumber *)attribute
 {
-  NSDictionary *attributesResult = [[XCAXClient_iOS sharedClient] attributesForElementSnapshot:self attributeList:@[attribute]];
+  NSDictionary *attributesResult = [FBXCAXClientProxy.sharedClient attributesForElementSnapshot:self attributeList:@[attribute]];
   return (id __nonnull)attributesResult[attribute];
 }
 

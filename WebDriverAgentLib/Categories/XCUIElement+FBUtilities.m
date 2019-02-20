@@ -18,9 +18,9 @@
 #import "FBMathUtils.h"
 #import "FBPredicate.h"
 #import "FBRunLoopSpinner.h"
+#import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCAXClient_iOS.h"
 #import "XCTElementSetTransformer-Protocol.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
@@ -88,7 +88,7 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
   
   static dispatch_once_t initializeAttributesAndParametersToken;
   dispatch_once(&initializeAttributesAndParametersToken, ^{
-    defaultParameters = [[XCAXClient_iOS sharedClient] defaultParameters];
+    defaultParameters = [FBXCAXClientProxy.sharedClient defaultParameters];
     // Names of the properties to load. There won't be lazy loading for missing properties,
     // thus missing properties will lead to wrong results
     NSArray<NSString *> *propertyNames = @[
@@ -214,7 +214,7 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
 - (BOOL)fb_waitUntilSnapshotIsStable
 {
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [[XCAXClient_iOS sharedClient] notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_semaphore_signal(sem);}];
+  [FBXCAXClientProxy.sharedClient notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_semaphore_signal(sem);}];
   dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBANIMATION_TIMEOUT * NSEC_PER_SEC));
   BOOL result = 0 == dispatch_semaphore_wait(sem, timeout);
   if (!result) {
