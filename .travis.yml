@@ -1,22 +1,21 @@
 language: objective-c
 sudo: false
 
-cache:
-  directories:
-  - Carthage
-  - Inspector/node_modules
-
-script: ./Scripts/build.sh
-
 branches:
   only:
     - master
 
 matrix:
+  fast_finish: true
   include:
     # The minimum supported
     - os: osx
       osx_image: xcode9.2
+      cache:
+        directories:
+        - Carthage
+        - Inspector/node_modules
+      script: ./Scripts/build.sh
       env:
         # Builds
         - ACTION=build TARGET=runner SDK=sim
@@ -44,6 +43,11 @@ matrix:
     # The most recent
     - os: osx
       osx_image: xcode10.2
+      cache:
+        directories:
+        - Carthage
+        - Inspector/node_modules
+      script: ./Scripts/build.sh
       env:
         # Builds
         - ACTION=build TARGET=runner SDK=sim
@@ -67,4 +71,4 @@ matrix:
         - ACTION=int_test_2 DEST=ipad TARGET=lib SDK=sim
         - ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
         global:
-          - IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2"
+          IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2"
