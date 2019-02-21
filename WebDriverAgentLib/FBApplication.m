@@ -78,7 +78,7 @@
   if (application) {
     return application;
   }
-  if ([FBXCAXClientProxy.sharedClient providesProcessIdentifier]) {
+  if ([FBXCAXClientProxy.sharedClient hasProcessTracker]) {
     application = (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
   } else {
     application = [super applicationWithPID:processID];
@@ -89,7 +89,7 @@
 
 - (void)launch
 {
-  if (!self.fb_shouldWaitForQuiescence && ![FBXCAXClientProxy.sharedClient providesProcessIdentifier]) {
+  if (!self.fb_shouldWaitForQuiescence && ![FBXCAXClientProxy.sharedClient hasProcessTracker]) {
     [self.fb_appImpl addObserver:self forKeyPath:FBStringify(XCUIApplicationImpl, currentProcess) options:(NSKeyValueObservingOptions)(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) context:nil];
     self.fb_isObservingAppImplCurrentProcess = YES;
   }

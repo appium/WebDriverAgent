@@ -20,8 +20,8 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="-destination \"name=iPhone SE,OS=11.2\"";;
-    "ipad" ) XC_DESTINATION="-destination \"name=iPad Air 2,OS=11.2\"";;
+    "iphone" ) XC_DESTINATION="-destination \"name=${IPHONE_MODEL},OS=${IOS_VERSION}\"";;
+    "ipad" ) XC_DESTINATION="-destination \"name=${IPAD_MODEL},OS=${IOS_VERSION}\"";;
   esac
 
   case "$ACTION" in

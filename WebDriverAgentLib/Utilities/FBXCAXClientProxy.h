@@ -13,6 +13,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ This class acts as a proxy between WDA and XCAXClient_iOS.
+ Other classes are obliged to use its methods instead of directly accessing XCAXClient_iOS,
+ since Apple resticted the interface of XCAXClient_iOS class since Xcode10.2
+ */
 @interface FBXCAXClientProxy : NSObject
 
 + (instancetype)sharedClient;
@@ -23,13 +28,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)defaultParameters;
 
-- (void)notifyWhenNoAnimationsAreActiveForApplication:(id)arg1 reply:(void (^)(void))arg2;
+- (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
+                                                reply:(void (^)(void))reply;
 
-- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)arg1 attributeList:(NSArray *)arg2;
+- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)snapshot
+                                 attributeList:(NSArray *)attributeList;
 
-- (BOOL)providesProcessIdentifier;
+- (BOOL)hasProcessTracker;
 
-- (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)arg1;
+- (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid;
 
 @end
 

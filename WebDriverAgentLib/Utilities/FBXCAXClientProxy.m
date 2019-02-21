@@ -8,6 +8,8 @@
  */
 
 #import "FBXCAXClientProxy.h"
+
+#import "FBLogger.h"
 #import "XCAXClient_iOS.h"
 #import "XCUIDevice.h"
 
@@ -30,7 +32,6 @@ static id FBAXClient = nil;
   return instance;
 }
 
-
 - (NSArray<XCAccessibilityElement *> *)activeApplications
 {
   return [FBAXClient activeApplications];
@@ -46,29 +47,41 @@ static id FBAXClient = nil;
   return [FBAXClient defaultParameters];
 }
 
-- (void)notifyWhenNoAnimationsAreActiveForApplication:(id)arg1 reply:(void (^)(void))arg2
+- (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
+                                                reply:(void (^)(void))reply
 {
-  [FBAXClient notifyWhenNoAnimationsAreActiveForApplication:arg1 reply:arg2];
+  [FBAXClient notifyWhenNoAnimationsAreActiveForApplication:application reply:reply];
 }
 
-- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)arg1 attributeList:(NSArray *)arg2
+- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)snapshot
+                                 attributeList:(NSArray *)attributeList
 {
   if ([FBAXClient respondsToSelector:@selector(attributesForElementSnapshot:attributeList:)]) {
-    return [FBAXClient attributesForElementSnapshot:arg1 attributeList:arg2];
+    return [FBAXClient attributesForElementSnapshot:snapshot attributeList:attributeList];
   }
-  return [(id)FBAXClient attributesForElement:[arg1 accessibilityElement]
-                                   attributes:arg2
-                                        error:nil];
+  NSError *error = nil;
+  NSDictionary *result = [(id)FBAXClient attributesForElement:[snapshot accessibilityElement]
+                                                   attributes:attributeList
+                                                        error:&error];
+  if (error) {
+    [FBLogger logFmt:@"Cannot retrieve the list of element attributes: %@", error.description];
+  }
+  return result;
 }
 
-- (BOOL)providesProcessIdentifier
+- (BOOL)hasProcessTracker
 {
-  return [FBAXClient valueForKey:@"applicationProcessTracker"] != nil;
+  static BOOL hasTracker;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    hasTracker = [FBAXClient valueForKey:@"applicationProcessTracker"] != nil;
+  });
+  return hasTracker;
 }
 
-- (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)arg1
+- (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid
 {
-  return [[FBAXClient applicationProcessTracker] monitoredApplicationWithProcessIdentifier:arg1];
+  return [[FBAXClient applicationProcessTracker] monitoredApplicationWithProcessIdentifier:pid];
 }
 
 @end
