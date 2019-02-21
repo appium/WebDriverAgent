@@ -12,6 +12,29 @@ branches:
   only:
     - master
 
+env:
+  # Builds
+  - ACTION=build TARGET=runner SDK=sim
+  - ACTION=build TARGET=runner SDK=device
+
+  # Analyze
+  - ACTION=analyze TARGET=lib SDK=sim
+  - ACTION=analyze TARGET=runner SDK=sim
+
+  # Unit tests
+  - ACTION=unit_test DEST=iphone TARGET=lib SDK=sim
+  - ACTION=unit_test DEST=ipad TARGET=lib SDK=sim
+
+  # Integration tests iPhone
+  - ACTION=int_test_1 DEST=iphone TARGET=lib SDK=sim
+  - ACTION=int_test_2 DEST=iphone TARGET=lib SDK=sim
+  - ACTION=int_test_3 DEST=iphone TARGET=lib SDK=sim
+
+  # Integration tests iPad
+  - ACTION=int_test_1 DEST=ipad TARGET=lib SDK=sim
+  - ACTION=int_test_2 DEST=ipad TARGET=lib SDK=sim
+  - ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
+
 matrix:
   include:
     # The minimum supported
@@ -22,27 +45,3 @@ matrix:
     - os: osx
       osx_image: xcode10.2
       env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2"
-
-env:
-  global:
-    # Builds
-    - ACTION=build TARGET=runner SDK=sim
-    - ACTION=build TARGET=runner SDK=device
-
-    # Analyze
-    - ACTION=analyze TARGET=lib SDK=sim
-    - ACTION=analyze TARGET=runner SDK=sim
-
-    # Unit tests
-    - ACTION=unit_test DEST=iphone TARGET=lib SDK=sim
-    - ACTION=unit_test DEST=ipad TARGET=lib SDK=sim
-
-    # Integration tests iPhone
-    - ACTION=int_test_1 DEST=iphone TARGET=lib SDK=sim
-    - ACTION=int_test_2 DEST=iphone TARGET=lib SDK=sim
-    - ACTION=int_test_3 DEST=iphone TARGET=lib SDK=sim
-
-    # Integration tests iPad
-    - ACTION=int_test_1 DEST=ipad TARGET=lib SDK=sim
-    - ACTION=int_test_2 DEST=ipad TARGET=lib SDK=sim
-    - ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
