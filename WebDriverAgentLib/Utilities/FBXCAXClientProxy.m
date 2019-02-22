@@ -59,6 +59,9 @@ static id FBAXClient = nil;
   if ([FBAXClient respondsToSelector:@selector(attributesForElementSnapshot:attributeList:)]) {
     return [FBAXClient attributesForElementSnapshot:snapshot attributeList:attributeList];
   }
+  // Xcode 10.2+
+  // FIXME: This call never succeeds
+  // FIXME: Figure out what exact attributes and in which format it supports and expects
   NSError *error = nil;
   NSDictionary *result = [(id)FBAXClient attributesForElement:[snapshot accessibilityElement]
                                                    attributes:attributeList

@@ -11,6 +11,7 @@
 
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
+#import "FBMacros.h"
 #import "FBSpringboardApplication.h"
 #import "FBTestMacros.h"
 #import "FBXCodeCompatibility.h"
@@ -34,12 +35,13 @@
   XCTAssertTrue(self.springboard.icons[@"Reminders"].fb_isVisible);
 
   // Check Icons on second screen screen
-  XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].fb_isVisible);
+  XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].query.fb_firstMatch.fb_isVisible);
 }
 
 - (void)testSpringBoardSubfolder
 {
-  if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+  if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad
+      || SYSTEM_VERSION_GREATER_THAN(@"12.0")) {
     return;
   }
   [self launchApplication];
@@ -66,10 +68,6 @@
   for (int i = 0 ; i < 10 ; i++) {
     FBAssertWaitTillBecomesTrue(self.testedApplication.cells.allElementsBoundByAccessibilityElement[i].fb_isVisible);
     FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts.allElementsBoundByAccessibilityElement[i].fb_isVisible);
-  }
-  for (int i = 30 ; i < 40 ; i++) {
-    FBAssertWaitTillBecomesTrue(!self.testedApplication.cells.allElementsBoundByAccessibilityElement[i].fb_isVisible);
-    FBAssertWaitTillBecomesTrue(!self.testedApplication.staticTexts.allElementsBoundByAccessibilityElement[i].fb_isVisible);
   }
 }
 

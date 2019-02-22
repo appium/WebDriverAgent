@@ -33,7 +33,9 @@
     return [XCElementSnapshot new];
   }
 
-  if (descr.name == @selector(isWDVisible)) {
+  if (descr.name == @selector(isWDVisible)
+      || descr.name == @selector(isWDAccessible)
+      || descr.name == @selector(isWDAccessibilityContainer)) {
     return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
   }
   // If lastSnapshot is still missing aplication is probably not active. Returning empty element instead of crashing.
