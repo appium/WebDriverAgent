@@ -73,7 +73,7 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 {
   [self fb_waitUntilSnapshotIsStable];
   // We ignore all elements except for the main window for accessibility tree
-  return [self.class accessibilityInfoForElement:self.fb_lastSnapshot];
+  return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot)];
 }
 
 + (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive

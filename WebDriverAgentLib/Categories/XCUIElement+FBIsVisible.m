@@ -169,11 +169,9 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
 
 - (BOOL)fb_isVisible
 {
-  if ([FBConfiguration shouldLoadSnapshotWithAttributes]) {
-    NSNumber *isVisible = self.additionalAttributes[FB_XCAXAIsVisibleAttribute];
-    if (isVisible != nil) {
-      return isVisible.boolValue;
-    }
+  NSNumber *isVisible = self.additionalAttributes[FB_XCAXAIsVisibleAttribute];
+  if (isVisible != nil) {
+    return isVisible.boolValue;
   }
   
   NSNumber *cachedValue = [self fb_cachedVisibilityValue];

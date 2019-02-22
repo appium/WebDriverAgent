@@ -58,8 +58,8 @@
       UIImage *scaledImage = [UIImage imageWithData:scaled];
       CGSize scaledSize = [FBImageIOScalerTests scaledSizeFromImage:scaledImage];
 
-      XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, DBL_EPSILON);
-      XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, DBL_EPSILON);
+      XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, 1.0);
+      XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, 1.0);
 
       [expScaled fulfill];
     }];

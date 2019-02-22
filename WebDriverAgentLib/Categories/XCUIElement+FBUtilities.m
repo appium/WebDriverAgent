@@ -108,6 +108,9 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
       if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
         axAttributes = [axAttributes arrayByAddingObject:FB_XCAXAIsVisibleAttribute];
       }
+      if (![axAttributes containsObject:FB_XCAXAIsElementAttribute]) {
+        axAttributes = [axAttributes arrayByAddingObject:FB_XCAXAIsElementAttribute];
+      }
     }
   });
 

@@ -98,5 +98,7 @@
 + (id)snapshotAttributesForElementSnapshotKeyPaths:(id)arg1;
 // Available since Xcode 10.0-beta4 on
 + (id)axAttributesForElementSnapshotKeyPaths:(id)arg1;
+// Since Xcode 10.2
++ (id)axAttributesForElementSnapshotKeyPaths:(id)arg1 isMacOS:(_Bool)arg2;
 
 @end
