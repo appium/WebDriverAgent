@@ -22,6 +22,26 @@
 
 @implementation XCUIElement (WebDriverAttributesForwarding)
 
+- (id)fb_valueForWDAttributeName:(NSString *)name
+{
+  XCElementSnapshot *target;
+  NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:name];
+  if (!self.exists) {
+    target = [XCElementSnapshot new];
+  } else if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDVisible)]
+      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
+      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    // These attrbiutes are special, because we can only retrieve them from
+    // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
+    // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
+    // call
+    target = (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  } else {
+    target = self.fb_lastSnapshot ?: [XCElementSnapshot new];
+  }
+  return [target fb_valueForWDAttributeName:name];
+}
+
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
   struct objc_method_description descr = protocol_getMethodDescription(@protocol(FBElement), aSelector, YES, YES);

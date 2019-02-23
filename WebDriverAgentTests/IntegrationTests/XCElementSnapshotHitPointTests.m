@@ -9,6 +9,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBMathUtils.h"
+#import "FBTestMacros.h"
 #import "XCElementSnapshot+FBHitpoint.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
@@ -22,9 +23,11 @@
 {
   [self launchApplication];
   [self goToAttributesPage];
-  XCUIElement *element = self.testedApplication.buttons[@"not_accessible"];
-  CGPoint hitPoint = element.fb_lastSnapshot.fb_hitPoint.CGPointValue;
-  XCTAssertTrue(FBPointFuzzyEqualToPoint(hitPoint, CGPointMake(200, 220), 0.1));
+  FBAssertWaitTillBecomesTrue(
+    FBPointFuzzyEqualToPoint(self.testedApplication.buttons[@"not_accessible"]
+                             .fb_lastSnapshot.fb_hitPoint.CGPointValue,
+                             CGPointMake(200, 220), 0.1)
+  );
 }
 
 @end

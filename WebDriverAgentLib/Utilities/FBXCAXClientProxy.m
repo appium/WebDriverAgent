@@ -62,6 +62,8 @@ static id FBAXClient = nil;
   // Xcode 10.2+
   // FIXME: This call never succeeds
   // FIXME: Figure out what exact attributes and in which format it supports and expects
+  // Actually, it was never a good idea to request XCTest for snapshot attributes in runtime.
+  // This is why Apple has removed the above accessor from the accessibility interface.
   NSError *error = nil;
   NSDictionary *result = [(id)FBAXClient attributesForElement:[snapshot accessibilityElement]
                                                    attributes:attributeList
