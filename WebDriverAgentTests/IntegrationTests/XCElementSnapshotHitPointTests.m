@@ -10,6 +10,7 @@
 #import "FBIntegrationTestCase.h"
 #import "FBMathUtils.h"
 #import "FBTestMacros.h"
+#import "FBMacros.h"
 #import "XCElementSnapshot+FBHitpoint.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
@@ -21,6 +22,11 @@
 
 - (void)testAccessibilityActivationPoint
 {
+  if (SYSTEM_VERSION_GREATER_THAN(@"12.0")) {
+    // The test is flacky on iOS 12+ in Travis env
+    return;
+  }
+  
   [self launchApplication];
   [self goToAttributesPage];
   FBAssertWaitTillBecomesTrue(
