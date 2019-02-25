@@ -22,45 +22,39 @@
 
 @implementation XCUIElement (WebDriverAttributesForwarding)
 
-- (id)fb_valueForWDAttributeName:(NSString *)name
+- (XCElementSnapshot *)fb_snapshotForAttributeName:(NSString *)name
 {
-  NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:name];
-  XCElementSnapshot *target;
   if (!self.exists) {
-    target = [XCElementSnapshot new];
-  } else if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDVisible)]
-      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
-      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    return [XCElementSnapshot new];
+  }
+  
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]
+             || [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
+             || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
     // These attrbiutes are special, because we can only retrieve them from
     // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
     // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
     // call
-    target = (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
-  } else {
-    target = self.fb_lastSnapshot ?: [XCElementSnapshot new];
+    return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
   }
-  return [target fb_valueForWDAttributeName:name];
+  
+  return self.fb_lastSnapshot ?: [XCElementSnapshot new];
+}
+
+- (id)fb_valueForWDAttributeName:(NSString *)name
+{
+  NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:name];
+  XCElementSnapshot *snapshot = [self fb_snapshotForAttributeName:wdAttributeName];
+  return [snapshot fb_valueForWDAttributeName:name];
 }
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
   struct objc_method_description descr = protocol_getMethodDescription(@protocol(FBElement), aSelector, YES, YES);
-  BOOL isWebDriverAttributesSelector = descr.name != nil;
-  if (!isWebDriverAttributesSelector) {
-    return nil;
-  }
-  if (!self.exists) {
-    return [XCElementSnapshot new];
-  }
-
-  if (descr.name == @selector(isWDVisible)
-      || descr.name == @selector(isWDAccessible)
-      || descr.name == @selector(isWDAccessibilityContainer)) {
-    return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
-  }
-  // If lastSnapshot is still missing aplication is probably not active. Returning empty element instead of crashing.
-  // This will work well, if element search is requested (will not match anything) and reqesting properties values (will return nils).
-  return self.fb_lastSnapshot ?: [XCElementSnapshot new];
+  SEL webDriverAttributesSelector = descr.name;
+  return nil == webDriverAttributesSelector
+    ? nil
+    : [self fb_snapshotForAttributeName:NSStringFromSelector(webDriverAttributesSelector)];
 }
 
 @end
