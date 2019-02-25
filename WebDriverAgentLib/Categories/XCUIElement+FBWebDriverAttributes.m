@@ -25,7 +25,21 @@
 - (id)fb_valueForWDAttributeName:(NSString *)name
 {
   NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:name];
-  return [self forwardingTargetForSelector:NSSelectorFromString(wdAttributeName)];
+  XCElementSnapshot *target;
+  if (!self.exists) {
+    target = [XCElementSnapshot new];
+  } else if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDVisible)]
+      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
+      || [wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    // These attrbiutes are special, because we can only retrieve them from
+    // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
+    // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
+    // call
+    target = (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  } else {
+    target = self.fb_lastSnapshot ?: [XCElementSnapshot new];
+  }
+  return [target fb_valueForWDAttributeName:name];
 }
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
@@ -42,10 +56,6 @@
   if (descr.name == @selector(isWDVisible)
       || descr.name == @selector(isWDAccessible)
       || descr.name == @selector(isWDAccessibilityContainer)) {
-    // These attrbiutes are special, because we can only retrieve them from
-    // the snapshot if we explicitly ask XCTest to include them into the query.
-    // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
-    // call
     return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
   }
   // If lastSnapshot is still missing aplication is probably not active. Returning empty element instead of crashing.
