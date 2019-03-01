@@ -26,7 +26,7 @@ NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
 
 @implementation FBExceptionHandler
 
-- (BOOL)webServer:(FBWebServer *)webServer handleException:(NSException *)exception forResponse:(RouteResponse *)response
+- (BOOL)handleException:(NSException *)exception forResponse:(RouteResponse *)response
 {
   static NSDictionary<NSString *, NSArray *> *exceptionsMapping;
   static dispatch_once_t onceExceptionsMapping;
@@ -44,21 +44,17 @@ NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
     };
   });
 
-  for (NSString *exceptionName in exceptionsMapping) {
-    NSArray *status = [exceptionsMapping valueForKey:exceptionName];
-    if (nil == status) {
-      continue;
-    }
-
-    NSUInteger statusValue = [[status objectAtIndex:0] integerValue];
-    id<FBResponsePayload> payload = [status count] < 2
-      ? FBResponseWithStatus(statusValue, [exception description])
-      : FBResponseWithStatus(statusValue, [[status objectAtIndex:1] stringValue]);
-    [payload dispatchWithResponse:response];
-    return YES;
+  NSArray *status = exceptionsMapping[exception.name];
+  if (nil == status) {
+    return NO;
   }
 
-  return NO;
+  NSUInteger statusValue = [[status objectAtIndex:0] integerValue];
+  id<FBResponsePayload> payload = [status count] > 1
+    ? FBResponseWithStatus(statusValue, [status objectAtIndex:1])
+    : FBResponseWithStatus(statusValue, [exception reason]);
+  [payload dispatchWithResponse:response];
+  return YES;
 }
 
 @end
