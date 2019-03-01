@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 reply:(void (^)(void))reply;
 
 - (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
-                            attributes:(NSArray *)attributeList;
+                            attributes:(NSArray *)attributes;
 
 - (BOOL)hasProcessTracker;
 
