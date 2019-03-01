@@ -185,8 +185,10 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   }
 
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
-    BOOL isVisible = [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttribute] boolValue];
-    return [self fb_cacheVisibilityWithValue:isVisible forAncestors:nil];
+    NSString *visibleAttrName = [NSString stringWithCString:FB_XCAXAIsVisibleAttributeName
+                                                   encoding:NSUTF8StringEncoding];
+    BOOL visibleAttrValue = [(NSNumber *)[self fb_attributeValue:visibleAttrName] boolValue];
+    return [self fb_cacheVisibilityWithValue:visibleAttrValue forAncestors:nil];
   }
 
   NSArray<XCElementSnapshot *> *ancestors = self.fb_ancestors;

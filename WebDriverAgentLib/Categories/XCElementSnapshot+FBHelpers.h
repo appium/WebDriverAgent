@@ -56,10 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Returns value for given accessibility property identifier.
 
- @param attribute attribute's accessibility identifier
+ @param attribute attribute's accessibility identifier. Can be one of
+ `XC_kAXXCAttribute`-prefixed attribute names.
  @return value for given accessibility property identifier
  */
-- (id)fb_attributeValue:(NSNumber *)attribute;
+- (nullable id)fb_attributeValue:(NSString *)attribute;
 
 /**
  Method used to determine whether given element matches receiver by comparing it's parameters except frame.

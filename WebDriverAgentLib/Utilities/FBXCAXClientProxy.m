@@ -53,25 +53,20 @@ static id FBAXClient = nil;
   [FBAXClient notifyWhenNoAnimationsAreActiveForApplication:application reply:reply];
 }
 
-- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)snapshot
-                                 attributeList:(NSArray *)attributeList
+- (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
+                            attributes:(NSArray *)attributes
 {
-  if ([FBAXClient respondsToSelector:@selector(attributesForElementSnapshot:attributeList:)]) {
-    return [FBAXClient attributesForElementSnapshot:snapshot attributeList:attributeList];
+  if ([FBAXClient respondsToSelector:@selector(attributesForElement:attributes:error:)]) {
+    NSError *error = nil;
+    NSDictionary* result = [FBAXClient attributesForElement:element
+                                                 attributes:attributes
+                                                      error:&error];
+    if (error) {
+      [FBLogger logFmt:@"Cannot retrieve the list of %@ element attributes: %@", attributes, error.description];
+    }
+    return result;
   }
-  // Xcode 10.2+
-  // FIXME: This call never succeeds
-  // FIXME: Figure out what exact attributes and in which format it supports and expects
-  // Actually, it was never a good idea to request XCTest for snapshot attributes in runtime.
-  // This is why Apple has removed the above accessor from the accessibility interface.
-  NSError *error = nil;
-  NSDictionary *result = [(id)FBAXClient attributesForElement:[snapshot accessibilityElement]
-                                                   attributes:attributeList
-                                                        error:&error];
-  if (error) {
-    [FBLogger logFmt:@"Cannot retrieve the list of element attributes: %@", error.description];
-  }
-  return result;
+  return [FBAXClient attributesForElement:element attributes:attributes];
 }
 
 - (BOOL)hasProcessTracker

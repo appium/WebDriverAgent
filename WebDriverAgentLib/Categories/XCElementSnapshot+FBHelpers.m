@@ -51,10 +51,11 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   return snapshot;
 }
 
-- (id)fb_attributeValue:(NSNumber *)attribute
+- (id)fb_attributeValue:(NSString *)attribute
 {
-  NSDictionary *attributesResult = [FBXCAXClientProxy.sharedClient attributesForElementSnapshot:self attributeList:@[attribute]];
-  return (id __nonnull)attributesResult[attribute];
+  NSDictionary *result = [FBXCAXClientProxy.sharedClient attributesForElement:[self accessibilityElement]
+                                                                   attributes:@[attribute]];
+  return result[attribute];
 }
 
 inline static BOOL valuesAreEqual(id value1, id value2);

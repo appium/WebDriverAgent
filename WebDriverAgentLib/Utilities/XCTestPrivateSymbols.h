@@ -13,9 +13,11 @@
 
 /*! Accessibility identifier for is visible attribute */
 extern NSNumber *FB_XCAXAIsVisibleAttribute;
+extern const char* FB_XCAXAIsVisibleAttributeName;
 
 /*! Accessibility identifier for is accessible attribute */
 extern NSNumber *FB_XCAXAIsElementAttribute;
+extern const char* FB_XCAXAIsElementAttributeName;
 
 /*! Getter for  XCTest logger */
 extern id<XCDebugLogDelegate> (*XCDebugLogger)(void);

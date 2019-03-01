@@ -28,9 +28,13 @@
 - (BOOL)fb_isAccessibilityElement
 {
   NSNumber *isAccessibilityElement = self.additionalAttributes[FB_XCAXAIsElementAttribute];
-  return nil != isAccessibilityElement
-    ? isAccessibilityElement.boolValue
-    : [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsElementAttribute] boolValue];
+  if (nil != isAccessibilityElement) {
+    return isAccessibilityElement.boolValue;
+  }
+  
+  NSString *attrName = [NSString stringWithCString:FB_XCAXAIsElementAttributeName
+                                          encoding:NSUTF8StringEncoding];
+  return [(NSNumber *)[self fb_attributeValue:attrName] boolValue];
 }
 
 @end

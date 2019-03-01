@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
                                                 reply:(void (^)(void))reply;
 
-- (NSDictionary *)attributesForElementSnapshot:(XCElementSnapshot *)snapshot
-                                 attributeList:(NSArray *)attributeList;
+- (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
+                            attributes:(NSArray *)attributeList;
 
 - (BOOL)hasProcessTracker;
 
