@@ -74,6 +74,14 @@
   } else {
     // The offset relative to the element is defined
     XCElementSnapshot *snapshot = element.fb_lastSnapshot;
+    if (nil == positionOffset) {
+      NSValue *hitPointValue = snapshot.fb_hitPoint;
+      if (nil != hitPointValue) {
+        // short circuit element hitpoint
+        return hitPointValue;
+      }
+      [FBLogger logFmt:@"Failed to fetch hit point for %@. Will use element frame for hit point calculation instead", element.debugDescription];
+    }
     CGRect frame = snapshot.frame;
     if (CGRectIsEmpty(frame)) {
       [FBLogger log:self.application.fb_descriptionRepresentation];
@@ -82,14 +90,6 @@
         *error = [[FBErrorBuilder.builder withDescription:description] build];
       }
       return nil;
-    }
-    if (nil == positionOffset) {
-      NSValue *hitPointValue = snapshot.fb_hitPoint;
-      if (nil != hitPointValue) {
-        // short circuit element hitpoint
-        return hitPointValue;
-      }
-      [FBLogger logFmt:@"Failed to fetch hit point for %@. Will use element frame for hit point calculation instead", element.debugDescription];
     }
     CGRect visibleFrame = snapshot.visibleFrame;
     frame = CGRectIsEmpty(visibleFrame) ? frame : visibleFrame;
