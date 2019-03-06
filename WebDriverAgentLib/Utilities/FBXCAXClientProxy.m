@@ -74,7 +74,12 @@ static id FBAXClient = nil;
   static BOOL hasTracker;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    hasTracker = [FBAXClient valueForKey:@"applicationProcessTracker"] != nil;
+    @try {
+      hasTracker = [FBAXClient valueForKey:@"applicationProcessTracker"] != nil;
+    } @catch (NSException *error) {
+      [FBLogger logFmt:@"%@ happened in getting applicationProcessTracker: %@", error.name, error.description];
+      hasTracker = false;
+    }
   });
   return hasTracker;
 }
