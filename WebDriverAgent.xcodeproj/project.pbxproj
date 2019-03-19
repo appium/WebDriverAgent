@@ -803,37 +803,6 @@
 		641EE2CF2240BB6700173FCB /* libAccessibility.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libAccessibility.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.1.sdk/usr/lib/libAccessibility.tbd; sourceTree = DEVELOPER_DIR; };
 		641EE2D12240BB7D00173FCB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/AppleTVOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		641EE2DA2240BBE300173FCB /* WebDriverAgentRunner_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebDriverAgentRunner_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		641EE2E72240BE7300173FCB /* FBAttributesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBAttributesViewController.h; sourceTree = "<group>"; };
-		641EE2E82240BE7300173FCB /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		641EE2E92240BE7300173FCB /* FBAlertsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAlertsViewController.m; sourceTree = "<group>"; };
-		641EE2EA2240BE7300173FCB /* FBAttributesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAttributesViewController.m; sourceTree = "<group>"; };
-		641EE2EB2240BE7300173FCB /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		641EE2EC2240BE7300173FCB /* FBAlertsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBAlertsViewController.h; sourceTree = "<group>"; };
-		641EE2EF2240BE7300173FCB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		641EE2F02240BE7300173FCB /* Templates~.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Templates~.storyboard"; sourceTree = "<group>"; };
-		641EE2F12240BE7300173FCB /* Templates.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Templates.storyboard; sourceTree = "<group>"; };
-		641EE2F22240BE7300173FCB /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		641EE2F32240BE7300173FCB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		641EE3082240BE8200173FCB /* FBTVAlertTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVAlertTests.m; sourceTree = "<group>"; };
-		641EE3092240BE8200173FCB /* TVXCUIDeviceHealthCheckTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIDeviceHealthCheckTests.m; sourceTree = "<group>"; };
-		641EE30A2240BE8200173FCB /* TVXCElementSnapshotHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCElementSnapshotHelperTests.m; sourceTree = "<group>"; };
-		641EE30B2240BE8200173FCB /* FBTVIntegrationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVIntegrationTestCase.m; sourceTree = "<group>"; };
-		641EE30C2240BE8200173FCB /* FBTVElementSelectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVElementSelectTests.m; sourceTree = "<group>"; };
-		641EE30D2240BE8200173FCB /* TVXCUIDeviceHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIDeviceHelperTests.m; sourceTree = "<group>"; };
-		641EE30E2240BE8200173FCB /* FBTVElementScreenshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVElementScreenshotTests.m; sourceTree = "<group>"; };
-		641EE30F2240BE8200173FCB /* FBTVKeyboardTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVKeyboardTests.m; sourceTree = "<group>"; };
-		641EE3102240BE8200173FCB /* TVXCUIElementFBFindTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIElementFBFindTests.m; sourceTree = "<group>"; };
-		641EE3112240BE8200173FCB /* FBTVFailureProofTestCaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVFailureProofTestCaseTests.m; sourceTree = "<group>"; };
-		641EE3122240BE8200173FCB /* TVXCUIElementAttributesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIElementAttributesTests.m; sourceTree = "<group>"; };
-		641EE3132240BE8200173FCB /* FBTVTypingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVTypingTest.m; sourceTree = "<group>"; };
-		641EE3142240BE8200173FCB /* FBTVXPathIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVXPathIntegrationTests.m; sourceTree = "<group>"; };
-		641EE3152240BE8200173FCB /* TVXCElementSnapshotHitPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCElementSnapshotHitPoint.m; sourceTree = "<group>"; };
-		641EE3162240BE8200173FCB /* FBTVElementVisibilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVElementVisibilityTests.m; sourceTree = "<group>"; };
-		641EE3172240BE8200173FCB /* TVXCUIApplicationHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIApplicationHelperTests.m; sourceTree = "<group>"; };
-		641EE3182240BE8200173FCB /* FBTVElementAttributeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBTVElementAttributeTests.m; sourceTree = "<group>"; };
-		641EE3192240BE8200173FCB /* TVXCUIElementHelperIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TVXCUIElementHelperIntegrationTests.m; sourceTree = "<group>"; };
-		641EE31A2240BE8200173FCB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		641EE31B2240BE8200173FCB /* FBTVIntegrationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBTVIntegrationTestCase.h; sourceTree = "<group>"; };
 		641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WebDriverAgentLib_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		641EE6F92240C5CB00173FCB /* WebDriverAgentLib copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "WebDriverAgentLib copy-Info.plist"; path = "/Users/kazu/GitHub/WebDriverAgent/WebDriverAgentLib copy-Info.plist"; sourceTree = "<absolute>"; };
 		641EE6FE2240CD4900173FCB /* XCUIApplication+FBFocused.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIApplication+FBFocused.h"; sourceTree = "<group>"; };
@@ -1310,67 +1279,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		641EE2E52240BE7300173FCB /* IntegrationApp_tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				641EE2E62240BE7300173FCB /* Classes */,
-				641EE2ED2240BE7300173FCB /* Resources */,
-				641EE2F22240BE7300173FCB /* main.m */,
-				641EE2F32240BE7300173FCB /* Info.plist */,
-			);
-			path = IntegrationApp_tvOS;
-			sourceTree = "<group>";
-		};
-		641EE2E62240BE7300173FCB /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				641EE2E72240BE7300173FCB /* FBAttributesViewController.h */,
-				641EE2E82240BE7300173FCB /* AppDelegate.h */,
-				641EE2E92240BE7300173FCB /* FBAlertsViewController.m */,
-				641EE2EA2240BE7300173FCB /* FBAttributesViewController.m */,
-				641EE2EB2240BE7300173FCB /* AppDelegate.m */,
-				641EE2EC2240BE7300173FCB /* FBAlertsViewController.h */,
-			);
-			path = Classes;
-			sourceTree = "<group>";
-		};
-		641EE2ED2240BE7300173FCB /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				641EE2EE2240BE7300173FCB /* Main.storyboard */,
-				641EE2F02240BE7300173FCB /* Templates~.storyboard */,
-				641EE2F12240BE7300173FCB /* Templates.storyboard */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		641EE3072240BE8200173FCB /* IntegrationTests_tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				641EE3082240BE8200173FCB /* FBTVAlertTests.m */,
-				641EE3092240BE8200173FCB /* TVXCUIDeviceHealthCheckTests.m */,
-				641EE30A2240BE8200173FCB /* TVXCElementSnapshotHelperTests.m */,
-				641EE30B2240BE8200173FCB /* FBTVIntegrationTestCase.m */,
-				641EE30C2240BE8200173FCB /* FBTVElementSelectTests.m */,
-				641EE30D2240BE8200173FCB /* TVXCUIDeviceHelperTests.m */,
-				641EE30E2240BE8200173FCB /* FBTVElementScreenshotTests.m */,
-				641EE30F2240BE8200173FCB /* FBTVKeyboardTests.m */,
-				641EE3102240BE8200173FCB /* TVXCUIElementFBFindTests.m */,
-				641EE3112240BE8200173FCB /* FBTVFailureProofTestCaseTests.m */,
-				641EE3122240BE8200173FCB /* TVXCUIElementAttributesTests.m */,
-				641EE3132240BE8200173FCB /* FBTVTypingTest.m */,
-				641EE3142240BE8200173FCB /* FBTVXPathIntegrationTests.m */,
-				641EE3152240BE8200173FCB /* TVXCElementSnapshotHitPoint.m */,
-				641EE3162240BE8200173FCB /* FBTVElementVisibilityTests.m */,
-				641EE3172240BE8200173FCB /* TVXCUIApplicationHelperTests.m */,
-				641EE3182240BE8200173FCB /* FBTVElementAttributeTests.m */,
-				641EE3192240BE8200173FCB /* TVXCUIElementHelperIntegrationTests.m */,
-				641EE31A2240BE8200173FCB /* Info.plist */,
-				641EE31B2240BE8200173FCB /* FBTVIntegrationTestCase.h */,
-			);
-			path = IntegrationTests_tvOS;
-			sourceTree = "<group>";
-		};
 		91F9DAE01B99DBC2001349B2 = {
 			isa = PBXGroup;
 			children = (
@@ -1674,8 +1582,6 @@
 		EE9B75F91CF7964100275851 /* WebDriverAgentTests */ = {
 			isa = PBXGroup;
 			children = (
-				641EE3072240BE8200173FCB /* IntegrationTests_tvOS */,
-				641EE2E52240BE7300173FCB /* IntegrationApp_tvOS */,
 				EE9B76801CF7997600275851 /* IntegrationApp */,
 				EE9B76541CF7987300275851 /* IntegrationTests */,
 				EE9B76561CF7987300275851 /* UnitTests */,
@@ -2994,14 +2900,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		641EE2EE2240BE7300173FCB /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				641EE2EF2240BE7300173FCB /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		EE9B768C1CF7997600275851 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
