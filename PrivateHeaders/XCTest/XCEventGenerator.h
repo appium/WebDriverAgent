@@ -43,6 +43,9 @@ typedef void (^XCEventGeneratorHandler)(XCSynthesizedEventRecord *record, NSErro
 // iOS 10.3 specific
 - (double)forcePressAtPoint:(struct CGPoint)arg1 orientation:(long long)arg2 handler:(CDUnknownBlockType)arg3;
 
+#elif TARGET_OS_TV
+// TODO: tvOS-specific headers
+
 #elif TARGET_OS_MAC
 - (double)sendKeyboardInputs:(id)arg1 layout:(id)arg2 handler:(CDUnknownBlockType)arg3;
 - (double)sendKey:(id)arg1 modifierFlags:(unsigned long long)arg2 handler:(CDUnknownBlockType)arg3;
