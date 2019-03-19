@@ -16,6 +16,8 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
+#if TARGET_OS_TV
+
 int const MAX_ITERATIONS_COUNT = 100;
 
 @implementation XCUIElement (FBTVFocuse)
@@ -55,3 +57,5 @@ int const MAX_ITERATIONS_COUNT = 100;
   return result;
 }
 @end
+
+#endif

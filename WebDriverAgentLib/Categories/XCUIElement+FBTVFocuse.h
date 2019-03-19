@@ -11,12 +11,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if TARGET_OS_TV
 @interface XCUIElement (FBTVFocuse)
 
-  -(BOOL)fb_focuseWithError:(NSError**) error;
+-(BOOL)fb_focuseWithError:(NSError**) error;
 
-  -(BOOL)fb_selectWithError:(NSError**) error;
+-(BOOL)fb_selectWithError:(NSError**) error;
 
-  @end
+@end
+#endif
 
 NS_ASSUME_NONNULL_END

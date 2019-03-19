@@ -15,7 +15,9 @@ BOOL FBIsJpegImage(NSData *imageData);
 /*! Returns YES if the data contains a PNG image */
 BOOL FBIsPngImage(NSData *imageData);
 
-#if !TARGET_OS_TV
+#if TARGET_OS_TV
+NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData);
+#else
 /*! Fixes the screenshot orientation if necessary to match current screen orientation */
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);
 #endif

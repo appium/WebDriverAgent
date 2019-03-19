@@ -406,11 +406,14 @@
   return FBResponseWithOK();
 }
 
-#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleGetWindowSize:(FBRouteRequest *)request
 {
+#if TARGET_OS_TV
+  CGSize screenSize = request.session.activeApplication.frame.size;
+#else
   CGRect frame = request.session.activeApplication.wdFrame;
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, request.session.activeApplication.interfaceOrientation);
+#endif
   return FBResponseWithStatus(FBCommandStatusNoError, @{
     @"width": @(screenSize.width),
     @"height": @(screenSize.height),
@@ -431,6 +434,8 @@
 }
 
 static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
+
+#if !TARGET_OS_TV
 
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
@@ -462,7 +467,11 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   return FBResponseWithOK();
 }
 
+#endif
+
 #pragma mark - Helpers
+
+#if !TARGET_OS_TV
 
 + (id<FBResponsePayload>)handleScrollElementToVisible:(XCUIElement *)element withRequest:(FBRouteRequest *)request
 {
@@ -533,7 +542,6 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element normalizedOffset:CGVectorMake(0, 0)];
   return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
 }
-
 #endif
 
 @end

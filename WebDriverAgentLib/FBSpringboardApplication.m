@@ -19,14 +19,15 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBScrolling.h"
-#import "XCUIElement+FBTVFocuse.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 
-#if TARGET_OS_IOS
-NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
-#elif TARGET_OS_TV
+#if TARGET_OS_TV
+#import "XCUIElement+FBTVFocuse.h"
+
 NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.HeadBoard";
+#else
+NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
 #endif
 
 @implementation FBSpringboardApplication
@@ -41,12 +42,15 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.HeadBoard";
   return _springboardApp;
 }
 
+/**
+ * Returns proper identifier
+ **/
 - (BOOL)fb_openApplicationWithIdentifier:(NSString *)identifier error:(NSError **)error
 {
-#if TARGET_OS_IOS
-    return [self fb_tapApplicationWithIdentifier:identifier error:error];
+#if TARGET_OS_TV
+  return [self fb_selectApplicationWithIdentifier:identifier error:error];
 #else
-    return [self fb_selectApplicationWithIdentifier:identifier error:error];
+  return [self fb_tapApplicationWithIdentifier:identifier error:error];
 #endif
 }
 
@@ -101,12 +105,11 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.HeadBoard";
 }
 
 #elif TARGET_OS_TV
-
 - (BOOL)fb_selectApplicationWithIdentifier:(NSString *)identifier error:(NSError **)error
 {
   XCUIElementQuery *appElementsQuery = [[self descendantsMatchingType:XCUIElementTypeIcon] matchingIdentifier:identifier];
-  NSArray<XCUIElement *> *matchedAppElements = [appElementsQuery allElementsBoundByIndex];
-  if (0 == matchedAppElements.count) {
+  NSArray<XCUIElement *> *matchedAppElements = appElementsQuery.allElementsBoundByIndex;
+  if (matchedAppElements.count == 0) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"Cannot locate Headboard icon for '%@' application", identifier]
             buildError:error];
@@ -144,13 +147,12 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.HeadBoard";
 - (BOOL)fb_isApplicationBoardVisible
 {
   [self resolve];
-
-#if TARGET_OS_IOS
+#if TARGET_OS_TV
+  return self.collectionViews[@"GridCollectionView"].isEnabled;
+#else
   // the dock (and other icons) don't seem to be consistently reported as
   // visible. esp on iOS 11 but also on 10.3.3
   return self.otherElements[@"Dock"].isEnabled;
-#elif TARGET_OS_TV
-  return self.collectionViews[@"GridCollectionView"].isEnabled;
 #endif
 }
 

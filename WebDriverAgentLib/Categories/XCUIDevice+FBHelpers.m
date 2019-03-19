@@ -108,16 +108,18 @@ static bool fb_isLocked;
           } error:error];
 }
 
-#if !TARGET_OS_TV
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
   NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
   if (nil == screenshotData) {
     return nil;
   }
+#if TARGET_OS_TV
+  return FBAdjustScreenshotOrientationForApplication(screenshotData);
+#else
   return FBAdjustScreenshotOrientationForApplication(screenshotData, FBApplication.fb_activeApplication.interfaceOrientation);
-}
 #endif
+}
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
 {

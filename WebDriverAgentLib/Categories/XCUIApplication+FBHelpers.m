@@ -92,6 +92,10 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   info[@"isEnabled"] = [@([snapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([snapshot isWDVisible]) stringValue];
 
+#if TARGET_OS_TV
+  info[@"isFocused"] = [@([snapshot isWDFocused]) stringValue];
+#endif
+
   if (!recursive) {
     return info.copy;
   }
