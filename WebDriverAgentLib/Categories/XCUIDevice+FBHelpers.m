@@ -90,11 +90,15 @@ static bool fb_isLocked;
   }
   [self pressButton:XCUIDeviceButtonHome];
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBHomeButtonCoolOffTime]];
+#if !TARGET_OS_TV
   if (SYSTEM_VERSION_LESS_THAN(@"10.0")) {
     [[FBApplication fb_activeApplication] swipeRight];
   } else {
     [self pressButton:XCUIDeviceButtonHome];
   }
+#else
+  [self pressButton:XCUIDeviceButtonHome];
+#endif
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBHomeButtonCoolOffTime]];
   return [[[[FBRunLoopSpinner new]
             timeout:FBScreenLockTimeout]
@@ -104,6 +108,7 @@ static bool fb_isLocked;
           } error:error];
 }
 
+#if !TARGET_OS_TV
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
   NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
@@ -112,6 +117,7 @@ static bool fb_isLocked;
   }
   return FBAdjustScreenshotOrientationForApplication(screenshotData, FBApplication.fb_activeApplication.interfaceOrientation);
 }
+#endif
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*)error
 {

@@ -11,10 +11,12 @@
 
 @implementation FBNavigationController
 
+#if !TARGET_OS_TV
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
   return UIInterfaceOrientationMaskAll;
 }
+#endif
 
 - (BOOL)shouldAutorotate
 {

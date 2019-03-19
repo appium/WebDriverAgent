@@ -206,6 +206,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   CGPoint midPoint = CGPointMake(visibleRect.origin.x + visibleRect.size.width / 2,
                                  visibleRect.origin.y + visibleRect.size.height / 2);
   CGRect windowFrame = nil == parentWindow ? selfFrame : parentWindow.frame;
+#if !TARGET_OS_TV
   if ((appFrame.size.height > appFrame.size.width && windowFrame.size.height < windowFrame.size.width) ||
       (appFrame.size.height < appFrame.size.width && windowFrame.size.height > windowFrame.size.width)) {
     // This is the indication of the fact that transformation is broken and coordinates should be
@@ -213,6 +214,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     // However, upside-down case cannot be covered this way, which is not important for Appium
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
+#endif
   XCAccessibilityElement *hitElement = [self elementAtPoint:midPoint];
   if (nil != hitElement) {
     if ([self.accessibilityElement isEqualToElement:hitElement]) {

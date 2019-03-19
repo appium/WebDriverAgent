@@ -34,6 +34,7 @@
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCUIElement+FBTVFocuse.h"
 #import "FBElementTypeTransformer.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
@@ -149,6 +150,7 @@
   return FBResponseWithStatus(FBCommandStatusNoError, type);
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleSetValue:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -181,6 +183,7 @@
   }
   return FBResponseWithElementUUID(elementUUID);
 }
+#endif
 
 + (id<FBResponsePayload>)handleClick:(FBRouteRequest *)request
 {
@@ -206,6 +209,7 @@
   return FBResponseWithElementUUID(elementUUID);
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -389,6 +393,7 @@
   [element pinchWithScale:scale velocity:velocity];
   return FBResponseWithOK();
 }
+#endif
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
@@ -401,6 +406,7 @@
   return FBResponseWithOK();
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleGetWindowSize:(FBRouteRequest *)request
 {
   CGRect frame = request.session.activeApplication.wdFrame;
@@ -527,5 +533,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element normalizedOffset:CGVectorMake(0, 0)];
   return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
 }
+
+#endif
 
 @end

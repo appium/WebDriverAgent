@@ -12,7 +12,7 @@
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBUtilities.h"
 
-
+#if !TARGET_OS_TV
 @implementation XCUIElement (FBTap)
 
 - (BOOL)fb_tapWithError:(NSError **)error
@@ -43,3 +43,4 @@
 }
 
 @end
+#endif

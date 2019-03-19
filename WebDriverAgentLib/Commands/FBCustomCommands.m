@@ -155,6 +155,7 @@
   });
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleSetPasteboard:(FBRouteRequest *)request
 {
   NSString *contentType = request.arguments[@"contentType"] ?: @"plaintext";
@@ -192,6 +193,7 @@
     @"state": @([UIDevice currentDevice].batteryState)
   });
 }
+#endif
 
 + (id<FBResponsePayload>)handlePressButtonCommand:(FBRouteRequest *)request
 {

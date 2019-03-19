@@ -226,6 +226,7 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
   return result;
 }
 
+#if !TARGET_OS_TV
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   if (CGRectIsEmpty(self.frame)) {
@@ -268,5 +269,6 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
   }
   return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
 }
+#endif
 
 @end
