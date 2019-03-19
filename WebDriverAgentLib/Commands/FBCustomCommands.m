@@ -89,7 +89,13 @@
 
 + (id<FBResponsePayload>)handleDismissKeyboardCommand:(FBRouteRequest *)request
 {
+#if TARGET_OS_TV
+  if ([self isKeyboardPresent]) {
+    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
+  }
+#else
   [request.session.activeApplication dismissKeyboard];
+#endif
   NSError *error;
   NSString *errorDescription = @"The keyboard cannot be dismissed. Try to dismiss it in the way supported by your application under test.";
   if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
@@ -100,14 +106,20 @@
      timeout:5]
     timeoutErrorMessage:errorDescription]
    spinUntilTrue:^BOOL{
-     XCUIElement *foundKeyboard = [request.session.activeApplication descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
-     return !(foundKeyboard && foundKeyboard.fb_isVisible);
+     return ![self isKeyboardPresent];
    }
    error:&error];
   if (!isKeyboardNotPresent) {
     return FBResponseWithError(error);
   }
   return FBResponseWithOK();
+}
+
+#pragma mark - Helpers
+
++ (BOOL) isKeyboardPresent {
+  XCUIElement *foundKeyboard = [[FBApplication fb_activeApplication].query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
+  return foundKeyboard && foundKeyboard.fb_isVisible;
 }
 
 + (id<FBResponsePayload>)handleGetScreen:(FBRouteRequest *)request

@@ -293,10 +293,6 @@
 		641EE6F02240C5CA00173FCB /* WebDriverAgent.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EEDBEBBA1CB2681900A790A2 /* WebDriverAgent.bundle */; };
 		641EE6FC2240C5FD00173FCB /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		641EE6FD2240C61D00173FCB /* WebDriverAgentLib_tvOS.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		641EE6FF2240CD4900173FCB /* XCUIApplication+FBFocused.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE6FE2240CD4900173FCB /* XCUIApplication+FBFocused.h */; };
-		641EE7002240CD4900173FCB /* XCUIApplication+FBFocused.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE6FE2240CD4900173FCB /* XCUIApplication+FBFocused.h */; };
-		641EE7022240CDA200173FCB /* XCUIApplication+FBFocused.m in Sources */ = {isa = PBXBuildFile; fileRef = 641EE7012240CDA200173FCB /* XCUIApplication+FBFocused.m */; };
-		641EE7032240CDA200173FCB /* XCUIApplication+FBFocused.m in Sources */ = {isa = PBXBuildFile; fileRef = 641EE7012240CDA200173FCB /* XCUIApplication+FBFocused.m */; };
 		641EE7052240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */; };
 		641EE7062240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */; };
 		641EE7082240CDEB00173FCB /* XCUIElement+FBTVFocuse.m in Sources */ = {isa = PBXBuildFile; fileRef = 641EE7072240CDEB00173FCB /* XCUIElement+FBTVFocuse.m */; };
@@ -806,8 +802,6 @@
 		641EE2DA2240BBE300173FCB /* WebDriverAgentRunner_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebDriverAgentRunner_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WebDriverAgentLib_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		641EE6F92240C5CB00173FCB /* WebDriverAgentLib copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "WebDriverAgentLib copy-Info.plist"; path = "/Users/kazu/GitHub/WebDriverAgent/WebDriverAgentLib copy-Info.plist"; sourceTree = "<absolute>"; };
-		641EE6FE2240CD4900173FCB /* XCUIApplication+FBFocused.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIApplication+FBFocused.h"; sourceTree = "<group>"; };
-		641EE7012240CDA200173FCB /* XCUIApplication+FBFocused.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIApplication+FBFocused.m"; sourceTree = "<group>"; };
 		641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBTVFocuse.h"; sourceTree = "<group>"; };
 		641EE7072240CDEB00173FCB /* XCUIElement+FBTVFocuse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBTVFocuse.m"; sourceTree = "<group>"; };
 		641EE70A2240CE2D00173FCB /* FBTVNavigationTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBTVNavigationTracker.h; sourceTree = "<group>"; };
@@ -1386,8 +1380,6 @@
 				AD6C269B1CF2494200F8B5FF /* XCUIApplication+FBHelpers.m */,
 				EEC9EED420064FAA00BC0D5B /* XCUICoordinate+FBFix.h */,
 				EEC9EED520064FAA00BC0D5B /* XCUICoordinate+FBFix.m */,
-				641EE6FE2240CD4900173FCB /* XCUIApplication+FBFocused.h */,
-				641EE7012240CDA200173FCB /* XCUIApplication+FBFocused.m */,
 				719CD8FA2126C88B00C7D0C2 /* XCUIApplication+FBAlert.h */,
 				719CD8FB2126C88B00C7D0C2 /* XCUIApplication+FBAlert.m */,
 				71BD20711F86116100B36EC2 /* XCUIApplication+FBTouchAction.h */,
@@ -1933,7 +1925,6 @@
 				641EE6782240C5CA00173FCB /* XCTNSNotificationExpectation.h in Headers */,
 				641EE6792240C5CA00173FCB /* XCUIRecorderNodeFinder.h in Headers */,
 				641EE67A2240C5CA00173FCB /* XCUIElement+FBAccessibility.h in Headers */,
-				641EE7002240CD4900173FCB /* XCUIApplication+FBFocused.h in Headers */,
 				641EE67B2240C5CA00173FCB /* XCUIRecorderUtilities.h in Headers */,
 				641EE67C2240C5CA00173FCB /* XCTestCaseRun.h in Headers */,
 				641EE67D2240C5CA00173FCB /* XCTestConfiguration.h in Headers */,
@@ -2133,7 +2124,6 @@
 				EE35AD5B1E3B77D600A02D78 /* XCTNSNotificationExpectation.h in Headers */,
 				EE35AD751E3B77D600A02D78 /* XCUIRecorderNodeFinder.h in Headers */,
 				EE158AAE1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.h in Headers */,
-				641EE6FF2240CD4900173FCB /* XCUIApplication+FBFocused.h in Headers */,
 				EE35AD781E3B77D600A02D78 /* XCUIRecorderUtilities.h in Headers */,
 				EE35AD421E3B77D600A02D78 /* XCTestCaseRun.h in Headers */,
 				EE35AD441E3B77D600A02D78 /* XCTestConfiguration.h in Headers */,
@@ -2571,7 +2561,6 @@
 				641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */,
 				641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */,
 				641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */,
-				641EE7032240CDA200173FCB /* XCUIApplication+FBFocused.m in Sources */,
 				641EE5DC2240C5CA00173FCB /* XCUIApplication+FBAlert.m in Sources */,
 				641EE5DD2240C5CA00173FCB /* FBAppiumActionsSynthesizer.m in Sources */,
 				641EE70F2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,
@@ -2662,7 +2651,6 @@
 				7136A47A1E8918E60024FC3D /* XCUIElement+FBPickerWheel.m in Sources */,
 				6385F4A7220A40760095BBDB /* XCUIApplicationProcessDelay.m in Sources */,
 				711084451DA3AA7500F913D6 /* FBXPath.m in Sources */,
-				641EE7022240CDA200173FCB /* XCUIApplication+FBFocused.m in Sources */,
 				719CD8FD2126C88B00C7D0C2 /* XCUIApplication+FBAlert.m in Sources */,
 				71241D781FAE31F100B9559F /* FBAppiumActionsSynthesizer.m in Sources */,
 				641EE70E2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,

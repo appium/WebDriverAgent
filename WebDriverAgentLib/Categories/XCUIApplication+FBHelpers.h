@@ -49,6 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable XCUIElement *)fb_activeElement;
 
+#if TARGET_OS_TV
+/**
+ Returns the element, which currently focused.
+ */
+- (nullable XCUIElement *)fb_focusedElement;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -9,7 +9,6 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCUIElement.h>
-#import "FBElement.h"
 
 #if TARGET_OS_TV
 
@@ -34,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param targetElement A target element which will track
  @return An instancce of FBTVNavigationTracker
  */
-+ (instancetype)trackerWithTargetElement: (id<FBElement>) targetElement;
++ (instancetype)trackerWithTargetElement: (XCUIElement *) targetElement;
 
 /**
  Determine the correct direction to move the focus to the tracked target
