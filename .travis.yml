@@ -98,3 +98,20 @@ matrix:
     - os: osx
       osx_image: xcode10.2
       env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
+
+    # Builds
+    - os: osx
+      osx_image: xcode9.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="11.2" ACTION=build TARGET=tv_runner SDK=tv_sim
+    # Analyze
+    - os: osx
+      osx_image: xcode9.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="11.2" ACTION=analyze TARGET=tv_runner SDK=tv_sim
+    # Builds
+    - os: osx
+      osx_image: xcode10.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=build TARGET=tv_runner SDK=tv_sim
+    # Analyze
+    - os: osx
+      osx_image: xcode10.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=analyze TARGET=tv_runner SDK=tv_sim

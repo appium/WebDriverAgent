@@ -2,7 +2,7 @@
 github "appium/RoutingHTTPServer"
 
 # Used by the element cache
-github "KazuCocoa/YYCache" "master"
+github "KazuCocoa/YYCache" "add-tvos-support"
 
 # Used by screenshots broadcaster
 github "robbiehanson/CocoaAsyncSocket"
