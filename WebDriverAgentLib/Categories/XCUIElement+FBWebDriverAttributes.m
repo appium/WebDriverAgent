@@ -195,7 +195,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
 
 - (BOOL)isWDFocused
 {
-  return self.hasFocus;
+  id (^getter)(void) = ^id(void) {
+    return @(self.hasFocus);
+  };
+
+  return [[self fb_cachedValueWithAttributeName:@"hasFocus" valueGetter:getter] boolValue];
 }
 
 #endif
