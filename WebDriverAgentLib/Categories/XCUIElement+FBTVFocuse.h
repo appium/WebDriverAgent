@@ -14,9 +14,21 @@ NS_ASSUME_NONNULL_BEGIN
 #if TARGET_OS_TV
 @interface XCUIElement (FBTVFocuse)
 
--(BOOL)fb_focuseWithError:(NSError**) error;
+/**
+ Sets focuse
 
--(BOOL)fb_selectWithError:(NSError**) error;
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_setFocusWithError:(NSError**) error;
+
+/**
+ Select a focused element
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_selectWithError:(NSError**) error;
 
 @end
 #endif

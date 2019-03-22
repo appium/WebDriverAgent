@@ -22,35 +22,42 @@ int const MAX_ITERATIONS_COUNT = 100;
 
 @implementation XCUIElement (FBTVFocuse)
 
--(BOOL)fb_focuseWithError:(NSError**) error
+- (BOOL)fb_setFocusWithError:(NSError**) error
 {
   [[FBApplication fb_activeApplication] fb_waitUntilSnapshotIsStable];
-  if (self.wdEnabled) {
-    FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:self];
-    for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
-      if (self.hasFocus) {
-        return YES;
+
+  if (!self.wdEnabled) {
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:@"Element could not be focused."] build];
+    }
+    return NO;
+  }
+
+  FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:self];
+  for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
+    if (self.hasFocus) {
+      return YES;
+    }
+
+    if (!self.exists) {
+      if (error) {
+        *error = [[FBErrorBuilder.builder withDescription:@"Unable to reach element. Try to use XCUIRemote commands."] build];
       }
-      if (self.exists) {
-        FBTVDirection direction = tracker.directionToMoveFocuse;
-        if(direction != FBTVDirectionNone) {
-          [[XCUIRemote sharedRemote] pressButton: (XCUIRemoteButton)direction];
-          continue;
-        }
-      }
-      [[[FBErrorBuilder builder] withDescription:@"Unable to reach element. Try to use XCUIRemote commands."]
-       buildError:error];
       return NO;
     }
+
+    FBTVDirection direction = tracker.directionToMoveFocuse;
+    if (direction != FBTVDirectionNone) {
+      [[XCUIRemote sharedRemote] pressButton: (XCUIRemoteButton)direction];
+    }
   }
-  [[[FBErrorBuilder builder] withDescription:@"Element could not be focused."]
-   buildError:error];
+
   return NO;
 }
 
--(BOOL)fb_selectWithError:(NSError**) error
+- (BOOL)fb_selectWithError:(NSError**) error
 {
-  BOOL result = [self fb_focuseWithError: error];
+  BOOL result = [self fb_setFocusWithError: error];
   if (result) {
     [[XCUIRemote sharedRemote] pressButton:XCUIRemoteButtonSelect];
   }
