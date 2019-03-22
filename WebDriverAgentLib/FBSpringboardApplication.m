@@ -42,9 +42,6 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
   return _springboardApp;
 }
 
-/**
- * Returns proper identifier
- **/
 - (BOOL)fb_openApplicationWithIdentifier:(NSString *)identifier error:(NSError **)error
 {
 #if TARGET_OS_TV
@@ -119,7 +116,6 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
   if (![appElement fb_selectWithError:error]) {
     return NO;
   }
-  [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonSelect];
   return
   [[[[FBRunLoopSpinner new]
      interval:0.3]
@@ -148,6 +144,7 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
 {
   [self resolve];
 #if TARGET_OS_TV
+  // TODO: Make sure witth inspector again
   return self.collectionViews[@"GridCollectionView"].isEnabled;
 #else
   // the dock (and other icons) don't seem to be consistently reported as
