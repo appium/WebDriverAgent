@@ -15,8 +15,10 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
+#if TARGET_OS_TV
+
 @interface FBTVNavigationItem : NSObject
-@property (nonatomic, assign) NSUInteger uid;
+@property (nonatomic, readonly) NSUInteger uid;
 @property (nonatomic, strong) NSMutableSet<NSNumber *>* directions;
 
 + (instancetype)itemWithUid:(NSUInteger) uid;
@@ -75,7 +77,7 @@
   CGFloat yDelta = self.targetCenter.y - focusedCenter.y;
   CGFloat xDelta = self.targetCenter.x - focusedCenter.x;
   FBTVDirection direction;
-  if(fabs(yDelta) > fabs(xDelta)) {
+  if (fabs(yDelta) > fabs(xDelta)) {
     direction = [self getVerticalDirectionForItem:item withDelta:yDelta];
     if (direction == FBTVDirectionNone) {
       direction = [self getHorizontalDirectionForItem:item withDelta:xDelta];
@@ -96,8 +98,7 @@
   return [FBApplication fb_activeApplication].fb_focusedElement;
 }
 
--(FBTVNavigationItem*) navigationItemFromElement:(id<FBElement>)element
-
+- (FBTVNavigationItem*) navigationItemFromElement:(id<FBElement>)element
 {
   NSNumber *key = [NSNumber numberWithUnsignedInteger:element.wdUID];
   FBTVNavigationItem* item = [self.navigationItems objectForKey: key];
@@ -109,7 +110,8 @@
   return item;
 }
 
-- (FBTVDirection)getHorizontalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta {
+- (FBTVDirection)getHorizontalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
+{
   if (delta > 0) {
     if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionRight]]) {
       [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionRight]];
@@ -125,7 +127,8 @@
   return FBTVDirectionNone;
 }
 
-- (FBTVDirection)getVerticalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta {
+- (FBTVDirection)getVerticalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
+{
   if (delta > 0) {
     if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionDown]]) {
       [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionDown]];
@@ -142,3 +145,5 @@
 }
 
 @end
+
+#endif

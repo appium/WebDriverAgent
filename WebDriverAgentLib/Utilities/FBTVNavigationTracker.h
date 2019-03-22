@@ -11,6 +11,11 @@
 #import <XCTest/XCUIElement.h>
 #import "FBElement.h"
 
+#if TARGET_OS_TV
+
+/**
+ Defines directions to move focuse to.
+ */
 typedef NS_ENUM(NSUInteger, FBTVDirection) {
   FBTVDirectionUp     = 0,
   FBTVDirectionDown   = 1,
@@ -23,10 +28,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBTVNavigationTracker : NSObject
 
+  /**
+   Track the target element's point
+   @param targetElement A target element which will track
+   @return An instancce of FBTVNavigationTracker
+   */
   +(instancetype)trackerWithTargetElement: (id<FBElement>) targetElement;
 
+  /**
+   Move focuse to the tracked target element from current focuse
+   */
   -(FBTVDirection)directionToMoveFocuse;
 
   @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
