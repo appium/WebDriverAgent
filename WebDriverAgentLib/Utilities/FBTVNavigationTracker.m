@@ -78,14 +78,14 @@
   CGFloat xDelta = self.targetCenter.x - focusedCenter.x;
   FBTVDirection direction;
   if (fabs(yDelta) > fabs(xDelta)) {
-    direction = [self getVerticalDirectionForItem:item withDelta:yDelta];
+    direction = [self verticalDirectionWithItem:item andDelta:yDelta];
     if (direction == FBTVDirectionNone) {
-      direction = [self getHorizontalDirectionForItem:item withDelta:xDelta];
+      direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
     }
   } else {
-    direction = [self getHorizontalDirectionForItem:item withDelta:xDelta];
+    direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
     if (direction == FBTVDirectionNone) {
-      direction = [self getVerticalDirectionForItem:item withDelta:yDelta];
+      direction = [self verticalDirectionWithItem:item andDelta:yDelta];
     }
   }
 
@@ -110,7 +110,7 @@
   return item;
 }
 
-- (FBTVDirection)getHorizontalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
+- (FBTVDirection)horizontalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta
 {
   // GCFloat is double in 64bit. tvOS is only for arm64
   if (delta > DBL_EPSILON &&
@@ -118,7 +118,7 @@
     [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionRight]];
     return FBTVDirectionRight;
   }
-  if (delta < DBL_EPSILON &&
+  if (delta < -DBL_EPSILON &&
       ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionLeft]]) {
     [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionLeft]];
     return FBTVDirectionLeft;
@@ -126,7 +126,7 @@
   return FBTVDirectionNone;
 }
 
-- (FBTVDirection)getVerticalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
+- (FBTVDirection)verticalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta
 {
   // GCFloat is double in 64bit. tvOS is only for arm64
   if (delta > DBL_EPSILON &&
@@ -134,7 +134,7 @@
     [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionDown]];
     return FBTVDirectionDown;
   }
-  if (delta < DBL_EPSILON &&
+  if (delta < -DBL_EPSILON &&
       ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionUp]]) {
     [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionUp]];
     return FBTVDirectionUp;

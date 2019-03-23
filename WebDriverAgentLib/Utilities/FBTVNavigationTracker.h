@@ -37,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)trackerWithTargetElement: (id<FBElement>) targetElement;
 
 /**
- Move the focus to the tracked target element from the currently focused one
+ Determine the correct direction to move the focus to the tracked target
+ element from the currently focused one
 
  @return FBTVDirection to move the focus to
  */
