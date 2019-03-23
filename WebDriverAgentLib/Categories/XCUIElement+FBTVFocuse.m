@@ -28,7 +28,8 @@ int const MAX_ITERATIONS_COUNT = 100;
 
   if (!self.wdEnabled) {
     if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:@"Element could not be focused."] build];
+      *error = [[FBErrorBuilder.builder withDescription:
+                 [NSString stringWithFormat:@"'%@' element cannot be focused because it is disabled", self.description]] build];
     }
     return NO;
   }
@@ -41,7 +42,8 @@ int const MAX_ITERATIONS_COUNT = 100;
 
     if (!self.exists) {
       if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:@"Unable to reach element. Try to use XCUIRemote commands."] build];
+        *error = [[FBErrorBuilder.builder withDescription:
+                   [NSString stringWithFormat:@"'%@' element is not reachable because it is not existed. Try to use XCUIRemote commands.", self.description]] build];
       }
       return NO;
     }
