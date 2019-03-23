@@ -29,6 +29,8 @@
     [self launchApplication];
     [self goToAttributesPage];
   });
+  // Wait for slow CI
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 }
 
 - (void)testElementAccessibilityAttributes

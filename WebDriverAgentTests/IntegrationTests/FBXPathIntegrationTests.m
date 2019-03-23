@@ -10,10 +10,11 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBTestMacros.h"
+#import "FBXPath.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
 #import "XCUIElement+FBUtilities.h"
-#import "FBXPath.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
 @interface FBXPathIntegrationTests : FBIntegrationTestCase
@@ -32,6 +33,7 @@
   self.testedView = self.testedApplication.otherElements[@"MainView"];
   XCTAssertTrue(self.testedView.exists);
   [self.testedView resolve];
+  FBAssertWaitTillBecomesTrue(self.testedView.buttons.count > 0);
 }
 
 - (void)testSingleDescendantXMLRepresentation
