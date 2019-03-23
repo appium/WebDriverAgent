@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
   /**
    Return current focused element
    */
-- (id<FBElement>) fb_focusedElement;
+- (id<FBElement>)fb_focusedElement;
 
   @end
 

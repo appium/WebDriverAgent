@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCUIElement (FBTVFocuse)
 
 /**
- Sets focuse
+ Sets focus
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.

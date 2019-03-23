@@ -23,6 +23,7 @@ extern NSString *const SPRINGBOARD_BUNDLE_ID;
 
 /**
  Opens application on SpringBoard(HeadBoard) app with given identifier
+
  @param identifier identifier of the application to tap
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.

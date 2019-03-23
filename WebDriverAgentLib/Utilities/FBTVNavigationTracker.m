@@ -19,7 +19,7 @@
 
 @interface FBTVNavigationItem : NSObject
 @property (nonatomic, readonly) NSUInteger uid;
-@property (nonatomic, strong) NSMutableSet<NSNumber *>* directions;
+@property (nonatomic, readonly) NSMutableSet<NSNumber *>* directions;
 
 + (instancetype)itemWithUid:(NSUInteger) uid;
 @end
@@ -69,11 +69,11 @@
   return self;
 }
 
-- (FBTVDirection)directionToMoveFocuse
+- (FBTVDirection)directionToFocusedElement
 {
   id<FBElement> focused = self.focusedElement;
   CGPoint focusedCenter = FBRectGetCenter(focused.wdFrame);
-  FBTVNavigationItem *item = [self navigationItemFromElement:focused];
+  FBTVNavigationItem *item = [self navigationItemWithElement:focused];
   CGFloat yDelta = self.targetCenter.y - focusedCenter.y;
   CGFloat xDelta = self.targetCenter.x - focusedCenter.x;
   FBTVDirection direction;
@@ -98,7 +98,7 @@
   return [FBApplication fb_activeApplication].fb_focusedElement;
 }
 
-- (FBTVNavigationItem*) navigationItemFromElement:(id<FBElement>)element
+- (FBTVNavigationItem*)navigationItemWithElement:(id<FBElement>)element
 {
   NSNumber *key = [NSNumber numberWithUnsignedInteger:element.wdUID];
   FBTVNavigationItem* item = [self.navigationItems objectForKey: key];
@@ -112,34 +112,32 @@
 
 - (FBTVDirection)getHorizontalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
 {
-  if (delta > 0) {
-    if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionRight]]) {
-      [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionRight]];
-      return FBTVDirectionRight;
-    }
+  // GCFloat is double in 64bit. tvOS is only for arm64
+  if (delta > DBL_EPSILON &&
+      ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionRight]]) {
+    [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionRight]];
+    return FBTVDirectionRight;
   }
-  if (delta < 0) {
-    if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionLeft]]) {
-      [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionLeft]];
-      return FBTVDirectionLeft;
-    }
+  if (delta < DBL_EPSILON &&
+      ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionLeft]]) {
+    [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionLeft]];
+    return FBTVDirectionLeft;
   }
   return FBTVDirectionNone;
 }
 
 - (FBTVDirection)getVerticalDirectionForItem:(FBTVNavigationItem *)item withDelta:(CGFloat)delta
 {
-  if (delta > 0) {
-    if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionDown]]) {
-      [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionDown]];
-      return FBTVDirectionDown;
-    }
+  // GCFloat is double in 64bit. tvOS is only for arm64
+  if (delta > DBL_EPSILON &&
+      ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionDown]]) {
+    [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionDown]];
+    return FBTVDirectionDown;
   }
-  if (delta < 0) {
-    if(![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionUp]]) {
-      [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionUp]];
-      return FBTVDirectionUp;
-    }
+  if (delta < DBL_EPSILON &&
+      ![item.directions containsObject: [NSNumber numberWithInteger: FBTVDirectionUp]]) {
+    [item.directions addObject: [NSNumber numberWithInteger: FBTVDirectionUp]];
+    return FBTVDirectionUp;
   }
   return FBTVDirectionNone;
 }

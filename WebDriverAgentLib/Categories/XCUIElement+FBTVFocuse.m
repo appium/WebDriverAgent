@@ -46,7 +46,7 @@ int const MAX_ITERATIONS_COUNT = 100;
       return NO;
     }
 
-    FBTVDirection direction = tracker.directionToMoveFocuse;
+    FBTVDirection direction = tracker.directionToFocusedElement;
     if (direction != FBTVDirectionNone) {
       [[XCUIRemote sharedRemote] pressButton: (XCUIRemoteButton)direction];
     }

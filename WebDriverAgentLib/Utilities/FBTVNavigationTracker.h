@@ -28,19 +28,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBTVNavigationTracker : NSObject
 
-  /**
-   Track the target element's point
-   @param targetElement A target element which will track
-   @return An instancce of FBTVNavigationTracker
-   */
-  +(instancetype)trackerWithTargetElement: (id<FBElement>) targetElement;
+/**
+ Track the target element's point
 
-  /**
-   Move focuse to the tracked target element from current focuse
-   */
-  -(FBTVDirection)directionToMoveFocuse;
+ @param targetElement A target element which will track
+ @return An instancce of FBTVNavigationTracker
+ */
++ (instancetype)trackerWithTargetElement: (id<FBElement>) targetElement;
 
-  @end
+/**
+ Move the focus to the tracked target element from the currently focused one
+
+ @return FBTVDirection to move the focus to
+ */
+- (FBTVDirection)directionToFocusedElement;
+
+@end
 
 NS_ASSUME_NONNULL_END
 
