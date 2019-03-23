@@ -43,7 +43,7 @@ int const MAX_ITERATIONS_COUNT = 100;
     if (!self.exists) {
       if (error) {
         *error = [[FBErrorBuilder.builder withDescription:
-                   [NSString stringWithFormat:@"'%@' element is not reachable because it is not existed. Try to use XCUIRemote commands.", self.description]] build];
+                   [NSString stringWithFormat:@"'%@' element is not reachable because it does not exist. Try to use XCUIRemote commands.", self.description]] build];
       }
       return NO;
     }
