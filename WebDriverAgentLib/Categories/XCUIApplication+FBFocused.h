@@ -14,11 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIApplication (FBFocused)
 
-  /**
-   Return current focused element
-   */
+/**
+ Return current focused element
+ */
 - (id<FBElement>)fb_focusedElement;
 
-  @end
+@end
 
 NS_ASSUME_NONNULL_END
