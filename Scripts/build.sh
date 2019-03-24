@@ -22,9 +22,9 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL}\,OS=${IOS_VERSION}";;
-    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL}\,OS=${IOS_VERSION}";;
-    "tv" ) XC_DESTINATION="name=${TV_MODEL}\,OS=${TV_VERSION}";;
+    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL},OS=${IOS_VERSION}";;
+    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL},OS=${IOS_VERSION}";;
+    "tv" ) XC_DESTINATION="name=${TV_MODEL},OS=${TV_VERSION}";;
   esac
 
   case "$ACTION" in
@@ -57,16 +57,14 @@ function analyze() {
 }
 
 function xcbuild() {
-  lines=(
-    "xcodebuild"
-    "-project WebDriverAgent.xcodeproj"
-    "-scheme ${XC_TARGET}"
-    "-sdk ${XC_SDK}"
-    "-destination \"${XC_DESTINATION}\""
-    "${XC_ACTION}"
-    "${XC_MACROS}"
-  )
-  eval "${lines[*]}" | xcpretty && exit ${PIPESTATUS[0]}
+    xcodebuild \
+      -project "WebDriverAgent.xcodeproj" \
+      -scheme "${XC_TARGET}" \
+      -sdk "${XC_SDK}" \
+      -destination "${XC_DESTINATION}" \
+      "${XC_ACTION}" \
+      "${XC_MACROS}" \
+    | xcpretty && exit ${PIPESTATUS[0]}
 }
 
 function fastlane_test() {
