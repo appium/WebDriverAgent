@@ -223,8 +223,8 @@
 + (id<FBResponsePayload>)handleGetFocused:(FBRouteRequest *)request
 {
   // `BOOL isFocused = [elementCache elementForUUID:request.parameters[@"uuid"]];`
-  // returns wrong true/false after moving focus. Thus, compare input UUID with
-  // current focused element uuid
+  // returns wrong true/false after moving focus by key up/down, for example.
+  // Thus, ensure the focus comparing the status with `fb_focusedElement`.
   BOOL isFocused = false;
   XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
   if (nil != focusedElement) {
