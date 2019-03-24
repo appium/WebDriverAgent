@@ -8,7 +8,7 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 #
 
-set -eu
+set -e
 
 function define_xc_macros() {
   XC_MACROS="CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
@@ -22,9 +22,9 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL},OS=${IOS_VERSION}";;
-    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL},OS=${IOS_VERSION}";;
-    "tv" ) XC_DESTINATION="name=${TV_MODEL},OS=${TV_VERSION}";;
+    "iphone" ) XC_DESTINATION="name=$IPHONE_MODEL,OS=$IOS_VERSION";;
+    "ipad" ) XC_DESTINATION="name=$IPAD_MODEL,OS=$IOS_VERSION";;
+    "tv" ) XC_DESTINATION="name=$TV_MODEL,OS=$TV_VERSION";;
   esac
 
   case "$ACTION" in
@@ -57,18 +57,27 @@ function analyze() {
 }
 
 function xcbuild() {
+    destination=""
+    if [ -n "$XC_DESTINATION" ]; then
+      destination="-destination \"$XC_DESTINATION\""
+    fi
+
     xcodebuild \
       -project "WebDriverAgent.xcodeproj" \
-      -scheme "${XC_TARGET}" \
-      -sdk "${XC_SDK}" \
-      -destination "${XC_DESTINATION}" \
-      "${XC_ACTION}" \
-      "${XC_MACROS}" \
+      -scheme "$XC_TARGET" \
+      -sdk "$XC_SDK" \
+      $destination \
+      "$XC_ACTION" \
+      "$XC_MACROS" \
     | xcpretty && exit ${PIPESTATUS[0]}
 }
 
 function fastlane_test() {
-  SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
+  if [ -n "$XC_DESTINATION" ]; then
+    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
+  else
+    SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test
+  fi
 }
 
 ./Scripts/bootstrap.sh
