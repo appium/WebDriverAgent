@@ -36,7 +36,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:self];
   for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
-    // Here's hasFocus works so far. Maybe, it is because here handles by `XCUIRemote`...
+    // Here's hasFocus works so far. Maybe, it is because here is handled by `XCUIRemote`...
     if (self.hasFocus) {
       return YES;
     }
