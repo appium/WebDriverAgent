@@ -46,7 +46,8 @@
   [super tearDown];
 }
 
-- (void)testAutoAcceptingOfAlerts
+// The test is flaky on slow Travis CI
+- (void)disabled_testAutoAcceptingOfAlerts
 {
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;
@@ -62,7 +63,8 @@
   }
 }
 
-- (void)testAutoDismissingOfAlerts
+// The test is flaky on slow Travis CI
+- (void)disabled_testAutoDismissingOfAlerts
 {
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;

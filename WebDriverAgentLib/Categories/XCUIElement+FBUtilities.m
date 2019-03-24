@@ -221,7 +221,7 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
   dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBANIMATION_TIMEOUT * NSEC_PER_SEC));
   BOOL result = 0 == dispatch_semaphore_wait(sem, timeout);
   if (!result) {
-    [FBLogger logFmt:@"There are still some active animations in progress after %.2f seconds timeout. Visibility detection may cause unexpected delays.", FBANIMATION_TIMEOUT];
+    [FBLogger logFmt:@"There are still some active animations in progress after %.2f seconds timeout", FBANIMATION_TIMEOUT];
   }
   return result;
 }

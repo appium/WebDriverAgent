@@ -9,8 +9,7 @@
 
 #import "XCUIDevice+FBRotation.h"
 
-static const NSTimeInterval kFBWebDriverOrientationChangeDelay = 5.0;
-static const CGFloat FBRotationCoolOffTime = 1.f;
+#import "XCUIElement+FBUtilities.h"
 
 @implementation XCUIDevice (FBRotation)
 
@@ -35,15 +34,7 @@ static const CGFloat FBRotationCoolOffTime = 1.f;
 
 - (BOOL)waitUntilInterfaceIsAtOrientation:(NSInteger)orientation application:(FBApplication *)application
 {
-  NSDate *startDate = [NSDate date];
-  while (application.interfaceOrientation != orientation &&
-         [XCUIDevice sharedDevice].orientation != orientation &&
-         (-1 * [startDate timeIntervalSinceNow]) < kFBWebDriverOrientationChangeDelay) {
-    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.3, YES);
-  }
-  // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
-  // We should wait till UI cools off, before continuing
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBRotationCoolOffTime]];
+  [application fb_waitUntilSnapshotIsStable];
   return application.interfaceOrientation == orientation;
 }
 
