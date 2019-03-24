@@ -10,7 +10,6 @@
 #import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 #import "FBIntegrationTestCase.h"
-#import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
 
 @interface XCUIDeviceRotationTests : FBIntegrationTestCase
@@ -27,16 +26,24 @@
 
 - (void)testLandscapeRightOrientation
 {
-  BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeRight];
-  XCTAssertTrue(success, @"Device should support LandscapeRight");
-  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[@"LandscapeLeft"].exists); // Device rotation gives opposite interface rotation
+  // retry helps to stabilize the test on Travis
+  for (int retry = 1; retry <= 2; retry++) {
+    BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeRight];
+    XCTAssertTrue(success, @"Device should support LandscapeRight");
+    // Device rotation gives opposite interface rotation
+    if (self.testedApplication.staticTexts[@"LandscapeLeft"].exists) {
+      return;
+    }
+  }
+  XCTFail(@"Device should support LandscapeRight");
 }
 
 - (void)testLandscapeLeftOrientation
 {
   BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeLeft];
   XCTAssertTrue(success, @"Device should support LandscapeLeft");
-  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[@"LandscapeRight"].exists); // Device rotation gives opposite interface rotation
+  // Device rotation gives opposite interface rotation
+  XCTAssertTrue(self.testedApplication.staticTexts[@"LandscapeRight"].exists);
 }
 
 - (void)testLandscapeRightRotation
@@ -47,7 +54,8 @@
     @"z" : @(90)
   }];
   XCTAssertTrue(success, @"Device should support LandscapeRight");
-  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[@"LandscapeLeft"].exists); // Device rotation gives opposite interface rotation
+  // Device rotation gives opposite interface rotation
+  XCTAssertTrue(self.testedApplication.staticTexts[@"LandscapeLeft"].exists);
 }
 
 - (void)testLandscapeLeftRotation
@@ -58,7 +66,8 @@
     @"z" : @(270)
   }];
   XCTAssertTrue(success, @"Device should support LandscapeLeft");
-  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[@"LandscapeRight"].exists); // Device rotation gives opposite interface rotation
+  // Device rotation gives opposite interface rotation
+  XCTAssertTrue(self.testedApplication.staticTexts[@"LandscapeRight"].exists);
 }
 
 - (void)testRotationTiltRotation

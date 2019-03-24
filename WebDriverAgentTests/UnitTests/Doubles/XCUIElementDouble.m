@@ -26,6 +26,7 @@
     self.wdVisible = YES;
     self.wdAccessible = YES;
     self.wdEnabled = YES;
+    self.wdFocused = YES;
     self.children = @[];
     self.wdRect =  @{@"x": @0,
                      @"y": @0,

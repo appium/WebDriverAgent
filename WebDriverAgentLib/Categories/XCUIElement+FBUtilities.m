@@ -31,7 +31,7 @@
 
 @implementation XCUIElement (FBUtilities)
 
-static const NSTimeInterval FBANIMATION_TIMEOUT = 5.0;
+static const NSTimeInterval FB_IDLE_TIMEOUT = 5.0;
 
 - (BOOL)fb_waitUntilFrameIsStable
 {
@@ -216,12 +216,15 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
 
 - (BOOL)fb_waitUntilSnapshotIsStable
 {
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [FBXCAXClientProxy.sharedClient notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_semaphore_signal(sem);}];
-  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBANIMATION_TIMEOUT * NSEC_PER_SEC));
-  BOOL result = 0 == dispatch_semaphore_wait(sem, timeout);
+  dispatch_group_t idleMonitor = dispatch_group_create();
+  dispatch_group_enter(idleMonitor);
+  [FBXCAXClientProxy.sharedClient notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_group_leave(idleMonitor);}];
+  dispatch_group_enter(idleMonitor);
+  [FBXCAXClientProxy.sharedClient notifyWhenEventLoopIsIdleForApplication:self.application reply:^{dispatch_group_leave(idleMonitor);}];
+  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FB_IDLE_TIMEOUT * NSEC_PER_SEC));
+  BOOL result = 0 == dispatch_group_wait(idleMonitor, timeout);
   if (!result) {
-    [FBLogger logFmt:@"There are still some active animations in progress after %.2f seconds timeout", FBANIMATION_TIMEOUT];
+    [FBLogger logFmt:@"The applicaion is still not idling after %.2f seconds timeout", FB_IDLE_TIMEOUT];
   }
   return result;
 }

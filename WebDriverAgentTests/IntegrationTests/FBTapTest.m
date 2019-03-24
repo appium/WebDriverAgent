@@ -28,7 +28,6 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue(self.testedApplication.alerts.count == 0);
   [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:&error];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
@@ -77,7 +76,6 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue(self.testedApplication.alerts.count == 0);
   XCUIElement *dstButton = self.testedApplication.buttons[FBShowAlertButtonName];
   [dstButton fb_tapCoordinate:CGPointMake(dstButton.frame.size.width / 2, dstButton.frame.size.height / 2) error:&error];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);

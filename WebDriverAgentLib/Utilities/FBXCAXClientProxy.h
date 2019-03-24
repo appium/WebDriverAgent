@@ -31,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
                                                 reply:(void (^)(void))reply;
 
+- (void)notifyWhenEventLoopIsIdleForApplication:(XCUIApplication *)application
+                                          reply:(void (^)(void))reply;
+
 - (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
                             attributes:(NSArray *)attributes;
 

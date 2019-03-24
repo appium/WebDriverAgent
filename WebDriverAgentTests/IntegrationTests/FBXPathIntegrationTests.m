@@ -12,10 +12,12 @@
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 #import "FBXPath.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+
 
 @interface FBXPathIntegrationTests : FBIntegrationTestCase
 @property (nonatomic, strong) XCUIElement *testedView;
@@ -38,13 +40,12 @@
 
 - (void)testSingleDescendantXMLRepresentation
 {
-  NSString *expectedType = @"XCUIElementTypeButton";
-  XCUIElement *matchingElement = [[self.testedView fb_descendantsMatchingXPathQuery:[NSString stringWithFormat:@"//%@", expectedType] shouldReturnAfterFirstMatch:YES] firstObject];
-  XCElementSnapshot *matchingSnapshot = matchingElement.fb_lastSnapshot;
-  NSString *xmlStr = [FBXPath xmlStringWithRootElement:matchingSnapshot];
+  XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:matchingElement];
   XCTAssertNotNil(xmlStr);
-
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", expectedType, expectedType, matchingSnapshot.wdName, matchingSnapshot.wdLabel, matchingSnapshot.wdEnabled ? @"true" : @"false", matchingSnapshot.wdVisible ? @"true" : @"false", [matchingSnapshot.wdRect[@"x"] stringValue], [matchingSnapshot.wdRect[@"y"] stringValue], [matchingSnapshot.wdRect[@"width"] stringValue], [matchingSnapshot.wdRect[@"height"] stringValue]];
+  
+  XCElementSnapshot *snapshot = matchingElement.fb_lastSnapshot;
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdEnabled ? @"true" : @"false", snapshot.wdVisible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue]];
   XCTAssertTrue([xmlStr isEqualToString: expectedXml]);
 }
 
