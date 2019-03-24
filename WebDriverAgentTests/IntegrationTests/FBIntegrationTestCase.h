@@ -58,4 +58,10 @@ extern NSString *const FBShowAlertForceTouchButtonName;
  */
 - (void)goToScrollPageWithCells:(BOOL)showCells;
 
+/**
+ Verifies no alerts are present on the page.
+ If an alert exists then it is going to be dismissed.
+ */
+- (void)clearAlert;
+
 @end

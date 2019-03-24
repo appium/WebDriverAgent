@@ -9,6 +9,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FBAlert.h"
 #import "FBSpringboardApplication.h"
 #import "FBTestMacros.h"
 #import "FBIntegrationTestCase.h"
@@ -47,8 +48,10 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
   [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
 
-  // Reset orientation
-  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
+    // Reset orientation
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  }
 }
 
 - (void)goToAttributesPage
@@ -69,8 +72,10 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 - (void)goToSpringBoardFirstPage
 {
   [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue([FBSpringboardApplication fb_springboard].icons[@"Safari"].exists);
   [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue([FBSpringboardApplication fb_springboard].icons[@"Calendar"].fb_isVisible);
 }
 
@@ -78,6 +83,7 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 {
   [self goToSpringBoardFirstPage];
   [self.springboard swipeLeft];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.springboard.icons[@"Extras"].fb_isVisible);
 }
 
@@ -85,6 +91,7 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 {
   [self goToSpringBoardFirstPage];
   [self.springboard swipeRight];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   NSPredicate *predicate =
     [NSPredicate predicateWithFormat:
      @"%K IN %@",
@@ -98,9 +105,19 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 - (void)goToScrollPageWithCells:(BOOL)showCells
 {
   [self.testedApplication.buttons[@"Scrolling"] tap];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"TableView"].fb_isVisible);
   [self.testedApplication.buttons[showCells ? @"TableView": @"ScrollView"] tap];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[@"3"].fb_isVisible);
+}
+
+- (void)clearAlert
+{
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
+  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
 }
 
 @end

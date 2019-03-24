@@ -11,7 +11,6 @@
 
 #import "FBIntegrationTestCase.h"
 
-#import "FBAlert.h"
 #import "FBElementCache.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
@@ -42,11 +41,12 @@
     [self launchApplication];
     [self goToAlertsPage];
   });
+  [self clearAlert];
 }
 
 - (void)tearDown
 {
-  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  [self clearAlert];
   [super tearDown];
 }
 

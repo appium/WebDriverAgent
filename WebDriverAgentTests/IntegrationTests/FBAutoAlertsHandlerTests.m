@@ -31,11 +31,13 @@
 
   [self launchApplication];
   [self goToAlertsPage];
+
+  [self clearAlert];
 }
 
 - (void)tearDown
 {
-  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  [self clearAlert];
 
   if (self.session) {
     [self.session kill];
