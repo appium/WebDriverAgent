@@ -11,10 +11,11 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBFindElementCommands.h"
+#import "FBTestMacros.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBAccessibility.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXCodeCompatibility.h"
 
 @interface FBElementAttributeTests : FBIntegrationTestCase
 @end
@@ -29,8 +30,6 @@
     [self launchApplication];
     [self goToAttributesPage];
   });
-  // Wait for slow CI
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 }
 
 - (void)testElementAccessibilityAttributes

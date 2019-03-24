@@ -18,6 +18,7 @@
 #import "XCUIDevice+FBRotation.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "XCUIElement+FBUtilities.h"
 
 NSString *const FBShowAlertButtonName = @"Create App Alert";
 NSString *const FBShowSheetAlertButtonName = @"Create Sheet Alert";
@@ -43,8 +44,8 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 - (void)launchApplication
 {
   [self.testedApplication launch];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
   // Reset orientation
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
@@ -53,12 +54,14 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 - (void)goToAttributesPage
 {
   [self.testedApplication.buttons[@"Attributes"] tap];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Button"].fb_isVisible);
 }
 
 - (void)goToAlertsPage
 {
   [self.testedApplication.buttons[@"Alerts"] tap];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[FBShowAlertButtonName].fb_isVisible);
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[FBShowSheetAlertButtonName].fb_isVisible);
 }

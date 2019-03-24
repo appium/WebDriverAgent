@@ -45,8 +45,8 @@
 
 - (void)tearDown
 {
-  [super tearDown];
   [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  [super tearDown];
 }
 
 - (void)testErroneousGestures

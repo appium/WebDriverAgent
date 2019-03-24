@@ -63,7 +63,7 @@
                            matchingIdentifier:@"Copy"].fb_firstMatch;
   XCTAssertNotNil(copyItem);
   [copyItem tap];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+  FBWaitExact(1.0);
   NSData *result = [FBPasteboard dataForType:@"plaintext" error:&error];
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.value, [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding]);

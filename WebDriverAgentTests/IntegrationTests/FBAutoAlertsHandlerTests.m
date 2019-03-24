@@ -15,6 +15,7 @@
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
 #import "FBTestMacros.h"
+#import "XCUIElement+FBUtilities.h"
 
 
 @interface FBAutoAlertsHandlerTests : FBIntegrationTestCase
@@ -43,8 +44,7 @@
   [super tearDown];
 }
 
-// The test is disabled because of its flakiness in slow Travis env
-- (void)disabled_testAutoAcceptingOfAlerts
+- (void)testAutoAcceptingOfAlerts
 {
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;
@@ -55,13 +55,12 @@
                   defaultAlertAction:@"accept"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:nil];
+    [self.testedApplication fb_waitUntilSnapshotIsStable];
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   }
 }
 
-// The test is disabled because of its flakiness in slow Travis env
-- (void)disabled_testAutoDismissingOfAlerts
+- (void)testAutoDismissingOfAlerts
 {
   if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
     return;
@@ -72,8 +71,8 @@
                   defaultAlertAction:@"dismiss"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:nil];
+    [self.testedApplication fb_waitUntilSnapshotIsStable];
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   }
 }
 
