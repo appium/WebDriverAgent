@@ -70,6 +70,7 @@
 #if TARGET_OS_TV
     [[FBRoute POST:@"/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
     [[FBRoute GET:@"/element/:uuid/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
+    [[FBRoute GET:@"/element/:uuid/attribute/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
 #else
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
@@ -243,6 +244,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:elementUUID];
   NSError *error;
+
   if (![element fb_setFocusWithError:&error]) {
     return FBResponseWithError(error);
   }

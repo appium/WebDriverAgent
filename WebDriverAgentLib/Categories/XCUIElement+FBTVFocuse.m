@@ -26,7 +26,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 {
   [[FBApplication fb_activeApplication] fb_waitUntilSnapshotIsStable];
 
-  if (!self.isEnabled) { // wdEnabled
+  if (!self.isEnabled) {
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:
                  [NSString stringWithFormat:@"'%@' element cannot be focused because it is disabled", self.description]] build];
