@@ -41,12 +41,13 @@
 - (void)testSingleDescendantXMLRepresentation
 {
   XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
-  NSString *xmlStr = [FBXPath xmlStringWithRootElement:matchingElement];
-  XCTAssertNotNil(xmlStr);
+  FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_lastSnapshot);
   
   XCElementSnapshot *snapshot = matchingElement.fb_lastSnapshot;
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot];
+  XCTAssertNotNil(xmlStr);
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdEnabled ? @"true" : @"false", snapshot.wdVisible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue]];
-  XCTAssertTrue([xmlStr isEqualToString: expectedXml]);
+  XCTAssertEqual(xmlStr, expectedXml);
 }
 
 - (void)testFindMatchesInElement

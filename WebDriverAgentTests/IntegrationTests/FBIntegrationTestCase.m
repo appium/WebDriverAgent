@@ -45,7 +45,6 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
 - (void)resetOrientation
 {
   if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
-    // Reset orientation
     [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
   }
 }
