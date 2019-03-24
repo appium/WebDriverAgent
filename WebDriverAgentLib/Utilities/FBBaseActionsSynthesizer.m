@@ -22,7 +22,7 @@
 #import "XCSynthesizedEventRecord.h"
 #import "XCUIElement+FBUtilities.h"
 
-
+#if !TARGET_OS_TV
 @implementation FBBaseGestureItem
 
 + (NSString *)actionName
@@ -185,3 +185,4 @@
 }
 
 @end
+#endif

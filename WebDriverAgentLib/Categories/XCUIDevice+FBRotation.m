@@ -13,6 +13,7 @@
 
 static const CGFloat FBRotationCoolOffTime = 1.f;
 
+# if !TARGET_OS_TV
 @implementation XCUIDevice (FBRotation)
 
 - (BOOL)fb_setDeviceInterfaceOrientation:(UIDeviceOrientation)orientation
@@ -65,3 +66,4 @@ static const CGFloat FBRotationCoolOffTime = 1.f;
 }
 
 @end
+#endif

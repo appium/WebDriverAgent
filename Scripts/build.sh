@@ -16,12 +16,15 @@ function define_xc_macros() {
   case "$TARGET" in
     "lib" ) XC_TARGET="WebDriverAgentLib";;
     "runner" ) XC_TARGET="WebDriverAgentRunner";;
+    "tv_lib" ) XC_TARGET="WebDriverAgentLib_tvOS";;
+    "tv_runner" ) XC_TARGET="WebDriverAgentRunner_tvOS";;
     *) echo "Unknown TARGET"; exit 1 ;;
   esac
 
   case "${DEST:-}" in
     "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL},OS=${IOS_VERSION}";;
     "ipad" ) XC_DESTINATION="name=${IPAD_MODEL},OS=${IOS_VERSION}";;
+    "tv" ) XC_DESTINATION="name=${TV_MODEL},OS=${TV_VERSION}";;
   esac
 
   case "$ACTION" in
@@ -37,6 +40,8 @@ function define_xc_macros() {
   case "$SDK" in
     "sim" ) XC_SDK="iphonesimulator";;
     "device" ) XC_SDK="iphoneos";;
+    "tv_sim" ) XC_SDK="appletvos";;
+    "tv_device" ) XC_SDK="appletvsimulator";;
     *) echo "Unknown SDK"; exit 1 ;;
   esac
 }

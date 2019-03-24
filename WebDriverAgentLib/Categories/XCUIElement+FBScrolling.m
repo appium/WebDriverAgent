@@ -34,6 +34,8 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 const CGFloat FBScrollCoolOffTime = 1.f;
 const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
+#if !TARGET_OS_TV
+
 @interface XCElementSnapshot (FBScrolling)
 
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance inApplication:(XCUIApplication *)application;
@@ -311,3 +313,5 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 }
 
 @end
+
+#endif

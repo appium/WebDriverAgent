@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0900"
+   LastUpgradeVersion = "1010"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE158A981CBD452B00A3E3F0"
-               BuildableName = "WebDriverAgentLib.framework"
-               BlueprintName = "WebDriverAgentLib"
+               BlueprintIdentifier = "641EE2D92240BBE300173FCB"
+               BuildableName = "WebDriverAgentRunner_tvOS.xctest"
+               BlueprintName = "WebDriverAgentRunner_tvOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,39 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE836C011C0F118600D87246"
-               BuildableName = "UnitTests.xctest"
-               BlueprintName = "UnitTests"
-               ReferencedContainer = "container:WebDriverAgent.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE9B75EB1CF7956C00275851"
-               BuildableName = "IntegrationTests_1.xctest"
-               BlueprintName = "IntegrationTests_1"
-               ReferencedContainer = "container:WebDriverAgent.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE5095DD1EBCC9090028E2FE"
-               BuildableName = "IntegrationTests_2.xctest"
-               BlueprintName = "IntegrationTests_2"
-               ReferencedContainer = "container:WebDriverAgent.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE2202031ECC612200A29571"
-               BuildableName = "IntegrationTests_3.xctest"
-               BlueprintName = "IntegrationTests_3"
+               BlueprintIdentifier = "641EE2D92240BBE300173FCB"
+               BuildableName = "WebDriverAgentRunner_tvOS.xctest"
+               BlueprintName = "WebDriverAgentRunner_tvOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -72,9 +42,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EE158A981CBD452B00A3E3F0"
-            BuildableName = "WebDriverAgentLib.framework"
-            BlueprintName = "WebDriverAgentLib"
+            BlueprintIdentifier = "641EE2D92240BBE300173FCB"
+            BuildableName = "WebDriverAgentRunner_tvOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_tvOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -94,12 +64,34 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EE158A981CBD452B00A3E3F0"
-            BuildableName = "WebDriverAgentLib.framework"
-            BlueprintName = "WebDriverAgentLib"
+            BlueprintIdentifier = "641EE2D92240BBE300173FCB"
+            BuildableName = "WebDriverAgentRunner_tvOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_tvOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "USE_PORT"
+            value = "$(USE_PORT)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "UPGRADE_TIMESTAMP"
+            value = "$(UPGRADE_TIMESTAMP)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MJPEG_SERVER_PORT"
+            value = "$(MJPEG_SERVER_PORT)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "WDA_PRODUCT_BUNDLE_IDENTIFIER"
+            value = "$(WDA_PRODUCT_BUNDLE_IDENTIFIER)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -112,9 +104,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EE158A981CBD452B00A3E3F0"
-            BuildableName = "WebDriverAgentLib.framework"
-            BlueprintName = "WebDriverAgentLib"
+            BlueprintIdentifier = "641EE2D92240BBE300173FCB"
+            BuildableName = "WebDriverAgentRunner_tvOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_tvOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

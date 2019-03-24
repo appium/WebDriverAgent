@@ -11,6 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if !TARGET_OS_TV
 @interface FBPasteboard : NSObject
 
 /**
@@ -34,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSData *)dataForType:(NSString *)type error:(NSError **)error;
 
 @end
+#endif
 
 NS_ASSUME_NONNULL_END
 

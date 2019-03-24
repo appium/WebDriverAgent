@@ -19,6 +19,8 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCEventGenerator.h"
 
+#if !TARGET_OS_TV
+
 @implementation XCUIApplication (FBTouchAction)
 
 + (BOOL)handleEventSynthesWithError:(NSError *)error
@@ -57,5 +59,5 @@
   return [FBXCTestDaemonsProxy synthesizeEventWithRecord:event error:error];
 }
 
-
 @end
+#endif

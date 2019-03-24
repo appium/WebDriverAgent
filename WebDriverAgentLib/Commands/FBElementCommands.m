@@ -34,6 +34,7 @@
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCUIElement+FBTVFocuse.h"
 #import "FBElementTypeTransformer.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
@@ -66,6 +67,7 @@
     [[FBRoute GET:@"/screenshot/:uuid"] respondWithTarget:self action:@selector(handleElementScreenshot:)],
     [[FBRoute GET:@"/wda/element/:uuid/accessible"] respondWithTarget:self action:@selector(handleGetAccessible:)],
     [[FBRoute GET:@"/wda/element/:uuid/accessibilityContainer"] respondWithTarget:self action:@selector(handleGetIsAccessibilityContainer:)],
+#if !TARGET_OS_TV
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
     [[FBRoute POST:@"/wda/element/:uuid/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTap:)],
@@ -77,8 +79,9 @@
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
-    [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+#endif
+    [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
     [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
@@ -162,10 +165,12 @@
   if ([value isKindOfClass:[NSArray class]]) {
     textToType = [value componentsJoinedByString:@""];
   }
+#if !TARGET_OS_TV
   if (element.elementType == XCUIElementTypePickerWheel) {
     [element adjustToPickerWheelValue:textToType];
     return FBResponseWithOK();
   }
+#endif
   if (element.elementType == XCUIElementTypeSlider) {
     CGFloat sliderValue = textToType.floatValue;
     if (sliderValue < 0.0 || sliderValue > 1.0 ) {
@@ -206,6 +211,7 @@
   return FBResponseWithElementUUID(elementUUID);
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -245,6 +251,7 @@
   [pressCoordinate pressForDuration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
+#endif
 
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
@@ -266,6 +273,7 @@
   return FBResponseWithOK();
 }
 
+#if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleScroll:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -389,6 +397,7 @@
   [element pinchWithScale:scale velocity:velocity];
   return FBResponseWithOK();
 }
+#endif
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
@@ -403,8 +412,12 @@
 
 + (id<FBResponsePayload>)handleGetWindowSize:(FBRouteRequest *)request
 {
+#if TARGET_OS_TV
+  CGSize screenSize = request.session.activeApplication.frame.size;
+#else
   CGRect frame = request.session.activeApplication.wdFrame;
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, request.session.activeApplication.interfaceOrientation);
+#endif
   return FBResponseWithStatus(FBCommandStatusNoError, @{
     @"width": @(screenSize.width),
     @"height": @(screenSize.height),
@@ -425,6 +438,8 @@
 }
 
 static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
+
+#if !TARGET_OS_TV
 
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
@@ -456,7 +471,11 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   return FBResponseWithOK();
 }
 
+#endif
+
 #pragma mark - Helpers
+
+#if !TARGET_OS_TV
 
 + (id<FBResponsePayload>)handleScrollElementToVisible:(XCUIElement *)element withRequest:(FBRouteRequest *)request
 {
@@ -527,5 +546,6 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element normalizedOffset:CGVectorMake(0, 0)];
   return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
 }
+#endif
 
 @end

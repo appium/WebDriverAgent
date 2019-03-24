@@ -33,6 +33,7 @@
   [self updateOrentationLabel];
 }
 
+#if !TARGET_OS_TV
 - (void)updateOrentationLabel
 {
   NSString *orientation = nil;
@@ -55,5 +56,6 @@
   }
   self.orentationLabel.text = orientation;
 }
+#endif
 
 @end

@@ -14,6 +14,7 @@
 #import "XCUICoordinate.h"
 #import "XCUICoordinate+FBFix.h"
 
+#if !TARGET_OS_TV
 @implementation XCUIElement (FBPickerWheel)
 
 static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
@@ -57,3 +58,4 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 }
 
 @end
+#endif
