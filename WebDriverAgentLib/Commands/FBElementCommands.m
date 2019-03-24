@@ -220,24 +220,34 @@
 
 #if TARGET_OS_TV
 + (id<FBResponsePayload>)handleGetFocused:(FBRouteRequest *)request
-  {
+{
+  // `BOOL isFocused = [elementCache elementForUUID:request.parameters[@"uuid"]];`
+  // returns wrong true/false after moving focus. Thus, compare input UUID with
+  // current focused element uuid
+  BOOL isFocused = false;
+  XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
+  if (nil != focusedElement) {
     FBElementCache *elementCache = request.session.elementCache;
-    XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-    BOOL isFocused = element.hasFocus;
-    return FBResponseWithStatus(FBCommandStatusNoError, isFocused ? @YES : @NO);
+    NSString *focusedUUID = [elementCache storeElement:focusedElement];
+    if ([focusedUUID isEqualToString:request.parameters[@"uuid"]]) {
+      isFocused = true;
+    }
   }
 
+  return FBResponseWithStatus(FBCommandStatusNoError, isFocused ? @YES : @NO);
+}
+
 + (id<FBResponsePayload>)handleFocuse:(FBRouteRequest *)request
-  {
-    NSString *elementUUID = request.parameters[@"uuid"];
-    FBElementCache *elementCache = request.session.elementCache;
-    XCUIElement *element = [elementCache elementForUUID:elementUUID];
-    NSError *error;
-    if (![element fb_setFocusWithError:&error]) {
-      return FBResponseWithError(error);
-    }
-    return FBResponseWithElementUUID(elementUUID);
+{
+  NSString *elementUUID = request.parameters[@"uuid"];
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:elementUUID];
+  NSError *error;
+  if (![element fb_setFocusWithError:&error]) {
+    return FBResponseWithError(error);
   }
+  return FBResponseWithElementUUID(elementUUID);
+}
 #else
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
 {
