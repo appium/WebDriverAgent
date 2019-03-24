@@ -233,7 +233,7 @@
     FBElementCache *elementCache = request.session.elementCache;
     XCUIElement *element = [elementCache elementForUUID:elementUUID];
     NSError *error;
-    if (![element fb_focuseWithError:&error]) {
+    if (![element fb_setFocusWithError:&error]) {
       return FBResponseWithError(error);
     }
     return FBResponseWithElementUUID(elementUUID);
