@@ -20,8 +20,8 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="-destination \"name=${IPHONE_MODEL},OS=${IOS_VERSION}\"";;
-    "ipad" ) XC_DESTINATION="-destination \"name=${IPAD_MODEL},OS=${IOS_VERSION}\"";;
+    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL},OS=${IOS_VERSION}";;
+    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL},OS=${IOS_VERSION}";;
   esac
 
   case "$ACTION" in
@@ -31,9 +31,6 @@ function define_xc_macros() {
       XC_MACROS="${XC_MACROS} CLANG_ANALYZER_OUTPUT=plist-html CLANG_ANALYZER_OUTPUT_DIR=\"$(pwd)/clang\""
     ;;
     "unit_test" ) XC_ACTION="test -only-testing:UnitTests";;
-    "int_test_1" ) XC_ACTION="test -only-testing:IntegrationTests_1";;
-    "int_test_2" ) XC_ACTION="test -only-testing:IntegrationTests_2";;
-    "int_test_3" ) XC_ACTION="test -only-testing:IntegrationTests_3";;
     *) echo "Unknown ACTION"; exit 1 ;;
   esac
 
@@ -60,16 +57,23 @@ function xcbuild() {
     "-project WebDriverAgent.xcodeproj"
     "-scheme ${XC_TARGET}"
     "-sdk ${XC_SDK}"
-    "${XC_DESTINATION-}"
+    "-destination \"${XC_DESTINATION}\""
     "${XC_ACTION}"
     "${XC_MACROS}"
   )
   eval "${lines[*]}" | xcpretty && exit ${PIPESTATUS[0]}
 }
 
+function fastlane_test() {
+  SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
+}
+
 ./Scripts/bootstrap.sh
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;
+  "int_test_1" ) fastlane_test IntegrationTests_1 ;;
+  "int_test_2" ) fastlane_test IntegrationTests_2 ;;
+  "int_test_3" ) fastlane_test IntegrationTests_3 ;;
   *) xcbuild ;;
 esac
