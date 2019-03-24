@@ -22,9 +22,9 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL},OS=${IOS_VERSION}";;
-    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL},OS=${IOS_VERSION}";;
-    "tv" ) XC_DESTINATION="name=${TV_MODEL},OS=${TV_VERSION}";;
+    "iphone" ) XC_DESTINATION="name=${IPHONE_MODEL}\,OS=${IOS_VERSION}";;
+    "ipad" ) XC_DESTINATION="name=${IPAD_MODEL}\,OS=${IOS_VERSION}";;
+    "tv" ) XC_DESTINATION="name=${TV_MODEL}\,OS=${TV_VERSION}";;
   esac
 
   case "$ACTION" in
