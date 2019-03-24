@@ -47,6 +47,7 @@
 - (void)tearDown
 {
   [self clearAlert];
+  [self resetOrientation];
   [super tearDown];
 }
 

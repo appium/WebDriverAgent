@@ -42,16 +42,19 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
   self.testedApplication = [XCUIApplication new];
 }
 
+- (void)resetOrientation
+{
+  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
+    // Reset orientation
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  }
+}
+
 - (void)launchApplication
 {
   [self.testedApplication launch];
   [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
-
-  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
-    // Reset orientation
-    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
-  }
 }
 
 - (void)goToAttributesPage

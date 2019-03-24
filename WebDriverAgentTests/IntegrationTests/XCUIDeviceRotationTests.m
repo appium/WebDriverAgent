@@ -24,18 +24,18 @@
   [self launchApplication];
 }
 
+- (void)tearDown
+{
+  [self resetOrientation];
+  [super tearDown];
+}
+
 - (void)testLandscapeRightOrientation
 {
-  // retry helps to stabilize the test on Travis
-  for (int retry = 1; retry <= 2; retry++) {
-    BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeRight];
-    XCTAssertTrue(success, @"Device should support LandscapeRight");
-    // Device rotation gives opposite interface rotation
-    if (self.testedApplication.staticTexts[@"LandscapeLeft"].exists) {
-      return;
-    }
-  }
-  XCTFail(@"Device should support LandscapeRight");
+  BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeRight];
+  XCTAssertTrue(success, @"Device should support LandscapeRight");
+  // Device rotation gives opposite interface rotation
+  XCTAssertTrue(self.testedApplication.staticTexts[@"LandscapeLeft"].exists);
 }
 
 - (void)testLandscapeLeftOrientation

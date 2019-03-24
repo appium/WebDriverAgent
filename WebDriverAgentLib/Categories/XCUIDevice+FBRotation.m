@@ -11,7 +11,7 @@
 
 #import "XCUIElement+FBUtilities.h"
 
-//static const CGFloat FBRotationCoolOffTime = 1.f;
+static const CGFloat FBRotationCoolOffTime = 1.f;
 
 @implementation XCUIDevice (FBRotation)
 
@@ -36,12 +36,11 @@
 
 - (BOOL)waitUntilInterfaceIsAtOrientation:(NSInteger)orientation application:(FBApplication *)application
 {
-  [application fb_waitUntilSnapshotIsStable];
-//  if ([application fb_waitUntilSnapshotIsStable]) {
-//    // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
-//    // We should wait till UI cools off, before continuing
-//    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBRotationCoolOffTime]];
-//  }
+  if ([application fb_waitUntilSnapshotIsStable]) {
+    // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
+    // We should wait till UI cools off, before continuing
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBRotationCoolOffTime]];
+  }
 
   return application.interfaceOrientation == orientation;
 }

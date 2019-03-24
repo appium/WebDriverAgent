@@ -64,4 +64,9 @@ extern NSString *const FBShowAlertForceTouchButtonName;
  */
 - (void)clearAlert;
 
+/**
+ Resets device orientation to portrait mode
+ */
+- (void)resetOrientation;
+
 @end
