@@ -117,7 +117,7 @@
 
 #pragma mark - Helpers
 
-+ (BOOL) isKeyboardPresent {
++ (BOOL)isKeyboardPresent {
   XCUIElement *foundKeyboard = [[FBApplication fb_activeApplication].query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
   return foundKeyboard && foundKeyboard.fb_isVisible;
 }

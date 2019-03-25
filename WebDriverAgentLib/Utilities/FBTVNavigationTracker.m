@@ -13,6 +13,7 @@
 #import "FBMathUtils.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCUIApplication+FBHelpers.h"
 
 #if TARGET_OS_TV
 
@@ -70,7 +71,7 @@
 
 - (FBTVDirection)directionToFocusedElement
 {
-  XCUIElement *focused = self.focusedElement;
+  XCUIElement *focused = FBApplication.fb_activeApplication.fb_focusedElement;
 
   CGPoint focusedCenter = FBRectGetCenter(focused.wdFrame);
   FBTVNavigationItem *item = [self navigationItemWithElement:focused];
@@ -93,12 +94,6 @@
 }
 
 #pragma mark - Utilities
-- (XCUIElement *)focusedElement
-{
-  XCUIElementQuery *query = [FBApplication.fb_activeApplication descendantsMatchingType:XCUIElementTypeAny];
-  return [query elementMatchingPredicate: [NSPredicate predicateWithFormat:@"hasFocus == true"]];
-}
-
 - (FBTVNavigationItem*)navigationItemWithElement:(id<FBElement>)element
 {
   NSNumber *key = [NSNumber numberWithUnsignedInteger:element.wdUID];

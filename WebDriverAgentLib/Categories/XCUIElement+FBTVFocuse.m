@@ -26,7 +26,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 {
   [FBApplication.fb_activeApplication fb_waitUntilSnapshotIsStable];
 
-  if (!self.isEnabled) {
+  if (!self.wdEnabled) {
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:
                  [NSString stringWithFormat:@"'%@' element cannot be focused because it is disabled", self.description]] build];
@@ -36,7 +36,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:self];
   for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
-    // Here's hasFocus works so far. Maybe, it is because here is handled by `XCUIRemote`...
+    // Here hasFocus works so far. Maybe, it is because it is handled by `XCUIRemote`...
     if (self.hasFocus) {
       return YES;
     }

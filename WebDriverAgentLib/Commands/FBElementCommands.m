@@ -68,9 +68,8 @@
     [[FBRoute GET:@"/wda/element/:uuid/accessible"] respondWithTarget:self action:@selector(handleGetAccessible:)],
     [[FBRoute GET:@"/wda/element/:uuid/accessibilityContainer"] respondWithTarget:self action:@selector(handleGetIsAccessibilityContainer:)],
 #if TARGET_OS_TV
-    [[FBRoute POST:@"/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
-    [[FBRoute GET:@"/element/:uuid/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
     [[FBRoute GET:@"/element/:uuid/attribute/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
+    [[FBRoute POST:@"/wda/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
 #else
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
@@ -224,10 +223,10 @@
 {
   // `BOOL isFocused = [elementCache elementForUUID:request.parameters[@"uuid"]];`
   // returns wrong true/false after moving focus by key up/down, for example.
-  // Thus, ensure the focus comparing the status with `fb_focusedElement`.
+  // Thus, ensure the focus compares the status with `fb_focusedElement`.
   BOOL isFocused = false;
   XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
-  if (nil != focusedElement) {
+  if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
     NSString *focusedUUID = [elementCache storeElement:focusedElement];
     if ([focusedUUID isEqualToString:request.parameters[@"uuid"]]) {
@@ -244,6 +243,11 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:elementUUID];
   NSError *error;
+
+  if (!element) {
+    return FBResponseWithErrorFormat(@"'%@' element uuid didn't match any elements. Try find element again.",
+                                     elementUUID);
+  }
 
   if (![element fb_setFocusWithError:&error]) {
     return FBResponseWithError(error);
