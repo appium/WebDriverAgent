@@ -48,7 +48,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
     [[FBRoute POST:@"/element/:uuid/elements"] respondWithTarget:self action:@selector(handleFindSubElements:)],
     [[FBRoute GET:@"/wda/element/:uuid/getVisibleCells"] respondWithTarget:self action:@selector(handleFindVisibleCells:)],
 #if TARGET_OS_TV
-    [[FBRoute GET:@"/wda/element/focused"] respondWithTarget:self action:@selector(handleFindFocusedElement:)],
+    [[FBRoute GET:@"/wda/element/focused"] respondWithTarget:self action:@selector(handleGetFocusedElement:)],
 #endif
   ];
 }
@@ -121,7 +121,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 }
 
 #if TARGET_OS_TV
-+ (id<FBResponsePayload>)handleFindFocusedElement:(FBRouteRequest *)request
++ (id<FBResponsePayload>)handleGetFocusedElement:(FBRouteRequest *)request
 {
   XCUIElement *element = request.session.activeApplication.fb_focusedElement;
   if (nil == element) {
