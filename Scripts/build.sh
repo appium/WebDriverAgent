@@ -8,7 +8,7 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 #
 
-set -e
+set -ex
 
 function define_xc_macros() {
   XC_MACROS="CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
@@ -22,9 +22,9 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="name=$IPHONE_MODEL,OS=$IOS_VERSION";;
-    "ipad" ) XC_DESTINATION="name=$IPAD_MODEL,OS=$IOS_VERSION";;
-    "tv" ) XC_DESTINATION="name=$TV_MODEL,OS=$TV_VERSION";;
+    "iphone" ) XC_DESTINATION="name=$IPHONE_MODEL\,OS=$IOS_VERSION";;
+    "ipad" ) XC_DESTINATION="name=$IPAD_MODEL\,OS=$IOS_VERSION";;
+    "tv" ) XC_DESTINATION="name=$TV_MODEL\,OS=$TV_VERSION";;
   esac
 
   case "$ACTION" in
@@ -34,7 +34,6 @@ function define_xc_macros() {
       XC_MACROS="${XC_MACROS} CLANG_ANALYZER_OUTPUT=plist-html CLANG_ANALYZER_OUTPUT_DIR=\"$(pwd)/clang\""
     ;;
     "unit_test" ) XC_ACTION="test -only-testing:UnitTests";;
-    *) echo "Unknown ACTION"; exit 1 ;;
   esac
 
   case "$SDK" in
@@ -58,8 +57,8 @@ function analyze() {
 
 function xcbuild() {
     destination=""
-    if [ -n "$XC_DESTINATION" ]; then
-      destination="-destination \"$XC_DESTINATION\""
+    if [[ -n "$XC_DESTINATION" ]]; then
+      destination="-destination $XC_DESTINATION"
     fi
 
     xcodebuild \
@@ -67,13 +66,13 @@ function xcbuild() {
       -scheme "$XC_TARGET" \
       -sdk "$XC_SDK" \
       $destination \
-      "$XC_ACTION" \
-      "$XC_MACROS" \
+      $XC_ACTION \
+      $XC_MACROS \
     | xcpretty && exit ${PIPESTATUS[0]}
 }
 
 function fastlane_test() {
-  if [ -n "$XC_DESTINATION" ]; then
+  if [[ -n "$XC_DESTINATION" ]]; then
     SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
   else
     SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test

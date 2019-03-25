@@ -1,7 +1,7 @@
 XC_PROJECT = File.absolute_path('../WebDriverAgent.xcodeproj')
 RETRIES = 3
 
-lane :sweep do
+lane :test do
   test_run_block = lambda do |testrun_info|
     failed_test_count = testrun_info[:failed].size
 
