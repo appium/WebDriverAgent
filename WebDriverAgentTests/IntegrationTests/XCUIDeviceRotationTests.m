@@ -30,8 +30,7 @@
   [super tearDown];
 }
 
-// The test is flaky on Travis
-- (void)disabled_testLandscapeRightOrientation
+- (void)testLandscapeRightOrientation
 {
   BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeRight];
   XCTAssertTrue(success, @"Device should support LandscapeRight");
@@ -47,8 +46,7 @@
   XCTAssertTrue(self.testedApplication.staticTexts[@"LandscapeRight"].exists);
 }
 
-// The test is flaky on Travis
-- (void)disabled_testLandscapeRightRotation
+- (void)testLandscapeRightRotation
 {
   BOOL success = [[XCUIDevice sharedDevice] fb_setDeviceRotation:@{
     @"x" : @(0),

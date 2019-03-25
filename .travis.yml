@@ -9,9 +9,8 @@ cache:
 before_install:
 - |
   if [[ $ACTION == int_test* ]]; then
-    rvm install 2.3.3
-    rvm use 2.3.3
-    gem install bundler
+    rvm install 2.6.2
+    rvm use 2.6.2
     bundle install
   fi
 
