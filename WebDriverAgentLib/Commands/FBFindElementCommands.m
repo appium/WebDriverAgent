@@ -124,10 +124,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleGetFocusedElement:(FBRouteRequest *)request
 {
   XCUIElement *element = request.session.activeApplication.fb_focusedElement;
-  if (nil == element) {
-    return FBNoSuchElementErrorResponseForRequest(request);
-  }
-  return FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return element == nil
+    ? FBNoSuchElementErrorResponseForRequest(request)
+    : FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }
 #endif
 

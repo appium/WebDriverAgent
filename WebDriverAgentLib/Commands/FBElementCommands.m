@@ -224,13 +224,13 @@
   // `BOOL isFocused = [elementCache elementForUUID:request.parameters[@"uuid"]];`
   // returns wrong true/false after moving focus by key up/down, for example.
   // Thus, ensure the focus compares the status with `fb_focusedElement`.
-  BOOL isFocused = false;
+  BOOL isFocused = NO;
   XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
   if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
     NSString *focusedUUID = [elementCache storeElement:focusedElement];
     if ([focusedUUID isEqualToString:request.parameters[@"uuid"]]) {
-      isFocused = true;
+      isFocused = YES;
     }
   }
 
@@ -245,7 +245,7 @@
   NSError *error;
 
   if (!element) {
-    return FBResponseWithErrorFormat(@"'%@' element uuid didn't match any elements. Try find element again.",
+    return FBResponseWithErrorFormat(@"'%@' element uuid didn't match any elements. Try find the element again.",
                                      elementUUID);
   }
 
