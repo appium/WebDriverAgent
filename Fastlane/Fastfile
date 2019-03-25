@@ -11,7 +11,6 @@ lane :test do
       try_attempt = testrun_info[:try_count]
       if try_attempt < RETRIES
         UI.header("Re-running failing tests (attempt #{try_attempt} of #{RETRIES})")
-        clear_derived_data
         reset_simulator_contents
       end
     end
