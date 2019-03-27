@@ -39,8 +39,8 @@ function define_xc_macros() {
   case "$SDK" in
     "sim" ) XC_SDK="iphonesimulator";;
     "device" ) XC_SDK="iphoneos";;
-    "tv_sim" ) XC_SDK="appletvos";;
-    "tv_device" ) XC_SDK="appletvsimulator";;
+    "tv_sim" ) XC_SDK="appletvsimulator";;
+    "tv_device" ) XC_SDK="appletvos";;
     *) echo "Unknown SDK"; exit 1 ;;
   esac
 }
