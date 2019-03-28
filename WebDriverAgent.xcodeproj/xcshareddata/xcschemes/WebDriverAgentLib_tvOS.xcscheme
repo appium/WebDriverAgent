@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "641EE2C42240BAB800173FCB"
+               BlueprintIdentifier = "641EE5D52240C5CA00173FCB"
                BuildableName = "WebDriverAgentLib_tvOS.framework"
                BlueprintName = "WebDriverAgentLib_tvOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "641EE2C42240BAB800173FCB"
+            BlueprintIdentifier = "641EE5D52240C5CA00173FCB"
             BuildableName = "WebDriverAgentLib_tvOS.framework"
             BlueprintName = "WebDriverAgentLib_tvOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
@@ -63,7 +63,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "641EE2C42240BAB800173FCB"
+            BlueprintIdentifier = "641EE5D52240C5CA00173FCB"
             BuildableName = "WebDriverAgentLib_tvOS.framework"
             BlueprintName = "WebDriverAgentLib_tvOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
