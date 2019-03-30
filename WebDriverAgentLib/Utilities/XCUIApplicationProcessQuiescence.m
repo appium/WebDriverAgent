@@ -29,7 +29,7 @@ static BOOL isWaitForQuiescence = NO;
   }
 }
 
-+ (void)setQuiescenceCheck:(BOOL)value;
++ (void)setQuiescenceCheck:(BOOL)value
 {
   isWaitForQuiescence = value;
 }
