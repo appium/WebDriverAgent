@@ -20,6 +20,7 @@
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 #import "FBXCAXClientProxy.h"
+#import "XCUIApplicationProcessQuiescence.h"
 
 @interface FBApplication ()
 @property (nonatomic, assign) BOOL fb_isObservingAppImplCurrentProcess;
@@ -89,10 +90,7 @@
 
 - (void)launch
 {
-  if (!self.fb_shouldWaitForQuiescence && ![FBXCAXClientProxy.sharedClient hasProcessTracker]) {
-    [self.fb_appImpl addObserver:self forKeyPath:FBStringify(XCUIApplicationImpl, currentProcess) options:(NSKeyValueObservingOptions)(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew) context:nil];
-    self.fb_isObservingAppImplCurrentProcess = YES;
-  }
+  [XCUIApplicationProcessQuiescence setQuiescenceCheck:self.fb_shouldWaitForQuiescence];
   [super launch];
   [FBApplication fb_registerApplication:self withProcessID:self.processID];
 }
