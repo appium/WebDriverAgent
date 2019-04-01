@@ -231,6 +231,15 @@ static bool fb_isLocked;
   [supportedButtonNames addObject:@"volumeUp"];
   [supportedButtonNames addObject:@"volumeDown"];
 #endif
+
+#if TARGET_OS_TV
+  if ([buttonName.lowercaseString isEqualToString:@"menu"]) {
+    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
+    return YES;
+  }
+  [supportedButtonNames addObject:@"menu"];
+#endif
+
   if (dstButton == 0) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
