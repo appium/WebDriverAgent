@@ -39,14 +39,14 @@ static bool fb_isLocked;
 + (void)fb_registerAppforDetectLockState
 {
   int notify_token;
-  #pragma clang diagnostic push
-  #pragma clang diagnostic ignored "-Wstrict-prototypes"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
   notify_register_dispatch("com.apple.springboard.lockstate", &notify_token, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(int token) {
     uint64_t state = UINT64_MAX;
     notify_get_state(token, &state);
     fb_isLocked = state != 0;
   });
-  #pragma clang diagnostic pop
+#pragma clang diagnostic pop
 }
 
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error
@@ -174,7 +174,7 @@ static bool fb_isLocked;
              withDescriptionFormat:@"'%@' is not a valid URL", url]
             buildError:error];
   }
-  
+
   id siriService = [self valueForKey:@"siriService"];
   if (nil != siriService) {
     return [self fb_activateSiriVoiceRecognitionWithText:[NSString stringWithFormat:@"Open {%@}", url] error:error];
@@ -213,6 +213,62 @@ static bool fb_isLocked;
   }
 }
 
+#if TARGET_OS_TV
+- (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
+{
+  NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
+  XCUIRemoteButton remoteButton = 0;
+  if ([buttonName.lowercaseString isEqualToString:@"home"]) {
+    remoteButton = XCUIRemoteButtonHome;
+  }
+  [supportedButtonNames addObject:@"home"];
+
+  // https://developer.apple.com/design/human-interface-guidelines/tvos/remote-and-controllers/remote/
+  if ([buttonName.lowercaseString isEqualToString:@"up"]) {
+    remoteButton = XCUIRemoteButtonUp;
+  }
+  [supportedButtonNames addObject:@"up"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"down"]) {
+    remoteButton = XCUIRemoteButtonDown;
+  }
+  [supportedButtonNames addObject:@"down"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"left"]) {
+    remoteButton = XCUIRemoteButtonLeft;
+  }
+  [supportedButtonNames addObject:@"left"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"right"]) {
+    remoteButton = XCUIRemoteButtonRight;
+  }
+  [supportedButtonNames addObject:@"right"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"menu"]) {
+    remoteButton = XCUIRemoteButtonMenu;
+  }
+  [supportedButtonNames addObject:@"menu"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"playpause"]) {
+    remoteButton = XCUIRemoteButtonPlayPause;
+  }
+  [supportedButtonNames addObject:@"playpause"];
+
+  if ([buttonName.lowercaseString isEqualToString:@"select"]) {
+    remoteButton = XCUIRemoteButtonSelect;
+  }
+  [supportedButtonNames addObject:@"select"];
+
+  if (remoteButton == 0) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
+            buildError:error];
+  }
+  [[XCUIRemote sharedRemote] pressButton:remoteButton];
+  return YES;
+}
+#else
+
 - (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
 {
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
@@ -232,14 +288,6 @@ static bool fb_isLocked;
   [supportedButtonNames addObject:@"volumeDown"];
 #endif
 
-#if TARGET_OS_TV
-  if ([buttonName.lowercaseString isEqualToString:@"menu"]) {
-    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
-    return YES;
-  }
-  [supportedButtonNames addObject:@"menu"];
-#endif
-
   if (dstButton == 0) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
@@ -248,5 +296,6 @@ static bool fb_isLocked;
   [self pressButton:dstButton];
   return YES;
 }
+#endif
 
 @end
