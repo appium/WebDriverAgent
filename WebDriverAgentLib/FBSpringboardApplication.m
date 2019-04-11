@@ -144,7 +144,7 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
 {
   [self resolve];
 #if TARGET_OS_TV
-  // TODO: Make sure the precise locator has been selected
+  // GridCollectionView works for simulator and real device so far
   return self.collectionViews[@"GridCollectionView"].isEnabled;
 #else
   // the dock (and other icons) don't seem to be consistently reported as
