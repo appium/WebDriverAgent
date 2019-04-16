@@ -217,7 +217,7 @@ static bool fb_isLocked;
 - (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
 {
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
-  NSInteger remoteButton = 100; // no remote button
+  NSInteger remoteButton = -1; // no remote button
   if ([buttonName.lowercaseString isEqualToString:@"home"]) {
     //  XCUIRemoteButtonHome        = 7
     remoteButton = XCUIRemoteButtonHome;
@@ -267,7 +267,7 @@ static bool fb_isLocked;
   }
   [supportedButtonNames addObject:@"select"];
 
-  if (remoteButton == 100) {
+  if (remoteButton == -1) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
             buildError:error];
