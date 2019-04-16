@@ -217,49 +217,57 @@ static bool fb_isLocked;
 - (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
 {
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
-  XCUIRemoteButton remoteButton = 0;
+  NSInteger remoteButton = 100; // no remote button
   if ([buttonName.lowercaseString isEqualToString:@"home"]) {
+    //  XCUIRemoteButtonHome        = 7
     remoteButton = XCUIRemoteButtonHome;
   }
   [supportedButtonNames addObject:@"home"];
 
   // https://developer.apple.com/design/human-interface-guidelines/tvos/remote-and-controllers/remote/
   if ([buttonName.lowercaseString isEqualToString:@"up"]) {
+    //  XCUIRemoteButtonUp          = 0,
     remoteButton = XCUIRemoteButtonUp;
   }
   [supportedButtonNames addObject:@"up"];
 
   if ([buttonName.lowercaseString isEqualToString:@"down"]) {
+    //  XCUIRemoteButtonDown        = 1,
     remoteButton = XCUIRemoteButtonDown;
   }
   [supportedButtonNames addObject:@"down"];
 
   if ([buttonName.lowercaseString isEqualToString:@"left"]) {
+    //  XCUIRemoteButtonLeft        = 2,
     remoteButton = XCUIRemoteButtonLeft;
   }
   [supportedButtonNames addObject:@"left"];
 
   if ([buttonName.lowercaseString isEqualToString:@"right"]) {
+    //  XCUIRemoteButtonRight       = 3,
     remoteButton = XCUIRemoteButtonRight;
   }
   [supportedButtonNames addObject:@"right"];
 
   if ([buttonName.lowercaseString isEqualToString:@"menu"]) {
+    //  XCUIRemoteButtonMenu        = 5,
     remoteButton = XCUIRemoteButtonMenu;
   }
   [supportedButtonNames addObject:@"menu"];
 
   if ([buttonName.lowercaseString isEqualToString:@"playpause"]) {
+    //  XCUIRemoteButtonPlayPause   = 6,
     remoteButton = XCUIRemoteButtonPlayPause;
   }
   [supportedButtonNames addObject:@"playpause"];
 
   if ([buttonName.lowercaseString isEqualToString:@"select"]) {
+    //  XCUIRemoteButtonSelect      = 4,
     remoteButton = XCUIRemoteButtonSelect;
   }
   [supportedButtonNames addObject:@"select"];
 
-  if (remoteButton == 0) {
+  if (remoteButton == 100) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
             buildError:error];
