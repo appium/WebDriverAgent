@@ -42,11 +42,23 @@ function print_usage() {
   echo $'\t -h print this help'
 }
 
+function join_by {
+  local IFS="$1"; shift; echo "$*";
+}
+
 function fetch_and_build_dependencies() {
   echo -e "${BOLD}Fetching dependencies"
   assert_has_carthage
   if ! cmp -s Cartfile.resolved Carthage/Cartfile.resolved; then
-    carthage bootstrap $USE_SSH
+    runtimes_with_devices=`xcrun simctl list -j devices available | python -c "import sys,json;print(' '.join(map(lambda x: x[0], filter(lambda x: len(x[1]) > 0, json.load(sys.stdin)['devices'].items()))))"`
+    platforms=(iOS)
+    if echo "$runtimes_with_devices" | grep -q tvOS; then
+      platforms+=(tvOS)
+    else
+      echo "tvOS platform will not be included into Carthage bootstrap, because no Simulator devices have been created for it"
+    fi
+    platform_str=$(join_by , "${platforms[@]}")
+    carthage bootstrap $USE_SSH --platform "$platform_str"
     cp Cartfile.resolved Carthage
   fi
 
