@@ -2521,7 +2521,6 @@
 					};
 					64B264F8228C50E0002A5025 = {
 						CreatedOnToolsVersion = 10.2.1;
-						ProvisioningStyle = Automatic;
 					};
 					EE158A981CBD452B00A3E3F0 = {
 						CreatedOnToolsVersion = 7.3;
