@@ -108,3 +108,8 @@ matrix:
     - os: osx
       osx_image: xcode10.2
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=analyze TARGET=tv_runner SDK=tv_sim
+    # Unit tests
+    - os: osx
+      osx_image: xcode10.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=tv_unit_test TARGET=tv_lib SDK=sim
+

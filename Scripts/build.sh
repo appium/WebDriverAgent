@@ -34,6 +34,7 @@ function define_xc_macros() {
       XC_MACROS="${XC_MACROS} CLANG_ANALYZER_OUTPUT=plist-html CLANG_ANALYZER_OUTPUT_DIR=\"$(pwd)/clang\""
     ;;
     "unit_test" ) XC_ACTION="test -only-testing:UnitTests";;
+    "tv_unit_test" ) XC_ACTION="test -only-testing:UnitTests_tvOS";;
   esac
 
   case "$SDK" in
