@@ -32,7 +32,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "64B264E6228C4D54002A5025"
+               BlueprintIdentifier = "64B264F8228C50E0002A5025"
                BuildableName = "UnitTests_tvOS.xctest"
                BlueprintName = "UnitTests_tvOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
