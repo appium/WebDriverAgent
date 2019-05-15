@@ -303,6 +303,8 @@
 		641EE70F2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 641EE70D2240CE4800173FCB /* FBTVNavigationTracker.m */; };
 		641EE7172240DE8C00173FCB /* RoutingHTTPServer.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 641EE7122240DE5E00173FCB /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		641EE7192240DFC100173FCB /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE7122240DE5E00173FCB /* RoutingHTTPServer.framework */; };
+		64B264EA228C4D54002A5025 /* WebDriverAgentLib_tvOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B264E9228C4D54002A5025 /* WebDriverAgentLib_tvOSTests.swift */; };
+		64B264EC228C4D54002A5025 /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		7101820E211E1E19002FD3A8 /* CocoaAsyncSocket.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7101820F211E3EC9002FD3A8 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		710C16CD21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h in Headers */ = {isa = PBXBuildFile; fileRef = 710C16CB21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h */; };
@@ -679,6 +681,13 @@
 			remoteGlobalIDString = 641EE5D52240C5CA00173FCB;
 			remoteInfo = WebDriverAgentLib_tvOS;
 		};
+		64B264ED228C4D54002A5025 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 641EE5D52240C5CA00173FCB;
+			remoteInfo = WebDriverAgentLib_tvOS;
+		};
 		AD8D96F01D3C12960061268E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
@@ -813,6 +822,9 @@
 		641EE70D2240CE4800173FCB /* FBTVNavigationTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTVNavigationTracker.m; sourceTree = "<group>"; };
 		641EE7122240DE5E00173FCB /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoutingHTTPServer.framework; path = Carthage/Build/tvOS/RoutingHTTPServer.framework; sourceTree = "<group>"; };
 		641EE73A2240F49D00173FCB /* YYCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = YYCache.framework; path = Carthage/Build/tvOS/YYCache.framework; sourceTree = "<group>"; };
+		64B264E7228C4D54002A5025 /* UnitTests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		64B264E9228C4D54002A5025 /* WebDriverAgentLib_tvOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverAgentLib_tvOSTests.swift; sourceTree = "<group>"; };
+		64B264EB228C4D54002A5025 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		710181F7211DF584002FD3A8 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaAsyncSocket.framework; path = Carthage/Build/iOS/CocoaAsyncSocket.framework; sourceTree = "<group>"; };
 		710C16CB21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCAccessibilityElement+FBComparison.h"; sourceTree = "<group>"; };
 		710C16CC21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCAccessibilityElement+FBComparison.m"; sourceTree = "<group>"; };
@@ -1205,6 +1217,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		64B264E4228C4D54002A5025 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64B264EC228C4D54002A5025 /* WebDriverAgentLib_tvOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE158A951CBD452B00A3E3F0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1282,6 +1302,15 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		64B264E8228C4D54002A5025 /* UnitTests_tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				64B264E9228C4D54002A5025 /* WebDriverAgentLib_tvOSTests.swift */,
+				64B264EB228C4D54002A5025 /* Info.plist */,
+			);
+			path = UnitTests_tvOS;
+			sourceTree = "<group>";
+		};
 		716C9340224D5358004B8542 /* tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1341,6 +1370,7 @@
 				EE22021C1ECC612200A29571 /* IntegrationTests_3.xctest */,
 				641EE2DA2240BBE300173FCB /* WebDriverAgentRunner_tvOS.xctest */,
 				641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */,
+				64B264E7228C4D54002A5025 /* UnitTests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1599,6 +1629,7 @@
 		EE9B75F91CF7964100275851 /* WebDriverAgentTests */ = {
 			isa = PBXGroup;
 			children = (
+				64B264E8228C4D54002A5025 /* UnitTests_tvOS */,
 				EE9B76801CF7997600275851 /* IntegrationApp */,
 				EE9B76541CF7987300275851 /* IntegrationTests */,
 				EE9B76561CF7987300275851 /* UnitTests */,
@@ -2311,6 +2342,24 @@
 			productReference = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		64B264E6228C4D54002A5025 /* UnitTests_tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 64B264F1228C4D54002A5025 /* Build configuration list for PBXNativeTarget "UnitTests_tvOS" */;
+			buildPhases = (
+				64B264E3228C4D54002A5025 /* Sources */,
+				64B264E4228C4D54002A5025 /* Frameworks */,
+				64B264E5228C4D54002A5025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				64B264EE228C4D54002A5025 /* PBXTargetDependency */,
+			);
+			name = UnitTests_tvOS;
+			productName = WebDriverAgentLib_tvOSTests;
+			productReference = 64B264E7228C4D54002A5025 /* UnitTests_tvOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		EE158A981CBD452B00A3E3F0 /* WebDriverAgentLib */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EE158AA01CBD452B00A3E3F0 /* Build configuration list for PBXNativeTarget "WebDriverAgentLib" */;
@@ -2447,7 +2496,7 @@
 		91F9DAE11B99DBC2001349B2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0730;
+				LastSwiftUpdateCheck = 1020;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
@@ -2456,6 +2505,10 @@
 					};
 					641EE5D52240C5CA00173FCB = {
 						ProvisioningStyle = Manual;
+					};
+					64B264E6228C4D54002A5025 = {
+						CreatedOnToolsVersion = 10.2.1;
+						ProvisioningStyle = Automatic;
 					};
 					EE158A981CBD452B00A3E3F0 = {
 						CreatedOnToolsVersion = 7.3;
@@ -2494,6 +2547,7 @@
 				EEF988291C486603005CA669 /* WebDriverAgentRunner */,
 				641EE2D92240BBE300173FCB /* WebDriverAgentRunner_tvOS */,
 				EE836C011C0F118600D87246 /* UnitTests */,
+				64B264E6228C4D54002A5025 /* UnitTests_tvOS */,
 				EE9B75EB1CF7956C00275851 /* IntegrationTests_1 */,
 				EE5095DD1EBCC9090028E2FE /* IntegrationTests_2 */,
 				EE2202031ECC612200A29571 /* IntegrationTests_3 */,
@@ -2515,6 +2569,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				641EE6F02240C5CA00173FCB /* WebDriverAgent.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64B264E5228C4D54002A5025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2668,6 +2729,14 @@
 				641EE6252240C5CA00173FCB /* XCUIElement+FBTap.m in Sources */,
 				641EE6262240C5CA00173FCB /* FBMathUtils.m in Sources */,
 				641EE6272240C5CA00173FCB /* FBXCAXClientProxy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64B264E3228C4D54002A5025 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64B264EA228C4D54002A5025 /* WebDriverAgentLib_tvOSTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2877,6 +2946,11 @@
 			target = 641EE5D52240C5CA00173FCB /* WebDriverAgentLib_tvOS */;
 			targetProxy = 641EE6FA2240C5F400173FCB /* PBXContainerItemProxy */;
 		};
+		64B264EE228C4D54002A5025 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 641EE5D52240C5CA00173FCB /* WebDriverAgentLib_tvOS */;
+			targetProxy = 64B264ED228C4D54002A5025 /* PBXContainerItemProxy */;
+		};
 		AD8D96F11D3C12960061268E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EE158A981CBD452B00A3E3F0 /* WebDriverAgentLib */;
@@ -3045,6 +3119,63 @@
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		64B264EF228C4D54002A5025 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.wda.unitTests-tvOS.WebDriverAgentLib-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		64B264F0228C4D54002A5025 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.wda.unitTests-tvOS.WebDriverAgentLib-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = appletvos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -3456,6 +3587,15 @@
 			buildConfigurations = (
 				641EE6F62240C5CA00173FCB /* Debug */,
 				641EE6F72240C5CA00173FCB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		64B264F1228C4D54002A5025 /* Build configuration list for PBXNativeTarget "UnitTests_tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64B264EF228C4D54002A5025 /* Debug */,
+				64B264F0228C4D54002A5025 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
