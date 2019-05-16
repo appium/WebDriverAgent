@@ -8,6 +8,7 @@
  */
 
 #import "FBTVNavigationTracker.h"
+#import "FBTVNavigationTracker-Private.h"
 
 #import "FBApplication.h"
 #import "FBMathUtils.h"

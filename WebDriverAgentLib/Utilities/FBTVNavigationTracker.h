@@ -25,16 +25,8 @@ typedef NS_ENUM(NSUInteger, FBTVDirection) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- Define for testing: FBTVNavigationItem
- */
 @interface FBTVNavigationItem : NSObject
-@property (nonatomic, readonly) NSUInteger uid;
-@property (nonatomic, readonly) NSMutableSet<NSNumber *>* directions;
-
-+ (instancetype)itemWithUid:(NSUInteger) uid;
 @end
-// end for testing
 
 @interface FBTVNavigationTracker : NSObject
 
@@ -53,13 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
  @return FBTVDirection to move the focus to
  */
 - (FBTVDirection)directionToFocusedElement;
-
-/**
- Define for testing: horizontalDirectionWithItem, verticalDirectionWithItem
- */
-- (FBTVDirection)horizontalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta;
-- (FBTVDirection)verticalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta;
-// end for testing
 
 @end
 

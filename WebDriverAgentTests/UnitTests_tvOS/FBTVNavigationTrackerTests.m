@@ -11,6 +11,7 @@
 
 #import "XCUIElementDouble.h"
 #import "FBTVNavigationTracker.h"
+#import "FBTVNavigationTracker-Private.h"
 
 @interface FBTVNavigationTrackerTests : XCTestCase
 @end
