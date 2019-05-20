@@ -50,7 +50,7 @@ function fetch_and_build_dependencies() {
   echo -e "${BOLD}Fetching dependencies"
   assert_has_carthage
   if ! cmp -s Cartfile.resolved Carthage/Cartfile.resolved; then
-    runtimes_with_devices=`xcrun simctl list -j devices | python -c "import sys,json;print(' '.join(map(lambda x: x[0], filter(lambda x: len(filter(lambda y: y.get('availability') == '(available)', x[1])) > 0, json.load(sys.stdin)['devices'].items()))))"`
+    runtimes_with_devices=`xcrun simctl list -j devices | python -c "import sys,json;print(' '.join(map(lambda x: x[0], filter(lambda x: len([y for y in x[1] if y.get('availability') == '(available)']) > 0, json.load(sys.stdin)['devices'].items()))))"`
     platforms=(iOS)
     if echo "$runtimes_with_devices" | grep -q tvOS; then
       platforms+=(tvOS)
