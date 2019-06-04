@@ -36,9 +36,8 @@ const CARTFILE = 'Cartfile.resolved';
 const CARTHAGE_ROOT = 'Carthage';
 
 async function hasTvOSSims () {
-  let devices = await getDevices();
-  devices = _.flatten(Object.values(devices)).filter((d) => d.isAvailable && d.platform === TVOS);
-  return !!devices.length;
+  const devices = _.flatten(Object.values(await getDevices(null, TVOS)));
+  return !_.isEmpty(devices);
 }
 
 function getCartfileLocations () {
@@ -74,6 +73,7 @@ async function needsUpdate (cartfile, installedCartfile) {
 }
 
 async function fetchDependencies (useSsl = false) {
+  log.info('Fetching dependencies');
   if (!await fs.which(CARTHAGE_CMD)) {
     log.errorAndThrow('Please make sure that you have Carthage installed (https://github.com/Carthage/Carthage)');
   }
