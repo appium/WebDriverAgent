@@ -51,3 +51,6 @@ Modules/module.modulemap
 
 # test run
 *.trace
+
+# node stuff
+node_modules
