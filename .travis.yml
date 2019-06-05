@@ -13,6 +13,7 @@ before_install:
       rvm use 2.6.2
       bundle install
     fi
+  - mkdir -p Resources/WebDriverAgent.bundle
 
 script: ./Scripts/build.sh
 
