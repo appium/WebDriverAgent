@@ -7,12 +7,12 @@ cache:
   - Inspector/node_modules
 
 before_install:
-- |
-  if [[ $ACTION == int_test* ]]; then
-    rvm install 2.6.2
-    rvm use 2.6.2
-    bundle install
-  fi
+  - |
+    if [[ $ACTION == int_test* ]]; then
+      rvm install 2.6.2
+      rvm use 2.6.2
+      bundle install
+    fi
 
 script: ./Scripts/build.sh
 
@@ -112,4 +112,3 @@ matrix:
     - os: osx
       osx_image: xcode10.2
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
-
