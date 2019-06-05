@@ -21,6 +21,7 @@
 #import "XCUIElement+FBScrolling.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
+#import "FBXCodeCompatibility.h"
 
 #if TARGET_OS_TV
 #import "XCUIElement+FBTVFocuse.h"
@@ -142,7 +143,7 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
 
 - (BOOL)fb_isApplicationBoardVisible
 {
-  [self resolve];
+  [self fb_nativeResolve];
 #if TARGET_OS_TV
   // GridCollectionView works for simulator and real device so far
   return self.collectionViews[@"GridCollectionView"].isEnabled;

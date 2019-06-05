@@ -326,7 +326,7 @@
                    timeout:2.0]
                   timeoutErrorMessage:@"Picker wheel value has not been changed after 2 seconds timeout"]
                  spinUntilTrue:^BOOL{
-                   [self.pickerWheel resolve];
+                   [self.pickerWheel fb_nativeResolve];
                    return ![self.pickerWheel.value isEqualToString:previousValue];
                  }
                  error:&error]);

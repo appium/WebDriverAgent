@@ -31,6 +31,8 @@
 
 - (unsigned long long)traits;
 - (void)resolveHandleUIInterruption:(BOOL)arg1;
+// !!! deprecated since Xcode 11.0
+// Do not call directly
 - (void)resolve;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;
@@ -41,6 +43,9 @@
 - (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
 - (void)forcePress;
 
+// Available since Xcode 11.0
+- (_Bool)resolveOrRaiseTestFailure:(_Bool)arg1 error:(id *)arg2;
+- (void)resolveOrRaiseTestFailure;
 // Available since Xcode 10.0
 - (id)screenshot;
 

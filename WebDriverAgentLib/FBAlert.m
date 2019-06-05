@@ -231,7 +231,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   if (!alert.exists) {
     return nil;
   }
-  [alert resolve];
+  [alert fb_nativeResolve];
   return alert;
 }
 

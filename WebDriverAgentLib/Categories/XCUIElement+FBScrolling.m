@@ -15,6 +15,7 @@
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBPredicate.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot.h"
@@ -83,7 +84,7 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
 - (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance scrollDirection:(FBXCUIElementScrollDirection)scrollDirection error:(NSError **)error
 {
-  [self resolve];
+  [self fb_nativeResolve];
   if (self.fb_isVisible) {
     return YES;
   }
@@ -161,7 +162,7 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
         [scrollView fb_scrollDownByNormalizedDistance:normalizedScrollDistance inApplication:self.application] :
         [scrollView fb_scrollRightByNormalizedDistance:normalizedScrollDistance inApplication:self.application];
     }
-    [self resolve]; // Resolve is needed for correct visibility
+    [self fb_nativeResolve]; // Resolve is needed for correct visibility
     scrollCount++;
   }
 

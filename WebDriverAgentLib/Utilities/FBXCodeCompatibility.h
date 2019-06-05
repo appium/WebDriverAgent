@@ -49,19 +49,28 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  */
 - (void)fb_activate;
 
-/**
- Use this method to check whether application activation is supported by the current iOS SDK.
-
- @return YES if application activation is supported.
- */
-- (BOOL)fb_isActivateSupported;
-
 @end
 
 @interface XCUIElementQuery (FBCompatibility)
 
 /* Performs short-circuit UI tree traversion in iOS 11+ to get the first element matched by the query. Equals to nil if no matching elements are found */
 @property(nullable, readonly) XCUIElement *fb_firstMatch;
+
+/**
+ Retrieves the snapshot for the given element
+
+ @returns The resolved snapshot
+ */
+- (XCElementSnapshot *)fb_elementSnapshotForDebugDescription;
+
+@end
+
+@interface XCUIElement (FBCompatibility)
+
+/**
+ Enforces snapshot resolution of the destination element
+ */
+- (void)fb_nativeResolve;
 
 @end
 

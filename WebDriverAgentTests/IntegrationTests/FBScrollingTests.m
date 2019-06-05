@@ -17,6 +17,7 @@
 #import "XCUIElement+FBScrolling.h"
 
 #import "XCUIElement+FBClassChain.h"
+#import "FBXCodeCompatibility.h"
 
 #define FBCellElementWithLabel(label) ([self.testedApplication descendantsMatchingType:XCUIElementTypeAny][label])
 #define FBAssertVisibleCell(label) FBAssertWaitTillBecomesTrue(FBCellElementWithLabel(label).fb_isVisible)
@@ -39,7 +40,7 @@
   [self launchApplication];
   [self goToScrollPageWithCells:YES];
   self.scrollView = [[self.testedApplication.query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"scrollView"].element;
-  [self.scrollView resolve];
+  [self.scrollView fb_nativeResolve];
 }
 
 - (void)testCellVisibility
@@ -101,7 +102,7 @@
   XCTAssertNil(error);
   XCTAssertTrue(element.fb_isVisible);
   [element tap];
-  [element resolve];
+  [element fb_nativeResolve];
   XCTAssertTrue(element.lastSnapshot.selected);
 }
 

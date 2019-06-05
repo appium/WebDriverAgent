@@ -16,6 +16,7 @@
 #import "XCUIElement+FBAccessibility.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "FBXCodeCompatibility.h"
 
 @interface FBElementAttributeTests : FBIntegrationTestCase
 @end
@@ -68,7 +69,7 @@
   XCTAssertEqualObjects(element.wdLabel, @"Button");
   XCTAssertNil(element.wdValue);
   [element tap];
-  [element resolve];
+  [element fb_nativeResolve];
   XCTAssertEqual(element.wdValue.boolValue, YES);
 }
 
@@ -141,7 +142,7 @@
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"1");
   [element tap];
-  [element resolve];
+  [element fb_nativeResolve];
   XCTAssertEqualObjects(element.wdValue, @"0");
 }
 

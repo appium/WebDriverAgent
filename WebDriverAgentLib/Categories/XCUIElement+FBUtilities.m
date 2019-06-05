@@ -71,7 +71,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_lastSnapshot
 {
-  return [self.query elementSnapshotForDebugDescription];
+  return [self.query fb_elementSnapshotForDebugDescription];
 }
 
 static const NSTimeInterval AX_TIMEOUT = 15.;
@@ -81,7 +81,7 @@ static const NSTimeInterval AX_TIMEOUT = 15.;
     return nil;
   }
   
-  [self resolve];
+  [self fb_nativeResolve];
   
   static NSDictionary *defaultParameters;
   static NSArray *axAttributes = nil;
