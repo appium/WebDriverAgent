@@ -18,6 +18,6 @@ gulp.task('clean:carthage', function cleanCarthage () {
 gulp.task('install:dependencies', gulp.series('transpile', 'clean:carthage', function installDependencies () {
   // we cannot require `fetchDependencies` at the top level because it has not
   // necessarily been transpiled at that point
-  const { fetchDependencies } = require('./build');
-  return fetchDependencies();
+  const { checkForDependencies } = require('./build');
+  return checkForDependencies();
 }));

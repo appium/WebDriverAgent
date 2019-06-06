@@ -35,6 +35,13 @@ const CARTHAGE_CMD = 'carthage';
 const CARTFILE = 'Cartfile.resolved';
 const CARTHAGE_ROOT = 'Carthage';
 
+const BOOTSTRAP_PATH = __dirname.endsWith('build')
+  ? path.resolve(__dirname, '..')
+  : __dirname;
+const WDA_BUNDLE_ID = 'com.apple.test.WebDriverAgentRunner-Runner';
+const WDA_RUNNER_BUNDLE_ID = 'com.facebook.WebDriverAgentRunner';
+const PROJECT_FILE = 'project.pbxproj';
+
 async function hasTvOSSims () {
   const devices = _.flatten(Object.values(await getDevices(null, TVOS)));
   return !_.isEmpty(devices);
@@ -70,6 +77,21 @@ async function needsUpdate (cartfile, installedCartfile) {
       reject(err);
     }
   });
+}
+
+async function adjustFileSystem () {
+  let areDependenciesUpdated = false;
+  if (!await fs.hasAccess(`${BOOTSTRAP_PATH}/Resources`)) {
+    log.debug('Creating WebDriverAgent resources directory');
+    await fs.mkdir(`${BOOTSTRAP_PATH}/Resources`);
+    areDependenciesUpdated = true;
+  }
+  if (!await fs.hasAccess(`${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`)) {
+    log.debug('Creating WebDriverAgent resource bundle directory');
+    await fs.mkdir(`${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`);
+    areDependenciesUpdated = true;
+  }
+  return areDependenciesUpdated;
 }
 
 async function fetchDependencies (useSsl = false) {
@@ -116,19 +138,16 @@ async function fetchDependencies (useSsl = false) {
   return true;
 }
 
+async function checkForDependencies (opts = {}) {
+  return await fetchDependencies(opts.useSsl) && await adjustFileSystem();
+}
+
 if (require.main === module) {
-  asyncify(fetchDependencies);
+  asyncify(checkForDependencies);
 }
 
 
-const BOOTSTRAP_PATH = __dirname.endsWith('build')
-  ? path.resolve(__dirname, '..')
-  : __dirname;
-const WDA_BUNDLE_ID = 'com.apple.test.WebDriverAgentRunner-Runner';
-const WDA_RUNNER_BUNDLE_ID = 'com.facebook.WebDriverAgentRunner';
-const PROJECT_FILE = 'project.pbxproj';
-
 export {
-  fetchDependencies, BOOTSTRAP_PATH, WDA_BUNDLE_ID, WDA_RUNNER_BUNDLE_ID,
+  checkForDependencies, BOOTSTRAP_PATH, WDA_BUNDLE_ID, WDA_RUNNER_BUNDLE_ID,
   PROJECT_FILE,
 };
