@@ -39,7 +39,7 @@
   return @"com.facebook.awesome";
 }
 
-- (void)resolve
+- (void)fb_nativeResolve
 {
 
 }

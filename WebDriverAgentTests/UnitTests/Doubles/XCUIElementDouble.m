@@ -48,7 +48,7 @@
   return @"test";
 }
 
-- (void)resolve
+- (void)fb_nativeResolve
 {
   self.didResolve = YES;
 }
