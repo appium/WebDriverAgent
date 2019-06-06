@@ -105,6 +105,42 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)shouldLoadSnapshotWithAttributes;
 
+/**
+ Configure keyboards preference to make test running stable
+ */
++ (void)configureKeyboardPreference;
+
+@end
+
+
+/**
+ * iOS-Runtime-Headers
+ * Text Input preferences controller to modify the keyboard preferences for iOS 8+.
+ */
+@interface TIPreferencesController : NSObject
+
+/**
+ Whether the autocorrection is enabled.
+ */
+@property BOOL autocorrectionEnabled;
+
+/** Whether the predication is enabled. */
+@property BOOL predictionEnabled;
+
+/**
+ The shared singleton instance.
+ */
++ (instancetype)sharedPreferencesController;
+
+/**
+ Synchronise the change to save it on disk.
+ */
+- (void)synchronizePreferences;
+
+/**
+ Modify the preference @c value by @c key.
+ */
+- (void)setValue:(NSValue *)value forPreferenceKey:(NSString *)key;
 @end
 
 NS_ASSUME_NONNULL_END

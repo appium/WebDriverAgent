@@ -15,6 +15,7 @@
 #import "FBXCodeCompatibility.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
+#include <dlfcn.h>
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
@@ -183,6 +184,41 @@ static NSUInteger FBMjpegScalingFactor = 100;
 {
   FBScreenshotQuality = quality;
 }
+
+// Works for Simulator and Real devices
++ (void)configureKeyboardPreference {
+  static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
+  static NSString *const controllerClassName = @"TIPreferencesController";
+  void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
+
+  Class controllerClass = NSClassFromString(controllerClassName);
+
+  TIPreferencesController *controller = [controllerClass sharedPreferencesController];
+  // Auto-Correction in Keyboards
+  if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
+    controller.autocorrectionEnabled = NO;
+  } else {
+    [controller setValue:@NO forPreferenceKey:@"KeyboardAutocorrection"];
+  }
+  // Predictive in Keyboards
+  if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
+    controller.predictionEnabled = NO;
+  } else {
+    [controller setValue:@NO forPreferenceKey:@"KeyboardPrediction"];
+  }
+
+  // To dismiss keyboard tutorial on iOS 11+ (iPad)
+  if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
+    [controller setValue:@YES forPreferenceKey:@"DidShowGestureKeyboardIntroduction"];
+  }
+  if (isSDKVersionGreaterThanOrEqualTo(@"13.0")) {
+    [controller setValue:@YES forPreferenceKey:@"DidShowContinuousPathIntroduction"];
+  }
+  [controller synchronizePreferences];
+
+  dlclose(handle);
+}
+
 
 #pragma mark Private
 
