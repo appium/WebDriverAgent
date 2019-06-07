@@ -186,7 +186,15 @@ static NSUInteger FBMjpegScalingFactor = 100;
 }
 
 // Works for Simulator and Real devices
-+ (void)configureKeyboardPreference {
++ (void)configureKeyboardPreferenceDefault {
+
+#if TARGET_OS_SIMULATOR
+  // Force toggle software keyboard on.
+  // This can avoid 'Keyboard is not present' error which can happen
+  // when send_keys are called by client
+  [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
+#endif
+
   static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
   static NSString *const controllerClassName = @"TIPreferencesController";
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
