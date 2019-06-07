@@ -27,6 +27,8 @@ static NSString* const MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
 static NSString* const MJPEG_SCALING_FACTOR = @"mjpegScalingFactor";
 static NSString* const MJPEG_COMPRESSION_FACTOR = @"mjpegCompressionFactor";
 static NSString* const SCREENSHOT_QUALITY = @"screenshotQuality";
+static NSString* const KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
+static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
 
 @implementation FBSessionCommands
 
@@ -242,6 +244,12 @@ static NSString* const SCREENSHOT_QUALITY = @"screenshotQuality";
   }
   if ([settings objectForKey:MJPEG_SCALING_FACTOR]) {
     [FBConfiguration setMjpegScalingFactor:[[settings objectForKey:MJPEG_SCALING_FACTOR] unsignedIntegerValue]];
+  }
+  if ([settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
+    [FBConfiguration setKeyboardAutocorrection:[[settings objectForKey:KEYBOARD_AUTOCORRECTION] boolValue]];
+  }
+  if ([settings objectForKey:KEYBOARD_PREDICTION]) {
+    [FBConfiguration setKeyboardPrediction:[[settings objectForKey:KEYBOARD_PREDICTION] boolValue]];
   }
 
   return [self handleGetSettings:request];

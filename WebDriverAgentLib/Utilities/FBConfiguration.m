@@ -21,6 +21,9 @@ static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
 static NSUInteger const DefaultPortRange = 100;
 
+static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
+static NSString *const controllerClassName = @"TIPreferencesController";
+
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
@@ -186,8 +189,8 @@ static NSUInteger FBMjpegScalingFactor = 100;
 }
 
 // Works for Simulator and Real devices
-+ (void)configureKeyboardPreferenceDefault {
-
++ (void)configureKeyboardsPreferenceDefault
+{
 #if TARGET_OS_SIMULATOR
   // Force toggle software keyboard on.
   // This can avoid 'Keyboard is not present' error which can happen
@@ -195,8 +198,6 @@ static NSUInteger FBMjpegScalingFactor = 100;
   [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
 #endif
 
-  static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
-  static NSString *const controllerClassName = @"TIPreferencesController";
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
 
   Class controllerClass = NSClassFromString(controllerClassName);
@@ -227,8 +228,43 @@ static NSUInteger FBMjpegScalingFactor = 100;
   dlclose(handle);
 }
 
++ (void)setKeyboardAutocorrection: (BOOL)value
+{
+  [self configureKeyboardsPreference:@(value) forPreferenceKey:@"KeyboardAutocorrection"];
+}
++ (void)setKeyboardPrediction: (BOOL)value
+{
+  [self configureKeyboardsPreference:@(value) forPreferenceKey:@"KeyboardPrediction"];
+}
 
 #pragma mark Private
+
++ (void)configureKeyboardsPreference: (nonnull NSValue *)value forPreferenceKey: (nonnull NSString *)key
+{
+  void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
+  Class controllerClass = NSClassFromString(controllerClassName);
+
+  TIPreferencesController *controller = [controllerClass sharedPreferencesController];
+
+  if ([key isEqualToString:@"KeyboardAutocorrection"]) {
+    // Auto-Correction in Keyboards
+    if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
+      controller.autocorrectionEnabled = value;
+    } else {
+      [controller setValue:value forPreferenceKey:@"KeyboardAutocorrection"];
+    }
+  } else if ([key isEqualToString:@"KeyboardPrediction"]) {
+    // Predictive in Keyboards
+    if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
+      controller.predictionEnabled = value;
+    } else {
+      [controller setValue:value forPreferenceKey:@"KeyboardPrediction"];
+    }
+  }
+
+  [controller synchronizePreferences];
+  dlclose(handle);
+}
 
 + (NSString*)valueFromArguments: (NSArray<NSString *> *)arguments forKey: (NSString*)key
 {

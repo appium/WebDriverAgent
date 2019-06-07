@@ -106,25 +106,36 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)shouldLoadSnapshotWithAttributes;
 
 /**
- Configure keyboards preference to make test running stable
+ * Configure keyboards preference to make test running stable
  */
-+ (void)configureKeyboardPreferenceDefault;
++ (void)configureKeyboardsPreferenceDefault;
+
+/**
+ * Modify keyboard configuration.
+ *
+ * @param value Turn the configuration on if the value is YES
+ */
++ (void)setKeyboardAutocorrection:(BOOL)value;
++ (void)setKeyboardPrediction:(BOOL)value;
 
 @end
 
 
+
 /**
- * iOS-Runtime-Headers
+ * iiOS-Runtime-Headers/PrivateFrameworks/TextInput.framework
  * Text Input preferences controller to modify the keyboard preferences for iOS 8+.
  */
 @interface TIPreferencesController : NSObject
 
 /**
- Whether the autocorrection is enabled.
+ * Whether the autocorrection is enabled.
  */
 @property BOOL autocorrectionEnabled;
 
-/** Whether the predication is enabled. */
+/**
+ * Whether the predication is enabled.
+ * */
 @property BOOL predictionEnabled;
 
 /**
