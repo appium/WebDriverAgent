@@ -111,20 +111,31 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)configureKeyboardsPreferenceDefault;
 
 /**
- * Modify keyboard configuration.
+ * Modify keyboard configuration of 'auto-correction'.
  *
  * @param value Turn the configuration on if the value is YES
  */
 + (void)setKeyboardAutocorrection:(BOOL)value;
++ (BOOL)keyboardAutocorrectionPreference;
+
+/**
+ * Modify keyboard configuration of 'predictive'
+ *
+ * @param value Turn the configuration on if the value is YES
+ */
 + (void)setKeyboardPrediction:(BOOL)value;
++ (BOOL)keyboardPredictionPreference;
 
 @end
 
 
 
 /**
- * iiOS-Runtime-Headers/PrivateFrameworks/TextInput.framework
+ * iOS-Runtime-Headers/PrivateFrameworks/TextInput.framework.
  * Text Input preferences controller to modify the keyboard preferences for iOS 8+.
+ *
+ * Note:
+ * "autocorrection" will be PrivateFrameworks/TextInput.framework/TIKeyboardState.h in the future?
  */
 @interface TIPreferencesController : NSObject
 
@@ -155,6 +166,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param key The key name to set @c value to
  */
 - (void)setValue:(NSValue *)value forPreferenceKey:(NSString *)key;
+
+/**
+ * Get the preferenve by @c key
+ *
+ * @param key The key name to get the value
+ */
+- (BOOL)boolForPreferenceKey:(NSString *)key;
 @end
 
 #if TARGET_OS_SIMULATOR

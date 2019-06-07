@@ -23,6 +23,9 @@ static NSUInteger const DefaultPortRange = 100;
 
 static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
 static NSString *const controllerClassName = @"TIPreferencesController";
+static NSString *const FBKeyboardAutocorrectionKey = @"KeyboardAutocorrection";
+static NSString *const FBKeyboardPredictionKey = @"KeyboardPrediction";
+
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
@@ -207,13 +210,14 @@ static NSUInteger FBMjpegScalingFactor = 100;
   if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
     controller.autocorrectionEnabled = NO;
   } else {
-    [controller setValue:@NO forPreferenceKey:@"KeyboardAutocorrection"];
+    [controller setValue:@NO forPreferenceKey:FBKeyboardAutocorrectionKey];
   }
+
   // Predictive in Keyboards
   if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
     controller.predictionEnabled = NO;
   } else {
-    [controller setValue:@NO forPreferenceKey:@"KeyboardPrediction"];
+    [controller setValue:@NO forPreferenceKey:FBKeyboardPredictionKey];
   }
 
   // To dismiss keyboard tutorial on iOS 11+ (iPad)
@@ -228,16 +232,37 @@ static NSUInteger FBMjpegScalingFactor = 100;
   dlclose(handle);
 }
 
++ (BOOL)keyboardAutocorrectionPreference
+{
+  return [self getKeyboardsPreference:FBKeyboardAutocorrectionKey];
+}
 + (void)setKeyboardAutocorrection: (BOOL)value
 {
-  [self configureKeyboardsPreference:@(value) forPreferenceKey:@"KeyboardAutocorrection"];
+  [self configureKeyboardsPreference:@(value) forPreferenceKey:FBKeyboardAutocorrectionKey];
+}
+
++ (BOOL)keyboardPredictionPreference
+{
+  return [self getKeyboardsPreference:FBKeyboardPredictionKey];
 }
 + (void)setKeyboardPrediction: (BOOL)value
 {
-  [self configureKeyboardsPreference:@(value) forPreferenceKey:@"KeyboardPrediction"];
+  [self configureKeyboardsPreference:@(value) forPreferenceKey:FBKeyboardPredictionKey];
 }
 
 #pragma mark Private
+
++ (BOOL)getKeyboardsPreference: (nonnull NSString *)key
+{
+  Class controllerClass = NSClassFromString(controllerClassName);
+  TIPreferencesController *controller = [controllerClass sharedPreferencesController];
+  if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
+    return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
+  } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
+    return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
+  }
+  @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
+}
 
 + (void)configureKeyboardsPreference: (nonnull NSValue *)value forPreferenceKey: (nonnull NSString *)key
 {
@@ -246,19 +271,19 @@ static NSUInteger FBMjpegScalingFactor = 100;
 
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
 
-  if ([key isEqualToString:@"KeyboardAutocorrection"]) {
+  if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
     // Auto-Correction in Keyboards
     if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
       controller.autocorrectionEnabled = value;
     } else {
-      [controller setValue:value forPreferenceKey:@"KeyboardAutocorrection"];
+      [controller setValue:value forPreferenceKey:FBKeyboardAutocorrectionKey];
     }
-  } else if ([key isEqualToString:@"KeyboardPrediction"]) {
+  } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     // Predictive in Keyboards
     if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
       controller.predictionEnabled = value;
     } else {
-      [controller setValue:value forPreferenceKey:@"KeyboardPrediction"];
+      [controller setValue:value forPreferenceKey:FBKeyboardPredictionKey];
     }
   }
 
