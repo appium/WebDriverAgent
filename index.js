@@ -80,16 +80,17 @@ async function needsUpdate (cartfile, installedCartfile) {
 }
 
 async function adjustFileSystem () {
+  const resourceDirs = [
+    `${BOOTSTRAP_PATH}/Resources`,
+    `${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`,
+  ];
   let areDependenciesUpdated = false;
-  if (!await fs.hasAccess(`${BOOTSTRAP_PATH}/Resources`)) {
-    log.debug('Creating WebDriverAgent resources directory');
-    await fs.mkdir(`${BOOTSTRAP_PATH}/Resources`);
-    areDependenciesUpdated = true;
-  }
-  if (!await fs.hasAccess(`${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`)) {
-    log.debug('Creating WebDriverAgent resource bundle directory');
-    await fs.mkdir(`${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`);
-    areDependenciesUpdated = true;
+  for (const dir of resourceDirs) {
+    if (!await fs.hasAccess(dir)) {
+      log.debug(`Creating WebDriverAgent resources directory: '${dir}'`);
+      await fs.mkdir(dir);
+      areDependenciesUpdated = true;
+    }
   }
   return areDependenciesUpdated;
 }
