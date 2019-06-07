@@ -108,23 +108,23 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Configure keyboards preference to make test running stable
  */
-+ (void)configureKeyboardsPreferenceDefault;
++ (void)configureDefaultKeyboardPreferences;
 
 /**
  * Modify keyboard configuration of 'auto-correction'.
  *
- * @param value Turn the configuration on if the value is YES
+ * @param isEnabled Turn the configuration on if the value is YES
  */
-+ (void)setKeyboardAutocorrection:(BOOL)value;
-+ (BOOL)keyboardAutocorrectionPreference;
++ (void)setKeyboardAutocorrection:(BOOL)isEnabled;
++ (BOOL)keyboardAutocorrection;
 
 /**
  * Modify keyboard configuration of 'predictive'
  *
- * @param value Turn the configuration on if the value is YES
+ * @param isEnabled Turn the configuration on if the value is YES
  */
-+ (void)setKeyboardPrediction:(BOOL)value;
-+ (BOOL)keyboardPredictionPreference;
++ (void)setKeyboardPrediction:(BOOL)isEnabled;
++ (BOOL)keyboardPrediction;
 
 @end
 
@@ -171,11 +171,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Get the preferenve by @c key
  *
  * @param key The key name to get the value
+ * @return Whether the @c key is enabled
  */
 - (BOOL)boolForPreferenceKey:(NSString *)key;
 @end
 
 #if TARGET_OS_SIMULATOR
+
+/**
+ * iOS-Runtime-Headers/PrivateFrameworks/UIKitCore.framework/UIKeyboardImpl.h
+ */
 @interface UIKeyboardImpl
 + (instancetype)sharedInstance;
 /**

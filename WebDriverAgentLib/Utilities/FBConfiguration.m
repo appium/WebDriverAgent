@@ -192,7 +192,7 @@ static NSUInteger FBMjpegScalingFactor = 100;
 }
 
 // Works for Simulator and Real devices
-+ (void)configureKeyboardsPreferenceDefault
++ (void)configureDefaultKeyboardPreferences
 {
 #if TARGET_OS_SIMULATOR
   // Force toggle software keyboard on.
@@ -232,27 +232,29 @@ static NSUInteger FBMjpegScalingFactor = 100;
   dlclose(handle);
 }
 
-+ (BOOL)keyboardAutocorrectionPreference
++ (BOOL)keyboardAutocorrection
 {
-  return [self getKeyboardsPreference:FBKeyboardAutocorrectionKey];
-}
-+ (void)setKeyboardAutocorrection: (BOOL)value
-{
-  [self configureKeyboardsPreference:@(value) forPreferenceKey:FBKeyboardAutocorrectionKey];
+  return [self keyboardsPreference:FBKeyboardAutocorrectionKey];
 }
 
-+ (BOOL)keyboardPredictionPreference
++ (void)setKeyboardAutocorrection:(BOOL)isEnabled
 {
-  return [self getKeyboardsPreference:FBKeyboardPredictionKey];
+  [self configureKeyboardsPreference:@(isEnabled) forPreferenceKey:FBKeyboardAutocorrectionKey];
 }
-+ (void)setKeyboardPrediction: (BOOL)value
+
++ (BOOL)keyboardPrediction
 {
-  [self configureKeyboardsPreference:@(value) forPreferenceKey:FBKeyboardPredictionKey];
+  return [self keyboardsPreference:FBKeyboardPredictionKey];
+}
+
++ (void)setKeyboardPrediction:(BOOL)isEnabled
+{
+  [self configureKeyboardsPreference:@(isEnabled) forPreferenceKey:FBKeyboardPredictionKey];
 }
 
 #pragma mark Private
 
-+ (BOOL)getKeyboardsPreference: (nonnull NSString *)key
++ (BOOL)keyboardsPreference:(nonnull NSString *)key
 {
   Class controllerClass = NSClassFromString(controllerClassName);
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
@@ -264,7 +266,7 @@ static NSUInteger FBMjpegScalingFactor = 100;
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
 }
 
-+ (void)configureKeyboardsPreference: (nonnull NSValue *)value forPreferenceKey: (nonnull NSString *)key
++ (void)configureKeyboardsPreference:(nonnull NSValue *)value forPreferenceKey:(nonnull NSString *)key
 {
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
   Class controllerClass = NSClassFromString(controllerClassName);

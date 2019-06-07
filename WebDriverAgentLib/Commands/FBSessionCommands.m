@@ -217,8 +217,8 @@ static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
       MJPEG_SERVER_FRAMERATE: @([FBConfiguration mjpegServerFramerate]),
       MJPEG_SCALING_FACTOR: @([FBConfiguration mjpegScalingFactor]),
       SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
-      KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrectionPreference]),
-      KEYBOARD_PREDICTION: @([FBConfiguration keyboardPredictionPreference])
+      KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
+      KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction])
     }
   );
 }
