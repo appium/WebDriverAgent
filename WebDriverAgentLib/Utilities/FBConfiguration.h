@@ -9,6 +9,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "UIKeyboardImpl.h"
+#import "TIPreferencesController.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -127,72 +130,5 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)keyboardPrediction;
 
 @end
-
-
-
-/**
- * iOS-Runtime-Headers/PrivateFrameworks/TextInput.framework.
- * Text Input preferences controller to modify the keyboard preferences for iOS 8+.
- *
- * Note:
- * "autocorrection" will be PrivateFrameworks/TextInput.framework/TIKeyboardState.h in the future?
- */
-@interface TIPreferencesController : NSObject
-
-/**
- * Whether the autocorrection is enabled.
- */
-@property BOOL autocorrectionEnabled;
-
-/**
- * Whether the predication is enabled.
- * */
-@property BOOL predictionEnabled;
-
-/**
- The shared singleton instance.
- */
-+ (instancetype)sharedPreferencesController;
-
-/**
- Synchronise the change to save it on disk.
- */
-- (void)synchronizePreferences;
-
-/**
- * Modify the preference @c value by the @c key
- *
- * @param value The value to set it to @c key
- * @param key The key name to set @c value to
- */
-- (void)setValue:(NSValue *)value forPreferenceKey:(NSString *)key;
-
-/**
- * Get the preferenve by @c key
- *
- * @param key The key name to get the value
- * @return Whether the @c key is enabled
- */
-- (BOOL)boolForPreferenceKey:(NSString *)key;
-@end
-
-#if TARGET_OS_SIMULATOR
-
-/**
- * iOS-Runtime-Headers/PrivateFrameworks/UIKitCore.framework/UIKeyboardImpl.h
- */
-@interface UIKeyboardImpl
-+ (instancetype)sharedInstance;
-/**
- * Modify software keyboard condition on simulators for over Xcode 6
- * This setting is global. The change applies to all instances of UIKeyboardImpl.
- *
- * Idea: https://chromium.googlesource.com/chromium/src/base/+/ababb4cf8b6049a642a2f361b1006a07561c2d96/test/test_support_ios.mm#41
- *
- * @param enabled Whether turn setAutomaticMinimizationEnabled on
- */
-- (void)setAutomaticMinimizationEnabled:(BOOL)enabled;
-@end
-#endif  // TARGET_IPHONE_SIMULATOR
 
 NS_ASSUME_NONNULL_END
