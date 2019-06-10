@@ -3,10 +3,11 @@ import { getDevices } from 'node-simctl';
 import { asyncify } from 'asyncbox';
 import _ from 'lodash';
 import { exec } from 'teen_process';
-import B from 'bluebird';
+// import B from 'bluebird';
 import path from 'path';
-import fc from 'filecompare';
 import { EOL } from 'os';
+import { fileCompare } from './lib/utils';
+
 
 
 const log = logger.getLogger('WebDriverAgent');
@@ -48,10 +49,8 @@ async function hasTvOSSims () {
 }
 
 function getCartfileLocations () {
-  // if this is in the `build` directory, go up one
-  const relative = __dirname.endsWith('build') ? '..' : '.';
-  const cartfile = path.resolve(__dirname, relative, CARTFILE);
-  const installedCartfile = path.resolve(__dirname, relative, CARTHAGE_ROOT, CARTFILE);
+  const cartfile = path.resolve(BOOTSTRAP_PATH, CARTFILE);
+  const installedCartfile = path.resolve(BOOTSTRAP_PATH, CARTHAGE_ROOT, CARTFILE);
 
   return {
     cartfile,
@@ -60,23 +59,12 @@ function getCartfileLocations () {
 }
 
 async function needsUpdate (cartfile, installedCartfile) {
-  return await new B(function (resolve, reject) {
-    // `filecompare` is the best file comparison utility, but does not
-    // use Node standards, so we cannot automatically promisify
-    try {
-      fc(cartfile, installedCartfile, function (isEqual) {
-        // need update if they are _not_ equal
-        resolve(!isEqual);
-      });
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        // the file does not exist, so we need to update
-        return resolve(true);
-      }
-      // some other sort of error
-      reject(err);
-    }
-  });
+  try {
+    return !await fileCompare(cartfile, installedCartfile);
+  } catch (err) {
+    console.log(err); // eslint-disable-line
+    throw err;
+  }
 }
 
 async function adjustFileSystem () {
@@ -127,10 +115,17 @@ async function fetchDependencies (useSsl = false) {
     args.push('--use-ssl');
   }
   args.push('--platform', platforms.join(','));
-  await exec (CARTHAGE_CMD, args, {
-    logger: execLogger,
-    cwd: path.resolve(__dirname, __dirname.endsWith('build') ? '..' : '.'),
-  });
+  try {
+    await exec(CARTHAGE_CMD, args, {
+      logger: execLogger,
+      cwd: BOOTSTRAP_PATH,
+    });
+  } catch (err) {
+    // remove the carthage directory, or else subsequent runs will see it and
+    // assume the dependencies are already downloaded
+    await fs.rimraf(path.resolve(BOOTSTRAP_PATH, CARTHAGE_ROOT));
+    throw err;
+  }
 
   // put the resolved cartfile into the Carthage directory
   await fs.copyFile(cartfile, installedCartfile);
@@ -140,7 +135,9 @@ async function fetchDependencies (useSsl = false) {
 }
 
 async function checkForDependencies (opts = {}) {
-  return await fetchDependencies(opts.useSsl) && await adjustFileSystem();
+  // we want both functions to run, and the result to be true if either are true.
+  const updated = await fetchDependencies(opts.useSsl);
+  return await adjustFileSystem() || updated;
 }
 
 if (require.main === module) {
@@ -149,6 +146,6 @@ if (require.main === module) {
 
 
 export {
-  checkForDependencies, BOOTSTRAP_PATH, WDA_BUNDLE_ID, WDA_RUNNER_BUNDLE_ID,
-  PROJECT_FILE,
+  checkForDependencies, BOOTSTRAP_PATH, WDA_BUNDLE_ID,
+  WDA_RUNNER_BUNDLE_ID, PROJECT_FILE,
 };

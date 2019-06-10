@@ -1,10 +1,17 @@
 language: objective-c
 sudo: false
+os: osx
+osx_image: xcode9.2
 
 cache:
   directories:
   - Carthage
-  - Inspector/node_modules
+  - Inspector/node_module
+
+env:
+  global:
+    - SDK=sim
+    - TARGET=lib
 
 before_install:
   - |
@@ -21,95 +28,98 @@ branches:
   only:
     - master
 
-matrix:
+jobs:
   include:
-    # Builds
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=build TARGET=runner SDK=sim
-    # Analyze
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=analyze TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=analyze TARGET=runner SDK=sim
-    # Unit tests
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=unit_test DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=unit_test DEST=ipad TARGET=lib SDK=sim
-    # Integration tests iPhone
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_1 DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_2 DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_3 DEST=iphone TARGET=lib SDK=sim
-    # Integration tests iPad
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_1 DEST=ipad TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_2 DEST=ipad TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode9.2
-      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
+    - stage: Node tests
+      os: linux
+      language: node_js
+      node_js: "10"
+      install: npm install
+      script: npm run test
 
-    # Builds
-    - os: osx
+    - stage: WDA build
+      name: iPhone SE, Xcode 9.2
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=build TARGET=runner
+    - name: iPhone X, Xcode 10.2
       osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=build TARGET=runner SDK=sim
-    # Analyze
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=analyze TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=analyze TARGET=runner SDK=sim
-    # Unit tests
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=unit_test DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=unit_test DEST=ipad TARGET=lib SDK=sim
-    # Integration tests iPhone
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_1 DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_2 DEST=iphone TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_3 DEST=iphone TARGET=lib SDK=sim
-    # Integration tests iPad
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_1 DEST=ipad TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_2 DEST=ipad TARGET=lib SDK=sim
-    - os: osx
-      osx_image: xcode10.2
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_3 DEST=ipad TARGET=lib SDK=sim
-
-    # Builds
-    - os: osx
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=build TARGET=runner
+    - name: apple tv, Xcode 10.2
       osx_image: xcode10.2
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=build TARGET=tv_runner SDK=tv_sim
-    # Analyze
-    - os: osx
+
+    - stage: WDA Analysis
+      name: iPhone SE, Xcode 9.2, lib
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=analyze
+    - name: iPhone SE, Xcode 9.2, runner
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=analyze TARGET=runner
+    - name: iPhone X, Xcode 10.2, lib
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=analyze
+    - name: iPhone X, Xcode 10.2, runner
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=analyze TARGET=runner
+    - name: apple tv, Xcode 10.2, tv_runner
       osx_image: xcode10.2
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=analyze TARGET=tv_runner SDK=tv_sim
-    # Unit tests
-    - os: osx
+
+    - stage: WDA Tests
+      name: Unit tests - iphone
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=unit_test DEST=iphone
+    - name: Unit tests - ipad
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=unit_test DEST=ipad
+
+    - name: Integration tests - iphone 1
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_1 DEST=iphone
+    - name: Integration tests - iphone 2
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_2 DEST=iphone
+    - name: Integration tests - iphone 3
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_3 DEST=iphone
+
+    - name: Integration tests - ipad 1
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_1 DEST=ipad
+    - name: Integration tests - ipad 2
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_2 DEST=ipad
+    - name: Integration tests - ipad 3
+      osx_image: xcode9.2
+      env: IPHONE_MODEL="iPhone SE" IPAD_MODEL="iPad Air 2" IOS_VERSION="11.2" ACTION=int_test_3 DEST=ipad
+
+    - name: Unit tests - iphone
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=unit_test DEST=iphone
+    - name: Unit tests - ipad
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=unit_test DEST=ipad
+
+    - name: Integration tests - iphone 1
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_1 DEST=iphone
+    - name: Integration tests - iphone 2
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_2 DEST=iphone
+    - name: Integration tests - iphone 3
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_3 DEST=iphone
+
+    - name: Integration tests - ipad 1
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_1 DEST=ipad
+    - name: Integration tests - ipad 2
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_2 DEST=ipad
+    - name: Integration tests - ipad 3
+      osx_image: xcode10.2
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.2" ACTION=int_test_3 DEST=ipad
+
+    - name: Unit tests - apple tv
       osx_image: xcode10.2
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
