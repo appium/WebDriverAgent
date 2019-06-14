@@ -682,6 +682,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0D70EF9C22B39C0700A22378 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE9B75D31CF7956C00275851;
+			remoteInfo = IntegrationApp;
+		};
 		641EE6FA2240C5F400173FCB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
@@ -2534,6 +2541,7 @@
 			);
 			dependencies = (
 				EE158B5C1CBD462500A3E3F0 /* PBXTargetDependency */,
+				0D70EF9D22B39C0700A22378 /* PBXTargetDependency */,
 			);
 			name = WebDriverAgentRunner;
 			productName = XCTUITestRunner;
@@ -2574,6 +2582,7 @@
 					};
 					EEF988291C486603005CA669 = {
 						CreatedOnToolsVersion = 7.2;
+						TestTargetID = EE9B75D31CF7956C00275851;
 					};
 				};
 			};
@@ -2992,6 +3001,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0D70EF9D22B39C0700A22378 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE9B75D31CF7956C00275851 /* IntegrationApp */;
+			targetProxy = 0D70EF9C22B39C0700A22378 /* PBXContainerItemProxy */;
+		};
 		641EE6FB2240C5F400173FCB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 641EE5D52240C5CA00173FCB /* WebDriverAgentLib_tvOS */;
@@ -3594,6 +3608,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = IntegrationApp;
 				USES_XCTRUNNER = YES;
 			};
 			name = Debug;
@@ -3616,6 +3631,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = IntegrationApp;
 				USES_XCTRUNNER = YES;
 			};
 			name = Release;
