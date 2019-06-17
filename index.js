@@ -3,11 +3,9 @@ import { getDevices } from 'node-simctl';
 import { asyncify } from 'asyncbox';
 import _ from 'lodash';
 import { exec } from 'teen_process';
-// import B from 'bluebird';
 import path from 'path';
 import { EOL } from 'os';
 import { fileCompare } from './lib/utils';
-
 
 
 const log = logger.getLogger('WebDriverAgent');
@@ -59,12 +57,7 @@ function getCartfileLocations () {
 }
 
 async function needsUpdate (cartfile, installedCartfile) {
-  try {
-    return !await fileCompare(cartfile, installedCartfile);
-  } catch (err) {
-    console.log(err); // eslint-disable-line
-    throw err;
-  }
+  return !await fileCompare(cartfile, installedCartfile);
 }
 
 async function adjustFileSystem () {
