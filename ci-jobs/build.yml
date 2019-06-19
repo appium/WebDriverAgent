@@ -8,6 +8,10 @@ jobs:
     steps:
     - script: ls /Applications/
       displayName: List Installed Applications
+    - script: |
+        pwd
+        mkdir ./Resources
+      displayName: Make Resources Folder
     - task: NodeTool@0
       inputs:
         versionSpec: '12.x' 
