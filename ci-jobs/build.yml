@@ -14,8 +14,9 @@ jobs:
         versionSpec: '12.x' 
     - script: npm install
       displayName: Install Node Modules
-    - script: ./Scripts/bootstrap.sh
-      displayName: Make Resources Folder
+    #- script: ./Scripts/bootstrap.sh
+      #displayName: Make Resources Folder
+    - script: mkdir -p Resources/WebDriverAgent.bundle
     - script: ./Scripts/build.sh
       displayName: BUILD SH
     - script: node ./ci-jobs/scripts/build-webdriveragents.js
