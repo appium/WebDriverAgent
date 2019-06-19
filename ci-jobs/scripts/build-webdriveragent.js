@@ -39,6 +39,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   // Re-compress the tarball
   await exec('tar', ['-cvjf', pathToTar, '-C', uncompressedDir, '.']);
   await fs.rimraf(uncompressedDir);
+  log.info(`Tarball bundled at "${pathToTar}"`);
 }
 
 if (require.main === module) {
