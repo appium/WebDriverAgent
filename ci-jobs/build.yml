@@ -1,5 +1,8 @@
 jobs:
   - job: build_and_upload_bundles
+    variables:
+      SDK: sim
+      TARGET: runner
     pool:
       vmImage: 'macOS-10.14'
     steps:
