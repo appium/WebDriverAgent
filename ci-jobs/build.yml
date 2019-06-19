@@ -9,15 +9,13 @@ jobs:
     steps:
     - script: ls /Applications/
       displayName: List Installed Applications
-    - script: |
-        pwd
-        mkdir ./Resources
-      displayName: Make Resources Folder
     - task: NodeTool@0
       inputs:
         versionSpec: '12.x' 
     - script: npm install
       displayName: Install Node Modules
+    - script: ./Scripts/bootstrap.sh -d
+      displayName: Make Resources Folder
     - script: ./Scripts/build.sh
       displayName: BUILD SH
     - script: node ./ci-jobs/scripts/build-webdriveragents.js
