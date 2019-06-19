@@ -13,7 +13,7 @@ jobs:
         versionSpec: '12.x' 
     - script: npm install
       displayName: Install Node Modules
-    - script: ./Scripts/build.sh
+    - script: mkdir Resources && ./Scripts/build.sh
       displayName: BUILD SH
     - script: node ./ci-jobs/scripts/build-webdriveragents.js
       displayName: Build WebDriverAgents
