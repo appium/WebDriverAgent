@@ -3,6 +3,7 @@ jobs:
     variables:
       SDK: sim
       TARGET: runner
+      USE_SSH: true
     pool:
       vmImage: 'macOS-10.14'
     steps:
