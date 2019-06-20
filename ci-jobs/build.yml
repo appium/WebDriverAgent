@@ -3,3 +3,4 @@ jobs:
   - template: ./templates/build.yml
     parameters:
       vmImage: 'macOS-10.13'
+      name: 'macOS_10_13'
