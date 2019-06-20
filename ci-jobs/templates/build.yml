@@ -25,6 +25,9 @@ jobs:
       displayName: Build WebDriverAgents
     - script: ls ./bundles
       displayName: List WDA Bundles
+    - task: PublishPipelineArtifact@0
+      inputs:
+        targetPath: bundles/
     - task: GithubRelease@0
       displayName: Publish to GitHub Release
       inputs:
