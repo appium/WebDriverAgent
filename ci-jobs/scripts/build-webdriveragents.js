@@ -12,6 +12,7 @@ async function buildAndUploadWebDriverAgents () {
 
   // Determine which xcodes need to be skipped
   let excludedXcodeArr = (process.env.EXCLUDE_XCODE || '').split(',');
+  log.info(`Will skip xcode versions: '${excludedXcodeArr}'`)
 
   for (let xcodePath of xcodePaths) {
     if (xcodePath.includes('_beta')) {
@@ -23,6 +24,7 @@ async function buildAndUploadWebDriverAgents () {
     const xcodeVersion = xcodePath.replace('.app', '').split('_', 2)[1];
 
     if (excludedXcodeArr.includes(xcodeVersion)) {
+      log.info(`Skipping xcode version '${xcodeVersion}'`);
       continue;
     }
 
