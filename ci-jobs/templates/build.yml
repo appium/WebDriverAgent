@@ -7,7 +7,7 @@ jobs:
       TARGET: runner
       #USE_SSH: true
     pool:
-      vmImage: ${{ paramters.vmImage }}
+      vmImage: ${{ parameters.vmImage }}
     steps:
     - script: ls /Applications/
       displayName: List Installed Applications
