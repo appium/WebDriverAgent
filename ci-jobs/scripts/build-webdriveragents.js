@@ -11,7 +11,7 @@ async function buildAndUploadWebDriverAgents () {
     .filter((file) => file.toLowerCase().startsWith('xcode_'));
 
   for (let xcodePath of xcodePaths) {
-    if (xcodePath.endsWith('_beta')) {
+    if (xcodePath.contains('_beta')) {
       continue;
     }
     // Build webdriveragent for this xcode version
