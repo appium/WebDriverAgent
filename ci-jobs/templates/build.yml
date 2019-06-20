@@ -1,7 +1,7 @@
 parameters:
   vmImage: 'macOS-10.14'
 jobs:
-  - job: build_and_upload_bundles
+  - job: build_and_upload_bundles_${{ parameters.vmImage }}
     variables:
       SDK: sim
       TARGET: runner
