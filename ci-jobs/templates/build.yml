@@ -1,11 +1,13 @@
 parameters:
   vmImage: 'macOS-10.14'
   name: macOS_10_14
+  excludeXcode: $(excludeXcode)
 jobs:
   - job: ${{ parameters.name }}
     variables:
       SDK: sim
       TARGET: runner
+      EXCLUDE_XCODE: ${{ parameters.excludeXcode }}
       #USE_SSH: true
     pool:
       vmImage: ${{ parameters.vmImage }}
