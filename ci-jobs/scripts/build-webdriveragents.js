@@ -11,6 +11,9 @@ async function buildAndUploadWebDriverAgents () {
     .filter((file) => file.toLowerCase().startsWith('xcode_'));
 
   for (let xcodePath of xcodePaths) {
+    if (xcodePath.endsWith('_beta')) {
+      continue;
+    }
     // Build webdriveragent for this xcode version
     log.info(`Running xcode-select for '${xcodePath}'`);
     await exec('sudo', ['xcode-select', '-s', `/Applications/${xcodePath}/Contents/Developer`]);
