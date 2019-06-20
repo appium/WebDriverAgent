@@ -288,7 +288,6 @@
 		641EE6EC2240C5CA00173FCB /* _XCInternalTestRun.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35AC981E3B77D600A02D78 /* _XCInternalTestRun.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		641EE6ED2240C5CA00173FCB /* FBXPath-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 712A0C861DA3E55D007D02E5 /* FBXPath-Private.h */; };
 		641EE6EE2240C5CA00173FCB /* XCKeyMappingPath.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35ACC11E3B77D600A02D78 /* XCKeyMappingPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		641EE6F02240C5CA00173FCB /* WebDriverAgent.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EEDBEBBA1CB2681900A790A2 /* WebDriverAgent.bundle */; };
 		641EE6FC2240C5FD00173FCB /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		641EE6FD2240C61D00173FCB /* WebDriverAgentLib_tvOS.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		641EE7052240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */; };
@@ -499,7 +498,6 @@
 		EE2202171ECC612200A29571 /* WebDriverAgentLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE158A991CBD452B00A3E3F0 /* WebDriverAgentLib.framework */; };
 		EE22021E1ECC618900A29571 /* FBTapTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE26409A1D0EB5E8009BE6B0 /* FBTapTest.m */; };
 		EE26409D1D0EBA25009BE6B0 /* FBElementAttributeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE26409C1D0EBA25009BE6B0 /* FBElementAttributeTests.m */; };
-		EE2EAAA21CC6693900A3AB19 /* WebDriverAgent.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EEDBEBBA1CB2681900A790A2 /* WebDriverAgent.bundle */; };
 		EE35AD091E3B77D600A02D78 /* _XCInternalTestRun.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35AC981E3B77D600A02D78 /* _XCInternalTestRun.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE35AD0A1E3B77D600A02D78 /* _XCKVOExpectationImplementation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35AC991E3B77D600A02D78 /* _XCKVOExpectationImplementation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE35AD0B1E3B77D600A02D78 /* _XCTDarwinNotificationExpectationImplementation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35AC9A1E3B77D600A02D78 /* _XCTDarwinNotificationExpectationImplementation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2604,7 +2602,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				641EE6F02240C5CA00173FCB /* WebDriverAgent.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2619,7 +2616,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE2EAAA21CC6693900A3AB19 /* WebDriverAgent.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

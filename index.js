@@ -60,22 +60,6 @@ async function needsUpdate (cartfile, installedCartfile) {
   return !await fileCompare(cartfile, installedCartfile);
 }
 
-async function adjustFileSystem () {
-  const resourceDirs = [
-    `${BOOTSTRAP_PATH}/Resources`,
-    `${BOOTSTRAP_PATH}/Resources/WebDriverAgent.bundle`,
-  ];
-  let areDependenciesUpdated = false;
-  for (const dir of resourceDirs) {
-    if (!await fs.hasAccess(dir)) {
-      log.debug(`Creating WebDriverAgent resources directory: '${dir}'`);
-      await fs.mkdir(dir);
-      areDependenciesUpdated = true;
-    }
-  }
-  return areDependenciesUpdated;
-}
-
 async function fetchDependencies (useSsl = false) {
   log.info('Fetching dependencies');
   if (!await fs.which(CARTHAGE_CMD)) {
@@ -128,9 +112,7 @@ async function fetchDependencies (useSsl = false) {
 }
 
 async function checkForDependencies (opts = {}) {
-  // we want both functions to run, and the result to be true if either are true.
-  const updated = await fetchDependencies(opts.useSsl);
-  return await adjustFileSystem() || updated;
+  return await fetchDependencies(opts.useSsl);
 }
 
 if (require.main === module) {

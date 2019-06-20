@@ -39,9 +39,6 @@ Carthage/Build
 Carthage/Checkouts
 Carthage/Cartfile.resolved
 
-# Resource bundle recreated on each build
-Resources/WebDriverAgent.bundle
-
 # Modules map recreated on each build
 Modules/module.modulemap
 
