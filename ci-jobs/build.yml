@@ -1,29 +1,4 @@
 jobs:
-  - job: build_and_upload_bundles
-    variables:
-      SDK: sim
-      TARGET: runner
-      #USE_SSH: true
-    pool:
-      vmImage: 'macOS-10.14'
-    steps:
-    - script: ls /Applications/
-      displayName: List Installed Applications
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '12.x' 
-    - script: npm install
-      displayName: Install Node Modules
-    - script: mkdir -p Resources/WebDriverAgent.bundle
-      displayName: Make Resources Folder
-    - script: node ./ci-jobs/scripts/build-webdriveragents.js
-      displayName: Build WebDriverAgents
-    - script: ls ./bundles
-      displayName: List WDA Bundles
-    - task: GithubRelease@0
-      displayName: Publish to GitHub Release
-      inputs:
-        githubConnection: appiumbot
-        repositoryName: appium/WebDriverAgent
-        tag: $(Build.BuildNumber)
-        assets: bundles/
+  - template: ./templates/build.yml
+  - template: ./templates/build.yml
+    vmImage: 'macOS-10.13'
