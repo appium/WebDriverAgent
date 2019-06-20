@@ -20,5 +20,10 @@ jobs:
       displayName: Build WebDriverAgents
     - script: ls ./bundles
       displayName: List WDA Bundles
-    - script: echo "UPLOAD EM NOW"
-      displayName: Upload to GitHub Releases
+    - task: GithubRelease@0
+      displayName: Publish to GitHub Release
+      inputs:
+        githubConnection: appium
+        repositoryName: appium/WebDriverAgent
+        tag: $(Build.BuildNumber)
+        assets: bundles/
