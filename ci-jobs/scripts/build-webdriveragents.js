@@ -3,7 +3,7 @@ const { asyncify } = require('asyncbox');
 const { fs, logger } = require('appium-support');
 const { exec } = require('teen_process');
 
-const log = new logger.getLogger('WDA Build');
+const log = new logger.getLogger('WDABuild');
 
 async function buildAndUploadWebDriverAgents () {
   // Get all xcode paths from /Applications/

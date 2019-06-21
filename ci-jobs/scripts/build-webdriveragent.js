@@ -15,29 +15,29 @@ async function buildWebDriverAgent (xcodeVersion) {
   // Clean and build
   await exec('npx', ['gulp', 'clean:carthage']);
   log.info('Running ./Scripts/build.sh');
-  await exec('./Scripts/build.sh');
+  let env = {TARGET: 'runner', SDK: 'sim'};
+  await exec('/bin/bash', ['./Scripts/build.sh'], {env});
 
-  // Create tarball using NPM Pack and move to '/bundles' folder
-  const pathToBundles = path.resolve('bundles');
-  const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
-  log.info('Running "npm pack" to bundle tarball');
+  // Create bundles folder
   await mkdirp('bundles');
-  await exec('npm', ['pack']);
-  const originalPathToTar = (await fs.glob(path.resolve('.', 'appium-webdriveragent-*.tgz')))[0];
-  fs.rename(originalPathToTar, pathToTar);
+  const pathToBundles = path.resolve('bundles');
 
-  // Uncompress the tarball
-  await exec('tar', ['xvzf', pathToTar, '-C', pathToBundles]);
-  const uncompressedDir = path.resolve(pathToBundles, 'package');
+  // Start creating tarball
+  const uncompressedDir = path.resolve('uncompressed');
+  await fs.rimraf(uncompressedDir);
+  await mkdirp(uncompressedDir);
+  log.info('Creating tarball');
 
-  // Add DerivedData to it
+  // Moved DerivedData/WebDriverAgent-* from Library to folder
   const derivedDataPath = path.resolve(os.homedir(), 'Library', 'Developer', 'Xcode', 'DerivedData');
   const wdaPath = (await fs.glob(`${derivedDataPath}/WebDriverAgent-*`))[0];
   await mkdirp(path.resolve(uncompressedDir, 'DerivedData'));
   await fs.rename(wdaPath, path.resolve(uncompressedDir, 'DerivedData', 'WebDriverAgent'));
 
-  // Re-compress the tarball
-  await exec('tar', ['-cvjf', pathToTar, '-C', uncompressedDir, '.']);
+  // Compress the tarball
+  const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
+  env = {COPYFILE_DISABLE: 1};
+  await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env});
   await fs.rimraf(uncompressedDir);
   log.info(`Tarball bundled at "${pathToTar}"`);
 }

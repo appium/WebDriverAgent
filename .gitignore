@@ -58,3 +58,4 @@ node_modules
 # webdriveragent zip bundles
 bundles/
 webdriveragent-*.tar.gz
+uncompressed/
