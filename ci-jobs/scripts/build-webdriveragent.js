@@ -6,6 +6,7 @@ const { exec } = require('teen_process');
 const xcode = require('appium-xcode');
 
 const log = new logger.getLogger('WDABuild');
+const rootDir = path.resolve(__dirname, '..', '..');
 
 async function buildWebDriverAgent (xcodeVersion) {
   // Get Xcode version
@@ -16,14 +17,14 @@ async function buildWebDriverAgent (xcodeVersion) {
   await exec('npx', ['gulp', 'clean:carthage']);
   log.info('Running ./Scripts/build.sh');
   let env = {TARGET: 'runner', SDK: 'sim'};
-  await exec('/bin/bash', ['./Scripts/build.sh'], {env});
+  await exec('/bin/bash', ['./Scripts/build.sh'], {env, cwd: rootDir});
 
   // Create bundles folder
   await mkdirp('bundles');
-  const pathToBundles = path.resolve('bundles');
+  const pathToBundles = path.resolve(rootDir, 'bundles');
 
   // Start creating tarball
-  const uncompressedDir = path.resolve('uncompressed');
+  const uncompressedDir = path.resolve(rootDir, 'uncompressed');
   await fs.rimraf(uncompressedDir);
   await mkdirp(uncompressedDir);
   log.info('Creating tarball');
@@ -37,7 +38,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   // Compress the tarball
   const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
   env = {COPYFILE_DISABLE: 1};
-  await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env});
+  await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
   await fs.rimraf(uncompressedDir);
   log.info(`Tarball bundled at "${pathToTar}"`);
 }
