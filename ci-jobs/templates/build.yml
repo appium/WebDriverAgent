@@ -25,6 +25,7 @@ jobs:
     - task: PublishPipelineArtifact@0
       inputs:
         targetPath: bundles/
+        artifactName: ${{ parameters.name }}
     - task: GithubRelease@0
       displayName: Publish to GitHub Release
       inputs:
