@@ -22,7 +22,7 @@ async function buildAndUploadWebDriverAgents () {
     // Build webdriveragent for this xcode version
     log.info(`Running xcode-select for '${xcodePath}'`);
     await exec('sudo', ['xcode-select', '-s', `/Applications/${xcodePath}/Contents/Developer`]);
-    const xcodeVersion = path.parse(xcodePath).split('_', 2)[1];
+    const xcodeVersion = path.parse(xcodePath).name.split('_', 2)[1];
 
     if (excludedXcodeArr.includes(xcodeVersion)) {
       log.info(`Skipping xcode version '${xcodeVersion}'`);
