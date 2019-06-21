@@ -1,11 +1,4 @@
 jobs:
-  - job: create_github_release
-    steps:
-      - task: GithubRelease@0
-        inputs:
-          action: create
-          githubConnection: appiumbot
-          repositoryName: appium/WebDriverAgent
   - template: ./templates/build.yml
     parameters:
       name: 'macOS_10_14'
@@ -14,3 +7,15 @@ jobs:
       excludeXcode: '10.1, 10.2.1, 10.2, 10, 9.4.1, 8.3.3'
       vmImage: 'macOS-10.13'
       name: 'macOS_10_13'
+  - job: create_github_release
+    dependsOn:
+    - macOS_10_13
+    - macOS_10_14
+    steps:
+      - task: GithubRelease@0
+        inputs:
+          action: create
+          githubConnection: appiumbot
+          repositoryName: appium/WebDriverAgent
+          assets: '$(Build.ArtifactStagingDirectory)/*'
+          addChangeLog: false

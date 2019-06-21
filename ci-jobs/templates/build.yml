@@ -27,10 +27,3 @@ jobs:
       inputs:
         targetPath: bundles/
         artifactName: ${{ parameters.name }}
-    - task: GithubRelease@0
-      displayName: Publish to GitHub Release
-      inputs:
-        action: edit
-        githubConnection: appiumbot
-        repositoryName: appium/WebDriverAgent
-        assets: bundles/*
