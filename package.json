@@ -13,7 +13,8 @@
     "lint": "gulp lint",
     "lint:fix": "gulp eslint --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "precommit-test": "gulp lint"
+    "precommit-test": "gulp lint",
+    "bundle": "node ./ci-jobs/scripts/build-webdriveragent.js"
   },
   "pre-commit": [
     "precommit-msg",
