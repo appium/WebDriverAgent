@@ -11,11 +11,11 @@ async function buildAndUploadWebDriverAgents () {
     .filter((file) => file.toLowerCase().startsWith('xcode_'));
 
   // Determine which xcodes need to be skipped
-  let excludedXcodeArr = (process.env.EXCLUDE_XCODE || '').split(',');
+  let excludedXcodeArr = (process.env.EXCLUDE_XCODE || '').replace(/\s/g, '').split(',');
   log.info(`Will skip xcode versions: '${excludedXcodeArr}'`);
 
   for (let xcodePath of xcodePaths) {
-    if (xcodePath.includes('_beta')) {
+    if (xcodePath.includes('beta')) {
       continue;
     }
     // Build webdriveragent for this xcode version
