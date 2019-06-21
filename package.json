@@ -44,7 +44,8 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "gulp": "^4.0.2",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "release": "^6.0.1"
   },
   "dependencies": {
     "appium-support": "^2.29.0",

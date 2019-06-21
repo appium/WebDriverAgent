@@ -33,5 +33,4 @@ jobs:
         action: edit
         githubConnection: appiumbot
         repositoryName: appium/WebDriverAgent
-        tag: $(Build.BuildNumber)
         assets: bundles/*
