@@ -2,6 +2,7 @@ const buildWebDriverAgent = require('./build-webdriveragent');
 const { asyncify } = require('asyncbox');
 const { fs, logger } = require('appium-support');
 const { exec } = require('teen_process');
+const path = require('path');
 
 const log = new logger.getLogger('WDABuild');
 
@@ -21,7 +22,7 @@ async function buildAndUploadWebDriverAgents () {
     // Build webdriveragent for this xcode version
     log.info(`Running xcode-select for '${xcodePath}'`);
     await exec('sudo', ['xcode-select', '-s', `/Applications/${xcodePath}/Contents/Developer`]);
-    const xcodeVersion = xcodePath.replace('.app', '').split('_', 2)[1];
+    const xcodeVersion = path.parse(xcodePath).split('_', 2)[1];
 
     if (excludedXcodeArr.includes(xcodeVersion)) {
       log.info(`Skipping xcode version '${xcodeVersion}'`);

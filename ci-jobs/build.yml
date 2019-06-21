@@ -2,6 +2,6 @@ jobs:
   - template: ./templates/build.yml
   - template: ./templates/build.yml
     parameters:
-      excludeXcode: '10.1, 10.2.1, 10.2, 10, 9.4.1'
+      excludeXcode: '10.1, 10.2.1, 10.2, 10, 9.4.1, 8.3.3'
       vmImage: 'macOS-10.13'
       name: 'macOS_10_13'
