@@ -1,4 +1,12 @@
 jobs:
+  - job: create_github_release
+    steps:
+      - task: GithubRelease@0
+        inputs:
+          action: create
+          githubConnection: appiumbot
+          repositoryName: appium/WebDriverAgent
+          tag: $(Build.BuildNumber)
   - template: ./templates/build.yml
     parameters:
       name: 'macOS_10_14'
