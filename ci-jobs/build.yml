@@ -12,10 +12,12 @@ jobs:
     - macOS_10_13
     - macOS_10_14
     steps:
+      - script: ls -R $(Build.ArtifactStagingDirectory)
+        displayName: List Artifacts
       - task: GithubRelease@0
         inputs:
           action: create
           githubConnection: appiumbot
           repositoryName: appium/WebDriverAgent
-          assets: '$(Build.ArtifactStagingDirectory)/*'
+          assets: '$(Build.ArtifactStagingDirectory)/**'
           addChangeLog: false
