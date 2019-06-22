@@ -8,6 +8,7 @@ jobs:
       EXCLUDE_XCODE: ${{ parameters.excludeXcode }}
     pool:
       vmImage: ${{ parameters.vmImage }}
+    dependsOn: create_github_release
     steps:
     - script: ls /Applications/
       displayName: List Installed Applications

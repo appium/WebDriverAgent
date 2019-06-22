@@ -1,16 +1,5 @@
 jobs:
-  - template: ./templates/build.yml
-    parameters:
-      name: 'macOS_10_14'
-  - template: ./templates/build.yml
-    parameters:
-      excludeXcode: '10.1, 10.2.1, 10.2, 10, 9.4.1, 8.3.3'
-      vmImage: 'macOS-10.13'
-      name: 'macOS_10_13'
   - job: create_github_release
-    dependsOn:
-    - macOS_10_13
-    - macOS_10_14
     steps:
       - script: ls -R $(Build.ArtifactStagingDirectory)
         displayName: List Artifacts
@@ -21,3 +10,11 @@ jobs:
           repositoryName: appium/WebDriverAgent
           assets: '$(Build.ArtifactStagingDirectory)/**'
           addChangeLog: false
+  - template: ./templates/build.yml
+    parameters:
+      name: 'macOS_10_14'
+  - template: ./templates/build.yml
+    parameters:
+      excludeXcode: '10.1, 10.2.1, 10.2, 10, 9.4.1, 8.3.3'
+      vmImage: 'macOS-10.13'
+      name: 'macOS_10_13'
