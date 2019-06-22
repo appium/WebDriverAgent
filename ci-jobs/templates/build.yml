@@ -10,6 +10,8 @@ jobs:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: create_github_release
     steps:
+    - script: node ./ci-jobs/scripts/azure-print-tag-name
+      displayName: Print Tag Name
     - script: ls /Applications/
       displayName: List Installed Applications
     - task: NodeTool@0
@@ -27,3 +29,7 @@ jobs:
       inputs:
         targetPath: bundles/
         artifactName: ${{ parameters.name }}
+    - script: |
+        brew install ghr
+        ghr $(node ./ci-jobs/scripts/azure-print-tag-name) bundles/
+      displayName: Upload to GitHub Releases
