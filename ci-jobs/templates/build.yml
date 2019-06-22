@@ -33,4 +33,6 @@ jobs:
         export GITHUB_TOKEN=$(GITHUB_TOKEN)
         brew install ghr
         ghr $(node ./ci-jobs/scripts/azure-print-tag-name) bundles/
+      env:
+        GITHUB_TOKEN: $(GITHUB_TOKEN)
       displayName: Upload to GitHub Releases
