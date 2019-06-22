@@ -6,6 +6,7 @@ jobs:
   - job: ${{ parameters.name }}
     variables:
       EXCLUDE_XCODE: ${{ parameters.excludeXcode }}
+      GITHUB_TOKEN: $(GITHUB_TOKEN)
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: create_github_release
