@@ -6,7 +6,6 @@ jobs:
   - job: ${{ parameters.name }}
     variables:
       EXCLUDE_XCODE: ${{ parameters.excludeXcode }}
-      GITHUB_TOKEN: $(GITHUB_TOKEN)
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: create_github_release
@@ -31,6 +30,7 @@ jobs:
         targetPath: bundles/
         artifactName: ${{ parameters.name }}
     - script: |
+        export GITHUB_TOKEN=$(GITHUB_TOKEN)
         brew install ghr
         ghr $(node ./ci-jobs/scripts/azure-print-tag-name) bundles/
       displayName: Upload to GitHub Releases
