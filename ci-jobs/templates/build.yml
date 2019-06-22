@@ -30,7 +30,6 @@ jobs:
         targetPath: bundles/
         artifactName: ${{ parameters.name }}
     - script: |
-        export GITHUB_TOKEN=$(GITHUB_TOKEN)
         brew install ghr
         ghr $(node ./ci-jobs/scripts/azure-print-tag-name) bundles/
       env:
