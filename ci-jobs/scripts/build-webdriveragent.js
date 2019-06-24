@@ -29,17 +29,32 @@ async function buildWebDriverAgent (xcodeVersion) {
   await mkdirp(uncompressedDir);
   log.info('Creating tarball');
 
-  // Moved DerivedData/WebDriverAgent-* from Library to folder
+  // Move contents of this folder to uncompressed folder
+  await exec('rsync', [
+    '-av', rootDir, uncompressedDir,
+    '--exclude', path.resolve(rootDir, 'node_modules'),
+    '--exclude', path.resolve(rootDir, 'build'),
+    '--exclude', path.resolve(rootDir, 'ci-jobs'),
+    '--exclude', path.resolve(rootDir, 'lib'),
+  ]);
+
+  // Moved DerivedData/WebDriverAgent-* from Library to uncompressed folder
   const derivedDataPath = path.resolve(os.homedir(), 'Library', 'Developer', 'Xcode', 'DerivedData');
   const wdaPath = (await fs.glob(`${derivedDataPath}/WebDriverAgent-*`))[0];
   await mkdirp(path.resolve(uncompressedDir, 'DerivedData'));
   await fs.rename(wdaPath, path.resolve(uncompressedDir, 'DerivedData', 'WebDriverAgent'));
 
+  // Remove unneeded directories
+  const unneededDirectories = ['node_modules', 'ci-jobs', 'test', 'lib', 'build'];
+  for (const unneededDirectory of unneededDirectories) {
+    await fs.rimraf(path.resolve(uncompressedDir, unneededDirectory));
+  }
+
   // Compress the tarball
   const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
   env = {COPYFILE_DISABLE: 1};
   await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
-  await fs.rimraf(uncompressedDir);
+  //await fs.rimraf(uncompressedDir);
   log.info(`Tarball bundled at "${pathToTar}"`);
 }
 
