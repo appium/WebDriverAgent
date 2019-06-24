@@ -31,7 +31,7 @@ async function buildWebDriverAgent (xcodeVersion) {
 
   // Move contents of this folder to uncompressed folder
   await exec('rsync', [
-    '-av', `~${rootDir}`, uncompressedDir,
+    '-av', rootDir, uncompressedDir,
     '--exclude', path.resolve(rootDir, 'node_modules'),
     '--exclude', path.resolve(rootDir, 'build'),
     '--exclude', path.resolve(rootDir, 'ci-jobs'),
