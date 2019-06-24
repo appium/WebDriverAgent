@@ -31,7 +31,7 @@ async function buildWebDriverAgent (xcodeVersion) {
 
   // Move contents of this folder to uncompressed folder
   await exec('rsync', [
-    '-av', rootDir, uncompressedDir,
+    '-av', `~${rootDir}`, uncompressedDir,
     '--exclude', path.resolve(rootDir, 'node_modules'),
     '--exclude', path.resolve(rootDir, 'build'),
     '--exclude', path.resolve(rootDir, 'ci-jobs'),
@@ -54,7 +54,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
   env = {COPYFILE_DISABLE: 1};
   await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
-  //await fs.rimraf(uncompressedDir);
+  await fs.rimraf(uncompressedDir);
   log.info(`Tarball bundled at "${pathToTar}"`);
 }
 
