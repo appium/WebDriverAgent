@@ -37,6 +37,7 @@ async function buildWebDriverAgent (xcodeVersion) {
     '--exclude', path.resolve(rootDir, 'ci-jobs'),
     '--exclude', path.resolve(rootDir, 'lib'),
     '--exclude', path.resolve(rootDir, 'test'),
+    '--exclude', path.resolve(rootDir, 'bundles'),
   ], {cwd: rootDir});
 
   // Moved DerivedData/WebDriverAgent-* from Library to uncompressed folder
