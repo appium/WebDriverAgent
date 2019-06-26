@@ -29,6 +29,7 @@ static NSString* const MJPEG_COMPRESSION_FACTOR = @"mjpegCompressionFactor";
 static NSString* const SCREENSHOT_QUALITY = @"screenshotQuality";
 static NSString* const KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
 static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
+static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 
 @implementation FBSessionCommands
 
@@ -218,7 +219,8 @@ static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
       MJPEG_SCALING_FACTOR: @([FBConfiguration mjpegScalingFactor]),
       SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
       KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
-      KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction])
+      KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
+      SNAPSHOT_TIMEOUT: @([FBConfiguration snapshotTimeout])
     }
   );
 }
@@ -252,6 +254,9 @@ static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
   }
   if ([settings objectForKey:KEYBOARD_PREDICTION]) {
     [FBConfiguration setKeyboardPrediction:[[settings objectForKey:KEYBOARD_PREDICTION] boolValue]];
+  }
+  if ([settings objectForKey:SNAPSHOT_TIMEOUT]) {
+    [FBConfiguration setSnapshotTimeout:[[settings objectForKey:SNAPSHOT_TIMEOUT] doubleValue]];
   }
 
   return [self handleGetSettings:request];

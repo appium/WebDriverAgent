@@ -129,6 +129,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setKeyboardPrediction:(BOOL)isEnabled;
 + (BOOL)keyboardPrediction;
 
+/**
+ * The maximum time to wait until accessibility snapshot is taken
+ *
+ * @param timeout The number of float seconds to wait (15 seconds by default)
+ */
++ (void)setSnapshotTimeout:(NSTimeInterval)timeout;
++ (NSTimeInterval)snapshotTimeout;
+
 @end
 
 NS_ASSUME_NONNULL_END

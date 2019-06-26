@@ -37,6 +37,7 @@ static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
 static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
+static NSTimeInterval FBSnapshotTimeout = 15.;
 
 @implementation FBConfiguration
 
@@ -250,6 +251,16 @@ static NSUInteger FBMjpegScalingFactor = 100;
 + (void)setKeyboardPrediction:(BOOL)isEnabled
 {
   [self configureKeyboardsPreference:@(isEnabled) forPreferenceKey:FBKeyboardPredictionKey];
+}
+
++ (void)setSnapshotTimeout:(NSTimeInterval)timeout
+{
+  FBSnapshotTimeout = timeout;
+}
+
++ (NSTimeInterval)snapshotTimeout
+{
+  return FBSnapshotTimeout;
 }
 
 #pragma mark Private
