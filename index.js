@@ -89,7 +89,7 @@ async function fetchDependencies (useSsl = false) {
 
   let args = ['bootstrap'];
   if (useSsl) {
-    args.push('--use-ssl');
+    args.push('--use-ssh');
   }
   args.push('--platform', platforms.join(','));
   try {
