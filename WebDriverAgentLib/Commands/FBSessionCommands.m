@@ -180,7 +180,9 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
   }
 
   // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
-  NSString *currentLocale = [[NSLocale currentLocale] localeIdentifier];
+  // Developers should use this locale by default
+  // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
+  NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
 
   return
   FBResponseWithStatus(
@@ -197,7 +199,7 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
         @{
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null],
-          @"locale": currentLocale,
+          @"currentLocale": currentLocale,
         },
       @"build" : buildInfo.copy
     }
