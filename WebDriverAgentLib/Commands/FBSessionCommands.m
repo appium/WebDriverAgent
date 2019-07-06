@@ -55,6 +55,8 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
     // Settings endpoints
     [[FBRoute GET:@"/appium/settings"] respondWithTarget:self action:@selector(handleGetSettings:)],
     [[FBRoute POST:@"/appium/settings"] respondWithTarget:self action:@selector(handleSetSettings:)],
+
+    [[FBRoute GET:@"/appium/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
   ];
 }
 
@@ -179,11 +181,6 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
     [buildInfo setObject:upgradeTimestamp forKey:@"upgradedAt"];
   }
 
-  // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
-  // Developers should use this locale by default
-  // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
-  NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
-
   return
   FBResponseWithStatus(
     FBCommandStatusNoError,
@@ -198,11 +195,26 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
       @"ios" :
         @{
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
-          @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null],
-          @"currentLocale": currentLocale,
-          @"timeZone": [self getTimeZone],
+          @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null]
         },
       @"build" : buildInfo.copy
+    }
+  );
+}
+
++ (id<FBResponsePayload>)handleGetDeviceInfo:(FBRouteRequest *)request
+{
+  // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
+  // Developers should use this locale by default
+  // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
+  NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
+
+  return
+  FBResponseWithStatus(
+    FBCommandStatusNoError,
+    @{
+      @"currentLocale": currentLocale,
+      @"timeZone": [self getTimeZone],
     }
   );
 }
