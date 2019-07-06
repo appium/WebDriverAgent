@@ -183,11 +183,6 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
   // Developers should use this locale by default
   // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
   NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
-  // Apple timezone name like "US/New_York"
-  NSString *timeZone = [[NSTimeZone localTimeZone] abbreviation];
-  // Convert timezone name to ids like "America/New_York" as TZ database Time Zones format
-  // https://developer.apple.com/documentation/foundation/nstimezone
-  NSString *timeZoneId = [[NSTimeZone timeZoneWithAbbreviation:timeZone] name];
 
   return
   FBResponseWithStatus(
@@ -205,11 +200,33 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null],
           @"currentLocale": currentLocale,
-          @"timeZone": timeZoneId,
+          @"timeZone": [self getTimeZone],
         },
       @"build" : buildInfo.copy
     }
   );
+}
+
+/**
+ * @return The string of TimeZone. Returns TZ timezone id by default. Returns TimeZone name by Apple if TZ timezone id is not available.
+ */
++ (NSString *)getTimeZone
+{
+  NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
+  // Apple timezone name like "US/New_York"
+  NSString *timeZoneAbb = [localTimeZone abbreviation];
+  if (timeZoneAbb == nil) {
+    return [localTimeZone name];
+  }
+
+  // Convert timezone name to ids like "America/New_York" as TZ database Time Zones format
+  // https://developer.apple.com/documentation/foundation/nstimezone
+  NSString *timeZoneId = [[NSTimeZone timeZoneWithAbbreviation:timeZoneAbb] name];
+  if (timeZoneId != nil) {
+    return timeZoneId;
+  }
+
+  return [localTimeZone name];
 }
 
 + (id<FBResponsePayload>)handleGetHealthCheck:(FBRouteRequest *)request
