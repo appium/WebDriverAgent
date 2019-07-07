@@ -55,6 +55,7 @@
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
+    [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
   ];
 }
 
@@ -225,6 +226,45 @@
     return FBResponseWithError(error);
   }
   return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleGetDeviceInfo:(FBRouteRequest *)request
+{
+  // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
+  // Developers should use this locale by default
+  // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
+  NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
+
+  return
+  FBResponseWithStatus(
+    FBCommandStatusNoError,
+    @{
+      @"currentLocale": currentLocale,
+      @"timeZone": [self getTimeZone],
+      }
+    );
+}
+
+/**
+ * @return The string of TimeZone. Returns TZ timezone id by default. Returns TimeZone name by Apple if TZ timezone id is not available.
+ */
++ (NSString *)getTimeZone
+{
+  NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
+  // Apple timezone name like "US/New_York"
+  NSString *timeZoneAbb = [localTimeZone abbreviation];
+  if (timeZoneAbb == nil) {
+    return [localTimeZone name];
+  }
+
+  // Convert timezone name to ids like "America/New_York" as TZ database Time Zones format
+  // https://developer.apple.com/documentation/foundation/nstimezone
+  NSString *timeZoneId = [[NSTimeZone timeZoneWithAbbreviation:timeZoneAbb] name];
+  if (timeZoneId != nil) {
+    return timeZoneId;
+  }
+
+  return [localTimeZone name];
 }
 
 @end
