@@ -240,7 +240,7 @@
     FBCommandStatusNoError,
     @{
       @"currentLocale": currentLocale,
-      @"timeZone": [self getTimeZone],
+      @"timeZone": self.timeZone,
       }
     );
 }
@@ -248,7 +248,7 @@
 /**
  * @return The string of TimeZone. Returns TZ timezone id by default. Returns TimeZone name by Apple if TZ timezone id is not available.
  */
-+ (NSString *)getTimeZone
++ (NSString *)timeZone
 {
   NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
   // Apple timezone name like "US/New_York"
