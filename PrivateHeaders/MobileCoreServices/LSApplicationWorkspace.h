@@ -12,18 +12,10 @@
 @interface LSApplicationWorkspace : NSObject {
   NSXPCConnection * _connection;
   NSMutableDictionary * _createdInstallProgresses;
-//  LSInstallProgressDelegate * _delegateProxy;
-//  LSInstallProgressList * _observedInstallProgresses;
-//  LSApplicationWorkspaceRemoteObserver * _remoteObserver;
 }
 
 @property (readonly) NSXPCConnection *connection;
 @property (readonly) NSMutableDictionary *createdInstallProgresses;
-//@property (readonly) LSInstallProgressDelegate *delegateProxy;
-//@property (readonly) LSInstallProgressList *observedInstallProgresses;
-//@property (readonly) LSApplicationWorkspaceRemoteObserver *remoteObserver;
-
-// Image: /System/Library/Frameworks/MobileCoreServices.framework/MobileCoreServices
 
 + (id)activeManagedConfigurationRestrictionUUIDs;
 + (id)callbackQueue;
@@ -135,8 +127,6 @@
 - (bool)updateRecordForApp:(id)arg1 withSINF:(id)arg2 iTunesMetadata:(id)arg3 error:(id*)arg4;
 - (bool)updateSINFWithData:(id)arg1 forApplication:(id)arg2 options:(id)arg3 error:(id*)arg4;
 - (bool)updateiTunesMetadataWithData:(id)arg1 forApplication:(id)arg2 options:(id)arg3 error:(id*)arg4;
-
-// Image: /System/Library/Frameworks/SafariServices.framework/SafariServices
 
 - (void)_sf_openURL:(id)arg1 withOptions:(id)arg2 completionHandler:(id /* block */)arg3;
 
