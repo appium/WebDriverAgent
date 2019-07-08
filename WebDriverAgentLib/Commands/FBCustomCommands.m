@@ -28,6 +28,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
+#import "LSApplicationWorkspace.h"
 
 @implementation FBCustomCommands
 
@@ -55,6 +56,7 @@
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
+    [[FBRoute POST:@"/wda/launchUnattachedApp"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
   ];
 }
 
@@ -225,6 +227,22 @@
     return FBResponseWithError(error);
   }
   return FBResponseWithOK();
+}
+
++ (id <FBResponsePayload>)handleLaunchUnattachedApp:(FBRouteRequest *)request
+{
+  NSString *bundle = (NSString *)request.arguments[@"bundleId"];
+  if ([[LSApplicationWorkspace defaultWorkspace] openApplicationWithBundleID:bundle])
+    return FBResponseWithOK();
+  return FBResponseWithError([self appLaunchError]);
+}
+
++ (NSError *)appLaunchError
+{
+  return
+  [NSError errorWithDomain:@"WDA"
+                      code:0
+                  userInfo:@{@"reason": @"LSApplicationWorkspace failed to launch app"}];
 }
 
 @end

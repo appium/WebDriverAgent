@@ -420,6 +420,7 @@
 		ADBC39981D07842800327304 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = ADBC39971D07842800327304 /* XCUIElementDouble.m */; };
 		ADDA07241D6BB2BF001700AC /* FBScrollViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADDA07231D6BB2BF001700AC /* FBScrollViewController.m */; };
 		ADEF63AF1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADEF63AE1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m */; };
+		C8FB547422D3949C00B69954 /* LSApplicationWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */; };
 		EE006EAD1EB99B15006900A4 /* FBElementVisibilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */; };
 		EE006EB01EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */; };
 		EE006EB11EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */; };
@@ -928,6 +929,7 @@
 		ADDA07221D6BB2BF001700AC /* FBScrollViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBScrollViewController.h; sourceTree = "<group>"; };
 		ADDA07231D6BB2BF001700AC /* FBScrollViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBScrollViewController.m; sourceTree = "<group>"; };
 		ADEF63AE1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRuntimeUtilsTests.m; sourceTree = "<group>"; };
+		C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSApplicationWorkspace.h; sourceTree = "<group>"; };
 		EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBElementVisibilityTests.m; sourceTree = "<group>"; };
 		EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCElementSnapshot+FBHitPoint.h"; sourceTree = "<group>"; };
 		EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCElementSnapshot+FBHitPoint.m"; sourceTree = "<group>"; };
@@ -1408,6 +1410,7 @@
 		91F9DB731B99DDD8001349B2 /* PrivateHeaders */ = {
 			isa = PBXGroup;
 			children = (
+				C8FB547222D3948300B69954 /* MobileCoreServices */,
 				648C10AD22AAAE2400B81B9A /* TextInput */,
 				648C10A922AAAD7600B81B9A /* UIKitCore */,
 				EED030DB1BFA3461007EDC1D /* XCTest */,
@@ -1441,6 +1444,14 @@
 				716C9340224D5358004B8542 /* tvOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C8FB547222D3948300B69954 /* MobileCoreServices */ = {
+			isa = PBXGroup;
+			children = (
+				C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */,
+			);
+			path = MobileCoreServices;
 			sourceTree = "<group>";
 		};
 		EE9AB73E1CAEDF0C008C271F /* Categories */ = {
@@ -2306,6 +2317,7 @@
 				EE35AD1C1E3B77D600A02D78 /* NSString-XCTAdditions.h in Headers */,
 				EE35AD581E3B77D600A02D78 /* XCTestWaiter.h in Headers */,
 				7150348721A6DAD600A0F4BA /* FBImageUtils.h in Headers */,
+				C8FB547422D3949C00B69954 /* LSApplicationWorkspace.h in Headers */,
 				EE35AD1D1E3B77D600A02D78 /* NSValue-XCTestAdditions.h in Headers */,
 				EE35AD141E3B77D600A02D78 /* _XCTWaiterImpl.h in Headers */,
 				EE9B76A81CF7A43900275851 /* FBLogger.h in Headers */,
