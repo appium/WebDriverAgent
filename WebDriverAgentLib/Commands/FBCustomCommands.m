@@ -234,15 +234,9 @@
   NSString *bundle = (NSString *)request.arguments[@"bundleId"];
   if ([[LSApplicationWorkspace defaultWorkspace] openApplicationWithBundleID:bundle])
     return FBResponseWithOK();
-  return FBResponseWithError([self appLaunchError]);
-}
-
-+ (NSError *)appLaunchError
-{
-  return
-  [NSError errorWithDomain:@"WDA"
-                      code:0
-                  userInfo:@{@"reason": @"LSApplicationWorkspace failed to launch app"}];
+  return FBResponseWithError([[[FBErrorBuilder builder]
+                               withDescription:@"LSApplicationWorkspace failed to launch app"]
+                              build]);
 }
 
 @end
