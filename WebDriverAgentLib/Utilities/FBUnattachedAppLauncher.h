@@ -11,8 +11,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ Launches apps without attaching them to an XCUITest or a WDA session, allowing them to remain open
+ when WDA closes.
+*/
 @interface FBUnattachedAppLauncher : NSObject
 
+/**
+ Launch the app with the specified bundle ID. Return YES if successful, NO otherwise.
+ */
 + (BOOL)launchAppWithBundleId:(NSString *)bundleId;
 
 @end
