@@ -421,6 +421,8 @@
 		ADDA07241D6BB2BF001700AC /* FBScrollViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ADDA07231D6BB2BF001700AC /* FBScrollViewController.m */; };
 		ADEF63AF1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADEF63AE1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m */; };
 		C8FB547422D3949C00B69954 /* LSApplicationWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */; };
+		C8FB547922D4C1FC00B69954 /* FBUnattachedAppLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = C8FB547722D4C1FC00B69954 /* FBUnattachedAppLauncher.h */; };
+		C8FB547A22D4C1FC00B69954 /* FBUnattachedAppLauncher.m in Sources */ = {isa = PBXBuildFile; fileRef = C8FB547822D4C1FC00B69954 /* FBUnattachedAppLauncher.m */; };
 		EE006EAD1EB99B15006900A4 /* FBElementVisibilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */; };
 		EE006EB01EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */; };
 		EE006EB11EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */; };
@@ -930,6 +932,8 @@
 		ADDA07231D6BB2BF001700AC /* FBScrollViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBScrollViewController.m; sourceTree = "<group>"; };
 		ADEF63AE1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRuntimeUtilsTests.m; sourceTree = "<group>"; };
 		C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSApplicationWorkspace.h; sourceTree = "<group>"; };
+		C8FB547722D4C1FC00B69954 /* FBUnattachedAppLauncher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBUnattachedAppLauncher.h; sourceTree = "<group>"; };
+		C8FB547822D4C1FC00B69954 /* FBUnattachedAppLauncher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBUnattachedAppLauncher.m; sourceTree = "<group>"; };
 		EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBElementVisibilityTests.m; sourceTree = "<group>"; };
 		EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCElementSnapshot+FBHitPoint.h"; sourceTree = "<group>"; };
 		EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCElementSnapshot+FBHitPoint.m"; sourceTree = "<group>"; };
@@ -1654,6 +1658,8 @@
 				6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */,
 				31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */,
 				31EC77FB224F7D0600380FCD /* XCUIApplicationProcessQuiescence.m */,
+				C8FB547722D4C1FC00B69954 /* FBUnattachedAppLauncher.h */,
+				C8FB547822D4C1FC00B69954 /* FBUnattachedAppLauncher.m */,
 			);
 			name = Utilities;
 			path = WebDriverAgentLib/Utilities;
@@ -2302,6 +2308,7 @@
 				AD6C26981CF2481700F8B5FF /* XCUIDevice+FBHelpers.h in Headers */,
 				71A7EAF91E224648001DA4F2 /* FBClassChainQueryParser.h in Headers */,
 				EE9B76AA1CF7A43900275851 /* FBMacros.h in Headers */,
+				C8FB547922D4C1FC00B69954 /* FBUnattachedAppLauncher.h in Headers */,
 				EE35AD4A1E3B77D600A02D78 /* XCTestExpectationDelegate-Protocol.h in Headers */,
 				EE35AD641E3B77D600A02D78 /* XCTUIApplicationMonitor-Protocol.h in Headers */,
 				EEE376411D59F81400ED88DD /* XCElementSnapshot+FBHelpers.h in Headers */,
@@ -2812,6 +2819,7 @@
 				EE158AB11CBD456F00A3E3F0 /* XCUIElement+FBIsVisible.m in Sources */,
 				EEBBD48C1D47746D00656A81 /* XCUIElement+FBFind.m in Sources */,
 				EE158ADD1CBD456F00A3E3F0 /* FBResponsePayload.m in Sources */,
+				C8FB547A22D4C1FC00B69954 /* FBUnattachedAppLauncher.m in Sources */,
 				EE158ADF1CBD456F00A3E3F0 /* FBRoute.m in Sources */,
 				EE0D1F621EBCDCF7006A3123 /* NSString+FBVisualLength.m in Sources */,
 				EEE9B4731CD02B88009D2030 /* FBRunLoopSpinner.m in Sources */,

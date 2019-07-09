@@ -28,7 +28,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
-#import "LSApplicationWorkspace.h"
+#import "FBUnattachedAppLauncher.h"
 
 @implementation FBCustomCommands
 
@@ -233,7 +233,7 @@
 + (id <FBResponsePayload>)handleLaunchUnattachedApp:(FBRouteRequest *)request
 {
   NSString *bundle = (NSString *)request.arguments[@"bundleId"];
-  if ([[LSApplicationWorkspace defaultWorkspace] openApplicationWithBundleID:bundle])
+  if ([FBUnattachedAppLauncher launchAppWithBundleId:bundle])
     return FBResponseWithOK();
   return FBResponseWithError([[[FBErrorBuilder builder]
                                withDescription:@"LSApplicationWorkspace failed to launch app"]

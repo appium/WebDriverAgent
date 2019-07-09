@@ -16,6 +16,13 @@
 #import "FBSpringboardApplication.h"
 #import "FBXCodeCompatibility.h"
 #import "FBTestMacros.h"
+#import "FBUnattachedAppLauncher.h"
+
+@interface FBSession (Tests)
+
+@property (nonatomic) NSDictionary<NSString *, FBApplication *> *applications;
+
+@end
 
 @interface FBSessionIntegrationTests : FBIntegrationTestCase
 @property (nonatomic) FBSession *session;
@@ -30,7 +37,6 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
 {
   [super setUp];
   [self launchApplication];
-
   self.session = [FBSession sessionWithApplication:FBApplication.fb_activeApplication];
 }
 
@@ -87,6 +93,14 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
                                     arguments:nil
                                   environment:nil];
   XCTAssertEqualObjects(testedApp.bundleID, self.session.activeApplication.bundleID);
+}
+
+- (void)testLaunchUnattachedApp
+{
+  [FBUnattachedAppLauncher launchAppWithBundleId:SETTINGS_BUNDLE_ID];
+  XCTAssertNil(self.session.applications[SETTINGS_BUNDLE_ID]);
+  [self.session kill];
+  XCTAssertEqualObjects(SETTINGS_BUNDLE_ID, FBApplication.fb_activeApplication.bundleID);
 }
 
 @end
