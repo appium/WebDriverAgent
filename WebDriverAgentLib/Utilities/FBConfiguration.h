@@ -137,6 +137,16 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setSnapshotTimeout:(NSTimeInterval)timeout;
 + (NSTimeInterval)snapshotTimeout;
 
+/**
+ * Whether to use fast search result matching while searching for elements.
+ * By default this is disabled due to https://github.com/appium/appium/issues/10101
+ * but it still makes sense to enable it for views containing large counts of elements
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setUseFirstMatch:(BOOL)enabled;
++ (BOOL)useFirstMatch;
+
 @end
 
 NS_ASSUME_NONNULL_END

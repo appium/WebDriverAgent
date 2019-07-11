@@ -38,6 +38,7 @@ static NSUInteger FBMjpegServerFramerate = 10;
 static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBSnapshotTimeout = 15.;
+static BOOL FBShouldUseFirstMatch = NO;
 
 @implementation FBConfiguration
 
@@ -261,6 +262,16 @@ static NSTimeInterval FBSnapshotTimeout = 15.;
 + (NSTimeInterval)snapshotTimeout
 {
   return FBSnapshotTimeout;
+}
+
++ (void)setUseFirstMatch:(BOOL)enabled
+{
+  FBShouldUseFirstMatch = enabled;
+}
+
++ (BOOL)useFirstMatch
+{
+  return FBShouldUseFirstMatch;
 }
 
 #pragma mark Private

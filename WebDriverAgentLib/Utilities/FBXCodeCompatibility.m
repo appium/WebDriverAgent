@@ -9,6 +9,7 @@
 
 #import "FBXCodeCompatibility.h"
 
+#import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "XCUIElementQuery.h"
@@ -82,21 +83,11 @@ static dispatch_once_t onceAppWithPIDToken;
 @end
 
 
-static BOOL FBShouldUseFirstMatchSelector = NO;
-static dispatch_once_t onceFirstMatchToken;
-
 @implementation XCUIElementQuery (FBCompatibility)
 
 - (XCUIElement *)fb_firstMatch
 {
-  dispatch_once(&onceFirstMatchToken, ^{
-    // Unfortunately, firstMatch property does not work properly if
-    // the lookup is not executed in application context:
-    // https://github.com/appium/appium/issues/10101
-    //    FBShouldUseFirstMatchSelector = [self respondsToSelector:@selector(firstMatch)];
-    FBShouldUseFirstMatchSelector = NO;
-  });
-  if (FBShouldUseFirstMatchSelector) {
+  if (FBConfiguration.useFirstMatch) {
     XCUIElement* result = self.firstMatch;
     return result.exists ? result : nil;
   }
