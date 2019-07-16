@@ -26,6 +26,7 @@
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration configureDefaultKeyboardPreferences];
   [FBConfiguration enableUseLegacyElementType];
+  
   [super setUp];
 }
 
