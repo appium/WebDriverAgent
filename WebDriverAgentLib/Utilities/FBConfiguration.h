@@ -37,6 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Disables attribute key path analysis, which will cause XCTest on Xcode 9.x to ignore some elements */
 + (void)disableAttributeKeyPathAnalysis;
 
+/*! Enables usage of legacy element type, which will cause correct elementType values to be returned from XCTest on Xcode 11.x */
++ (void)enableUseLegacyElementType;
+
 /* The maximum typing frequency for all typing activities */
 + (void)setMaxTypingFrequency:(NSUInteger)value;
 + (NSUInteger)maxTypingFrequency;

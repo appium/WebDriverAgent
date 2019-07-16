@@ -54,6 +54,11 @@ static BOOL FBShouldUseFirstMatch = NO;
   [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"XCTDisableAttributeKeyPathAnalysis"];
 }
 
++ (void)enableUseLegacyElementType
+{
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"UseLegacyElementType"];
+}
+
 + (NSRange)bindingPortRange
 {
   // 'WebDriverAgent --port 8080' can be passed via the arguments to the process
