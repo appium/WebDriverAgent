@@ -121,7 +121,7 @@ static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
 {
   [self createMapping];
   NSNumber *type = StringToElementTypeMapping[typeName];
-  if (!type) {
+  if (nil == type) {
     if ([typeName hasPrefix:(NSString *)FB_ELEMENT_TYPE_PREFIX] && typeName.length > FB_ELEMENT_TYPE_PREFIX.length) {
       // Consider the element type is something new and has to be added into ElementTypeToStringMapping
       return XCUIElementTypeOther;
@@ -129,18 +129,17 @@ static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
     NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean %@%@?", typeName, FB_ELEMENT_TYPE_PREFIX, typeName];
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
-  return (XCUIElementType) ( type ? type.unsignedIntegerValue : XCUIElementTypeAny);
+  return (XCUIElementType) type.unsignedIntegerValue;
 }
 
 + (NSString *)stringWithElementType:(XCUIElementType)type
 {
   [self createMapping];
   NSString *typeName = ElementTypeToStringMapping[@(type)];
-  if (!typeName) {
+  return nil == typeName
     // Consider the type name is something new and has to be added into ElementTypeToStringMapping
-    return [NSString stringWithFormat:@"%@Other", FB_ELEMENT_TYPE_PREFIX];
-  }
-  return typeName;
+    ? [NSString stringWithFormat:@"%@Other", FB_ELEMENT_TYPE_PREFIX]
+    : typeName;
 }
 
 + (NSString *)shortStringWithElementType:(XCUIElementType)type
