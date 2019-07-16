@@ -10,7 +10,6 @@
 #import "FBElementTypeTransformer.h"
 
 #import "FBExceptionHandler.h"
-#import "FBLogger.h"
 
 @implementation FBElementTypeTransformer
 
@@ -124,7 +123,7 @@ static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
   NSNumber *type = StringToElementTypeMapping[typeName];
   if (!type) {
     if ([typeName hasPrefix:(NSString *)FB_ELEMENT_TYPE_PREFIX] && typeName.length > FB_ELEMENT_TYPE_PREFIX.length) {
-      [FBLogger logFmt:@"Mapping an unknown element type '%@' to XCUIElementTypeOther. Consider reviewing the ElementTypeToStringMapping", typeName];
+      // Consider the element type is something new and has to be added into ElementTypeToStringMapping
       return XCUIElementTypeOther;
     }
     NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean %@%@?", typeName, FB_ELEMENT_TYPE_PREFIX, typeName];
@@ -138,7 +137,8 @@ static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
   [self createMapping];
   NSString *typeName = ElementTypeToStringMapping[@(type)];
   if (!typeName) {
-    return [NSString stringWithFormat:@"%@Unknown(%lu)", FB_ELEMENT_TYPE_PREFIX, (unsigned long)type];
+    // Consider the type name is something new and has to be added into ElementTypeToStringMapping
+    return [NSString stringWithFormat:@"%@Other", FB_ELEMENT_TYPE_PREFIX];
   }
   return typeName;
 }
