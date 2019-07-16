@@ -10,11 +10,14 @@
 #import "FBElementTypeTransformer.h"
 
 #import "FBExceptionHandler.h"
+#import "FBLogger.h"
 
 @implementation FBElementTypeTransformer
 
 static NSDictionary *ElementTypeToStringMapping;
 static NSDictionary *StringToElementTypeMapping;
+
+static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
 
 + (void)createMapping
 {
@@ -103,6 +106,9 @@ static NSDictionary *StringToElementTypeMapping;
       @78 : @"XCUIElementTypeHandle",
       @79 : @"XCUIElementTypeStepper",
       @80 : @"XCUIElementTypeTab",
+      @81 : @"XCUIElementTypeTouchBar",
+      @82 : @"XCUIElementTypeStatusItem",
+      // !!! This mapping should be updated if there are changes after the new XCTest version release
       };
     NSMutableDictionary *swappedMapping = [NSMutableDictionary dictionary];
     [ElementTypeToStringMapping enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -117,7 +123,11 @@ static NSDictionary *StringToElementTypeMapping;
   [self createMapping];
   NSNumber *type = StringToElementTypeMapping[typeName];
   if (!type) {
-    NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean XCUIElementType%@?", typeName, typeName];
+    if ([typeName hasPrefix:(NSString *)FB_ELEMENT_TYPE_PREFIX] && typeName.length > FB_ELEMENT_TYPE_PREFIX.length) {
+      [FBLogger logFmt:@"Mapping an unknown element type '%@' to XCUIElementTypeOther. Consider reviewing the ElementTypeToStringMapping", typeName];
+      return XCUIElementTypeOther;
+    }
+    NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean %@%@?", typeName, FB_ELEMENT_TYPE_PREFIX, typeName];
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
   return (XCUIElementType) ( type ? type.unsignedIntegerValue : XCUIElementTypeAny);
@@ -128,14 +138,14 @@ static NSDictionary *StringToElementTypeMapping;
   [self createMapping];
   NSString *typeName = ElementTypeToStringMapping[@(type)];
   if (!typeName) {
-    return [NSString stringWithFormat:@"Unknown(%lu)", (unsigned long)type];
+    return [NSString stringWithFormat:@"%@Unknown(%lu)", FB_ELEMENT_TYPE_PREFIX, (unsigned long)type];
   }
   return typeName;
 }
 
 + (NSString *)shortStringWithElementType:(XCUIElementType)type
 {
-  return [[self stringWithElementType:type] stringByReplacingOccurrencesOfString:@"XCUIElementType" withString:@""];
+  return [[self stringWithElementType:type] stringByReplacingOccurrencesOfString:(NSString *)FB_ELEMENT_TYPE_PREFIX withString:@""];
 }
 
 @end

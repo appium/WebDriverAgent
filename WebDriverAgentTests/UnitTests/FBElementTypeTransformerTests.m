@@ -40,6 +40,7 @@
   XCTAssertEqual(XCUIElementTypeOther, [FBElementTypeTransformer elementTypeWithTypeName:@"XCUIElementTypeOther"]);
   XCTAssertThrows([FBElementTypeTransformer elementTypeWithTypeName:@"Whatever"]);
   XCTAssertThrows([FBElementTypeTransformer elementTypeWithTypeName:nil]);
+  XCTAssertEqual(XCUIElementTypeOther, [FBElementTypeTransformer elementTypeWithTypeName:@"XCUIElementTypeNewType"]);
 }
 
 @end
