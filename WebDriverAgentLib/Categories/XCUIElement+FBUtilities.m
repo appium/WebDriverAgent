@@ -125,17 +125,32 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   [FBXCTestDaemonsProxy tryToSetAxTimeout:axTimeout
                                  forProxy:proxy
                               withHandler:^(int res) {
-                                [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
-                                                    attributes:axAttributes
-                                                    parameters:defaultParameters
-                                                         reply:^(XCElementSnapshot *snapshot, NSError *error) {
-                                                           if (nil == error) {
-                                                             snapshotWithAttributes = snapshot;
-                                                           } else {
-                                                             innerError = error;
-                                                           }
-                                                           dispatch_semaphore_signal(sem);
-                                                         }];
+                                Class proxyClass = NSClassFromString(@"XCTestManager_ManagerInterface");
+                                if ([proxyClass respondsToSelector:@selector(_XCT_requestSnapshotForElement)]) {
+                                  [proxy _XCT_requestSnapshotForElement:self.lastSnapshot.accessibilityElement
+                                                      attributes:axAttributes
+                                                      parameters:defaultParameters
+                                                           reply:^(XCElementSnapshot *snapshot, NSError *error) {
+                                                             if (nil == error) {
+                                                               snapshotWithAttributes = snapshot;
+                                                             } else {
+                                                               innerError = error;
+                                                             }
+                                                             dispatch_semaphore_signal(sem);
+                                                           }];
+                                } else {
+                                  [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
+                                                      attributes:axAttributes
+                                                      parameters:defaultParameters
+                                                           reply:^(XCElementSnapshot *snapshot, NSError *error) {
+                                                             if (nil == error) {
+                                                               snapshotWithAttributes = snapshot;
+                                                             } else {
+                                                               innerError = error;
+                                                             }
+                                                             dispatch_semaphore_signal(sem);
+                                                           }];
+                                }
                               }];
   dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(axTimeout * NSEC_PER_SEC)));
   if (nil == snapshotWithAttributes) {
