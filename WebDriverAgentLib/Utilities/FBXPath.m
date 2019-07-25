@@ -54,6 +54,10 @@
 
 @end
 
+@interface FBAccessibleAttribute : FBElementAttribute
+
+@end
+
 @interface FBDimensionAttribute : FBElementAttribute
 
 @end
@@ -429,6 +433,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBLabelAttribute.class,
            FBEnabledAttribute.class,
            FBVisibleAttribute.class,
+           FBAccessibleAttribute.class,
 #if TARGET_OS_TV
            FBFocusedAttribute.class,
 #endif
@@ -526,6 +531,20 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 + (NSString *)valueForElement:(id<FBElement>)element
 {
   return element.wdVisible ? @"true" : @"false";
+}
+
+@end
+
+@implementation FBAccessibleAttribute
+
++ (NSString *)name
+{
+  return @"accessible";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return element.wdAccessible ? @"true" : @"false";
 }
 
 @end

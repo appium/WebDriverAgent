@@ -87,6 +87,7 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   info[@"frame"] = NSStringFromCGRect(snapshot.wdFrame);
   info[@"isEnabled"] = [@([snapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([snapshot isWDVisible]) stringValue];
+  info[@"accessible"] = [@([snapshot isWDAccessible]) stringValue];
 #if TARGET_OS_TV
   info[@"isFocused"] = [@([snapshot isWDFocused]) stringValue];
 #endif
