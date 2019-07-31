@@ -27,10 +27,6 @@ More about how to start WebDriverAgent [here](https://github.com/facebook/WebDri
 ## Known Issues
 If you are having some issues please checkout [wiki](https://github.com/facebook/WebDriverAgent/wiki/Common-Issues) first.
 
-## Note
-
-[appium-webdriveragent](https://www.npmjs.com/package/appium-webdriveragent) which is available via `npm` does not have `Script` directory. [XCUITest driver](https://github.com/appium/appium-xcuitest-driver) does the same thing instead. Please git clone this repository and follow the getting started if you would like to build WDA environment by manual.
-
 ## For Contributors
 If you want to help us out, you are more than welcome to. However please make sure you have followed the guidelines in [CONTRIBUTING](CONTRIBUTING.md).
 
