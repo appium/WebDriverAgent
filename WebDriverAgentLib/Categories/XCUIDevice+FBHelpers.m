@@ -127,25 +127,20 @@ static bool fb_isLocked;
 
 - (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality error: (NSError*__autoreleasing*) error
 {
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  __block NSData *screenshotData = nil;
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  void (^completion)(NSData *, NSError *) = ^(NSData *data, NSError *screenshotError) {
-    screenshotData = data;
-    *error = screenshotError;
-    dispatch_semaphore_signal(sem);
-  };
   if ([XCUIDevice fb_isNewScreenshotAPISupported]) {
-    [proxy _XCT_requestScreenshotOfScreenWithID:[[XCUIScreen mainScreen] displayID]
-                                       withRect:CGRectNull
-                                            uti:(__bridge id)kUTTypeJPEG
-                             compressionQuality:quality
-                                      withReply:completion];
-  } else {
-    [proxy _XCT_requestScreenshotWithReply:completion];
+    return [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:CGRectNull error:error];
+  }else {
+    id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+    __block NSData *screenshotData = nil;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [proxy _XCT_requestScreenshotWithReply:^(NSData *data, NSError *screenshotError) {
+      screenshotData = data;
+      *error = screenshotError;
+      dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
+    return screenshotData;
   }
-  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
-  return screenshotData;
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch
