@@ -129,7 +129,7 @@ static bool fb_isLocked;
 {
   if ([XCUIDevice fb_isNewScreenshotAPISupported]) {
     return [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:CGRectNull error:error];
-  }else {
+  } else {
     id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
     __block NSData *screenshotData = nil;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
