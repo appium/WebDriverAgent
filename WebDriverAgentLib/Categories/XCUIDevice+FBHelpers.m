@@ -161,9 +161,9 @@ static bool fb_isLocked;
 
 - (BOOL)fb_isNewScreenshotAPISupported
 {
-  static dispatch_once_t onceCanStream;
+  static dispatch_once_t newScreenshotAPISupported;
   static BOOL result;
-  dispatch_once(&onceCanStream, ^{
+  dispatch_once(&newScreenshotAPISupported, ^{
     result = [(NSObject *)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestScreenshotOfScreenWithID:withRect:uti:compressionQuality:withReply:)];
   });
   return result;
