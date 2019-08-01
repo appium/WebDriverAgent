@@ -135,7 +135,7 @@ static bool fb_isLocked;
     *error = screenshotError;
     dispatch_semaphore_signal(sem);
   };
-  if ([self fb_isNewScreenshotAPISupported]) {
+  if ([XCUIDevice fb_isNewScreenshotAPISupported]) {
     [proxy _XCT_requestScreenshotOfScreenWithID:[[XCUIScreen mainScreen] displayID]
                                        withRect:CGRectNull
                                             uti:(__bridge id)kUTTypeJPEG
@@ -159,7 +159,7 @@ static bool fb_isLocked;
   return notify_post(name) == NOTIFY_STATUS_OK;
 }
 
-- (BOOL)fb_isNewScreenshotAPISupported
++ (BOOL)fb_isNewScreenshotAPISupported
 {
   static dispatch_once_t newScreenshotAPISupported;
   static BOOL result;
