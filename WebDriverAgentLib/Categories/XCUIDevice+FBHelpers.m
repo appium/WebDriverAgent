@@ -114,7 +114,7 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality rect:CGRectNull error:error];
+  NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality error:error];
   if (nil == screenshotData) {
     return nil;
   }
@@ -125,10 +125,9 @@ static bool fb_isLocked;
 #endif
 }
 
-- (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality rect:(CGRect)rect error:(NSError*__autoreleasing*) error
+- (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality error: (NSError*__autoreleasing*) error
 {
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  BOOL fasterAPISupported = [(NSObject *) proxy respondsToSelector:@selector(_XCT_requestScreenshotOfScreenWithID:withRect:uti:compressionQuality:withReply:)];
   __block NSData *screenshotData = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   void (^completion)(NSData *, NSError *) = ^(NSData *data, NSError *screenshotError) {
@@ -136,10 +135,10 @@ static bool fb_isLocked;
     *error = screenshotError;
     dispatch_semaphore_signal(sem);
   };
-  if (fasterAPISupported) {
+  if ([self fb_isNewScreenshotAPISupported]) {
     [proxy _XCT_requestScreenshotOfScreenWithID:[[XCUIScreen mainScreen] displayID]
                                        withRect:CGRectNull
-                                            uti:(__bridge id)kUTTypePNG
+                                            uti:(__bridge id)kUTTypeJPEG
                              compressionQuality:quality
                                       withReply:completion];
   } else {
@@ -158,6 +157,16 @@ static bool fb_isLocked;
     name = "com.apple.BiometricKit_Sim.fingerTouch.nomatch";
   }
   return notify_post(name) == NOTIFY_STATUS_OK;
+}
+
+- (BOOL)fb_isNewScreenshotAPISupported
+{
+  static dispatch_once_t onceCanStream;
+  static BOOL result;
+  dispatch_once(&onceCanStream, ^{
+    result = [(NSObject *)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestScreenshotOfScreenWithID:withRect:uti:compressionQuality:withReply:)];
+  });
+  return result;
 }
 
 - (NSString *)fb_wifiIPAddress
