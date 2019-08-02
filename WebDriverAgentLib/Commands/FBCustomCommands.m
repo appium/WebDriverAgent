@@ -253,6 +253,7 @@
     @{
       @"currentLocale": currentLocale,
       @"timeZone": self.timeZone,
+      @"currentActiveApplication" : [self currentActiveApplication],
       }
     );
 }
@@ -277,6 +278,42 @@
   }
 
   return [localTimeZone name];
+}
+
+/**
+ * Returns current active app and its arguments of active session
+ *
+ * @return The dictionary of current active bundleId and its process/environment argumens
+ *
+ * @example
+ *
+ *     [self currentActiveApplication]
+ *     //=> {
+ *     //       "processArguments" : {
+ *     //       "env" : {
+ *     //           "HAPPY" : "testing"
+ *     //       },
+ *     //       "args" : [
+ *     //           "happy",
+ *     //           "tseting"
+ *     //       ]
+ *     //   },
+ *     //       "bundleId" : "com.trident.test-examples"
+ *     //   }
+ *
+ */
++ (NSDictionary *)currentActiveApplication
+{
+  FBApplication *application = [FBSession activeSession].activeApplication;
+  return
+  @{
+    @"bundleId": application.bundleID,
+    @"processArguments":
+      @{
+        @"args": application.launchArguments,
+        @"env": application.launchEnvironment
+        }
+    };
 }
 
 @end
