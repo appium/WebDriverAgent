@@ -78,11 +78,6 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 + (id<FBResponsePayload>)handleCreateSession:(FBRouteRequest *)request
 {
   NSDictionary *requirements = request.arguments[@"desiredCapabilities"];
-  NSString *bundleID = requirements[@"bundleId"];
-  NSString *appPath = requirements[@"app"];
-  if (!bundleID) {
-    return FBResponseWithErrorFormat(@"'bundleId' desired capability not provided");
-  }
   [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[requirements[@"shouldUseTestManagerForVisibilityDetection"] boolValue]];
   if (requirements[@"shouldUseCompactResponses"]) {
     [FBConfiguration setShouldUseCompactResponses:[requirements[@"shouldUseCompactResponses"] boolValue]];
@@ -106,19 +101,25 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 
   [FBConfiguration setShouldWaitForQuiescence:[requirements[@"shouldWaitForQuiescence"] boolValue]];
 
-  FBApplication *app = [[FBApplication alloc] initPrivateWithPath:appPath bundleID:bundleID];
-  app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
-  app.launchArguments = (NSArray<NSString *> *)requirements[@"arguments"] ?: @[];
-  app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)requirements[@"environment"] ?: @{};
-  [app launch];
-
-  if (app.processID == 0) {
-    return FBResponseWithErrorFormat(@"Failed to launch %@ application", bundleID);
+  NSString *bundleID = requirements[@"bundleId"];
+  FBApplication *app = nil;
+  if (bundleID != nil) {
+    app = [[FBApplication alloc] initPrivateWithPath:requirements[@"app"]
+                                            bundleID:bundleID];
+    app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
+    app.launchArguments = (NSArray<NSString *> *)requirements[@"arguments"] ?: @[];
+    app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)requirements[@"environment"] ?: @{};
+    [app launch];
+    if (app.processID == 0) {
+      return FBResponseWithErrorFormat(@"Failed to launch %@ application", bundleID);
+    }
   }
+
   if (requirements[@"defaultAlertAction"]) {
-    [FBSession sessionWithApplication:app defaultAlertAction:(id)requirements[@"defaultAlertAction"]];
+    [FBSession initWithApplication:app
+                defaultAlertAction:(id)requirements[@"defaultAlertAction"]];
   } else {
-    [FBSession sessionWithApplication:app];
+    [FBSession initWithApplication:app];
   }
 
   return FBResponseWithObject(FBSessionCommands.sessionInformation);

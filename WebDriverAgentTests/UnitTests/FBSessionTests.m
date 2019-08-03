@@ -23,7 +23,7 @@
 {
   [super setUp];
   self.testedApplication = (id)FBApplicationDouble.new;
-  self.session = [FBSession sessionWithApplication:self.testedApplication];
+  self.session = [FBSession initWithApplication:self.testedApplication];
 }
 
 - (void)testSessionFetching

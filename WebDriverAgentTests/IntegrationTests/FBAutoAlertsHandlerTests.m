@@ -54,7 +54,7 @@
   }
   
   self.session = [FBSession
-                  sessionWithApplication:FBApplication.fb_activeApplication
+                  initWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:nil];
@@ -71,7 +71,7 @@
   }
 
   self.session = [FBSession
-                  sessionWithApplication:FBApplication.fb_activeApplication
+                  initWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:nil];

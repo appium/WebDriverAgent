@@ -67,7 +67,7 @@ NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException"
 static FBSession *_activeSession;
 + (instancetype)activeSession
 {
-  return _activeSession ?: [FBSession sessionWithApplication:nil];
+  return _activeSession ?: [FBSession initWithApplication:nil];
 }
 
 + (void)markSessionActive:(FBSession *)session
@@ -89,7 +89,7 @@ static FBSession *_activeSession;
   return _activeSession;
 }
 
-+ (instancetype)sessionWithApplication:(FBApplication *)application
++ (instancetype)initWithApplication:(FBApplication *)application
 {
   FBSession *session = [FBSession new];
   session.alertsMonitor = nil;
@@ -107,9 +107,9 @@ static FBSession *_activeSession;
   return session;
 }
 
-+ (instancetype)sessionWithApplication:(nullable FBApplication *)application defaultAlertAction:(NSString *)defaultAlertAction
++ (instancetype)initWithApplication:(nullable FBApplication *)application defaultAlertAction:(NSString *)defaultAlertAction
 {
-  FBSession *session = [self.class sessionWithApplication:application];
+  FBSession *session = [self.class initWithApplication:application];
   session.alertsMonitor = [[FBAlertsMonitor alloc] init];
   session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
   session.alertsMonitor.application = FBApplication.fb_activeApplication;
