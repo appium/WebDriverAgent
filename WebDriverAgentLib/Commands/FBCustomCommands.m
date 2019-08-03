@@ -253,7 +253,7 @@
     @{
       @"currentLocale": currentLocale,
       @"timeZone": self.timeZone,
-      @"currentActiveApplication" : [self currentActiveApplication],
+      @"activeApplication" : [self currentActiveApplication],
       }
     );
 }
@@ -305,6 +305,15 @@
 + (NSDictionary *)currentActiveApplication
 {
   FBApplication *application = [FBSession activeSession].activeApplication;
+  // Can be here if no activeApplications by XCTest framework
+  if (application == nil) {
+    return
+    @{
+      @"bundleId": @"",
+      @"processArguments": @{ @"args": @[], @"env": @{} }
+    };
+  }
+
   return
   @{
     @"bundleId": application.bundleID,
@@ -312,8 +321,8 @@
       @{
         @"args": application.launchArguments,
         @"env": application.launchEnvironment
-        }
-    };
+      }
+  };
 }
 
 @end
