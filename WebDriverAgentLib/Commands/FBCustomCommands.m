@@ -168,8 +168,45 @@
   return FBResponseWithStatus(FBCommandStatusNoError, @{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
-    @"name": app.identifier
+    @"name": app.identifier,
+    @"processArguments": [self processArguments:app],
   });
+}
+
+/**
+ * Returns current active app and its arguments of active session
+ *
+ * @return The dictionary of current active bundleId and its process/environment argumens
+ *
+ * @example
+ *
+ *     [self currentActiveApplication]
+ *     //=> {
+ *     //       "processArguments" : {
+ *     //       "env" : {
+ *     //           "HAPPY" : "testing"
+ *     //       },
+ *     //       "args" : [
+ *     //           "happy",
+ *     //           "tseting"
+ *     //       ]
+ *     //   }
+ *
+ *     [self currentActiveApplication]
+ *     //=> {}
+ */
++ (NSDictionary *)processArguments:(XCUIApplication *)app
+{
+  // Can be nil if no active activation is defined by XCTest
+  if (app == nil) {
+    return @{};
+  }
+
+  return
+  @{
+    @"args": app.launchArguments,
+    @"env": app.launchEnvironment
+  };
 }
 
 #if !TARGET_OS_TV
@@ -253,7 +290,6 @@
     @{
       @"currentLocale": currentLocale,
       @"timeZone": self.timeZone,
-      @"activeApplication" : [self activeApplicationInfo],
       }
     );
 }
@@ -278,49 +314,6 @@
   }
 
   return [localTimeZone name];
-}
-
-/**
- * Returns current active app and its arguments of active session
- *
- * @return The dictionary of current active bundleId and its process/environment argumens
- *
- * @example
- *
- *     [self currentActiveApplication]
- *     //=> {
- *     //       "processArguments" : {
- *     //       "env" : {
- *     //           "HAPPY" : "testing"
- *     //       },
- *     //       "args" : [
- *     //           "happy",
- *     //           "tseting"
- *     //       ]
- *     //   },
- *     //       "bundleId" : "com.trident.test-examples"
- *     //   }
- *
- *     [self currentActiveApplication]
- *     //=> {}
- */
-+ (NSDictionary *)activeApplicationInfo
-{
-  FBApplication *application = [FBSession activeSession].activeApplication;
-  // Can be nil if no active activation is defined by XCTest
-  if (application == nil) {
-    return @{};
-  }
-
-  return
-  @{
-    @"bundleId": application.bundleID,
-    @"processArguments":
-      @{
-        @"args": application.launchArguments,
-        @"env": application.launchEnvironment
-      }
-  };
 }
 
 @end
