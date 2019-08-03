@@ -253,7 +253,7 @@
     @{
       @"currentLocale": currentLocale,
       @"timeZone": self.timeZone,
-      @"activeApplication" : [self currentActiveApplication],
+      @"activeApplication" : [self activeApplicationInfo],
       }
     );
 }
@@ -301,17 +301,15 @@
  *     //       "bundleId" : "com.trident.test-examples"
  *     //   }
  *
+ *     [self currentActiveApplication]
+ *     //=> {}
  */
-+ (NSDictionary *)currentActiveApplication
++ (NSDictionary *)activeApplicationInfo
 {
   FBApplication *application = [FBSession activeSession].activeApplication;
-  // Can be here if no activeApplications by XCTest framework
+  // Can be nil if no active activation is defined by XCTest
   if (application == nil) {
-    return
-    @{
-      @"bundleId": @"",
-      @"processArguments": @{ @"args": @[], @"env": @{} }
-    };
+    return @{};
   }
 
   return
