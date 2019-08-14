@@ -65,6 +65,7 @@
     "build/index.js",
     "build/lib",
     "Scripts/bootstrap.sh",
+    "Scripts/build.sh",
     "Cartfile",
     "Cartfile.resolved",
     "Configurations",
