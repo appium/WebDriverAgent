@@ -38,8 +38,11 @@ const BOOTSTRAP_PATH = __dirname.endsWith('build')
   ? path.resolve(__dirname, '..')
   : __dirname;
 const WDA_BUNDLE_ID = 'com.apple.test.WebDriverAgentRunner-Runner';
+const WEBDRIVERAGENT_PROJECT = path.join(BOOTSTRAP_PATH, 'WebDriverAgent.xcodeproj');
 const WDA_RUNNER_BUNDLE_ID = 'com.facebook.WebDriverAgentRunner';
 const PROJECT_FILE = 'project.pbxproj';
+
+let buildDirPath;
 
 async function hasTvOSSims () {
   const devices = _.flatten(Object.values(await getDevices(null, TVOS)));
@@ -111,16 +114,49 @@ async function fetchDependencies (useSsl = false) {
   return true;
 }
 
+async function buildWDASim () {
+  await exec('xcodebuild', ['-project', WEBDRIVERAGENT_PROJECT, '-scheme', 'WebDriverAgentRunner', '-sdk', 'iphonesimulator', 'CODE_SIGN_IDENTITY=""', 'CODE_SIGNING_REQUIRED="NO"']);
+}
+
+async function retrieveBuildDir () {
+  if (buildDirPath) {
+    return buildDirPath;
+  }
+
+  const {stdout} = await exec('xcodebuild', ['-project', WEBDRIVERAGENT_PROJECT, '-showBuildSettings']);
+
+  const pattern = /^\s*BUILD_DIR\s+=\s+(\/.*)/m;
+  const match = pattern.exec(stdout);
+  if (!match) {
+    throw new Error(`Cannot parse WDA build dir from ${_.truncate(stdout, {length: 300})}`);
+  }
+  buildDirPath = match[1];
+  log.debug(`Got build folder: '${buildDirPath}'`);
+  return buildDirPath;
+}
+
 async function checkForDependencies (opts = {}) {
   return await fetchDependencies(opts.useSsl);
+}
+
+async function bundleWDASim (opts) {
+  const derivedDataPath = await retrieveBuildDir();
+  const wdaBundlePath = path.join(derivedDataPath, 'Debug-iphonesimulator', 'WebDriverAgentRunner-Runner.app');
+  if (await fs.exists(wdaBundlePath)) {
+    return wdaBundlePath;
+  }
+  await checkForDependencies(opts);
+  await buildWDASim();
+  return wdaBundlePath;
 }
 
 if (require.main === module) {
   asyncify(checkForDependencies);
 }
 
-
 export {
-  checkForDependencies, BOOTSTRAP_PATH, WDA_BUNDLE_ID,
+  checkForDependencies, retrieveBuildDir,
+  bundleWDASim,
+  BOOTSTRAP_PATH, WDA_BUNDLE_ID,
   WDA_RUNNER_BUNDLE_ID, PROJECT_FILE,
 };
