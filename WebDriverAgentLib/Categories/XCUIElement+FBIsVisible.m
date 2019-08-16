@@ -185,9 +185,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   }
 
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
-    NSString *visibleAttrName = [NSString stringWithCString:FB_XCAXAIsVisibleAttributeName
-                                                   encoding:NSUTF8StringEncoding];
-    BOOL visibleAttrValue = [(NSNumber *)[self fb_attributeValue:visibleAttrName] boolValue];
+    BOOL visibleAttrValue = [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttributeName] boolValue];
     return [self fb_cacheVisibilityWithValue:visibleAttrValue forAncestors:nil];
   }
 

@@ -32,9 +32,7 @@
     return isAccessibilityElement.boolValue;
   }
   
-  NSString *attrName = [NSString stringWithCString:FB_XCAXAIsElementAttributeName
-                                          encoding:NSUTF8StringEncoding];
-  return [(NSNumber *)[self fb_attributeValue:attrName] boolValue];
+  return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsElementAttributeName] boolValue];
 }
 
 @end
