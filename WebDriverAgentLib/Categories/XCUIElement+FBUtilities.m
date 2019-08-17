@@ -149,14 +149,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   // Names of the properties to load. There won't be lazy loading for missing properties,
   // thus missing properties will lead to wrong results
-  NSArray<NSString *> *propertyNames = @[
-    @"identifier",
-    @"value",
-    @"label",
-    @"frame",
-    @"enabled",
-    @"elementType"
-  ];
+  NSArray<NSString *> *propertyNames = [XCUIElement fb_defaultPropertyNames];
   
   SEL attributesForElementSnapshotKeyPathsSelector = [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector];
   NSSet *attributes = (nil == attributesForElementSnapshotKeyPathsSelector) ? nil
@@ -179,6 +172,22 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     [mutable addObject:FB_XCAXAIsElementAttributeName];
     return [mutable allObjects];
   }
+}
+
++ (NSArray *)fb_defaultPropertyNames
+{
+  static NSArray<NSString *> *propertyNames;
+  static dispatch_once_t oncePropertyNamesToken;
+  dispatch_once(&oncePropertyNamesToken, ^{
+    propertyNames = @[
+      @"identifier",
+      @"value",
+      @"label",
+      @"frame",
+      @"enabled",
+      @"elementType"
+    ];
+  });
 }
 
 - (XCElementSnapshot *)fb_lastSnapshotFromQuery
