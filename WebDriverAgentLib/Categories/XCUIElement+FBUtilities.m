@@ -110,7 +110,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return snapshotWithAttributes;
 }
 
-+ (BOOL) fb_newSnapshotAPIIsSupported
++ (BOOL)fb_isNewSnapshotAPIIsSupported
 {
   static dispatch_once_t newSnapshotIsSupported;
   static BOOL result;
@@ -120,12 +120,13 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return result;
 }
 
-- (void) fb_requestSnapshot:(XCAccessibilityElement *)accessibilityElement reply:(void (^)(XCElementSnapshot *, NSError *))block
+- (void)fb_requestSnapshot:(XCAccessibilityElement *)accessibilityElement reply:(void (^)(XCElementSnapshot *, NSError *))block
 {
   static NSDictionary *defaultParameters;
   static dispatch_once_t initializeAttributesAndParametersToken;
   static NSArray *axAttributes;
-  BOOL useNewSnapshotAPI = [XCUIElement fb_newSnapshotAPIIsSupported];
+  // XCode 11 has a new snapshot api and the old one will be deprecated soon
+  BOOL useNewSnapshotAPI = [XCUIElement fb_isNewSnapshotAPIIsSupported];
   dispatch_once(&initializeAttributesAndParametersToken, ^{
     defaultParameters = [FBXCAXClientProxy.sharedClient defaultParameters];
     axAttributes = [self fb_createAXAttributes:!useNewSnapshotAPI];
@@ -144,7 +145,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 }
 
-- (NSArray *) fb_createAXAttributes: (BOOL)asNumber
+- (NSArray *)fb_createAXAttributes: (BOOL)asNumber
 {
   // Names of the properties to load. There won't be lazy loading for missing properties,
   // thus missing properties will lead to wrong results
@@ -164,12 +165,12 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     @throw [NSException exceptionWithName:@"AttributesEmpty" reason:@"Couldn't build the attributes " userInfo:nil];
   }
   if (asNumber) {
-    NSArray *axAttributes = XCAXAccessibilityAttributesForStringAttributes(attributes);
+    NSMutableArray *axAttributes = [NSMutableArray arrayWithArray:XCAXAccessibilityAttributesForStringAttributes(attributes)];
     if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
-      axAttributes = [axAttributes arrayByAddingObject:FB_XCAXAIsVisibleAttribute];
+      [axAttributes addObject:FB_XCAXAIsVisibleAttribute];
     }
     if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
-      axAttributes = [axAttributes arrayByAddingObject:FB_XCAXAIsVisibleAttribute];
+      [axAttributes addObject:FB_XCAXAIsVisibleAttribute];
     }
     return axAttributes;
   } else {
@@ -268,7 +269,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     }
     return nil;
   }
-  
+
   CGRect elementRect = self.frame;
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
@@ -287,8 +288,8 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       if (CGRectEqualToRect(appFrame, parentWindowFrame)
           || (appFrame.size.width > appFrame.size.height && parentWindowFrame.size.width > parentWindowFrame.size.height)
           || (appFrame.size.width < appFrame.size.height && parentWindowFrame.size.width < parentWindowFrame.size.height)) {
-        CGPoint fixedOrigin = orientation == UIInterfaceOrientationLandscapeLeft ?
-        CGPointMake(appFrame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x) :
+          CGPoint fixedOrigin = orientation == UIInterfaceOrientationLandscapeLeft ?
+          CGPointMake(appFrame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x) :
         CGPointMake(elementRect.origin.y, appFrame.size.width - elementRect.origin.x - elementRect.size.width);
         elementRect = CGRectMake(fixedOrigin.x, fixedOrigin.y, elementRect.size.height, elementRect.size.width);
       }
