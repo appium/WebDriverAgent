@@ -172,7 +172,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
       [axAttributes addObject:FB_XCAXAIsVisibleAttribute];
     }
-    return axAttributes;
+    return [axAttributes copy];
   } else {
     NSMutableSet *mutable = [NSMutableSet setWithSet:attributes];
     [mutable addObject:FB_XCAXAIsVisibleAttributeName];
