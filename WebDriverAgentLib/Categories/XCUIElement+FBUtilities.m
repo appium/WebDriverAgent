@@ -174,7 +174,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 }
 
-+ (NSArray *)fb_defaultPropertyNames
++ (NSArray<NSString*> *)fb_defaultPropertyNames
 {
   static NSArray<NSString *> *propertyNames;
   static dispatch_once_t oncePropertyNamesToken;
@@ -188,6 +188,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       @"elementType"
     ];
   });
+  return propertyNames;
 }
 
 - (XCElementSnapshot *)fb_lastSnapshotFromQuery
