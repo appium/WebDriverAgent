@@ -9,6 +9,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "AXSettings.h"
 #import "UIKeyboardImpl.h"
 #import "TIPreferencesController.h"
 
@@ -146,6 +147,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)setUseFirstMatch:(BOOL)enabled;
 + (BOOL)useFirstMatch;
+
+/**
+ * Modify reduce motion configuration in accessibility
+ *
+ * @param isEnabled Turn the configuration on if the value is YES
+ */
++ (void)setReduceMotionEnabled:(BOOL)isEnabled;
++ (BOOL)reduceMotionEnabled;
 
 @end
 

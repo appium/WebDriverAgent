@@ -31,6 +31,7 @@ static NSString* const KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
 static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
 static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
+static NSString* const REDUCE_MOTION = @"reduceMotion";
 
 @implementation FBSessionCommands
 
@@ -224,6 +225,7 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
       KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
       SNAPSHOT_TIMEOUT: @([FBConfiguration snapshotTimeout]),
       USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
+      REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
     }
   );
 }
@@ -263,6 +265,9 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
   }
   if ([settings objectForKey:USE_FIRST_MATCH]) {
     [FBConfiguration setUseFirstMatch:[[settings objectForKey:USE_FIRST_MATCH] boolValue]];
+  }
+  if ([settings objectForKey:REDUCE_MOTION]) {
+    [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];
   }
 
   return [self handleGetSettings:request];

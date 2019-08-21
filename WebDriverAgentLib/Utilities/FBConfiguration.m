@@ -26,6 +26,9 @@ static NSString *const controllerClassName = @"TIPreferencesController";
 static NSString *const FBKeyboardAutocorrectionKey = @"KeyboardAutocorrection";
 static NSString *const FBKeyboardPredictionKey = @"KeyboardPrediction";
 
+static char const *const settingsPrefBundlePath = "/System/Library/PrivateFrameworks/AccessibilityUtilities.framework/AccessibilityUtilities";
+
+
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
@@ -344,6 +347,40 @@ static BOOL FBShouldUseFirstMatch = NO;
     return NSMakeRange(NSNotFound, 0);
   }
   return NSMakeRange(port, 1);
+}
+
++ (void)setReduceMotionEnabled:(BOOL)isEnabled
+{
+  if (isSDKVersionGreaterThanOrEqualTo(@"10.0")) {
+    // setReduceMotionEnabled exists over iOS 10
+    return;
+  }
+
+  void *handle = dlopen(settingsPrefBundlePath, RTLD_LAZY);
+  Class settingsClass = NSClassFromString(@"AXSettings");
+
+  AXSettings *settings = [settingsClass sharedInstance];
+
+  // Below does not work on real devices because of iOS security model
+  //  (lldb) po settings.reduceMotionEnabled = isEnabled
+  //  2019-08-21 22:58:19.776165+0900 WebDriverAgentRunner-Runner[322:13361] [User Defaults] Couldn't write value for key ReduceMotionEnabled in CFPrefsPlistSource<0x28111a700> (Domain: com.apple.Accessibility, User: kCFPreferencesCurrentUser, ByHost: No, Container: (null), Contents Need Refresh: No): setting preferences outside an application's container requires user-preference-write or file-write-data sandbox access
+  if ([settings respondsToSelector:@selector(setReduceMotionEnabled:)]) {
+    [settings setReduceMotionEnabled:isEnabled];
+  }
+
+  dlclose(handle);
+}
+
++ (BOOL)reduceMotionEnabled
+{
+  if (isSDKVersionGreaterThanOrEqualTo(@"10.0")) {
+    // setRNOeduceMotionEnabled exists over iOS 10
+    return NO;
+  }
+
+  Class settingsClass = NSClassFromString(@"AXSettings");
+  AXSettings *settings = [settingsClass sharedInstance];
+  return settings.reduceMotionEnabled;
 }
 
 @end
