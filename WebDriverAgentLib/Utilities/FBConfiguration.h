@@ -149,7 +149,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)useFirstMatch;
 
 /**
- * Modify reduce motion configuration in accessibility
+ * Modify reduce motion configuration in accessibility..
+ * It works only for Simulator since Real device has security model which allows chnaging preferences
+ * only from settings app.
  *
  * @param isEnabled Turn the configuration on if the value is YES
  */
