@@ -26,10 +26,6 @@ static NSString *const controllerClassName = @"TIPreferencesController";
 static NSString *const FBKeyboardAutocorrectionKey = @"KeyboardAutocorrection";
 static NSString *const FBKeyboardPredictionKey = @"KeyboardPrediction";
 
-static char const *const settingsPrefBundlePath = "/System/Library/PrivateFrameworks/AccessibilityUtilities.framework/AccessibilityUtilities";
-
-
-
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
@@ -351,12 +347,11 @@ static BOOL FBShouldUseFirstMatch = NO;
 
 + (void)setReduceMotionEnabled:(BOOL)isEnabled
 {
-  if (isSDKVersionGreaterThanOrEqualTo(@"10.0")) {
+  if (isSDKVersionLessThan(@"10.0")) {
     // setReduceMotionEnabled exists over iOS 10
     return;
   }
 
-  void *handle = dlopen(settingsPrefBundlePath, RTLD_LAZY);
   Class settingsClass = NSClassFromString(@"AXSettings");
 
   AXSettings *settings = [settingsClass sharedInstance];
@@ -367,13 +362,11 @@ static BOOL FBShouldUseFirstMatch = NO;
   if ([settings respondsToSelector:@selector(setReduceMotionEnabled:)]) {
     [settings setReduceMotionEnabled:isEnabled];
   }
-
-  dlclose(handle);
 }
 
 + (BOOL)reduceMotionEnabled
 {
-  if (isSDKVersionGreaterThanOrEqualTo(@"10.0")) {
+  if (isSDKVersionLessThan(@"10.0")) {
     // setRNOeduceMotionEnabled exists over iOS 10
     return NO;
   }

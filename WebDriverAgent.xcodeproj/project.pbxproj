@@ -304,6 +304,8 @@
 		648C10AC22AAAD9C00B81B9A /* UIKeyboardImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 648C10AA22AAAD9C00B81B9A /* UIKeyboardImpl.h */; };
 		648C10AF22AAAE4000B81B9A /* TIPreferencesController.h in Headers */ = {isa = PBXBuildFile; fileRef = 648C10AE22AAAE4000B81B9A /* TIPreferencesController.h */; };
 		648C10B022AAAE4000B81B9A /* TIPreferencesController.h in Headers */ = {isa = PBXBuildFile; fileRef = 648C10AE22AAAE4000B81B9A /* TIPreferencesController.h */; };
+		6496A5D9230D6EB30087F8CB /* AXSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 6496A5D8230D6EB30087F8CB /* AXSettings.h */; };
+		6496A5DA230D6EB30087F8CB /* AXSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 6496A5D8230D6EB30087F8CB /* AXSettings.h */; };
 		64B264FE228C50E0002A5025 /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B264F3228C5098002A5025 /* FBTVNavigationTrackerTests.m */; };
 		64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B26507228C5514002A5025 /* XCUIElementDouble.m */; };
@@ -830,6 +832,7 @@
 		641EE73A2240F49D00173FCB /* YYCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = YYCache.framework; path = Carthage/Build/tvOS/YYCache.framework; sourceTree = "<group>"; };
 		648C10AA22AAAD9C00B81B9A /* UIKeyboardImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIKeyboardImpl.h; sourceTree = "<group>"; };
 		648C10AE22AAAE4000B81B9A /* TIPreferencesController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TIPreferencesController.h; sourceTree = "<group>"; };
+		6496A5D8230D6EB30087F8CB /* AXSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AXSettings.h; sourceTree = "<group>"; };
 		64B264EB228C4D54002A5025 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64B264F3228C5098002A5025 /* FBTVNavigationTrackerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTVNavigationTrackerTests.m; sourceTree = "<group>"; };
 		64B264F9228C50E0002A5025 /* UnitTests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1330,6 +1333,14 @@
 			path = TextInput;
 			sourceTree = "<group>";
 		};
+		6496A5D7230D6E9D0087F8CB /* AccessibilityUtilities */ = {
+			isa = PBXGroup;
+			children = (
+				6496A5D8230D6EB30087F8CB /* AXSettings.h */,
+			);
+			path = AccessibilityUtilities;
+			sourceTree = "<group>";
+		};
 		64B264E8228C4D54002A5025 /* UnitTests_tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1416,6 +1427,7 @@
 		91F9DB731B99DDD8001349B2 /* PrivateHeaders */ = {
 			isa = PBXGroup;
 			children = (
+				6496A5D7230D6E9D0087F8CB /* AccessibilityUtilities */,
 				C8FB547222D3948300B69954 /* MobileCoreServices */,
 				648C10AD22AAAE2400B81B9A /* TextInput */,
 				648C10A922AAAD7600B81B9A /* UIKitCore */,
@@ -2034,6 +2046,7 @@
 				641EE6792240C5CA00173FCB /* XCUIRecorderNodeFinder.h in Headers */,
 				641EE67A2240C5CA00173FCB /* XCUIElement+FBAccessibility.h in Headers */,
 				641EE67B2240C5CA00173FCB /* XCUIRecorderUtilities.h in Headers */,
+				6496A5DA230D6EB30087F8CB /* AXSettings.h in Headers */,
 				641EE67C2240C5CA00173FCB /* XCTestCaseRun.h in Headers */,
 				641EE67D2240C5CA00173FCB /* XCTestConfiguration.h in Headers */,
 				641EE67E2240C5CA00173FCB /* _XCTDarwinNotificationExpectationImplementation.h in Headers */,
@@ -2192,6 +2205,7 @@
 				EE158AF51CBD456F00A3E3F0 /* FBApplication.h in Headers */,
 				EE35AD4B1E3B77D600A02D78 /* XCTestExpectationWaiter.h in Headers */,
 				EE35AD1E1E3B77D600A02D78 /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
+				6496A5D9230D6EB30087F8CB /* AXSettings.h in Headers */,
 				EE35AD301E3B77D600A02D78 /* XCKeyboardKeyMap.h in Headers */,
 				EE35AD5D1E3B77D600A02D78 /* XCTNSPredicateExpectationObject-Protocol.h in Headers */,
 				EE158B5F1CBD47A000A3E3F0 /* WebDriverAgentLib.h in Headers */,
@@ -2559,6 +2573,7 @@
 				TargetAttributes = {
 					641EE2D92240BBE300173FCB = {
 						CreatedOnToolsVersion = 10.1;
+						DevelopmentTeam = 9U4PT397Q4;
 					};
 					641EE5D52240C5CA00173FCB = {
 						ProvisioningStyle = Manual;
@@ -2574,6 +2589,7 @@
 					};
 					EE9B75D31CF7956C00275851 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 9U4PT397Q4;
 					};
 					EE9B75EB1CF7956C00275851 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -2581,6 +2597,7 @@
 					};
 					EEF988291C486603005CA669 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 9U4PT397Q4;
 					};
 				};
 			};
@@ -3073,12 +3090,13 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3098,11 +3116,12 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3523,10 +3542,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.wda.integrationApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -3536,10 +3556,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.wda.integrationApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -3585,6 +3606,7 @@
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -3596,7 +3618,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};
@@ -3607,6 +3629,7 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				DEVELOPMENT_TEAM = 9U4PT397Q4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -3618,7 +3641,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trident.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 			};
