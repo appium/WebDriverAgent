@@ -397,7 +397,7 @@ static NSString *const FB_OPTIONS_KEY = @"options";
       continue;
     }
     NSMutableDictionary<NSString *, id> *processedItem = touchItem.mutableCopy;
-    [processedItem setObject:FBInsertElement((id) [processedItem objectForKey:FB_OPTIONS_KEY], element)
+    [processedItem setObject:FBInsertElement(FBCleanupElements(options), element)
                       forKey:FB_OPTIONS_KEY];
     [result addObject:processedItem.copy];
   }

@@ -39,6 +39,18 @@ id FBExtractElement(NSDictionary *src)
   return nil;
 }
 
+NSDictionary *FBCleanupElements(NSDictionary *src)
+{
+  NSMutableDictionary *result = src.mutableCopy;
+  for (NSString* key in src) {
+    if ([key.lowercaseString isEqualToString:W3C_ELEMENT_KEY.lowercaseString]
+        || [key.lowercaseString isEqualToString:JSONWP_ELEMENT_KEY.lowercaseString]) {
+      [result removeObjectForKey:key];
+    }
+  }
+  return result.copy;
+}
+
 NSArray<NSString *> *standardCapabilities(void)
 {
   static NSArray<NSString *> *standardCaps;
