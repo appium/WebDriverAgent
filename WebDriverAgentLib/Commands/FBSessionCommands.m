@@ -80,7 +80,11 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 {
   NSDictionary<NSString *, id> *requirements;
   NSError *error;
-  if (nil == (requirements = FBParseCapabilities(request.arguments, &error))) {
+  if (![request.arguments[@"capabilities"] isKindOfClass:NSDictionary.class]) {
+    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:@"'capabilities' is mandatory to create a new session"
+                                                              traceback:nil]);
+  }
+  if (nil == (requirements = FBParseCapabilities(request.arguments[@"capabilities"], &error))) {
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
   }
   [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[requirements[@"shouldUseTestManagerForVisibilityDetection"] boolValue]];
@@ -188,6 +192,8 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 
   return FBResponseWithObject(
     @{
+      @"ready" : @YES,
+      @"message" : @"WebDriverAgent is ready to accept commands",
       @"state" : @"success",
       @"os" :
         @{
