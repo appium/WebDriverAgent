@@ -347,13 +347,7 @@ static BOOL FBShouldUseFirstMatch = NO;
 
 + (void)setReduceMotionEnabled:(BOOL)isEnabled
 {
-  if (isSDKVersionLessThan(@"10.0")) {
-    // setReduceMotionEnabled exists over iOS 10
-    return;
-  }
-
   Class settingsClass = NSClassFromString(@"AXSettings");
-
   AXSettings *settings = [settingsClass sharedInstance];
 
   // Below does not work on real devices because of iOS security model
@@ -366,14 +360,12 @@ static BOOL FBShouldUseFirstMatch = NO;
 
 + (BOOL)reduceMotionEnabled
 {
-  if (isSDKVersionLessThan(@"10.0")) {
-    // setRNOeduceMotionEnabled exists over iOS 10
-    return NO;
-  }
-
   Class settingsClass = NSClassFromString(@"AXSettings");
   AXSettings *settings = [settingsClass sharedInstance];
-  return settings.reduceMotionEnabled;
-}
 
+  if ([settings respondsToSelector:@selector(reduceMotionEnabled)]) {
+    return settings.reduceMotionEnabled;
+  }
+  return NO;
+}
 @end
