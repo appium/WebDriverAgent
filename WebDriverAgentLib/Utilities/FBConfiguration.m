@@ -25,6 +25,7 @@ static char const *const controllerPrefBundlePath = "/System/Library/PrivateFram
 static NSString *const controllerClassName = @"TIPreferencesController";
 static NSString *const FBKeyboardAutocorrectionKey = @"KeyboardAutocorrection";
 static NSString *const FBKeyboardPredictionKey = @"KeyboardPrediction";
+static NSString *const axSettingsClassName = @"AXSettings";
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
@@ -347,7 +348,7 @@ static BOOL FBShouldUseFirstMatch = NO;
 
 + (void)setReduceMotionEnabled:(BOOL)isEnabled
 {
-  Class settingsClass = NSClassFromString(@"AXSettings");
+  Class settingsClass = NSClassFromString(axSettingsClassName);
   AXSettings *settings = [settingsClass sharedInstance];
 
   // Below does not work on real devices because of iOS security model
@@ -360,7 +361,7 @@ static BOOL FBShouldUseFirstMatch = NO;
 
 + (BOOL)reduceMotionEnabled
 {
-  Class settingsClass = NSClassFromString(@"AXSettings");
+  Class settingsClass = NSClassFromString(axSettingsClassName);
   AXSettings *settings = [settingsClass sharedInstance];
 
   if ([settings respondsToSelector:@selector(reduceMotionEnabled)]) {
