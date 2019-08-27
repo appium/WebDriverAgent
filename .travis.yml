@@ -29,7 +29,7 @@ branches:
 jobs:
   include:
     - stage: Node tests
-      os: linux
+      osx_image: xcode10.2
       language: node_js
       node_js: "10"
       install: npm install
