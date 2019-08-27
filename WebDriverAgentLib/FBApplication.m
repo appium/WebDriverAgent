@@ -10,9 +10,11 @@
 #import "FBApplication.h"
 
 #import "FBApplicationProcessProxy.h"
+#import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIApplication.h"
 #import "XCUIApplicationImpl.h"
@@ -21,6 +23,12 @@
 #import "XCUIElementQuery.h"
 #import "FBXCAXClientProxy.h"
 #import "XCUIApplicationProcessQuiescence.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTestPrivateSymbols.h"
+#import "XCTRunnerDaemonSession.h"
+
+static const NSTimeInterval APP_STATE_STABILITY_WINDOW = 1.0;
+static const NSTimeInterval APP_STATE_STABILITY_TIMEOUT = 5.0;
 
 @interface FBApplication ()
 @property (nonatomic, assign) BOOL fb_isObservingAppImplCurrentProcess;
@@ -28,29 +36,57 @@
 
 @implementation FBApplication
 
++ (nullable XCAccessibilityElement *)fb_currentAppElement
+{
+  CGPoint screenPoint = CGPointMake(100, 100);
+  __block XCAccessibilityElement *onScreenElement = nil;
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_requestElementAtPoint:screenPoint
+                              reply:^(XCAccessibilityElement *element, NSError *error) {
+                                if (nil == error) {
+                                  onScreenElement = element;
+                                }
+                                dispatch_semaphore_signal(sem);
+                              }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)));
+  return onScreenElement;
+}
+
 + (instancetype)fb_activeApplication
 {
-  [[[FBRunLoopSpinner new]
-    timeout:5]
+  __block XCAccessibilityElement *currentAppElement = nil;
+  __block XCAccessibilityElement *previousAppElement = self.fb_currentAppElement;
+  if (![[[FBRunLoopSpinner new]
+    timeout:APP_STATE_STABILITY_TIMEOUT]
    spinUntilTrue:^BOOL{
-     return [FBXCAXClientProxy.sharedClient activeApplications].count == 1;
-   }];
-
-  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
-  XCAccessibilityElement *activeApplicationElement;
-
-  if (activeApplicationElements.count > 1) {
-    // Might be situations when firstObject is a system application — i.e. SpringBoard
-    XCAccessibilityElement *systemApplicationElement = [FBXCAXClientProxy.sharedClient systemApplication];
-    NSPredicate *nonSystemApplicationPredicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary<NSString *,id> *bindings) {
-        return systemApplicationElement.processIdentifier != ((XCAccessibilityElement *)evaluatedObject).processIdentifier;
-    }];
-    activeApplicationElement = [[activeApplicationElements filteredArrayUsingPredicate:nonSystemApplicationPredicate] firstObject];
-  } else {
-    activeApplicationElement = [activeApplicationElements firstObject];
+     if ([[[FBRunLoopSpinner new]
+           timeout:APP_STATE_STABILITY_WINDOW]
+          spinUntilTrue:^BOOL{
+            currentAppElement = self.fb_currentAppElement;
+            return !currentAppElement
+              || !previousAppElement
+              || currentAppElement.processIdentifier != previousAppElement.processIdentifier;
+          }]) {
+       previousAppElement = currentAppElement;
+       return NO;
+     }
+     return YES;
+   }]) {
+     [FBLogger logFmt:@"Application state has not been stabilized within %.2f seconds timeout", APP_STATE_STABILITY_TIMEOUT];
   }
 
-  if (!activeApplicationElement) {
+  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  XCAccessibilityElement *activeApplicationElement = [activeApplicationElements lastObject];
+  if (nil != currentAppElement && activeApplicationElements.count > 1) {
+    for (XCAccessibilityElement *appElement in activeApplicationElements) {
+      if (appElement.processIdentifier == currentAppElement.processIdentifier) {
+        activeApplicationElement = appElement;
+        break;
+      }
+    }
+  }
+  if (nil == activeApplicationElement) {
     return nil;
   }
   FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
