@@ -73,9 +73,7 @@ id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status)
     NSMutableDictionary* value = [NSMutableDictionary dictionary];
     value[@"error"] = status.error;
     value[@"message"] = status.message ?: @"";
-    if (nil != status.traceback) {
-      value[@"traceback"] = status.traceback;
-    }
+    value[@"traceback"] = status.traceback ?: @"";
     response[@"value"] = value.copy;
   }
 
