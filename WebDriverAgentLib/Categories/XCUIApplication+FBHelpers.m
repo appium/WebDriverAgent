@@ -34,7 +34,15 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 
 + (XCAccessibilityElement *)fb_onScreenElement
 {
-  CGPoint screenPoint = CGPointMake(100, 100);
+  static CGPoint screenPoint;
+  static dispatch_once_t oncePoint;
+  dispatch_once(&oncePoint, ^{
+    CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    // Consider the element, which is located close to the top left corner of the screen the on-screen one.
+    // FIXME: Improve this algorithm for split-screen automation
+    CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * 0.2;
+    screenPoint = CGPointMake(pointDistance, pointDistance);
+  });
   __block XCAccessibilityElement *onScreenElement = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
