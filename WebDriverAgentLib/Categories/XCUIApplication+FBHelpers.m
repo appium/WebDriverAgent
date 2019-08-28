@@ -16,15 +16,50 @@
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXPath.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "FBXCAXClientProxy.h"
+#import "XCAccessibilityElement.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTestPrivateSymbols.h"
+#import "XCTRunnerDaemonSession.h"
 
 const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 
 @implementation XCUIApplication (FBHelpers)
+
++ (XCAccessibilityElement *)fb_onScreenElement
+{
+  CGPoint screenPoint = CGPointMake(100, 100);
+  __block XCAccessibilityElement *onScreenElement = nil;
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_requestElementAtPoint:screenPoint
+                              reply:^(XCAccessibilityElement *element, NSError *error) {
+                                if (nil == error) {
+                                  onScreenElement = element;
+                                }
+                                dispatch_semaphore_signal(sem);
+                              }];
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)));
+  return onScreenElement;
+}
+
+- (BOOL)fb_waitForAppElement:(NSTimeInterval)timeout
+{
+  return [[[FBRunLoopSpinner new]
+           timeout:timeout]
+          spinUntilTrue:^BOOL{
+    XCAccessibilityElement *currentAppElement = self.class.fb_onScreenElement;
+    int currentProcessIdentifier = self.accessibilityElement.processIdentifier;
+    return nil != currentAppElement
+      && currentAppElement.processIdentifier == currentProcessIdentifier;
+  }];
+}
 
 - (BOOL)fb_deactivateWithDuration:(NSTimeInterval)duration error:(NSError **)error
 {

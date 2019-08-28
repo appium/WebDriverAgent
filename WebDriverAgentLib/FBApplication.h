@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Constructor used to get current active application
  */
-+ (nullable instancetype)fb_activeApplication;
++ (instancetype)fb_activeApplication;
 
 /**
  Constructor used to get the system application

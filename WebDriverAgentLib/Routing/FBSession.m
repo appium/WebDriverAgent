@@ -112,7 +112,7 @@ static FBSession *_activeSession;
   FBSession *session = [self.class initWithApplication:application];
   session.alertsMonitor = [[FBAlertsMonitor alloc] init];
   session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
-  session.alertsMonitor.application = FBApplication.fb_activeApplication;
+  session.alertsMonitor.application = application;
   session.defaultAlertAction = [defaultAlertAction lowercaseString];
   [session.alertsMonitor enable];
   return session;
@@ -187,8 +187,9 @@ static FBSession *_activeSession;
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
     [app launch];
+  } else {
+    [app fb_activate];
   }
-  [app fb_activate];
 }
 
 - (void)activateApplicationWithBundleId:(NSString *)bundleIdentifier

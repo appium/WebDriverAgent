@@ -23,6 +23,7 @@ NSString *const FBSessionDoesNotExistException = @"FBSessionDoesNotExistExceptio
 NSString *const FBApplicationDeadlockDetectedException = @"FBApplicationDeadlockDetectedException";
 NSString *const FBElementAttributeUnknownException = @"FBElementAttributeUnknownException";
 NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
+NSString *const FBTimeoutException = @"FBTimeoutException";
 
 @implementation FBExceptionHandler
 
@@ -51,6 +52,9 @@ NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
   } else if ([exception.name isEqualToString:FBElementNotVisibleException]) {
     commandStatus = [FBCommandStatus elementNotVisibleErrorWithMessage:exception.reason
                                                              traceback:traceback];
+  } else if ([exception.name isEqualToString:FBTimeoutException]) {
+      commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
+                                                     traceback:traceback];
   } else {
     commandStatus = [FBCommandStatus unknownErrorWithMessage:exception.reason
                                                    traceback:traceback];

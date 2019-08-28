@@ -17,18 +17,16 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIApplication.h"
+#import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplicationImpl.h"
 #import "XCUIApplicationProcess.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 #import "FBXCAXClientProxy.h"
 #import "XCUIApplicationProcessQuiescence.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
-#import "XCTestPrivateSymbols.h"
-#import "XCTRunnerDaemonSession.h"
 
-static const NSTimeInterval APP_STATE_STABILITY_WINDOW = 1.0;
-static const NSTimeInterval APP_STATE_STABILITY_TIMEOUT = 5.0;
+
+static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 @interface FBApplication ()
 @property (nonatomic, assign) BOOL fb_isObservingAppImplCurrentProcess;
@@ -36,58 +34,24 @@ static const NSTimeInterval APP_STATE_STABILITY_TIMEOUT = 5.0;
 
 @implementation FBApplication
 
-+ (nullable XCAccessibilityElement *)fb_currentAppElement
-{
-  CGPoint screenPoint = CGPointMake(100, 100);
-  __block XCAccessibilityElement *onScreenElement = nil;
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [proxy _XCT_requestElementAtPoint:screenPoint
-                              reply:^(XCAccessibilityElement *element, NSError *error) {
-                                if (nil == error) {
-                                  onScreenElement = element;
-                                }
-                                dispatch_semaphore_signal(sem);
-                              }];
-  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)));
-  return onScreenElement;
-}
-
 + (instancetype)fb_activeApplication
 {
-  __block XCAccessibilityElement *currentAppElement = nil;
-  __block XCAccessibilityElement *previousAppElement = self.fb_currentAppElement;
-  if (![[[FBRunLoopSpinner new]
-    timeout:APP_STATE_STABILITY_TIMEOUT]
-   spinUntilTrue:^BOOL{
-     if ([[[FBRunLoopSpinner new]
-           timeout:APP_STATE_STABILITY_WINDOW]
-          spinUntilTrue:^BOOL{
-            currentAppElement = self.fb_currentAppElement;
-            return !currentAppElement
-              || !previousAppElement
-              || currentAppElement.processIdentifier != previousAppElement.processIdentifier;
-          }]) {
-       previousAppElement = currentAppElement;
-       return NO;
-     }
-     return YES;
-   }]) {
-     [FBLogger logFmt:@"Application state has not been stabilized within %.2f seconds timeout", APP_STATE_STABILITY_TIMEOUT];
-  }
-
   NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
-  XCAccessibilityElement *activeApplicationElement = [activeApplicationElements lastObject];
-  if (nil != currentAppElement && activeApplicationElements.count > 1) {
-    for (XCAccessibilityElement *appElement in activeApplicationElements) {
-      if (appElement.processIdentifier == currentAppElement.processIdentifier) {
-        activeApplicationElement = appElement;
-        break;
+  XCAccessibilityElement *activeApplicationElement = [activeApplicationElements firstObject];
+  if (activeApplicationElements.count > 1) {
+    XCAccessibilityElement *currentElement = self.class.fb_onScreenElement;
+    if (nil != currentElement) {
+      for (XCAccessibilityElement *appElement in activeApplicationElements) {
+        if (appElement.processIdentifier == currentElement.processIdentifier) {
+          activeApplicationElement = appElement;
+          break;
+        }
       }
     }
   }
   if (nil == activeApplicationElement) {
-    return nil;
+    NSString *errMsg = @"No applications are currently active";
+    @throw [NSException exceptionWithName:FBElementNotVisibleException reason:errMsg userInfo:nil];
   }
   FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
   NSAssert(nil != application, @"Active application instance is not expected to be equal to nil", nil);
@@ -137,6 +101,10 @@ static const NSTimeInterval APP_STATE_STABILITY_TIMEOUT = 5.0;
   [XCUIApplicationProcessQuiescence setQuiescenceCheck:self.fb_shouldWaitForQuiescence];
   [super launch];
   [FBApplication fb_registerApplication:self withProcessID:self.processID];
+  if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
+    NSString *reason = [NSString stringWithFormat:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
+    @throw [NSException exceptionWithName:FBTimeoutException reason:reason userInfo:@{}];
+  }
 }
 
 - (void)terminate
@@ -145,6 +113,9 @@ static const NSTimeInterval APP_STATE_STABILITY_TIMEOUT = 5.0;
     [self.fb_appImpl removeObserver:self forKeyPath:FBStringify(XCUIApplicationImpl, currentProcess)];
   }
   [super terminate];
+  if (![self waitForState:XCUIApplicationStateNotRunning timeout:APP_STATE_CHANGE_TIMEOUT]) {
+    [FBLogger logFmt:@"The active application is still '%@' after %.2f seconds timeout", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
+  }
 }
 
 

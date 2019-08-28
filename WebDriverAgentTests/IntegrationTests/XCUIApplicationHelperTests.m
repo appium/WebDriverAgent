@@ -35,16 +35,6 @@
   XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Calendar"].exists);
 }
 
-- (void)disabled_testTappingAppOnSpringboard
-{
-  // this test is flaky on CircleCI
-  [self goToSpringBoardFirstPage];
-  NSError *error;
-  XCTAssertTrue([[FBSpringboardApplication fb_springboard] fb_tapApplicationWithIdentifier:@"Safari" error:&error]);
-  XCTAssertNil(error);
-  XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"URL"].exists);
-}
-
 - (void)disabled_testWaitingForSpringboard
 {
   // This test is flaky on Travis

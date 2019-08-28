@@ -45,9 +45,14 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  Nothing will happen if the application is already in foreground.
  This method is only supported since Xcode9.
 
- @throws FBApplicationMethodNotSupportedException if the method is called on Xcode SDK older than 9.
+ @throws FBTimeoutException if the app is still not active after the timeout
  */
 - (void)fb_activate;
+
+/**
+ Terminate the application and wait until it disappears from the list of active apps
+ */
+- (void)fb_terminate;
 
 @end
 
