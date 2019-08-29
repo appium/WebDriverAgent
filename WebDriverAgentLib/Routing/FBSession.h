@@ -31,6 +31,8 @@ extern NSString *const FBApplicationCrashedException;
 /*! Element cache related to that session */
 @property (nonatomic, strong, readonly) FBElementCache *elementCache;
 
+@property (nonatomic, copy) NSString *defaultActiveApplication;
+
 + (nullable instancetype)activeSession;
 
 /**

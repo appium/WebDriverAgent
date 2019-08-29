@@ -94,7 +94,7 @@
 + (id<FBResponsePayload>)handleDismissKeyboardCommand:(FBRouteRequest *)request
 {
 #if TARGET_OS_TV
-  if ([self isKeyboardPresent]) {
+  if ([self isKeyboardPresentForApplication:request.session.activeApplication]) {
     [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
   }
 #else
@@ -110,7 +110,7 @@
      timeout:5]
     timeoutErrorMessage:errorDescription]
    spinUntilTrue:^BOOL{
-     return ![self isKeyboardPresent];
+     return ![self isKeyboardPresentForApplication:request.session.activeApplication];
    }
    error:&error];
   if (!isKeyboardNotPresent) {
@@ -121,8 +121,8 @@
 
 #pragma mark - Helpers
 
-+ (BOOL)isKeyboardPresent {
-  XCUIElement *foundKeyboard = [[FBApplication fb_activeApplication].query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
++ (BOOL)isKeyboardPresentForApplication:(XCUIApplication *)application {
+  XCUIElement *foundKeyboard = [application.query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
   return foundKeyboard && foundKeyboard.fb_isVisible;
 }
 

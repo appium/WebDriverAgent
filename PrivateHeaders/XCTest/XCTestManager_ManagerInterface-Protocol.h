@@ -9,6 +9,8 @@
 @class NSArray, NSDictionary, NSNumber, NSString, NSUUID, XCAccessibilityElement, XCDeviceEvent, XCSynthesizedEventRecord, XCTouchGesture, NSXPCListenerEndpoint, XCElementSnapshot;
 
 @protocol XCTestManager_ManagerInterface
+// since Xcode9
+- (void)_XCT_requestBundleIDForPID:(int)arg1 reply:(void (^)(NSString *, NSError *))arg2;
 - (void)_XCT_loadAccessibilityWithTimeout:(double)arg1 reply:(void (^)(BOOL, NSError *))arg2;
 - (void)_XCT_injectVoiceRecognitionAudioInputPaths:(NSArray *)arg1 completion:(void (^)(BOOL, NSError *))arg2;
 - (void)_XCT_injectAssistantRecognitionStrings:(NSArray *)arg1 completion:(void (^)(BOOL, NSError *))arg2;

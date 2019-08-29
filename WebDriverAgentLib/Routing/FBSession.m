@@ -23,6 +23,12 @@
 #import "XCUIElement.h"
 
 NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException";
+/*!
+ The intial value for the default application property.
+ Setting this value to `defaultActiveApplication` property forces WDA to use the internal
+ automated algorithm to determine the active on-screen application
+ */
+NSString *const FBDefaultApplicationAuto = @"auto";
 
 @interface FBSession ()
 @property (nonatomic) NSString *testedApplicationBundleId;
@@ -95,6 +101,7 @@ static FBSession *_activeSession;
   session.alertsMonitor = nil;
   session.defaultAlertAction = nil;
   session.identifier = [[NSUUID UUID] UUIDString];
+  session.defaultActiveApplication = FBDefaultApplicationAuto;
   session.testedApplicationBundleId = nil;
   NSMutableDictionary *apps = [NSMutableDictionary dictionary];
   if (application) {
@@ -133,7 +140,10 @@ static FBSession *_activeSession;
 
 - (FBApplication *)activeApplication
 {
-  FBApplication *application = [FBApplication fb_activeApplication];
+  NSString *defaultBundleId = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto]
+    ? nil
+    : self.defaultActiveApplication;
+  FBApplication *application = [FBApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
   FBApplication *testedApplication = nil;
   if (self.testedApplicationBundleId) {
     testedApplication = [self.applications objectForKey:self.testedApplicationBundleId];

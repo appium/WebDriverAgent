@@ -80,4 +80,18 @@
                         ((id<FBElement>)textField).wdUID);
 }
 
+- (void)testActiveApplicationsInfo
+{
+  NSArray *appsInfo = [XCUIApplication fb_activeAppsInfo];
+  XCTAssertTrue(appsInfo.count > 0);
+  BOOL isAppActive = NO;
+  for (NSDictionary *appInfo in appsInfo) {
+    if ([appInfo[@"bundleId"] isEqualToString:self.testedApplication.bundleID]) {
+      isAppActive = YES;
+      break;
+    }
+  }
+  XCTAssertTrue(isAppActive);
+}
+
 @end

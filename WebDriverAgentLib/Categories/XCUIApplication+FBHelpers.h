@@ -69,6 +69,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)fb_waitForAppElement:(NSTimeInterval)timeout;
 
+/**
+ Retrievs the infomration about the applications the given accessiblity elements
+ belong to
+
+ @param axElements the list of accessibility elements
+ @returns The list of dictionaries. Each dictionary contains `bundleId` and `pid` items
+ */
++ (NSArray<NSDictionary<NSString *, id> *> *)fb_appsInfoWithAxElements:(NSArray<XCAccessibilityElement *> *)axElements;
+
+/**
+ Retrieves the information about the currently active apps
+
+ @returns The list of dictionaries. Each dictionary contains `bundleId` and `pid` items.
+ */
++ (NSArray<NSDictionary<NSString *, id> *> *)fb_activeAppsInfo;
+
+
 @end
 
 NS_ASSUME_NONNULL_END
