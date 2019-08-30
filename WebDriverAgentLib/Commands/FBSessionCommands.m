@@ -88,7 +88,7 @@ static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:@"'capabilities' is mandatory to create a new session"
                                                               traceback:nil]);
   }
-  if (nil == (requirements = FBParseCapabilities(request.arguments[@"capabilities"], &error))) {
+  if (nil == (requirements = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error))) {
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
   }
   [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[requirements[@"shouldUseTestManagerForVisibilityDetection"] boolValue]];
@@ -288,7 +288,7 @@ static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
     [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];
   }
   if ([settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
-    request.session.defaultActiveApplication = [settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
+    request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
   }
 
   return [self handleGetSettings:request];
