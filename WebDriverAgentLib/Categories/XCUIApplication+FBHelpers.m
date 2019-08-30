@@ -40,7 +40,6 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
   dispatch_once(&oncePoint, ^{
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
     // Consider the element, which is located close to the top left corner of the screen the on-screen one.
-    // FIXME: Improve this algorithm for split-screen automation
     CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * 0.2;
     screenPoint = CGPointMake(pointDistance, pointDistance);
   });

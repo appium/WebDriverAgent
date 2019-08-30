@@ -9,18 +9,7 @@
 
 #import "FBSpringboardApplication.h"
 
-#import "FBErrorBuilder.h"
-#import "FBMathUtils.h"
 #import "FBRunLoopSpinner.h"
-#import "XCElementSnapshot+FBHelpers.h"
-#import "XCElementSnapshot.h"
-#import "XCUIApplication+FBHelpers.h"
-#import "XCUIElement+FBIsVisible.h"
-#import "XCUIElement+FBUtilities.h"
-#import "XCUIElement+FBTap.h"
-#import "XCUIElement+FBScrolling.h"
-#import "XCUIElement.h"
-#import "XCUIElementQuery.h"
 #import "FBXCodeCompatibility.h"
 
 #if TARGET_OS_TV
