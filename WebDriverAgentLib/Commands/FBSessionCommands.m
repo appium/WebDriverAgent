@@ -50,7 +50,7 @@ static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
     [[FBRoute POST:@"/wda/apps/activate"] respondWithTarget:self action:@selector(handleSessionAppActivate:)],
     [[FBRoute POST:@"/wda/apps/terminate"] respondWithTarget:self action:@selector(handleSessionAppTerminate:)],
     [[FBRoute POST:@"/wda/apps/state"] respondWithTarget:self action:@selector(handleSessionAppState:)],
-    [[FBRoute POST:@"/wda/apps/list"] respondWithTarget:self action:@selector(handleActiveAppsList:)],
+    [[FBRoute GET:@"/wda/apps/list"] respondWithTarget:self action:@selector(handleGetActiveAppsList:)],
     [[FBRoute GET:@""] respondWithTarget:self action:@selector(handleGetActiveSession:)],
     [[FBRoute DELETE:@""] respondWithTarget:self action:@selector(handleDeleteSession:)],
     [[FBRoute GET:@"/status"].withoutSession respondWithTarget:self action:@selector(handleGetStatus:)],
@@ -165,7 +165,7 @@ static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
   return FBResponseWithObject(@(state));
 }
 
-+ (id<FBResponsePayload>)handleActiveAppsList:(FBRouteRequest *)request
++ (id<FBResponsePayload>)handleGetActiveAppsList:(FBRouteRequest *)request
 {
   return FBResponseWithObject([XCUIApplication fb_activeAppsInfo]);
 }

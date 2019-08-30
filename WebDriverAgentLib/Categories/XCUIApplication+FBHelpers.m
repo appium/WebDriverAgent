@@ -30,6 +30,8 @@
 #import "XCTRunnerDaemonSession.h"
 
 const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
+static NSString* const FBUnknownBundleId = @"unknown";
+
 
 @implementation XCUIApplication (FBHelpers)
 
@@ -91,7 +93,7 @@ const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
                                   dispatch_semaphore_signal(sem);
                                 }];
     dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)));
-    appInfo[@"bundleId"] = bundleId ?: @"";
+    appInfo[@"bundleId"] = bundleId ?: FBUnknownBundleId;
     [result addObject:appInfo.copy];
   }
   return result.copy;

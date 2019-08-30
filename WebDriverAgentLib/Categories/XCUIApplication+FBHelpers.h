@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_waitForAppElement:(NSTimeInterval)timeout;
 
 /**
- Retrievs the infomration about the applications the given accessiblity elements
+ Retrieves the information about the applications the given accessiblity elements
  belong to
 
  @param axElements the list of accessibility elements

@@ -47,11 +47,9 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
     if (nil != bundleId) {
       // Try to select the desired application first
       NSArray<NSDictionary *> *appsInfo = [self fb_appsInfoWithAxElements:activeApplicationElements];
-      NSUInteger index = 0;
-      for (NSDictionary *appInfo in appsInfo) {
-        index++;
-        if ([appInfo[@"bundleId"] isEqualToString:(id)bundleId]) {
-          activeApplicationElement = [activeApplicationElements objectAtIndex:index];
+      for (NSUInteger appIdx = 0; appIdx < appsInfo.count; appIdx++) {
+        if ([[[appsInfo objectAtIndex:appIdx] objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
+          activeApplicationElement = [activeApplicationElements objectAtIndex:appIdx];
           break;
         }
       }
