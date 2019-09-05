@@ -286,6 +286,16 @@
   return FBResponseWithObject(@{
     @"currentLocale": currentLocale,
     @"timeZone": self.timeZone,
+    @"name": UIDevice.currentDevice.name,
+    @"model": UIDevice.currentDevice.model,
+    @"uuid": [UIDevice.currentDevice.identifierForVendor UUIDString] ?: @"unknown",
+    // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
+    @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),
+#if TARGET_OS_SIMULATOR
+    @"isSimulator": @(YES),
+#else
+    @"isSimulator": @(NO),
+#endif
   });
 }
 
