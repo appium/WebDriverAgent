@@ -123,8 +123,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   [super launch];
   [FBApplication fb_registerApplication:self withProcessID:self.processID];
   if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
-    NSString *reason = [NSString stringWithFormat:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
-    @throw [NSException exceptionWithName:FBTimeoutException reason:reason userInfo:@{}];
+    [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
   }
 }
 

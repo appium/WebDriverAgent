@@ -78,8 +78,7 @@ static dispatch_once_t onceAppWithPIDToken;
 {
   [self activate];
   if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
-    NSString *reason = [NSString stringWithFormat:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
-    @throw [NSException exceptionWithName:FBTimeoutException reason:reason userInfo:@{}];
+    [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
   }
 }
 
