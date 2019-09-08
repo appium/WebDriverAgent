@@ -73,6 +73,7 @@
 #else
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
+    [[FBRoute POST:@"/wda/element/:uuid/rotate"] respondWithTarget:self action:@selector(handleRotate:)],
     [[FBRoute POST:@"/wda/element/:uuid/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTap:)],
     [[FBRoute POST:@"/wda/element/:uuid/twoFingerTap"] respondWithTarget:self action:@selector(handleTwoFingerTap:)],
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
@@ -486,6 +487,20 @@
   CGFloat scale = (CGFloat)[request.arguments[@"scale"] doubleValue];
   CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
   [element pinchWithScale:scale velocity:velocity];
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleRotate:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
+  if (nil == element) {
+    return FBResponseWithStatus([FBCommandStatus staleElementReferenceErrorWithMessage:nil
+                                                                             traceback:nil]);
+  }
+  CGFloat rotation = (CGFloat)[request.arguments[@"rotation"] doubleValue];
+  CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
+  [element rotate:rotation withVelocity:velocity];
   return FBResponseWithOK();
 }
 #endif
