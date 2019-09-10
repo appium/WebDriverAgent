@@ -9,6 +9,7 @@
 
 #import "XCUIApplication+FBHelpers.h"
 
+#import "FBConfiguration.h"
 #import "FBSpringboardApplication.h"
 #import "XCElementSnapshot.h"
 #import "FBElementTypeTransformer.h"
@@ -37,14 +38,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 + (XCAccessibilityElement *)fb_onScreenElement
 {
-  static CGPoint screenPoint;
-  static dispatch_once_t oncePoint;
-  dispatch_once(&oncePoint, ^{
-    CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    // Consider the element, which is located close to the top left corner of the screen the on-screen one.
-    CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * 0.2;
-    screenPoint = CGPointMake(pointDistance, pointDistance);
-  });
+  CGPoint screenPoint = FBConfiguration.screenPoint.CGPointValue;
   __block XCAccessibilityElement *onScreenElement = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);

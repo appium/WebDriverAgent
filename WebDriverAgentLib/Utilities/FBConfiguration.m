@@ -39,6 +39,7 @@ static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
+static NSValue *FBScreenPoint = nil;
 
 @implementation FBConfiguration
 
@@ -272,6 +273,23 @@ static BOOL FBShouldUseFirstMatch = NO;
 + (BOOL)useFirstMatch
 {
   return FBShouldUseFirstMatch;
+}
+
++ (void)setScreenPoint:(NSValue *)point
+{
+  FBScreenPoint = point;
+}
+
++ (NSValue *)screenPoint
+{
+  if (nil != FBScreenPoint) {
+    return FBScreenPoint;
+  }
+  CGSize screenSize = [UIScreen mainScreen].bounds.size;
+  // Consider the element, which is located close to the top left corner of the screen the on-screen one.
+  CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * 0.2;
+  FBScreenPoint = [NSValue valueWithCGPoint:CGPointMake(pointDistance, pointDistance)];
+  return FBScreenPoint;
 }
 
 #pragma mark Private

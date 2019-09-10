@@ -158,6 +158,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setReduceMotionEnabled:(BOOL)isEnabled;
 + (BOOL)reduceMotionEnabled;
 
+/**
+ * Modify the coordinates of the screen point, which is used to detect the active on-screen application
+ * The default coordinates are located at 20% of minimum screen dimension
+ *
+ * @param point  The coordinates of the screen point. Make sure the this point is inside the current screen rect
+ */
++ (void)setScreenPoint:(NSValue *)point;
++ (NSValue *)screenPoint;
+
 @end
 
 NS_ASSUME_NONNULL_END
