@@ -275,23 +275,6 @@ static NSValue *FBScreenPoint = nil;
   return FBShouldUseFirstMatch;
 }
 
-+ (void)setScreenPoint:(NSValue *)point
-{
-  FBScreenPoint = point;
-}
-
-+ (NSValue *)screenPoint
-{
-  if (nil != FBScreenPoint) {
-    return FBScreenPoint;
-  }
-  CGSize screenSize = [UIScreen mainScreen].bounds.size;
-  // Consider the element, which is located close to the top left corner of the screen the on-screen one.
-  CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * 0.2;
-  FBScreenPoint = [NSValue valueWithCGPoint:CGPointMake(pointDistance, pointDistance)];
-  return FBScreenPoint;
-}
-
 #pragma mark Private
 
 + (BOOL)keyboardsPreference:(nonnull NSString *)key

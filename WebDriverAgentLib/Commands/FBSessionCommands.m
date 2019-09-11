@@ -16,6 +16,7 @@
 #import "FBSession.h"
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
+#import "FBScreenPoint.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
@@ -245,7 +246,7 @@ static NSString* const SCREEN_POINT = @"screenPoint";
       USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
       REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
-      SCREEN_POINT: FBConfiguration.screenPoint,
+      SCREEN_POINT: FBScreenPoint.sharedInstance.stringCoordinates,
     }
   );
 }
@@ -293,21 +294,11 @@ static NSString* const SCREEN_POINT = @"screenPoint";
     request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
   }
   if ([settings objectForKey:SCREEN_POINT]) {
-    NSString *screenPointStr = (NSString *)[settings objectForKey:SCREEN_POINT];
-    NSArray<NSString *> *screenPointCoords = [screenPointStr componentsSeparatedByString:@","];
-    if (screenPointCoords.count != 2) {
-      NSString *message = [NSString stringWithFormat:@"The screen point coordinates should be split by single comma character. Got '%@' instead", screenPointStr];
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
+    NSError *error;
+    if (![FBScreenPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:SCREEN_POINT]
+                                                          error:&error]) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
-    NSString *strX = [screenPointCoords.firstObject stringByTrimmingCharactersInSet:
-                      NSCharacterSet.whitespaceAndNewlineCharacterSet];
-    NSString *strY = [screenPointCoords.lastObject stringByTrimmingCharactersInSet:
-                      NSCharacterSet.whitespaceAndNewlineCharacterSet];
-    if (0 == strX.length || 0 == strY.length) {
-      NSString *message = [NSString stringWithFormat:@"Both screen point coordinates should be valid numbers. Got '%@' instead", screenPointStr];
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
-    }
-    [FBConfiguration setScreenPoint:[NSValue valueWithCGPoint:CGPointMake(strX.doubleValue, strY.doubleValue)]];
   }
 
   return [self handleGetSettings:request];

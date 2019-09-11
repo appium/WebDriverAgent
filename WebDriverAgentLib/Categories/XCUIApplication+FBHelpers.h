@@ -58,11 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 /**
- Returns the currently visible on-screen element or nil if it cannot be determined
- */
-+ (nullable XCAccessibilityElement *)fb_onScreenElement;
-
-/**
  Waits until the current on-screen accessbility element belongs to the current application instance
  @param timeout The maximum time to wait for the element to appear
  @returns Either YES or NO

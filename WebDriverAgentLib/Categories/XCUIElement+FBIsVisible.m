@@ -12,15 +12,13 @@
 #import "FBConfiguration.h"
 #import "FBElementUtils.h"
 #import "FBMathUtils.h"
+#import "FBScreenPoint.h"
 #import "FBXCodeCompatibility.h"
-#import "FBXCTestDaemonsProxy.h"
 #import "XCAccessibilityElement+FBComparison.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCUIElement+FBUtilities.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
-#import "XCTRunnerDaemonSession.h"
 
 static const NSTimeInterval AX_TIMEOUT = 1.0;
 
@@ -141,32 +139,6 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return NO;
 }
 
-- (XCAccessibilityElement *)elementAtPoint:(CGPoint)point
-{
-  __block XCAccessibilityElement *result = nil;
-  __block NSError *innerError = nil;
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [FBXCTestDaemonsProxy tryToSetAxTimeout:AX_TIMEOUT
-                                 forProxy:proxy
-                              withHandler:^(int res) {
-                                [proxy _XCT_requestElementAtPoint:point
-                                                            reply:^(XCAccessibilityElement *element, NSError *error) {
-                                                              if (nil == error) {
-                                                                result = element;
-                                                              } else {
-                                                                innerError = error;
-                                                              }
-                                                              dispatch_semaphore_signal(sem);
-                                                            }];
-                              }];
-  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AX_TIMEOUT * NSEC_PER_SEC)));
-  if (nil != innerError) {
-    [FBLogger logFmt:@"Cannot get the accessibility element for the point where %@ snapshot is located. Original error: '%@'", innerError.description, self.description];
-  }
-  return result;
-}
-
 - (BOOL)fb_isVisible
 {
   NSNumber *isVisible = self.additionalAttributes[FB_XCAXAIsVisibleAttribute];
@@ -212,7 +184,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
 #endif
-  XCAccessibilityElement *hitElement = [self elementAtPoint:midPoint];
+  XCAccessibilityElement *hitElement = [FBScreenPoint axElementWithPoint:midPoint];
   if (nil != hitElement) {
     if ([self.accessibilityElement isEqualToElement:hitElement]) {
       return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];
