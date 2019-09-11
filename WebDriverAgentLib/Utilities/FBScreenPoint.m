@@ -16,7 +16,7 @@
 
 @implementation FBScreenPoint
 
-- (id)init {
+- (instancetype)init {
   if ((self = [super init])) {
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
     // Consider the element, which is located close to the top left corner of the screen the on-screen one.

@@ -39,7 +39,6 @@ static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
-static NSValue *FBScreenPoint = nil;
 
 @implementation FBConfiguration
 
