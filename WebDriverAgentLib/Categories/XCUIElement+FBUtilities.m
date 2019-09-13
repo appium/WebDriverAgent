@@ -208,7 +208,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       rootQuery = rootQuery.inputQuery;
     }
     if (rootQuery != nil) {
-      if ([self respondsToSelector:@selector(includingNonModalElements)]) {
+      if ([rootQuery respondsToSelector:@selector(includingNonModalElements)]) {
         rootQuery = [rootQuery includingNonModalElements];
       }
       NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootQuery.rootElementSnapshot];
