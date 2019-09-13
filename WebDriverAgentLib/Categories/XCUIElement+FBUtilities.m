@@ -147,9 +147,8 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCAccessibilityElement *)accessibilityElementBySnapshot
 {
-  if ([self respondsToSelector:@selector(includingNonModalElements)]) {
-    XCUIElementQuery *query = self.query.includingNonModalElements;
-    return query.rootElementSnapshot.accessibilityElement;
+  if ([self.query respondsToSelector:@selector(includingNonModalElements)]) {
+    return self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement;
   }
   return self.lastSnapshot.accessibilityElement;
 }
