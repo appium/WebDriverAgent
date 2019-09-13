@@ -26,6 +26,10 @@
 @property(readonly) BOOL isTouchBarElement;
 @property(readonly) BOOL hasKeyboardFocus;
 @property(readonly, nonatomic) XCUIApplication *application;
+// Added since Xcode 11.0 (beta)
+@property(readonly, copy) XCUIElement *excludingNonModalElements;
+// Added since Xcode 11.0 (GM)
+@property(readonly, copy) XCUIElement *includingNonModalElements;
 
 - (id)initWithElementQuery:(id)arg1;
 

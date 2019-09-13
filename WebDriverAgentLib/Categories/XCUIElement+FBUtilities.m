@@ -133,16 +133,25 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   });
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   if (useNewSnapshotAPI) {
-    [proxy _XCT_requestSnapshotForElement:self.lastSnapshot.accessibilityElement
+    [proxy _XCT_requestSnapshotForElement:self.accessibilityElementBySnapshot
                                attributes:axAttributes
                                parameters:defaultParameters
                                     reply:block];
   } else {
-    [proxy _XCT_snapshotForElement:self.lastSnapshot.accessibilityElement
+    [proxy _XCT_snapshotForElement:self.accessibilityElementBySnapshot
                         attributes:axAttributes
                         parameters:defaultParameters
                              reply:block];
   }
+}
+
+- (XCAccessibilityElement *)accessibilityElementBySnapshot
+{
+  if ([self respondsToSelector:@selector(includingNonModalElements)]) {
+    XCUIElementQuery *query = self.query.includingNonModalElements;
+    return query.rootElementSnapshot.accessibilityElement;
+  }
+  return self.lastSnapshot.accessibilityElement;
 }
 
 - (NSArray *)fb_createAXAttributes: (BOOL)asNumber
@@ -200,6 +209,9 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       rootQuery = rootQuery.inputQuery;
     }
     if (rootQuery != nil) {
+      if ([self respondsToSelector:@selector(includingNonModalElements)]) {
+        rootQuery = [rootQuery includingNonModalElements];
+      }
       NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootQuery.rootElementSnapshot];
       [snapshots addObjectsFromArray:rootQuery.rootElementSnapshot._allDescendants];
       NSOrderedSet *matchingSnapshots = (NSOrderedSet *)[self.query.transformer transform:[NSOrderedSet orderedSetWithArray:snapshots] relatedElements:nil];

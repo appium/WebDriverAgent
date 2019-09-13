@@ -21,6 +21,8 @@
     NSOrderedSet *_lastInput;
     NSOrderedSet *_lastOutput;
     XCElementSnapshot *_rootElementSnapshot;
+    // Added since Xcode 11.0 (beta)
+    BOOL _modalViewPruningDisabled;
 }
 
 @property(copy) NSOrderedSet *lastOutput; // @synthesize lastOutput=_lastOutput;
@@ -29,12 +31,19 @@
 @property unsigned long long expressedType; // @synthesize expressedType=_expressedType;
 @property BOOL changesScope; // @synthesize changesScope=_changesScope;
 @property(readonly, copy) CDUnknownBlockType filter; // @synthesize filter=_filter;
+// Added since Xcode 11.0 (beta)
+@property BOOL modalViewPruningDisabled; // @synthesize modalViewPruningDisabled=_modalViewPruningDisabled;
 @property(readonly) XCUIElementQuery *inputQuery; // @synthesize inputQuery=_inputQuery;
 @property(readonly, copy) NSString *queryDescription; // @synthesize queryDescription=_queryDescription;
 @property(readonly, copy) NSString *elementDescription;
 @property(readonly) XCUIApplication *application;
 @property(retain) XCElementSnapshot *rootElementSnapshot; // @synthesize rootElementSnapshot=_rootElementSnapshot;
 @property(retain) NSObject<XCTElementSetTransformer> *transformer; // @synthesize transformer = _transformer;
+
+// Added since Xcode 11.0 (beta)
+@property(readonly, copy) XCUIElementQuery *excludingNonModalElements;
+// Added since Xcode 11.0 (GM)
+@property(readonly, copy) XCUIElementQuery *includingNonModalElements;
 
 - (id)matchingSnapshotsWithError:(id *)arg1;
 - (id)matchingSnapshotsHandleUIInterruption:(BOOL)arg1 withError:(id *)arg2;
