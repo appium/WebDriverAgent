@@ -148,8 +148,8 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
   Whether 'includingNonModalElements' is available
 
-  @param query The XCUIElementQuery to check it has 'includingNonModalElements'
-  @return Whether includingNonModalElements is available
+  @param query The XCUIElementQuery to check if it has 'includingNonModalElements'
+  @return YES if includingNonModalElements is available in the query
  */
 + (BOOL)fb_hasIncludingNonModalElements: (XCUIElementQuery *)query
 {
@@ -164,7 +164,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
  Returns accessibility element as either rootElementSnapshot by includingNonModalElements or by lastSnapshot
 
- @return XCAccessibilityElement
+ @return XCAccessibilityElement provided by rootElementSnapshot with includingNonModalElements or  lastSnapshot
 */
 - (XCAccessibilityElement *)fb_accessibilityElementBySnapshot
 {
@@ -223,9 +223,9 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 }
 
 /**
- Returns root element quert either with includingNonModalElements or no it
+ Returns root element query either with includingNonModalElements or no includingNonModalElements
 
- @return XCUIElementQuery
+ @return XCUIElementQuery with includingNonModalElements or not
 */
 - (XCUIElementQuery *)fb_rootXCUIElementQuery
 {
