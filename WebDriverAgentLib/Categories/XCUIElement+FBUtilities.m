@@ -151,7 +151,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   @param query The XCUIElementQuery to check if it has 'includingNonModalElements'
   @return YES if includingNonModalElements is available in the query
  */
-+ (BOOL)fb_hasIncludingNonModalElements: (XCUIElementQuery *)query
++ (BOOL)fb_hasIncludingNonModalElements:(XCUIElementQuery *)query
 {
   static dispatch_once_t hasIncludingNonModalElements;
   static BOOL result;
@@ -164,11 +164,11 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
  Returns accessibility element as either rootElementSnapshot by includingNonModalElements or by lastSnapshot
 
- @return XCAccessibilityElement provided by rootElementSnapshot with includingNonModalElements or  lastSnapshot
+ @return The accessibility element with no modal elements snapshot
 */
 - (XCAccessibilityElement *)fb_accessibilityElementBySnapshot
 {
-  if ([XCUIElement fb_hasIncludingNonModalElements:self.query]) {
+  if ([self.class fb_hasIncludingNonModalElements:self.query]) {
     // 'self.query.includingNonModalElements.rootElementSnapshot' is faster than 'self.lastSnapshot' on Xcode 11.
     return self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement;
   }
@@ -225,12 +225,12 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
  Returns root element query either with includingNonModalElements or no includingNonModalElements
 
- @return XCUIElementQuery with includingNonModalElements or not
+ @return The no mdal elements query
 */
-- (XCUIElementQuery *)fb_rootXCUIElementQuery
+- (XCUIElementQuery *)fb_withNoModalElementsQuery
 {
   XCUIElementQuery *query = self.query;
-  if ([XCUIElement fb_hasIncludingNonModalElements:query]) {
+  if ([self.class fb_hasIncludingNonModalElements:query]) {
     query = [query includingNonModalElements];
   }
   return query;
@@ -240,7 +240,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   XCElementSnapshot *snapshot = nil;
   @try {
-    XCUIElementQuery *rootQuery = [self fb_rootXCUIElementQuery];
+    XCUIElementQuery *rootQuery = [self fb_withNoModalElementsQuery];
     while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
       rootQuery = rootQuery.inputQuery;
     }
