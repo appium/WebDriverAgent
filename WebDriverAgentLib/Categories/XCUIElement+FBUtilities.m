@@ -148,7 +148,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
   Whether 'includingNonModalElements' is available
 
-  @param query The XCUIElementQuery to check if it has 'includingNonModalElements'
+  @param query The query to check if it has 'includingNonModalElements'
   @return YES if includingNonModalElements is available in the query
  */
 + (BOOL)fb_hasIncludingNonModalElements:(XCUIElementQuery *)query
@@ -225,7 +225,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 /**
  Returns root element query either with includingNonModalElements or no includingNonModalElements
 
- @return The no mdal elements query
+ @return The no modal elements query
 */
 - (XCUIElementQuery *)fb_withNoModalElementsQuery
 {
