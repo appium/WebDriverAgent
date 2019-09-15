@@ -8,9 +8,7 @@
  */
 
 #import "FBIntegrationTestCase.h"
-#import "FBMathUtils.h"
 #import "FBTestMacros.h"
-#import "FBMacros.h"
 #import "XCElementSnapshot+FBHitpoint.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
@@ -22,18 +20,11 @@
 
 - (void)testAccessibilityActivationPoint
 {
-  if (SYSTEM_VERSION_GREATER_THAN(@"12.0")) {
-    // The test is flacky on iOS 12+ in Travis env
-    return;
-  }
-  
   [self launchApplication];
   [self goToAttributesPage];
-  FBAssertWaitTillBecomesTrue(
-    FBPointFuzzyEqualToPoint(self.testedApplication.buttons[@"not_accessible"]
-                             .fb_lastSnapshot.fb_hitPoint.CGPointValue,
-                             CGPointMake(200, 220), 0.1)
-  );
+  XCUIElement *dstBtn = self.testedApplication.buttons[@"not_accessible"];
+  CGPoint hitPoint = dstBtn.fb_lastSnapshot.fb_hitPoint.CGPointValue;
+  XCTAssertTrue(hitPoint.x > 0 && hitPoint.y > 0);
 }
 
 @end
