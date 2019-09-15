@@ -227,7 +227,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
  @return The no modal elements query
 */
-- (XCUIElementQuery *)fb_withNoModalElementsQuery
+- (XCUIElementQuery *)fb_queryIncludingNoModalElements
 {
   XCUIElementQuery *query = self.query;
   if ([self.class fb_hasIncludingNonModalElements:query]) {
@@ -240,7 +240,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   XCElementSnapshot *snapshot = nil;
   @try {
-    XCUIElementQuery *rootQuery = [self fb_withNoModalElementsQuery];
+    XCUIElementQuery *rootQuery = [self fb_queryIncludingNoModalElements];
     while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
       rootQuery = rootQuery.inputQuery;
     }
