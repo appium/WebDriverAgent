@@ -31,6 +31,10 @@ static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 2;
 
+NSString *formatUiEdgeInsets(UIEdgeInsets insets) {
+  return [NSString stringWithFormat:@"{%@,%@,%@,%@}", @(insets.top), @(insets.left), @(insets.bottom), @(insets.right)];
+}
+
 @implementation XCUIDevice (FBHelpers)
 
 static bool fb_isLocked;
@@ -332,5 +336,17 @@ static bool fb_isLocked;
   return YES;
 }
 #endif
+
+- (NSString *)fb_safeAreaInsets
+{
+  UIWindow* window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  if (@available(iOS 11.0, *)) {
+    return formatUiEdgeInsets(window.safeAreaInsets);
+  }
+  if (@available(tvOS 11.0, *)) {
+    return formatUiEdgeInsets(window.safeAreaInsets);
+  }
+  return @"{0,0,0,0}";
+}
 
 @end

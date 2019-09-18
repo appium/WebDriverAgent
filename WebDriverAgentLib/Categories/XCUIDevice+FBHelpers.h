@@ -100,6 +100,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)fb_activateSiriVoiceRecognitionWithText:(NSString *)text error:(NSError **)error;
 
+/**
+ Retrieves the sizes of UI edge insets. Prior to IOS 11 this API always returns zeroes for all edges
+
+ @returns String in format {top,left,bottom,right}. Each size can be a float number
+ */
+- (NSString *)fb_safeAreaInsets;
+
 @end
 
 NS_ASSUME_NONNULL_END

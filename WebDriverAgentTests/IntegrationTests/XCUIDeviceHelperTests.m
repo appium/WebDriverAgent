@@ -92,4 +92,10 @@
   XCTAssertNil(error);
 }
 
+- (void)testInsetsRetrieval
+{
+  NSString *insets = XCUIDevice.sharedDevice.fb_safeAreaInsets;
+  XCTAssertTrue(insets.length > 0);
+}
+
 @end

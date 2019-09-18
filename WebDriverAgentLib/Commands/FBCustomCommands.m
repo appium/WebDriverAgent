@@ -291,6 +291,7 @@
     @"uuid": [UIDevice.currentDevice.identifierForVendor UUIDString] ?: @"unknown",
     // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
     @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),
+    @"safeAreaInsets": XCUIDevice.sharedDevice.fb_safeAreaInsets,
 #if TARGET_OS_SIMULATOR
     @"isSimulator": @(YES),
 #else
