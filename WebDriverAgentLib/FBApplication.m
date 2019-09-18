@@ -81,7 +81,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   }
   if (nil == activeApplicationElement && activeApplicationElements.count > 0) {
     activeApplicationElement = [activeApplicationElements firstObject];
-  } else {
+  } else if (nil == activeApplicationElement) {
     NSString *errMsg = @"No applications are currently active";
     @throw [NSException exceptionWithName:FBElementNotVisibleException reason:errMsg userInfo:nil];
   }
