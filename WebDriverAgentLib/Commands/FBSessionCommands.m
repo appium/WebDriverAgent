@@ -36,7 +36,7 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 static NSString* const REDUCE_MOTION = @"reduceMotion";
 static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
-static NSString* const SCREEN_POINT = @"screenPoint";
+static NSString* const SCREEN_POINT = @"activeAppDetectionPoint";
 
 @implementation FBSessionCommands
 
