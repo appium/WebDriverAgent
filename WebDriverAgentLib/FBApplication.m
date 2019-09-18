@@ -13,7 +13,7 @@
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
-#import "FBScreenPoint.h"
+#import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCAccessibilityElement.h"
@@ -46,7 +46,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   XCAccessibilityElement *activeApplicationElement = nil;
   XCAccessibilityElement *currentElement = nil;
   if (nil != bundleId) {
-    currentElement = FBScreenPoint.sharedInstance.axElement;
+    currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
     NSArray<NSDictionary *> *appsInfo = [self fb_appsInfoWithAxElements:@[currentElement]];
     if ([[appsInfo.firstObject objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
       activeApplicationElement = currentElement;
@@ -67,7 +67,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
     // not set or is not active
     if (nil == activeApplicationElement) {
       if (nil == currentElement) {
-        currentElement = FBScreenPoint.sharedInstance.axElement;
+        currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
       }
       if (nil != currentElement) {
         for (XCAccessibilityElement *appElement in activeApplicationElements) {

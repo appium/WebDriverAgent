@@ -12,7 +12,7 @@
 #import "FBConfiguration.h"
 #import "FBElementUtils.h"
 #import "FBMathUtils.h"
-#import "FBScreenPoint.h"
+#import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement+FBComparison.h"
 #import "XCElementSnapshot+FBHelpers.h"
@@ -182,7 +182,7 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
   }
 #endif
-  XCAccessibilityElement *hitElement = [FBScreenPoint axElementWithPoint:midPoint];
+  XCAccessibilityElement *hitElement = [FBActiveAppDetectionPoint axElementWithPoint:midPoint];
   if (nil != hitElement) {
     if ([self.accessibilityElement fb_isEqualToElement:hitElement]) {
       return [self fb_cacheVisibilityWithValue:YES forAncestors:ancestors];

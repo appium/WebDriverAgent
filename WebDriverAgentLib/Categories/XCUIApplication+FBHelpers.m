@@ -15,7 +15,7 @@
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
-#import "FBScreenPoint.h"
+#import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXPath.h"
 #import "FBXCTestDaemonsProxy.h"
@@ -41,7 +41,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
   return [[[FBRunLoopSpinner new]
            timeout:timeout]
           spinUntilTrue:^BOOL{
-    XCAccessibilityElement *currentAppElement = FBScreenPoint.sharedInstance.axElement;
+    XCAccessibilityElement *currentAppElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
     int currentProcessIdentifier = self.accessibilityElement.processIdentifier;
     return nil != currentAppElement
       && currentAppElement.processIdentifier == currentProcessIdentifier;

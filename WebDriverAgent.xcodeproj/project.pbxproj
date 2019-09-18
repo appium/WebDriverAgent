@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13815F6F2328D20400CDAB61 /* FBScreenPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBScreenPoint.h */; };
-		13815F702328D20400CDAB61 /* FBScreenPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBScreenPoint.h */; };
-		13815F712328D20400CDAB61 /* FBScreenPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBScreenPoint.m */; };
-		13815F722328D20400CDAB61 /* FBScreenPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBScreenPoint.m */; };
+		13815F6F2328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */; };
+		13815F702328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */; };
+		13815F712328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */; };
+		13815F722328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */; };
 		1FC3B2E32121ECF600B61EE0 /* FBApplicationProcessProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */; };
 		31EC77FC224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h in Headers */ = {isa = PBXBuildFile; fileRef = 31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */; };
 		31EC77FD224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h in Headers */ = {isa = PBXBuildFile; fileRef = 31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */; };
@@ -821,8 +821,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		13815F6D2328D20400CDAB61 /* FBScreenPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBScreenPoint.h; sourceTree = "<group>"; };
-		13815F6E2328D20400CDAB61 /* FBScreenPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBScreenPoint.m; sourceTree = "<group>"; };
+		13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBActiveAppDetectionPoint.h; sourceTree = "<group>"; };
+		13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBActiveAppDetectionPoint.m; sourceTree = "<group>"; };
 		1BA7DD8C206D694B007C7C26 /* XCTElementSetTransformer-Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTElementSetTransformer-Protocol.h"; sourceTree = "<group>"; };
 		1FC3B2E12121EC8C00B61EE0 /* FBApplicationProcessProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBApplicationProcessProxyTests.m; sourceTree = "<group>"; };
 		31EC77FA224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIApplicationProcessQuiescence.h; sourceTree = "<group>"; };
@@ -1668,8 +1668,8 @@
 				EEE9B4711CD02B88009D2030 /* FBRunLoopSpinner.m */,
 				EE9AB7911CAEDF0C008C271F /* FBRuntimeUtils.h */,
 				EE9AB7921CAEDF0C008C271F /* FBRuntimeUtils.m */,
-				13815F6D2328D20400CDAB61 /* FBScreenPoint.h */,
-				13815F6E2328D20400CDAB61 /* FBScreenPoint.m */,
+				13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */,
+				13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */,
 				714097491FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.h */,
 				7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */,
 				EE5A24401F136C8D0078B1D9 /* FBXCodeCompatibility.h */,
@@ -2049,7 +2049,7 @@
 				641EE6672240C5CA00173FCB /* XCSymbolicatorHolder.h in Headers */,
 				641EE6682240C5CA00173FCB /* XCUIApplicationImpl.h in Headers */,
 				641EE6692240C5CA00173FCB /* UIPanGestureRecognizer-RecordingAdditions.h in Headers */,
-				13815F702328D20400CDAB61 /* FBScreenPoint.h in Headers */,
+				13815F702328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */,
 				641EE66A2240C5CA00173FCB /* NSExpression+FBFormat.h in Headers */,
 				641EE66B2240C5CA00173FCB /* _XCTestCaseImplementation.h in Headers */,
 				641EE66C2240C5CA00173FCB /* UIPinchGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2248,7 +2248,7 @@
 				31EC77FC224F7D0600380FCD /* XCUIApplicationProcessQuiescence.h in Headers */,
 				EE158AB41CBD456F00A3E3F0 /* XCUIElement+FBTap.h in Headers */,
 				EE158ADC1CBD456F00A3E3F0 /* FBResponsePayload.h in Headers */,
-				13815F6F2328D20400CDAB61 /* FBScreenPoint.h in Headers */,
+				13815F6F2328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */,
 				EE158ACC1CBD456F00A3E3F0 /* FBUnknownCommands.h in Headers */,
 				641EE7052240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */,
 				71A224E51DE2F56600844D55 /* NSPredicate+FBFormat.h in Headers */,
@@ -2771,7 +2771,7 @@
 				718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */,
 				641EE5F32240C5CA00173FCB /* XCAccessibilityElement+FBComparison.m in Sources */,
 				641EE5F42240C5CA00173FCB /* XCUIDevice+FBRotation.m in Sources */,
-				13815F722328D20400CDAB61 /* FBScreenPoint.m in Sources */,
+				13815F722328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */,
 				641EE5F52240C5CA00173FCB /* XCUIElement+FBUID.m in Sources */,
 				641EE5F62240C5CA00173FCB /* FBRouteRequest.m in Sources */,
 				641EE5F72240C5CA00173FCB /* FBResponseJSONPayload.m in Sources */,
@@ -2873,7 +2873,7 @@
 				71A224E61DE2F56600844D55 /* NSPredicate+FBFormat.m in Sources */,
 				710C16CE21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m in Sources */,
 				EEE376441D59F81400ED88DD /* XCUIDevice+FBRotation.m in Sources */,
-				13815F712328D20400CDAB61 /* FBScreenPoint.m in Sources */,
+				13815F712328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */,
 				71B49EC81ED1A58100D51AD6 /* XCUIElement+FBUID.m in Sources */,
 				EE158AE21CBD456F00A3E3F0 /* FBRouteRequest.m in Sources */,
 				EE158ADB1CBD456F00A3E3F0 /* FBResponseJSONPayload.m in Sources */,

@@ -16,7 +16,7 @@
 #import "FBSession.h"
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
-#import "FBScreenPoint.h"
+#import "FBActiveAppDetectionPoint.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
@@ -36,7 +36,7 @@ static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 static NSString* const REDUCE_MOTION = @"reduceMotion";
 static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
-static NSString* const SCREEN_POINT = @"activeAppDetectionPoint";
+static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
 
 @implementation FBSessionCommands
 
@@ -246,7 +246,7 @@ static NSString* const SCREEN_POINT = @"activeAppDetectionPoint";
       USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
       REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
-      SCREEN_POINT: FBScreenPoint.sharedInstance.stringCoordinates,
+      ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
     }
   );
 }
@@ -293,9 +293,9 @@ static NSString* const SCREEN_POINT = @"activeAppDetectionPoint";
   if ([settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
     request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
   }
-  if ([settings objectForKey:SCREEN_POINT]) {
+  if ([settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
     NSError *error;
-    if (![FBScreenPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:SCREEN_POINT]
+    if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:ACTIVE_APP_DETECTION_POINT]
                                                           error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }

@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBScreenPoint : NSObject
+@interface FBActiveAppDetectionPoint : NSObject
 
 @property (nonatomic) CGPoint coordinates;
 

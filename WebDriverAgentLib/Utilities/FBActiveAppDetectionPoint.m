@@ -7,14 +7,14 @@
 * of patent rights can be found in the PATENTS file in the same directory.
 */
 
-#import "FBScreenPoint.h"
+#import "FBActiveAppDetectionPoint.h"
 
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
 
-@implementation FBScreenPoint
+@implementation FBActiveAppDetectionPoint
 
 - (instancetype)init {
   if ((self = [super init])) {
@@ -28,7 +28,7 @@
 
 + (instancetype)sharedInstance
 {
-  static FBScreenPoint *instance;
+  static FBActiveAppDetectionPoint *instance;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     instance = [[self alloc] init];
