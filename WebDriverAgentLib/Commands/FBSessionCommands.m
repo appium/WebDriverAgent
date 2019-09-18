@@ -296,7 +296,7 @@ static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
   if ([settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
     NSError *error;
     if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:ACTIVE_APP_DETECTION_POINT]
-                                                          error:&error]) {
+                                                                      error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
   }
