@@ -163,7 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
  like Contacts. By default such elements are not present there.
  See https://github.com/appium/appium/issues/13227
 
- @param isEnabled Set to YES in order to enable non modal elements inclusion
+ @param isEnabled Set to YES in order to enable non modal elements inclusion.
+ Setting this value to YES will have no effect if the current iOS SDK does not support such feature.
  */
 + (void)setIncludeNonModalElements:(BOOL)isEnabled;
 + (BOOL)includeNonModalElements;
