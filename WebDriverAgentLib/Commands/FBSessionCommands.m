@@ -11,6 +11,7 @@
 
 #import "FBApplication.h"
 #import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBProtocolHelpers.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
@@ -304,9 +305,12 @@ static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
   }
-  if (nil != [settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]
-      && [XCUIElement fb_supportsNonModalElementsInclusion]) {
-    [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
+  if (nil != [settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]) {
+    if ([XCUIElement fb_supportsNonModalElementsInclusion]) {
+      [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
+    } else {
+      [FBLogger logFmt:@"'%@' setting value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
+    }
   }
 
   return [self handleGetSettings:request];
