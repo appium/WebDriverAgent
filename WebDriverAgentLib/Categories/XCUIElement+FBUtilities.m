@@ -86,7 +86,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   __block XCElementSnapshot *snapshotWithAttributes = nil;
   __block NSError *innerError = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  XCAccessibilityElement *axElement = FBConfiguration.includeNonModalDialogs && self.class.fb_supportsNonModalDialogsInclusion
+  XCAccessibilityElement *axElement = FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
     ? self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement
     : self.lastSnapshot.accessibilityElement;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
@@ -148,12 +148,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 }
 
-/**
-  Whether 'includingNonModalElements' is available
-
-  @return YES if includingNonModalElements is available for the element
- */
-+ (BOOL)fb_supportsNonModalDialogsInclusion
++ (BOOL)fb_supportsNonModalElementsInclusion
 {
   static dispatch_once_t hasIncludingNonModalElements;
   static BOOL result;
@@ -213,7 +208,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   XCElementSnapshot *snapshot = nil;
   @try {
-    XCUIElementQuery *rootQuery = FBConfiguration.includeNonModalDialogs && self.class.fb_supportsNonModalDialogsInclusion
+    XCUIElementQuery *rootQuery = FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
       ? self.query.includingNonModalElements
       : self.query;
     while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {

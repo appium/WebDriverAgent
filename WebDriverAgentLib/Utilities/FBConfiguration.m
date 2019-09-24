@@ -41,7 +41,7 @@ static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)
-static BOOL FBIncludeNonModalDialogs = NO;
+static BOOL FBIncludeNonModalElements = NO;
 
 @implementation FBConfiguration
 
@@ -277,14 +277,14 @@ static BOOL FBIncludeNonModalDialogs = NO;
   return FBShouldUseFirstMatch;
 }
 
-+ (void)setIncludeNonModalDialogs:(BOOL)isEnabled
++ (void)setIncludeNonModalElements:(BOOL)isEnabled
 {
-  FBIncludeNonModalDialogs = isEnabled;
+  FBIncludeNonModalElements = isEnabled;
 }
 
-+ (BOOL)includeNonModalDialogs
++ (BOOL)includeNonModalElements
 {
-  return FBIncludeNonModalDialogs;
+  return FBIncludeNonModalElements;
 }
 
 #pragma mark Private
