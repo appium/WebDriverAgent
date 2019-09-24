@@ -48,7 +48,7 @@
   XCUIElement *inaccessibleButtonElement = self.testedApplication.buttons[@"not_accessible"];
   XCTAssertTrue(inaccessibleButtonElement.exists);
   XCTAssertFalse(inaccessibleButtonElement.fb_isAccessibilityElement);
-  XCTAssertTrue(inaccessibleButtonElement.isWDAccessibilityContainer);
+  XCTAssertFalse(inaccessibleButtonElement.isWDAccessibilityContainer);
 }
 
 - (void)testIgnoredAccessibilityAttributes
