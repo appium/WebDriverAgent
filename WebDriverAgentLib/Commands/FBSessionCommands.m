@@ -261,50 +261,50 @@ static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
 {
   NSDictionary* settings = request.arguments[@"settings"];
 
-  if ([settings objectForKey:USE_COMPACT_RESPONSES]) {
+  if (nil != [settings objectForKey:USE_COMPACT_RESPONSES]) {
     [FBConfiguration setShouldUseCompactResponses:[[settings objectForKey:USE_COMPACT_RESPONSES] boolValue]];
   }
-  if ([settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
+  if (nil != [settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
     [FBConfiguration setElementResponseAttributes:(NSString *)[settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]];
   }
-  if ([settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
+  if (nil != [settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
     [FBConfiguration setMjpegServerScreenshotQuality:[[settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
+  if (nil != [settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
     [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:SCREENSHOT_QUALITY]) {
+  if (nil != [settings objectForKey:SCREENSHOT_QUALITY]) {
     [FBConfiguration setScreenshotQuality:[[settings objectForKey:SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:MJPEG_SCALING_FACTOR]) {
+  if (nil != [settings objectForKey:MJPEG_SCALING_FACTOR]) {
     [FBConfiguration setMjpegScalingFactor:[[settings objectForKey:MJPEG_SCALING_FACTOR] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
+  if (nil != [settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
     [FBConfiguration setKeyboardAutocorrection:[[settings objectForKey:KEYBOARD_AUTOCORRECTION] boolValue]];
   }
-  if ([settings objectForKey:KEYBOARD_PREDICTION]) {
+  if (nil != [settings objectForKey:KEYBOARD_PREDICTION]) {
     [FBConfiguration setKeyboardPrediction:[[settings objectForKey:KEYBOARD_PREDICTION] boolValue]];
   }
-  if ([settings objectForKey:SNAPSHOT_TIMEOUT]) {
+  if (nil != [settings objectForKey:SNAPSHOT_TIMEOUT]) {
     [FBConfiguration setSnapshotTimeout:[[settings objectForKey:SNAPSHOT_TIMEOUT] doubleValue]];
   }
-  if ([settings objectForKey:USE_FIRST_MATCH]) {
+  if (nil != [settings objectForKey:USE_FIRST_MATCH]) {
     [FBConfiguration setUseFirstMatch:[[settings objectForKey:USE_FIRST_MATCH] boolValue]];
   }
-  if ([settings objectForKey:REDUCE_MOTION]) {
+  if (nil != [settings objectForKey:REDUCE_MOTION]) {
     [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];
   }
-  if ([settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
+  if (nil != [settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
     request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
   }
-  if ([settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
+  if (nil != [settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
     NSError *error;
     if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:ACTIVE_APP_DETECTION_POINT]
                                                                       error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
   }
-  if ([settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]
+  if (nil != [settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]
       && [XCUIElement fb_supportsNonModalElementsInclusion]) {
     [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
   }
