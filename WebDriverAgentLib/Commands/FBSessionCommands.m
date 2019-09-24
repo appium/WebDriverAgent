@@ -309,7 +309,7 @@ static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
     if ([XCUIElement fb_supportsNonModalElementsInclusion]) {
       [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
     } else {
-      [FBLogger logFmt:@"'%@' setting value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
+      [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
     }
   }
 
