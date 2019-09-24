@@ -86,13 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error;
 
-/**
- Determines whether current iOS SDK supports non modal elements inlusion into snapshots
- 
- @return Either YES or NO
- */
-+ (BOOL)fb_supportsNonModalElementsInclusion;
-
 @end
 
 NS_ASSUME_NONNULL_END

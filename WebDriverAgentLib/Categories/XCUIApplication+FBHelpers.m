@@ -200,7 +200,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 - (NSString *)fb_descriptionRepresentation
 {
   NSMutableArray<NSString *> *childrenDescriptions = [NSMutableArray array];
-  for (XCUIElement *child in [self childrenMatchingType:XCUIElementTypeAny].allElementsBoundByAccessibilityElement) {
+  for (XCUIElement *child in [self.fb_query childrenMatchingType:XCUIElementTypeAny].allElementsBoundByAccessibilityElement) {
     [childrenDescriptions addObject:child.debugDescription];
   }
   // debugDescription property of XCUIApplication instance shows descendants addresses in memory
@@ -211,7 +211,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (XCUIElement *)fb_activeElement
 {
-  return [[[self descendantsMatchingType:XCUIElementTypeAny]
+  return [[[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
            matchingPredicate:[NSPredicate predicateWithFormat:@"hasKeyboardFocus == YES"]]
           fb_firstMatch];
 }
@@ -219,7 +219,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 #if TARGET_OS_TV
 - (XCUIElement *)fb_focusedElement
 {
-  return [[[self descendantsMatchingType:XCUIElementTypeAny]
+  return [[[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
            matchingPredicate:[NSPredicate predicateWithFormat:@"hasFocus == true"]]
           fb_firstMatch];
 }

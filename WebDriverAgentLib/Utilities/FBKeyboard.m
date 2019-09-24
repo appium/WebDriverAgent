@@ -54,7 +54,7 @@
 + (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app timeout:(NSTimeInterval)timeout error:(NSError **)error
 {
   BOOL (^keyboardIsVisible)(void) = ^BOOL(void) {
-    XCUIElement *keyboard = [app descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
+    XCUIElement *keyboard = [app.fb_query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
     return keyboard && keyboard.fb_isVisible;
   };
   if (timeout <= 0) {

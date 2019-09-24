@@ -18,12 +18,12 @@
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
 #import "FBActiveAppDetectionPoint.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIApplicationProcessDelay.h"
-#import "XCUIElement+FBUtilities.h"
 
 static NSString* const USE_COMPACT_RESPONSES = @"shouldUseCompactResponses";
 static NSString* const ELEMENT_RESPONSE_ATTRIBUTES = @"elementResponseAttributes";

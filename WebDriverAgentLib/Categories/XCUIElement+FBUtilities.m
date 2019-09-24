@@ -148,16 +148,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 }
 
-+ (BOOL)fb_supportsNonModalElementsInclusion
-{
-  static dispatch_once_t hasIncludingNonModalElements;
-  static BOOL result;
-  dispatch_once(&hasIncludingNonModalElements, ^{
-    result = [FBApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
-  });
-  return result;
-}
-
 - (NSArray *)fb_createAXAttributes: (BOOL)asNumber
 {
   // Names of the properties to load. There won't be lazy loading for missing properties,
@@ -208,9 +198,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   XCElementSnapshot *snapshot = nil;
   @try {
-    XCUIElementQuery *rootQuery = FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
-      ? self.query.includingNonModalElements
-      : self.query;
+    XCUIElementQuery *rootQuery = self.fb_query;
     while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
       rootQuery = rootQuery.inputQuery;
     }
@@ -246,7 +234,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   if (uniqueTypes && [uniqueTypes count] == 1) {
     type = [uniqueTypes.firstObject intValue];
   }
-  XCUIElementQuery *query = [[self descendantsMatchingType:type] matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:type] matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
