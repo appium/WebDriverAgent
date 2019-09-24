@@ -143,7 +143,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", YES);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
-  XCTAssertEqual(fields.count, 1);
+  XCTAssertEqual(fields.count, 2);
 }
 
 - (void)testCompactResponseNo
@@ -153,7 +153,7 @@
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"type"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"label"], @"Alerts");
-  XCTAssertEqual(fields.count, 3);
+  XCTAssertEqual(fields.count, 4);
 }
 
 @end
@@ -179,7 +179,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", YES);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
-  XCTAssertEqual(fields.count, 1);
+  XCTAssertEqual(fields.count, 2);
 }
 
 - (void)testCompactResponseNoWithResponseAttributesSet
@@ -191,7 +191,7 @@
   XCTAssertEqualObjects(fields[@"name"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"text"], @"Alerts");
   XCTAssertEqualObjects(fields[@"enabled"], @(YES));
-  XCTAssertEqual(fields.count, 4);
+  XCTAssertEqual(fields.count, 5);
 }
 
 - (void)testInvalidAttribute
@@ -201,7 +201,7 @@
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"name"], @"XCUIElementTypeButton");
-  XCTAssertEqual(fields.count, 2);
+  XCTAssertEqual(fields.count, 3);
 }
 
 - (void)testKnownAttributes
@@ -218,7 +218,7 @@
   XCTAssertEqualObjects(fields[@"enabled"], @(YES));
   XCTAssertEqualObjects(fields[@"displayed"], @(YES));
   XCTAssertEqualObjects(fields[@"selected"], @(NO));
-  XCTAssertEqual(fields.count, 9);
+  XCTAssertEqual(fields.count, 10);
 }
 
 - (void)testArbitraryAttributes
@@ -229,7 +229,7 @@
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"attribute/name"], @"Alerts");
   XCTAssertEqualObjects(fields[@"attribute/value"], [NSNull null]);
-  XCTAssertEqual(fields.count, 3);
+  XCTAssertEqual(fields.count, 4);
 }
 
 static BOOL matchesRegex(NSString *target, NSString *pattern) {

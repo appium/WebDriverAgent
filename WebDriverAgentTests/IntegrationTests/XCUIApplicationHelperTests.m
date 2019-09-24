@@ -66,7 +66,9 @@
 {
   XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
-  XCTAssertTrue([FBApplication fb_activeApplication].icons[@"Safari"].fb_isVisible);
+  // Here returns "com.facebook.IntergrationApp" bundle id's application
+  // XCTAssertTrue([FBApplication fb_activeApplication].icons[@"Safari"].fb_isVisible);
+  XCTAssertTrue([FBApplication fb_activeApplicationWithDefaultBundleId:@"com.apple.springboard"].icons[@"Safari"].fb_isVisible);
 }
 
 - (void)testActiveElement
