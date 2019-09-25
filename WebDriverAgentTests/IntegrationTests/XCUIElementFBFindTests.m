@@ -67,7 +67,7 @@
 {
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingIdentifier:@"Alerts" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matchingSnapshots.count, 2);
-  XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeStaticText);
+  XCTAssertEqual(matchingSnapshots.firstObject.elementType, XCUIElementTypeButton);
   XCTAssertEqualObjects(matchingSnapshots.lastObject.label, @"Alerts");
 }
 
