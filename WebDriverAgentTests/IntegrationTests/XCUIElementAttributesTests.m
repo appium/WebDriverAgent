@@ -143,6 +143,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", YES);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqual(fields.count, 2);
 }
 
@@ -151,6 +152,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"type"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"label"], @"Alerts");
   XCTAssertEqual(fields.count, 4);
@@ -179,6 +181,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", YES);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqual(fields.count, 2);
 }
 
@@ -188,6 +191,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"name"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"text"], @"Alerts");
   XCTAssertEqualObjects(fields[@"enabled"], @(YES));
@@ -200,6 +204,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"name"], @"XCUIElementTypeButton");
   XCTAssertEqual(fields.count, 3);
 }
@@ -210,6 +215,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"name"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"type"], @"XCUIElementTypeButton");
   XCTAssertEqualObjects(fields[@"label"], @"Alerts");
@@ -227,6 +233,7 @@
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, @"DUMMY", NO);
   XCTAssertEqualObjects(fields[@"ELEMENT"], @"DUMMY");
+  XCTAssertEqualObjects(fields[@"element-6066-11e4-a52e-4f735466cecf"], @"DUMMY");
   XCTAssertEqualObjects(fields[@"attribute/name"], @"Alerts");
   XCTAssertEqualObjects(fields[@"attribute/value"], [NSNull null]);
   XCTAssertEqual(fields.count, 4);
