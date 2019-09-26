@@ -273,7 +273,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return result;
 }
 
-#if !TARGET_OS_TV
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   if (CGRectIsEmpty(self.frame)) {
@@ -284,6 +283,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 
   CGRect elementRect = self.frame;
+#if !TARGET_OS_TV
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
@@ -308,14 +308,18 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       }
     }
   }
+#endif
   NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
                                                                  rect:elementRect
                                                                 error:error];
+#if !TARGET_OS_TV
   if (nil == imageData) {
     return nil;
   }
   return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
-}
+#else
+  return imageData;
 #endif
+}
 
 @end

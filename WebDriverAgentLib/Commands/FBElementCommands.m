@@ -273,7 +273,7 @@
   if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
     NSString *focusedUUID = [elementCache storeElement:focusedElement];
-    if ([focusedUUID isEqualToString:request.parameters[@"uuid"]]) {
+    if ([focusedUUID isEqualToString:(id)request.parameters[@"uuid"]]) {
       isFocused = YES;
     }
   }

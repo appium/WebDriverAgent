@@ -20,12 +20,12 @@
 
 @implementation FBTVNavigationItem
 
-+ (instancetype)itemWithUid:(NSUInteger) uid
++ (instancetype)itemWithUid:(NSString *) uid
 {
   return [[FBTVNavigationItem alloc] initWithUid:uid];
 }
 
-- (instancetype)initWithUid:(NSUInteger) uid
+- (instancetype)initWithUid:(NSString *) uid
 {
   self = [super init];
   if(self) {
@@ -40,7 +40,7 @@
 @interface FBTVNavigationTracker ()
 @property (nonatomic, strong) XCUIElement *targetElement;
 @property (nonatomic, assign) CGPoint targetCenter;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FBTVNavigationItem* >* navigationItems;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, FBTVNavigationItem* >* navigationItems;
 @end
 
 @implementation FBTVNavigationTracker
@@ -90,13 +90,12 @@
 #pragma mark - Utilities
 - (FBTVNavigationItem*)navigationItemWithElement:(id<FBElement>)element
 {
-  NSNumber *key = [NSNumber numberWithUnsignedInteger:element.wdUID];
-  FBTVNavigationItem* item = [self.navigationItems objectForKey: key];
-  if(item) {
+  FBTVNavigationItem* item = [self.navigationItems objectForKey:element.wdUID];
+  if (nil != item) {
     return item;
   }
   item = [FBTVNavigationItem itemWithUid:element.wdUID];
-  [self.navigationItems setObject:item forKey:key];
+  [self.navigationItems setObject:item forKey:element.wdUID];
   return item;
 }
 
