@@ -41,8 +41,7 @@
   XCTAssertTrue([textField fb_clearTextWithError:&error]);
   [textField pressForDuration:2.0];
   XCUIElement *pasteItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
-                           // fb_firstMatch does not work on iOS 13
-                            matchingIdentifier:@"Paste"].firstMatch;
+                            matchingIdentifier:@"Paste"].fb_firstMatch;
   XCTAssertNotNil(pasteItem);
   [pasteItem tap];
   FBAssertWaitTillBecomesTrue([textField.value isEqualToString:text]);

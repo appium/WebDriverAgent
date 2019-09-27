@@ -15,8 +15,10 @@
 #import "FBLogger.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
+#import "XCUIElement.h"
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
+static const NSTimeInterval FB_FIRST_MATCH_WAIT_EXITS_TIMEOUT = 5.0;
 
 static BOOL FBShouldUseOldElementRootSelector = NO;
 static dispatch_once_t onceRootElementToken;
@@ -106,7 +108,8 @@ static dispatch_once_t onceAppWithPIDToken;
     XCUIElement* result = self.firstMatch;
     return result.exists ? result : nil;
   }
-  if (!self.element.exists) {
+
+  if (![self.element waitForExistenceWithTimeout:FB_FIRST_MATCH_WAIT_EXITS_TIMEOUT]) {
     return nil;
   }
   return self.allElementsBoundByAccessibilityElement.firstObject;

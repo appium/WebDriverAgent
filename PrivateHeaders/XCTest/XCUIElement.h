@@ -38,6 +38,7 @@
 // !!! deprecated since Xcode 11.0
 // Do not call directly
 - (void)resolve;
+- (BOOL)waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;
 - (void)_swipe:(unsigned long long)arg1;
