@@ -22,7 +22,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker horizontalDirectionWithItem:item andDelta:0.1];
@@ -33,7 +33,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker horizontalDirectionWithItem:item andDelta:-0.1];
@@ -44,7 +44,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker horizontalDirectionWithItem:item andDelta:DBL_EPSILON];
@@ -55,7 +55,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker verticalDirectionWithItem:item andDelta:0.1];
@@ -66,7 +66,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker verticalDirectionWithItem:item andDelta:-0.1];
@@ -77,7 +77,7 @@
 {
   XCUIElementDouble *el1 = XCUIElementDouble.new;
 
-  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:123456789];
+  FBTVNavigationItem *item = [FBTVNavigationItem itemWithUid:@"123456789"];
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:(XCUIElement *)el1];
 
   FBTVDirection direction = [tracker verticalDirectionWithItem:item andDelta:DBL_EPSILON];
