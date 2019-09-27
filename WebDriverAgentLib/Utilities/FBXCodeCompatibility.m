@@ -106,7 +106,6 @@ static dispatch_once_t onceAppWithPIDToken;
     XCUIElement* result = self.firstMatch;
     return result.exists ? result : nil;
   }
-
   if (!self.element.exists) {
     return nil;
   }
