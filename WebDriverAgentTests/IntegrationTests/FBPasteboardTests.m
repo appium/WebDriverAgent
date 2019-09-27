@@ -40,8 +40,11 @@
   [textField tap];
   XCTAssertTrue([textField fb_clearTextWithError:&error]);
   [textField pressForDuration:2.0];
-  XCUIElement *pasteItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
-                            matchingIdentifier:@"Paste"].fb_firstMatch;
+  XCUIElementQuery *pastItemsQuery = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"Paste"];
+  if (![pastItemsQuery.element waitForExistenceWithTimeout:2.0]) {
+    XCTAssertFalse(true, @"No matched element named 'Paste'");
+  }
+  XCUIElement *pasteItem = pastItemsQuery.fb_firstMatch;
   XCTAssertNotNil(pasteItem);
   [pasteItem tap];
   FBAssertWaitTillBecomesTrue([textField.value isEqualToString:text]);
