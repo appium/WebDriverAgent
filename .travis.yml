@@ -107,5 +107,6 @@ jobs:
     - name: Integration tests - ipad 3, Xcode 10
       env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_3 DEST=ipad
 
-    - name: Unit tests - apple tv, Xcode 10
-      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.0" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
+    - name: Unit tests - apple tv, Xcode 10.2
+      osx_image: xcode10.2
+      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
