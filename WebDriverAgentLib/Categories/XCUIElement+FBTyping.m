@@ -20,20 +20,28 @@
 
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  BOOL isKeyboardAlreadyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
-  if (isKeyboardAlreadyVisible && self.hasKeyboardFocus) {
+  BOOL wasKeyboardAlreadyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
+  if (wasKeyboardAlreadyVisible && self.hasKeyboardFocus) {
     return YES;
   }
-  
+
+  BOOL isKeyboardVisible = wasKeyboardAlreadyVisible;
   // Sometimes the keyboard is not opened after the first tap, so we need to retry
   for (int tryNum = 0; tryNum < 2; ++tryNum) {
-    if ([self fb_tapWithError:error] && isKeyboardAlreadyVisible) {
+    if ([self fb_tapWithError:error] && wasKeyboardAlreadyVisible) {
       return YES;
     }
+    // It might take some time to update the UI
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
     [self fb_waitUntilSnapshotIsStable];
-    if ([FBKeyboard waitUntilVisibleForApplication:self.application timeout:1. error:error] && self.hasKeyboardFocus) {
+    isKeyboardVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
+    if (isKeyboardVisible && self.hasKeyboardFocus) {
       return YES;
     }
+  }
+  if (nil == error) {
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not ready for text input (hasKeyboardFocus -> %@, isKeyboardVisible -> %@)", self.description, @(self.hasKeyboardFocus), @(isKeyboardVisible)];
+    return [[[FBErrorBuilder builder] withDescription:description] buildError:error];
   }
   return NO;
 }
