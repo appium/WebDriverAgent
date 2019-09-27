@@ -235,9 +235,7 @@
 {
   NSArray<XCUIElement *> *simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]" shouldReturnAfterFirstMatch:NO];
   NSArray<XCUIElement *> *deepQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]" shouldReturnAfterFirstMatch:NO];
-  // ((simpleQueryMatches.count) equal to (deepQueryMatches.count)) failed: ("0") is not equal to ("2")
   XCTAssertEqual(simpleQueryMatches.count, deepQueryMatches.count);
-//  XCTAssertEqualObjects([simpleQueryMatches firstObject].label, [deepQueryMatches firstObject].label);
   XCTAssertEqualObjects([simpleQueryMatches lastObject].label, [deepQueryMatches lastObject].label);
 }
 
@@ -297,7 +295,6 @@
 
 - (void)testInvalidQueryWithClassChain
 {
-  // (([self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeBlabla" shouldReturnAfterFirstMatch:YES]) throws <NSException, "FBClassChainQueryParseException">) failed: did not throw
   XCTAssertThrowsSpecificNamed([self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeBlabla" shouldReturnAfterFirstMatch:YES], NSException, FBClassChainQueryParseException);
 }
 
