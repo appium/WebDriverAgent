@@ -41,7 +41,7 @@ static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)
-static BOOL FBIncludeNonModalDialogs = NO;
+static BOOL FBIncludeNonModalElements = NO;
 
 @implementation FBConfiguration
 
@@ -204,6 +204,7 @@ static BOOL FBIncludeNonModalDialogs = NO;
   // This can avoid 'Keyboard is not present' error which can happen
   // when send_keys are called by client
   [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
+  [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
 #endif
 
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
@@ -277,14 +278,14 @@ static BOOL FBIncludeNonModalDialogs = NO;
   return FBShouldUseFirstMatch;
 }
 
-+ (void)setIncludeNonModalDialogs:(BOOL)isEnabled
++ (void)setIncludeNonModalElements:(BOOL)isEnabled
 {
-  FBIncludeNonModalDialogs = isEnabled;
+  FBIncludeNonModalElements = isEnabled;
 }
 
-+ (BOOL)includeNonModalDialogs
++ (BOOL)includeNonModalElements
 {
-  return FBIncludeNonModalDialogs;
+  return FBIncludeNonModalElements;
 }
 
 #pragma mark Private

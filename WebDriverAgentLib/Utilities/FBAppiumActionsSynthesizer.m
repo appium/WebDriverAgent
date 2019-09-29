@@ -36,14 +36,15 @@ static NSString *const FB_OPTION_COUNT = @"count";
 static NSString *const FB_OPTION_MS = @"ms";
 static NSString *const FB_OPTION_PRESSURE = @"pressure";
 
+static NSString *const FB_OPTIONS_KEY = @"options";
+
+#if !TARGET_OS_TV
 // Some useful constants might be found at
 // https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/view/ViewConfiguration.java
 static const double FB_TAP_DURATION_MS = 100.0;
 static const double FB_INTERTAP_MIN_DURATION_MS = 40.0;
 static const double FB_LONG_TAP_DURATION_MS = 600.0;
-static NSString *const FB_OPTIONS_KEY = @"options";
 
-#if !TARGET_OS_TV
 @interface FBAppiumGestureItem : FBBaseGestureItem
 
 @end

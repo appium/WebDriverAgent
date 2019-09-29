@@ -86,7 +86,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   __block XCElementSnapshot *snapshotWithAttributes = nil;
   __block NSError *innerError = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  XCAccessibilityElement *axElement = FBConfiguration.includeNonModalDialogs && self.class.fb_supportsNonModalDialogsInclusion
+  XCAccessibilityElement *axElement = FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
     ? self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement
     : self.lastSnapshot.accessibilityElement;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
@@ -148,21 +148,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 }
 
-/**
-  Whether 'includingNonModalElements' is available
-
-  @return YES if includingNonModalElements is available for the element
- */
-+ (BOOL)fb_supportsNonModalDialogsInclusion
-{
-  static dispatch_once_t hasIncludingNonModalElements;
-  static BOOL result;
-  dispatch_once(&hasIncludingNonModalElements, ^{
-    result = [FBApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
-  });
-  return result;
-}
-
 - (NSArray *)fb_createAXAttributes: (BOOL)asNumber
 {
   // Names of the properties to load. There won't be lazy loading for missing properties,
@@ -213,9 +198,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 {
   XCElementSnapshot *snapshot = nil;
   @try {
-    XCUIElementQuery *rootQuery = FBConfiguration.includeNonModalDialogs && self.class.fb_supportsNonModalDialogsInclusion
-      ? self.query.includingNonModalElements
-      : self.query;
+    XCUIElementQuery *rootQuery = self.fb_query;
     while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
       rootQuery = rootQuery.inputQuery;
     }
@@ -251,7 +234,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   if (uniqueTypes && [uniqueTypes count] == 1) {
     type = [uniqueTypes.firstObject intValue];
   }
-  XCUIElementQuery *query = [[self descendantsMatchingType:type] matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:type] matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
@@ -290,7 +273,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return result;
 }
 
-#if !TARGET_OS_TV
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   if (CGRectIsEmpty(self.frame)) {
@@ -301,6 +283,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 
   CGRect elementRect = self.frame;
+#if !TARGET_OS_TV
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
@@ -325,14 +308,18 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
       }
     }
   }
+#endif
   NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
                                                                  rect:elementRect
                                                                 error:error];
+#if !TARGET_OS_TV
   if (nil == imageData) {
     return nil;
   }
   return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
-}
+#else
+  return imageData;
 #endif
+}
 
 @end

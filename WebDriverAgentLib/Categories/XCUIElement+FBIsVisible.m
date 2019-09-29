@@ -154,12 +154,12 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
     return [self fb_cacheVisibilityWithValue:NO forAncestors:nil];
   }
 
+  NSArray<XCElementSnapshot *> *ancestors = self.fb_ancestors;
   if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
     BOOL visibleAttrValue = [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsVisibleAttributeName] boolValue];
-    return [self fb_cacheVisibilityWithValue:visibleAttrValue forAncestors:nil];
+    return [self fb_cacheVisibilityWithValue:visibleAttrValue forAncestors:ancestors];
   }
 
-  NSArray<XCElementSnapshot *> *ancestors = self.fb_ancestors;
   XCElementSnapshot *parentWindow = ancestors.count > 1 ? [ancestors objectAtIndex:ancestors.count - 2] : nil;
   CGRect visibleRect = selfFrame;
   if (nil != parentWindow) {

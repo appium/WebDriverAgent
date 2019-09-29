@@ -12,10 +12,10 @@
 #if TARGET_OS_TV
 
 @interface FBTVNavigationItem ()
-@property (nonatomic, readonly) NSUInteger uid;
+@property (nonatomic, readonly) NSString *uid;
 @property (nonatomic, readonly) NSMutableSet<NSNumber *>* directions;
 
-+ (instancetype)itemWithUid:(NSUInteger) uid;
++ (instancetype)itemWithUid:(NSString *) uid;
 @end
 
 

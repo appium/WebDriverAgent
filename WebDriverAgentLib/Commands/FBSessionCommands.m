@@ -11,18 +11,19 @@
 
 #import "FBApplication.h"
 #import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBProtocolHelpers.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
 #import "FBApplication.h"
 #import "FBRuntimeUtils.h"
 #import "FBActiveAppDetectionPoint.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIApplicationProcessDelay.h"
-#import "XCUIElement+FBUtilities.h"
 
 static NSString* const USE_COMPACT_RESPONSES = @"shouldUseCompactResponses";
 static NSString* const ELEMENT_RESPONSE_ATTRIBUTES = @"elementResponseAttributes";
@@ -38,7 +39,7 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
 static NSString* const REDUCE_MOTION = @"reduceMotion";
 static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
 static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
-static NSString* const INCLUDE_NON_MODAL_DIALOGS = @"includeNonModalDialogs";
+static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
 
 
 @implementation FBSessionCommands
@@ -250,7 +251,7 @@ static NSString* const INCLUDE_NON_MODAL_DIALOGS = @"includeNonModalDialogs";
       REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
       ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
-      INCLUDE_NON_MODAL_DIALOGS: @([FBConfiguration includeNonModalDialogs]),
+      INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
     }
   );
 }
@@ -261,52 +262,55 @@ static NSString* const INCLUDE_NON_MODAL_DIALOGS = @"includeNonModalDialogs";
 {
   NSDictionary* settings = request.arguments[@"settings"];
 
-  if ([settings objectForKey:USE_COMPACT_RESPONSES]) {
+  if (nil != [settings objectForKey:USE_COMPACT_RESPONSES]) {
     [FBConfiguration setShouldUseCompactResponses:[[settings objectForKey:USE_COMPACT_RESPONSES] boolValue]];
   }
-  if ([settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
+  if (nil != [settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
     [FBConfiguration setElementResponseAttributes:(NSString *)[settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]];
   }
-  if ([settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
+  if (nil != [settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
     [FBConfiguration setMjpegServerScreenshotQuality:[[settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
+  if (nil != [settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
     [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:SCREENSHOT_QUALITY]) {
+  if (nil != [settings objectForKey:SCREENSHOT_QUALITY]) {
     [FBConfiguration setScreenshotQuality:[[settings objectForKey:SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:MJPEG_SCALING_FACTOR]) {
+  if (nil != [settings objectForKey:MJPEG_SCALING_FACTOR]) {
     [FBConfiguration setMjpegScalingFactor:[[settings objectForKey:MJPEG_SCALING_FACTOR] unsignedIntegerValue]];
   }
-  if ([settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
+  if (nil != [settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
     [FBConfiguration setKeyboardAutocorrection:[[settings objectForKey:KEYBOARD_AUTOCORRECTION] boolValue]];
   }
-  if ([settings objectForKey:KEYBOARD_PREDICTION]) {
+  if (nil != [settings objectForKey:KEYBOARD_PREDICTION]) {
     [FBConfiguration setKeyboardPrediction:[[settings objectForKey:KEYBOARD_PREDICTION] boolValue]];
   }
-  if ([settings objectForKey:SNAPSHOT_TIMEOUT]) {
+  if (nil != [settings objectForKey:SNAPSHOT_TIMEOUT]) {
     [FBConfiguration setSnapshotTimeout:[[settings objectForKey:SNAPSHOT_TIMEOUT] doubleValue]];
   }
-  if ([settings objectForKey:USE_FIRST_MATCH]) {
+  if (nil != [settings objectForKey:USE_FIRST_MATCH]) {
     [FBConfiguration setUseFirstMatch:[[settings objectForKey:USE_FIRST_MATCH] boolValue]];
   }
-  if ([settings objectForKey:REDUCE_MOTION]) {
+  if (nil != [settings objectForKey:REDUCE_MOTION]) {
     [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];
   }
-  if ([settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
+  if (nil != [settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
     request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
   }
-  if ([settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
+  if (nil != [settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
     NSError *error;
     if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:ACTIVE_APP_DETECTION_POINT]
                                                                       error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
   }
-  if ([settings objectForKey:INCLUDE_NON_MODAL_DIALOGS]
-      && [XCUIElement fb_supportsNonModalDialogsInclusion]) {
-    [FBConfiguration setIncludeNonModalDialogs:[[settings objectForKey:INCLUDE_NON_MODAL_DIALOGS] boolValue]];
+  if (nil != [settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]) {
+    if ([XCUIElement fb_supportsNonModalElementsInclusion]) {
+      [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
+    } else {
+      [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
+    }
   }
 
   return [self handleGetSettings:request];

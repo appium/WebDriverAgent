@@ -11,9 +11,9 @@
 
 #import "XCUIElement+FBUtilities.h"
 
+# if !TARGET_OS_TV
 static const CGFloat FBRotationCoolOffTime = 1.f;
 
-# if !TARGET_OS_TV
 @implementation XCUIDevice (FBRotation)
 
 - (BOOL)fb_setDeviceInterfaceOrientation:(UIDeviceOrientation)orientation

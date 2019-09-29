@@ -122,7 +122,7 @@
 #pragma mark - Helpers
 
 + (BOOL)isKeyboardPresentForApplication:(XCUIApplication *)application {
-  XCUIElement *foundKeyboard = [application.query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
+  XCUIElement *foundKeyboard = [application.fb_query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
   return foundKeyboard && foundKeyboard.fb_isVisible;
 }
 

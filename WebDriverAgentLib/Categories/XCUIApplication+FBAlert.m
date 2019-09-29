@@ -28,7 +28,7 @@
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
     NSPredicate *predicateString = [NSPredicate predicateWithFormat:@"identifier == 'PopoverDismissRegion'"];
-    XCUIElementQuery *query = [[self descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicateString];
+    XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicateString];
     if (!query.fb_firstMatch) {
       return alert;
     }

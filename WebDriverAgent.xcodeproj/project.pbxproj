@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1357E296233D05240054BDB8 /* XCUIHitPointResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 1357E295233D05240054BDB8 /* XCUIHitPointResult.h */; };
+		1357E297233D05240054BDB8 /* XCUIHitPointResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 1357E295233D05240054BDB8 /* XCUIHitPointResult.h */; };
 		13815F6F2328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */; };
 		13815F702328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */; };
 		13815F712328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */; };
@@ -821,6 +823,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1357E295233D05240054BDB8 /* XCUIHitPointResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIHitPointResult.h; sourceTree = "<group>"; };
 		13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBActiveAppDetectionPoint.h; sourceTree = "<group>"; };
 		13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBActiveAppDetectionPoint.m; sourceTree = "<group>"; };
 		1BA7DD8C206D694B007C7C26 /* XCTElementSetTransformer-Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTElementSetTransformer-Protocol.h"; sourceTree = "<group>"; };
@@ -1953,6 +1956,7 @@
 				EE35ACFF1E3B77D600A02D78 /* XCUIElementAsynchronousHandlerWrapper.h */,
 				EE35AD011E3B77D600A02D78 /* XCUIElementHitPointCoordinate.h */,
 				EE35AD021E3B77D600A02D78 /* XCUIElementQuery.h */,
+				1357E295233D05240054BDB8 /* XCUIHitPointResult.h */,
 				EE35AD041E3B77D600A02D78 /* XCUIRecorderNodeFinder.h */,
 				EE35AD051E3B77D600A02D78 /* XCUIRecorderNodeFinderMatch.h */,
 				EE35AD061E3B77D600A02D78 /* XCUIRecorderTimingMessage.h */,
@@ -1994,6 +1998,7 @@
 				641EE6342240C5CA00173FCB /* XCUIElement+FBTyping.h in Headers */,
 				641EE6352240C5CA00173FCB /* XCUIElement+FBUtilities.h in Headers */,
 				641EE6362240C5CA00173FCB /* XCUIElement+FBScrolling.h in Headers */,
+				1357E297233D05240054BDB8 /* XCUIHitPointResult.h in Headers */,
 				641EE6372240C5CA00173FCB /* XCSourceCodeTreeNode.h in Headers */,
 				641EE6382240C5CA00173FCB /* XCPointerEventPath.h in Headers */,
 				641EE6392240C5CA00173FCB /* FBRouteRequest.h in Headers */,
@@ -2274,6 +2279,7 @@
 				EE35AD521E3B77D600A02D78 /* XCTestObservationCenter.h in Headers */,
 				EE35AD5B1E3B77D600A02D78 /* XCTNSNotificationExpectation.h in Headers */,
 				EE35AD751E3B77D600A02D78 /* XCUIRecorderNodeFinder.h in Headers */,
+				1357E296233D05240054BDB8 /* XCUIHitPointResult.h in Headers */,
 				EE158AAE1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.h in Headers */,
 				EE35AD781E3B77D600A02D78 /* XCUIRecorderUtilities.h in Headers */,
 				EE35AD421E3B77D600A02D78 /* XCTestCaseRun.h in Headers */,
@@ -3167,11 +3173,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -3181,9 +3185,34 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Weverything",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-unused-macros",
+					"-Wno-disabled-macro-expansion",
+					"-Wno-gnu-statement-expression",
+					"-Wno-language-extension-token",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-missing-variable-declarations",
+					"-Rno-module-build",
+					"-Wno-auto-import",
+					"-Wno-objc-interface-ivars",
+					"-Wno-documentation-unknown-command",
+					"-Wno-reserved-id-macro",
+					"-Wno-unused-parameter",
+					"-Wno-gnu-conditional-omitted-operand",
+					"-Wno-explicit-ownership-type",
+					"-Wno-date-time",
+					"-Wno-cast-align",
+					"-Wno-cstring-format-directive",
+					"-Wno-double-promotion",
+					"-Wno-partial-availability",
+					"-Wno-objc-messaging-id",
+				);
 			};
 			name = Debug;
 		};
@@ -3200,11 +3229,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -3215,9 +3242,34 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Weverything",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-unused-macros",
+					"-Wno-disabled-macro-expansion",
+					"-Wno-gnu-statement-expression",
+					"-Wno-language-extension-token",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-missing-variable-declarations",
+					"-Rno-module-build",
+					"-Wno-auto-import",
+					"-Wno-objc-interface-ivars",
+					"-Wno-documentation-unknown-command",
+					"-Wno-reserved-id-macro",
+					"-Wno-unused-parameter",
+					"-Wno-gnu-conditional-omitted-operand",
+					"-Wno-explicit-ownership-type",
+					"-Wno-date-time",
+					"-Wno-cast-align",
+					"-Wno-cstring-format-directive",
+					"-Wno-double-promotion",
+					"-Wno-partial-availability",
+					"-Wno-objc-messaging-id",
+				);
 			};
 			name = Release;
 		};
@@ -3322,6 +3374,7 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -3332,7 +3385,7 @@
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(SRCROOT)/Modules",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -3379,6 +3432,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=0";
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -3389,7 +3443,7 @@
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(SRCROOT)/Modules",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3412,13 +3466,11 @@
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3426,6 +3478,31 @@
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Weverything",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-unused-macros",
+					"-Wno-disabled-macro-expansion",
+					"-Wno-gnu-statement-expression",
+					"-Wno-language-extension-token",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-missing-variable-declarations",
+					"-Rno-module-build",
+					"-Wno-auto-import",
+					"-Wno-objc-interface-ivars",
+					"-Wno-documentation-unknown-command",
+					"-Wno-reserved-id-macro",
+					"-Wno-unused-parameter",
+					"-Wno-gnu-conditional-omitted-operand",
+					"-Wno-explicit-ownership-type",
+					"-Wno-date-time",
+					"-Wno-cast-align",
+					"-Wno-cstring-format-directive",
+					"-Wno-double-promotion",
+					"-Wno-partial-availability",
+					"-Wno-objc-messaging-id",
+				);
 			};
 			name = Debug;
 		};
@@ -3443,13 +3520,11 @@
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3457,6 +3532,31 @@
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Weverything",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-unused-macros",
+					"-Wno-disabled-macro-expansion",
+					"-Wno-gnu-statement-expression",
+					"-Wno-language-extension-token",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-missing-variable-declarations",
+					"-Rno-module-build",
+					"-Wno-auto-import",
+					"-Wno-objc-interface-ivars",
+					"-Wno-documentation-unknown-command",
+					"-Wno-reserved-id-macro",
+					"-Wno-unused-parameter",
+					"-Wno-gnu-conditional-omitted-operand",
+					"-Wno-explicit-ownership-type",
+					"-Wno-date-time",
+					"-Wno-cast-align",
+					"-Wno-cstring-format-directive",
+					"-Wno-double-promotion",
+					"-Wno-partial-availability",
+					"-Wno-objc-messaging-id",
+				);
 			};
 			name = Release;
 		};

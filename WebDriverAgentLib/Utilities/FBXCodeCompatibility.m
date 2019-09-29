@@ -146,4 +146,21 @@ static dispatch_once_t onceAppWithPIDToken;
   @throw [[FBErrorBuilder.builder withDescription:@"Cannot resolve elements. Please contact Appium developers"] build];
 }
 
++ (BOOL)fb_supportsNonModalElementsInclusion
+{
+  static dispatch_once_t hasIncludingNonModalElements;
+  static BOOL result;
+  dispatch_once(&hasIncludingNonModalElements, ^{
+    result = [FBApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
+  });
+  return result;
+}
+
+- (XCUIElementQuery *)fb_query
+{
+  return FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
+    ? self.query.includingNonModalElements
+    : self.query;
+}
+
 @end

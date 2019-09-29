@@ -58,13 +58,13 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
     if (query) {
       query = [query descendantsMatchingType:item.type];
     } else {
-      query = [self descendantsMatchingType:item.type];
+      query = [self.fb_query descendantsMatchingType:item.type];
     }
   } else {
     if (query) {
       query = [query childrenMatchingType:item.type];
     } else {
-      query = [self childrenMatchingType:item.type];
+      query = [self.fb_query childrenMatchingType:item.type];
     }
   }
   if (item.predicates) {

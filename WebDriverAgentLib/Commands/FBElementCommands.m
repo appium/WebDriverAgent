@@ -221,7 +221,7 @@
   NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error = nil;
   if (![element fb_typeText:textToType frequency:frequency error:&error]) {
-    return FBResponseWithUnknownError(error);
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
   return FBResponseWithOK();
 }
@@ -273,7 +273,7 @@
   if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
     NSString *focusedUUID = [elementCache storeElement:focusedElement];
-    if ([focusedUUID isEqualToString:request.parameters[@"uuid"]]) {
+    if ([focusedUUID isEqualToString:(id)request.parameters[@"uuid"]]) {
       isFocused = YES;
     }
   }
@@ -363,7 +363,7 @@
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
   if (name) {
-    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:name] allElementsBoundByAccessibilityElement] lastObject];
+    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:name] allElementsBoundByAccessibilityElement] lastObject];
     if (!childElement) {
       return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' identifier didn't match any elements", name] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
@@ -389,7 +389,7 @@
   NSString *const predicateString = request.arguments[@"predicateString"];
   if (predicateString) {
     NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:[FBPredicate predicateWithFormat:predicateString]];
-    XCUIElement *childElement = [[[[element descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate] allElementsBoundByAccessibilityElement] lastObject];
+    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate] allElementsBoundByAccessibilityElement] lastObject];
     if (!childElement) {
       return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' predicate didn't match any elements", predicateString] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
