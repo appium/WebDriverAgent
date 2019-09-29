@@ -238,14 +238,17 @@
 {
   NSArray<XCUIElement *> *matchingSnapshots;
   NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton";
+  matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   if (@available(iOS 13.0, *)) {
-    // Works only iPhone
-    // queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton";
-    // Works both iPhone and iPad, but the path is not restricted...
-     queryString = @"XCUIElementTypeWindow/**/XCUIElementTypeButton";
+    // iPhone
+    queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton";
+    matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    if (matchingSnapshots.count == 0) {
+      // iPad
+      queryString = @"XCUIElementTypeWindow/*/*/*/*/*[2]/*/*/XCUIElementTypeButton";
+      matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    }
   }
-  matchingSnapshots = [self.testedApplication
-                       fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matchingSnapshots.count, 4); // /XCUIElementTypeButton
   for (XCUIElement *matchingSnapshot in matchingSnapshots) {
     XCTAssertEqual(matchingSnapshot.elementType, XCUIElementTypeButton);
@@ -256,14 +259,17 @@
 {
   NSArray<XCUIElement *> *matchingSnapshots;
   NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+  matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   if (@available(iOS 13.0, *)) {
-    // Works only iPhone
-    // queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-    // Works both iPhone and iPad, but the path is not restricted...
-    queryString = @"XCUIElementTypeWindow/**/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+    // iPhone
+    queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+    matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    if (matchingSnapshots.count == 0) {
+      // iPad
+      queryString = @"XCUIElementTypeWindow/*/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+      matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    }
   }
-  matchingSnapshots = [self.testedApplication
-                       fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matchingSnapshots.count, 2);
   XCTAssertEqualObjects([matchingSnapshots firstObject].label, @"Alerts");
   XCTAssertEqualObjects([matchingSnapshots lastObject].label, @"Attributes");
@@ -272,13 +278,16 @@
 - (void)testDescendantsWithIndirectClassChainAndPredicates
 {
   NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-  if (@available(iOS 13.0, *)) {
-    // Works only iPhone
-    // queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-    // Works both iPhone and iPad, but the path is not restricted...
-    queryString = @"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-  }
   NSArray<XCUIElement *> *simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+  if (@available(iOS 13.0, *)) {
+    queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+    simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    if (simpleQueryMatches.count == 0) {
+      // iPad
+      queryString = @"XCUIElementTypeWindow/*/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+      simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+    }
+  }
   NSArray<XCUIElement *> *deepQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(simpleQueryMatches.count, deepQueryMatches.count);
   XCTAssertEqualObjects([simpleQueryMatches firstObject].label, [deepQueryMatches firstObject].label);
