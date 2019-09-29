@@ -354,9 +354,12 @@
   XCTAssertEqual(matchingSnapshots.count, 0);
 }
 
-- (void)testInvalidQueryWithClassChain
+- (void)testHandleInvalidQueryWithClassChainAsNoElementWithoutError
 {
-  XCTAssertThrowsSpecificNamed([self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeBlabla" shouldReturnAfterFirstMatch:YES], NSException, FBClassChainQueryParseException);
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedView
+                                               fb_descendantsMatchingClassChain:@"XCUIElementTypeBlabla"
+                                               shouldReturnAfterFirstMatch:YES];
+  XCTAssertEqual(matchingSnapshots.count, 0);
 }
 
 - (void)testClassChainWithInvalidPredicate
