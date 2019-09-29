@@ -47,11 +47,6 @@
   XCTAssertNil(error);
   UIImage *image = [UIImage imageWithData:screenshotData];
   XCTAssertNotNil(image);
-  // Seems orientation does not work well
-  // (lldb) po image.size.width
-  //  90
-  //  (lldb) po image.size.height
-  //  345
   XCTAssertTrue(image.size.width > image.size.height);
 }
 

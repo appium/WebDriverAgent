@@ -283,6 +283,14 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
 
   CGRect elementRect = self.frame;
+
+  if (@available(iOS 13.0, *)) {
+    // landscape also works correctly on over iOS13 x Xcode 11
+    return [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
+                                                                   rect:elementRect
+                                                                  error:error];
+  }
+
 #if !TARGET_OS_TV
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
