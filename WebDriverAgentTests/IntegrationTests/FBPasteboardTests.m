@@ -14,6 +14,7 @@
 #import "FBPasteboard.h"
 #import "FBTestMacros.h"
 #import "FBXCodeCompatibility.h"
+#import "FBConfiguration.h"
 
 @interface FBPasteboardTests : FBIntegrationTestCase
 @end
@@ -25,6 +26,8 @@
   [super setUp];
   [self launchApplication];
   [self goToAttributesPage];
+  // To avoid keyboard tutorial for iOS 13+
+  [FBConfiguration configureDefaultKeyboardPreferences];
 }
 
 - (void)testSetPasteboard

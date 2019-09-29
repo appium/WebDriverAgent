@@ -11,6 +11,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "XCUIElement+FBTyping.h"
+#import "FBConfiguration.h"
 
 @interface FBTypingTest : FBIntegrationTestCase
 @end
@@ -22,6 +23,8 @@
   [super setUp];
   [self launchApplication];
   [self goToAttributesPage];
+  // To avoid keyboard tutorial for iOS 13+
+  [FBConfiguration configureDefaultKeyboardPreferences];
 }
 
 - (void)testTextTyping
