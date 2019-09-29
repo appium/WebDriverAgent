@@ -41,18 +41,25 @@
 {
   UIInterfaceOrientation interfaceOrientation = self.application.interfaceOrientation;
   if (interfaceOrientation == UIInterfaceOrientationPortrait) {
+    // There is no need to recalculate anything for portrait orientation
     return hitPoint;
+  }
+  CGRect appFrame = self.application.frame;
+  if (@available(iOS 13.0, *)) {
+    // For Xcode11 it is always necessary to adjust the tap point coordinates
+    return FBInvertPointForApplication(hitPoint, appFrame.size, interfaceOrientation);
   }
   NSArray<XCElementSnapshot *> *ancestors = snapshot.fb_ancestors;
   XCElementSnapshot *parentWindow = ancestors.count > 1 ? [ancestors objectAtIndex:ancestors.count - 2] : nil;
   CGRect parentWindowFrame = nil == parentWindow ? snapshot.frame : parentWindow.frame;
-  CGRect appFrame = self.application.frame;
   if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
       (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
-    // This is the indication of the fact that transformation is broken and coordinates should be
-    // recalculated manually.
-    // However, upside-down case cannot be covered this way, which is not important for Appium
-    hitPoint = FBInvertPointForApplication(hitPoint, appFrame.size, interfaceOrientation);
+    /*
+     This is the indication of the fact that transformation is broken and coordinates should be
+     recalculated manually.
+     However, upside-down case cannot be covered this way, which is not important for Appium
+     */
+    return FBInvertPointForApplication(hitPoint, appFrame.size, interfaceOrientation);
   }
   return hitPoint;
 }
