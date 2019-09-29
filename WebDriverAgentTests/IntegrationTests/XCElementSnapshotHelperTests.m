@@ -96,7 +96,9 @@
   XCUIElement *todayPickerWheel = self.testedApplication.pickerWheels[@"Today"];
   XCTAssertTrue(todayPickerWheel.exists);
   [todayPickerWheel fb_nativeResolve];
-  XCElementSnapshot *otherSnapshot;
+  XCElementSnapshot *otherSnapshot = [todayPickerWheel.fb_lastSnapshot
+                                      fb_parentMatchingOneOfTypes:@[@(XCUIElementTypeAny),
+                                                                    @(XCUIElementTypeWindow)]];
   if (@available(iOS 13.0, *)) {
     // </XCUIElementTypeOther>
     //   <XCUIElementTypeDatePicker>
@@ -105,8 +107,6 @@
     otherSnapshot = [[[todayPickerWheel.fb_lastSnapshot fb_parentMatchingType:XCUIElementTypePicker]
                       fb_parentMatchingType:XCUIElementTypeDatePicker]
                         fb_parentMatchingOneOfTypes:@[@(XCUIElementTypeAny), @(XCUIElementTypeWindow)]];
-  } else {
-    otherSnapshot = [todayPickerWheel.fb_lastSnapshot fb_parentMatchingOneOfTypes:@[@(XCUIElementTypeAny), @(XCUIElementTypeWindow)]];
   }
   XCTAssertNotNil(otherSnapshot);
   XCTAssertEqual(otherSnapshot.elementType, XCUIElementTypeOther);

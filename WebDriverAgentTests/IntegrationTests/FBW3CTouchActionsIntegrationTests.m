@@ -301,7 +301,6 @@
           ],
       },
     ];
-  // Maybe the landscape cannnot handled well
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeLeft];
 }
 
@@ -322,7 +321,6 @@
           ],
       },
     ];
-  // Maybe the landscape cannnot handled well
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeRight];
 }
 

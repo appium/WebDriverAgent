@@ -42,6 +42,7 @@
 {
   XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
   FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_lastSnapshot);
+
   XCElementSnapshot *snapshot = matchingElement.fb_lastSnapshot;
   // Over iOS13, snapshot returns a child.
   // The purpose of here is return a single element so replace children with nil for testing.
