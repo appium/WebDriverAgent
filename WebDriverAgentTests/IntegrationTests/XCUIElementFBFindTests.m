@@ -317,8 +317,8 @@
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeButton" shouldReturnAfterFirstMatch:YES];
   
   XCTAssertEqual(matchingSnapshots.count, 1);
-  XCTAssertEqual(matchingSnapshots.firstObject.elementType, XCUIElementTypeButton);
-  XCTAssertTrue([matchingSnapshots.firstObject.label isEqualToString:@"Alerts"]);
+  XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
+  XCTAssertTrue([matchingSnapshots.lastObject.label isEqualToString:@"Alerts"]);
 }
 
 - (void)testSingleDescendantWithClassChainAndNegativeIndex
