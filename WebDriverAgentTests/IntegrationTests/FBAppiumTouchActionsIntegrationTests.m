@@ -211,7 +211,7 @@
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
       @"action": @"press",
-      @"options": @{
+      @"options": @{ // Here does not work in iOS 13
           @"ELEMENT": self.testedApplication.buttons[FBShowAlertButtonName],
           @"x": @1,
           @"y": @1
