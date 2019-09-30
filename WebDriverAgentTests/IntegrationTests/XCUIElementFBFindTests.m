@@ -237,6 +237,17 @@
 - (void)testDescendantsWithClassChain
 {
   NSArray<XCUIElement *> *matchingSnapshots;
+  NSString *queryString =@"XCUIElementTypeWindow/XCUIElementTypeOther/**/XCUIElementTypeButton";
+  matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(matchingSnapshots.count, 4); // /XCUIElementTypeButton
+  for (XCUIElement *matchingSnapshot in matchingSnapshots) {
+    XCTAssertEqual(matchingSnapshot.elementType, XCUIElementTypeButton);
+  }
+}
+
+- (void)testDescendantsWithClassChainWithIndex
+{
+  NSArray<XCUIElement *> *matchingSnapshots;
   NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton";
   matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   if (@available(iOS 13.0, *)) {
@@ -258,18 +269,8 @@
 - (void)testDescendantsWithClassChainAndPredicates
 {
   NSArray<XCUIElement *> *matchingSnapshots;
-  NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+  NSString *queryString = @"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
   matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-  if (@available(iOS 13.0, *)) {
-    // iPhone
-    queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-    matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    if (matchingSnapshots.count == 0) {
-      // iPad
-      queryString = @"XCUIElementTypeWindow/*/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-      matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    }
-  }
   XCTAssertEqual(matchingSnapshots.count, 2);
   XCTAssertEqualObjects([matchingSnapshots firstObject].label, @"Alerts");
   XCTAssertEqualObjects([matchingSnapshots lastObject].label, @"Attributes");
@@ -277,17 +278,8 @@
 
 - (void)testDescendantsWithIndirectClassChainAndPredicates
 {
-  NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
+  NSString *queryString = @"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
   NSArray<XCUIElement *> *simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-  if (@available(iOS 13.0, *)) {
-    queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-    simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    if (simpleQueryMatches.count == 0) {
-      // iPad
-      queryString = @"XCUIElementTypeWindow/*/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH 'A'`]";
-      simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    }
-  }
   NSArray<XCUIElement *> *deepQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/**/XCUIElementTypeButton[`label BEGINSWITH 'A'`]" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(simpleQueryMatches.count, deepQueryMatches.count);
   XCTAssertEqualObjects([simpleQueryMatches firstObject].label, [deepQueryMatches firstObject].label);
@@ -320,18 +312,8 @@
 - (void)testDescendantsWithClassChainAndPredicatesAndIndexes
 {
   NSArray<XCUIElement *> *matchingSnapshots;
-  NSString *queryString = @"XCUIElementTypeWindow[`name != 'bla'`]/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH \"A\"`][1]";
+  NSString *queryString = @"XCUIElementTypeWindow[`name != 'bla'`]/**/XCUIElementTypeButton[`label BEGINSWITH \"A\"`][1]";
   matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-  if (@available(iOS 13.0, *)) {
-    // iPhone
-    queryString = @"XCUIElementTypeWindow[`name != 'bla'`]/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH \"A\"`][1]";
-    matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    if (matchingSnapshots.count == 0) {
-      // iPad
-      queryString =@"XCUIElementTypeWindow[`name != 'bla'`]/*/*/*/*/*[2]/*/*/XCUIElementTypeButton[`label BEGINSWITH \"A\"`][1]";
-      matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-    }
-  }
   XCTAssertEqual(matchingSnapshots.count, 1);
   XCTAssertEqualObjects([matchingSnapshots firstObject].label, @"Alerts");
 }
