@@ -37,6 +37,7 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
   [super setUp];
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration disableAttributeKeyPathAnalysis];
+  [FBConfiguration configureDefaultKeyboardPreferences];
   self.continueAfterFailure = NO;
   self.springboard = [FBSpringboardApplication fb_springboard];
   self.testedApplication = [XCUIApplication new];

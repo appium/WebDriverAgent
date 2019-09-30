@@ -67,10 +67,10 @@ jobs:
       env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.0" ACTION=analyze TARGET=tv_runner SDK=tv_sim
 
     - stage: WDA Tests
-    - name: Unit tests - iphone
+    - name: Unit tests - iphone, Xcode 11
       osx_image: xcode11
       env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=unit_test DEST=iphone
-    - name: Unit tests - ipad
+    - name: Unit tests - ipad, Xcode 11
       osx_image: xcode11
       env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=unit_test DEST=ipad
 

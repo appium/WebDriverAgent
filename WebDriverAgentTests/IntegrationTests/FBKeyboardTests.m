@@ -12,7 +12,6 @@
 #import "FBIntegrationTestCase.h"
 #import "FBKeyboard.h"
 #import "FBRunLoopSpinner.h"
-#import "FBConfiguration.h"
 
 @interface FBKeyboardTests : FBIntegrationTestCase
 @end
@@ -24,8 +23,6 @@
   [super setUp];
   [self launchApplication];
   [self goToAttributesPage];
-  // To avoid keyboard tutorial for iOS 13+
-  [FBConfiguration configureDefaultKeyboardPreferences];
 }
 
 - (void)testTextTyping
