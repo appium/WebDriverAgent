@@ -42,7 +42,7 @@
   [textField pressForDuration:2.0];
   XCUIElementQuery *pastItemsQuery = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"Paste"];
   if (![pastItemsQuery.element waitForExistenceWithTimeout:2.0]) {
-    XCTAssertFalse(true, @"No matched element named 'Paste'");
+    XCTFail(@"No matched element named 'Paste'")
   }
   XCUIElement *pasteItem = pastItemsQuery.fb_firstMatch;
   XCTAssertNotNil(pasteItem);
