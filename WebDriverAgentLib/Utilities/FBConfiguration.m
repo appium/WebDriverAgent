@@ -213,9 +213,12 @@ static BOOL FBIncludeNonModalElements = NO;
 
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   // Auto-Correction in Keyboards
+  // 'setAutocorrectionEnabled' has been in TextInput.framework/TIKeyboardState.h over iOS 10.3
   if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
+    // Under iOS 10.2
     controller.autocorrectionEnabled = NO;
   } else {
+    // Over iOS 10.3
     [controller setValue:@NO forPreferenceKey:FBKeyboardAutocorrectionKey];
   }
 
@@ -245,7 +248,7 @@ static BOOL FBIncludeNonModalElements = NO;
 
 + (void)setKeyboardAutocorrection:(BOOL)isEnabled
 {
-  [self configureKeyboardsPreference:@(isEnabled) forPreferenceKey:FBKeyboardAutocorrectionKey];
+  [self configureKeyboardsPreference:isEnabled forPreferenceKey:FBKeyboardAutocorrectionKey];
 }
 
 + (BOOL)keyboardPrediction
@@ -255,7 +258,7 @@ static BOOL FBIncludeNonModalElements = NO;
 
 + (void)setKeyboardPrediction:(BOOL)isEnabled
 {
-  [self configureKeyboardsPreference:@(isEnabled) forPreferenceKey:FBKeyboardPredictionKey];
+  [self configureKeyboardsPreference:isEnabled forPreferenceKey:FBKeyboardPredictionKey];
 }
 
 + (void)setSnapshotTimeout:(NSTimeInterval)timeout
@@ -302,7 +305,7 @@ static BOOL FBIncludeNonModalElements = NO;
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
 }
 
-+ (void)configureKeyboardsPreference:(nonnull NSValue *)value forPreferenceKey:(nonnull NSString *)key
++ (void)configureKeyboardsPreference:(BOOL)isEnabled forPreferenceKey:(nonnull NSString *)key
 {
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
   Class controllerClass = NSClassFromString(controllerClassName);
@@ -312,16 +315,16 @@ static BOOL FBIncludeNonModalElements = NO;
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
     // Auto-Correction in Keyboards
     if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
-      controller.autocorrectionEnabled = value;
+      controller.autocorrectionEnabled = isEnabled;
     } else {
-      [controller setValue:value forPreferenceKey:FBKeyboardAutocorrectionKey];
+      [controller setValue:@(isEnabled) forPreferenceKey:FBKeyboardAutocorrectionKey];
     }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     // Predictive in Keyboards
     if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
-      controller.predictionEnabled = value;
+      controller.predictionEnabled = isEnabled;
     } else {
-      [controller setValue:value forPreferenceKey:FBKeyboardPredictionKey];
+      [controller setValue:@(isEnabled) forPreferenceKey:FBKeyboardPredictionKey];
     }
   }
 
