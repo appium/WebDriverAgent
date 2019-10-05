@@ -305,7 +305,7 @@ static BOOL FBIncludeNonModalElements = NO;
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
 }
 
-+ (void)configureKeyboardsPreference:(BOOL)isEnabled forPreferenceKey:(nonnull NSString *)key
++ (void)configureKeyboardsPreference:(BOOL)enable forPreferenceKey:(nonnull NSString *)key
 {
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
   Class controllerClass = NSClassFromString(controllerClassName);
@@ -315,16 +315,16 @@ static BOOL FBIncludeNonModalElements = NO;
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
     // Auto-Correction in Keyboards
     if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
-      controller.autocorrectionEnabled = isEnabled;
+      controller.autocorrectionEnabled = enable;
     } else {
-      [controller setValue:@(isEnabled) forPreferenceKey:FBKeyboardAutocorrectionKey];
+      [controller setValue:@(enable) forPreferenceKey:FBKeyboardAutocorrectionKey];
     }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     // Predictive in Keyboards
     if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
-      controller.predictionEnabled = isEnabled;
+      controller.predictionEnabled = enable;
     } else {
-      [controller setValue:@(isEnabled) forPreferenceKey:FBKeyboardPredictionKey];
+      [controller setValue:@(enableWebDriverAgentLib/Utilities/FBConfiguration.m) forPreferenceKey:FBKeyboardPredictionKey];
     }
   }
 
