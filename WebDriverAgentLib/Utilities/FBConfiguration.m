@@ -213,7 +213,7 @@ static BOOL FBIncludeNonModalElements = NO;
 
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   // Auto-Correction in Keyboards
-  // 'setAutocorrectionEnabled' has been in TextInput.framework/TIKeyboardState.h over iOS 10.3
+  // 'setAutocorrectionEnabled' Was in TextInput.framework/TIKeyboardState.h over iOS 10.3
   if ([controller respondsToSelector:@selector(setAutocorrectionEnabled:)]) {
     // Under iOS 10.2
     controller.autocorrectionEnabled = NO;
@@ -324,7 +324,7 @@ static BOOL FBIncludeNonModalElements = NO;
     if ([controller respondsToSelector:@selector(setPredictionEnabled:)]) {
       controller.predictionEnabled = enable;
     } else {
-      [controller setValue:@(enableWebDriverAgentLib/Utilities/FBConfiguration.m) forPreferenceKey:FBKeyboardPredictionKey];
+      [controller setValue:@(enable) forPreferenceKey:FBKeyboardPredictionKey];
     }
   }
 
