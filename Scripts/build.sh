@@ -25,6 +25,8 @@ function define_xc_macros() {
     "iphone" ) XC_DESTINATION="name=$IPHONE_MODEL,OS=$IOS_VERSION";;
     "ipad" ) XC_DESTINATION="name=$IPAD_MODEL,OS=$IOS_VERSION";;
     "tv" ) XC_DESTINATION="name=$TV_MODEL,OS=$TV_VERSION";;
+    "generic" ) XC_DESTINATION="generic/platform=iOS";;
+    "tv_generic" ) XC_DESTINATION="generic/platform=tvOS";;
   esac
 
   case "$ACTION" in
