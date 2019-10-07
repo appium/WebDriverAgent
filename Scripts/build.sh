@@ -48,7 +48,7 @@ function define_xc_macros() {
   esac
 
   case "${CODE_SIGN:-}" in
-    "no" ) XC_CODE_SIGN="${XC_MACROS} CODE_SIGNING_ALLOWED=NO";;
+    "no" ) XC_MACROS="${XC_MACROS} CODE_SIGNING_ALLOWED=NO";;
   esac
 }
 
