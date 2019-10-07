@@ -40,10 +40,10 @@ jobs:
     - stage: WDA build
       name: Generic, Xcode 11
       osx_image: xcode11
-      env: ACTION=build TARGET=runner DEST=generic CODE_SIGNING_ALLOWED=NO
+      env: ACTION=build TARGET=runner DEST=generic CODE_SIGN=no
     - name: Generic tvOS, Xcode 11
       osx_image: xcode11
-      env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGNING_ALLOWED=NO
+      env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGN=no
     - name: iPhone 11, Xcode 11
       osx_image: xcode11
       env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=build TARGET=runner
@@ -51,9 +51,9 @@ jobs:
       osx_image: xcode11
       env: IPHONE_MODEL="Apple TV 4K" TV_VERSION="13.0" ACTION=build TARGET=tv_runner SDK=tv_sim
     - name: Generic, Xcode 10
-      env: ACTION=build TARGET=runner DEST=generic CODE_SIGNING_ALLOWED=NO
+      env: ACTION=build TARGET=runner DEST=generic CODE_SIGN=no
     - name: Generic tvOS, Xcode 10
-      env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGNING_ALLOWED=NO
+      env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGN=no
     - name: iPhone X, Xcode 10
       env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=build TARGET=runner
     - name: apple tv, Xcode 10

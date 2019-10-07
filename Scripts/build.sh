@@ -46,6 +46,10 @@ function define_xc_macros() {
     "tv_device" ) XC_SDK="appletvos";;
     *) echo "Unknown SDK"; exit 1 ;;
   esac
+
+  case "${CODE_SIGN:-}" in
+    "no" ) XC_CODE_SIGN="${XC_MACROS} CODE_SIGNING_ALLOWED=NO";;
+  esac
 }
 
 function analyze() {
