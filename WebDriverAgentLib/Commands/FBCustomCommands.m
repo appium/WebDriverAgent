@@ -165,7 +165,7 @@
 
 + (id<FBResponsePayload>)handleActiveAppInfo:(FBRouteRequest *)request
 {
-  XCUIApplication *app = FBApplication.fb_activeApplication;
+  XCUIApplication *app = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   return FBResponseWithObject(@{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
