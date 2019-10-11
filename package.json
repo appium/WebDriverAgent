@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "test": "gulp once",
+    "e2e-test": "npm run build && _FORCE_LOGS=1 npx mocha -t 0 -R spec build/test/functional --exit",
     "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
     "clean:carthage": "gulp clean:carthage",
     "install:dependencies": "gulp install:dependencies",
@@ -47,9 +48,14 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "gulp": "^4.0.2",
-    "pre-commit": "^1.2.2"
+    "ios-uicatalog": "^3.5.0",
+    "mocha": "^6.2.1",
+    "pre-commit": "^1.2.2",
+    "wd": "^1.11.4"
   },
   "dependencies": {
+    "appium-base-driver": "^4.0.3",
+    "appium-ios-simulator": "^3.14.0",
     "appium-support": "^2.29.0",
     "asyncbox": "^2.5.3",
     "bluebird": "^3.5.5",
