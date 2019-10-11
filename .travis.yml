@@ -43,8 +43,8 @@ jobs:
       node_js: "10"
       install: npm install
       env:
-        - PLATFORM_VERSION=10.0
-        - DEVICE_NAME="iPhone 6"
+        - PLATFORM_VERSION=12.0
+        - DEVICE_NAME="iPhone X"
       before_script:
         # allowing the normal method will cause rate limiting
         - carthage bootstrap --no-use-binaries
