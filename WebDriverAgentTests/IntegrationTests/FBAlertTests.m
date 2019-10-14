@@ -105,13 +105,13 @@
 {
   NSError *error;
   [self showApplicationAlert];
-  [FBConfiguration setAcceptAlertButtonLocator:@"**/XCUIElementTypeButton[-1]"];
+  [FBConfiguration setAcceptAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
     XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] acceptWithError:&error]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
     XCTAssertNil(error);
   } @finally {
-    [FBConfiguration setAcceptAlertButtonLocator:@""];
+    [FBConfiguration setAcceptAlertButtonSelector:@""];
   }
 }
 
@@ -128,13 +128,13 @@
 {
   NSError *error;
   [self showApplicationAlert];
-  [FBConfiguration setDismissAlertButtonLocator:@"**/XCUIElementTypeButton[-1]"];
+  [FBConfiguration setDismissAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
     XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] dismissWithError:&error]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
     XCTAssertNil(error);
   } @finally {
-    [FBConfiguration setDismissAlertButtonLocator:@""];
+    [FBConfiguration setDismissAlertButtonSelector:@""];
   }
 }
 

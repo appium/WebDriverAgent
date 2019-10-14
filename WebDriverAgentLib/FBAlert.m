@@ -129,15 +129,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   XCUIElement *alertElement = self.alertElement;
 
   XCUIElement *acceptButton = nil;
-  if (FBConfiguration.acceptAlertButtonLocator.length) {
+  if (FBConfiguration.acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonLocator shouldReturnAfterFirstMatch:YES] firstObject];
+      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonSelector shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == acceptButton) {
-      [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain locator '%@'", FBConfiguration.acceptAlertButtonLocator];
+      [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain selector '%@'", FBConfiguration.acceptAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }
@@ -162,15 +162,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   XCUIElement *alertElement = self.alertElement;
 
   XCUIElement *dismissButton = nil;
-  if (FBConfiguration.dismissAlertButtonLocator.length) {
+  if (FBConfiguration.dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonLocator shouldReturnAfterFirstMatch:YES] firstObject];
+      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonSelector shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == dismissButton) {
-      [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain locator '%@'", FBConfiguration.dismissAlertButtonLocator];
+      [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain selector '%@'", FBConfiguration.dismissAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }

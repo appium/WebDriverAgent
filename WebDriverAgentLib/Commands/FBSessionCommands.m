@@ -40,8 +40,8 @@ static NSString* const REDUCE_MOTION = @"reduceMotion";
 static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
 static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
 static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
-static NSString* const ACCEPT_ALERT_BUTTON_LOCATOR = @"acceptAlertButtonLocator";
-static NSString* const DISMISS_ALERT_BUTTON_LOCATOR = @"dismissAlertButtonLocator";
+static NSString* const ACCEPT_ALERT_BUTTON_SELECTOR = @"acceptAlertButtonSelector";
+static NSString* const DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelector";
 
 
 @implementation FBSessionCommands
@@ -254,8 +254,8 @@ static NSString* const DISMISS_ALERT_BUTTON_LOCATOR = @"dismissAlertButtonLocato
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
       ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
       INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
-      ACCEPT_ALERT_BUTTON_LOCATOR: FBConfiguration.acceptAlertButtonLocator,
-      DISMISS_ALERT_BUTTON_LOCATOR: FBConfiguration.dismissAlertButtonLocator,
+      ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
+      DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
     }
   );
 }
@@ -316,11 +316,11 @@ static NSString* const DISMISS_ALERT_BUTTON_LOCATOR = @"dismissAlertButtonLocato
       [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
     }
   }
-  if (nil != [settings objectForKey:ACCEPT_ALERT_BUTTON_LOCATOR]) {
-    [FBConfiguration setAcceptAlertButtonLocator:(NSString *)[settings objectForKey:ACCEPT_ALERT_BUTTON_LOCATOR]];
+  if (nil != [settings objectForKey:ACCEPT_ALERT_BUTTON_SELECTOR]) {
+    [FBConfiguration setAcceptAlertButtonSelector:(NSString *)[settings objectForKey:ACCEPT_ALERT_BUTTON_SELECTOR]];
   }
-  if (nil != [settings objectForKey:DISMISS_ALERT_BUTTON_LOCATOR]) {
-    [FBConfiguration setDismissAlertButtonLocator:(NSString *)[settings objectForKey:DISMISS_ALERT_BUTTON_LOCATOR]];
+  if (nil != [settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]) {
+    [FBConfiguration setDismissAlertButtonSelector:(NSString *)[settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]];
   }
 
   return [self handleGetSettings:request];

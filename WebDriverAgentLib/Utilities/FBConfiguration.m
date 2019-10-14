@@ -42,8 +42,8 @@ static BOOL FBShouldUseFirstMatch = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)
 static BOOL FBIncludeNonModalElements = NO;
-static NSString *FBAcceptAlertButtonLocator = @"";
-static NSString *FBDismissAlertButtonLocator = @"";
+static NSString *FBAcceptAlertButtonSelector = @"";
+static NSString *FBDismissAlertButtonSelector = @"";
 
 
 @implementation FBConfiguration
@@ -296,24 +296,24 @@ static NSString *FBDismissAlertButtonLocator = @"";
   return FBIncludeNonModalElements;
 }
 
-+ (void)setAcceptAlertButtonLocator:(NSString *)classChainLocator
++ (void)setAcceptAlertButtonSelector:(NSString *)classChainSelector
 {
-  FBAcceptAlertButtonLocator = classChainLocator;
+  FBAcceptAlertButtonSelector = classChainSelector;
 }
 
-+ (NSString *)acceptAlertButtonLocator
++ (NSString *)acceptAlertButtonSelector
 {
-  return FBAcceptAlertButtonLocator;
+  return FBAcceptAlertButtonSelector;
 }
 
-+ (void)setDismissAlertButtonLocator:(NSString *)classChainLocator
++ (void)setDismissAlertButtonSelector:(NSString *)classChainSelector
 {
-  FBDismissAlertButtonLocator = classChainLocator;
+  FBDismissAlertButtonSelector = classChainSelector;
 }
 
-+ (NSString *)dismissAlertButtonLocator
++ (NSString *)dismissAlertButtonSelector
 {
-  return FBDismissAlertButtonLocator;
+  return FBDismissAlertButtonSelector;
 }
 
 #pragma mark Private
