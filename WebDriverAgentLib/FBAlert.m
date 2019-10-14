@@ -150,13 +150,11 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
       ? buttons.lastObject
       : buttons.firstObject;
   }
-  if (nil == acceptButton) {
-    return
-    [[[FBErrorBuilder builder]
+  return nil == acceptButton
+    ? [[[FBErrorBuilder builder]
       withDescriptionFormat:@"Failed to find accept button for alert: %@", alertElement]
-     buildError:error];
-  }
-  return [acceptButton fb_tapWithError:error];
+     buildError:error]
+    : [acceptButton fb_tapWithError:error];
 }
 
 - (BOOL)dismissWithError:(NSError **)error
@@ -185,14 +183,11 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
       ? buttons.firstObject
       : buttons.lastObject;
   }
-  if (nil == dismissButton) {
-    return
-    [[[FBErrorBuilder builder]
+  return nil == dismissButton
+    ? [[[FBErrorBuilder builder]
       withDescriptionFormat:@"Failed to find dismiss button for alert: %@", alertElement]
-     buildError:error];
-    return NO;
-  }
-  return [dismissButton fb_tapWithError:error];
+     buildError:error]
+    : [dismissButton fb_tapWithError:error];
 }
 
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error {
