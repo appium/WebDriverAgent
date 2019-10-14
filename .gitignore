@@ -52,4 +52,4 @@ node_modules
 bundles/
 webdriveragent-*.tar.gz
 uncompressed/
-webdriveragents/
+prebuilt-agents/
