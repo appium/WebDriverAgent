@@ -14,7 +14,8 @@
     "lint:fix": "gulp eslint --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "precommit-test": "gulp lint",
-    "bundle": "node ./ci-jobs/scripts/build-webdriveragent.js"
+    "bundle": "node ./ci-jobs/scripts/build-webdriveragent.js",
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda"
   },
   "bin": {
     "appium-wda-bootstrap": "./build/index.js"
@@ -47,7 +48,8 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "gulp": "^4.0.2",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "rimraf": "^3.0.0"
   },
   "dependencies": {
     "appium-support": "^2.29.0",
