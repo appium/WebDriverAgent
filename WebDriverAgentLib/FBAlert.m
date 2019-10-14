@@ -146,11 +146,9 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    if (alertElement.elementType == XCUIElementTypeAlert) {
-      acceptButton = buttons.lastObject;
-    } else {
-      acceptButton = buttons.firstObject;
-    }
+    acceptButton = alertElement.elementType == XCUIElementTypeAlert
+      ? buttons.lastObject
+      : buttons.firstObject;
   }
   if (nil == acceptButton) {
     return
@@ -183,11 +181,9 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    if (alertElement.elementType == XCUIElementTypeAlert) {
-      dismissButton = buttons.firstObject;
-    } else {
-      dismissButton = buttons.lastObject;
-    }
+    dismissButton = alertElement.elementType == XCUIElementTypeAlert
+      ? buttons.firstObject
+      : buttons.lastObject;
   }
   if (nil == dismissButton) {
     return
