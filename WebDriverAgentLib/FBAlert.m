@@ -12,6 +12,7 @@
 #import <XCTest/XCUICoordinate.h>
 
 #import "FBApplication.h"
+#import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBFindElementCommands.h"
 #import "FBSpringboardApplication.h"
@@ -22,6 +23,7 @@
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCUIApplication+FBAlert.h"
 #import "XCUICoordinate.h"
+#import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
@@ -125,42 +127,76 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 - (BOOL)acceptWithError:(NSError **)error
 {
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
 
-  XCUIElement *defaultButton;
-  if (alertElement.elementType == XCUIElementTypeAlert) {
-    defaultButton = buttons.lastObject;
-  } else {
-    defaultButton = buttons.firstObject;
+  XCUIElement *acceptButton = nil;
+  if (FBConfiguration.acceptAlertButtonLocator.length) {
+    NSString *errorReason = nil;
+    @try {
+      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonLocator shouldReturnAfterFirstMatch:YES] firstObject];
+    } @catch (NSException *ex) {
+      errorReason = ex.reason;
+    }
+    if (nil == acceptButton) {
+      [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain locator '%@'", FBConfiguration.acceptAlertButtonLocator];
+      if (nil != errorReason) {
+        [FBLogger logFmt:@"Original error: %@", errorReason];
+      }
+      [FBLogger log:@"Will fallback to the default button location algorithm"];
+   }
   }
-  if (!defaultButton) {
+  if (nil == acceptButton) {
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+    if (alertElement.elementType == XCUIElementTypeAlert) {
+      acceptButton = buttons.lastObject;
+    } else {
+      acceptButton = buttons.firstObject;
+    }
+  }
+  if (nil == acceptButton) {
     return
     [[[FBErrorBuilder builder]
       withDescriptionFormat:@"Failed to find accept button for alert: %@", alertElement]
      buildError:error];
   }
-  return [defaultButton fb_tapWithError:error];
+  return [acceptButton fb_tapWithError:error];
 }
 
 - (BOOL)dismissWithError:(NSError **)error
 {
-  XCUIElement *cancelButton;
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
 
-  if (alertElement.elementType == XCUIElementTypeAlert) {
-    cancelButton = buttons.firstObject;
-  } else {
-    cancelButton = buttons.lastObject;
+  XCUIElement *dismissButton = nil;
+  if (FBConfiguration.dismissAlertButtonLocator.length) {
+    NSString *errorReason = nil;
+    @try {
+      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonLocator shouldReturnAfterFirstMatch:YES] firstObject];
+    } @catch (NSException *ex) {
+      errorReason = ex.reason;
+    }
+    if (nil == dismissButton) {
+      [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain locator '%@'", FBConfiguration.dismissAlertButtonLocator];
+      if (nil != errorReason) {
+        [FBLogger logFmt:@"Original error: %@", errorReason];
+      }
+      [FBLogger log:@"Will fallback to the default button location algorithm"];
+    }
   }
-  if (!cancelButton) {
+  if (nil == dismissButton) {
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+    if (alertElement.elementType == XCUIElementTypeAlert) {
+      dismissButton = buttons.firstObject;
+    } else {
+      dismissButton = buttons.lastObject;
+    }
+  }
+  if (nil == dismissButton) {
     return
     [[[FBErrorBuilder builder]
       withDescriptionFormat:@"Failed to find dismiss button for alert: %@", alertElement]
      buildError:error];
     return NO;
   }
-  return [cancelButton fb_tapWithError:error];
+  return [dismissButton fb_tapWithError:error];
 }
 
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error {

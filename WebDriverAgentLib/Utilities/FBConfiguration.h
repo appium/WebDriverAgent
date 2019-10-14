@@ -169,6 +169,23 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setIncludeNonModalElements:(BOOL)isEnabled;
 + (BOOL)includeNonModalElements;
 
+/**
+ Sets custom class chain locators for accept/dismiss alert buttons location.
+ This might be useful if the default buttons detection algorithm fails to determine alert buttons properly
+ when defaultAlertAction is set.
+
+ @param classChainLocator Valid class chain locators, which determines accept/reject button
+ on the alert. The search root is the alert element itself.
+ Setting this value to nil or an empty string (the default
+ value) will enforce WDA to apply the default algorithm for alert buttons location.
+ If an invalid/non-parseable locator is set then the lookup will fallback to the default algorithm and print a
+ warning into the log.
+ */
++ (void)setAcceptAlertButtonLocator:(NSString *)classChainLocator;
++ (NSString *)acceptAlertButtonLocator;
++ (void)setDismissAlertButtonLocator:(NSString *)classChainLocator;
++ (NSString *)dismissAlertButtonLocator;
+
 @end
 
 NS_ASSUME_NONNULL_END
