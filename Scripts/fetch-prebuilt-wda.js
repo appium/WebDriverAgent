@@ -1,7 +1,9 @@
 const path = require('path');
 const request = require('request-promise');
+const requestCallback = require('request');
 const { asyncify } = require('asyncbox');
 const { logger, fs, mkdirp } = require('appium-support');
+const _ = require('lodash');
 const _fs = require('fs');
 const B = require('bluebird');
 
@@ -27,18 +29,14 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   const webdriveragentsDir = path.resolve(__dirname, '..', 'prebuilt-agents');
   log.info(`Creating webdriveragents directory at: ${webdriveragentsDir}`);
   await fs.rimraf(webdriveragentsDir);
-  try {
-    await mkdirp(webdriveragentsDir);
-  } catch (e) {
-    throw new Error(`Could not create '${webdriveragentsDir}'. Reason: ${e.message}`);
-  }
+  await mkdirp(webdriveragentsDir);
 
   // Define a method that does a streaming download of an asset
   async function downloadAgent (url, targetPath) {
     try {
       // don't use request-promise here, we need streams
       return await new B((resolve, reject) => {
-        request(url)
+        requestCallback(url)
           .on('error', reject) // handle real errors, like connection errors
           .on('response', (res) => {
             // handle responses that fail, like 404s
@@ -59,12 +57,8 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   for (const asset of releases.assets) {
     const url = asset.browser_download_url;
     log.info(`Downloading: ${url}`);
-    // wget never seems to exit successfully so just ignore non-zero status code
     try {
-      const nameOfAgent = (function (url) {
-        const urlTokens = url.split('/');
-        return urlTokens[urlTokens.length - 1];
-      })(url);
+      const nameOfAgent = _.last(url.split('/'));
       agentsDownloading.push(downloadAgent(url, path.join(webdriveragentsDir, nameOfAgent)));
     } catch (ign) { }
   }
