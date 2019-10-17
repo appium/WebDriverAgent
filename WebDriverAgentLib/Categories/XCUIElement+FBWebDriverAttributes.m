@@ -261,6 +261,15 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
   return [[self fb_cachedValueWithAttributeName:@"isWDEnabled" valueGetter:getter] boolValue];
 }
 
+- (BOOL)isWDSelected
+{
+  id (^getter)(void) = ^id(void) {
+    return @(self.isSelected);
+  };
+
+  return [[self fb_cachedValueWithAttributeName:@"isWDSelected" valueGetter:getter] boolValue];
+}
+
 - (NSDictionary *)wdRect
 {
   id (^getter)(void) = ^id(void) {

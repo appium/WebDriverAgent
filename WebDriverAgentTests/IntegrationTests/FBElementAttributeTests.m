@@ -75,9 +75,10 @@
   XCTAssertEqualObjects(element.wdName, @"Button");
   XCTAssertEqualObjects(element.wdLabel, @"Button");
   XCTAssertNil(element.wdValue);
+  XCTAssertFalse(element.wdSelected);
   [element tap];
-  [element fb_nativeResolve];
-  XCTAssertEqual(element.wdValue.boolValue, YES);
+  XCTAssertTrue(element.wdValue.boolValue);
+  XCTAssertTrue(element.wdSelected);
 }
 
 - (void)testLabelAttributes
@@ -148,9 +149,11 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"1");
+  XCTAssertFalse(element.wdSelected);
   [element tap];
   [element fb_nativeResolve];
   XCTAssertEqualObjects(element.wdValue, @"0");
+  XCTAssertFalse(element.wdSelected);
 }
 
 - (void)testPickerWheelAttributes
