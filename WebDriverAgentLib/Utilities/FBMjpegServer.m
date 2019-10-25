@@ -31,7 +31,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 @interface FBMjpegServer()
 
 @property (nonatomic, readonly) dispatch_queue_t backgroundQueue;
-@property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *activeClients;
+@property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *listeningClients;
 @property (nonatomic, readonly) mach_timebase_info_data_t timebaseInfo;
 @property (nonatomic, readonly) FBImageIOScaler *imageScaler;
 
@@ -43,7 +43,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 - (instancetype)init
 {
   if ((self = [super init])) {
-    _activeClients = [NSMutableArray array];
+    _listeningClients = [NSMutableArray array];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
     mach_timebase_info(&_timebaseInfo);
@@ -81,8 +81,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   NSUInteger framerate = FBConfiguration.mjpegServerFramerate;
   uint64_t timerInterval = (uint64_t)(1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate) * NSEC_PER_SEC);
   uint64_t timeStarted = mach_absolute_time();
-  @synchronized (self.activeClients) {
-    if (0 == self.activeClients.count) {
+  @synchronized (self.listeningClients) {
+    if (0 == self.listeningClients.count) {
       [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
       return;
     }
@@ -136,8 +136,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
   [chunk appendData:screenshotData];
   [chunk appendData:(id)[@"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-  @synchronized (self.activeClients) {
-    for (GCDAsyncSocket *client in self.activeClients) {
+  @synchronized (self.listeningClients) {
+    for (GCDAsyncSocket *client in self.listeningClients) {
       [client writeData:chunk withTimeout:-1 tag:0];
     }
   }
@@ -153,22 +153,35 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   return result;
 }
 
-- (void)didClientConnect:(GCDAsyncSocket *)newClient activeClients:(NSArray<GCDAsyncSocket *> *)activeClients
+- (void)didClientConnect:(GCDAsyncSocket *)newClient
 {
+  [FBLogger logFmt:@"Got screenshots broadcast client connection at %@:%d", newClient.connectedHost, newClient.connectedPort];
+  // Start broadcast only after there is any data from the client
+  [newClient readDataWithTimeout:-1 tag:0];
+}
+
+- (void)didClientSendData:(GCDAsyncSocket *)client
+{
+  @synchronized (self.listeningClients) {
+    if ([self.listeningClients containsObject:client]) {
+      return;
+    }
+  }
+
+  [FBLogger logFmt:@"Starting screenshots broadcast for the client at %@:%d", client.connectedHost, client.connectedPort];
   NSString *streamHeader = [NSString stringWithFormat:@"HTTP/1.0 200 OK\r\nServer: %@\r\nConnection: close\r\nMax-Age: 0\r\nExpires: 0\r\nCache-Control: no-cache, private\r\nPragma: no-cache\r\nContent-Type: multipart/x-mixed-replace; boundary=--BoundaryString\r\n\r\n", SERVER_NAME];
-  [newClient writeData:(id)[streamHeader dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
-  @synchronized (self.activeClients) {
-    [self.activeClients removeAllObjects];
-    [self.activeClients addObjectsFromArray:activeClients];
+  [client writeData:(id)[streamHeader dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
+  @synchronized (self.listeningClients) {
+    [self.listeningClients addObject:client];
   }
 }
 
-- (void)didClientDisconnect:(NSArray<GCDAsyncSocket *> *)activeClients
+- (void)didClientDisconnect:(GCDAsyncSocket *)client
 {
-  @synchronized (self.activeClients) {
-    [self.activeClients removeAllObjects];
-    [self.activeClients addObjectsFromArray:activeClients];
+  @synchronized (self.listeningClients) {
+    [self.listeningClients removeObject:client];
   }
+  [FBLogger log:@"Disconnected a client from screenshots broadcast"];
 }
 
 @end

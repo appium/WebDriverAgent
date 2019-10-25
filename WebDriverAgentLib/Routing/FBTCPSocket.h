@@ -17,16 +17,22 @@ NS_ASSUME_NONNULL_BEGIN
  The callback which is fired on new TCP client connection
 
  @param newClient The newly connected socket
- @param activeClients The actual list of connected socket clients which also includes newClient
  */
-- (void)didClientConnect:(GCDAsyncSocket *)newClient activeClients:(NSArray<GCDAsyncSocket *> *)activeClients;
+- (void)didClientConnect:(GCDAsyncSocket *)newClient;
+
+/**
+ The callback which is fired when the TCP server receives a data from a connected client
+
+ @param client The client, which sent the data
+*/
+- (void)didClientSendData:(GCDAsyncSocket *)client;
 
 /**
  The callback which is fired when TCP client disconnects
 
- @param activeClients The actual list of connected socket clients
+ @param client The actual diconnected client
  */
-- (void)didClientDisconnect:(NSArray<GCDAsyncSocket *> *)activeClients;
+- (void)didClientDisconnect:(GCDAsyncSocket *)client;
 
 @end
 

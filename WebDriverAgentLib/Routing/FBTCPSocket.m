@@ -9,7 +9,6 @@
 
 #import "FBTCPSocket.h"
 
-#import "FBLogger.h"
 
 @interface FBTCPSocket()
 @property (readonly, nonatomic) dispatch_queue_t socketQueue;
@@ -65,22 +64,23 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
-  NSString *host = [newSocket connectedHost];
-  UInt16 port = [newSocket connectedPort];
-  [FBLogger logFmt:@"Starting screenshots broadcast to %@:%d", host, port];
-
   @synchronized(self.connectedClients) {
     [self.connectedClients addObject:newSocket];
-    [self.delegate didClientConnect:newSocket activeClients:self.connectedClients.copy];
   }
+  [self.delegate didClientConnect:newSocket];
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
+  [self.delegate didClientSendData:sock];
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
   @synchronized(self.connectedClients) {
     [self.connectedClients removeObject:sock];
-    [self.delegate didClientDisconnect:self.connectedClients.copy];
   }
+  [self.delegate didClientDisconnect:sock];
 }
 
 @end
