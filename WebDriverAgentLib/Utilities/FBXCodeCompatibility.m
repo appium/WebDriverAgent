@@ -15,6 +15,8 @@
 #import "FBLogger.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
@@ -161,6 +163,16 @@ static dispatch_once_t onceAppWithPIDToken;
   return FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
     ? self.query.includingNonModalElements
     : self.query;
+}
+
++ (BOOL)fb_isSdk11SnapshotApiSupported
+{
+  static dispatch_once_t newSnapshotIsSupported;
+  static BOOL result;
+  dispatch_once(&newSnapshotIsSupported, ^{
+    result = [(id)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestSnapshotForElement:attributes:parameters:reply:)];
+  });
+  return result;
 }
 
 @end

@@ -308,28 +308,13 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
   XCElementSnapshot *currentSnapshot;
   NSArray<XCElementSnapshot *> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
+    XCUIElement *element = (XCUIElement *)root;
     if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
-      [((XCUIElement *)root).application fb_waitUntilSnapshotIsStable];
+      [element.application fb_waitUntilSnapshotIsStable];
     }
-    if ([root isKindOfClass:XCUIApplication.class]) {
-      XCUIApplication *application = (XCUIApplication *)root;
-      currentSnapshot = application.fb_snapshotWithAttributes ?: application.fb_lastSnapshot;
-      NSArray<XCUIElement *> *windows = [((XCUIElement *)root) fb_filterDescendantsWithSnapshots:currentSnapshot.children];
-      NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-      for (XCUIElement* window in windows) {
-        XCElementSnapshot *windowSnapshot = window.fb_snapshotWithAttributes ?: window.fb_lastSnapshot;
-        if (nil == windowSnapshot) {
-          [FBLogger logFmt:@"Skipping source dumping for %@ because its snapshot cannot be resolved", window.description];
-          continue;
-        }
-        [windowsSnapshots addObject:windowSnapshot];
-      }
-      children = windowsSnapshots.copy;
-    } else {
-      XCUIElement *element = (XCUIElement *)root;
-      currentSnapshot = element.fb_snapshotWithAttributes ?: element.fb_lastSnapshot;
-      children = currentSnapshot.children;
-    }
+    // TODO: Only select the attributes we actually need for xpath search
+    currentSnapshot = element.fb_snapshotWithAllAttributes ?: element.fb_lastSnapshot;
+    children = currentSnapshot.children;
   } else {
     currentSnapshot = (XCElementSnapshot *)root;
     children = currentSnapshot.children;

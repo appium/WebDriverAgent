@@ -13,11 +13,24 @@
 
 /*! Accessibility identifier for is visible attribute */
 extern NSNumber *FB_XCAXAIsVisibleAttribute;
-extern NSString* FB_XCAXAIsVisibleAttributeName;
+extern NSString *FB_XCAXAIsVisibleAttributeName;
 
 /*! Accessibility identifier for is accessible attribute */
 extern NSNumber *FB_XCAXAIsElementAttribute;
-extern NSString* FB_XCAXAIsElementAttributeName;
+extern NSString *FB_XCAXAIsElementAttributeName;
+
+/*! Accessibility identifier for identifier attribute */
+extern NSString *FB_IdentifierAttributeName;
+/*! Accessibility identifier for value attribute */
+extern NSString *FB_ValueAttributeName;
+/*! Accessibility identifier for frame attribute */
+extern NSString *FB_FrameAttributeName;
+/*! Accessibility identifier for label attribute */
+extern NSString *FB_LabelAttributeName;
+/*! Accessibility identifier for enabled attribute */
+extern NSString *FB_EnabledAttributeName;
+/*! Accessibility identifier for type attribute */
+extern NSString *FB_ElementTypeAttributeName;
 
 /*! Getter for  XCTest logger */
 extern id<XCDebugLogDelegate> (*XCDebugLogger)(void);
@@ -38,3 +51,27 @@ void *FBRetrieveXCTestSymbol(const char *name);
 
 /*! Static constructor that will retrieve XCTest private symbols */
 __attribute__((constructor)) void FBLoadXCTestSymbols(void);
+
+/**
+ Method is used to tranform attribute names into the format, which
+ is acceptable for the internal XCTest snpshoting API
+
+ @param attributeNames set of attribute names. Must be on of FB_..Name constants above
+ @returns The array of tranformed values. Unknown values are silently skipped
+ */
+NSArray *FBCreateAXAttributes(NSSet<NSString *> *attributeNames);
+
+/**
+ Retrives the set of standard attribute names
+
+ @returns Set of FB_..Name constants above, which represent standard element attributes
+ */
+NSSet<NSString*> *FBStandardAttributeNames(void);
+
+/**
+Retrives the set of custom attribute names. These attributes are normally not accessible
+ by public XCTest calls, but are still available in the accessibility framework
+
+@returns Set of FB_..Name constants above, which represent custom element attributes
+*/
+NSSet<NSString*> *FBCustomAttributeNames(void);

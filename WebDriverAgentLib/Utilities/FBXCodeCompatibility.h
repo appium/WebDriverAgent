@@ -91,6 +91,13 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  */
 - (XCUIElementQuery *)fb_query;
 
+/**
+ Determines whether Xcode 11 snapshots API is supported
+
+ @return Eiter YES or NO
+ */
++ (BOOL)fb_isSdk11SnapshotApiSupported;
+
 @end
 
 NS_ASSUME_NONNULL_END

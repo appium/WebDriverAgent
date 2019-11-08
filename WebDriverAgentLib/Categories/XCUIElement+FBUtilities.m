@@ -75,7 +75,13 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return [self.query fb_elementSnapshotForDebugDescription];
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes {
+- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {
+  NSMutableArray *allNames = [NSMutableArray arrayWithArray:FBStandardAttributeNames().allObjects];
+  [allNames addObjectsFromArray:FBCustomAttributeNames().allObjects];
+  return [self fb_snapshotWithAttributes:allNames.copy];
+}
+
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames {
   if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
     return nil;
   }
@@ -94,6 +100,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
                                  forProxy:proxy
                               withHandler:^(int res) {
     [self fb_requestSnapshot:axElement
+           forAttributeNames:[NSSet setWithArray:attributeNames]
                        reply:^(XCElementSnapshot *snapshot, NSError *error) {
       if (nil == error) {
         snapshotWithAttributes = snapshot;
@@ -113,85 +120,24 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return snapshotWithAttributes;
 }
 
-+ (BOOL)fb_isNewSnapshotAPIIsSupported
+- (void)fb_requestSnapshot:(XCAccessibilityElement *)accessibilityElement
+         forAttributeNames:(NSSet<NSString *> *)attributeNames
+                     reply:(void (^)(XCElementSnapshot *, NSError *))block
 {
-  static dispatch_once_t newSnapshotIsSupported;
-  static BOOL result;
-  dispatch_once(&newSnapshotIsSupported, ^{
-    result = [(NSObject *)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestSnapshotForElement:attributes:parameters:reply:)];
-  });
-  return result;
-}
-
-- (void)fb_requestSnapshot:(XCAccessibilityElement *)accessibilityElement reply:(void (^)(XCElementSnapshot *, NSError *))block
-{
-  static NSDictionary *defaultParameters;
-  static dispatch_once_t initializeAttributesAndParametersToken;
-  static NSArray *axAttributes;
-  // XCode 11 has a new snapshot api and the old one will be deprecated soon
-  BOOL useNewSnapshotAPI = [XCUIElement fb_isNewSnapshotAPIIsSupported];
-  dispatch_once(&initializeAttributesAndParametersToken, ^{
-    defaultParameters = [FBXCAXClientProxy.sharedClient defaultParameters];
-    axAttributes = [self fb_createAXAttributes:!useNewSnapshotAPI];
-  });
+  NSArray *axAttributes = FBCreateAXAttributes(attributeNames);
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  if (useNewSnapshotAPI) {
+  if (XCUIElement.fb_isSdk11SnapshotApiSupported) {
+    // XCode 11 has a new snapshot api and the old one will be deprecated soon
     [proxy _XCT_requestSnapshotForElement:accessibilityElement
                                attributes:axAttributes
-                               parameters:defaultParameters
+                               parameters:FBXCAXClientProxy.sharedClient.defaultParameters
                                     reply:block];
   } else {
     [proxy _XCT_snapshotForElement:accessibilityElement
                         attributes:axAttributes
-                        parameters:defaultParameters
+                        parameters:FBXCAXClientProxy.sharedClient.defaultParameters
                              reply:block];
   }
-}
-
-- (NSArray *)fb_createAXAttributes: (BOOL)asNumber
-{
-  // Names of the properties to load. There won't be lazy loading for missing properties,
-  // thus missing properties will lead to wrong results
-  NSArray<NSString *> *propertyNames = [XCUIElement fb_defaultPropertyNames];
-  
-  SEL attributesForElementSnapshotKeyPathsSelector = [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector];
-  NSSet *attributes = (nil == attributesForElementSnapshotKeyPathsSelector) ? nil
-  : [XCElementSnapshot performSelector:attributesForElementSnapshotKeyPathsSelector withObject:propertyNames];
-  if (attributes == nil) {
-    @throw [NSException exceptionWithName:@"AttributesEmpty" reason:@"Couldn't build the attributes " userInfo:nil];
-  }
-  if (asNumber) {
-    NSMutableArray *axAttributes = [NSMutableArray arrayWithArray:XCAXAccessibilityAttributesForStringAttributes(attributes)];
-    if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
-      [axAttributes addObject:FB_XCAXAIsVisibleAttribute];
-    }
-    if (![axAttributes containsObject:FB_XCAXAIsVisibleAttribute]) {
-      [axAttributes addObject:FB_XCAXAIsVisibleAttribute];
-    }
-    return [axAttributes copy];
-  } else {
-    NSMutableSet *mutable = [NSMutableSet setWithSet:attributes];
-    [mutable addObject:FB_XCAXAIsVisibleAttributeName];
-    [mutable addObject:FB_XCAXAIsElementAttributeName];
-    return [mutable allObjects];
-  }
-}
-
-+ (NSArray<NSString*> *)fb_defaultPropertyNames
-{
-  static NSArray<NSString *> *propertyNames;
-  static dispatch_once_t oncePropertyNamesToken;
-  dispatch_once(&oncePropertyNamesToken, ^{
-    propertyNames = @[
-      @"identifier",
-      @"value",
-      @"label",
-      @"frame",
-      @"enabled",
-      @"elementType"
-    ];
-  });
-  return propertyNames;
 }
 
 - (XCElementSnapshot *)fb_lastSnapshotFromQuery

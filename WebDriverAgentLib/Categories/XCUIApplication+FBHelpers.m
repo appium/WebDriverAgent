@@ -96,33 +96,15 @@ static NSString* const FBUnknownBundleId = @"unknown";
   }
 
   // If getting the snapshot with attributes fails we use the snapshot with lazily initialized attributes
-  XCElementSnapshot *snapshot = self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot;
-
-  NSMutableDictionary *snapshotTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
-
-  NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children];
-  NSMutableArray<NSDictionary *> *childrenTree = [NSMutableArray arrayWithCapacity:children.count];
-
-  for (XCUIElement* child in children) {
-    XCElementSnapshot *childSnapshot = child.fb_snapshotWithAttributes ?: child.fb_lastSnapshot;
-    if (nil == childSnapshot) {
-      continue;
-    }
-    [childrenTree addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];
-  }
-
-  if (childrenTree.count > 0) {
-    [snapshotTree setObject:childrenTree.copy forKey:@"children"];
-  }
-
-  return snapshotTree.copy;
+  XCElementSnapshot *snapshot = self.fb_snapshotWithAllAttributes ?: self.fb_lastSnapshot;
+  return [self.class dictionaryForElement:snapshot recursive:YES];
 }
 
 - (NSDictionary *)fb_accessibilityTree
 {
   [self fb_waitUntilSnapshotIsStable];
   // We ignore all elements except for the main window for accessibility tree
-  return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot)];
+  return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAllAttributes ?: self.fb_lastSnapshot)];
 }
 
 + (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive
