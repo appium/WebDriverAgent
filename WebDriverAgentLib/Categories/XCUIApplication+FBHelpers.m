@@ -95,9 +95,22 @@ static NSString* const FBUnknownBundleId = @"unknown";
     [self fb_waitUntilSnapshotIsStable];
   }
 
-  // If getting the snapshot with attributes fails we use the snapshot with lazily initialized attributes
-  XCElementSnapshot *snapshot = self.fb_snapshotWithAllAttributes ?: self.fb_lastSnapshot;
-  return [self.class dictionaryForElement:snapshot recursive:YES];
+  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
+  NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
+  NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children onlyChildren:YES];
+  NSMutableArray<NSDictionary *> *childrenTrees = [NSMutableArray arrayWithCapacity:children.count];
+  for (XCUIElement* child in children) {
+    XCElementSnapshot *childSnapshot = child.fb_snapshotWithAllAttributes;
+    if (nil == childSnapshot) {
+      [FBLogger logFmt:@"Skipping source dump for %@ because its snapshot cannot be resolved", child.description];
+      continue;
+    }
+    [childrenTrees addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];
+  }
+  // This is necessary because web views are not visible in the native page source otherwise
+  [rootTree setObject:childrenTrees.copy forKey:@"children"];
+
+  return rootTree.copy;
 }
 
 - (NSDictionary *)fb_accessibilityTree

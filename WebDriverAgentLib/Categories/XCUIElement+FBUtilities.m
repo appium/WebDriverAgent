@@ -162,7 +162,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return snapshot ?: self.fb_lastSnapshot;
 }
 
-- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots
+- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots onlyChildren:(BOOL)onlyChildren
 {
   if (0 == snapshots.count) {
     return @[];
@@ -180,7 +180,10 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   if (uniqueTypes && [uniqueTypes count] == 1) {
     type = [uniqueTypes.firstObject intValue];
   }
-  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:type] matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
+  XCUIElementQuery *query = onlyChildren
+    ? [self.fb_query childrenMatchingType:type]
+    : [self.fb_query descendantsMatchingType:type];
+  query = [query matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];

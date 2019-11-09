@@ -122,7 +122,7 @@
     XCElementSnapshot *snapshot = matchingSnapshots.firstObject;
     matchingSnapshots = @[snapshot];
   }
-  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots];
+  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots onlyChildren:NO];
 }
 
 

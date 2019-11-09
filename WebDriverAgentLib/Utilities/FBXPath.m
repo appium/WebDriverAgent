@@ -312,9 +312,26 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
     if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
       [element.application fb_waitUntilSnapshotIsStable];
     }
-    // TODO: Only select the attributes we actually need for xpath search
-    currentSnapshot = element.fb_snapshotWithAllAttributes ?: element.fb_lastSnapshot;
-    children = currentSnapshot.children;
+    if ([root isKindOfClass:XCUIApplication.class]) {
+      currentSnapshot = element.fb_lastSnapshot;
+      NSArray<XCUIElement *> *windows = [element fb_filterDescendantsWithSnapshots:currentSnapshot.children onlyChildren:YES];
+      NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
+      for (XCUIElement* window in windows) {
+        // TODO: Only select the necessary attributes from the snapshot
+        XCElementSnapshot *windowSnapshot = window.fb_snapshotWithAllAttributes;
+        if (nil == windowSnapshot) {
+          [FBLogger logFmt:@"Skipping source dump for %@ because its snapshot cannot be resolved", window.description];
+          continue;
+        }
+        [windowsSnapshots addObject:windowSnapshot];
+      }
+      // This is necessary because web views are not visible in the native page source otherwise
+      children = windowsSnapshots.copy;
+    } else {
+      // TODO: Only select the necessary attributes from the snapshot
+      currentSnapshot = element.fb_snapshotWithAllAttributes;
+      children = currentSnapshot.children;
+    }
   } else {
     currentSnapshot = (XCElementSnapshot *)root;
     children = currentSnapshot.children;
