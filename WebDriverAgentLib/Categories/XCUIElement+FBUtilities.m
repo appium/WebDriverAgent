@@ -17,7 +17,6 @@
 #import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
-#import "FBPredicate.h"
 #import "FBRunLoopSpinner.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
@@ -183,30 +182,41 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   XCUIElementQuery *query = onlyChildren
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
-  query = [query matchingPredicate:[FBPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
+  query = [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
   [matchedElements addObjectsFromArray:query.allElementsBoundByAccessibilityElement];
+  // There is no need to sort elements if count of matches is not greater than one
   if (matchedElements.count <= 1) {
-    // There is no need to sort elements if count of matches is not greater than one
     return matchedElements.copy;
   }
+
+  NSArray<NSString *> *sortedIds = [snapshots valueForKeyPath:[NSString stringWithFormat:@"%@", FBStringify(XCUIElement, wdUID)]];
+  NSMutableArray<NSString *> *matchedElementIds = [NSMutableArray array];
+  [matchedElementIds addObject:((XCUIElement *)matchedElements.firstObject).wdUID];
+  [matchedElementIds addObject:((XCUIElement *)matchedElements.lastObject).wdUID];
+  // Avoid sorting the elements if the ids of the first and the last element are equal
+  if ([matchedElementIds.firstObject isEqualToString:(NSString *)sortedIds.firstObject]
+        && [matchedElementIds.lastObject isEqualToString:(NSString *)sortedIds.lastObject]) {
+    return matchedElements.copy;
+  }
+
+  // insert the rest of matched ids
+  for (NSUInteger matchedElementIdx = matchedElements.count - 2; matchedElementIdx > 0; matchedElementIdx--) {
+    [matchedElementIds insertObject:[matchedElements objectAtIndex:matchedElementIdx].wdUID
+                            atIndex:1];
+  }
+  // ! Sorting operation is expensive
   NSMutableArray<XCUIElement *> *sortedElements = [NSMutableArray array];
-  [snapshots enumerateObjectsUsingBlock:^(XCElementSnapshot *snapshot, NSUInteger snapshotIdx, BOOL *stopSnapshotEnum) {
-    XCUIElement *matchedElement = nil;
-    for (XCUIElement *element in matchedElements) {
-      if ([element.wdUID isEqualToString:snapshot.wdUID]) {
-        matchedElement = element;
-        break;
-      }
+  for (NSString *sortedId in sortedIds) {
+    NSUInteger matchedElementIdx = [matchedElementIds indexOfObject:sortedId];
+    if (NSNotFound == matchedElementIdx || matchedElementIdx >= matchedElements.count) {
+      continue;
     }
-    if (matchedElement) {
-      [sortedElements addObject:matchedElement];
-      [matchedElements removeObject:matchedElement];
-    }
-  }];
+    [sortedElements addObject:[matchedElements objectAtIndex:matchedElementIdx]];
+  }
   return sortedElements.copy;
 }
 

@@ -23,7 +23,11 @@ NSString *FB_IdentifierAttributeName = @"identifier";
 NSString *FB_ValueAttributeName = @"value";
 NSString *FB_FrameAttributeName = @"frame";
 NSString *FB_LabelAttributeName = @"label";
+NSString *FB_TitleAttributeName = @"title";
 NSString *FB_EnabledAttributeName = @"enabled";
+NSString *FB_SelectedAttributeName = @"selected";
+NSString *FB_PlaceholderValueAttributeName = @"placeholderValue";
+NSString *FB_HasFocusAttributeName = @"hasFocus";
 NSString *FB_ElementTypeAttributeName = @"elementType";
 
 void (*XCSetDebugLogger)(id <XCDebugLogDelegate>);
@@ -71,6 +75,11 @@ NSSet<NSString*> *FBStandardAttributeNames(void)
       FB_LabelAttributeName,
       FB_FrameAttributeName,
       FB_EnabledAttributeName,
+      FB_SelectedAttributeName,
+      FB_PlaceholderValueAttributeName,
+#if TARGET_OS_TV
+      FB_HasFocusAttributeName,
+#endif
       FB_ElementTypeAttributeName
     ]];
   });

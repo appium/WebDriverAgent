@@ -91,18 +91,15 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSDictionary *)fb_tree
 {
-  if ([FBConfiguration shouldUseTestManagerForVisibilityDetection]) {
-    [self fb_waitUntilSnapshotIsStable];
-  }
-
   XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
   NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children onlyChildren:YES];
   NSMutableArray<NSDictionary *> *childrenTrees = [NSMutableArray arrayWithCapacity:children.count];
+  [self fb_waitUntilSnapshotIsStable];
   for (XCUIElement* child in children) {
     XCElementSnapshot *childSnapshot = child.fb_snapshotWithAllAttributes;
     if (nil == childSnapshot) {
-      [FBLogger logFmt:@"Skipping source dump for %@ because its snapshot cannot be resolved", child.description];
+      [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved", child.description];
       continue;
     }
     [childrenTrees addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];

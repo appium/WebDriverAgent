@@ -29,6 +29,14 @@ extern NSString *FB_FrameAttributeName;
 extern NSString *FB_LabelAttributeName;
 /*! Accessibility identifier for enabled attribute */
 extern NSString *FB_EnabledAttributeName;
+/*! Accessibility identifier for title attribute */
+extern NSString *FB_TitleAttributeName;
+/*! Accessibility identifier for selected attribute */
+extern NSString *FB_SelectedAttributeName;
+/*! Accessibility identifier for placeholder value attribute */
+extern NSString *FB_PlaceholderValueAttributeName;
+/*! Accessibility identifier for focus attribute */
+extern NSString *FB_HasFocusAttributeName;
 /*! Accessibility identifier for type attribute */
 extern NSString *FB_ElementTypeAttributeName;
 
