@@ -26,7 +26,9 @@ function getStartOpts (device) {
     platformVersion: PLATFORM_VERSION,
     host: 'localhost',
     port: 8100,
-    realDevice: false
+    realDevice: false,
+    showXcodeLog: true,
+    wdaLaunchTimeout: 60 * 3 * 1000,
   };
 }
 
