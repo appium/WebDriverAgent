@@ -9,6 +9,8 @@
 
 #import "FBPredicate.h"
 
+#import "FBXCodeCompatibility.h"
+
 @implementation FBPredicate
 
 + (NSPredicate *)predicateWithFormat:(NSString *)predicateFormat,  ...
@@ -18,7 +20,7 @@
   NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateFormat arguments:args];
   va_end(args);
   // SDK 11+ does not require the hack to be applied
-  if (@available(iOS 13.0, *)) {
+  if (XCUIElement.fb_isSdk11SnapshotApiSupported) {
     return predicate;
   }
   NSPredicate *hackPredicate = [NSPredicate predicateWithFormat:self.forceResolvePredicateString];
