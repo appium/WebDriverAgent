@@ -16,6 +16,9 @@
 
 - (NSString *)fb_uid
 {
+  if ([self respondsToSelector:@selector(accessibilityElement)]) {
+    return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
+  }
   return self.fb_lastSnapshot.fb_uid;
 }
 

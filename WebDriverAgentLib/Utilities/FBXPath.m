@@ -324,6 +324,8 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
     }
     if ([snapshotAttributes containsObject:FB_XCAXAIsVisibleAttributeName]
         || 0 == snapshotAttributes.count) {
+      // If the app is not idle state while we retrieve the visiblity state
+      // then the snapshot retrieval operation might freeze and time out
       [element.application fb_waitUntilSnapshotIsStable];
     }
     if ([root isKindOfClass:XCUIApplication.class]) {

@@ -28,6 +28,7 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
 #import "XCUIScreen.h"
+#import "XCUIElement+FBUID.h"
 
 @implementation XCUIElement (FBUtilities)
 
@@ -170,7 +171,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
   NSArray<NSString *> *sortedIds = [snapshots valueForKey:FBStringify(XCUIElement, wdUID)];
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
-  if ([sortedIds containsObject:(selfUID ?: self.wdUID)]) {
+  if ([sortedIds containsObject:(selfUID ?: self.fb_uid)]) {
     if (1 == snapshots.count) {
       return @[self];
     }
@@ -189,36 +190,18 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  [matchedElements addObjectsFromArray:query.allElementsBoundByAccessibilityElement];
-  // There is no need to sort elements if count of matches is not greater than one
-  if (matchedElements.count <= 1) {
-    return matchedElements.copy;
-  }
-
-  NSMutableArray<NSString *> *matchedElementIds = [NSMutableArray array];
-  [matchedElementIds addObject:((XCUIElement *)matchedElements.firstObject).wdUID];
-  [matchedElementIds addObject:((XCUIElement *)matchedElements.lastObject).wdUID];
-  // Avoid sorting the elements if the ids of the first and the last element are equal
-  if ([matchedElementIds.firstObject isEqualToString:(NSString *)sortedIds.firstObject]
-        && [matchedElementIds.lastObject isEqualToString:(NSString *)sortedIds.lastObject]) {
-    return matchedElements.copy;
-  }
-
-  // insert the rest of matched ids
-  for (NSUInteger matchedElementIdx = matchedElements.count - 2; matchedElementIdx > 0; matchedElementIdx--) {
-    [matchedElementIds insertObject:[matchedElements objectAtIndex:matchedElementIdx].wdUID
-                            atIndex:1];
-  }
-  // ! Sorting operation is expensive
-  NSMutableArray<XCUIElement *> *sortedElements = [NSMutableArray array];
-  for (NSString *sortedId in sortedIds) {
-    NSUInteger matchedElementIdx = [matchedElementIds indexOfObject:sortedId];
-    if (NSNotFound == matchedElementIdx || matchedElementIdx >= matchedElements.count) {
-      continue;
+  query = [query sorted:(id)^NSComparisonResult(XCElementSnapshot *a, XCElementSnapshot *b) {
+    NSUInteger first = [sortedIds indexOfObject:a.wdUID];
+    NSUInteger second = [sortedIds indexOfObject:b.wdUID];
+    if (first < second) {
+      return NSOrderedAscending;
     }
-    [sortedElements addObject:[matchedElements objectAtIndex:matchedElementIdx]];
-  }
-  return sortedElements.copy;
+    if (first > second) {
+      return NSOrderedDescending;
+    }
+    return NSOrderedSame;
+  }];
+  return query.allElementsBoundByAccessibilityElement;
 }
 
 - (BOOL)fb_waitUntilSnapshotIsStable
