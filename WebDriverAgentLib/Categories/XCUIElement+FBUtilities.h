@@ -75,11 +75,15 @@ NS_ASSUME_NONNULL_BEGIN
  Filters elements by matching them to snapshots from the corresponding array
 
  @param snapshots Array of snapshots to be matched with
+ @param selfUID Optionally the unique identifier of the current element.
+ Providing it as an argument improves the performance of the method.
  @param onlyChildren Whether to only look for direct element children
 
  @return Array of filtered elements, which have matches in snapshots array
  */
-- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots onlyChildren:(BOOL)onlyChildren;
+- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots
+                                                      selfUID:(nullable NSString *)selfUID
+                                                 onlyChildren:(BOOL)onlyChildren;
 
 /**
  Waits until element snapshot is stable to avoid "Error copying attributes -25202 error".

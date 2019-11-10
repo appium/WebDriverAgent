@@ -161,14 +161,16 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return snapshot ?: self.fb_lastSnapshot;
 }
 
-- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots onlyChildren:(BOOL)onlyChildren
+- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots
+                                                      selfUID:(NSString *)selfUID
+                                                 onlyChildren:(BOOL)onlyChildren
 {
   if (0 == snapshots.count) {
     return @[];
   }
-  NSArray<NSString *> *matchedUids = [snapshots valueForKey:FBStringify(XCUIElement, wdUID)];
+  NSArray<NSString *> *sortedIds = [snapshots valueForKey:FBStringify(XCUIElement, wdUID)];
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
-  if ([matchedUids containsObject:self.wdUID]) {
+  if ([sortedIds containsObject:(selfUID ?: self.wdUID)]) {
     if (1 == snapshots.count) {
       return @[self];
     }
@@ -182,7 +184,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   XCUIElementQuery *query = onlyChildren
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
-  query = [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), matchedUids]];
+  query = [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), sortedIds]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
@@ -193,7 +195,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     return matchedElements.copy;
   }
 
-  NSArray<NSString *> *sortedIds = [snapshots valueForKeyPath:[NSString stringWithFormat:@"%@", FBStringify(XCUIElement, wdUID)]];
   NSMutableArray<NSString *> *matchedElementIds = [NSMutableArray array];
   [matchedElementIds addObject:((XCUIElement *)matchedElements.firstObject).wdUID];
   [matchedElementIds addObject:((XCUIElement *)matchedElements.lastObject).wdUID];

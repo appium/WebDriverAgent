@@ -68,7 +68,7 @@
   NSMutableArray<XCElementSnapshot *> *buttonSnapshots = [NSMutableArray array];
   [buttonSnapshots addObject:[buttons.firstObject fb_lastSnapshot]];
   
-  NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots onlyChildren:NO];
+  NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots selfUID:nil onlyChildren:NO];
   XCTAssertEqual(1, result.count);
   XCTAssertEqual([result.firstObject elementType], XCUIElementTypeButton);
 }

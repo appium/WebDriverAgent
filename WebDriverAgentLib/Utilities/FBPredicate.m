@@ -16,6 +16,11 @@
   va_list args;
   va_start(args, predicateFormat);
   NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateFormat arguments:args];
+  va_end(args);
+  // SDK 11+ does not require the hack to be applied
+  if (@available(iOS 13.0, *)) {
+    return predicate;
+  }
   NSPredicate *hackPredicate = [NSPredicate predicateWithFormat:self.forceResolvePredicateString];
   return [NSCompoundPredicate andPredicateWithSubpredicates:@[predicate, hackPredicate]];
 }

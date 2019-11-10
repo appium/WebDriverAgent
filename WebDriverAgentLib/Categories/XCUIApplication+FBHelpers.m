@@ -93,7 +93,9 @@ static NSString* const FBUnknownBundleId = @"unknown";
 {
   XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
-  NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children onlyChildren:YES];
+  NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children
+                                                                     selfUID:snapshot.wdUID
+                                                                onlyChildren:YES];
   NSMutableArray<NSDictionary *> *childrenTrees = [NSMutableArray arrayWithCapacity:children.count];
   [self fb_waitUntilSnapshotIsStable];
   for (XCUIElement* child in children) {
