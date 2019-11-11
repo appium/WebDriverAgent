@@ -23,7 +23,7 @@
 
 + (NSString *)forceResolvePredicateString
 {
-  return @"1 == 1 or identifier == 0 or frame == 0 or value == 0 or title == 0 or label == 0 or elementType == 0 or enabled == 0 or placeholderValue == 0 or selected = 0";
+  return @"1 == 1 or identifier == 0 or frame == 0 or value == 0 or title == 0 or label == 0 or elementType == 0 or enabled == 0 or placeholderValue == 0 or selected == 0";
 }
 
 @end
