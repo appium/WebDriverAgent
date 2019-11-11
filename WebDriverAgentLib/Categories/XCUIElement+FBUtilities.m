@@ -190,17 +190,21 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  query = [query sorted:(id)^NSComparisonResult(XCElementSnapshot *a, XCElementSnapshot *b) {
-    NSUInteger first = [sortedIds indexOfObject:a.wdUID];
-    NSUInteger second = [sortedIds indexOfObject:b.wdUID];
-    if (first < second) {
-      return NSOrderedAscending;
-    }
-    if (first > second) {
-      return NSOrderedDescending;
-    }
-    return NSOrderedSame;
-  }];
+  // Rely here on the fact, that XPath always returns query resulsts in the same
+  // order they appear in the document, which means we don't need to resort the resulting
+  // array. Although, if it turns out this is still not the case then we could always
+  // uncomment the sorting procedure below:
+  //  query = [query sorted:(id)^NSComparisonResult(XCElementSnapshot *a, XCElementSnapshot *b) {
+  //    NSUInteger first = [sortedIds indexOfObject:a.wdUID];
+  //    NSUInteger second = [sortedIds indexOfObject:b.wdUID];
+  //    if (first < second) {
+  //      return NSOrderedAscending;
+  //    }
+  //    if (first > second) {
+  //      return NSOrderedDescending;
+  //    }
+  //    return NSOrderedSame;
+  //  }];
   return query.allElementsBoundByAccessibilityElement;
 }
 
