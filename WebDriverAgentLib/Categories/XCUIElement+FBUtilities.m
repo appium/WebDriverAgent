@@ -190,7 +190,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  // Rely here on the fact, that XPath always returns query resulsts in the same
+  // Rely here on the fact, that XPath always returns query results in the same
   // order they appear in the document, which means we don't need to resort the resulting
   // array. Although, if it turns out this is still not the case then we could always
   // uncomment the sorting procedure below:

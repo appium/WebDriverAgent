@@ -20,9 +20,16 @@ NS_ASSUME_NONNULL_BEGIN
  @param writer the correspondig libxml2 writer object
  @param elementStore an empty dictionary to store indexes mapping or nil if no mappings should be stored
  @param query Optional XPath query value. By analyzing this query we may optimize the lookup speed.
+ @param excludedAttributes The list of XML attribute names to be excluded from the generated XML representation.
+ Setting nil to this argument means that none of the known attributes must be excluded.
+ If `query` argument is assigned then `excludedAttributes` argument is effectively ignored.
  @return zero if the method has completed successfully
  */
-+ (int)xmlRepresentationWithRootElement:(XCElementSnapshot *)root writer:(xmlTextWriterPtr)writer elementStore:(nullable NSMutableDictionary *)elementStore query:(nullable NSString*)query;
++ (int)xmlRepresentationWithRootElement:(XCElementSnapshot *)root
+                                 writer:(xmlTextWriterPtr)writer
+                           elementStore:(nullable NSMutableDictionary *)elementStore
+                                  query:(nullable NSString*)query
+                    excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes;
 
 /**
  Gets the list of matched snapshots from xmllib2-compatible xmlNodeSetPtr structure

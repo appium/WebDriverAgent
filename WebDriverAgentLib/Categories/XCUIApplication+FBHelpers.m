@@ -188,7 +188,15 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSString *)fb_xmlRepresentation
 {
-  return [FBXPath xmlStringWithRootElement:self];
+  return [FBXPath xmlStringWithRootElement:self excludingAttributes:nil];
+}
+
+- (NSString *)fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+  return [FBXPath xmlStringWithRootElement:self excludingAttributes:excludedAttributes];
+#pragma clang diagnostic pop
 }
 
 - (NSString *)fb_descriptionRepresentation

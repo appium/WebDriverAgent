@@ -18,7 +18,9 @@
 
 @implementation FBXPathTests
 
-- (NSString *)xmlStringWithElement:(id<FBElement>)element xpathQuery:(nullable NSString *)query
+- (NSString *)xmlStringWithElement:(id<FBElement>)element
+                        xpathQuery:(nullable NSString *)query
+               excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes
 {
   xmlDocPtr doc;
   
@@ -26,7 +28,11 @@
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int buffersize;
   xmlChar *xmlbuff;
-  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)element writer:writer elementStore:elementStore query:query];
+  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)element
+                                              writer:writer
+                                        elementStore:elementStore
+                                               query:query
+                                 excludingAttributes:excludedAttributes];
   if (0 == rc) {
     xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
   }
@@ -42,15 +48,29 @@
 - (void)testDefaultXPathPresentation
 {
   XCUIElementDouble *element = [XCUIElementDouble new];
-  NSString *resultXml = [self xmlStringWithElement:element xpathQuery:nil];
+  NSString *resultXml = [self xmlStringWithElement:element
+                                        xpathQuery:nil
+                               excludingAttributes:nil];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" private_indexPath=\"top\"/>\n", element.wdType, element.wdType, element.wdValue, element.wdName, element.wdLabel,  element.wdEnabled ? @"true" : @"false", element.wdVisible ? @"true" : @"false", element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"]];
   XCTAssertTrue([resultXml isEqualToString: expectedXml]);
+}
+
+- (void)testtXPathPresentationWithSomeAttributesExcluded
+{
+  XCUIElementDouble *element = [XCUIElementDouble new];
+  NSString *resultXml = [self xmlStringWithElement:element
+                                        xpathQuery:nil
+                               excludingAttributes:@[@"type", @"visible", @"value"]];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ name=\"%@\" label=\"%@\" enabled=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" private_indexPath=\"top\"/>\n", element.wdType, element.wdName, element.wdLabel,  element.wdEnabled ? @"true" : @"false", element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"]];
+  XCTAssertEqualObjects(resultXml, expectedXml);
 }
 
 - (void)testXPathPresentationBasedOnQueryMatchingAllAttributes
 {
   XCUIElementDouble *element = [XCUIElementDouble new];
-  NSString *resultXml = [self xmlStringWithElement:element xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]];
+  NSString *resultXml = [self xmlStringWithElement:element
+                                        xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
+                               excludingAttributes:@[@"visible"]];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" private_indexPath=\"top\"/>\n", element.wdType, element.wdType, element.wdValue, element.wdName, element.wdLabel,  element.wdEnabled ? @"true" : @"false", element.wdVisible ? @"true" : @"false", element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"]];
   XCTAssertTrue([resultXml isEqualToString: expectedXml]);
 }
@@ -58,7 +78,9 @@
 - (void)testXPathPresentationBasedOnQueryMatchingSomeAttributes
 {
   XCUIElementDouble *element = [XCUIElementDouble new];
-  NSString *resultXml = [self xmlStringWithElement:element xpathQuery:[NSString stringWithFormat:@"//%@[@%@ and contains(@%@, 'blabla')]", element.wdType, @"value", @"name"]];
+  NSString *resultXml = [self xmlStringWithElement:element
+                                        xpathQuery:[NSString stringWithFormat:@"//%@[@%@ and contains(@%@, 'blabla')]", element.wdType, @"value", @"name"]
+                               excludingAttributes:nil];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ value=\"%@\" name=\"%@\" private_indexPath=\"top\"/>\n", element.wdType, element.wdValue, element.wdName];
   XCTAssertTrue([resultXml isEqualToString: expectedXml]);
 }
@@ -71,7 +93,11 @@
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   XCUIElementDouble *root = [XCUIElementDouble new];
   NSString *query = [NSString stringWithFormat:@"//%@", root.wdType];
-  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)root writer:writer elementStore:elementStore query:query];
+  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)root
+                                              writer:writer
+                                        elementStore:elementStore
+                                               query:query
+                                 excludingAttributes:nil];
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);

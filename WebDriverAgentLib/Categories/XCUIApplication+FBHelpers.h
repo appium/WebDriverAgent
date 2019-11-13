@@ -41,6 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)fb_xmlRepresentation;
 
 /**
+ Return application elements tree in form of xml string exluding the given attribute names.
+
+ @param excludedAttributes the list of XML attribute names to be excluded from the resulting document.
+ Invalid attribute names are silently skipped
+ @returns The XML representation of the current element as a string
+ */
+- (NSString *)fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes;
+
+/**
  Return application elements tree in form of internal XCTest debugDescription string
  */
 - (NSString *)fb_descriptionRepresentation;
