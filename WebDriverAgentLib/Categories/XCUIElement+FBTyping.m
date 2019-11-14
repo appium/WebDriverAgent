@@ -92,13 +92,13 @@
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
   id value = self.value;
-  if (![value isKindOfClass:NSString.class]) {
+  if (nil != value && ![value isKindOfClass:NSString.class]) {
     return [[[FBErrorBuilder builder]
                withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be cleared", self.description]
               buildError:error];
   }
   
-  if (0 == [value fb_visualLength]) {
+  if (nil == value || 0 == [value fb_visualLength]) {
     // Short circuit if the content is not present
     return YES;
   }
