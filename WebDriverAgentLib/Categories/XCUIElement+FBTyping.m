@@ -91,7 +91,14 @@
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  if (0 == [self.value fb_visualLength]) {
+  id value = self.value;
+  if (![value isKindOfClass:NSString.class]) {
+    return [[[FBErrorBuilder builder]
+               withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be cleared", self.description]
+              buildError:error];
+  }
+  
+  if (0 == [value fb_visualLength]) {
     // Short circuit if the content is not present
     return YES;
   }
@@ -108,8 +115,8 @@
   });
   
   NSUInteger retry = 0;
-  NSUInteger preClearTextLength = 0;
-  while ((preClearTextLength = [self.value fb_visualLength]) > 0) {
+  NSUInteger preClearTextLength = [value fb_visualLength];
+  do {
     NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
     if (retry >= MAX_CLEAR_RETRIES - 1) {
       // Last chance retry. Try to select the content of the field using the context menu
@@ -130,8 +137,9 @@
                 buildError:error];
     }
     
+    preClearTextLength = [self.value fb_visualLength];
     retry++;
-  }
+  } while (preClearTextLength > 0);
   return YES;
 }
 
