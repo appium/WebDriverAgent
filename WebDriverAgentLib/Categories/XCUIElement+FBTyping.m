@@ -124,7 +124,7 @@
       return NO;
     }
     
-    if (retry >= MAX_CLEAR_RETRIES) {
+    if (retry >= MAX_CLEAR_RETRIES - 1) {
       return [[[FBErrorBuilder builder]
                  withDescriptionFormat:@"Cannot clear the value of '%@'", self.description]
                 buildError:error];
