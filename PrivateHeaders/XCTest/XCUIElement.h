@@ -47,6 +47,12 @@
 - (id)_pointsInFrame:(CGRect)arg1 numberOfTouches:(unsigned long long)arg2;
 - (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
 - (void)forcePress;
+- (void)tapWithNumberOfTaps:(unsigned long long)arg1 numberOfTouches:(unsigned long long)arg2;
+- (void)twoFingerTap;
+- (void)doubleTap;
+- (void)tap;
+- (void)pressForDuration:(double)arg1 thenDragToElement:(id)arg2;
+- (void)pressForDuration:(double)arg1;
 
 // Available since Xcode 11.0
 - (_Bool)resolveOrRaiseTestFailure:(_Bool)arg1 error:(id *)arg2;
