@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "XCUIElement.h"
 #import "XCUIElement+FBTyping.h"
 
 @interface FBTypingTest : FBIntegrationTestCase
