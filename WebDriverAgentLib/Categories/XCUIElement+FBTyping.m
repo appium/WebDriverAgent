@@ -91,14 +91,14 @@
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  id value = self.value;
-  if (nil != value && ![value isKindOfClass:NSString.class]) {
+  id currentValue = self.value;
+  if (nil != currentValue && ![currentValue isKindOfClass:NSString.class]) {
     return [[[FBErrorBuilder builder]
                withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be cleared", self.description]
               buildError:error];
   }
   
-  if (nil == value || 0 == [value fb_visualLength]) {
+  if (nil == currentValue || 0 == [currentValue fb_visualLength]) {
     // Short circuit if the content is not present
     return YES;
   }
@@ -115,7 +115,7 @@
   });
   
   NSUInteger retry = 0;
-  NSUInteger preClearTextLength = [value fb_visualLength];
+  NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
     NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
     if (retry >= MAX_CLEAR_RETRIES - 1) {
@@ -136,8 +136,15 @@
                  withDescriptionFormat:@"Cannot clear the value of '%@'", self.description]
                 buildError:error];
     }
-    
-    preClearTextLength = [self.value fb_visualLength];
+
+    currentValue = self.value;
+    NSString *placeholderValue = self.placeholderValue;
+    if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
+      // Short circuit if only the placeholder value left
+      return YES;
+    }
+    preClearTextLength = [currentValue fb_visualLength];
+
     retry++;
   } while (preClearTextLength > 0);
   return YES;
