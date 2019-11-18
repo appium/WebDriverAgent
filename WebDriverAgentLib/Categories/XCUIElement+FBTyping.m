@@ -128,12 +128,6 @@
     if (![FBKeyboard typeText:textToType error:error]) {
       return NO;
     }
-    
-    if (retry >= MAX_CLEAR_RETRIES - 1) {
-      return [[[FBErrorBuilder builder]
-                 withDescriptionFormat:@"Cannot clear the value of '%@'", self.description]
-                buildError:error];
-    }
 
     currentValue = self.value;
     if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
