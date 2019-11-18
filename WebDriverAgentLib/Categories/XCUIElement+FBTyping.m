@@ -118,16 +118,13 @@
   NSString *placeholderValue = self.placeholderValue;
   NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
-    NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
     if (retry >= MAX_CLEAR_RETRIES - 1) {
-      // Last chance retry. Try to select the content of the field using the context menu
-      [self pressForDuration:1.0];
-      XCUIElement *selectAll = self.application.menuItems[@"Select All"];
-      if ([selectAll waitForExistenceWithTimeout:0.5]) {
-        [selectAll tap];
-        textToType = backspaceDeleteSequence;
-      }
+      // Last chance retry. Tripple-tap the field to select its text context
+      [self tapWithNumberOfTaps:3 numberOfTouches:1];
+      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
     }
+
+    NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
     if (![FBKeyboard typeText:textToType error:error]) {
       return NO;
     }
