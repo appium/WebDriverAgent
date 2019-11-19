@@ -32,8 +32,10 @@ outlined on that page and do not file a public issue.
 
 ## Update Carthage Dependencies
 
-1. Add a tag to the target repository
+1. Add a new version tag to the target repository
     - e.g. https://github.com/appium/RoutingHTTPServer/releases
+    - Please ask developers who have a permission to add the tag on the target repository
+      - The appium or appium forked repositories are Appium team members
 2. Bump the version in `Cartfile.resolved`
     - Please make sure the version will be downloaded and built by `carthage bootstrap` command like below
         ```
