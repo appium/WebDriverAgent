@@ -37,6 +37,7 @@ outlined on that page and do not file a public issue.
 2. Bump the version in `Cartfile.resolved`
     - Please make sure the version will be downloaded and built by `carthage bootstrap` command like below
         ```
+        $ carthage bootstrap # in appium/WebDriverAgent directory
         *** Checking out RoutingHTTPServer at "v1.2.0"
         *** Checking out CocoaAsyncSocket at "7.6.3"
         *** Checking out YYCache at "1.1.0"
