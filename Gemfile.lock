@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lyndsey-ferguson/fastlane-plugin-test_center.git
-  revision: 095eafa83e9fc4c2049c713908b64f46e3629ca9
+  revision: c0ba3dbaa19e234f3f59f3ea744a815acea683f1
   branch: issue-174-uninitialized-constant
   specs:
     fastlane-plugin-test_center (3.8.14)
