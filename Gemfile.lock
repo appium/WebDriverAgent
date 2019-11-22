@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/lyndsey-ferguson/fastlane-plugin-test_center.git
+  revision: 095eafa83e9fc4c2049c713908b64f46e3629ca9
+  branch: issue-174-uninitialized-constant
+  specs:
+    fastlane-plugin-test_center (3.8.14)
+      colorize
+      json
+      plist
+      xcodeproj
+      xctest_list (>= 1.1.8)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -65,12 +77,6 @@ GEM
       xcodeproj (>= 1.8.1, < 2.0.0)
       xcpretty (~> 0.3.0)
       xcpretty-travis-formatter (>= 0.0.3)
-    fastlane-plugin-test_center (3.8.13)
-      colorize
-      json
-      plist
-      xcodeproj
-      xctest_list (>= 1.1.8)
     gh_inspector (1.1.3)
     google-api-client (0.23.9)
       addressable (~> 2.5, >= 2.5.1)
@@ -162,7 +168,7 @@ PLATFORMS
 
 DEPENDENCIES
   fastlane
-  fastlane-plugin-test_center
+  fastlane-plugin-test_center!
 
 BUNDLED WITH
    1.14.6
