@@ -2,5 +2,4 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-test_center', :git => "https://github.com/lyndsey-ferguson/fastlane-plugin-test_center.git", :branch => "issue-174-uninitialized-constant"
-# gem 'fastlane-plugin-test_center'
+gem 'fastlane-plugin-test_center'
