@@ -20,6 +20,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   try {
     await exec('/bin/bash', ['./Scripts/build.sh'], {env, cwd: rootDir});
   } catch (e) {
+    log.error(`===FAILED TO BUILD FOR ${xcodeVersion}`);
     log.error(e.stdout);
     log.error(e.stderr);
     log.error(e.message);
