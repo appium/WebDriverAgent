@@ -76,7 +76,7 @@ function xcbuild() {
         -destination "$XC_DESTINATION" \
         $XC_ACTION \
         $XC_MACROS \
-      | output_command && exit ${PIPESTATUS[0]}
+      | $output_command && exit ${PIPESTATUS[0]}
     else
       xcodebuild \
         -project "WebDriverAgent.xcodeproj" \
@@ -84,7 +84,7 @@ function xcbuild() {
         -sdk "$XC_SDK" \
         $XC_ACTION \
         $XC_MACROS \
-      | output_command && exit ${PIPESTATUS[0]}
+      | $output_command && exit ${PIPESTATUS[0]}
     fi
 }
 
