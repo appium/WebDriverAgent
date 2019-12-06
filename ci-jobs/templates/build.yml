@@ -23,7 +23,7 @@ jobs:
         bundle install
         gem install xcpretty
         echo "XCPRETTY:"
-        xcpretty
+        xcpretty --version
       displayName: Install Ruby dependencies
     - script: mkdir -p Resources/WebDriverAgent.bundle
       displayName: Make Resources Folder
