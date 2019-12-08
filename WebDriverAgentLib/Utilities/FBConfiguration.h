@@ -187,6 +187,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setDismissAlertButtonSelector:(NSString *)classChainSelector;
 + (NSString *)dismissAlertButtonSelector;
 
+/**
+ Sets usage of reverse default accept/dismiss action for alerts with more than 2 buttons
+ 
+ @param enabled Turn the configuration on if the value is YES
+ */
++ (void)setuseLargeAlertReverseAction:(BOOL)enabled;
++ (BOOL)useLargeAlertReverseAction;
+
 @end
 
 NS_ASSUME_NONNULL_END

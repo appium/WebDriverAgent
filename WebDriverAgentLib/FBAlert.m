@@ -40,6 +40,8 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 
 @implementation FBAlert
 
+static const int FB_LARGE_ALERT_BUTTONS_COUNT = 3;
+
 + (void)throwRequestedItemObstructedByAlertException __attribute__((noreturn))
 {
   @throw [NSException exceptionWithName:FBAlertObstructingElementException reason:@"Requested element is obstructed by alert or action sheet" userInfo:@{}];
@@ -146,9 +148,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    acceptButton = alertElement.elementType == XCUIElementTypeAlert && buttons.count <= 2
-      ? buttons.lastObject
-      : buttons.firstObject;
+    if (alertElement.elementType == XCUIElementTypeAlert) {
+      if (buttons.count < FB_LARGE_ALERT_BUTTONS_COUNT) {
+        acceptButton = buttons.lastObject;
+      } else {
+        acceptButton = FBConfiguration.useLargeAlertReverseAction ? buttons.firstObject : buttons.lastObject;
+      }
+    } else {
+      acceptButton = buttons.firstObject;
+    }
   }
   return nil == acceptButton
     ? [[[FBErrorBuilder builder]
@@ -179,9 +187,15 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    dismissButton = alertElement.elementType == XCUIElementTypeAlert && buttons.count <= 2
-      ? buttons.firstObject
-      : buttons.lastObject;
+    if (alertElement.elementType == XCUIElementTypeAlert) {
+      if (buttons.count < FB_LARGE_ALERT_BUTTONS_COUNT) {
+        dismissButton = buttons.firstObject;
+      } else {
+        dismissButton = FBConfiguration.useLargeAlertReverseAction ? buttons.lastObject : buttons.firstObject;
+      }
+    } else {
+      dismissButton = buttons.lastObject;
+    }
   }
   return nil == dismissButton
     ? [[[FBErrorBuilder builder]

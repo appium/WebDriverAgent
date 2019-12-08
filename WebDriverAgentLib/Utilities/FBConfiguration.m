@@ -44,6 +44,7 @@ static BOOL FBShouldUseFirstMatch = NO;
 static BOOL FBIncludeNonModalElements = NO;
 static NSString *FBAcceptAlertButtonSelector = @"";
 static NSString *FBDismissAlertButtonSelector = @"";
+static BOOL FBShouldUseLargeAlertReverseAction = YES;
 
 
 @implementation FBConfiguration
@@ -314,6 +315,16 @@ static NSString *FBDismissAlertButtonSelector = @"";
 + (NSString *)dismissAlertButtonSelector
 {
   return FBDismissAlertButtonSelector;
+}
+
++ (BOOL)useLargeAlertReverseAction
+{
+  return FBShouldUseLargeAlertReverseAction;
+}
+
++ (void)setuseLargeAlertReverseAction:(BOOL)enabled
+{
+  FBShouldUseLargeAlertReverseAction = enabled;
 }
 
 #pragma mark Private
