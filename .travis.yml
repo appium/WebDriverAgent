@@ -25,6 +25,7 @@ script: ./Scripts/build.sh
 branches:
   only:
     - master
+    - /^greenkeeper/.*$/
 
 # TODO: Test on the minimum and maximum supported platform versions
 
