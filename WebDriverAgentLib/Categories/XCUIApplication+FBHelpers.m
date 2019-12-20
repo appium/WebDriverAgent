@@ -38,14 +38,21 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (BOOL)fb_waitForAppElement:(NSTimeInterval)timeout
 {
-  return [[[FBRunLoopSpinner new]
+  __block BOOL canDetectAxElement = YES;
+  int currentProcessIdentifier = self.accessibilityElement.processIdentifier;
+  BOOL result = [[[FBRunLoopSpinner new]
            timeout:timeout]
           spinUntilTrue:^BOOL{
     XCAccessibilityElement *currentAppElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
-    int currentProcessIdentifier = self.accessibilityElement.processIdentifier;
-    return nil != currentAppElement
-      && currentAppElement.processIdentifier == currentProcessIdentifier;
+    canDetectAxElement = nil != currentAppElement;
+    if (!canDetectAxElement) {
+      return YES;
+    }
+    return currentAppElement.processIdentifier == currentProcessIdentifier;
   }];
+  return canDetectAxElement
+    ? result
+    : [self waitForExistenceWithTimeout:timeout];
 }
 
 + (NSArray<NSDictionary<NSString *, id> *> *)fb_appsInfoWithAxElements:(NSArray<XCAccessibilityElement *> *)axElements
