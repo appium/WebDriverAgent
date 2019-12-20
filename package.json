@@ -61,7 +61,7 @@
     "@babel/runtime": "^7.0.0",
     "appium-base-driver": "^5.0.2",
     "appium-ios-simulator": "^3.14.0",
-    "appium-support": "^2.29.0",
+    "appium-support": "^2.37.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^2.5.3",
     "bluebird": "^3.5.5",
