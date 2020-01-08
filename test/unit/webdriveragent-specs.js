@@ -152,7 +152,7 @@ describe('get url', function () {
   it('should use default WDA listening url', function () {
     const args = Object.assign({}, fakeConstructorArgs);
     const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://localhost:8100/');
+    agent.url.href.should.eql('http://127.0.0.1:8100/');
   });
   it('should use default WDA listening url with emply base url', function () {
     const wdaLocalPort = '9100';
@@ -163,7 +163,7 @@ describe('get url', function () {
     args.wdaLocalPort = wdaLocalPort;
 
     const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://localhost:9100/');
+    agent.url.href.should.eql('http://127.0.0.1:9100/');
   });
   it('should use customised WDA listening url', function () {
     const wdaLocalPort = '9100';
@@ -230,7 +230,7 @@ describe('setupCaching()', function () {
     await wda.setupCaching();
     wdaStub.calledOnce.should.be.true;
     wdaStubUninstall.notCalled.should.be.true;
-    wda.webDriverAgentUrl.should.equal('http://localhost:8100/');
+    wda.webDriverAgentUrl.should.equal('http://127.0.0.1:8100/');
   });
 
   it('should call uninstall once since bundle id is not default without updatedWDABundleId capability', async function () {
@@ -272,7 +272,7 @@ describe('setupCaching()', function () {
     await wda.setupCaching();
     wdaStub.calledOnce.should.be.true;
     wdaStubUninstall.notCalled.should.be.true;
-    wda.webDriverAgentUrl.should.equal('http://localhost:8100/');
+    wda.webDriverAgentUrl.should.equal('http://127.0.0.1:8100/');
   });
 
   it('should call uninstall if current revision differs from the bundled one', async function () {
