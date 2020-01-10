@@ -139,6 +139,29 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSTimeInterval)snapshotTimeout;
 
 /**
+ Sets maximum depth for traversing elements tree from parents to children while requesting XCElementSnapshot.
+ Used to set maxDepth value in a dictionary provided by XCAXClient_iOS's method defaultParams.
+ The original XCAXClient_iOS maxDepth value is set to INT_MAX, which is too big for some queries
+ (for example: searching elements inside a WebView).
+ Reasonable values are from 15 to 100 (larger numbers make queries slower).
+
+ @param maxDepth The number of maximum depth for traversing elements tree
+ */
++ (void)setSnapshotMaxDepth:(int)maxDepth;
+
+/**
+  @return The number of maximum depth for traversing elements tree
+ */
++ (int)snapshotMaxDepth;
+
+/**
+ Returns parameters for traversing elements tree from parents to children while requesting XCElementSnapshot.
+
+ @return dictionary with parameters for element's snapshot request
+*/
++ (NSDictionary *)snapshotRequestParameters;
+
+/**
  * Whether to use fast search result matching while searching for elements.
  * By default this is disabled due to https://github.com/appium/appium/issues/10101
  * but it still makes sense to enable it for views containing large counts of elements

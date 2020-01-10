@@ -44,9 +44,21 @@ static BOOL FBShouldUseFirstMatch = NO;
 static BOOL FBIncludeNonModalElements = NO;
 static NSString *FBAcceptAlertButtonSelector = @"";
 static NSString *FBDismissAlertButtonSelector = @"";
+static NSString *FBSnapshotMaxDepthKey = @"maxDepth";
+static NSMutableDictionary *FBSnapshotRequestParameters;
 
 
 @implementation FBConfiguration
+
++ (void)initialize
+{
+  FBSnapshotRequestParameters = [NSMutableDictionary dictionaryWithDictionary:@{
+    @"maxArrayCount": @INT_MAX,
+    @"maxChildren": @INT_MAX,
+    FBSnapshotMaxDepthKey: @50, // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
+    @"traverseFromParentsToChildren": @1
+  }];
+}
 
 #pragma mark Public
 
@@ -276,6 +288,21 @@ static NSString *FBDismissAlertButtonSelector = @"";
   return FBSnapshotTimeout;
 }
 
++ (void)setSnapshotMaxDepth:(int)maxDepth
+{
+  FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] = @(maxDepth);
+}
+
++ (int)snapshotMaxDepth
+{
+  return [FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] intValue];
+}
+
++ (NSDictionary *)snapshotRequestParameters
+{
+  return FBSnapshotRequestParameters;
+}
+
 + (void)setUseFirstMatch:(BOOL)enabled
 {
   FBShouldUseFirstMatch = enabled;
@@ -411,4 +438,5 @@ static NSString *FBDismissAlertButtonSelector = @"";
   }
   return NO;
 }
+
 @end
