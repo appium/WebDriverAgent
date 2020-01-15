@@ -17,7 +17,7 @@
 #import "XCUIElement+FBUtilities.h"
 
 
-#define MAX_CLEAR_RETRIES 3
+#define MAX_CLEAR_RETRIES 2
 
 @interface NSString (FBRepeat)
 
