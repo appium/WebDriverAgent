@@ -238,7 +238,7 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
     return rc;
   }
-  
+
   rc = [self writeXmlWithRootElement:root
                            indexPath:(elementStore != nil ? topNodeIndexPath : nil)
                         elementStore:elementStore
@@ -311,7 +311,7 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
   if (nil == str) {
     return NULL;
   }
-  
+
   NSString *safeString = [str fb_xmlSafeStringWithReplacement:@""];
   return [self.class xmlCharPtrForInput:[safeString cStringUsingEncoding:NSUTF8StringEncoding]];
 }
@@ -392,17 +392,17 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
     currentSnapshot = (XCElementSnapshot *)root;
     children = currentSnapshot.children;
   }
-  
+
   if (elementStore != nil && indexPath != nil && [indexPath isEqualToString:topNodeIndexPath]) {
     [elementStore setObject:currentSnapshot forKey:topNodeIndexPath];
   }
-  
+
   int rc = xmlTextWriterStartElement(writer, [self xmlCharPtrForInput:[currentSnapshot.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", currentSnapshot.wdType, rc];
     return rc;
   }
-  
+
   rc = [self recordElementAttributes:writer
                           forElement:currentSnapshot
                            indexPath:indexPath
@@ -453,7 +453,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)name
 {
-  NSString *errMsg = [NSString stringWithFormat:@"The asbtract method +(NSString *)name is expected to be overriden by %@", NSStringFromClass(self.class)];
+  NSString *errMsg = [NSString stringWithFormat:@"The abstract method +(NSString *)name is expected to be overriden by %@", NSStringFromClass(self.class)];
   @throw [NSException exceptionWithName:FBAbstractMethodInvocationException reason:errMsg userInfo:nil];
 }
 
@@ -464,7 +464,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  NSString *errMsg = [NSString stringWithFormat:@"The asbtract method -(NSString *)value is expected to be overriden by %@", NSStringFromClass(self.class)];
+  NSString *errMsg = [NSString stringWithFormat:@"The abstract method -(NSString *)value is expected to be overriden by %@", NSStringFromClass(self.class)];
   @throw [NSException exceptionWithName:FBAbstractMethodInvocationException reason:errMsg userInfo:nil];
 }
 

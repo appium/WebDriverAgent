@@ -12,8 +12,53 @@
 #import "FBLogger.h"
 #import "XCAXClient_iOS.h"
 #import "XCUIDevice.h"
+#import <objc/runtime.h>
+#import "FBConfiguration.h"
 
 static id FBAXClient = nil;
+
+@implementation XCAXClient_iOS (WebDriverAgent)
+
+/**
+ Parameters for traversing elements tree from parents to children while requesting XCElementSnapshot.
+
+ @return dictionary with parameters for element's snapshot request
+ */
+- (NSDictionary *)fb_getParametersForElementSnapshot
+{
+  return FBConfiguration.snapshotRequestParameters;
+}
+
++ (void)load
+{
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+      Class class = [self class];
+
+      SEL originalSelector = @selector(defaultParameters);
+      SEL swizzledSelector = @selector(fb_getParametersForElementSnapshot);
+
+      Method originalMethod = class_getInstanceMethod(class, originalSelector);
+      Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+
+      BOOL didAddMethod =
+          class_addMethod(class,
+              originalSelector,
+              method_getImplementation(swizzledMethod),
+              method_getTypeEncoding(swizzledMethod));
+
+      if (didAddMethod) {
+          class_replaceMethod(class,
+              swizzledSelector,
+              method_getImplementation(originalMethod),
+              method_getTypeEncoding(originalMethod));
+      } else {
+          method_exchangeImplementations(originalMethod, swizzledMethod);
+      }
+  });
+}
+
+@end
 
 @implementation FBXCAXClientProxy
 

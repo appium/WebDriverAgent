@@ -25,5 +25,5 @@ export {
   resetTestProcesses,
   BOOTSTRAP_PATH, WDA_BUNDLE_ID,
   WDA_RUNNER_BUNDLE_ID, PROJECT_FILE,
-  WDA_BASE_URL
+  WDA_BASE_URL,
 };

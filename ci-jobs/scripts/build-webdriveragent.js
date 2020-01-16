@@ -17,7 +17,15 @@ async function buildWebDriverAgent (xcodeVersion) {
   await exec('npx', ['gulp', 'clean:carthage']);
   log.info('Running ./Scripts/build.sh');
   let env = {TARGET: 'runner', SDK: 'sim'};
-  await exec('/bin/bash', ['./Scripts/build.sh'], {env, cwd: rootDir});
+  try {
+    await exec('/bin/bash', ['./Scripts/build.sh'], {env, cwd: rootDir});
+  } catch (e) {
+    log.error(`===FAILED TO BUILD FOR ${xcodeVersion}`);
+    log.error(e.stdout);
+    log.error(e.stderr);
+    log.error(e.message);
+    throw e;
+  }
 
   // Create bundles folder
   await mkdirp('bundles');

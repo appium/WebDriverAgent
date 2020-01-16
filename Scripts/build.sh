@@ -64,6 +64,10 @@ function analyze() {
 
 function xcbuild() {
     destination=""
+    output_command=cat
+    if [ $(which xcpretty) ] ; then
+        output_command=xcpretty
+    fi
     if [[ -n "$XC_DESTINATION" ]]; then
       xcodebuild \
         -project "WebDriverAgent.xcodeproj" \
@@ -72,7 +76,7 @@ function xcbuild() {
         -destination "$XC_DESTINATION" \
         $XC_ACTION \
         $XC_MACROS \
-      | xcpretty && exit ${PIPESTATUS[0]}
+      | $output_command && exit ${PIPESTATUS[0]}
     else
       xcodebuild \
         -project "WebDriverAgent.xcodeproj" \
@@ -80,7 +84,7 @@ function xcbuild() {
         -sdk "$XC_SDK" \
         $XC_ACTION \
         $XC_MACROS \
-      | xcpretty && exit ${PIPESTATUS[0]}
+      | $output_command && exit ${PIPESTATUS[0]}
     fi
 }
 
@@ -92,7 +96,7 @@ function fastlane_test() {
   fi
 }
 
-./Scripts/bootstrap.sh -d
+./Scripts/bootstrap.sh -dn
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;

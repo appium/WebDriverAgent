@@ -47,17 +47,25 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   XCAccessibilityElement *currentElement = nil;
   if (nil != bundleId) {
     currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
-    NSArray<NSDictionary *> *appsInfo = [self fb_appsInfoWithAxElements:@[currentElement]];
-    if ([[appsInfo.firstObject objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
-      activeApplicationElement = currentElement;
+    if (nil != currentElement) {
+      NSArray<NSDictionary *> *appInfos = [self fb_appsInfoWithAxElements:@[currentElement]];
+      [FBLogger logFmt:@"Detected on-screen application: %@", appInfos.firstObject[@"bundleId"]];
+      if ([[appInfos.firstObject objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
+        activeApplicationElement = currentElement;
+      }
     }
   }
   if (nil == activeApplicationElement && activeApplicationElements.count > 1) {
     if (nil != bundleId) {
+      NSArray<NSDictionary *> *appInfos = [self fb_appsInfoWithAxElements:activeApplicationElements];
+      NSMutableArray<NSString *> *bundleIds = [NSMutableArray array];
+      for (NSDictionary *appInfo in appInfos) {
+        [bundleIds addObject:(NSString *)appInfo[@"bundleId"]];
+      }
+      [FBLogger logFmt:@"Detected system active application(s): %@", bundleIds];
       // Try to select the desired application first
-      NSArray<NSDictionary *> *appsInfo = [self fb_appsInfoWithAxElements:activeApplicationElements];
-      for (NSUInteger appIdx = 0; appIdx < appsInfo.count; appIdx++) {
-        if ([[[appsInfo objectAtIndex:appIdx] objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
+      for (NSUInteger appIdx = 0; appIdx < appInfos.count; appIdx++) {
+        if ([[[appInfos objectAtIndex:appIdx] objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
           activeApplicationElement = [activeApplicationElements objectAtIndex:appIdx];
           break;
         }
@@ -69,7 +77,12 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
       if (nil == currentElement) {
         currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
       }
-      if (nil != currentElement) {
+      if (nil == currentElement) {
+        [FBLogger log:@"Cannot precisely detect the current application. Will use the system's recently active one"];
+        if (nil == bundleId) {
+          [FBLogger log:@"Consider changing the 'defaultActiveApplication' setting to the bundle identifier of the desired application under test"];
+        }
+      } else {
         for (XCAccessibilityElement *appElement in activeApplicationElements) {
           if (appElement.processIdentifier == currentElement.processIdentifier) {
             activeApplicationElement = appElement;

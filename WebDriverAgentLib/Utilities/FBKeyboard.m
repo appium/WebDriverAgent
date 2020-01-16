@@ -55,15 +55,19 @@
 {
   BOOL (^keyboardIsVisible)(void) = ^BOOL(void) {
     XCUIElement *keyboard = [app.fb_query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
-    return keyboard && keyboard.fb_isVisible;
+    return keyboard && keyboard.hittable;
   };
+  NSString* errMessage = @"The on-screen keyboard must be present to send keys";
   if (timeout <= 0) {
-    return keyboardIsVisible();
+    if (!keyboardIsVisible()) {
+      return [[[FBErrorBuilder builder] withDescription:errMessage] buildError:error];
+    }
+    return YES;
   }
   return
     [[[[FBRunLoopSpinner new]
        timeout:timeout]
-      timeoutErrorMessage:@"Keyboard is not present"]
+      timeoutErrorMessage:errMessage]
      spinUntilTrue:keyboardIsVisible
      error:error];
 }

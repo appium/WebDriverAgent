@@ -6,6 +6,7 @@ osx_image: xcode10
 cache:
   directories:
   - Carthage
+  - Cartfile.resolved
 
 env:
   global:
@@ -20,11 +21,13 @@ before_install:
       bundle install
     fi
 
-script: ./Scripts/build.sh
+script:
+  - ./Scripts/build.sh
 
 branches:
   only:
     - master
+    - /^greenkeeper/.*$/
 
 # TODO: Test on the minimum and maximum supported platform versions
 
@@ -47,8 +50,7 @@ jobs:
         - DEVICE_NAME="iPhone X"
       before_script:
         # allowing the normal method will cause rate limiting
-        - carthage bootstrap --no-use-binaries
-        - cp Cartfile.resolved Carthage
+        - ./Scripts/bootstrap.sh -dn
         - mkdir -p ./Resources/WebDriverAgent.bundle
       script: npm run e2e-test
 
