@@ -41,7 +41,7 @@
   XCTAssertTrue([textField fb_clearTextWithError:&error]);
   [textField pressForDuration:2.0];
   XCUIElementQuery *pastItemsQuery = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"Paste"];
-  if (![pastItemsQuery.element waitForExistenceWithTimeout:2.0]) {
+  if (![pastItemsQuery.firstMatch waitForExistenceWithTimeout:2.0]) {
     XCTFail(@"No matched element named 'Paste'");
   }
   XCUIElement *pasteItem = pastItemsQuery.fb_firstMatch;

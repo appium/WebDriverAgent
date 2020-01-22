@@ -104,14 +104,10 @@ static dispatch_once_t onceAppWithPIDToken;
 
 - (XCUIElement *)fb_firstMatch
 {
-  if (FBConfiguration.useFirstMatch) {
-    XCUIElement* result = self.firstMatch;
-    return result.exists ? result : nil;
-  }
-  if (!self.element.exists) {
-    return nil;
-  }
-  return self.allElementsBoundByAccessibilityElement.firstObject;
+  XCUIElement* match = FBConfiguration.useFirstMatch
+    ? self.firstMatch
+    : self.allElementsBoundByAccessibilityElement.firstObject;
+  return [match exists] ? match : nil;
 }
 
 - (XCElementSnapshot *)fb_elementSnapshotForDebugDescription
