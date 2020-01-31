@@ -347,7 +347,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 }
 
 #if !TARGET_OS_TV
-+ (void)setScreenshotOrientation:(NSString *)orientation
++ (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error
 {
   // Only UIInterfaceOrientationUnknown is over iOS 8. Others are over iOS 2.
   // https://developer.apple.com/documentation/uikit/uiinterfaceorientation/uiinterfaceorientationunknown
@@ -357,11 +357,17 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
     FBScreenshotOrientation = UIInterfaceOrientationPortraitUpsideDown;
   } else if ([orientation.lowercaseString isEqualToString:@"landscaperight"]) {
     FBScreenshotOrientation = UIInterfaceOrientationLandscapeRight;
-  }else if ([orientation.lowercaseString isEqualToString:@"landscapeleft"]) {
+  } else if ([orientation.lowercaseString isEqualToString:@"landscapeleft"]) {
     FBScreenshotOrientation = UIInterfaceOrientationLandscapeLeft;
-  } else {
+  } else if ([orientation.lowercaseString isEqualToString:@"auto"]) {
     FBScreenshotOrientation = UIInterfaceOrientationUnknown;
+  } else {
+    return [[FBErrorBuilder.builder withDescriptionFormat:
+             @"No available orientation strategies. Available strategies are 'auto', 'portrate', " \
+             "'portraitUpsideDown', 'landscapeRight' and 'landscapeLeft'"]
+            buildError:error];
   }
+  return YES;
 }
 
 + (NSInteger)screenshotOrientation
@@ -369,18 +375,18 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   return FBScreenshotOrientation;
 }
 
-+ (NSString *)screenshotOrientationForUser
++ (NSString *)humanReadableScreenshotOrientation
 {
   if (FBScreenshotOrientation == UIInterfaceOrientationPortrait) {
-    return @"Portrait";
+    return @"portrait";
   } else if (FBScreenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-     return @"PortraitUpsideDown";
+     return @"portraitUpsideDown";
   } else if (FBScreenshotOrientation == UIInterfaceOrientationLandscapeRight) {
-     return @"LandscapeRight";
+     return @"landscapeRight";
   } else if (FBScreenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
-     return @"LandscapeLeft";
+     return @"landscapeLeft";
   }
-  return @"Auto";
+  return @"auto";
 }
 #endif
 

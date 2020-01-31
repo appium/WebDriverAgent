@@ -259,7 +259,9 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
       INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
       ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
-      SCREENSHOT_ORIENTATION: [FBConfiguration screenshotOrientationForUser],
+#if !TARGET_OS_TV
+      SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
+#endif
     }
   );
 }
@@ -332,7 +334,13 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
 
 #if !TARGET_OS_TV
   if (nil != [settings objectForKey:SCREENSHOT_ORIENTATION]) {
-    [FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:SCREENSHOT_ORIENTATION]];
+    NSError *error;
+    if (![FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:SCREENSHOT_ORIENTATION]
+                                             error:&error]) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
+    }
+
+
   }
 #endif
 

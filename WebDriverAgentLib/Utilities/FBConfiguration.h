@@ -220,11 +220,12 @@ NS_ASSUME_NONNULL_BEGIN
  Xcode versions, OS versions or device models and simulator or real device could influence it.
 
  @param orientation Set the orientation to adjust the screenshot.
- Case insensitive "Portrait", "PortraitUpsideDown", "LandscapeRight" and "LandscapeLeft"  are available
+ Case insensitive "portrait", "portraitUpsideDown", "landscapeRight" and "landscapeLeft"  are available
  to force the coodinate adjust. Other wards are handled as "auto", which handles
  the adjustment automatically. Defaults to "auto".
+ @param error If no availale orientation strategy was given, it returns an NSError object that describes the problem.
  */
-+ (void)setScreenshotOrientation:(NSString *)orientation;
++ (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error;
 
 /**
 @return The value of UIInterfaceOrientation
@@ -234,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
 @return The orientation as String for human read
 */
-+ (NSString *)screenshotOrientationForUser;
++ (NSString *)humanReadableScreenshotOrientation;
 
 #endif
 

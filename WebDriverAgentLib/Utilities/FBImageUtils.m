@@ -67,10 +67,12 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData)
 #else
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation)
 {
-
   UIImageOrientation imageOrientation;
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationUnknown) {
-    if (orientation == UIInterfaceOrientationLandscapeRight) {
+    if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+      // In iOS < 11.0 screenshots are already adjusted properly
+      imageOrientation = UIImageOrientationUp;
+    } else if (orientation == UIInterfaceOrientationLandscapeRight) {
       imageOrientation = UIImageOrientationLeft;
     } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
       imageOrientation = UIImageOrientationRight;
@@ -88,7 +90,7 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
       imageOrientation = UIImageOrientationDown;
     } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
       imageOrientation = UIImageOrientationLeft;
-    }else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
+    } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
       imageOrientation = UIImageOrientationRight;
     } else {
       imageOrientation = UIImageOrientationUp;
