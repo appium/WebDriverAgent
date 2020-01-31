@@ -221,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param orientation Set the orientation to adjust the screenshot.
  Case insensitive "portrait", "portraitUpsideDown", "landscapeRight" and "landscapeLeft"  are available
- to force the coodinate adjust. Other wards are handled as "auto", which handles
+ to force the coodinate adjust. Other words are handled as "auto", which handles
  the adjustment automatically. Defaults to "auto".
  @param error If no availale orientation strategy was given, it returns an NSError object that describes the problem.
  */
