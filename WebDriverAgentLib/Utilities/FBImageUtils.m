@@ -86,14 +86,19 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
       return (NSData *)UIImagePNGRepresentation(image);
     }
   } else {
-    if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-      imageOrientation = UIImageOrientationDown;
-    } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
-      imageOrientation = UIImageOrientationLeft;
-    } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
-      imageOrientation = UIImageOrientationRight;
-    } else {
-      imageOrientation = UIImageOrientationUp;
+    switch (FBConfiguration.screenshotOrientation) {
+      case UIInterfaceOrientationPortraitUpsideDown:
+        imageOrientation = UIImageOrientationDown;
+        break;
+      case UIInterfaceOrientationLandscapeRight:
+        imageOrientation = UIImageOrientationLeft;
+        break;
+      case UIInterfaceOrientationLandscapeLeft:
+        imageOrientation = UIImageOrientationRight;
+        break;
+      default:
+        imageOrientation = UIImageOrientationUp;
+        break;
     }
   }
 

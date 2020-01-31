@@ -377,16 +377,18 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 
 + (NSString *)humanReadableScreenshotOrientation
 {
-  if (FBScreenshotOrientation == UIInterfaceOrientationPortrait) {
-    return @"portrait";
-  } else if (FBScreenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-     return @"portraitUpsideDown";
-  } else if (FBScreenshotOrientation == UIInterfaceOrientationLandscapeRight) {
-     return @"landscapeRight";
-  } else if (FBScreenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
-     return @"landscapeLeft";
+  switch (FBScreenshotOrientation) {
+    case UIInterfaceOrientationPortrait:
+      return @"portrait";
+    case UIInterfaceOrientationPortraitUpsideDown:
+      return @"portraitUpsideDown";
+    case UIInterfaceOrientationLandscapeRight:
+      return @"landscapeRight";
+    case UIInterfaceOrientationLandscapeLeft:
+      return @"landscapeLeft";
+    case UIInterfaceOrientationUnknown:
+      return @"auto";
   }
-  return @"auto";
 }
 #endif
 
