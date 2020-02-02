@@ -12,6 +12,7 @@
 #import "FBMacros.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIApplicationProcessQuiescence.h"
 
 #if !TARGET_OS_TV
 @implementation XCUIElement (FBTap)
@@ -21,7 +22,10 @@
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
     // Tap coordinates calculation issues have been fixed
     // for different device orientations since Xcode 11
+    [self fb_waitUntilFrameIsStable];
+    [XCUIApplicationProcessQuiescence setEnableAnimationCheck:NO];
     [self tap];
+    [XCUIApplicationProcessQuiescence setEnableAnimationCheck:YES];
     return YES;
   }
 

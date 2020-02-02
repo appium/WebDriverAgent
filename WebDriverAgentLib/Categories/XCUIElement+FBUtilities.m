@@ -39,14 +39,16 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   __block CGRect frame = self.frame;
   // Initial wait
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-  return
+  BOOL result =
   [[[FBRunLoopSpinner new]
     timeout:10.]
    spinUntilTrue:^BOOL{
-    const BOOL isSameFrame = FBRectFuzzyEqualToRect(self.frame, frame, FBDefaultFrameFuzzyThreshold);
-    frame = self.frame;
+    CGRect newFrame = self.frame;
+    const BOOL isSameFrame = FBRectFuzzyEqualToRect(newFrame, frame, FBDefaultFrameFuzzyThreshold);
+    frame = newFrame;
     return isSameFrame;
   }];
+  return result;
 }
 
 - (BOOL)fb_isObstructedByAlert
