@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Set the usage of animation check in quiescence validation (defaults to YES).
  */
-+ (void)setEnableAnimationCheck:(BOOL)value;
++ (void)setAnimationCheckEnabled:(BOOL)enabled;
 
 @end
 

@@ -23,9 +23,9 @@
     // Tap coordinates calculation issues have been fixed
     // for different device orientations since Xcode 11
     [self fb_waitUntilFrameIsStable];
-    [XCUIApplicationProcessQuiescence setEnableAnimationCheck:NO];
+    [XCUIApplicationProcessQuiescence setAnimationCheckEnabled:NO];
     [self tap];
-    [XCUIApplicationProcessQuiescence setEnableAnimationCheck:YES];
+    [XCUIApplicationProcessQuiescence setAnimationCheckEnabled:YES];
     return YES;
   }
 

@@ -35,9 +35,9 @@ static BOOL isAnimationCheckEnabled = YES;
   isWaitForQuiescence = value;
 }
 
-+ (void)setEnableAnimationCheck:(BOOL)value
++ (void)setAnimationCheckEnabled:(BOOL)enabled
 {
-  isAnimationCheckEnabled = value;
+  isAnimationCheckEnabled = enabled;
 }
 
 + (void)swizzledWaitForQuiescenceIncludingAnimationsIdle:(BOOL)includeAnimations
