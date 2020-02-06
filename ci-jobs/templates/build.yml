@@ -19,6 +19,8 @@ jobs:
         versionSpec: '12.x' 
     - script: npm install
       displayName: Install Node Modules
+    - script: bundle update --bundler
+      displayName: Update Bundler
     - script: bundle install
       displayName: Install Ruby dependencies
     - script: mkdir -p Resources/WebDriverAgent.bundle
