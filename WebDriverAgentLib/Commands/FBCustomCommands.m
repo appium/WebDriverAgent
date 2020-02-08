@@ -291,12 +291,32 @@
     @"uuid": [UIDevice.currentDevice.identifierForVendor UUIDString] ?: @"unknown",
     // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
     @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),
+    @"userInterfaceStyle": self.userInterfaceStyle,
 #if TARGET_OS_SIMULATOR
     @"isSimulator": @(YES),
 #else
     @"isSimulator": @(NO),
 #endif
   });
+}
+
+/**
+ * @return Current user interface style as a string
+ */
++ (NSString *)userInterfaceStyle
+{
+  if (@available(iOS 13.0, *)) {
+    switch (UITraitCollection.currentTraitCollection.userInterfaceStyle) {
+      case UIUserInterfaceStyleLight:
+        return @"light";
+      case UIUserInterfaceStyleDark:
+        return @"dark";
+      case UIUserInterfaceStyleUnspecified:
+      default:
+        return @"unknown";
+    }
+  }
+  return @"unsupported";
 }
 
 /**
