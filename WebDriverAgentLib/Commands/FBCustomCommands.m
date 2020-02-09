@@ -308,8 +308,8 @@
   static id userInterfaceStyle = nil;
   static dispatch_once_t styleOnceToken;
   dispatch_once(&styleOnceToken, ^{
-    if ([UITraitCollection respondsToSelector:@selector(currentTraitCollection)]) {
-      id currentTraitCollection = [UITraitCollection performSelector:@selector(currentTraitCollection)];
+    if ([UITraitCollection respondsToSelector:NSSelectorFromString(@"currentTraitCollection")]) {
+      id currentTraitCollection = [UITraitCollection performSelector:NSSelectorFromString(@"currentTraitCollection")];
       if (nil != currentTraitCollection) {
         userInterfaceStyle = [currentTraitCollection valueForKey:@"userInterfaceStyle"];
       }
