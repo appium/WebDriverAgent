@@ -305,18 +305,29 @@
  */
 + (NSString *)userInterfaceStyle
 {
-  if (@available(iOS 13.0, *)) {
-    switch (UITraitCollection.currentTraitCollection.userInterfaceStyle) {
-      case UIUserInterfaceStyleLight:
-        return @"light";
-      case UIUserInterfaceStyleDark:
-        return @"dark";
-      case UIUserInterfaceStyleUnspecified:
-      default:
-        return @"unknown";
+  static id userInterfaceStyle = nil;
+  static dispatch_once_t styleOnceToken;
+  dispatch_once(&styleOnceToken, ^{
+    if ([UITraitCollection respondsToSelector:@selector(currentTraitCollection)]) {
+      id currentTraitCollection = [UITraitCollection performSelector:@selector(currentTraitCollection)];
+      if (nil != currentTraitCollection) {
+        userInterfaceStyle = [currentTraitCollection valueForKey:@"userInterfaceStyle"];
+      }
     }
+  });
+
+  if (nil == userInterfaceStyle) {
+    return @"unsupported";
   }
-  return @"unsupported";
+
+  switch ([userInterfaceStyle integerValue]) {
+    case 1: // UIUserInterfaceStyleLight
+      return @"light";
+    case 2: // UIUserInterfaceStyleDark
+      return @"dark";
+    default:
+      return @"unknown";
+  }
 }
 
 /**
