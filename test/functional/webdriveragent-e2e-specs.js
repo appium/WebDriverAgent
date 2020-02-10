@@ -1,6 +1,6 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createDevice, deleteDevice } from 'node-simctl';
+import Simctl from 'node-simctl';
 import { getVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
 import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
@@ -47,13 +47,16 @@ describe('WebDriverAgent', function () {
   });
   describe('with fresh sim', function () {
     let device;
+    let simctl;
+
     before(async function () {
-      let simUdid = await createDevice(
+      simctl = new Simctl();
+      simctl.udid = await simctl.createDevice(
         SIM_DEVICE_NAME,
         DEVICE_NAME,
         PLATFORM_VERSION
       );
-      device = await getSimulator(simUdid);
+      device = await getSimulator(simctl.udid);
     });
 
     after(async function () {
@@ -61,7 +64,7 @@ describe('WebDriverAgent', function () {
 
       await shutdownSimulator(device);
 
-      await deleteDevice(device.udid);
+      await simctl.deleteDevice();
     });
 
     describe('with running sim', function () {
