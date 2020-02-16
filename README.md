@@ -34,6 +34,9 @@ If you are having some issues please checkout [wiki](https://github.com/facebook
 ## For Contributors
 If you want to help us out, you are more than welcome to. However please make sure you have followed the guidelines in [CONTRIBUTING](CONTRIBUTING.md).
 
+## Creating Bundles
+Follow [this doc](docs/CREATING_BUNDLES.md)
+
 ## License
 
 [`WebDriverAgent` is BSD-licensed](LICENSE). We also provide an additional [patent grant](PATENTS).
