@@ -10,3 +10,7 @@ jobs:
   - template: ./templates/build.yml
     parameters:
       name: 'macOS_10_14'
+  - template: ./templates/build.yml
+    vmImage: 'macOS-10.15'
+    parameters:
+      name: 'macOS_10_15'
