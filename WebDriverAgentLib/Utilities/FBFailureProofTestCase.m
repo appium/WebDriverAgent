@@ -23,14 +23,14 @@
 {
   [super setUp];
   self.continueAfterFailure = YES;
-  if (nil != [self valueForKey:@"internalImplementation"]) {
+  if ([self respondsToSelector:@selector(internalImplementation)]) {
     self.internalImplementation =
       (_XCTestCaseImplementation *)[FBXCTestCaseImplementationFailureHoldingProxy
                                     proxyWithXCTestCaseImplementation:self.internalImplementation];
   } else {
     // https://github.com/appium/appium/issues/13949
-    self.shouldSetShouldHaltWhenReceivesControl = @NO;
-    self.shouldHaltWhenReceivesControl = @NO;
+    self.shouldSetShouldHaltWhenReceivesControl = NO;
+    self.shouldHaltWhenReceivesControl = NO;
   }
 }
 
