@@ -23,7 +23,15 @@
 {
   [super setUp];
   self.continueAfterFailure = YES;
-  self.internalImplementation = (_XCTestCaseImplementation *)[FBXCTestCaseImplementationFailureHoldingProxy proxyWithXCTestCaseImplementation:self.internalImplementation];
+  if (nil != [self valueForKey:@"internalImplementation"]) {
+    self.internalImplementation =
+      (_XCTestCaseImplementation *)[FBXCTestCaseImplementationFailureHoldingProxy
+                                    proxyWithXCTestCaseImplementation:self.internalImplementation];
+  } else {
+    // https://github.com/appium/appium/issues/13949
+    self.shouldSetShouldHaltWhenReceivesControl = @NO;
+    self.shouldHaltWhenReceivesControl = @NO;
+  }
 }
 
 - (void)recordFailureWithDescription:(NSString *)description

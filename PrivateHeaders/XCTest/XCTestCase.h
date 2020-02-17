@@ -18,6 +18,7 @@
 @property(readonly) XCTestContext *testContext;
 @property(readonly) unsigned long long activityRecordStackDepth;
 @property(nonatomic) BOOL shouldHaltWhenReceivesControl;
+@property(nonatomic) BOOL shouldSetShouldHaltWhenReceivesControl; // @synthesize shouldSetShouldHaltWhenReceivesControl=_shouldSetShouldHaltWhenReceivesControl;
 @property(retain) XCTestCaseRun *testCaseRun;
 
 + (id)_baselineDictionary;
