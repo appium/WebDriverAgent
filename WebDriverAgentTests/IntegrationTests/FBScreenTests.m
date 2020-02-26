@@ -32,11 +32,7 @@
 {
   CGSize statusBarSize = [FBScreen statusBarSizeForApplication:self.testedApplication];
   BOOL statusBarSizeIsZero = CGSizeEqualToSize(CGSizeZero, statusBarSize);
-  if (@available(iOS 13.0, *)) {
-    XCTAssertTrue(statusBarSizeIsZero);
-  } else {
-    XCTAssertFalse(statusBarSizeIsZero);
-  }
+  XCTAssertFalse(statusBarSizeIsZero);
 }
 
 @end
