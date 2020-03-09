@@ -47,6 +47,9 @@ static NSString *FBDismissAlertButtonSelector = @"";
 static NSString *FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 
+#if !TARGET_OS_TV
+static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
+#endif
 
 @implementation FBConfiguration
 
@@ -342,6 +345,52 @@ static NSMutableDictionary *FBSnapshotRequestParameters;
 {
   return FBDismissAlertButtonSelector;
 }
+
+#if !TARGET_OS_TV
++ (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error
+{
+  // Only UIInterfaceOrientationUnknown is over iOS 8. Others are over iOS 2.
+  // https://developer.apple.com/documentation/uikit/uiinterfaceorientation/uiinterfaceorientationunknown
+  if ([orientation.lowercaseString isEqualToString:@"portrait"]) {
+    FBScreenshotOrientation = UIInterfaceOrientationPortrait;
+  } else if ([orientation.lowercaseString isEqualToString:@"portraitupsidedown"]) {
+    FBScreenshotOrientation = UIInterfaceOrientationPortraitUpsideDown;
+  } else if ([orientation.lowercaseString isEqualToString:@"landscaperight"]) {
+    FBScreenshotOrientation = UIInterfaceOrientationLandscapeRight;
+  } else if ([orientation.lowercaseString isEqualToString:@"landscapeleft"]) {
+    FBScreenshotOrientation = UIInterfaceOrientationLandscapeLeft;
+  } else if ([orientation.lowercaseString isEqualToString:@"auto"]) {
+    FBScreenshotOrientation = UIInterfaceOrientationUnknown;
+  } else {
+    return [[FBErrorBuilder.builder withDescriptionFormat:
+             @"The orientation value '%@' is not known. Only the following orientation values are supported: " \
+             "'auto', 'portrate', 'portraitUpsideDown', 'landscapeRight' and 'landscapeLeft'", orientation]
+            buildError:error];
+  }
+  return YES;
+}
+
++ (NSInteger)screenshotOrientation
+{
+  return FBScreenshotOrientation;
+}
+
++ (NSString *)humanReadableScreenshotOrientation
+{
+  switch (FBScreenshotOrientation) {
+    case UIInterfaceOrientationPortrait:
+      return @"portrait";
+    case UIInterfaceOrientationPortraitUpsideDown:
+      return @"portraitUpsideDown";
+    case UIInterfaceOrientationLandscapeRight:
+      return @"landscapeRight";
+    case UIInterfaceOrientationLandscapeLeft:
+      return @"landscapeLeft";
+    case UIInterfaceOrientationUnknown:
+      return @"auto";
+  }
+}
+#endif
 
 #pragma mark Private
 

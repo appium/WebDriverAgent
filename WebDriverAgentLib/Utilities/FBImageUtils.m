@@ -10,6 +10,7 @@
 #import "FBImageUtils.h"
 
 #import "FBMacros.h"
+#import "FBConfiguration.h"
 
 static uint8_t JPEG_MAGIC[] = { 0xff, 0xd8 };
 static const NSUInteger JPEG_MAGIC_LEN = 2;
@@ -67,21 +68,38 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData)
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation)
 {
   UIImageOrientation imageOrientation;
-  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
-    // In iOS < 11.0 screenshots are already adjusted properly
-    imageOrientation = UIImageOrientationUp;
-  } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-    imageOrientation = UIImageOrientationLeft;
-  } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
-    imageOrientation = UIImageOrientationRight;
-  } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
-    imageOrientation = UIImageOrientationDown;
-  } else {
-    if (FBIsPngImage(screenshotData)) {
-      return screenshotData;
+  if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationUnknown) {
+    if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+      // In iOS < 11.0 screenshots are already adjusted properly
+      imageOrientation = UIImageOrientationUp;
+    } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+      imageOrientation = UIImageOrientationLeft;
+    } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
+      imageOrientation = UIImageOrientationRight;
+    } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
+      imageOrientation = UIImageOrientationDown;
+    } else {
+      if (FBIsPngImage(screenshotData)) {
+        return screenshotData;
+      }
+      UIImage *image = [UIImage imageWithData:screenshotData];
+      return (NSData *)UIImagePNGRepresentation(image);
     }
-    UIImage *image = [UIImage imageWithData:screenshotData];
-    return (NSData *)UIImagePNGRepresentation(image);
+  } else {
+    switch (FBConfiguration.screenshotOrientation) {
+      case UIInterfaceOrientationPortraitUpsideDown:
+        imageOrientation = UIImageOrientationDown;
+        break;
+      case UIInterfaceOrientationLandscapeRight:
+        imageOrientation = UIImageOrientationLeft;
+        break;
+      case UIInterfaceOrientationLandscapeLeft:
+        imageOrientation = UIImageOrientationRight;
+        break;
+      default:
+        imageOrientation = UIImageOrientationUp;
+        break;
+    }
   }
 
   UIImage *image = [UIImage imageWithData:screenshotData];

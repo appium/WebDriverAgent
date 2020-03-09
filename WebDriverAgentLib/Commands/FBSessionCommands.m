@@ -43,6 +43,7 @@ static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
 static NSString* const INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
 static NSString* const ACCEPT_ALERT_BUTTON_SELECTOR = @"acceptAlertButtonSelector";
 static NSString* const DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelector";
+static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
 
 
 @implementation FBSessionCommands
@@ -258,6 +259,9 @@ static NSString* const DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelec
       INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
       ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
+#if !TARGET_OS_TV
+      SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
+#endif
     }
   );
 }
@@ -327,6 +331,18 @@ static NSString* const DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelec
   if (nil != [settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]) {
     [FBConfiguration setDismissAlertButtonSelector:(NSString *)[settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]];
   }
+
+#if !TARGET_OS_TV
+  if (nil != [settings objectForKey:SCREENSHOT_ORIENTATION]) {
+    NSError *error;
+    if (![FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:SCREENSHOT_ORIENTATION]
+                                             error:&error]) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
+    }
+
+
+  }
+#endif
 
   return [self handleGetSettings:request];
 }

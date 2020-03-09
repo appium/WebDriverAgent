@@ -14,6 +14,7 @@
 
 static void (*original_waitForQuiescenceIncludingAnimationsIdle)(id, SEL, BOOL);
 static BOOL isWaitForQuiescence = NO;
+static BOOL isAnimationCheckEnabled = YES;
 
 @implementation XCUIApplicationProcessQuiescence
 
@@ -34,12 +35,17 @@ static BOOL isWaitForQuiescence = NO;
   isWaitForQuiescence = value;
 }
 
++ (void)setAnimationCheckEnabled:(BOOL)enabled
+{
+  isAnimationCheckEnabled = enabled;
+}
+
 + (void)swizzledWaitForQuiescenceIncludingAnimationsIdle:(BOOL)includeAnimations
 {
   if (!isWaitForQuiescence) {
     return;
   }
-  original_waitForQuiescenceIncludingAnimationsIdle(self, _cmd, includeAnimations);
+  original_waitForQuiescenceIncludingAnimationsIdle(self, _cmd, isAnimationCheckEnabled && includeAnimations);
 }
 
 @end
