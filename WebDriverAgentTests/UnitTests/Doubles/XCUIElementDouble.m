@@ -59,4 +59,9 @@
   return self;
 }
 
+- (id)fb_uid
+{
+  return self.wdUID;
+}
+
 @end

@@ -11,6 +11,7 @@
 
 #import "XCUIElement+FBUtilities.h"
 #import "FBElementUtils.h"
+#import "FBXCodeCompatibility.h"
 
 @implementation XCUIElement (FBUID)
 
@@ -19,7 +20,11 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
-  return self.fb_lastSnapshot.fb_uid;
+  if (isSDKVersionLessThan(@"13.0")) {
+    return self.fb_lastSnapshot.fb_uid;
+  }
+  [self fb_nativeResolve];
+  return self.lastSnapshot.fb_uid;
 }
 
 @end
