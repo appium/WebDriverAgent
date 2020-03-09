@@ -20,6 +20,7 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
+  // With Xcode 10, using fb_lastSnapshot is faster than resolving and using the lastSnapshot property
   if (isSDKVersionLessThan(@"13.0")) {
     return self.fb_lastSnapshot.fb_uid;
   }
