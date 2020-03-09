@@ -56,93 +56,93 @@ jobs:
 
     - stage: WDA build
       name: Generic, Xcode 11
-      osx_image: xcode11
+      osx_image: xcode11.3
       env: ACTION=build TARGET=runner DEST=generic CODE_SIGN=no
     - name: Generic tvOS, Xcode 11
-      osx_image: xcode11
+      osx_image: xcode11.3
       env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGN=no
     - name: iPhone 11, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=build TARGET=runner
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=build TARGET=runner
     - name: iPhone 11, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="Apple TV 4K" TV_VERSION="13.0" ACTION=build TARGET=tv_runner SDK=tv_sim
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'Apple TV 4K'" TV_VERSION=13.3 ACTION=build TARGET=tv_runner SDK=tv_sim
     - name: Generic, Xcode 10
       env: ACTION=build TARGET=runner DEST=generic CODE_SIGN=no
     - name: Generic tvOS, Xcode 10
       env: ACTION=build TARGET=tv_runner DEST=tv_generic CODE_SIGN=no
     - name: iPhone X, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=build TARGET=runner
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=build TARGET=runner
     - name: apple tv, Xcode 10
-      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.0" ACTION=build TARGET=tv_runner SDK=tv_sim
+      env: DEST=tv TV_MODEL="'Apple TV'" TV_VERSION=12.0 ACTION=build TARGET=tv_runner SDK=tv_sim
 
     - stage: WDA Analysis
       name: iPhone 11, Xcode 11, lib
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=analyze
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=analyze
     - name: iPhone 11, Xcode 11, runner
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Air 2" IOS_VERSION="13.0" ACTION=analyze TARGET=runner
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=13.3 ACTION=analyze TARGET=runner
     - name: apple tv, Xcode 11, tv_runner
-      osx_image: xcode11
-      env: DEST=tv TV_MODEL="Apple TV 4K" TV_VERSION="13.0" ACTION=analyze TARGET=tv_runner SDK=tv_sim
+      osx_image: xcode11.3
+      env: DEST=tv TV_MODEL="'Apple TV 4K'" TV_VERSION=13.3 ACTION=analyze TARGET=tv_runner SDK=tv_sim
     - name: iPhone X, Xcode 10, lib
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=analyze
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=analyze
     - name: iPhone X, Xcode 10, runner
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=analyze TARGET=runner
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=analyze TARGET=runner
     - name: apple tv, Xcode 10, tv_runner
-      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.0" ACTION=analyze TARGET=tv_runner SDK=tv_sim
+      env: DEST=tv TV_MODEL="'Apple TV'" TV_VERSION=12.0 ACTION=analyze TARGET=tv_runner SDK=tv_sim
 
     - stage: WDA Tests
       name: Unit tests - iphone, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=unit_test DEST=iphone
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=unit_test DEST=iphone
     - name: Unit tests - ipad, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=unit_test DEST=ipad
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=unit_test DEST=ipad
 
     - name: Integration tests - iphone 1, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_1 DEST=iphone
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_1 DEST=iphone
     - name: Integration tests - iphone 2, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_2 DEST=iphone
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_2 DEST=iphone
     - name: Integration tests - iphone 3, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_3 DEST=iphone
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_3 DEST=iphone
 
     - name: Integration tests - ipad 1, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_1 DEST=ipad
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_1 DEST=ipad
     - name: Integration tests - ipad 2, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_2 DEST=ipad
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_2 DEST=ipad
     - name: Integration tests - ipad 3, Xcode 11
-      osx_image: xcode11
-      env: IPHONE_MODEL="iPhone 11" IPAD_MODEL="iPad Pro (11-inch)" IOS_VERSION="13.0" ACTION=int_test_3 DEST=ipad
+      osx_image: xcode11.3
+      env: IPHONE_MODEL="'iPhone 11'" IPAD_MODEL="'iPad Pro (11-inch)'" IOS_VERSION=13.3 ACTION=int_test_3 DEST=ipad
 
     - name: Unit tests - iphone, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=unit_test DEST=iphone
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=unit_test DEST=iphone
     - name: Unit tests - ipad, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=unit_test DEST=ipad
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=unit_test DEST=ipad
 
     - name: Integration tests - iphone 1, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_1 DEST=iphone
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_1 DEST=iphone
     - name: Integration tests - iphone 2, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_2 DEST=iphone
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_2 DEST=iphone
     - name: Integration tests - iphone 3, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_3 DEST=iphone
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_3 DEST=iphone
 
     - name: Integration tests - ipad 1, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_1 DEST=ipad
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_1 DEST=ipad
     - name: Integration tests - ipad 2, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_2 DEST=ipad
+      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_2 DEST=ipad
     - name: Integration tests - ipad 3, Xcode 10
-      env: IPHONE_MODEL="iPhone X" IPAD_MODEL="iPad Air 2" IOS_VERSION="12.0" ACTION=int_test_3 DEST=ipad
+      env: IPHONE_MODEL="'iPhone X'" IPAD_MODEL="'iPad Air 2'" IOS_VERSION=12.0 ACTION=int_test_3 DEST=ipad
 
     - name: Unit tests - apple tv, Xcode 11
-      osx_image: xcode11
-      env: DEST=tv TV_MODEL="Apple TV 4K" TV_VERSION="13.0" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
+      osx_image: xcode11.3
+      env: DEST=tv TV_MODEL="'Apple TV 4K'" TV_VERSION=13.3 ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
     - name: Unit tests - apple tv, Xcode 10.2
       osx_image: xcode10.2
-      env: DEST=tv TV_MODEL="Apple TV" TV_VERSION="12.2" ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
+      env: DEST=tv TV_MODEL="'Apple TV'" TV_VERSION=12.2 ACTION=tv_unit_test TARGET=tv_lib SDK=tv_sim
