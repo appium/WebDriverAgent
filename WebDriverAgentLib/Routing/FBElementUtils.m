@@ -123,6 +123,9 @@ static dispatch_once_t oncePayloadToken;
     elementId = [[element valueForKey:@"_elementID"] longLongValue];
   }
   int processId = element.processIdentifier;
+  if (elementId < 1 || processId < 1) {
+    return nil;
+  }
   uint8_t b[16] = {0};
   memcpy(b, &elementId, sizeof(long long));
   memcpy(b + sizeof(long long), &processId, sizeof(int));

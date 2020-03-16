@@ -35,7 +35,9 @@ id<FBResponsePayload> FBResponseWithObject(id object)
 id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElementCache *elementCache, BOOL compact)
 {
   NSString *elementUUID = [elementCache storeElement:element];
-  return FBResponseWithStatus([FBCommandStatus okWithValue: FBDictionaryResponseWithElement(element, elementUUID, compact)]);
+  return nil == elementUUID
+    ? FBResponseWithStatus([FBCommandStatus staleElementReferenceErrorWithMessage:nil traceback:nil])
+    : FBResponseWithStatus([FBCommandStatus okWithValue: FBDictionaryResponseWithElement(element, elementUUID, compact)]);
 }
 
 id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *elements, FBElementCache *elementCache, BOOL compact)
@@ -43,7 +45,9 @@ id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *eleme
   NSMutableArray *elementsResponse = [NSMutableArray array];
   for (XCUIElement *element in elements) {
     NSString *elementUUID = [elementCache storeElement:element];
-    [elementsResponse addObject:FBDictionaryResponseWithElement(element, elementUUID, compact)];
+    if (nil != elementUUID) {
+      [elementsResponse addObject:FBDictionaryResponseWithElement(element, elementUUID, compact)];
+    }
   }
   return FBResponseWithStatus([FBCommandStatus okWithValue:elementsResponse]);
 }

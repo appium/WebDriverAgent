@@ -39,6 +39,9 @@ const int ELEMENT_CACHE_SIZE = 1024;
 - (NSString *)storeElement:(XCUIElement *)element
 {
   NSString *uuid = element.fb_uid;
+  if (nil == uuid) {
+    return nil;
+  }
   [self.elementCache setObject:element forKey:uuid];
   return uuid;
 }

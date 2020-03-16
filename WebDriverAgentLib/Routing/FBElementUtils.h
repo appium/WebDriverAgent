@@ -51,9 +51,9 @@ extern NSString *const FBUnknownAttributeException;
  Gets the unique identifier of the particular XCAccessibilityElement instance.
  
  @param element accessiblity element instance
- @return the unique element identifier
+ @return the unique element identifier or nil if it cannot be retrieved
  */
-+ (NSString *)uidWithAccessibilityElement:(XCAccessibilityElement *)element;
++ (nullable NSString *)uidWithAccessibilityElement:(XCAccessibilityElement *)element;
 
 @end
 

@@ -26,9 +26,9 @@ extern const int ELEMENT_CACHE_SIZE;
  Stores element in cache
 
  @param element element to store
- @return element's uuid
+ @return element's uuid or nil in case the element uid cannnot be extracted
  */
-- (NSString *)storeElement:(XCUIElement *)element;
+- (nullable NSString *)storeElement:(XCUIElement *)element;
 
 /**
  Returns cached element
