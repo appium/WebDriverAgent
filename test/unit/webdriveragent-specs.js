@@ -149,7 +149,7 @@ describe('launch', function () {
 });
 
 describe('use wda proxy url', function () {
-  it('should use webDriverAgentUrl wda proxy url', async function () {
+  it('should use webDriverAgentUrl wda proxy url', function () {
     let override = 'http://mockurl:8100/aabbccdd';
     let args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
