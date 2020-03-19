@@ -150,9 +150,12 @@ describe('launch', function () {
 
 describe('use wda proxy url', function () {
   it('should use webDriverAgentUrl wda proxy url', function () {
-    let override = 'http://mockurl:8100/aabbccdd';
-    let args = Object.assign({}, fakeConstructorArgs);
-    args.webDriverAgentUrl = override;
+    let args = Object.assign({}, {
+        device: 'some sim',
+        platformVersion: '9',
+        realDevice: false,
+        webDriverAgentUrl: 'http://mockurl:8100/aabbccdd'
+    });
     let agent = new WebDriverAgent({}, args);
 
     agent.url.port.should.eql(8100);
