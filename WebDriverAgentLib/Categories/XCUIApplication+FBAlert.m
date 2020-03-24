@@ -40,11 +40,8 @@
     }
     CGFloat possibleCenterX = (webViewFrame.size.width - curFrame.size.width) / 2;
     CGFloat possibleCenterY = (webViewFrame.size.height - curFrame.size.height) / 2;
-    if (fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
-        && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA) {
-      return YES;
-    }
-    return NO;
+    return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
+      && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA;
   }];
   XCUIElement *matchingView = [[webView descendantsMatchingType:XCUIElementTypeOther]
                                matchingPredicate:predicate].fb_firstMatch;
