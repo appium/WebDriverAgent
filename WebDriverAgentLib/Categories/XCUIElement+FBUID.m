@@ -21,18 +21,23 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
-  if ([self.query respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)]) {
-    NSError *error = nil;
-    // Using the Xcode 11 snapshot function used for resolving an element to validate existance and retrieve UID with the same snapshot
-    // Removes the need to take two snapshots (one for existance and one for resolving)
-    XCElementSnapshot *snapshot = [[self query] uniqueMatchingSnapshotWithError:&error];
-    if (snapshot == nil) {
-      [FBLogger logFmt:@"Error retrieving snapshot for UID calculation: [%@]", error];
-      return nil;
-    }
-    return snapshot.fb_uid;
+  static dispatch_once_t onceToken;
+  static BOOL useUniqueMatchingSnapshot;
+  dispatch_once(&onceToken, ^{
+    useUniqueMatchingSnapshot = [self.query respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)];
+  });
+  if (!useUniqueMatchingSnapshot) {
+    return self.fb_lastSnapshot.fb_uid;
   }
-  return self.fb_lastSnapshot.fb_uid;
+  NSError *error = nil;
+  // Using the Xcode 11 snapshot function used for resolving an element to validate existance and retrieve UID with the same snapshot
+  // Removes the need to take two snapshots (one for existance and one for resolving)
+  XCElementSnapshot *snapshot = [[self query] uniqueMatchingSnapshotWithError:&error];
+  if (snapshot == nil) {
+    [FBLogger logFmt:@"Error retrieving snapshot for UID calculation: [%@]", error];
+    return nil;
+  }
+  return snapshot.fb_uid;
 }
 
 @end
