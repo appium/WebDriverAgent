@@ -64,7 +64,8 @@
 - (XCElementSnapshot *)elementSnapshotForDebugDescription;
 // Added since Xcode 11.0
 - (XCElementSnapshot *)elementSnapshotForDebugDescriptionWithNoMatchesMessage:(id *)arg1;
-- (XCElementSnapshot*)uniqueMatchingSnapshotWithError:(id *)arg1;
+// Added since Xcode 11.0
+- (XCElementSnapshot*)uniqueMatchingSnapshotWithError:(NSError **)arg1;
 /*! DO NOT USE DIRECTLY! Please use fb_firstMatch instead */
 - (XCUIElement *)firstMatch;
 
