@@ -52,7 +52,7 @@
     [FBLogger log:@">>> Found no views matching to the predicate"];
     return nil;
   }
-  [FBLogger log:@">>> Found a view matching to the predicate"];
+  [FBLogger logFmt:@">>> Found a view matching to the predicate: %@", matchingView.debugDescription];
   // ...and contains one or two buttons and at least one text view
   NSUInteger buttonsCount = matchingView.buttons.count;
   NSUInteger textViewsCount = matchingView.textViews.count;
