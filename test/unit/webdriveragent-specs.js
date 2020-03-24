@@ -133,18 +133,49 @@ describe('checking for dependencies', function () {
 
 describe('launch', function () {
   it('should use webDriverAgentUrl override and return current status', async function () {
-    let override = 'http://mockurl:8100/';
-    let args = Object.assign({}, fakeConstructorArgs);
+    const override = 'http://mockurl:8100/';
+    const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
-    let agent = new WebDriverAgent({}, args);
-    let wdaStub = sinon.stub(agent, 'getStatus');
+    const agent = new WebDriverAgent({}, args);
+    const wdaStub = sinon.stub(agent, 'getStatus');
     wdaStub.callsFake(function () {
       return {build: 'data'};
     });
 
     await agent.launch('sessionId').should.eventually.eql({build: 'data'});
     agent.url.href.should.eql(override);
+    agent.jwproxy.server.should.eql('mockurl');
+    agent.jwproxy.port.should.eql('8100');
+    agent.jwproxy.base.should.eql('');
+    agent.noSessionProxy.server.should.eql('mockurl');
+    agent.noSessionProxy.port.should.eql('8100');
+    agent.noSessionProxy.base.should.eql('');
     wdaStub.reset();
+  });
+});
+
+describe('use wda proxy url', function () {
+  it('should use webDriverAgentUrl wda proxy url', async function () {
+    const override = 'http://127.0.0.1:8100/aabbccdd';
+    const args = Object.assign({}, fakeConstructorArgs);
+    args.webDriverAgentUrl = override;
+    const agent = new WebDriverAgent({}, args);
+    const wdaStub = sinon.stub(agent, 'getStatus');
+    wdaStub.callsFake(function () {
+      return {build: 'data'};
+    });
+
+    await agent.launch('sessionId').should.eventually.eql({build: 'data'});
+
+    agent.url.port.should.eql('8100');
+    agent.url.hostname.should.eql('127.0.0.1');
+    agent.url.path.should.eql('/aabbccdd');
+    agent.jwproxy.server.should.eql('127.0.0.1');
+    agent.jwproxy.port.should.eql('8100');
+    agent.jwproxy.base.should.eql('/aabbccdd');
+    agent.noSessionProxy.server.should.eql('127.0.0.1');
+    agent.noSessionProxy.port.should.eql('8100');
+    agent.noSessionProxy.base.should.eql('/aabbccdd');
   });
 });
 
