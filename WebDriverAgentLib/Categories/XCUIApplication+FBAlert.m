@@ -35,13 +35,16 @@
   // and is aligned to the center of the screen
   NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(XCUIElement *element, NSDictionary *bindings) {
     CGRect curFrame = element.frame;
-    if (!CGRectContainsRect(webViewFrame, curFrame) || CGRectEqualToRect(webViewFrame, curFrame)) {
-      return NO;
+    if (curFrame.origin.x > webViewFrame.origin.x
+        && curFrame.origin.y > webViewFrame.origin.y
+        && curFrame.size.width < webViewFrame.size.width
+        && curFrame.size.height < webViewFrame.size.height) {
+      CGFloat possibleCenterX = (webViewFrame.size.width - curFrame.size.width) / 2;
+      CGFloat possibleCenterY = (webViewFrame.size.height - curFrame.size.height) / 2;
+      return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
+        && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA;
     }
-    CGFloat possibleCenterX = (webViewFrame.size.width - curFrame.size.width) / 2;
-    CGFloat possibleCenterY = (webViewFrame.size.height - curFrame.size.height) / 2;
-    return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
-      && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA;
+    return NO;
   }];
   XCUIElement *matchingView = [[webView descendantsMatchingType:XCUIElementTypeOther]
                                matchingPredicate:predicate].fb_firstMatch;
