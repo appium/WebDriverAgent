@@ -11,6 +11,8 @@
 
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBFind.h"
+#import "FBPredicate.h"
+#import "FBLogger.h"
 
 #define MAX_CENTER_DELTA 20.0
 
@@ -20,25 +22,39 @@
 {
   XCUIElement *webView = self.webViews.fb_firstMatch;
   if (nil == webView) {
+    [FBLogger log:@">>> Found no web views"];
     return nil;
   }
+  [FBLogger log:@">>> Found a web view"];
   CGRect webViewFrame = webView.frame;
   if (!CGRectEqualToRect(webViewFrame, self.frame)) {
+    [FBLogger log:@">>> Web view frame does not match to the app frame"];
     // Web view frame is expected to have the same size as Safari window
     return nil;
   }
+  [FBLogger log:@">>> Web view frame matches to the app frame"];
   NSDictionary *webViewRect = webView.wdRect;
-  // Find the sibling of XCUIElementTypeOther covering the whole web view area,
-  // which has different size and contains at least one button and one text view
-  NSString *viewLocator = [NSString stringWithFormat:@"//XCUIElementTypeOther[@x=\"0\" and @y=\"0\" and @width=\"%@\" and @height=\"%@\"]/following-sibling::XCUIElementTypeOther[@x!=\"0\" and @y!=\"0\" and @width!=\"%@\" and @height!=\"%@\" and .//XCUIElementTypeButton and .//XCUIElementTypeTextView]", webViewRect[@"width"], webViewRect[@"height"], webViewRect[@"width"], webViewRect[@"height"]];
-  NSArray<XCUIElement *> *matchingViews = [webView fb_descendantsMatchingXPathQuery:viewLocator
-                                                        shouldReturnAfterFirstMatch:YES];
+  // Find the first XCUIElementTypeOther which has different size
+  NSString *viewLocator = [NSString stringWithFormat:@"type == 'XCUIElementTypeOther' AND rect.x != '0' AND rect.y != '0' AND rect.width != '%@' AND rect.height != '%@'", webViewRect[@"width"], webViewRect[@"height"]];
+  NSPredicate *predicate = [FBPredicate predicateWithFormat:viewLocator];
+  NSArray<XCUIElement *> *matchingViews = [webView fb_descendantsMatchingPredicate:predicate
+                                                       shouldReturnAfterFirstMatch:YES];
   if (matchingViews.count < 1) {
+    [FBLogger logFmt:@">>> Found no views matching to \"%@\" predicate", viewLocator];
+    return nil;
+  }
+  [FBLogger logFmt:@">>> Found a view matching to \"%@\" predicate", viewLocator];
+  // ...and contains one or two buttons and at least one text view
+  NSUInteger buttonsCount = matchingViews.firstObject.buttons.count;
+  NSUInteger textViewsCount = matchingViews.firstObject.textViews.count;
+  [FBLogger logFmt:@">>> buttonsCount: %@, textViewsCount: %@", @(buttonsCount), @(textViewsCount)];
+  if (buttonsCount < 1 || buttonsCount > 2 || textViewsCount < 1) {
     return nil;
   }
   CGRect possibleAlertFrame = matchingViews.firstObject.frame;
   CGFloat possibleCenterX = (webViewFrame.size.width - possibleAlertFrame.size.width) / 2;
   CGFloat possibleCenterY = (webViewFrame.size.height - possibleAlertFrame.size.height) / 2;
+  [FBLogger logFmt:@">>> possibleAlertFrame: %@, webViewFrame: %@", [NSValue valueWithCGRect:possibleAlertFrame], [NSValue valueWithCGRect:webViewFrame]];
   if (fabs(possibleCenterX - possibleAlertFrame.origin.x) < MAX_CENTER_DELTA
       && fabs(possibleCenterY - possibleAlertFrame.origin.y) < MAX_CENTER_DELTA) {
     // Assume this is an alert if it is aligned to the center of the screen
