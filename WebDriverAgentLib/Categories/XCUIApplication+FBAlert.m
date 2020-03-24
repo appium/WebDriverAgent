@@ -54,10 +54,7 @@
   NSUInteger buttonsCount = matchingView.buttons.count;
   NSUInteger textViewsCount = matchingView.textViews.count;
   [FBLogger logFmt:@">>> buttonsCount: %@, textViewsCount: %@", @(buttonsCount), @(textViewsCount)];
-  if (buttonsCount < 1 || buttonsCount > 2 || textViewsCount < 1) {
-    return nil;
-  }
-  return nil;
+  return (buttonsCount < 1 || buttonsCount > 2 || textViewsCount < 1) ? nil : matchingView;
 }
 
 - (XCUIElement *)fb_alertElement
