@@ -40,14 +40,13 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
     
     __block NSUInteger buttonsCount = 0;
     __block NSUInteger textViewsCount = 0;
-    [snapshot descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snap) {
-      XCUIElementType curType = snap.elementType;
+    [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+      XCUIElementType curType = descendant.elementType;
       if (curType == XCUIElementTypeButton) {
         buttonsCount++;
       } else if (curType == XCUIElementTypeTextView) {
         textViewsCount++;
       }
-      return NO;
     }];
     return buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0;
   }];
