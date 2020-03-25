@@ -110,6 +110,8 @@
              withDescriptionFormat:@"The alert contains no input fields"]
             buildError:error];
   }
+  // ignore possible clear errors
+  [dstFields.firstObject fb_clearTextWithError:nil];
   return [dstFields.firstObject fb_typeText:text error:error];
 }
 

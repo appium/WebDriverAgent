@@ -24,10 +24,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   NSPredicate *dstViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     CGRect curFrame = snapshot.frame;
     if (!CGRectEqualToRect(appFrame, curFrame)
-        && curFrame.origin.x > appFrame.origin.x
-        && curFrame.origin.y > appFrame.origin.y
-        && curFrame.size.width < appFrame.size.width
-        && curFrame.size.height < appFrame.size.height) {
+        && curFrame.origin.x > 0 && curFrame.size.width < appFrame.size.width) {
       CGFloat possibleCenterX = (appFrame.size.width - curFrame.size.width) / 2;
       return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA;
     }
@@ -36,12 +33,13 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   NSPredicate *webViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     return CGRectEqualToRect(appFrame, snapshot.frame);
   }];
-  // Find the first XCUIElementTypeOther which is contained by the web view
-  // and is aligned to the center of the screen
-  XCUIElement *candidate = [[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
-            matchingPredicate:webViewPredicate]
-           descendantsMatchingType:XCUIElementTypeOther]
-          matchingPredicate:dstViewPredicate].fb_firstMatch;
+  // Find the first XCUIElementTypeOther which is the grandchild of the web view
+  // and is horizontally aligned to the center of the screen
+  XCUIElement *candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
+                               matchingPredicate:webViewPredicate]
+                              childrenMatchingType:XCUIElementTypeOther]
+                             childrenMatchingType:XCUIElementTypeOther]
+                            matchingPredicate:dstViewPredicate].fb_firstMatch;
   if (nil == candidate) {
     return nil;
   }
@@ -57,7 +55,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
       textViewsCount++;
     }
   }];
-  return buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0 ? candidate : nil;
+  return (buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0) ? candidate : nil;
 }
 
 - (XCUIElement *)fb_alertElement
