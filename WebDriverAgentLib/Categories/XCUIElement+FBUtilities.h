@@ -21,19 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_waitUntilFrameIsStable;
 
 /**
- Checks if receiver is obstructed by alert
- */
-- (BOOL)fb_isObstructedByAlert;
-
-/**
- Checks if receiver obstructs given element
-
- @param element tested element
- @return YES if receiver obstructs 'element', otherwise NO
- */
-- (BOOL)fb_obstructsElement:(XCUIElement *)element;
-
-/**
  Gets the most recent snapshot of the current element. The element will be
  automatically resolved if the snapshot is not available yet
 

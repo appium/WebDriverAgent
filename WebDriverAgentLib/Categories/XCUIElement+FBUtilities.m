@@ -11,7 +11,6 @@
 
 #import <objc/runtime.h>
 
-#import "FBAlert.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBImageUtils.h"
@@ -48,27 +47,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     frame = newFrame;
     return isSameFrame;
   }];
-}
-
-- (BOOL)fb_isObstructedByAlert
-{
-  return [[FBAlert alertWithApplication:self.application].alertElement fb_obstructsElement:self];
-}
-
-- (BOOL)fb_obstructsElement:(XCUIElement *)element
-{
-  if (!self.exists) {
-    return NO;
-  }
-  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
-  XCElementSnapshot *elementSnapshot = element.fb_lastSnapshot;
-  if ([snapshot _isAncestorOfElement:elementSnapshot]) {
-    return NO;
-  }
-  if ([snapshot _matchesElement:elementSnapshot]) {
-    return NO;
-  }
-  return YES;
 }
 
 - (XCElementSnapshot *)fb_lastSnapshot

@@ -31,7 +31,6 @@
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 
-NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElementException";
 
 @interface FBAlert ()
 @property (nonatomic, strong) XCUIApplication *application;
@@ -39,11 +38,6 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 @end
 
 @implementation FBAlert
-
-+ (void)throwRequestedItemObstructedByAlertException __attribute__((noreturn))
-{
-  @throw [NSException exceptionWithName:FBAlertObstructingElementException reason:@"Requested element is obstructed by alert or action sheet" userInfo:@{}];
-}
 
 + (instancetype)alertWithApplication:(XCUIApplication *)application
 {
@@ -145,7 +139,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
    }
   }
   if (nil == acceptButton) {
-    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
     acceptButton = alertElement.elementType == XCUIElementTypeAlert
       ? buttons.lastObject
       : buttons.firstObject;
@@ -178,7 +172,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
     }
   }
   if (nil == dismissButton) {
-    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
     dismissButton = alertElement.elementType == XCUIElementTypeAlert
       ? buttons.firstObject
       : buttons.lastObject;
@@ -193,7 +187,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error {
 
   XCUIElement *alertElement = self.alertElement;
-  NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+  NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
   XCUIElement *requestedButton;
 
   for(XCUIElement *button in buttons) {
@@ -211,42 +205,6 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
 
   return [requestedButton fb_tapWithError:error];
-}
-
-+ (BOOL)isElementObstructedByAlertView:(XCUIElement *)element alert:(XCUIElement *)alert
-{
-  if (!alert.exists) {
-    return NO;
-  }
-  XCElementSnapshot *alertSnapshot = alert.fb_lastSnapshot;
-  XCElementSnapshot *elementSnapshot = element.fb_lastSnapshot;
-  if ([alertSnapshot _isAncestorOfElement:elementSnapshot]) {
-    return NO;
-  }
-  if ([alertSnapshot _matchesElement:elementSnapshot]) {
-    return NO;
-  }
-  return YES;
-}
-
-- (NSArray<XCUIElement *> *)filterObstructedElements:(NSArray<XCUIElement *> *)elements
-{
-  XCUIElement *alertElement = self.alertElement;
-  XCUIElement *element = elements.lastObject;
-  if (!element) {
-    return elements;
-  }
-  NSMutableArray *elementBox = [NSMutableArray array];
-  for (XCUIElement *iElement in elements) {
-    if ([FBAlert isElementObstructedByAlertView:iElement alert:alertElement]) {
-      continue;
-    }
-    [elementBox addObject:iElement];
-  }
-  if (elementBox.count == 0 && elements.count != 0) {
-    [FBAlert throwRequestedItemObstructedByAlertException];
-  }
-  return elementBox.copy;
 }
 
 - (XCUIElement *)alertElement
