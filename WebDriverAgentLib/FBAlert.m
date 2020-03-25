@@ -59,6 +59,13 @@
   return nil != self.alertElement && self.alertElement.exists;
 }
 
+- (BOOL)isSafariWebAlert
+{
+  return nil != self.alertElement
+    && self.alertElement.elementType == XCUIElementTypeOther
+    && [self.application.label isEqualToString:FB_SAFARI_APP_NAME];
+}
+
 - (NSString *)text
 {
   XCUIElement *alert = self.alertElement;
@@ -66,9 +73,8 @@
     return nil;
   }
 
-  XCElementSnapshot *snapshot = alert.fb_lastSnapshot;
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  [alert.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     if (descendant.elementType != XCUIElementTypeStaticText) {
       return;
     }
@@ -122,9 +128,8 @@
     return nil;
   }
 
-  XCElementSnapshot *snapshot = alert.fb_lastSnapshot;
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  [alert.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
@@ -166,7 +171,7 @@
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query
                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-    acceptButton = alertElement.elementType == XCUIElementTypeAlert
+    acceptButton = (alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
       ? buttons.lastObject
       : buttons.firstObject;
   }
@@ -207,7 +212,7 @@
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query
                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-    dismissButton = alertElement.elementType == XCUIElementTypeAlert
+    dismissButton = (alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
       ? buttons.firstObject
       : buttons.lastObject;
   }
