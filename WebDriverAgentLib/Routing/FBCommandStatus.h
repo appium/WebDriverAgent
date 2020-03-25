@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)unknownErrorWithMessage:(nullable NSString *)message
                               traceback:(nullable NSString *)traceback;
 
++ (instancetype)unsupportedOperationErrorWithMessage:(nullable NSString *)message
+                                           traceback:(nullable NSString *)traceback;
+
 + (instancetype)unableToCaptureScreenErrorWithMessage:(nullable NSString *)message
                                             traceback:(nullable NSString *)traceback;
 
