@@ -66,31 +66,29 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
 - (XCUIElement *)fb_alertElement
 {
-  XCUIElement *alert = self.alerts.fb_firstMatch;
-  if (nil != alert) {
+  NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu}",
+                                          XCUIElementTypeAlert, XCUIElementTypeSheet];
+  XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
+                      matchingPredicate:alertCollectorPredicate].fb_firstMatch;
+  if (nil == alert) {
+    return nil;
+  }
+  if (alert.elementType == XCUIElementTypeAlert) {
     return alert;
   }
 
-  alert = self.sheets.fb_firstMatch;
-  if (nil != alert) {
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-      return alert;
-    }
-    // In case of iPad we want to check if sheet isn't contained by popover.
-    // In that case we ignore it.
-    NSPredicate *predicateString = [NSPredicate predicateWithFormat:@"identifier == 'PopoverDismissRegion'"];
-    XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicateString];
-    if (!query.fb_firstMatch) {
-      return alert;
-    }
-  }
-
-  // Check alert presence in Safari web view
   if ([self.label isEqualToString:FB_SAFARI_APP_NAME]) {
+    // Check alert presence in Safari web view
     return [self fb_alertElementFromSafari];
   }
+  if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone
+      && nil != [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
+    // In case of iPad we want to check if sheet isn't contained by popover.
+    // In that case we ignore it.
+    return nil;
+  }
 
-  return nil;
+  return alert;
 }
 
 @end

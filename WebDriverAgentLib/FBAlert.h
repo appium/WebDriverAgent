@@ -14,18 +14,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Notification used to notify about requested element being obstructed by alert */
-extern NSString *const FBAlertObstructingElementException;
-
 /**
  Alert helper class that abstracts alert handling
  */
 @interface FBAlert : NSObject
-
-/**
- Throws FBAlertObstructingElementException
- */
-+ (void)throwRequestedItemObstructedByAlertException __attribute__((noreturn));
 
 /**
  Creates alert helper for given application
@@ -80,14 +72,6 @@ extern NSString *const FBAlertObstructingElementException;
  @return YES if the operation suceeds, otherwise NO.
  */
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error;
-
-/**
- Filters out elements obstructed by alert
-
- @param elements array of elements we want to filter
- @return elements not obstructed by alert
- */
-- (NSArray<XCUIElement *> *)filterObstructedElements:(NSArray<XCUIElement *> *)elements;
 
 /**
  XCUElement that represents alert

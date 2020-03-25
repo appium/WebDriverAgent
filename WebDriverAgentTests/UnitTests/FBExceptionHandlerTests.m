@@ -46,15 +46,6 @@
                              forResponse:(RouteResponse *)[RouteResponseDouble new]];
 }
 
-- (void)testMatchingErrorHandlingWithCustomDescription
-{
-  NSException *exception = [NSException exceptionWithName:FBAlertObstructingElementException
-                                                   reason:@"reason"
-                                                 userInfo:@{}];
-  [self.exceptionHandler handleException:exception
-                             forResponse:(RouteResponse *)[RouteResponseDouble new]];
-}
-
 - (void)testNonMatchingErrorHandling
 {
   NSException *exception = [NSException exceptionWithName:@"something"
