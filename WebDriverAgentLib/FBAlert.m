@@ -9,27 +9,19 @@
 
 #import "FBAlert.h"
 
-#import <XCTest/XCUICoordinate.h>
-
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
-#import "FBFindElementCommands.h"
 #import "FBSpringboardApplication.h"
 #import "FBLogger.h"
 #import "FBXCodeCompatibility.h"
 #import "XCElementSnapshot+FBHelpers.h"
-#import "XCElementSnapshot.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCUIApplication+FBAlert.h"
-#import "XCUICoordinate.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "XCUIElement.h"
-#import "XCUIElementQuery.h"
 
 
 @interface FBAlert ()
