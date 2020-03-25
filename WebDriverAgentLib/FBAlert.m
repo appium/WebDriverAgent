@@ -240,11 +240,10 @@
 
 - (XCUIElement *)alertElement
 {
-  XCUIElement *alert = self.element;
-  if (nil == alert) {
-    alert = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+  if (nil == self.element) {
+    self.element = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
   }
-  return alert;
+  return self.element;
 }
 
 @end
