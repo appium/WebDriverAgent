@@ -11,7 +11,7 @@
 
 #import "FBXCodeCompatibility.h"
 
-#define MAX_CENTER_DELTA 20.0
+#define MAX_CENTER_DELTA 10.0
 
 NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
@@ -23,44 +23,41 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   CGRect appFrame = self.frame;
   NSPredicate *dstViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     CGRect curFrame = snapshot.frame;
-    BOOL isInAppRectCenter = NO;
     if (!CGRectEqualToRect(appFrame, curFrame)
         && curFrame.origin.x > appFrame.origin.x
         && curFrame.origin.y > appFrame.origin.y
         && curFrame.size.width < appFrame.size.width
         && curFrame.size.height < appFrame.size.height) {
       CGFloat possibleCenterX = (appFrame.size.width - curFrame.size.width) / 2;
-      CGFloat possibleCenterY = (appFrame.size.height - curFrame.size.height) / 2;
-      isInAppRectCenter = fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
-        && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA;
+      return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA;
     }
-    if (!isInAppRectCenter) {
-      return NO;
-    }
-    
-    __block NSUInteger buttonsCount = 0;
-    __block NSUInteger textViewsCount = 0;
-    [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
-      XCUIElementType curType = descendant.elementType;
-      if (curType == XCUIElementTypeButton) {
-        buttonsCount++;
-      } else if (curType == XCUIElementTypeTextView) {
-        textViewsCount++;
-      }
-    }];
-    return buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0;
+    return NO;
   }];
   NSPredicate *webViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     return CGRectEqualToRect(appFrame, snapshot.frame);
   }];
   // Find the first XCUIElementTypeOther which is contained by the web view
   // and is aligned to the center of the screen
-  // and has one to two buttons
-  // and at least one text view
-  return [[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
+  XCUIElement *candidate = [[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
             matchingPredicate:webViewPredicate]
            descendantsMatchingType:XCUIElementTypeOther]
           matchingPredicate:dstViewPredicate].fb_firstMatch;
+  if (nil == candidate) {
+    return nil;
+  }
+  // ...and has one to two buttons
+  // and has at least one text view
+  __block NSUInteger buttonsCount = 0;
+  __block NSUInteger textViewsCount = 0;
+  [candidate.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+    XCUIElementType curType = descendant.elementType;
+    if (curType == XCUIElementTypeButton) {
+      buttonsCount++;
+    } else if (curType == XCUIElementTypeTextView) {
+      textViewsCount++;
+    }
+  }];
+  return buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0 ? candidate : nil;
 }
 
 - (XCUIElement *)fb_alertElement
