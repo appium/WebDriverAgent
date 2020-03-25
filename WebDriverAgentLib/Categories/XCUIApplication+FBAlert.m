@@ -18,7 +18,7 @@
 
 - (nullable XCUIElement *)fb_alertElementFromSafari
 {
-  XCUIElement *webView = self.webViews.fb_firstMatch;
+  XCUIElement *webView = [self descendantsMatchingType:XCUIElementTypeScrollView].webViews.fb_firstMatch;
   if (nil == webView) {
     [FBLogger log:@">>> Found no web views"];
     return nil;
@@ -33,9 +33,10 @@
   [FBLogger log:@">>> Web view frame matches to the app frame"];
   // Find the first XCUIElementTypeOther which is contained by the web view
   // and is aligned to the center of the screen
-  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(XCUIElement *element, NSDictionary *bindings) {
-    CGRect curFrame = element.frame;
-    if (curFrame.origin.x > webViewFrame.origin.x
+  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
+    CGRect curFrame = snapshot.frame;
+    if (!CGRectEqualToRect(webViewFrame, curFrame)
+        && curFrame.origin.x > webViewFrame.origin.x
         && curFrame.origin.y > webViewFrame.origin.y
         && curFrame.size.width < webViewFrame.size.width
         && curFrame.size.height < webViewFrame.size.height) {
