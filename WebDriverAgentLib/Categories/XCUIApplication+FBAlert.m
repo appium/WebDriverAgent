@@ -22,8 +22,7 @@
   if (nil == alert) {
     return nil;
   }
-  BOOL isPhone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
-  if (!isPhone
+  if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone
       && alert.elementType != XCUIElementTypeAlert
       && nil == [self.query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
     // In case of iPad we want to check if sheet isn't contained by popover.
