@@ -11,6 +11,9 @@
 
 @interface XCUIApplication (FBAlert)
 
+/* The accessiblity label used for Safari app */
+extern NSString *const FB_SAFARI_APP_NAME;
+
 /**
  Retrieve the current alert element
 

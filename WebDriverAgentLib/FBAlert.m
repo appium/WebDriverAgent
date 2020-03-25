@@ -124,6 +124,11 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   return value;
 }
 
+- (BOOL)isSafariWebAlert
+{
+  return self.alertElement.elementType == XCUIElementTypeOther && [self.application.label isEqualToString:FB_SAFARI_APP_NAME];
+}
+
 - (BOOL)acceptWithError:(NSError **)error
 {
   XCUIElement *alertElement = self.alertElement;
@@ -146,7 +151,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    acceptButton = alertElement.elementType == XCUIElementTypeAlert
+    acceptButton = (alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
       ? buttons.lastObject
       : buttons.firstObject;
   }
@@ -179,7 +184,7 @@ NSString *const FBAlertObstructingElementException = @"FBAlertObstructingElement
   }
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [alertElement.fb_query descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
-    dismissButton = alertElement.elementType == XCUIElementTypeAlert
+    dismissButton = (alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
       ? buttons.firstObject
       : buttons.lastObject;
   }
