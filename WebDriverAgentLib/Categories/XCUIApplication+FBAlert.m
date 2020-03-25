@@ -18,7 +18,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
 @implementation XCUIApplication (FBAlert)
 
-- (nullable XCUIElement *)fb_alertElementFromSafari
+- (nullable XCUIElement *)fb_alertElementFromSafariWithScrollView:(XCUIElement *)scrollView
 {
   CGRect appFrame = self.frame;
   NSPredicate *dstViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
@@ -57,8 +57,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and is aligned to the center of the screen
   // and has one to two buttons
   // and at least one text view
-  return [[[[[self descendantsMatchingType:XCUIElementTypeScrollView]
-             descendantsMatchingType:XCUIElementTypeWebView]
+  return [[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
             matchingPredicate:webViewPredicate]
            descendantsMatchingType:XCUIElementTypeOther]
           matchingPredicate:dstViewPredicate].fb_firstMatch;
@@ -66,29 +65,31 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
 - (XCUIElement *)fb_alertElement
 {
-  NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu}",
-                                          XCUIElementTypeAlert, XCUIElementTypeSheet];
+  NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
+                                          XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
   XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
                       matchingPredicate:alertCollectorPredicate].fb_firstMatch;
-  if (nil == alert) {
-    return nil;
-  }
-  if (alert.elementType == XCUIElementTypeAlert) {
+  XCUIElementType alertType = alert.elementType;
+  if (alertType == XCUIElementTypeAlert) {
     return alert;
   }
 
-  if ([self.label isEqualToString:FB_SAFARI_APP_NAME]) {
-    // Check alert presence in Safari web view
-    return [self fb_alertElementFromSafari];
-  }
-  if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone
-      && nil != [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
+  if (alertType == XCUIElementTypeSheet) {
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+      return alert;
+    }
+
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    return nil;
+    return (nil == [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) ? alert : nil;
   }
 
-  return alert;
+  if (alertType == XCUIElementTypeScrollView && [self.label isEqualToString:FB_SAFARI_APP_NAME]) {
+    // Check alert presence in Safari web view
+    return [self fb_alertElementFromSafariWithScrollView:alert];
+  }
+
+  return nil;
 }
 
 @end
