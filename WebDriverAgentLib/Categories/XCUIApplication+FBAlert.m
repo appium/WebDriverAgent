@@ -17,14 +17,14 @@
 {
   NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu}",
                                           XCUIElementTypeAlert, XCUIElementTypeSheet];
-  XCUIElement *alert = [[self descendantsMatchingType:XCUIElementTypeAny]
+  XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
                       matchingPredicate:alertCollectorPredicate].fb_firstMatch;
   if (nil == alert) {
     return nil;
   }
   if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone
       && alert.elementType != XCUIElementTypeAlert
-      && nil == [self.query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
+      && nil == [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
     return nil;
