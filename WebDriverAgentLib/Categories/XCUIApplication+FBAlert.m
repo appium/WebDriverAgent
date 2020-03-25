@@ -30,21 +30,18 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
     }
     return NO;
   }];
-  NSPredicate *webViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
-    return CGRectEqualToRect(appFrame, snapshot.frame);
-  }];
   // Find the first XCUIElementTypeOther which is the grandchild of the web view
   // and is horizontally aligned to the center of the screen
-  XCUIElement *candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeWebView]
-                               matchingPredicate:webViewPredicate]
+  XCUIElement *candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
+                               matchingIdentifier:@"WebView"]
                               childrenMatchingType:XCUIElementTypeOther]
                              childrenMatchingType:XCUIElementTypeOther]
                             matchingPredicate:dstViewPredicate].fb_firstMatch;
   if (nil == candidate) {
     return nil;
   }
-  // ...and has one to two buttons
-  // and has at least one text view
+  // ...and contains one to two buttons
+  // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
   [candidate.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
