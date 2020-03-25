@@ -23,7 +23,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   CGRect appFrame = self.frame;
   NSPredicate *dstViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     CGRect curFrame = snapshot.frame;
-    BOOL isInAppRect = NO;
+    BOOL isInAppRectCenter = NO;
     if (!CGRectEqualToRect(appFrame, curFrame)
         && curFrame.origin.x > appFrame.origin.x
         && curFrame.origin.y > appFrame.origin.y
@@ -31,10 +31,10 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
         && curFrame.size.height < appFrame.size.height) {
       CGFloat possibleCenterX = (appFrame.size.width - curFrame.size.width) / 2;
       CGFloat possibleCenterY = (appFrame.size.height - curFrame.size.height) / 2;
-      isInAppRect = fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
+      isInAppRectCenter = fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA
         && fabs(possibleCenterY - curFrame.origin.y) < MAX_CENTER_DELTA;
     }
-    if (!isInAppRect) {
+    if (!isInAppRectCenter) {
       return NO;
     }
     
