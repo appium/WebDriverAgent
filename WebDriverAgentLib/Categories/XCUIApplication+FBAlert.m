@@ -23,8 +23,8 @@
     return nil;
   }
   if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPhone
-      && alert.elementType != XCUIElementTypeAlert
-      && nil == [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
+      && alert.elementType == XCUIElementTypeSheet
+      && nil != [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) {
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
     return nil;
