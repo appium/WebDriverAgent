@@ -28,11 +28,10 @@ parameters:
       inputs:
         versionSpec: "$(DEFAULT_RUBY_VERSION)"
         addToPath: true
-    - script: |
-      bundle install
-      sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
-      ./Scripts/bootstrap.sh -dn
-      mkdir -p ./Resources/WebDriverAgent.bundle
+    - script: bundle install
+    - script: sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+    - script: ./Scripts/bootstrap.sh -dn
+    - script: mkdir -p ./Resources/WebDriverAgent.bundle
 - name: nodeSetupSteps
   type: stepList
   default:
