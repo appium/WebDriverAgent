@@ -78,7 +78,6 @@ stages:
       ipadModel: $(MAX_IPAD_DEVICE_NAME)
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
-    steps: ${{ parameters.buildSteps }}
   - template: ./azure-templates/build_job.yml
     parameters:
       name: tvOS_Build_Max_Xcode
@@ -192,7 +191,6 @@ stages:
       iphoneModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
-    steps: ${{ parameters.buildSteps }}
   # endregion
 
   # region Unit Tests
