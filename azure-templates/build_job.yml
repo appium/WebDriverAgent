@@ -1,0 +1,28 @@
+parameters:
+    name: ''
+    target: ''
+    dest: ''
+    sdk: ''
+    iphoneModel: ''
+    ipadModel: ''
+    iosVersion: ''
+    xcodeVersion: ''
+    tvVersion: ''
+
+jobs:
+  - job: ${{ parameters.name }}
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: ${{ parameters.target }}
+      DEST: ${{ parameters.dest }}
+      SDK: ${{ parameters.sdk }}
+      CODE_SIGN: ${{ parameters.codeSign }}
+      IPHONE_MODEL: ${{ parameters.iphoneModel }}
+      IPAD_MODEL: ${{ parameters.ipadModel }}
+      IOS_VERSION: ${{ parameters.iosVersion }}
+      XCODE_VERSION: ${{ parameters.xcodeVersion }}
+      TV_VERSION: ${{ parameters.tvVersion }}
+    steps:
+      - script: sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+      - script: ./Scripts/build.sh

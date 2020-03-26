@@ -13,9 +13,6 @@ variables:
   MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
   MAX_TV_DEVICE_NAME: Apple TV 4K
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch)
-  XCODE_VERSION: $(MAX_XCODE_VERSION)
-  SDK: sim
-  TARGET: lib
   DEFAULT_NODE_VERSION: "10.x"
   DEFAULT_RUBY_VERSION: ">= 2.6"
 
@@ -29,7 +26,7 @@ parameters:
         versionSpec: "$(DEFAULT_RUBY_VERSION)"
         addToPath: true
     - script: bundle install
-    - script: sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+    - script: sudo xcode-select --switch "/Applications/Xcode_$(MIN_XCODE_VERSION).app/Contents/Developer"
     - script: ./Scripts/bootstrap.sh -dn
     - script: mkdir -p ./Resources/WebDriverAgent.bundle
 - name: nodeSetupSteps
@@ -39,36 +36,6 @@ parameters:
       inputs:
         versionSpec: "$(DEFAULT_NODE_VERSION)"
     - script: npm install
-- name: buildSteps
-  type: stepList
-  default:
-    - script: ./Scripts/build.sh
-- name: maxIOSModels
-  type: object
-  default:
-    IPHONE_MODEL: $(MAX_IPHONE_DEVICE_NAME)
-    IPAD_MODEL: $(MAX_IPAD_DEVICE_NAME)
-    IOS_VERSION: $(MAX_PLATFORM_VERSION)
-    XCODE_VERSION: $(MAX_XCODE_VERSION)
-- name: minIOSModels
-  type: object
-  default:
-    IPHONE_MODEL: $(MIN_IPHONE_DEVICE_NAME)
-    IPAD_MODEL: $(MIN_IPAD_DEVICE_NAME)
-    IOS_VERSION: $(MIN_PLATFORM_VERSION)
-    XCODE_VERSION: $(MIN_XCODE_VERSION)
-- name: maxTVOSModels
-  type: object
-  default:
-    IPHONE_MODEL: $(MAX_TV_DEVICE_NAME)
-    TV_VERSION: $(MAX_PLATFORM_VERSION)
-    XCODE_VERSION: $(MAX_XCODE_VERSION)
-- name: minTVOSModels
-  type: object
-  default:
-    IPHONE_MODEL: $(MIN_TV_DEVICE_NAME)
-    TV_VERSION: $(MIN_PLATFORM_VERSION)
-    XCODE_VERSION: $(MIN_XCODE_VERSION)
 
 
 stages:
@@ -86,182 +53,211 @@ stages:
     steps: ${{ parameters.wdaSetupSteps }}
 
   # region Build
-  - job: Generic_iOS_Build_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: runner
-      DEST: generic
-      CODE_SIGN: no
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: Generic_iOS_Build_Max_Xcode
+      target: runner
+      sdk: sim
+      dest: generic
+      codeSign: no
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: Generic_tvOS_Build_Max_Xcode
+      target: tv_runner
+      sdk: sim
+      dest: tv_generic
+      codeSign: no
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: iOS_Build_Max_Xcode
+      target: runner
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
     steps: ${{ parameters.buildSteps }}
-  - job: Generic_tvOS_Build_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: tv_runner
-      DEST: tv_generic
-      CODE_SIGN: no
-    steps: ${{ parameters.buildSteps }}
-  - job: iOS_Build_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: runner
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Build_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: tv_runner
-      SDK: tv_sim
-      ${{ parameters.maxTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: Generic_iOS_Build_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: runner
-      DEST: generic
-      CODE_SIGN: no
-      XCODE_VERSION: $(MIN_XCODE_VERSION)
-    steps: ${{ parameters.buildSteps }}
-  - job: Generic_tvOS_Build_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: tv_runner
-      DEST: tv_generic
-      SDK: tv_sim
-      CODE_SIGN: no
-      XCODE_VERSION: $(MIN_XCODE_VERSION)
-    steps: ${{ parameters.buildSteps }}
-  - job: iOS_Build_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: runner
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Build_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: build
-      TARGET: tv_runner
-      SDK: tv_sim
-      DEST: tv
-      ${{ parameters.maxTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: tvOS_Build_Max_Xcode
+      target: tv_runner
+      sdk: tv_sim
+      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: Generic_iOS_Build_Min_Xcode
+      target: runner
+      sdk: sim
+      dest: generic
+      codeSign: no
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: Generic_tvOS_Build_Min_Xcode
+      target: tv_runner
+      dest: tv_generic
+      sdk: tv_sim
+      codeSign: no
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: iOS_Build_Min_Xcode
+      target: runner
+      sdk: sdk
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/build_job.yml
+    parameters:
+      name: tvOS_Build_Min_Xcode
+      target: tv_runner
+      sdk: tv_sim
+      dest: tv
+      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
   # endregion
 
   # region Analyze
-  - job: iOS_Lib_Analyze_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iOS_Runner_Analyze_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: runner
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Lib_Analyze_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: tv_lib
-      SDK: tv_sim
-      ${{ parameters.maxTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Runner_Analyze_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: tv_runner
-      SDK: tv_sim
-      ${{ parameters.maxTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iOS_Lib_Analyze_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iOS_Runner_Analyze_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: runner
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Lib_Analyze_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: tv_lib
-      SDK: tv_sim
-      ${{ parameters.minTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Runner_Analyze_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: analyze
-      TARGET: tv_runner
-      SDK: tv_sim
-      ${{ parameters.minTVOSModels }}
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: iOS_Lib_Analyze_Max_Xcode
+      sdk: sim
+      target: lib
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: iOS_Runner_Analyze_Max_Xcode
+      sdk: sim
+      target: runner
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: tvOS_Lib_Analyze_Max_Xcode
+      target: tv_lib
+      sdk: tv_sim
+      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: tvOS_Runner_Analyze_Max_Xcode
+      target: tv_runner
+      sdk: tv_sim
+      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: iOS_Lib_Analyze_Min_Xcode
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: iOS_Runner_Analyze_Min_Xcode
+      target: runner
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: tvOS_Lib_Analyze_Min_Xcode
+      target: tv_lib
+      sdk: tv_sim
+      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/analyze_job.yml
+    parameters:
+      name: tvOS_Runner_Analyze_Min_Xcode
+      target: tv_runner
+      sdk: tv_sim
+      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
     steps: ${{ parameters.buildSteps }}
   # endregion
 
   # region Unit Tests
-  - job: iPhone_Unit_Test_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: unit_test
-      DEST: iphone
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Unit_Test_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: unit_test
-      DEST: ipad
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Unit_Test_Max_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: tv_unit_test
-      TARGET: tv_lib
-      SDK: tv_sim
-      ${{ parameters.maxTVOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPhone_Unit_Test_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: unit_test
-      DEST: iphone
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Unit_Test_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: unit_test
-      DEST: ipad
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: tvOS_Unit_Test_Min_Xcode
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: tv_unit_test
-      TARGET: tv_lib
-      SDK: tv_sim
-      TV_MODEL: $(MIN_TV_DEVICE_NAME)
-      TV_VERSION: 10.2 # !!! 10.0 does not work with this model
-      XCODE_VERSION: $(MIN_XCODE_VERSION)
-    steps: ${{ parameters.buildSteps }}
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Unit_Test_Max_Xcode
+      action: unit_test
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Unit_Test_Max_Xcode
+      action: unit_test
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: tvOS_Unit_Test_Max_Xcode
+      action: tv_unit_test
+      target: tv_lib
+      sdk: tv_sim
+      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Unit_Test_Min_Xcode
+      action: unit_test
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Unit_Test_Min_Xcode
+      action: unit_test
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: tvOS_Unit_Test_Min_Xcode
+      action: tv_unit_test
+      target: tv_lib
+      sdk: tv_sim
+      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: 10.2 # !!! 10.0 does not work with this model
+      xcodeVersion: $(MIN_XCODE_VERSION)
   # endregion
 
 - stage: Integration_Tests
@@ -277,96 +273,147 @@ stages:
   - job: Node_Integration_Tests
     dependsOn: Node_Setup
     variables:
-      ${{ parameters.maxIOSModels }}
+      IPHONE_MODEL: $(MAX_IPHONE_DEVICE_NAME)
+      IPAD_MODEL: $(MAX_IPAD_DEVICE_NAME)
+      IOS_VERSION: $(MAX_PLATFORM_VERSION)
+      XCODE_VERSION: $(MAX_XCODE_VERSION)
     steps:
     - script: npm run e2e-test
 
   # region Integration Tests Max Xcode
-  - job: iPhone_Integration_Test_Max_Xcode_Part1
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_1
-      DEST: iphone
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPhone_Integration_Test_Max_Xcode_Part2
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_2
-      DEST: iphone
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPhone_Integration_Test_Max_Xcode_Part3
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_3
-      DEST: iphone
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Max_Xcode_Part1
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_1
-      DEST: ipad
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Max_Xcode_Part2
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_2
-      DEST: ipad
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Max_Xcode_Part3
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_3
-      DEST: ipad
-      ${{ parameters.maxIOSModels }}
-    steps: ${{ parameters.buildSteps }}
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Max_Xcode_Part1
+      action: int_test_1
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Max_Xcode_Part2
+      action: int_test_2
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Max_Xcode_Part3
+      action: int_test_3
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Integration_Test_Max_Xcode_Part1
+      action: int_test_1
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iiPad_Integration_Test_Max_Xcode_Part2
+      action: int_test_2
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Integration_Test_Max_Xcode_Part3
+      action: int_test_3
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
   # endregion
 
   # region Integration Tests Min Xcode
-  - job: iPhone_Integration_Test_Min_Xcode_Part1
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_1
-      DEST: iphone
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPhone_Integration_Test_Min_Xcode_Part2
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_2
-      DEST: iphone
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPhone_Integration_Test_Min_Xcode_Part3
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_3
-      DEST: iphone
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Min_Xcode_Part1
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_1
-      DEST: ipad
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Min_Xcode_Part2
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_2
-      DEST: ipad
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
-  - job: iPad_Integration_Test_Min_Xcode_Part3
-    dependsOn: WDA_Setup
-    variables:
-      ACTION: int_test_3
-      DEST: ipad
-      ${{ parameters.minIOSModels }}
-    steps: ${{ parameters.buildSteps }}
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Min_Xcode_Part1
+      action: int_test_1
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Min_Xcode_Part2
+      action: int_test_2
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPhone_Integration_Test_Min_Xcode_Part3
+      action: int_test_3
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Integration_Test_Min_Xcode_Part1
+      action: int_test_1
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Integration_Test_Min_Xcode_Part2
+      action: int_test_2
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+  - template: ./azure-templates/test_job.yml
+    parameters:
+      name: iPad_Integration_Test_Min_Xcode_Part3
+      action: int_test_3
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
   # endregion
