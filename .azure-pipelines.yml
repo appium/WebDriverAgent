@@ -1,0 +1,373 @@
+pool:
+  vmImage: 'macOS-10.15'
+
+
+variables:
+  MIN_XCODE_VERSION: 10.0
+  MIN_PLATFORM_VERSION: 12.0
+  MIN_IPHONE_DEVICE_NAME: iPhone X
+  MIN_TV_DEVICE_NAME: Apple TV
+  MIN_IPAD_DEVICE_NAME: iPad Air 2
+  MAX_XCODE_VERSION: 11.4
+  MAX_PLATFORM_VERSION: 13.4
+  MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
+  MAX_TV_DEVICE_NAME: Apple TV 4K
+  MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch)
+  XCODE_VERSION: $(MAX_XCODE_VERSION)
+  SDK: sim
+  TARGET: lib
+  DEFAULT_NODE_VERSION: "10.x"
+  DEFAULT_RUBY_VERSION: ">= 2.6"
+
+
+parameters:
+- name: wdaSetupSteps
+  type: stepList
+  default:
+    - task: UseRubyVersion@0
+      inputs:
+        versionSpec: "$(DEFAULT_RUBY_VERSION)"
+        addToPath: true
+    - script: |
+      bundle install
+      sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+      ./Scripts/bootstrap.sh -dn
+      mkdir -p ./Resources/WebDriverAgent.bundle
+- name: nodeSetupSteps
+  type: stepList
+  default:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "$(DEFAULT_NODE_VERSION)"
+    - script: npm install
+- name: buildSteps
+  type: stepList
+  default:
+    - script: ./Scripts/build.sh
+- name: maxIOSModels
+  type: object
+  default:
+    IPHONE_MODEL: $(MAX_IPHONE_DEVICE_NAME)
+    IPAD_MODEL: $(MAX_IPAD_DEVICE_NAME)
+    IOS_VERSION: $(MAX_PLATFORM_VERSION)
+    XCODE_VERSION: $(MAX_XCODE_VERSION)
+- name: minIOSModels
+  type: object
+  default:
+    IPHONE_MODEL: $(MIN_IPHONE_DEVICE_NAME)
+    IPAD_MODEL: $(MIN_IPAD_DEVICE_NAME)
+    IOS_VERSION: $(MIN_PLATFORM_VERSION)
+    XCODE_VERSION: $(MIN_XCODE_VERSION)
+- name: maxTVOSModels
+  type: object
+  default:
+    IPHONE_MODEL: $(MAX_TV_DEVICE_NAME)
+    TV_VERSION: $(MAX_PLATFORM_VERSION)
+    XCODE_VERSION: $(MAX_XCODE_VERSION)
+- name: minTVOSModels
+  type: object
+  default:
+    IPHONE_MODEL: $(MIN_TV_DEVICE_NAME)
+    TV_VERSION: $(MIN_PLATFORM_VERSION)
+    XCODE_VERSION: $(MIN_XCODE_VERSION)
+
+
+stages:
+- stage: Unit_Tests_And_Linters
+  jobs:
+  - job: Node_Setup
+    steps: ${{ parameters.nodeSetupSteps }}
+
+  - job: Node_Unit_Tests
+    dependsOn: Node_Setup
+    steps:
+    - script: npm run test
+
+  - job: WDA_Setup
+    steps: ${{ parameters.wdaSetupSteps }}
+
+  # region Build
+  - job: Generic_iOS_Build_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: runner
+      DEST: generic
+      CODE_SIGN: no
+    steps: ${{ parameters.buildSteps }}
+  - job: Generic_tvOS_Build_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: tv_runner
+      DEST: tv_generic
+      CODE_SIGN: no
+    steps: ${{ parameters.buildSteps }}
+  - job: iOS_Build_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: runner
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Build_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: tv_runner
+      SDK: tv_sim
+      ${{ parameters.maxTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: Generic_iOS_Build_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: runner
+      DEST: generic
+      CODE_SIGN: no
+      XCODE_VERSION: $(MIN_XCODE_VERSION)
+    steps: ${{ parameters.buildSteps }}
+  - job: Generic_tvOS_Build_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: tv_runner
+      DEST: tv_generic
+      SDK: tv_sim
+      CODE_SIGN: no
+      XCODE_VERSION: $(MIN_XCODE_VERSION)
+    steps: ${{ parameters.buildSteps }}
+  - job: iOS_Build_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: runner
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Build_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: build
+      TARGET: tv_runner
+      SDK: tv_sim
+      DEST: tv
+      ${{ parameters.maxTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  # endregion
+
+  # region Analyze
+  - job: iOS_Lib_Analyze_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iOS_Runner_Analyze_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: runner
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Lib_Analyze_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: tv_lib
+      SDK: tv_sim
+      ${{ parameters.maxTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Runner_Analyze_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: tv_runner
+      SDK: tv_sim
+      ${{ parameters.maxTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iOS_Lib_Analyze_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iOS_Runner_Analyze_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: runner
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Lib_Analyze_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: tv_lib
+      SDK: tv_sim
+      ${{ parameters.minTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Runner_Analyze_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: analyze
+      TARGET: tv_runner
+      SDK: tv_sim
+      ${{ parameters.minTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  # endregion
+
+  # region Unit Tests
+  - job: iPhone_Unit_Test_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: unit_test
+      DEST: iphone
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Unit_Test_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: unit_test
+      DEST: ipad
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Unit_Test_Max_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: tv_unit_test
+      TARGET: tv_lib
+      SDK: tv_sim
+      ${{ parameters.maxTVOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPhone_Unit_Test_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: unit_test
+      DEST: iphone
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Unit_Test_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: unit_test
+      DEST: ipad
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: tvOS_Unit_Test_Min_Xcode
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: tv_unit_test
+      TARGET: tv_lib
+      SDK: tv_sim
+      TV_MODEL: $(MIN_TV_DEVICE_NAME)
+      TV_VERSION: 10.2 # !!! 10.0 does not work with this model
+      XCODE_VERSION: $(MIN_XCODE_VERSION)
+    steps: ${{ parameters.buildSteps }}
+  # endregion
+
+- stage: Integration_Tests
+  jobs:
+
+  - job: WDA_Setup
+    steps: ${{ parameters.wdaSetupSteps }}
+
+  - job: Node_Setup
+    dependsOn: WDA_Setup
+    steps: ${{ parameters.nodeSetupSteps }}
+
+  - job: Node_Integration_Tests
+    dependsOn: Node_Setup
+    variables:
+      ${{ parameters.maxIOSModels }}
+    steps:
+    - script: npm run e2e-test
+
+  # region Integration Tests Max Xcode
+  - job: iPhone_Integration_Test_Max_Xcode_Part1
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_1
+      DEST: iphone
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPhone_Integration_Test_Max_Xcode_Part2
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_2
+      DEST: iphone
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPhone_Integration_Test_Max_Xcode_Part3
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_3
+      DEST: iphone
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Max_Xcode_Part1
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_1
+      DEST: ipad
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Max_Xcode_Part2
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_2
+      DEST: ipad
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Max_Xcode_Part3
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_3
+      DEST: ipad
+      ${{ parameters.maxIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  # endregion
+
+  # region Integration Tests Min Xcode
+  - job: iPhone_Integration_Test_Min_Xcode_Part1
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_1
+      DEST: iphone
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPhone_Integration_Test_Min_Xcode_Part2
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_2
+      DEST: iphone
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPhone_Integration_Test_Min_Xcode_Part3
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_3
+      DEST: iphone
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Min_Xcode_Part1
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_1
+      DEST: ipad
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Min_Xcode_Part2
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_2
+      DEST: ipad
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  - job: iPad_Integration_Test_Min_Xcode_Part3
+    dependsOn: WDA_Setup
+    variables:
+      ACTION: int_test_3
+      DEST: ipad
+      ${{ parameters.minIOSModels }}
+    steps: ${{ parameters.buildSteps }}
+  # endregion
