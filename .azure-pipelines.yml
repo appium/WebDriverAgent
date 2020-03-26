@@ -25,6 +25,7 @@ parameters:
       inputs:
         versionSpec: "$(DEFAULT_RUBY_VERSION)"
         addToPath: true
+    - script: bundle update --bundler
     - script: bundle install
     - script: sudo xcode-select --switch "/Applications/Xcode_$(MIN_XCODE_VERSION).app/Contents/Developer"
     - script: ./Scripts/bootstrap.sh -dn
