@@ -70,7 +70,7 @@ stages:
       action: build
       target: tv_runner
       sdk: tv_sim
-      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
@@ -112,7 +112,7 @@ stages:
       target: tv_runner
       sdk: tv_sim
       dest: tv
-      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
       xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
@@ -147,7 +147,7 @@ stages:
       action: analyze
       target: tv_lib
       sdk: tv_sim
-      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
@@ -157,7 +157,7 @@ stages:
       action: analyze
       target: tv_runner
       sdk: tv_sim
-      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
@@ -189,7 +189,7 @@ stages:
       action: analyze
       target: tv_lib
       sdk: tv_sim
-      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
       xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
@@ -199,7 +199,7 @@ stages:
       action: analyze
       target: tv_runner
       sdk: tv_sim
-      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
       xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
@@ -236,7 +236,7 @@ stages:
       action: tv_unit_test
       target: tv_lib
       sdk: tv_sim
-      iphoneModel: $(MAX_TV_DEVICE_NAME)
+      tvModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
@@ -270,7 +270,7 @@ stages:
       action: tv_unit_test
       target: tv_lib
       sdk: tv_sim
-      iphoneModel: $(MIN_TV_DEVICE_NAME)
+      tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
       xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
