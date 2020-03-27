@@ -69,7 +69,7 @@
     if (descendant.elementType != XCUIElementTypeTextView) {
       return;
     }
-    NSString *text = descendant.label ?: descendant.value;
+    NSString *text = descendant.value ?: descendant.label;
     if (nil != text) {
       [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }
