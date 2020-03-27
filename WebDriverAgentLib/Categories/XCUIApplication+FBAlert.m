@@ -10,6 +10,7 @@
 #import "XCUIApplication+FBAlert.h"
 
 #import "FBXCodeCompatibility.h"
+#import "FBMacros.h"
 
 #define MAX_CENTER_DELTA 10.0
 
@@ -30,13 +31,23 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
     }
     return NO;
   }];
-  // Find the first XCUIElementTypeOther which is the grandchild of the web view
-  // and is horizontally aligned to the center of the screen
-  XCUIElement *candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
-                               matchingIdentifier:@"WebView"]
-                              childrenMatchingType:XCUIElementTypeOther]
-                             childrenMatchingType:XCUIElementTypeOther]
-                            matchingPredicate:dstViewPredicate].fb_firstMatch;
+  XCUIElement *candidate = nil;
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+    // Find the first XCUIElementTypeOther which is the grandchild of the web view
+    // and is horizontally aligned to the center of the screen
+    candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
+                    matchingIdentifier:@"WebView"]
+                   childrenMatchingType:XCUIElementTypeOther]
+                  childrenMatchingType:XCUIElementTypeOther]
+                 matchingPredicate:dstViewPredicate].allElementsBoundByIndex.firstObject;
+  } else {
+    NSPredicate *webViewPredicate = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeWebView];
+    // Find the first XCUIElementTypeOther which is the descendant of the scroll view
+    // and is horizontally aligned to the center of the screen
+    candidate = [[[scrollView.fb_query containingPredicate:webViewPredicate]
+                   descendantsMatchingType:XCUIElementTypeOther]
+                 matchingPredicate:dstViewPredicate].allElementsBoundByIndex.firstObject;
+  }
   if (nil == candidate) {
     return nil;
   }
@@ -60,7 +71,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
                                           XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
   XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
-                      matchingPredicate:alertCollectorPredicate].fb_firstMatch;
+                        matchingPredicate:alertCollectorPredicate].allElementsBoundByIndex.firstObject;
   XCUIElementType alertType = alert.elementType;
   if (alertType == XCUIElementTypeAlert) {
     return alert;
