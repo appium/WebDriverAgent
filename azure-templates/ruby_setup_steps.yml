@@ -1,0 +1,5 @@
+steps:
+  - task: UseRubyVersion@0
+    inputs:
+      versionSpec: "$(DEFAULT_RUBY_VERSION)"
+      addToPath: true

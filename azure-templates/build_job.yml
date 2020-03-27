@@ -1,4 +1,0 @@
-extends:
-  template: base_job.yml
-  parameters:
-    action: build

@@ -36,9 +36,6 @@ jobs:
       XCODE_VERSION: ${{ parameters.xcodeVersion }}
       TV_VERSION: ${{ parameters.tvVersion }}
     steps:
-    - task: UseRubyVersion@0
-      inputs:
-        versionSpec: "$(DEFAULT_RUBY_VERSION)"
-        addToPath: true
+    - template: ruby_setup_steps.yml
     - ${{ parameters.bootstrapScript }}
     - script: ./Scripts/build.sh

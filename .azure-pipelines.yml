@@ -25,34 +25,35 @@ stages:
   jobs:
   - job: Node_Unit_Tests
     steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "$(DEFAULT_NODE_VERSION)"
+    - template: azure-templates/node_setup_steps.yml
     - script: npm install
     - script: npm run test
 
   # region Build
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: Generic_iOS_Build_Max_Xcode
+      action: build
       target: runner
       sdk: sim
       dest: generic
       codeSign: no
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: Generic_tvOS_Build_Max_Xcode
+      action: build
       target: tv_runner
       sdk: sim
       dest: tv_generic
       codeSign: no
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Build_Max_Xcode
+      action: build
       target: runner
       sdk: sim
       iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
@@ -60,36 +61,40 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Build_Max_Xcode
+      action: build
       target: tv_runner
       sdk: tv_sim
       iphoneModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: Generic_iOS_Build_Min_Xcode
+      action: build
       target: runner
       sdk: sim
       dest: generic
       codeSign: no
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: Generic_tvOS_Build_Min_Xcode
+      action: build
       target: tv_runner
       dest: tv_generic
       sdk: tv_sim
       codeSign: no
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Build_Min_Xcode
+      action: build
       target: runner
       sdk: sdk
       iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
@@ -97,9 +102,10 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/build_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Build_Min_Xcode
+      action: build
       target: tv_runner
       sdk: tv_sim
       dest: tv
@@ -110,9 +116,10 @@ stages:
   # endregion
 
   # region Analyze
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Lib_Analyze_Max_Xcode
+      action: analyze
       sdk: sim
       target: lib
       iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
@@ -120,9 +127,10 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Runner_Analyze_Max_Xcode
+      action: analyze
       sdk: sim
       target: runner
       iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
@@ -130,27 +138,30 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Lib_Analyze_Max_Xcode
+      action: analyze
       target: tv_lib
       sdk: tv_sim
       iphoneModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Runner_Analyze_Max_Xcode
+      action: analyze
       target: tv_runner
       sdk: tv_sim
       iphoneModel: $(MAX_TV_DEVICE_NAME)
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Lib_Analyze_Min_Xcode
+      action: analyze
       target: lib
       sdk: sim
       iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
@@ -158,9 +169,10 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iOS_Runner_Analyze_Min_Xcode
+      action: analyze
       target: runner
       sdk: sim
       iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
@@ -168,18 +180,20 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Lib_Analyze_Min_Xcode
+      action: analyze
       target: tv_lib
       sdk: tv_sim
       iphoneModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/analyze_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Runner_Analyze_Min_Xcode
+      action: analyze
       target: tv_runner
       sdk: tv_sim
       iphoneModel: $(MIN_TV_DEVICE_NAME)
@@ -189,7 +203,7 @@ stages:
   # endregion
 
   # region Unit Tests
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Unit_Test_Max_Xcode
       action: unit_test
@@ -201,7 +215,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Unit_Test_Max_Xcode
       action: unit_test
@@ -213,7 +227,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Unit_Test_Max_Xcode
       action: tv_unit_test
@@ -223,7 +237,7 @@ stages:
       tvVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Unit_Test_Min_Xcode
       action: unit_test
@@ -235,7 +249,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Unit_Test_Min_Xcode
       action: unit_test
@@ -247,7 +261,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Unit_Test_Min_Xcode
       action: tv_unit_test
@@ -269,19 +283,14 @@ stages:
       IOS_VERSION: $(MAX_PLATFORM_VERSION)
       XCODE_VERSION: $(MAX_XCODE_VERSION)
     steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "$(DEFAULT_NODE_VERSION)"
-    - task: UseRubyVersion@0
-      inputs:
-        versionSpec: "$(DEFAULT_RUBY_VERSION)"
-        addToPath: true
+    - template: azure-templates/node_setup_steps.yml
+    - template: azure-templates/ruby_setup_steps.yml
     - ${{ parameters.bootstrapScript }}
     - script: npm install
     - script: npm run e2e-test
 
   # region Integration Tests Max Xcode
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Max_Xcode_Part1
       action: int_test_1
@@ -293,7 +302,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Max_Xcode_Part2
       action: int_test_2
@@ -305,7 +314,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Max_Xcode_Part3
       action: int_test_3
@@ -317,7 +326,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Integration_Test_Max_Xcode_Part1
       action: int_test_1
@@ -329,7 +338,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iiPad_Integration_Test_Max_Xcode_Part2
       action: int_test_2
@@ -341,7 +350,7 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Integration_Test_Max_Xcode_Part3
       action: int_test_3
@@ -356,7 +365,7 @@ stages:
   # endregion
 
   # region Integration Tests Min Xcode
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Min_Xcode_Part1
       action: int_test_1
@@ -368,7 +377,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Min_Xcode_Part2
       action: int_test_2
@@ -380,7 +389,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Integration_Test_Min_Xcode_Part3
       action: int_test_3
@@ -392,7 +401,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Integration_Test_Min_Xcode_Part1
       action: int_test_1
@@ -404,7 +413,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Integration_Test_Min_Xcode_Part2
       action: int_test_2
@@ -416,7 +425,7 @@ stages:
       iosVersion: $(MIN_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/test_job.yml
+  - template: ./azure-templates/base_job.yml
     parameters:
       name: iPad_Integration_Test_Min_Xcode_Part3
       action: int_test_3
