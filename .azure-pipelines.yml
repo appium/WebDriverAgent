@@ -24,7 +24,9 @@ pool:
 
 
 parameters:
-  integrationJobs:
+- name: integrationJobs
+  type: object
+  default:
   - action: int_test_1
     dest: phone
   - action: int_test_2
@@ -37,7 +39,9 @@ parameters:
     dest: ipad
   - action: int_test_3
     dest: ipad
-  iosUnitTestJobs:
+- name: iosUnitTestJobs
+  type: object
+  default:
   - dest: phone
     iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
     ipadModel: $(MAX_IPAD_DEVICE_NAME)
@@ -62,7 +66,9 @@ parameters:
     iosVersion: $(MIN_PLATFORM_VERSION)
     xcodeVersion: $(MIN_XCODE_VERSION)
     vmImage: $(MIN_VM_IMAGE)
-  iosAnalyzeJobs:
+- name: iosAnalyzeJobs
+  type: object
+  default:
   - target: lib
     iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
     ipadModel: $(MAX_IPAD_DEVICE_NAME)
@@ -87,7 +93,9 @@ parameters:
     iosVersion: $(MIN_PLATFORM_VERSION)
     xcodeVersion: $(MIN_XCODE_VERSION)
     vmImage: $(MIN_VM_IMAGE)
-  tvOSAnalyzeJobs:
+- name: tvOSAnalyzeJobs
+  type: object
+  default:
   - target: tv_lib
     tvModel: $(MAX_TV_DEVICE_NAME)
     tvVersion: $(MAX_PLATFORM_VERSION)
@@ -108,7 +116,9 @@ parameters:
     tvVersion: $(MIN_PLATFORM_VERSION)
     xcodeVersion: $(MIN_XCODE_VERSION)
     vmImage: $(MIN_VM_IMAGE)
-  genericBuildJobs:
+- name: genericBuildJobs
+  type: object
+  default:
   - target: runner
     sdk: sim
     dest: generic
@@ -129,7 +139,9 @@ parameters:
     dest: tv_generic
     xcodeVersion: $(MIN_XCODE_VERSION)
     vmImage: $(MIN_VM_IMAGE)
-  iosBuildJobs:
+- name: iosBuildJobs
+  type: object
+  default:
   - iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
     ipadModel: $(MAX_IPAD_DEVICE_NAME)
     iosVersion: $(MAX_PLATFORM_VERSION)
@@ -140,7 +152,9 @@ parameters:
     iosVersion: $(MIN_PLATFORM_VERSION)
     xcodeVersion: $(MIN_XCODE_VERSION)
     vmImage: $(MIN_VM_IMAGE)
-  tvOSBuildJobs:
+- name: tvOSBuildJobs
+  type: object
+  default:
   - tvModel: $(MAX_TV_DEVICE_NAME)
     tvVersion: $(MAX_TV_PLATFORM_VERSION)
     xcodeVersion: $(MAX_TV_XCODE_VERSION)
