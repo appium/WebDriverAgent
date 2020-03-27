@@ -282,10 +282,9 @@ stages:
 
   - job: Node_Integration_Tests
     variables:
-      IPHONE_MODEL: $(MAX_IPHONE_DEVICE_NAME)
-      IPAD_MODEL: $(MAX_IPAD_DEVICE_NAME)
-      IOS_VERSION: $(MAX_PLATFORM_VERSION)
       XCODE_VERSION: $(MAX_XCODE_VERSION)
+      DEVICE_NAME: $(MAX_IPHONE_DEVICE_NAME)
+      PLATFORM_VERSION: $(MAX_PLATFORM_VERSION)
     steps:
     - template: azure-templates/node_setup_steps.yml
     - script: npm install
