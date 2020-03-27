@@ -21,6 +21,7 @@
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 
 @interface FBAlert ()
@@ -66,12 +67,13 @@
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
   [alert.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
-    if (descendant.elementType != XCUIElementTypeTextView) {
-      return;
-    }
-    NSString *text = descendant.value ?: descendant.label;
-    if (nil != text) {
-      [resultText addObject:[NSString stringWithFormat:@"%@", text]];
+    XCUIElementType elementType = descendant.elementType;
+    if ((elementType == XCUIElementTypeTextView && ![descendant fb_descendantsMatchingType:XCUIElementTypeStaticText])
+        || elementType == XCUIElementTypeStaticText) {
+      NSString *text = descendant.wdLabel ?: descendant.wdValue;
+      if (nil != text) {
+        [resultText addObject:[NSString stringWithFormat:@"%@", text]];
+      }
     }
   }];
   return [resultText componentsJoinedByString:@"\n"];
@@ -117,7 +119,7 @@
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
-    NSString *label = descendant.label;
+    NSString *label = descendant.wdLabel;
     if (nil != label) {
       [labels addObject:[NSString stringWithFormat:@"%@", label]];
     }
