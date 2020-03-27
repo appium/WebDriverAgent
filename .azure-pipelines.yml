@@ -284,9 +284,8 @@ stages:
       XCODE_VERSION: $(MAX_XCODE_VERSION)
     steps:
     - template: azure-templates/node_setup_steps.yml
-    - template: azure-templates/ruby_setup_steps.yml
-    - ${{ parameters.bootstrapScript }}
     - script: npm install
+    - template: azure-templates/bootstrap_steps.yml
     - script: npm run e2e-test
 
   # region Integration Tests Max Xcode
