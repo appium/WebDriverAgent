@@ -2,7 +2,7 @@
 variables:
   MIN_VM_IMAGE: macOS-10.14
   MIN_XCODE_VERSION: 10
-  # Xcode 10.0 did have not Apple TV
+  # Xcode 10.0 did not have Apple TV
   MIN_TV_XCODE_VERSION: 10.2
   MIN_TV_PLATFORM_VERSION: 12.2
   MIN_TV_DEVICE_NAME: Apple TV
