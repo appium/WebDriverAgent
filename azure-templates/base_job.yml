@@ -1,0 +1,48 @@
+parameters:
+    name: ''
+    action: ''
+    target: ''
+    dest: ''
+    sdk: ''
+    iphoneModel: ''
+    ipadModel: ''
+    iosVersion: ''
+    xcodeVersion: ''
+    tvVersion: ''
+    vmImage: ''
+    - name: rubyInstallTask
+      type: step
+      default:
+        task: UseRubyVersion@0
+          inputs:
+            versionSpec: "$(DEFAULT_RUBY_VERSION)"
+            addToPath: true
+    - name: bootstrapScript
+      type: step
+      default:
+        script: |
+          bundle update --bundler
+          bundle install
+          sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+          ./Scripts/bootstrap.sh -dn
+          mkdir -p ./Resources/WebDriverAgent.bundle
+
+jobs:
+  - job: ${{ parameters.name }}
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    variables:
+      ACTION: ${{ parameters.action }}
+      TARGET: ${{ parameters.target }}
+      DEST: ${{ parameters.dest }}
+      SDK: ${{ parameters.sdk }}
+      CODE_SIGN: ${{ parameters.codeSign }}
+      IPHONE_MODEL: ${{ parameters.iphoneModel }}
+      IPAD_MODEL: ${{ parameters.ipadModel }}
+      IOS_VERSION: ${{ parameters.iosVersion }}
+      XCODE_VERSION: ${{ parameters.xcodeVersion }}
+      TV_VERSION: ${{ parameters.tvVersion }}
+    steps:
+    - ${{ parameters.rubyInstallTask }}
+    - ${{ parameters.bootstrapScript }}
+    - script: ./Scripts/build.sh
