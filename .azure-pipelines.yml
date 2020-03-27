@@ -39,130 +39,6 @@ parameters:
     dest: ipad
   - action: int_test_3
     dest: ipad
-- name: iosUnitTestJobs
-  type: object
-  default:
-  - dest: phone
-    iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-    ipadModel: $(MAX_IPAD_DEVICE_NAME)
-    iosVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - dest: phone
-    iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-    ipadModel: $(MIN_IPAD_DEVICE_NAME)
-    iosVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-  - dest: ipad
-    iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-    ipadModel: $(MAX_IPAD_DEVICE_NAME)
-    iosVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - dest: ipad
-    iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-    ipadModel: $(MIN_IPAD_DEVICE_NAME)
-    iosVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-- name: iosAnalyzeJobs
-  type: object
-  default:
-  - target: lib
-    iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-    ipadModel: $(MAX_IPAD_DEVICE_NAME)
-    iosVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: runner
-    iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-    ipadModel: $(MAX_IPAD_DEVICE_NAME)
-    iosVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: lib
-    iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-    ipadModel: $(MIN_IPAD_DEVICE_NAME)
-    iosVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-  - target: runner
-    iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-    ipadModel: $(MIN_IPAD_DEVICE_NAME)
-    iosVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-- name: tvOSAnalyzeJobs
-  type: object
-  default:
-  - target: tv_lib
-    tvModel: $(MAX_TV_DEVICE_NAME)
-    tvVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: tv_runner
-    tvModel: $(MAX_TV_DEVICE_NAME)
-    tvVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: tv_lib
-    tvModel: $(MIN_TV_DEVICE_NAME)
-    tvVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-  - target: tv_runner
-    tvModel: $(MIN_TV_DEVICE_NAME)
-    tvVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-- name: genericBuildJobs
-  type: object
-  default:
-  - target: runner
-    sdk: sim
-    dest: generic
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: tv_runner
-    sdk: tv_sim
-    dest: tv_generic
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - target: runner
-    sdk: sim
-    dest: generic
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-  - target: tv_runner
-    sdk: tv_sim
-    dest: tv_generic
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-- name: iosBuildJobs
-  type: object
-  default:
-  - iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-    ipadModel: $(MAX_IPAD_DEVICE_NAME)
-    iosVersion: $(MAX_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-    ipadModel: $(MIN_IPAD_DEVICE_NAME)
-    iosVersion: $(MIN_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
-- name: tvOSBuildJobs
-  type: object
-  default:
-  - tvModel: $(MAX_TV_DEVICE_NAME)
-    tvVersion: $(MAX_TV_PLATFORM_VERSION)
-    xcodeVersion: $(MAX_TV_XCODE_VERSION)
-    vmImage: $(MAX_VM_IMAGE)
-  - tvModel: $(MIN_TV_DEVICE_NAME)
-    tvVersion: $(MIN_TV_PLATFORM_VERSION)
-    xcodeVersion: $(MIN_TV_XCODE_VERSION)
-    vmImage: $(MIN_VM_IMAGE)
 
 
 stages:
@@ -175,82 +51,203 @@ stages:
     - script: npm run test
 
   # region Build
-  - ${{ each job in parameters.genericBuildJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: ${{ job.dest }}_${{ job.target }}_Build_Xcode_${{ job.xcodeVersion }}
-        action: build
-        target: ${{ job.target }}
-        sdk: ${{ job.sdk }}
-        dest: ${{ job.dest }}
-        codeSign: no
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
-  - ${{ each job in parameters.iosBuildJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: iOS_Build_Xcode_${{ job.xcodeVersion }}
-        action: build
-        target: runner
-        sdk: sim
-        iphoneModel: ${{ job.iphoneModel }}
-        ipadModel: ${{ job.ipadModel }}
-        iosVersion: ${{ job.iosVersion }}
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
-  - ${{ each job in parameters.tvOSBuildJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: tvOS_Build_Xcode_${{ job.xcodeVersion }}
-        action: build
-        target: tv_runner
-        sdk: tv_sim
-        tvModel: ${{ job.tvModel }}
-        tvVersion: ${{ job.tvVersion }}
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: Generic_iOS_Build_Max_Xcode
+      action: build
+      target: runner
+      sdk: sim
+      dest: generic
+      codeSign: no
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: Generic_tvOS_Build_Max_Xcode
+      action: build
+      target: tv_runner
+      sdk: tv_sim
+      dest: tv_generic
+      codeSign: no
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Build_Max_Xcode
+      action: build
+      target: runner
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Build_Max_Xcode
+      action: build
+      target: tv_runner
+      sdk: tv_sim
+      tvModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: Generic_iOS_Build_Min_Xcode
+      action: build
+      target: runner
+      sdk: sim
+      dest: generic
+      codeSign: no
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: Generic_tvOS_Build_Min_Xcode
+      action: build
+      target: tv_runner
+      dest: tv_generic
+      sdk: tv_sim
+      codeSign: no
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Build_Min_Xcode
+      action: build
+      target: runner
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Build_Min_Xcode
+      action: build
+      target: tv_runner
+      sdk: tv_sim
+      dest: tv
+      tvModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
   # endregion
 
   # region Analyze
-  - ${{ each job in parameters.iosAnalyzeJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: iOS_${{ job.target }}_Analyze_Xcode_${{ job.xcodeVersion }}
-        action: analyze
-        sdk: sim
-        target: ${{ job.target }}
-        iphoneModel: ${{ job.iphoneModel }}
-        ipadModel: ${{ job.ipadModel }}
-        iosVersion: ${{ job.iosVersion }}
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
-  - ${{ each job in parameters.tvOSAnalyzeJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: tvOS_${{ job.target }}_Analyze_Xcode_${{ job.xcodeVersion }}
-        action: analyze
-        target: ${{ job.target }}
-        sdk: tv_sim
-        tvModel: ${{ job.tvModel }}
-        tvVersion: ${{ job.tvVersion }}
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Lib_Analyze_Max_Xcode
+      action: analyze
+      sdk: sim
+      target: lib
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Runner_Analyze_Max_Xcode
+      action: analyze
+      sdk: sim
+      target: runner
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Lib_Analyze_Max_Xcode
+      action: analyze
+      target: tv_lib
+      sdk: tv_sim
+      tvModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Runner_Analyze_Max_Xcode
+      action: analyze
+      target: tv_runner
+      sdk: tv_sim
+      tvModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Lib_Analyze_Min_Xcode
+      action: analyze
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iOS_Runner_Analyze_Min_Xcode
+      action: analyze
+      target: runner
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Lib_Analyze_Min_Xcode
+      action: analyze
+      target: tv_lib
+      sdk: tv_sim
+      tvModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Runner_Analyze_Min_Xcode
+      action: analyze
+      target: tv_runner
+      sdk: tv_sim
+      tvModel: $(MIN_TV_DEVICE_NAME)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
   # endregion
 
   # region Unit Tests
-  - ${{ each job in parameters.iosUnitTestJobs }}:
-    - template: ./azure-templates/base_job.yml
-      parameters:
-        name: iOS_${{ job.dest }}_Unit_Test_Xcode_${{ job.xcodeVersion }}
-        action: unit_test
-        dest: ${{ job.dest }}
-        target: lib
-        sdk: sim
-        iphoneModel: ${{ job.iphoneModel }}
-        ipadModel: ${{ job.ipadModel }}
-        iosVersion: ${{ job.iosVersion }}
-        xcodeVersion: ${{ job.xcodeVersion }}
-        vmImage: ${{ job.vmImage }}
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iPhone_Unit_Test_Max_Xcode
+      action: unit_test
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iPad_Unit_Test_Max_Xcode
+      action: unit_test
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
+      ipadModel: $(MAX_IPAD_DEVICE_NAME)
+      iosVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
   # https://dev.azure.com/AppiumCI/Appium%20CI/_build/results?buildId=8691&view=logs&j=57d3c370-357b-5a38-e8f1-a263c3e85cd2&t=851bf9fc-7f4a-5e88-7d11-b3c7b0a7d860
   # - template: ./azure-templates/base_job.yml
   #   parameters:
@@ -262,6 +259,30 @@ stages:
   #     tvVersion: $(MAX_PLATFORM_VERSION)
   #     xcodeVersion: $(MAX_XCODE_VERSION)
   #     vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iPhone_Unit_Test_Min_Xcode
+      action: unit_test
+      dest: iphone
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: iPad_Unit_Test_Min_Xcode
+      action: unit_test
+      dest: ipad
+      target: lib
+      sdk: sim
+      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
+      ipadModel: $(MIN_IPAD_DEVICE_NAME)
+      iosVersion: $(MIN_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
+      vmImage: $(MIN_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
       name: tvOS_Unit_Test_Min_Xcode
