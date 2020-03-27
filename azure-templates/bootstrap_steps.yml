@@ -6,5 +6,6 @@ steps:
   - script: bundle update --bundler
   - script: bundle install
   - script: sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
-  - script: ./Scripts/bootstrap.sh -dn
+  # retry once on bootstrap failure
+  - script: ./Scripts/bootstrap.sh -dn || sleep $[ ( $RANDOM % 60 )  + 1 ]s && ./Scripts/bootstrap.sh -dn
   - script: mkdir -p ./Resources/WebDriverAgent.bundle
