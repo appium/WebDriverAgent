@@ -21,7 +21,6 @@
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
-#import "XCUIElement+FBWebDriverAttributes.h"
 
 
 @interface FBAlert ()
@@ -70,14 +69,9 @@
     if (descendant.elementType != XCUIElementTypeTextView) {
       return;
     }
-    NSString *label = descendant.wdLabel;
-    if (nil != label) {
-      [resultText addObject:[NSString stringWithFormat:@"%@", label]];
-    } else {
-      NSString *value = descendant.wdValue;
-      if (nil != value) {
-        [resultText addObject:[NSString stringWithFormat:@"%@", value]];
-      }
+    NSString *text = descendant.label ?: descendant.value;
+    if (nil != text) {
+      [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }
   }];
   return [resultText componentsJoinedByString:@"\n"];
@@ -123,7 +117,7 @@
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
-    NSString *label = descendant.wdLabel;
+    NSString *label = descendant.label;
     if (nil != label) {
       [labels addObject:[NSString stringWithFormat:@"%@", label]];
     }
