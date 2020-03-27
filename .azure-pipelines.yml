@@ -13,7 +13,9 @@ variables:
   MAX_XCODE_VERSION: 11.4_beta
   MAX_PLATFORM_VERSION: 13.4
   MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
-  MAX_TV_DEVICE_NAME: Apple TV
+  MAX_TV_XCODE_VERSION: 11.3
+  MAX_TV_PLATFORM_VERSION: 13.3
+  MAX_TV_DEVICE_NAME: Apple TV 4K
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch)
   DEFAULT_NODE_VERSION: "10.x"
   DEFAULT_RUBY_VERSION: ">= 2.6"
@@ -71,8 +73,8 @@ stages:
       target: tv_runner
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION)
-      xcodeVersion: $(MAX_XCODE_VERSION)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_TV_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -148,7 +150,7 @@ stages:
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
@@ -158,8 +160,8 @@ stages:
       target: tv_runner
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION)
-      xcodeVersion: $(MAX_XCODE_VERSION)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_TV_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -237,8 +239,8 @@ stages:
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION)
-      xcodeVersion: $(MAX_XCODE_VERSION)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_TV_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
