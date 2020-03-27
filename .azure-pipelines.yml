@@ -20,21 +20,14 @@ pool:
   vmImage: "$(MAX_VM_IMAGE)"
 
 
-parameters:
-  - name: nodeInstallTask
-    type: step
-    default:
-      task: NodeTool@0
-        inputs:
-          versionSpec: "$(DEFAULT_NODE_VERSION)"
-
-
 stages:
 - stage: Unit_Tests_And_Linters
   jobs:
   - job: Node_Unit_Tests
     steps:
-    - ${{ parameters.nodeInstallTask }}
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "$(DEFAULT_NODE_VERSION)"
     - script: npm install
     - script: npm run test
 
@@ -276,8 +269,13 @@ stages:
       IOS_VERSION: $(MAX_PLATFORM_VERSION)
       XCODE_VERSION: $(MAX_XCODE_VERSION)
     steps:
-    - ${{ parameters.nodeInstallTask }}
-    - ${{ parameters.rubyInstallTask }}
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "$(DEFAULT_NODE_VERSION)"
+    - task: UseRubyVersion@0
+      inputs:
+        versionSpec: "$(DEFAULT_RUBY_VERSION)"
+        addToPath: true
     - ${{ parameters.bootstrapScript }}
     - script: npm install
     - script: npm run e2e-test
