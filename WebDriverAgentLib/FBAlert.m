@@ -67,7 +67,7 @@
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
   [alert.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
-    if (descendant.elementType != XCUIElementTypeStaticText) {
+    if (descendant.elementType != XCUIElementTypeTextView) {
       return;
     }
     NSString *label = descendant.wdLabel;
@@ -80,11 +80,7 @@
       }
     }
   }];
-  if (resultText.count) {
-    return [resultText componentsJoinedByString:@"\n"];
-  }
-  // return an empty string to reflect the fact there is an alert, but it does not contain any text
-  return @"";
+  return [resultText componentsJoinedByString:@"\n"];
 }
 
 - (BOOL)typeText:(NSString *)text error:(NSError **)error
