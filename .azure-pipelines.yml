@@ -2,9 +2,12 @@
 variables:
   MIN_VM_IMAGE: macOS-10.14
   MIN_XCODE_VERSION: 10
+  # Xcode 10.0 did have not Apple TV
+  MIN_TV_XCODE_VERSION: 10.2
+  MIN_TV_PLATFORM_VERSION: 12.2
+  MIN_TV_DEVICE_NAME: Apple TV
   MIN_PLATFORM_VERSION: 12.0
   MIN_IPHONE_DEVICE_NAME: iPhone X
-  MIN_TV_DEVICE_NAME: Apple TV
   MIN_IPAD_DEVICE_NAME: iPad Air 2
   MAX_VM_IMAGE: macOS-10.15
   MAX_XCODE_VERSION: 11.4_beta
@@ -45,7 +48,7 @@ stages:
       name: Generic_tvOS_Build_Max_Xcode
       action: build
       target: tv_runner
-      sdk: sim
+      sdk: tv_sim
       dest: tv_generic
       codeSign: no
       xcodeVersion: $(MAX_XCODE_VERSION)
@@ -96,7 +99,7 @@ stages:
       name: iOS_Build_Min_Xcode
       action: build
       target: runner
-      sdk: sdk
+      sdk: sim
       iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
       ipadModel: $(MIN_IPAD_DEVICE_NAME)
       iosVersion: $(MIN_PLATFORM_VERSION)
@@ -110,8 +113,8 @@ stages:
       sdk: tv_sim
       dest: tv
       iphoneModel: $(MIN_TV_DEVICE_NAME)
-      tvVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -187,8 +190,8 @@ stages:
       target: tv_lib
       sdk: tv_sim
       iphoneModel: $(MIN_TV_DEVICE_NAME)
-      tvVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -197,8 +200,8 @@ stages:
       target: tv_runner
       sdk: tv_sim
       iphoneModel: $(MIN_TV_DEVICE_NAME)
-      tvVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -268,8 +271,8 @@ stages:
       target: tv_lib
       sdk: tv_sim
       iphoneModel: $(MIN_TV_DEVICE_NAME)
-      tvVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
+      tvVersion: $(MIN_TV_PLATFORM_VERSION)
+      xcodeVersion: $(MIN_TV_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
