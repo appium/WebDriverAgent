@@ -241,7 +241,7 @@ stages:
   - ${{ each job in parameters.iosUnitTestJobs }}:
     - template: ./azure-templates/base_job.yml
       parameters:
-        name: iOS_Unit_Test_Xcode_${{ job.xcodeVersion }}
+        name: iOS_${{ job.dest }}_Unit_Test_Xcode_${{ job.xcodeVersion }}
         action: unit_test
         dest: ${{ job.dest }}
         target: lib
