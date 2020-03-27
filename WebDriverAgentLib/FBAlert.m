@@ -68,12 +68,22 @@
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
   [alert.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType elementType = descendant.elementType;
-    if ((elementType == XCUIElementTypeTextView && ![descendant fb_descendantsMatchingType:XCUIElementTypeStaticText])
-        || elementType == XCUIElementTypeStaticText) {
-      NSString *text = descendant.wdLabel ?: descendant.wdValue;
-      if (nil != text) {
-        [resultText addObject:[NSString stringWithFormat:@"%@", text]];
-      }
+    if (!(elementType == XCUIElementTypeTextView || elementType == XCUIElementTypeStaticText)) {
+      return;
+    }
+
+    if (elementType == XCUIElementTypeTextView
+        && [descendant fb_descendantsMatchingType:XCUIElementTypeStaticText].count > 0) {
+      return;
+    }
+    if (elementType == XCUIElementTypeStaticText
+        && nil != [descendant fb_parentMatchingType:XCUIElementTypeButton]) {
+      return;
+    }
+
+    NSString *text = descendant.wdLabel ?: descendant.wdValue;
+    if (nil != text) {
+      [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }
   }];
   return [resultText componentsJoinedByString:@"\n"];
