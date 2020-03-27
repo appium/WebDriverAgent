@@ -24,9 +24,9 @@ parameters:
   - name: nodeInstallTask
     type: step
     default:
-      - task: NodeTool@0
-      inputs:
-        versionSpec: "$(DEFAULT_NODE_VERSION)"
+      task: NodeTool@0
+        inputs:
+          versionSpec: "$(DEFAULT_NODE_VERSION)"
 
 
 stages:
