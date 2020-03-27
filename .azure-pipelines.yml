@@ -28,11 +28,11 @@ parameters:
   type: object
   default:
   - action: int_test_1
-    dest: phone
+    dest: iphone
   - action: int_test_2
-    dest: phone
+    dest: iphone
   - action: int_test_3
-    dest: phone
+    dest: iphone
   - action: int_test_1
     dest: ipad
   - action: int_test_2
