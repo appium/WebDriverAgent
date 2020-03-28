@@ -10,10 +10,10 @@ variables:
   MIN_IPHONE_DEVICE_NAME: iPhone X
   MIN_IPAD_DEVICE_NAME: iPad Air 2
   MAX_VM_IMAGE: macOS-10.15
-  MAX_XCODE_VERSION: 11.4_beta
+  MAX_XCODE_VERSION: 11.4
   MAX_PLATFORM_VERSION: 13.4
   MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
-  MAX_TV_DEVICE_NAME: Apple TV 4K
+  MAX_TV_DEVICE_NAME: Apple TV
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch)
   DEFAULT_NODE_VERSION: "10.x"
   DEFAULT_RUBY_VERSION: ">= 2.6"
@@ -248,17 +248,16 @@ stages:
       iosVersion: $(MAX_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
-  # https://dev.azure.com/AppiumCI/Appium%20CI/_build/results?buildId=8691&view=logs&j=57d3c370-357b-5a38-e8f1-a263c3e85cd2&t=851bf9fc-7f4a-5e88-7d11-b3c7b0a7d860
-  # - template: ./azure-templates/base_job.yml
-  #   parameters:
-  #     name: tvOS_Unit_Test_Max_Xcode
-  #     action: tv_unit_test
-  #     target: tv_lib
-  #     sdk: tv_sim
-  #     tvModel: $(MAX_TV_DEVICE_NAME)
-  #     tvVersion: $(MAX_PLATFORM_VERSION)
-  #     xcodeVersion: $(MAX_XCODE_VERSION)
-  #     vmImage: $(MAX_VM_IMAGE)
+  - template: ./azure-templates/base_job.yml
+    parameters:
+      name: tvOS_Unit_Test_Max_Xcode
+      action: tv_unit_test
+      target: tv_lib
+      sdk: tv_sim
+      tvModel: $(MAX_TV_DEVICE_NAME)
+      tvVersion: $(MAX_PLATFORM_VERSION)
+      xcodeVersion: $(MAX_XCODE_VERSION)
+      vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
       name: iPhone_Unit_Test_Min_Xcode
