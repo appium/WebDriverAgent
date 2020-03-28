@@ -13,7 +13,7 @@ variables:
   MAX_XCODE_VERSION: 11.4
   MAX_PLATFORM_VERSION: 13.4
   MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
-  MAX_TV_DEVICE_NAME: Apple TV
+  MAX_TV_DEVICE_NAME: Apple TV 4K
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch)
   DEFAULT_NODE_VERSION: "10.x"
   DEFAULT_RUBY_VERSION: ">= 2.6"
@@ -252,6 +252,7 @@ stages:
     parameters:
       name: tvOS_Unit_Test_Max_Xcode
       action: tv_unit_test
+      dest: tv
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
