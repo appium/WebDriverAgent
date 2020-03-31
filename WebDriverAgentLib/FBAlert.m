@@ -22,7 +22,6 @@
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXCodeCompatibility.h"
 
 
 @interface FBAlert ()

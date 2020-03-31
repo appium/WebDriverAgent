@@ -9,7 +9,6 @@
 
 #import "XCUIApplication+FBAlert.h"
 
-#import "FBXCodeCompatibility.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
 
