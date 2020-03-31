@@ -11,6 +11,7 @@
 
 #import "FBXCodeCompatibility.h"
 #import "FBMacros.h"
+#import "FBXCodeCompatibility.h"
 
 #define MAX_CENTER_DELTA 10.0
 
@@ -55,7 +56,8 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
-  [candidate.fb_lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  XCElementSnapshot *snapshot = [self.query fb_cachedSnapshot] ?: self.fb_lastSnapshot;
+  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType curType = descendant.elementType;
     if (curType == XCUIElementTypeButton) {
       buttonsCount++;
@@ -72,6 +74,10 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
                                           XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
   XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
                         matchingPredicate:alertCollectorPredicate].allElementsBoundByIndex.firstObject;
+  if (nil == alert) {
+    return nil;
+  }
+
   XCUIElementType alertType = alert.elementType;
   if (alertType == XCUIElementTypeAlert) {
     return alert;
