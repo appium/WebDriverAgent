@@ -35,10 +35,9 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
     // Find the first XCUIElementTypeOther which is the grandchild of the web view
     // and is horizontally aligned to the center of the screen
-    candidate = [[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
+    candidate = [[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
                     matchingIdentifier:@"WebView"]
-                   childrenMatchingType:XCUIElementTypeOther]
-                  childrenMatchingType:XCUIElementTypeOther]
+                   descendantsMatchingType:XCUIElementTypeOther]
                  matchingPredicate:dstViewPredicate].allElementsBoundByIndex.firstObject;
   } else {
     NSPredicate *webViewPredicate = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeWebView];
@@ -55,7 +54,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
-  XCElementSnapshot *snapshot = [self.query fb_cachedSnapshot] ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = [candidate.query fb_cachedSnapshot] ?: candidate.fb_lastSnapshot;
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType curType = descendant.elementType;
     if (curType == XCUIElementTypeButton) {
