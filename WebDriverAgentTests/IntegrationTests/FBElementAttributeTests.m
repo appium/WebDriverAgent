@@ -150,8 +150,7 @@
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"1");
   XCTAssertFalse(element.wdSelected);
-  [element tap];
-  [element fb_nativeResolve];
+  XCTAssertTrue([element fb_tapWithError:nil]);
   XCTAssertEqualObjects(element.wdValue, @"0");
   XCTAssertFalse(element.wdSelected);
 }
