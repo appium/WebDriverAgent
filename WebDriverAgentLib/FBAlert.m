@@ -72,7 +72,7 @@
   }
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  XCElementSnapshot *snapshot = [self.alertElement.query fb_cachedSnapshot] ?: self.alertElement.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.alertElement.fb_cachedSnapshot ?: self.alertElement.fb_lastSnapshot;
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType elementType = descendant.elementType;
     if (!(elementType == XCUIElementTypeTextView || elementType == XCUIElementTypeStaticText)) {
@@ -128,7 +128,7 @@
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  XCElementSnapshot *snapshot = [self.alertElement.query fb_cachedSnapshot] ?: self.alertElement.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.alertElement.fb_cachedSnapshot ?: self.alertElement.fb_lastSnapshot;
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;

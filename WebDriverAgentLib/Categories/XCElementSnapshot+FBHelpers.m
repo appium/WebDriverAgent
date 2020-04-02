@@ -67,7 +67,7 @@ inline static BOOL isNilOrEmpty(id value);
     // Pure payload-based comparison sometimes yield false negatives, therefore relying on it only if all of the identifying properties are blank
   if (isNilOrEmpty(self.identifier) && isNilOrEmpty(self.title) && isNilOrEmpty(self.label) &&
       isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue)) {
-    return [self.wdUID isEqualToString:snapshot.wdUID];
+    return [self.wdUID isEqualToString:(snapshot.wdUID ?: @"")];
   }
   
   return self.elementType == snapshot.elementType &&

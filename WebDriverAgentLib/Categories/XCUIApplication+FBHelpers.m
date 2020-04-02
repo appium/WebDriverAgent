@@ -98,7 +98,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSDictionary *)fb_tree
 {
-  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
   NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
   NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children
                                                                      selfUID:snapshot.wdUID

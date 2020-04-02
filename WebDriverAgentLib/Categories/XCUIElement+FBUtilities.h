@@ -29,6 +29,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (XCElementSnapshot *)fb_lastSnapshot;
 
 /**
+ Gets the cached snapshot of the current element. nil
+ is returned if either no cached element snapshot could be retrived
+ or if the feature is not supported.
+
+@return The cached snapshot of the element
+*/
+- (nullable XCElementSnapshot *)fb_cachedSnapshot;
+
+/**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes
  needed for creating the page source of this element. No additional calls to the accessibility layer
  are required.

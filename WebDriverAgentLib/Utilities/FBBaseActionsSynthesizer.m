@@ -82,7 +82,7 @@
   } else {
     // The offset relative to the element is defined
 
-    XCElementSnapshot *snapshot = element.fb_lastSnapshot;
+    XCElementSnapshot *snapshot = element.fb_cachedSnapshot ?: element.fb_lastSnapshot;
     if (nil == positionOffset) {
       NSValue *hitPointValue = snapshot.fb_hitPoint;
       if (nil != hitPointValue) {

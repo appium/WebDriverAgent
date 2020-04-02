@@ -16,6 +16,7 @@
 #import "NSPredicate+FBFormat.h"
 #import "XCElementSnapshot.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -96,7 +97,7 @@
   NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:predicate];
   NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
   // Include self element into predicate search
-  if ([formattedPredicate evaluateWithObject:self.fb_lastSnapshot]) {
+  if ([formattedPredicate evaluateWithObject:self.fb_cachedSnapshot ?: self.fb_lastSnapshot]) {
     if (shouldReturnAfterFirstMatch) {
       return @[self];
     }
