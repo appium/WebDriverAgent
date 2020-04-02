@@ -9,4 +9,4 @@ jobs:
           addChangeLog: false
   - template: ./templates/build.yml
     parameters:
-      name: 'macOS_10_14'
+      name: 'macOS_10_15'
