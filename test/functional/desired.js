@@ -89,6 +89,7 @@ let GENERIC_CAPS = {
   wdaLaunchTimeout: (60 * 1000 * 4),
   wdaConnectionTimeout: (60 * 1000 * 8),
   useNewWDA: true,
+  simulatorStartupTimeout: 240000,
 };
 
 if (process.env.CLOUD) {
