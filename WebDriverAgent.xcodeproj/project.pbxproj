@@ -334,6 +334,8 @@
 		7136C0F9243A182400921C76 /* FBW3CTypeActionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7136C0F8243A182400921C76 /* FBW3CTypeActionsTests.m */; };
 		7139145A1DF01989005896C2 /* XCUIElementHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 713914591DF01989005896C2 /* XCUIElementHelpersTests.m */; };
 		7139145C1DF01A12005896C2 /* NSExpressionFBFormatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7139145B1DF01A12005896C2 /* NSExpressionFBFormatTests.m */; };
+		713AE575243A53BE0000D657 /* FBW3CActionsHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 713AE573243A53BE0000D657 /* FBW3CActionsHelpers.h */; };
+		713AE576243A53BE0000D657 /* FBW3CActionsHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 713AE574243A53BE0000D657 /* FBW3CActionsHelpers.m */; };
 		713C6DCF1DDC772A00285B92 /* FBElementUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 713C6DCD1DDC772A00285B92 /* FBElementUtils.h */; };
 		713C6DD01DDC772A00285B92 /* FBElementUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 713C6DCE1DDC772A00285B92 /* FBElementUtils.m */; };
 		714097431FAE1B0B008FB2C5 /* FBBaseActionsSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 714097411FAE1B0B008FB2C5 /* FBBaseActionsSynthesizer.h */; };
@@ -864,6 +866,8 @@
 		7136C0F8243A182400921C76 /* FBW3CTypeActionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBW3CTypeActionsTests.m; sourceTree = "<group>"; };
 		713914591DF01989005896C2 /* XCUIElementHelpersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XCUIElementHelpersTests.m; sourceTree = "<group>"; };
 		7139145B1DF01A12005896C2 /* NSExpressionFBFormatTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSExpressionFBFormatTests.m; sourceTree = "<group>"; };
+		713AE573243A53BE0000D657 /* FBW3CActionsHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBW3CActionsHelpers.h; sourceTree = "<group>"; };
+		713AE574243A53BE0000D657 /* FBW3CActionsHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBW3CActionsHelpers.m; sourceTree = "<group>"; };
 		713C6DCD1DDC772A00285B92 /* FBElementUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBElementUtils.h; sourceTree = "<group>"; };
 		713C6DCE1DDC772A00285B92 /* FBElementUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBElementUtils.m; sourceTree = "<group>"; };
 		714097411FAE1B0B008FB2C5 /* FBBaseActionsSynthesizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBBaseActionsSynthesizer.h; sourceTree = "<group>"; };
@@ -1667,6 +1671,8 @@
 				C8FB547822D4C1FC00B69954 /* FBUnattachedAppLauncher.m */,
 				714097491FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.h */,
 				7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */,
+				713AE573243A53BE0000D657 /* FBW3CActionsHelpers.h */,
+				713AE574243A53BE0000D657 /* FBW3CActionsHelpers.m */,
 				7157B28F221DADD2001C348C /* FBXCAXClientProxy.h */,
 				7157B290221DADD2001C348C /* FBXCAXClientProxy.m */,
 				EE5A24401F136C8D0078B1D9 /* FBXCodeCompatibility.h */,
@@ -2196,6 +2202,7 @@
 				EE158AB21CBD456F00A3E3F0 /* XCUIElement+FBScrolling.h in Headers */,
 				EE35AD361E3B77D600A02D78 /* XCSourceCodeTreeNode.h in Headers */,
 				EE35AD341E3B77D600A02D78 /* XCPointerEventPath.h in Headers */,
+				713AE575243A53BE0000D657 /* FBW3CActionsHelpers.h in Headers */,
 				EE158AE11CBD456F00A3E3F0 /* FBRouteRequest.h in Headers */,
 				648C10AB22AAAD9C00B81B9A /* UIKeyboardImpl.h in Headers */,
 				EE35AD401E3B77D600A02D78 /* XCTest.h in Headers */,
@@ -2856,6 +2863,7 @@
 				7140974C1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m in Sources */,
 				EE158AFA1CBD456F00A3E3F0 /* FBApplicationProcessProxy.m in Sources */,
 				EE6A893B1D0B38640083E92B /* FBFailureProofTestCase.m in Sources */,
+				713AE576243A53BE0000D657 /* FBW3CActionsHelpers.m in Sources */,
 				71B155E123080CA600646AFB /* FBProtocolHelpers.m in Sources */,
 				EE158AB11CBD456F00A3E3F0 /* XCUIElement+FBIsVisible.m in Sources */,
 				EEBBD48C1D47746D00656A81 /* XCUIElement+FBFind.m in Sources */,

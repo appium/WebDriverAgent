@@ -35,6 +35,9 @@
 - (void)typeText:(id)arg1 atOffset:(double)arg2 typingSpeed:(unsigned long long)arg3;
 // Since Xcode 10.2
 - (id)initForTextInput;
+// Since Xcode 10.2
+- (void)setModifiers:(unsigned long long)arg1 mergeWithCurrentModifierFlags:(_Bool)arg2 atOffset:(double)arg3;
+
 - (id)init;
 
 @end

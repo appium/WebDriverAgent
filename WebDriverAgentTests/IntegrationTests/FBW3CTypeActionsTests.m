@@ -136,6 +136,12 @@
           @{@"type": @"pause", @"duration": @500},
           @{@"type": @"keyDown", @"value": @"🏀"},
           @{@"type": @"keyUp", @"value": @"🏀"},
+          @{@"type": @"keyDown", @"value": @"N"},
+          @{@"type": @"keyUp", @"value": @"N"},
+          @{@"type": @"keyDown", @"value": @"B"},
+          @{@"type": @"keyUp", @"value": @"B"},
+          @{@"type": @"keyDown", @"value": @"a"},
+          @{@"type": @"keyUp", @"value": @"a"},
           @{@"type": @"pause", @"duration": @500},
           ],
       },
@@ -145,7 +151,7 @@
                                                 elementCache:nil
                                                        error:&error]);
   XCTAssertNil(error);
-  XCTAssertEqualObjects(textField.wdValue, @"🏀");
+  XCTAssertEqualObjects(textField.wdValue, @"🏀NBa");
 }
 
 @end

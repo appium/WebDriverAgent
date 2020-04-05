@@ -16,6 +16,7 @@
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBProtocolHelpers.h"
+#import "FBW3CActionsHelpers.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCElementSnapshot+FBHelpers.h"
@@ -56,7 +57,6 @@ static NSString *const FB_ACTION_ITEM_KEY_X = @"x";
 static NSString *const FB_ACTION_ITEM_KEY_Y = @"y";
 static NSString *const FB_ACTION_ITEM_KEY_BUTTON = @"button";
 static NSString *const FB_ACTION_ITEM_KEY_PRESSURE = @"pressure";
-static NSString *const FB_ACTION_ITEM_KEY_VALUE = @"value";
 
 static NSString *const FB_KEY_ID = @"id";
 static NSString *const FB_KEY_PARAMETERS = @"parameters";
@@ -322,14 +322,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (currentItemIndex < allItems.count - 1) {
-    return @[];
-  }
-
-  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
-  [result liftUpAtOffset:currentOffset];
-  return @[result];
+  return @[];
 }
 
 @end
@@ -381,21 +374,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 @end
 
 
-NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error)
-{
-  id value = [actionItem objectForKey:FB_ACTION_ITEM_KEY_VALUE];
-  if (![value isKindOfClass:NSString.class] || [value length] == 0) {
-    NSString *description = [NSString stringWithFormat:@"Key value must be present and should be a valid non-empty string for '%@'", actionItem];
-    if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:description] build];
-    }
-    return nil;
-  }
-  NSRange r = [(NSString *)value rangeOfComposedCharacterSequenceAtIndex:0];
-  return [(NSString *)value substringWithRange:r];
-}
-
-
 @implementation FBKeyUpItem : FBW3CKeyItem
 
 - (nullable instancetype)initWithActionItem:(NSDictionary<NSString *, id> *)actionItem
@@ -410,7 +388,7 @@ NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error
                             offset:offset
                              error:error];
   if (self) {
-    NSString *value = extractValue(actionItem, error);
+    NSString *value = FBRequireValue(actionItem, error);
     if (nil == value) {
       return nil;
     }
@@ -462,42 +440,117 @@ NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error
   return [keyUpChars componentsJoinedByString:@""];
 }
 
+- (BOOL)hasDownPairInItems:(NSArray *)allItems
+          currentItemIndex:(NSUInteger)currentItemIndex
+{
+  NSInteger balance = 1;
+  BOOL isSelfMetaModifier = FBIsMetaModifier(self.value);
+  for (NSInteger index = currentItemIndex - 1; index >= 0; index--) {
+    FBW3CKeyItem *item = [allItems objectAtIndex:index];
+    BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
+    BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
+    if (!isKeyUp && !isKeyDown) {
+      if (isSelfMetaModifier) {
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    NSString *value = [item performSelector:@selector(value)];
+    if (isKeyDown && [value isEqualToString:self.value]) {
+      balance--;
+    }
+    if (isKeyUp && [value isEqualToString:self.value]) {
+      balance++;
+    }
+  }
+  return 0 == balance;
+}
+
+- (NSUInteger)collectModifersWithItems:(NSArray *)allItems
+                      currentItemIndex:(NSUInteger)currentItemIndex
+{
+  NSUInteger modifiers = 0;
+  for (NSUInteger index = 0; index < currentItemIndex; index++) {
+    FBW3CKeyItem *item = [allItems objectAtIndex:index];
+    BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
+    BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
+    if (!isKeyUp && !isKeyDown) {
+      continue;
+    }
+
+    NSString *value = [item performSelector:@selector(value)];
+    NSUInteger modifier = FBToMetaModifier(value);
+    if (modifier > 0) {
+      if (isKeyDown) {
+        modifiers |= modifier;
+      } else if (item.offset < self.offset) {
+        // only cancel the modifier if it is not in the same group
+        modifiers &= ~modifier;
+      }
+    }
+  }
+  return modifiers;
+}
+
+- (NSString *)collectTextWithItems:(NSArray *)allItems
+                  currentItemIndex:(NSUInteger)currentItemIndex
+{
+  NSMutableArray *result = [NSMutableArray array];
+  for (NSInteger index = currentItemIndex; index >= 0; index--) {
+    FBW3CKeyItem *item = [allItems objectAtIndex:index];
+    BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
+    BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
+    if (!isKeyUp && !isKeyDown) {
+      break;
+    }
+
+    NSString *value = [item performSelector:@selector(value)];
+    if (FBIsMetaModifier(value)) {
+      continue;
+    }
+
+    if (isKeyUp) {
+      [result addObject:value];
+    }
+  }
+  return [result.reverseObjectEnumerator.allObjects componentsJoinedByString:@""];
+}
+
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath
                                          allItems:(NSArray *)allItems
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (0 == currentItemIndex) {
-    NSString *description = [NSString stringWithFormat:@"Key up cannot be the first action in '%@'", self.actionItem];
+  BOOL hasDownPair = [self hasDownPairInItems:allItems currentItemIndex:currentItemIndex];
+  if (!hasDownPair) {
+    NSString *description = [NSString stringWithFormat:@"Key Up action '%@' is not balanced with a preceding Key Down one in '%@'", self.value, self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
     return nil;
   }
 
-  BOOL isLastKeyEventInGroup = currentItemIndex == allItems.count - 1
-    || [[allItems objectAtIndex:currentItemIndex + 1] isKindOfClass:FBKeyPauseItem.class];
-  if (!isLastKeyEventInGroup) {
+  if (FBIsMetaModifier(self.value)) {
     return @[];
   }
 
-  NSMutableArray *reversedGroup = [NSMutableArray array];
-  for (NSInteger index = currentItemIndex; index >= 0; index--) {
-    FBW3CKeyItem *item = [allItems objectAtIndex:index];
-    if ([item isKindOfClass:FBKeyPauseItem.class]) {
-      break;
-    }
-    [reversedGroup addObject:item];
-  }
-  NSArray *group = [reversedGroup reverseObjectEnumerator].allObjects;
-  NSString *result = [self stringWithGroup:group error:error];
-  if (nil == result) {
-    return nil;
+  BOOL isLastKeyUpInGroup = currentItemIndex == allItems.count - 1
+    || [[allItems objectAtIndex:currentItemIndex + 1] isKindOfClass:FBKeyPauseItem.class];
+  if (!isLastKeyUpInGroup) {
+    return @[];
   }
 
+  NSString *text = [self collectTextWithItems:allItems currentItemIndex:currentItemIndex];
+  NSTimeInterval offset = FBMillisToSeconds(self.offset);
   XCPointerEventPath *resultPath = [[XCPointerEventPath alloc] initForTextInput];
-  [resultPath typeText:result
-              atOffset:FBMillisToSeconds(self.offset)
+  // TODO: Figure out how meta modifiers could be applied
+  // TODO: The current approach throws zero division error on execution
+  // NSUInteger modifiers = [self collectModifersWithItems:allItems currentItemIndex:currentItemIndex];
+  // [resultPath setModifiers:modifiers mergeWithCurrentModifierFlags:NO atOffset:0];
+  [resultPath typeText:text
+              atOffset:offset
            typingSpeed:FBConfiguration.maxTypingFrequency];
   return @[resultPath];
 }
@@ -518,7 +571,7 @@ NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error
                             offset:offset
                              error:error];
   if (self) {
-    NSString *value = extractValue(actionItem, error);
+    NSString *value = FBRequireValue(actionItem, error);
     if (nil == value) {
       return nil;
     }
@@ -595,14 +648,7 @@ NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (currentItemIndex < allItems.count - 1) {
-    return @[];
-  }
-
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTextInput];
-  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
-  [result typeKey:@"" modifiers:0 atOffset:currentOffset];
-  return @[result];
+  return @[];
 }
 
 @end
