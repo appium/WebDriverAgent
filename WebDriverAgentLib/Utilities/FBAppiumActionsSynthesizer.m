@@ -302,15 +302,10 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (nil != eventPath) {
-    if (0 == currentItemIndex) {
-      return @[];
-    }
-    FBAppiumGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
-    if (![preceedingItem isKindOfClass:FBReleaseItem.class] && currentItemIndex < allItems.count - 1) {
-      return @[];
-    }
+  if (currentItemIndex < allItems.count - 1) {
+    return @[];
   }
+  
   NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
   XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
   if (currentItemIndex == allItems.count - 1) {
@@ -346,7 +341,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                             error:(NSError **)error
 {
   if (nil == eventPath) {
-    NSString *description = [NSString stringWithFormat:@"Move to must not be the first action in '%@'", self.actionItem];
+    NSString *description = [NSString stringWithFormat:@"Move To must not be the first action in '%@'", self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
