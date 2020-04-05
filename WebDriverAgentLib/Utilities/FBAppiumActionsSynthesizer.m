@@ -305,12 +305,10 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
   if (currentItemIndex < allItems.count - 1) {
     return @[];
   }
-  
+
   NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
   XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
-  if (currentItemIndex == allItems.count - 1) {
-    [result liftUpAtOffset:currentOffset];
-  }
+  [result liftUpAtOffset:currentOffset];
   return @[result];
 }
 
