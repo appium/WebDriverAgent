@@ -32,7 +32,7 @@
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_performW3CTouchActions:gesture elementCache:nil error:&error]);
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:gesture elementCache:nil error:&error]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
 
@@ -270,7 +270,7 @@
   
   for (NSArray<NSDictionary<NSString *, id> *> *invalidGesture in invalidGestures) {
     NSError *error;
-    XCTAssertFalse([self.testedApplication fb_performW3CTouchActions:invalidGesture elementCache:nil error:&error]);
+    XCTAssertFalse([self.testedApplication fb_performW3CActions:invalidGesture elementCache:nil error:&error]);
     XCTAssertNotNil(error);
   }
 }
@@ -382,7 +382,7 @@
 {
   NSString *previousValue = self.pickerWheel.value;
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_performW3CTouchActions:gesture elementCache:nil error:&error]);
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:gesture elementCache:nil error:&error]);
   XCTAssertNil(error);
   XCTAssertTrue([[[[FBRunLoopSpinner new]
                    timeout:2.0]

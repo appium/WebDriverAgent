@@ -164,7 +164,7 @@
     currentEventPath = currentEventPaths.lastObject;
     if (nil == currentEventPath) {
       currentEventPath = previousEventPath;
-    } else {
+    } else if (currentEventPath != previousEventPath) {
       [result addObjectsFromArray:currentEventPaths];
       previousEventPath = currentEventPath;
     }
