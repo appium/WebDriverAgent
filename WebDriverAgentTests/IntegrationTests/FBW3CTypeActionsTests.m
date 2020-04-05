@@ -15,8 +15,8 @@
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "FBRuntimeUtils.h"
+#import "FBXCodeCompatibility.h"
 
-static NSString* const MIN_SDK_VERSION = @"10.2";
 
 @interface FBW3CTypeActionsTests : FBIntegrationTestCase
 @end
@@ -32,7 +32,7 @@ static NSString* const MIN_SDK_VERSION = @"10.2";
 
 - (void)testErroneousGestures
 {
-  if (isSDKVersionLessThan(MIN_SDK_VERSION)) {
+  if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
     return;
   }
 
@@ -121,7 +121,7 @@ static NSString* const MIN_SDK_VERSION = @"10.2";
 
 - (void)testTextTyping
 {
-  if (isSDKVersionLessThan(MIN_SDK_VERSION)) {
+  if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
     return;
   }
 

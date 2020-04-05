@@ -16,6 +16,7 @@
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBProtocolHelpers.h"
+#import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIApplication+FBHelpers.h"
@@ -827,14 +828,9 @@ NSString *extractValue(NSDictionary<NSString *, id> *actionItem, NSError **error
 - (nullable NSArray<XCPointerEventPath *> *)eventPathsWithActionDescription:(NSDictionary<NSString *, id> *)actionDescription forActionId:(NSString *)actionId error:(NSError **)error
 {
   id actionType = [actionDescription objectForKey:FB_KEY_TYPE];
-  static BOOL isKbInputSupported = NO;
-  static dispatch_once_t onceKbInputSupported;
-  dispatch_once(&onceKbInputSupported, ^{
-    isKbInputSupported = [XCPointerEvent.class respondsToSelector:@selector(keyboardEventForKeyCode:keyPhase:modifierFlags:offset:)];
-  });
   if (![actionType isKindOfClass:NSString.class] ||
       !([actionType isEqualToString:FB_ACTION_TYPE_POINTER]
-        || (isKbInputSupported && [actionType isEqualToString:FB_ACTION_TYPE_KEY]))) {
+        || ([XCPointerEvent.class fb_areKeyEventsSupported] && [actionType isEqualToString:FB_ACTION_TYPE_KEY]))) {
     NSString *description = [NSString stringWithFormat:@"Only actions of '%@' types are supported. '%@' is given instead for action with id '%@'", @[FB_ACTION_TYPE_POINTER, FB_ACTION_TYPE_KEY], actionType, actionId];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];

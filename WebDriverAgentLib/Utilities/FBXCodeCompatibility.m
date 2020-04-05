@@ -190,3 +190,17 @@ static dispatch_once_t onceAppWithPIDToken;
 }
 
 @end
+
+@implementation XCPointerEvent (FBXcodeCompatibility)
+
++ (BOOL)fb_areKeyEventsSupported
+{
+  static BOOL isKbInputSupported = NO;
+  static dispatch_once_t onceKbInputSupported;
+  dispatch_once(&onceKbInputSupported, ^{
+    isKbInputSupported = [XCPointerEvent.class respondsToSelector:@selector(keyboardEventForKeyCode:keyPhase:modifierFlags:offset:)];
+  });
+  return isKbInputSupported;
+}
+
+@end

@@ -82,7 +82,7 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.3.0)
       xcpretty-travis-formatter (>= 0.0.3)
-    fastlane-plugin-test_center (3.8.15)
+    fastlane-plugin-test_center (3.10.1)
       colorize
       json
       plist

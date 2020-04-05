@@ -8,6 +8,7 @@
  */
 
 #import <WebDriverAgentLib/WebDriverAgentLib.h>
+#import "XCPointerEvent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,6 +77,14 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 - (XCElementSnapshot *)fb_elementSnapshotForDebugDescription;
 
 @end
+
+
+@interface XCPointerEvent (FBCompatibility)
+
+- (BOOL)fb_areKeyEventsSupported;
+
+@end
+
 
 @interface XCUIElement (FBCompatibility)
 
