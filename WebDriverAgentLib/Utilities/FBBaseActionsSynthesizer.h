@@ -15,17 +15,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if !TARGET_OS_TV
-@interface FBBaseGestureItem : NSObject
+@interface FBBaseActionItem : NSObject
 
 /*! Raw JSON representation of the corresponding action item */
 @property (nonatomic) NSDictionary<NSString *, id> *actionItem;
 /*! Current application instance */
 @property (nonatomic) XCUIApplication *application;
-/*! Absolute position on the screen where the gesure should be performed */
-@property (nonatomic) CGPoint atPosition;
-/*! Gesture duration in milliseconds */
-@property (nonatomic) double duration;
-/*! Gesture offset in the chain in milliseconds */
+/*! Action offset in the chain in milliseconds */
 @property (nonatomic) double offset;
 
 /**
@@ -44,11 +40,24 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return the constructed XCPointerEventPath instance or nil in case of failure
  */
-- (nullable NSArray<XCPointerEventPath *> *)addToEventPath:(nullable XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error;
+- (nullable NSArray<XCPointerEventPath *> *)addToEventPath:(nullable XCPointerEventPath *)eventPath
+                                                  allItems:(NSArray *)allItems
+                                          currentItemIndex:(NSUInteger)currentItemIndex
+                                                     error:(NSError **)error;
+
+@end
+
+
+@interface FBBaseGestureItem : FBBaseActionItem
+
+/*! Absolute position on the screen where the gesure should be performed */
+@property (nonatomic) CGPoint atPosition;
+/*! Gesture duration in milliseconds */
+@property (nonatomic) double duration;
 
 /**
  Returns fixed hit point coordinates for the case when XCTest fails to transform element snaapshot properly on screen rotation.
- 
+
  @param hitPoint The initial hitpoint coordinates
  @param snapshot Element's snapshot instance
  @return The fixed hit point coordinates, if there is a need to fix them, or the unchanged hit point value
@@ -57,21 +66,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Calculate absolute gesture position on the screen based on provided element and positionOffset values.
- 
+
  @param element The element instance to perform the gesture on. If element equals to nil then positionOffset is considered as absolute coordinates
  @param positionOffset The actual coordinate offset. If this calue equals to nil then element's hitpoint is taken as gesture position. If element is not nil then this offset is calculated relatively to the top-left cordner of the element's position
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return Adbsolute gesture position on the screen or nil if the calculation fails (for example, the element is invisible)
  */
-- (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element positionOffset:(nullable NSValue *)positionOffset error:(NSError **)error;
+- (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element
+                           positionOffset:(nullable NSValue *)positionOffset
+                                    error:(NSError **)error;
 
 @end
 
 
-@interface FBBaseGestureItemsChain : NSObject
+@interface FBBaseActionItemsChain : NSObject
 
 /*! All gesture items collected in the chain */
-@property (readonly, nonatomic) NSMutableArray<FBBaseGestureItem *> *items;
+@property (readonly, nonatomic) NSMutableArray *items;
 /*! Total length of all the gestures in the chain in milliseconds */
 @property (nonatomic) double durationOffset;
 
@@ -80,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param item The actual gesture instance to be added
  */
-- (void)addItem:(FBBaseGestureItem *)item;
+- (void)addItem:(FBBaseActionItem *)item;
 
 /**
  Represents the chain as XCPointerEventPath instance.
@@ -111,7 +122,10 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return The corresponding synthesizer instance or nil in case of failure (for example if `actions` is nil or empty)
  */
-- (nullable instancetype)initWithActions:(NSArray *)actions forApplication:(XCUIApplication *)application elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error;
+- (nullable instancetype)initWithActions:(NSArray *)actions
+                          forApplication:(XCUIApplication *)application
+                            elementCache:(nullable FBElementCache *)elementCache
+                                   error:(NSError **)error;
 
 /**
  Synthesizes XCTest-compatible event record to be performed in the UI. This method is supposed to be overriden by subclasses.

@@ -154,6 +154,17 @@
             ],
         },
       ],
+
+    // Chain element with singe up action
+    @[@{
+        @"type": @"pointer",
+        @"id": @"finger1",
+        @"parameters": @{@"pointerType": @"touch"},
+        @"actions": @[
+            @{@"type": @"pointerUp"},
+            ],
+        },
+      ],
     
     // Chain element containing action item without y coordinate
     @[@{
