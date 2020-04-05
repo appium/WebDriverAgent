@@ -402,44 +402,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   return FB_ACTION_ITEM_TYPE_KEY_UP;
 }
 
-- (nullable NSString *)stringWithGroup:(NSArray<FBW3CKeyItem *> *)group
-                                 error:(NSError **)error
-{
-  NSMutableArray<NSString *> *keyDownChars = [NSMutableArray array];
-  NSMutableArray<NSString *> *keyUpChars = [NSMutableArray array];
-  for (FBW3CKeyItem *item in group) {
-    BOOL isDownKey = [item isKindOfClass:FBKeyDownItem.class];
-    NSString *value = isDownKey ? ((FBKeyDownItem *) item).value : ((FBKeyUpItem *) item).value;
-    unichar charCode = [value characterAtIndex:0];
-    if (charCode >= 0xE000 && charCode <= 0xF8FF) {
-      [FBLogger logFmt:@"Skipping the unsupported meta character with code '%@' in action item '%@'", @(charCode), self.actionItem];
-      continue;
-    }
-
-    if (isDownKey) {
-      [keyDownChars addObject:value];
-    } else {
-      [keyUpChars addObject:value];
-    }
-  }
-  NSString *errorDescription = [NSString stringWithFormat:@"Key up and down actions must be properly balanced for '%@'", self.actionItem];
-  if (keyUpChars.count != keyDownChars.count) {
-    if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:errorDescription] build];
-    }
-    return nil;
-  }
-  for (NSUInteger index = 0; index < keyUpChars.count; index++) {
-    if (![[keyUpChars objectAtIndex:index] isEqualToString:[keyDownChars objectAtIndex:index]]) {
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:errorDescription] build];
-      }
-      return nil;
-    }
-  }
-  return [keyUpChars componentsJoinedByString:@""];
-}
-
 - (BOOL)hasDownPairInItems:(NSArray *)allItems
           currentItemIndex:(NSUInteger)currentItemIndex
 {
