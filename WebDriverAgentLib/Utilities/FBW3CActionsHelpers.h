@@ -21,6 +21,16 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *_Nullable FBRequireValue(NSDictionary<NSString *, id> *actionItem, NSError **error);
 
 /**
+ * Extracts duration property for an action
+ *
+ * @param actionItem Action item dictionary
+ * @param defaultValue The default duration value if it is not present. If nil then the error will be set
+ * @param error Contains the acttual error in case of failure
+ * @returns Either the extracted value or nil in case of failure
+ */
+NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNumber *_Nullable defaultValue, NSError **error);
+
+/**
  * Checks whether the given key action value is a W3C meta modifier
  * @param value key action value
  * @returns YES if the value is a meta modifier

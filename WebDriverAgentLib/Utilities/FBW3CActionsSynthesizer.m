@@ -52,7 +52,6 @@ static NSString *const FB_ACTION_ITEM_TYPE_PAUSE = @"pause";
 static NSString *const FB_ACTION_ITEM_TYPE_KEY_UP = @"keyUp";
 static NSString *const FB_ACTION_ITEM_TYPE_KEY_DOWN = @"keyDown";
 
-static NSString *const FB_ACTION_ITEM_KEY_DURATION = @"duration";
 static NSString *const FB_ACTION_ITEM_KEY_X = @"x";
 static NSString *const FB_ACTION_ITEM_KEY_Y = @"y";
 static NSString *const FB_ACTION_ITEM_KEY_BUTTON = @"button";
@@ -127,18 +126,11 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     self.application = application;
     self.offset = offset;
     _previousItem = previousItem;
-    self.duration = 0.0;
-    NSNumber *durationObj = [actionItem objectForKey:FB_ACTION_ITEM_KEY_DURATION];
-    if (nil != durationObj) {
-      self.duration += [durationObj doubleValue];
-    }
-    if (self.duration < 0.0) {
-      NSString *description = [NSString stringWithFormat:@"Duration value cannot be negative for '%@' action item", self.actionItem];
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:description] build];
-      }
+    NSNumber *durationObj = FBOptDuration(actionItem, @0, error);
+    if (nil == durationObj) {
       return nil;
     }
+    self.duration = durationObj.doubleValue;
     NSValue *position = [self positionWithError:error];
     if (nil == position) {
       return nil;
@@ -587,12 +579,8 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                             offset:offset
                              error:error];
   if (self) {
-    id duration = [actionItem objectForKey:FB_ACTION_ITEM_KEY_DURATION];
-    if (nil == duration || [duration doubleValue] < 0) {
-      NSString *description = [NSString stringWithFormat:@"Duration value must be present and should be positive for '%@'", self.actionItem];
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:description] build];
-      }
+    NSNumber *duration = FBOptDuration(actionItem, nil, error);
+    if (nil == duration) {
       return nil;
     }
     _duration = [duration doubleValue];

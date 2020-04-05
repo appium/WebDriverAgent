@@ -14,7 +14,7 @@
 #import "FBLogger.h"
 
 static NSString *const FB_ACTION_ITEM_KEY_VALUE = @"value";
-
+static NSString *const FB_ACTION_ITEM_KEY_DURATION = @"duration";
 
 NSString *FBRequireValue(NSDictionary<NSString *, id> *actionItem, NSError **error)
 {
@@ -28,6 +28,29 @@ NSString *FBRequireValue(NSDictionary<NSString *, id> *actionItem, NSError **err
   }
   NSRange r = [(NSString *)value rangeOfComposedCharacterSequenceAtIndex:0];
   return [(NSString *)value substringWithRange:r];
+}
+
+NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNumber *defaultValue, NSError **error)
+{
+  NSNumber *durationObj = [actionItem objectForKey:FB_ACTION_ITEM_KEY_DURATION];
+  if (nil == durationObj) {
+    if (nil == defaultValue) {
+      NSString *description = [NSString stringWithFormat:@"Duration must be present for '%@' action item", actionItem];
+      if (error) {
+        *error = [[FBErrorBuilder.builder withDescription:description] build];
+      }
+      return nil;
+    }
+    return defaultValue;
+  }
+  if ([durationObj doubleValue] < 0.0) {
+    NSString *description = [NSString stringWithFormat:@"Duration must be a valid positive number for '%@' action item", actionItem];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
+    }
+    return nil;
+  }
+  return durationObj;
 }
 
 BOOL FBIsMetaModifier(NSString *value)
