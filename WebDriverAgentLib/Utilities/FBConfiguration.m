@@ -403,14 +403,14 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
       return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
     } else {
       [FBLogger log:@"Updating keyboard autocorrection preference is not supported"];
-      return NO;
+      return nil;
     }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
       return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
     } else {
       [FBLogger log:@"Updating keyboard prediction preference is not supported"];
-      return NO;
+      return nil;
     }
   }
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
