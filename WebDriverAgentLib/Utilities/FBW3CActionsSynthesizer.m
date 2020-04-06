@@ -332,7 +332,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                             error:(NSError **)error
 {
   if (nil == eventPath) {
-    NSString *description = [NSString stringWithFormat:@"Key up must not be the first action in '%@'", self.actionItem];
+    NSString *description = [NSString stringWithFormat:@"Pointer Up must not be the first action in '%@'", self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
@@ -572,7 +572,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                             error:(NSError **)error
 {
   if (![self hasUpPairInItems:allItems currentItemIndex:currentItemIndex]) {
-    NSString *description = [NSString stringWithFormat:@"Key Down action must have a closing Key Up successor in '%@'", self.actionItem];
+    NSString *description = [NSString stringWithFormat:@"Key Down action '%@' must have a closing Key Up successor in '%@'", self.value, self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
