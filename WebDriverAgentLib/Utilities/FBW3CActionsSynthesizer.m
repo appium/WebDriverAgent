@@ -477,8 +477,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  BOOL hasDownPair = [self hasDownPairInItems:allItems currentItemIndex:currentItemIndex];
-  if (!hasDownPair) {
+  if (![self hasDownPairInItems:allItems currentItemIndex:currentItemIndex]) {
     NSString *description = [NSString stringWithFormat:@"Key Up action '%@' is not balanced with a preceding Key Down one in '%@'", self.value, self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
@@ -539,21 +538,41 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   return FB_ACTION_ITEM_TYPE_KEY_DOWN;
 }
 
+- (BOOL)hasUpPairInItems:(NSArray *)allItems
+        currentItemIndex:(NSUInteger)currentItemIndex
+{
+  NSInteger balance = 1;
+  BOOL isSelfMetaModifier = FBIsMetaModifier(self.value);
+  for (NSUInteger index = currentItemIndex + 1; index < allItems.count; index++) {
+    FBW3CKeyItem *item = [allItems objectAtIndex:index];
+    BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
+    BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
+    if (!isKeyUp && !isKeyDown) {
+      if (isSelfMetaModifier) {
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    NSString *value = [item performSelector:@selector(value)];
+    if (isKeyUp && [value isEqualToString:self.value]) {
+      balance--;
+    }
+    if (isKeyDown && [value isEqualToString:self.value]) {
+      balance++;
+    }
+  }
+  return 0 == balance;
+}
+
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath
                                          allItems:(NSArray *)allItems
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  BOOL isLastKeyEvent = YES;
-  for (NSUInteger index = currentItemIndex + 1; index < allItems.count; index++) {
-    FBW3CKeyItem *item = [allItems objectAtIndex:index];
-    if ([item isKindOfClass:FBKeyUpItem.class]) {
-      isLastKeyEvent = NO;
-      break;
-    }
-  }
-  if (isLastKeyEvent) {
-    NSString *description = [NSString stringWithFormat:@"Key down action must have a closing key up successor in '%@'", self.actionItem];
+  if (![self hasUpPairInItems:allItems currentItemIndex:currentItemIndex]) {
+    NSString *description = [NSString stringWithFormat:@"Key Down action must have a closing Key Up successor in '%@'", self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
