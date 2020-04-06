@@ -302,14 +302,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (currentItemIndex < allItems.count - 1) {
-    return @[];
-  }
-
-  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
-  [result liftUpAtOffset:currentOffset];
-  return @[result];
+  return @[];
 }
 
 - (double)durationWithOptions:(nullable NSDictionary<NSString *, id> *)options
@@ -370,7 +363,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                             error:(NSError **)error
 {
   if (nil == eventPath) {
-    NSString *description = [NSString stringWithFormat:@"Key up must not be the first action in '%@'", self.actionItem];
+    NSString *description = [NSString stringWithFormat:@"Key Up must not be the first action in '%@'", self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
