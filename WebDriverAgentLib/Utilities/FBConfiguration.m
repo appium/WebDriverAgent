@@ -399,9 +399,19 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   Class controllerClass = NSClassFromString(controllerClassName);
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
-    return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
+    if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
+      return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
+    } else {
+      [FBLogger log:@"Updating keyboard autocorrection preference is not supported"];
+      return NO;
+    }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
-    return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
+    if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
+      return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
+    } else {
+      [FBLogger log:@"Updating keyboard prediction preference is not supported"];
+      return NO;
+    }
   }
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
 }
