@@ -363,7 +363,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                             error:(NSError **)error
 {
   if (nil == eventPath) {
-    NSString *description = [NSString stringWithFormat:@"Key Up must not be the first action in '%@'", self.actionItem];
+    NSString *description = [NSString stringWithFormat:@"Pointer Up must not be the first action in '%@'", self.actionItem];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
