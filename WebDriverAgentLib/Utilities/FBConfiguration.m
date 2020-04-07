@@ -261,7 +261,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   dlclose(handle);
 }
 
-+ (BOOL)keyboardAutocorrection
++ (FBConfigurationPreference)keyboardAutocorrection
 {
   return [self keyboardsPreference:FBKeyboardAutocorrectionKey];
 }
@@ -271,7 +271,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   [self configureKeyboardsPreference:isEnabled forPreferenceKey:FBKeyboardAutocorrectionKey];
 }
 
-+ (BOOL)keyboardPrediction
++ (FBConfigurationPreference)keyboardPrediction
 {
   return [self keyboardsPreference:FBKeyboardPredictionKey];
 }
@@ -394,23 +394,29 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 
 #pragma mark Private
 
-+ (BOOL)keyboardsPreference:(nonnull NSString *)key
++ (FBConfigurationPreference)keyboardsPreference:(nonnull NSString *)key
 {
   Class controllerClass = NSClassFromString(controllerClassName);
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
     if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
-      return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
+      if ([controller boolForPreferenceKey:FBKeyboardAutocorrectionKey]) {
+        return FBConfigurationPreferenceEnabled;
+      }
+      return FBConfigurationPreferenceDisabled;
     } else {
       [FBLogger log:@"Updating keyboard autocorrection preference is not supported"];
-      return nil;
+      return FBConfigurationPreferenceNotSupported;
     }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
-      return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
+      if ([controller boolForPreferenceKey:FBKeyboardPredictionKey]) {
+        return FBConfigurationPreferenceEnabled;
+      }
+      return FBConfigurationPreferenceDisabled;
     } else {
       [FBLogger log:@"Updating keyboard prediction preference is not supported"];
-      return nil;
+      return FBConfigurationPreferenceNotSupported;
     }
   }
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];

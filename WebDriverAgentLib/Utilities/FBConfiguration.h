@@ -114,13 +114,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)configureDefaultKeyboardPreferences;
 
+
+typedef NS_ENUM(NSInteger, FBConfigurationPreference) {
+    FBConfigurationPreferenceDisabled = 0,
+    FBConfigurationPreferenceEnabled = 1,
+    FBConfigurationPreferenceNotSupported = 2,
+};
+
 /**
  * Modify keyboard configuration of 'auto-correction'.
  *
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardAutocorrection:(BOOL)isEnabled;
-+ (BOOL)keyboardAutocorrection;
++ (FBConfigurationPreference)keyboardAutocorrection;
 
 /**
  * Modify keyboard configuration of 'predictive'
@@ -128,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardPrediction:(BOOL)isEnabled;
-+ (BOOL)keyboardPrediction;
++ (FBConfigurationPreference)keyboardPrediction;
 
 /**
  * The maximum time to wait until accessibility snapshot is taken
