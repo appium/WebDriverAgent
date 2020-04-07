@@ -38,7 +38,7 @@
   FBAssertWaitTillBecomesTrue(self.testedView.buttons.count > 0);
 }
 
-- (XCElementSnapshot *)destinationSnpshot
+- (XCElementSnapshot *)destinationSnapshot
 {
   XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
   FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_lastSnapshot);
@@ -52,7 +52,7 @@
 
 - (void)testSingleDescendantXMLRepresentation
 {
-  XCElementSnapshot *snapshot = self.destinationSnpshot;
+  XCElementSnapshot *snapshot = self.destinationSnapshot;
   NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot excludingAttributes:nil];
   XCTAssertNotNil(xmlStr);
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdEnabled ? @"true" : @"false", snapshot.wdVisible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue]];
@@ -61,7 +61,7 @@
 
 - (void)testSingleDescendantXMLRepresentationWithoutAttributes
 {
-  XCElementSnapshot *snapshot = self.destinationSnpshot;
+  XCElementSnapshot *snapshot = self.destinationSnapshot;
   NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot excludingAttributes:@[@"visible", @"enabled", @"blabla"]];
   XCTAssertNotNil(xmlStr);
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue]];
