@@ -400,20 +400,18 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
     if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
-      if ([controller boolForPreferenceKey:FBKeyboardAutocorrectionKey]) {
-        return FBConfigurationKeyboardPreferenceEnabled;
-      }
-      return FBConfigurationKeyboardPreferenceDisabled;
+      return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey]
+        ? FBConfigurationKeyboardPreferenceEnabled
+        : FBConfigurationKeyboardPreferenceDisabled;
     } else {
       [FBLogger log:@"Updating keyboard autocorrection preference is not supported"];
       return FBConfigurationKeyboardPreferenceNotSupported;
     }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
     if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
-      if ([controller boolForPreferenceKey:FBKeyboardPredictionKey]) {
-        return FBConfigurationKeyboardPreferenceEnabled;
-      }
-      return FBConfigurationKeyboardPreferenceDisabled;
+      return [controller boolForPreferenceKey:FBKeyboardPredictionKey]
+        ? FBConfigurationKeyboardPreferenceEnabled
+        : FBConfigurationKeyboardPreferenceDisabled;
     } else {
       [FBLogger log:@"Updating keyboard prediction preference is not supported"];
       return FBConfigurationKeyboardPreferenceNotSupported;
