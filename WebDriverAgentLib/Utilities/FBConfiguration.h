@@ -115,10 +115,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)configureDefaultKeyboardPreferences;
 
 
-typedef NS_ENUM(NSInteger, FBConfigurationPreference) {
-    FBConfigurationPreferenceDisabled = 0,
-    FBConfigurationPreferenceEnabled = 1,
-    FBConfigurationPreferenceNotSupported = 2,
+/**
+Defines keyboard preference enabled status
+*/
+typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
+    FBConfigurationKeyboardPreferenceDisabled = 0,
+    FBConfigurationKeyboardPreferenceEnabled = 1,
+    FBConfigurationKeyboardPreferenceNotSupported = 2,
 };
 
 /**
@@ -127,7 +130,7 @@ typedef NS_ENUM(NSInteger, FBConfigurationPreference) {
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardAutocorrection:(BOOL)isEnabled;
-+ (FBConfigurationPreference)keyboardAutocorrection;
++ (FBConfigurationKeyboardPreference)keyboardAutocorrection;
 
 /**
  * Modify keyboard configuration of 'predictive'
@@ -135,7 +138,7 @@ typedef NS_ENUM(NSInteger, FBConfigurationPreference) {
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardPrediction:(BOOL)isEnabled;
-+ (FBConfigurationPreference)keyboardPrediction;
++ (FBConfigurationKeyboardPreference)keyboardPrediction;
 
 /**
  * The maximum time to wait until accessibility snapshot is taken
