@@ -90,6 +90,7 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 
 /**
  Enforces snapshot resolution of the destination element
+ TODO: Deprecate and remove this helper after Xcode10 support is dropped
  */
 - (void)fb_nativeResolve;
 

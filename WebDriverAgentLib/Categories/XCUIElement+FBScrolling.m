@@ -29,11 +29,9 @@
 
 const CGFloat FBFuzzyPointThreshold = 20.f; //Smallest determined value that is not interpreted as touch
 const CGFloat FBScrollToVisibleNormalizedDistance = .5f;
-const CGFloat FBScrollVelocity = 200.f;
-const CGFloat FBScrollBoundingVelocityPadding = 0.0f;
+const CGFloat FBTouchEventDelay = 1.f;
+const NSTimeInterval FBAnimationCoolOffTimeout = 1.0;
 const CGFloat FBScrollTouchProportion = 0.75f;
-const CGFloat FBScrollCoolOffTime = 1.f;
-const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
 #if !TARGET_OS_TV
 
@@ -84,20 +82,26 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
 - (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance scrollDirection:(FBXCUIElementScrollDirection)scrollDirection error:(NSError **)error
 {
-  [self fb_nativeResolve];
   if (self.fb_isVisible) {
     return YES;
   }
-  __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
 
+  __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
   NSArray *acceptedParents = @[
                                @(XCUIElementTypeScrollView),
                                @(XCUIElementTypeCollectionView),
                                @(XCUIElementTypeTable),
                                @(XCUIElementTypeWebView),
                                ];
-  XCElementSnapshot *elementSnapshot = self.fb_lastSnapshot;
-  XCElementSnapshot *scrollView = [elementSnapshot fb_parentMatchingOneOfTypes:acceptedParents
+
+  XCElementSnapshot *prescrollSnapshot = self.fb_cachedSnapshot;
+  BOOL hasCachedSnapshot = YES;
+  if (nil == prescrollSnapshot) {
+    [self fb_nativeResolve];
+    prescrollSnapshot = self.fb_lastSnapshot;
+    hasCachedSnapshot = NO;
+  }
+  XCElementSnapshot *scrollView = [prescrollSnapshot fb_parentMatchingOneOfTypes:acceptedParents
       filter:^(XCElementSnapshot *snapshot) {
 
          if (![snapshot isWDVisible]) {
@@ -121,8 +125,7 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
      buildError:error];
   }
 
-  XCElementSnapshot *targetCellSnapshot = [elementSnapshot fb_parentCellSnapshot];
-
+  XCElementSnapshot *targetCellSnapshot = [prescrollSnapshot fb_parentCellSnapshot];
   XCElementSnapshot *lastSnapshot = visibleCellSnapshots.lastObject;
   // Can't just do indexOfObject, because targetCellSnapshot may represent the same object represented by a member of cellSnapshots, yet be a different object
   // than that member. This reflects the fact that targetCellSnapshot came out of self.fb_parentCellSnapshot, not out of cellSnapshots directly.
@@ -148,8 +151,6 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
   const NSUInteger maxScrollCount = 25;
   NSUInteger scrollCount = 0;
-
-  XCElementSnapshot *prescrollSnapshot = self.fb_lastSnapshot;
   // Scrolling till cell is visible and get current value of frames
   while (![self fb_isEquivalentElementSnapshotVisible:prescrollSnapshot] && scrollCount < maxScrollCount) {
     if (targetCellIndex < visibleCellIndex) {
@@ -162,8 +163,10 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
         [scrollView fb_scrollDownByNormalizedDistance:normalizedScrollDistance inApplication:self.application] :
         [scrollView fb_scrollRightByNormalizedDistance:normalizedScrollDistance inApplication:self.application];
     }
-    [self fb_nativeResolve]; // Resolve is needed for correct visibility
     scrollCount++;
+    if (!hasCachedSnapshot) {
+      [self fb_nativeResolve];
+    }
   }
 
   if (scrollCount >= maxScrollCount) {
@@ -189,7 +192,9 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
   if (self.fb_isVisible) {
     return YES;
   }
-  for (XCElementSnapshot *elementSnapshot in self.application.fb_lastSnapshot._allDescendants.copy) {
+
+  XCElementSnapshot *appSnapshot = self.application.fb_cachedSnapshot ?: self.application.fb_lastSnapshot;
+  for (XCElementSnapshot *elementSnapshot in appSnapshot._allDescendants.copy) {
     // We are comparing pre-scroll snapshot so frames are irrelevant.
     if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.fb_isVisible) {
       return YES;
@@ -238,20 +243,21 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
 - (BOOL)fb_scrollByVector:(CGVector)vector inApplication:(XCUIApplication *)application error:(NSError **)error
 {
-  CGVector scrollBoundingVector = CGVectorMake(CGRectGetWidth(self.scrollingFrame) * FBScrollTouchProportion - FBScrollBoundingVelocityPadding,
-                                               CGRectGetHeight(self.scrollingFrame)* FBScrollTouchProportion - FBScrollBoundingVelocityPadding
+  CGVector scrollBoundingVector = CGVectorMake(
+                                               CGRectGetWidth(self.scrollingFrame) * FBScrollTouchProportion,
+                                               CGRectGetHeight(self.scrollingFrame) * FBScrollTouchProportion
                                                );
   scrollBoundingVector.dx = (CGFloat)floor(copysign(scrollBoundingVector.dx, vector.dx));
   scrollBoundingVector.dy = (CGFloat)floor(copysign(scrollBoundingVector.dy, vector.dy));
 
-  NSUInteger scrollLimit = 100;
+  NSInteger preciseScrollAttemptsCount = 20;
+  CGVector CGZeroVector = CGVectorMake(0, 0);
   BOOL shouldFinishScrolling = NO;
   while (!shouldFinishScrolling) {
-    CGVector scrollVector = CGVectorMake(0, 0);
-    scrollVector.dx = fabs(vector.dx) > fabs(scrollBoundingVector.dx) ? scrollBoundingVector.dx : vector.dx;
-    scrollVector.dy = fabs(vector.dy) > fabs(scrollBoundingVector.dy) ? scrollBoundingVector.dy : vector.dy;
+    CGVector scrollVector = CGVectorMake(fabs(vector.dx) > fabs(scrollBoundingVector.dx) ? scrollBoundingVector.dx : vector.dx,
+                                         fabs(vector.dy) > fabs(scrollBoundingVector.dy) ? scrollBoundingVector.dy : vector.dy);
     vector = CGVectorMake(vector.dx - scrollVector.dx, vector.dy - scrollVector.dy);
-    shouldFinishScrolling = (vector.dx == 0.0 & vector.dy == 0.0 || --scrollLimit == 0);
+    shouldFinishScrolling = FBVectorFuzzyEqualToVector(vector, CGZeroVector, 1) || --preciseScrollAttemptsCount <= 0;
     if (![self fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:scrollVector inApplication:application error:error]){
       return NO;
     }
@@ -272,45 +278,46 @@ const CGFloat FBMinimumTouchEventDelay = 0.1f;
 
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:application normalizedOffset:CGVectorMake(0.0, 0.0)];
   XCUICoordinate *startCoordinate = [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:hitpointOffset];
+  CGPoint startPoint = startCoordinate.fb_screenPoint;
   XCUICoordinate *endCoordinate = [[XCUICoordinate alloc] initWithCoordinate:startCoordinate pointsOffset:vector];
+  CGPoint endPoint = endCoordinate.fb_screenPoint;
 
-  if (FBPointFuzzyEqualToPoint(startCoordinate.fb_screenPoint, endCoordinate.fb_screenPoint, FBFuzzyPointThreshold)) {
+  if (FBPointFuzzyEqualToPoint(startPoint, endPoint, FBFuzzyPointThreshold)) {
     return YES;
   }
 
-  NSTimeInterval scrollingTime = MAX(MAX(fabs(vector.dx), fabs(vector.dy)) / FBScrollVelocity, FBMinimumTouchEventDelay);
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
-      @"action": @"longPress",
+      @"action": @"press",
       @"options": @{
-          @"x": @(startCoordinate.fb_screenPoint.x),
-          @"y": @(startCoordinate.fb_screenPoint.y),
-          }
-      },
+        @"x": @(startPoint.x),
+        @"y": @(startPoint.y),
+      }
+    },
     @{
       @"action": @"wait",
       @"options": @{
-          @"ms": @(scrollingTime * 1000),
-          }
-      },
+        @"ms": @(FBTouchEventDelay * 1000),
+      }
+    },
     @{
       @"action": @"moveTo",
       @"options": @{
-          @"x": @(endCoordinate.fb_screenPoint.x),
-          @"y": @(endCoordinate.fb_screenPoint.y),
-          }
-      },
-    @{
-      @"action": @"wait",
-      @"options": @{
-          @"ms": @(FBMinimumTouchEventDelay * 1000),
-          }
-      },
+        @"x": @(endPoint.x),
+        @"y": @(endPoint.y),
+      }
+    },
     @{
       @"action": @"release"
-      }
-    ];
-  return [application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
+    }
+  ];
+  BOOL result = [application fb_performAppiumTouchActions:gesture
+                                             elementCache:nil
+                                                    error:error];
+  if (result) {
+    [application fb_waitUntilSnapshotIsStableWithTimeout:FBAnimationCoolOffTimeout];
+  }
+  return result;
 }
 
 @end

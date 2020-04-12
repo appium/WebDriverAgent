@@ -22,6 +22,9 @@ BOOL FBFloatFuzzyEqualToFloat(CGFloat float1, CGFloat float2, CGFloat threshold)
 /*! Returns whether points are equal within given threshold */
 BOOL FBPointFuzzyEqualToPoint(CGPoint point1, CGPoint point2, CGFloat threshold);
 
+/*! Returns whether vectors are equal within given threshold */
+BOOL FBVectorFuzzyEqualToVector(CGVector a, CGVector b, CGFloat threshold);
+
 /*! Returns whether size are equal within given threshold */
 BOOL FBSizeFuzzyEqualToSize(CGSize size1, CGSize size2, CGFloat threshold);
 
