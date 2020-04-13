@@ -30,7 +30,7 @@
 const CGFloat FBFuzzyPointThreshold = 20.f; //Smallest determined value that is not interpreted as touch
 const CGFloat FBScrollToVisibleNormalizedDistance = .5f;
 const CGFloat FBTouchEventDelay = 1.f;
-const NSTimeInterval FBAnimationCoolOffTimeout = 1.0;
+const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
 const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
@@ -50,22 +50,26 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
 {
-  [self.fb_lastSnapshot fb_scrollUpByNormalizedDistance:distance inApplication:self.application];
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  [snapshot fb_scrollUpByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollDownByNormalizedDistance:(CGFloat)distance
 {
-  [self.fb_lastSnapshot fb_scrollDownByNormalizedDistance:distance inApplication:self.application];
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  [snapshot fb_scrollDownByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollLeftByNormalizedDistance:(CGFloat)distance
 {
-  [self.fb_lastSnapshot fb_scrollLeftByNormalizedDistance:distance inApplication:self.application];
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  [snapshot fb_scrollLeftByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollRightByNormalizedDistance:(CGFloat)distance
 {
-  [self.fb_lastSnapshot fb_scrollRightByNormalizedDistance:distance inApplication:self.application];
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  [snapshot fb_scrollRightByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (BOOL)fb_scrollToVisibleWithError:(NSError **)error
@@ -86,13 +90,16 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     return YES;
   }
 
-  __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
-  NSArray *acceptedParents = @[
-                               @(XCUIElementTypeScrollView),
-                               @(XCUIElementTypeCollectionView),
-                               @(XCUIElementTypeTable),
-                               @(XCUIElementTypeWebView),
-                               ];
+  static dispatch_once_t onceToken;
+  static NSArray *acceptedParents;
+  dispatch_once(&onceToken, ^{
+    acceptedParents = @[
+      @(XCUIElementTypeScrollView),
+      @(XCUIElementTypeCollectionView),
+      @(XCUIElementTypeTable),
+      @(XCUIElementTypeWebView),
+    ];
+  });
 
   XCElementSnapshot *prescrollSnapshot = self.fb_cachedSnapshot;
   BOOL hasCachedSnapshot = YES;
@@ -101,6 +108,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     prescrollSnapshot = self.fb_lastSnapshot;
     hasCachedSnapshot = NO;
   }
+  __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
   XCElementSnapshot *scrollView = [prescrollSnapshot fb_parentMatchingOneOfTypes:acceptedParents
       filter:^(XCElementSnapshot *snapshot) {
 
@@ -177,7 +185,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   }
 
   // Cell is now visible, but it might be only partialy visible, scrolling till whole frame is visible
-  targetCellSnapshot = [self.fb_lastSnapshot fb_parentCellSnapshot];
+  targetCellSnapshot = [(self.fb_cachedSnapshot ?: self.fb_lastSnapshot) fb_parentCellSnapshot];
   CGVector scrollVector = CGVectorMake(targetCellSnapshot.visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        targetCellSnapshot.visibleFrame.size.height - targetCellSnapshot.frame.size.height
                                        );
