@@ -112,7 +112,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   }
 
   [FBLogger log:@"Cannot retrieve any active applications. Assuming the system application is the active one"];
-  return self.class.fb_systemApplication;
+  return [self fb_systemApplication];
 }
 
 + (instancetype)fb_systemApplication
