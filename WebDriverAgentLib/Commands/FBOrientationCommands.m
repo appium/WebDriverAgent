@@ -68,18 +68,38 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 
 + (id<FBResponsePayload>)handleGetRotation:(FBRouteRequest *)request
 {
-    XCUIDevice *device = [XCUIDevice sharedDevice];
-    UIInterfaceOrientation orientation = request.session.activeApplication.interfaceOrientation;
-    return FBResponseWithObject(device.fb_rotationMapping[@(orientation)]);
+  XCUIDevice *device = [XCUIDevice sharedDevice];
+  UIInterfaceOrientation orientation = request.session.activeApplication.interfaceOrientation;
+  return FBResponseWithObject(device.fb_rotationMapping[@(orientation)]);
 }
 
 + (id<FBResponsePayload>)handleSetRotation:(FBRouteRequest *)request
 {
-    FBSession *session = request.session;
-    if ([self.class setDeviceRotation:request.arguments forApplication:session.activeApplication]) {
-        return FBResponseWithOK();
-    }
-    return FBResponseWithUnknownErrorFormat(@"Rotation not supported: %@", request.arguments[@"rotation"]);
+  if (nil == request.arguments[@"x"] || nil == request.arguments[@"y"] || nil == request.arguments[@"z"]) {
+    NSString *errMessage = [NSString stringWithFormat:@"x, y and z arguments must exist in the request body: %@", request.arguments];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMessage
+                                                                       traceback:nil]);
+  }
+
+  NSDictionary* rotation = @{
+    @"x": request.arguments[@"x"] ?: @0,
+    @"y": request.arguments[@"y"] ?: @0,
+    @"z": request.arguments[@"z"] ?: @0,
+  };
+  NSArray<NSDictionary *> *supportedRotations = XCUIDevice.sharedDevice.fb_rotationMapping.allValues;
+  if (![supportedRotations containsObject:rotation]) {
+    NSString *errMessage = [NSString stringWithFormat:@"%@ rotation is not supported. Only the following values are supported: %@", rotation, supportedRotations];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMessage
+                                                                       traceback:nil]);
+  }
+
+  FBApplication *app = request.session.activeApplication;
+  if (![self.class setDeviceRotation:request.arguments forApplication:app]) {
+    NSString *errMessage = [NSString stringWithFormat:@"The current rotation cannot be set to %@. Make sure the %@ application supports it", rotation, app.bundleID];
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:errMessage
+                                                                           traceback:nil]);
+  }
+  return FBResponseWithOK();
 }
 
 
