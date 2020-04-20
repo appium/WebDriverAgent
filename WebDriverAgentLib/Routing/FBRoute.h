@@ -49,6 +49,11 @@ typedef __nonnull id<FBResponsePayload> (^FBRouteSyncHandler)(FBRouteRequest *re
 + (instancetype)DELETE:(NSString *)pathPattern;
 
 /**
+ Convenience constructor for OPTIONS route with given pathPattern
+*/
++ (instancetype)OPTIONS:(NSString *)pathPattern;
+
+/**
  Chain-able constructor that handles response with given FBRouteSyncHandler block
  */
 - (instancetype)respondWithBlock:(FBRouteSyncHandler)handler;

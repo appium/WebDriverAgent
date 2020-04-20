@@ -52,7 +52,9 @@ const int ELEMENT_CACHE_SIZE = 1024;
     return nil;
   }
   XCUIElement *element = [self.elementCache objectForKey:uuid];
-  [element fb_nativeResolve];
+  if (nil == element.fb_cachedSnapshot) {
+    [element fb_nativeResolve];
+  }
   return element;
 }
 

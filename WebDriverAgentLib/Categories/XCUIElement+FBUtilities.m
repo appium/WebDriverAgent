@@ -69,16 +69,23 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
     return nil;
   }
-  
-  [self fb_nativeResolve];
-  
+
+  XCAccessibilityElement *axElement;
+  if (FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion) {
+    axElement = self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement;
+  } else {
+    XCElementSnapshot *lastSnapshot = self.fb_cachedSnapshot;
+    if (nil == lastSnapshot) {
+      [self fb_nativeResolve];
+      lastSnapshot = self.lastSnapshot;
+    }
+    axElement = lastSnapshot.accessibilityElement;
+  }
+
   NSTimeInterval axTimeout = [FBConfiguration snapshotTimeout];
   __block XCElementSnapshot *snapshotWithAttributes = nil;
   __block NSError *innerError = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-  XCAccessibilityElement *axElement = FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
-    ? self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement
-    : self.lastSnapshot.accessibilityElement;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [FBXCTestDaemonsProxy tryToSetAxTimeout:axTimeout
                                  forProxy:proxy
@@ -195,12 +202,17 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (BOOL)fb_waitUntilSnapshotIsStable
 {
+  return [self fb_waitUntilSnapshotIsStableWithTimeout:FB_ANIMATION_TIMEOUT];
+}
+
+- (BOOL)fb_waitUntilSnapshotIsStableWithTimeout:(NSTimeInterval)timeout
+{
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [FBXCAXClientProxy.sharedClient notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_semaphore_signal(sem);}];
-  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FB_ANIMATION_TIMEOUT * NSEC_PER_SEC));
-  BOOL result = 0 == dispatch_semaphore_wait(sem, timeout);
+  dispatch_time_t absoluteTimeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
+  BOOL result = 0 == dispatch_semaphore_wait(sem, absoluteTimeout);
   if (!result) {
-    [FBLogger logFmt:@"The applicaion has still not finished animations after %.2f seconds timeout", FB_ANIMATION_TIMEOUT];
+    [FBLogger logFmt:@"The applicaion has still not finished animations after %.2f seconds timeout", timeout];
   }
   return result;
 }
