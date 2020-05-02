@@ -84,7 +84,9 @@
   XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
   [self showApplicationAlert];
   XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
+  FBAssertWaitTillBecomesTrue(alert.isPresent);
   XCTAssertTrue([alert clickAlertButton:@"Will do" error:nil]);
+  FBAssertWaitTillBecomesTrue(!alert.isPresent);
 }
 
 - (void)testAcceptingAlert

@@ -223,12 +223,12 @@
     return [self notPresentWithError:error];
   }
 
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label == '%@'", label];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label == %@", label];
   XCUIElement *requestedButton = [[self.alertElement descendantsMatchingType:XCUIElementTypeButton]
                                   matchingPredicate:predicate].fb_firstMatch;
   if (!requestedButton) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"Failed to find button with label %@ for alert: %@", label, self.alertElement]
+             withDescriptionFormat:@"Failed to find button with label '%@' for alert: %@", label, self.alertElement]
             buildError:error];
   }
   return [requestedButton fb_tapWithError:error];
