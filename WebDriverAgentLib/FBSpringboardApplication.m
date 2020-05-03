@@ -40,16 +40,16 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
     } else {
       [self fb_activate];
     }
-    return [[[[FBRunLoopSpinner new]
-              timeout:5]
-             timeoutErrorMessage:@"Timeout waiting until SpringBoard is visible"]
-            spinUntilTrue:^BOOL{ return [FBApplication.fb_activeApplication.bundleID isEqualToString:SPRINGBOARD_BUNDLE_ID]; }
-            error:error];
   } @catch (NSException *e) {
     return [[[FBErrorBuilder alloc]
-             withDescription:nil == e ? @"Cannot open Springboard" : e.reason]
+             withDescription:nil == e ? @"Cannot open SpringBoard" : e.reason]
             buildError:error];
   }
+  return [[[[FBRunLoopSpinner new]
+            timeout:5]
+           timeoutErrorMessage:@"Timeout waiting until SpringBoard is visible"]
+          spinUntilTrue:^BOOL{ return [FBApplication.fb_activeApplication.bundleID isEqualToString:SPRINGBOARD_BUNDLE_ID]; }
+          error:error];
 }
 
 @end
