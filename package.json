@@ -64,11 +64,10 @@
     "appium-support": "^2.37.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^2.5.3",
+    "axios": "^0.19.2",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
     "node-simctl": "^6.0.2",
-    "request": "^2.79.0",
-    "request-promise": "^4.1.1",
     "source-map-support": "^0.5.12",
     "stream-equal": "^1.1.1",
     "teen_process": "^1.14.1"

@@ -4,11 +4,11 @@ import Simctl from 'node-simctl';
 import { getVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
 import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
-import request from 'request-promise';
 import { SubProcess } from 'teen_process';
 import { PLATFORM_VERSION, DEVICE_NAME } from './desired';
 import { retryInterval } from 'asyncbox';
 import { WebDriverAgent } from '../..';
+import axios from 'axios';
 
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
@@ -85,7 +85,7 @@ describe('WebDriverAgent', function () {
         const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
 
         await agent.launch('sessionId');
-        await request(testUrl).should.be.eventually.rejectedWith(/unknown command/);
+        await axios({url: testUrl}).should.be.eventually.rejected;
         await agent.quit();
       });
 
