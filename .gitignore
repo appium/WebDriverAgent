@@ -53,3 +53,4 @@ bundles/
 webdriveragent-*.tar.gz
 uncompressed/
 prebuilt-agents/
+WebDriverAgentRunner-Runner.app/

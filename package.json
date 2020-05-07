@@ -10,7 +10,7 @@
     "clean:carthage": "gulp clean:carthage",
     "install:dependencies": "gulp install:dependencies",
     "build": "gulp transpile",
-    "prepare": "gulp prepublish",
+    "prepare": "gulp prepublish && npm run bundle",
     "lint": "gulp lint",
     "lint:fix": "gulp eslint --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
@@ -88,6 +88,7 @@
     "WebDriverAgentLib",
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
-    "XCTWebDriverAgentLib"
+    "XCTWebDriverAgentLib",
+    "WebDriverAgentRunner-Runner.app"
   ]
 }

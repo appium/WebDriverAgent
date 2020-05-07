@@ -54,10 +54,21 @@ async function buildWebDriverAgent (xcodeVersion) {
   await mkdirp(path.resolve(uncompressedDir, 'DerivedData'));
   await fs.rename(wdaPath, path.resolve(uncompressedDir, 'DerivedData', 'WebDriverAgent'));
 
-  // Compress the tarball
+  // Compress bundle as a tarball
   const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
   env = {COPYFILE_DISABLE: 1};
   await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
+
+  // Move the .app to the root of the project so it gets published in NPM
+  log.info(`Moving WebDriverAgentRunner-Runner.app to root`);
+  await fs.rimraf(path.join(rootDir, 'WebDriverAgentRunner-Runner.app'));
+  await exec('mv', [
+    path.join(uncompressedDir, 'DerivedData', 'WebDriverAgent', 'Build', 'Products',
+      'Debug-iphonesimulator', 'WebDriverAgentRunner-Runner.app'),
+    rootDir
+  ]);
+
+  // Delete the uncompressed directory
   await fs.rimraf(uncompressedDir);
   log.info(`Tarball bundled at "${pathToTar}"`);
 }
