@@ -89,6 +89,6 @@
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
     "XCTWebDriverAgentLib",
-    "WebDriverAgentRunner-Runner.app"
+    "WebDriverAgentRunner-Runner.app.zip"
   ]
 }

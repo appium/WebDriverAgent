@@ -13,6 +13,14 @@ async function buildWebDriverAgent (xcodeVersion) {
   xcodeVersion = xcodeVersion || await xcode.getVersion();
   log.info(`Building bundle for Xcode version '${xcodeVersion}'`);
 
+  // Clear WebDriverAgent from derived data
+  const derivedDataPath = path.resolve(os.homedir(), 'Library', 'Developer',
+    'Xcode', 'DerivedData');
+  log.info(`Clearing contents of '${derivedDataPath}/WebDriverAgent-*'`);
+  for (const wdaPath of await fs.glob(`${derivedDataPath}/WebDriverAgent-*`)) {
+    await fs.rimraf(wdaPath);
+  }
+
   // Clean and build
   await exec('npx', ['gulp', 'clean:carthage']);
   log.info('Running ./Scripts/build.sh');
@@ -31,11 +39,11 @@ async function buildWebDriverAgent (xcodeVersion) {
   await mkdirp('bundles');
   const pathToBundles = path.resolve(rootDir, 'bundles');
 
-  // Start creating tarball
+  // Start creating zip
   const uncompressedDir = path.resolve(rootDir, 'uncompressed');
   await fs.rimraf(uncompressedDir);
   await mkdirp(uncompressedDir);
-  log.info('Creating tarball');
+  log.info('Creating zip');
 
   // Move contents of this folder to uncompressed folder
   await exec('rsync', [
@@ -48,29 +56,30 @@ async function buildWebDriverAgent (xcodeVersion) {
     '--exclude', 'bundles',
   ], {cwd: rootDir});
 
-  // Moved DerivedData/WebDriverAgent-* from Library to uncompressed folder
-  const derivedDataPath = path.resolve(os.homedir(), 'Library', 'Developer', 'Xcode', 'DerivedData');
+  // Move DerivedData/WebDriverAgent-* from Library to uncompressed folder
   const wdaPath = (await fs.glob(`${derivedDataPath}/WebDriverAgent-*`))[0];
   await mkdirp(path.resolve(uncompressedDir, 'DerivedData'));
   await fs.rename(wdaPath, path.resolve(uncompressedDir, 'DerivedData', 'WebDriverAgent'));
 
   // Compress bundle as a tarball
-  const pathToTar = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.tar.gz`);
+  const pathToZip = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.zip`);
   env = {COPYFILE_DISABLE: 1};
-  await exec('tar', ['-czf', pathToTar, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
+  //await exec('zip', ['-czf', pathToZip, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
+  await exec('zip', ['-r', pathToZip, uncompressedDir], {env});
+  log.info(`Zip bundled at "${pathToZip}"`);
 
-  // Move the .app to the root of the project so it gets published in NPM
-  log.info(`Moving WebDriverAgentRunner-Runner.app to root`);
-  await fs.rimraf(path.join(rootDir, 'WebDriverAgentRunner-Runner.app'));
-  await exec('mv', [
-    path.join(uncompressedDir, 'DerivedData', 'WebDriverAgent', 'Build', 'Products',
-      'Debug-iphonesimulator', 'WebDriverAgentRunner-Runner.app'),
-    rootDir
-  ]);
+  // Zip the .app to the root of the project so it gets published in NPM
+  const wdaAppBundle = 'WebDriverAgentRunner-Runner.app';
+  const appBundlePath = path.join(uncompressedDir, 'DerivedData', 'WebDriverAgent',
+    'Build', 'Products', 'Debug-iphonesimulator', wdaAppBundle);
+  const zipPath = path.join(rootDir, `${wdaAppBundle}.zip`);
+  await fs.rimraf(zipPath);
+  log.info(`Created './${wdaAppBundle}.zip'`);
+  await exec('zip', ['-r', zipPath, appBundlePath], {env});
+  log.info(`Zip bundled at "${zipPath}"`);
 
-  // Delete the uncompressed directory
+  // Clean up the uncompressed directory
   await fs.rimraf(uncompressedDir);
-  log.info(`Tarball bundled at "${pathToTar}"`);
 }
 
 if (require.main === module) {
