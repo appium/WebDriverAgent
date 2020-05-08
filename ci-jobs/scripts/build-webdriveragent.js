@@ -1,7 +1,7 @@
 const path = require('path');
 const os = require('os');
 const { asyncify } = require('asyncbox');
-const { logger, fs, mkdirp } = require('appium-support');
+const { logger, fs, mkdirp, zip } = require('appium-support');
 const { exec } = require('teen_process');
 const xcode = require('appium-xcode');
 
@@ -17,7 +17,10 @@ async function buildWebDriverAgent (xcodeVersion) {
   const derivedDataPath = path.resolve(os.homedir(), 'Library', 'Developer',
     'Xcode', 'DerivedData');
   log.info(`Clearing contents of '${derivedDataPath}/WebDriverAgent-*'`);
-  for (const wdaPath of await fs.glob(`${derivedDataPath}/WebDriverAgent-*`)) {
+  for (const wdaPath of
+    await fs.glob('WebDriverAgent-*', {cwd: derivedDataPath, absolute: true})
+  ) {
+    log.info(`Deleting existing WDA: '${wdaPath}'`);
     await fs.rimraf(wdaPath);
   }
 
@@ -36,8 +39,8 @@ async function buildWebDriverAgent (xcodeVersion) {
   }
 
   // Create bundles folder
-  await mkdirp('bundles');
   const pathToBundles = path.resolve(rootDir, 'bundles');
+  await mkdirp(pathToBundles);
 
   // Start creating zip
   const uncompressedDir = path.resolve(rootDir, 'uncompressed');
@@ -64,8 +67,9 @@ async function buildWebDriverAgent (xcodeVersion) {
 
   // Compress the "uncompressed" bundle as a Zip
   const pathToZip = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.zip`);
-  env = {COPYFILE_DISABLE: 1};
-  await exec('zip', ['-r', pathToZip, 'uncompressed'], {env, cwd: rootDir});
+  await zip.toArchive(
+    pathToZip, {cwd: path.join(rootDir, 'uncompressed')}
+  );
   log.info(`Zip bundled at "${pathToZip}"`);
 
   // Now just zip the .app and place it in the root directory
@@ -73,12 +77,11 @@ async function buildWebDriverAgent (xcodeVersion) {
   const wdaAppBundle = 'WebDriverAgentRunner-Runner.app';
   const appBundlePath = path.join(uncompressedDir, 'DerivedData', 'WebDriverAgent',
     'Build', 'Products', 'Debug-iphonesimulator', wdaAppBundle);
-  const zipPath = path.join(rootDir, `${wdaAppBundle}.zip`);
-  await fs.rimraf(zipPath);
+  const appBundleZipPath = path.join(rootDir, `${wdaAppBundle}.zip`);
+  await fs.rimraf(appBundleZipPath);
   log.info(`Created './${wdaAppBundle}.zip'`);
-  await exec('zip', ['-r', zipPath, '.'], {env, cwd: appBundlePath});
-  log.info(`Zip bundled at "${zipPath}"`);
-
+  await zip.toArchive(appBundleZipPath, {cwd: appBundlePath});
+  log.info(`Zip bundled at "${appBundleZipPath}"`);
   // Clean up the uncompressed directory
   await fs.rimraf(uncompressedDir);
 }
