@@ -45,7 +45,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   await mkdirp(uncompressedDir);
   log.info('Creating zip');
 
-  // Move contents of this folder to uncompressed folder
+  // Move contents of the root to folder called "uncompressed"
   await exec('rsync', [
     '-av', '.', uncompressedDir,
     '--exclude', 'node_modules',
@@ -54,28 +54,29 @@ async function buildWebDriverAgent (xcodeVersion) {
     '--exclude', 'lib',
     '--exclude', 'test',
     '--exclude', 'bundles',
+    '--exclude', 'azure-templates',
   ], {cwd: rootDir});
 
-  // Move DerivedData/WebDriverAgent-* from Library to uncompressed folder
+  // Move DerivedData/WebDriverAgent-* from Library to "uncompressed" folder
   const wdaPath = (await fs.glob(`${derivedDataPath}/WebDriverAgent-*`))[0];
   await mkdirp(path.resolve(uncompressedDir, 'DerivedData'));
   await fs.rename(wdaPath, path.resolve(uncompressedDir, 'DerivedData', 'WebDriverAgent'));
 
-  // Compress bundle as a tarball
+  // Compress the "uncompressed" bundle as a Zip
   const pathToZip = path.resolve(pathToBundles, `webdriveragent-xcode_${xcodeVersion}.zip`);
   env = {COPYFILE_DISABLE: 1};
-  //await exec('zip', ['-czf', pathToZip, '-C', uncompressedDir, '.'], {env, cwd: rootDir});
-  await exec('zip', ['-r', pathToZip, uncompressedDir], {env});
+  await exec('zip', ['-r', pathToZip, 'uncompressed'], {env, cwd: rootDir});
   log.info(`Zip bundled at "${pathToZip}"`);
 
-  // Zip the .app to the root of the project so it gets published in NPM
+  // Now just zip the .app and place it in the root directory
+  // This zip file will be published to NPM
   const wdaAppBundle = 'WebDriverAgentRunner-Runner.app';
   const appBundlePath = path.join(uncompressedDir, 'DerivedData', 'WebDriverAgent',
     'Build', 'Products', 'Debug-iphonesimulator', wdaAppBundle);
   const zipPath = path.join(rootDir, `${wdaAppBundle}.zip`);
   await fs.rimraf(zipPath);
   log.info(`Created './${wdaAppBundle}.zip'`);
-  await exec('zip', ['-r', zipPath, appBundlePath], {env});
+  await exec('zip', ['-r', zipPath, '.'], {env, cwd: appBundlePath});
   log.info(`Zip bundled at "${zipPath}"`);
 
   // Clean up the uncompressed directory
