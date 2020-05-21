@@ -90,6 +90,23 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<NSDictionary<NSString *, id> *> *)fb_activeAppsInfo;
 
 
+/**
+ The version of testmanagerd process  which is running on the device.
+ Potentially, we can handle proces
+
+
+ iOS 10.1 -> 6
+ iOS 11.0.1 -> 18
+ iOS 11.4 -> 22
+ iOS 12.1, 12.4 -> 26
+ iOS 13.3, 13.4.1 -> 28
+
+ tvOS 13.3 -> 28
+
+ @return The version of testmanagerd
+ */
++ (NSInteger)fb_testmanagerdVersion;
+
 @end
 
 NS_ASSUME_NONNULL_END

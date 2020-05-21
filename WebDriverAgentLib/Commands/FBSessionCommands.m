@@ -219,6 +219,7 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
           @"name" : [[UIDevice currentDevice] systemName],
           @"version" : [[UIDevice currentDevice] systemVersion],
           @"sdkVersion": FBSDKVersion() ?: @"unknown",
+          @"testmanagerdVersion": @([FBApplication fb_testmanagerdVersion]),
         },
       @"ios" :
         @{
