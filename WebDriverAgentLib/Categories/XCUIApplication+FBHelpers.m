@@ -237,8 +237,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 + (NSInteger)fb_testmanagerdVersion
 {
   static dispatch_once_t getTestmanagerdVersion;
-  // The version is a magic number. _XCT_exchangeProtocolVersion will correct the version.
-  static NSInteger testmanagerdVersion = 6;
+  static NSInteger testmanagerdVersion;
   dispatch_once(&getTestmanagerdVersion, ^{
     id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);

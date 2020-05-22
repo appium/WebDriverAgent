@@ -85,4 +85,9 @@
   XCTAssertTrue(isAppActive);
 }
 
+- (void)testTestmanagerdVersion
+{
+  XCTAssertGreaterThan([XCUIApplication fb_testmanagerdVersion], 0);
+}
+
 @end
