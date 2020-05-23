@@ -161,11 +161,11 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
     elements = [element fb_descendantsMatchingProperty:propertyName value:propertyValue partialSearch:partialSearch];
   } else if ([usingText isEqualToString:@"class name"]) {
     elements = [element fb_descendantsMatchingClassName:value shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
-  } else if ([usingText isEqualToString:@"class chain"]) {
+  } else if ([usingText isEqualToString:@"-ios class chain"]) {
     elements = [element fb_descendantsMatchingClassChain:value shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else if ([usingText isEqualToString:@"xpath"]) {
     elements = [element fb_descendantsMatchingXPathQuery:value shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
-  } else if ([usingText isEqualToString:@"predicate string"]) {
+  } else if ([usingText isEqualToString:@"-ios predicate string"]) {
     NSPredicate *predicate = [FBPredicate predicateWithFormat:value];
     elements = [element fb_descendantsMatchingPredicate:predicate shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else if (isSearchByIdentifier) {
