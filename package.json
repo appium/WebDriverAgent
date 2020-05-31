@@ -69,7 +69,6 @@
     "lodash": "^4.17.11",
     "node-simctl": "^6.0.2",
     "source-map-support": "^0.5.12",
-    "stream-equal": "^1.1.1",
     "teen_process": "^1.14.1"
   },
   "files": [
