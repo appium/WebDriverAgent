@@ -70,7 +70,7 @@
 #endif
   } while (++retries < MAX_PREPARE_RETRIES);
 
-  NSString *description = [NSString stringWithFormat:@"'%@' is not ready for a text input. Neither the accessbility element itself nor its accessible descendants have the input focus", self.description];
+  NSString *description = [NSString stringWithFormat:@"'%@' is not ready for a text input. Neither the accessibility element itself nor its accessible descendants have the input focus", self.description];
   return [[[FBErrorBuilder builder] withDescription:description] buildError:error];
 }
 
