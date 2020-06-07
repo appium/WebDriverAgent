@@ -344,18 +344,6 @@
 {
   NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
   // Apple timezone name like "US/New_York"
-  NSString *timeZoneAbb = [localTimeZone abbreviation];
-  if (timeZoneAbb == nil) {
-    return [localTimeZone name];
-  }
-
-  // Convert timezone name to ids like "America/New_York" as TZ database Time Zones format
-  // https://developer.apple.com/documentation/foundation/nstimezone
-  NSString *timeZoneId = [[NSTimeZone timeZoneWithAbbreviation:timeZoneAbb] name];
-  if (timeZoneId != nil) {
-    return timeZoneId;
-  }
-
   return [localTimeZone name];
 }
 
