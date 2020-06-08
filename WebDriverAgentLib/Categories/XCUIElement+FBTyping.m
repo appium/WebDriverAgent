@@ -18,12 +18,7 @@
 #import "FBXCodeCompatibility.h"
 
 #define MAX_CLEAR_RETRIES 2
-
-#if TARGET_OS_TV
-  #define MAX_PREPARE_RETRIES 1
-#else
-  #define MAX_PREPARE_RETRIES 2
-#endif
+#define MAX_PREPARE_TRIES 2
 
 
 @interface NSString (FBRepeat)
@@ -56,19 +51,22 @@
 
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  int retries = 0;
-  do {
-    if (self.fb_hasKeyboardFocus) {
-      return YES;
-    }
+  if (self.fb_hasKeyboardFocus) {
+    return YES;
+  }
 
+// There is no possibility to open the keyboard by tapping a field in TvOS
 #if !TARGET_OS_TV
-    // There is no ability to open text field via tap in TvOS
+  int tries = 0;
+  do {
     [self fb_tapWithError:nil];
     // It might take some time to update the UI
     [self fb_waitUntilSnapshotIsStableWithTimeout:1];
+    if (self.fb_hasKeyboardFocus) {
+      return YES;
+    }
+  } while (++tries < MAX_PREPARE_TRIES);
 #endif
-  } while (++retries < MAX_PREPARE_RETRIES);
 
   NSString *description = [NSString stringWithFormat:@"'%@' is not ready for a text input. Neither the accessibility element itself nor its accessible descendants have the input focus", self.description];
   return [[[FBErrorBuilder builder] withDescription:description] buildError:error];
