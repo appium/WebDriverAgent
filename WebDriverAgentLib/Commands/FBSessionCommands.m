@@ -223,7 +223,9 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
         },
       @"ios" :
         @{
+#if TARGET_OS_SIMULATOR
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
+#endif
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null]
         },
       @"build" : buildInfo.copy
