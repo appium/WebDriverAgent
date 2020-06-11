@@ -5,46 +5,46 @@
 #pragma clang diagnostic ignored "-Widiomatic-parentheses"
 
 @implementation RouteRequest {
-	HTTPMessage *message;
+  HTTPMessage *message;
 }
 
 @synthesize params;
 
 - (id)initWithHTTPMessage:(HTTPMessage *)msg parameters:(NSDictionary *)parameters {
-	if (self = [super init]) {
-		params = parameters;
-		message = msg;
-	}
-	return self;
+  if (self = [super init]) {
+    params = parameters;
+    message = msg;
+  }
+  return self;
 }
 
 - (NSDictionary *)headers {
-	return [message allHeaderFields];
+  return [message allHeaderFields];
 }
 
 - (NSString *)header:(NSString *)field {
-	return [message headerField:field];
+  return [message headerField:field];
 }
 
 - (id)param:(NSString *)name {
-	return [params objectForKey:name];
+  return [params objectForKey:name];
 }
 
 - (NSString *)method {
-	return [message method];
+  return [message method];
 }
 
 - (NSURL *)url {
-	return [message url];
+  return [message url];
 }
 
 - (NSData *)body {
-	return [message body];
+  return [message body];
 }
 
 - (NSString *)description {
-	NSData *data = [message messageData];
-	return [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+  NSData *data = [message messageData];
+  return [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
 }
 
 @end

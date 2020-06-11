@@ -6,7 +6,7 @@
  * By defining our own variant, we can support a range up to 16 exabytes.
  * 
  * All effort is given such that DDRange functions EXACTLY the same as NSRange.
-**/
+ **/
 
 #import <Foundation/NSValue.h>
 #import <Foundation/NSObjCRuntime.h>
@@ -14,29 +14,29 @@
 @class NSString;
 
 typedef struct _DDRange {
-    UInt64 location;
-    UInt64 length;
+  UInt64 location;
+  UInt64 length;
 } DDRange;
 
 typedef DDRange *DDRangePointer;
 
 NS_INLINE DDRange DDMakeRange(UInt64 loc, UInt64 len) {
-    DDRange r;
-    r.location = loc;
-    r.length = len;
-    return r;
+  DDRange r;
+  r.location = loc;
+  r.length = len;
+  return r;
 }
 
 NS_INLINE UInt64 DDMaxRange(DDRange range) {
-    return (range.location + range.length);
+  return (range.location + range.length);
 }
 
 NS_INLINE BOOL DDLocationInRange(UInt64 loc, DDRange range) {
-    return (loc - range.location < range.length);
+  return (loc - range.location < range.length);
 }
 
 NS_INLINE BOOL DDEqualRanges(DDRange range1, DDRange range2) {
-    return ((range1.location == range2.location) && (range1.length == range2.length));
+  return ((range1.location == range2.location) && (range1.length == range2.length));
 }
 
 FOUNDATION_EXPORT DDRange DDUnionRange(DDRange range1, DDRange range2);

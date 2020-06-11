@@ -44,7 +44,7 @@
  * 
  * HTTPLog works exactly the same as NSLog.
  * This means you can pass it multiple variables just like NSLog.
-**/
+ **/
 
 // Define logging context for every log message coming from the HTTP server.
 // The logging context can be extracted from the DDLogMessage from within the logging framework,

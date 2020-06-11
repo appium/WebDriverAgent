@@ -6,13 +6,13 @@
 /**
  * Returns the length of the data in bytes.
  * If you don't know the length in advance, implement the isChunked method and have it return YES.
-**/
+ **/
 - (UInt64)contentLength;
 
 /**
  * The HTTP server supports range requests in order to allow things like
  * file download resumption and optimized streaming on mobile devices.
-**/
+ **/
 - (UInt64)offset;
 - (void)setOffset:(UInt64)offset;
 
@@ -24,13 +24,13 @@
  * Doing so could disrupt proper support for range requests.
  * 
  * To support asynchronous responses, read the discussion at the bottom of this header.
-**/
+ **/
 - (NSData *)readDataOfLength:(NSUInteger)length;
 
 /**
  * Should only return YES after the HTTPConnection has read all available data.
  * That is, all data for the response has been returned to the HTTPConnection via the readDataOfLength method.
-**/
+ **/
 - (BOOL)isDone;
 
 @optional
@@ -52,19 +52,19 @@
  * Instead you should tie into the asynchronous response architecture, and use techniques such as the isChunked method.
  * 
  * Important: You should read the discussion at the bottom of this header.
-**/
+ **/
 - (BOOL)delayResponseHeaders;
 
 /**
  * Status code for response.
  * Allows for responses such as redirect (301), etc.
-**/
+ **/
 - (NSInteger)status;
 
 /**
  * If you want to add any extra HTTP headers to the response,
  * simply return them in a dictionary in this method.
-**/
+ **/
 - (NSDictionary *)httpHeaders;
 
 /**
@@ -72,7 +72,7 @@
  * implement this method in your custom response class and return YES.
  * 
  * Important: You should read the discussion at the bottom of this header.
-**/
+ **/
 - (BOOL)isChunked;
 
 /**
@@ -80,7 +80,7 @@
  * or when the connection is finished with the response.
  * If your response is asynchronous, you should implement this method so you know not to
  * invoke any methods on the HTTPConnection after this method is called (as the connection may be deallocated).
-**/
+ **/
 - (void)connectionDidClose;
 
 @end
@@ -146,4 +146,4 @@
  * This means the response will not include a Content-Length header, and will instead use "Transfer-Encoding: chunked".
  * There's a good chance that if your response is asynchronous and dynamic, it's also chunked.
  * If your response is chunked, you don't need to worry about range requests.
-**/
+ **/

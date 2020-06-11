@@ -15,9 +15,9 @@
 
 @interface HTTPConfig : NSObject
 {
-	HTTPServer __unsafe_unretained *server;
-	NSString __strong *documentRoot;
-	dispatch_queue_t queue;
+  HTTPServer __unsafe_unretained *server;
+  NSString __strong *documentRoot;
+  dispatch_queue_t queue;
 }
 
 - (id)initWithServer:(HTTPServer *)server documentRoot:(NSString *)documentRoot;
@@ -35,30 +35,30 @@
 
 @interface HTTPConnection : NSObject
 {
-	dispatch_queue_t connectionQueue;
-	GCDAsyncSocket *asyncSocket;
-	HTTPConfig *config;
-	
-	BOOL started;
-	
-	HTTPMessage *request;
-	unsigned int numHeaderLines;
-	
-	BOOL sentResponseHeaders;
-	
-	NSObject<HTTPResponse> *httpResponse;
-	
-	NSMutableArray *ranges;
-	NSMutableArray *ranges_headers;
-	NSString *ranges_boundry;
-	int rangeIndex;
-	
-	UInt64 requestContentLength;
-	UInt64 requestContentLengthReceived;
-	UInt64 requestChunkSize;
-	UInt64 requestChunkSizeReceived;
+  dispatch_queue_t connectionQueue;
+  GCDAsyncSocket *asyncSocket;
+  HTTPConfig *config;
   
-	NSMutableArray *responseDataSizes;
+  BOOL started;
+  
+  HTTPMessage *request;
+  unsigned int numHeaderLines;
+  
+  BOOL sentResponseHeaders;
+  
+  NSObject<HTTPResponse> *httpResponse;
+  
+  NSMutableArray *ranges;
+  NSMutableArray *ranges_headers;
+  NSString *ranges_boundry;
+  int rangeIndex;
+  
+  UInt64 requestContentLength;
+  UInt64 requestContentLengthReceived;
+  UInt64 requestChunkSize;
+  UInt64 requestChunkSizeReceived;
+  
+  NSMutableArray *responseDataSizes;
 }
 
 - (id)initWithAsyncSocket:(GCDAsyncSocket *)newSocket configuration:(HTTPConfig *)aConfig;
