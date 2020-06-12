@@ -16,7 +16,7 @@
 // Other flags: trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_INFO; // | HTTP_LOG_FLAG_TRACE;
 
-@interface HTTPServer (PrivateAPI) <GCDAsyncSocketDelegate>
+@interface HTTPServer (PrivateAPI)
 
 - (void)unpublishBonjour;
 - (void)publishBonjour;
