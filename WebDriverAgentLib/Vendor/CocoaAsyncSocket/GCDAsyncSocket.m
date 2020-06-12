@@ -14,6 +14,12 @@
 #import <CFNetwork/CFNetwork.h>
 #endif
 
+#pragma clang diagnostic ignored "-Wdirect-ivar-access"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#pragma clang diagnostic ignored "-Wvla"
+
 #import <TargetConditionals.h>
 #import <arpa/inet.h>
 #import <fcntl.h>
