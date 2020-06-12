@@ -16,7 +16,9 @@
 
 #pragma clang diagnostic ignored "-Wdirect-ivar-access"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#if __has_warning("-Wextra-semi-stmt")
 #pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #pragma clang diagnostic ignored "-Wswitch-enum"
 #pragma clang diagnostic ignored "-Wvla"
 
