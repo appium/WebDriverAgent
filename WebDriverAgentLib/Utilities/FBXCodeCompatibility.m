@@ -70,6 +70,10 @@ static dispatch_once_t onceAppWithPIDToken;
   dispatch_once(&onceAppWithPIDToken, ^{
     FBShouldUseOldAppWithPIDSelector = [XCUIApplication respondsToSelector:@selector(appWithPID:)];
   });
+  if (0 == processID) {
+    return nil;
+  }
+
   if (FBShouldUseOldAppWithPIDSelector) {
     return [self appWithPID:processID];
   }
