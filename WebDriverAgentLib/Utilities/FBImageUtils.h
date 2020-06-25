@@ -11,9 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Returns YES if the data contains a JPEG image */
-BOOL FBIsJpegImage(NSData *imageData);
-
 /*! Returns YES if the data contains a PNG image */
 BOOL FBIsPngImage(NSData *imageData);
 
