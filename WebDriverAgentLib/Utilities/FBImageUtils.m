@@ -55,18 +55,30 @@ BOOL FBIsPngImage(NSData *imageData)
   return range.location != NSNotFound;
 }
 
+NSData *FBToPngData(NSData *imageData) {
+  if (nil == imageData || [imageData length] < PNG_MAGIC_LEN) {
+    return nil;
+  }
+  if (FBIsPngImage(imageData)) {
+    return imageData;
+  }
+
+  UIImage *image = [UIImage imageWithData:imageData];
+  return nil == image ? nil : (NSData *)UIImagePNGRepresentation(image);
+}
+
 #if TARGET_OS_TV
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData)
 {
-  if (FBIsPngImage(screenshotData)) {
-    return screenshotData;
-  }
-  UIImage *image = [UIImage imageWithData:screenshotData];
-  return (NSData *)UIImagePNGRepresentation(image);
+  return FBToPngData(screenshotData);
 }
 #else
 NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation)
 {
+  if (nil == screenshotData) {
+    return nil;
+  }
+
   UIImageOrientation imageOrientation;
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationUnknown) {
     if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
@@ -79,11 +91,7 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
     } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
       imageOrientation = UIImageOrientationDown;
     } else {
-      if (FBIsPngImage(screenshotData)) {
-        return screenshotData;
-      }
-      UIImage *image = [UIImage imageWithData:screenshotData];
-      return (NSData *)UIImagePNGRepresentation(image);
+      return FBToPngData(screenshotData);
     }
   } else {
     switch (FBConfiguration.screenshotOrientation) {
@@ -103,13 +111,16 @@ NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIIn
   }
 
   UIImage *image = [UIImage imageWithData:screenshotData];
+  if (nil == image) {
+    return nil;
+  }
   UIGraphicsBeginImageContext(CGSizeMake(image.size.width, image.size.height));
   [[UIImage imageWithCGImage:(CGImageRef)[image CGImage] scale:1.0 orientation:imageOrientation]
    drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
   UIImage *fixedImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-
+  
   // The resulting data should be a PNG image
-  return (NSData *)UIImagePNGRepresentation(fixedImage);
+  return nil == fixedImage ? nil : (NSData *)UIImagePNGRepresentation(fixedImage);
 }
 #endif

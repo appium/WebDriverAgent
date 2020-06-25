@@ -9,15 +9,22 @@
 
 #import <XCTest/XCTest.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /*! Returns YES if the data contains a JPEG image */
 BOOL FBIsJpegImage(NSData *imageData);
 
 /*! Returns YES if the data contains a PNG image */
 BOOL FBIsPngImage(NSData *imageData);
 
+/*! Converts the given image data to a PNG representation if necessary */
+NSData *_Nullable FBToPngData(NSData *imageData);
+
 #if TARGET_OS_TV
-NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData);
+NSData *_Nullable FBAdjustScreenshotOrientationForApplication(NSData *screenshotData);
 #else
 /*! Fixes the screenshot orientation if necessary to match current screen orientation */
-NSData *FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);
+NSData *_Nullable FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);
 #endif
+
+NS_ASSUME_NONNULL_END
