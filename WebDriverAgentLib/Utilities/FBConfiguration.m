@@ -39,6 +39,7 @@ static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
+static BOOL FBShouldBoundElementsByIndex = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)
 static BOOL FBIncludeNonModalElements = NO;
@@ -314,6 +315,16 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (BOOL)useFirstMatch
 {
   return FBShouldUseFirstMatch;
+}
+
++ (void)setBoundElementsByIndex:(BOOL)enabled
+{
+  FBShouldBoundElementsByIndex = enabled;
+}
+
++ (BOOL)boundElementsByIndex
+{
+  return FBShouldBoundElementsByIndex;
 }
 
 + (void)setIncludeNonModalElements:(BOOL)isEnabled

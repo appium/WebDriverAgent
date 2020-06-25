@@ -29,7 +29,7 @@
 + (NSArray<XCUIElement *> *)fb_extractMatchingElementsFromQuery:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   if (!shouldReturnAfterFirstMatch) {
-    return query.allElementsBoundByAccessibilityElement;
+    return query.fb_allMatches;
   }
   XCUIElement *matchedElement = query.fb_firstMatch;
   return matchedElement ? @[matchedElement] : @[];
@@ -85,7 +85,7 @@
 
   NSPredicate *predicate = [FBPredicate predicateWithFormat:operation];
   XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicate];
-  NSArray *childElements = query.allElementsBoundByAccessibilityElement;
+  NSArray *childElements = query.fb_allMatches;
   [results addObjectsFromArray:childElements];
 }
 

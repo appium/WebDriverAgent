@@ -37,6 +37,7 @@ static NSString* const KEYBOARD_PREDICTION = @"keyboardPrediction";
 static NSString* const SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 static NSString* const SNAPSHOT_MAX_DEPTH = @"snapshotMaxDepth";
 static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
+static NSString* const BOUND_ELEMENTS_BY_INDEX = @"boundElementsByIndex";
 static NSString* const REDUCE_MOTION = @"reduceMotion";
 static NSString* const DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
 static NSString* const ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
@@ -256,6 +257,7 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
       SNAPSHOT_TIMEOUT: @([FBConfiguration snapshotTimeout]),
       SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
       USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
+      BOUND_ELEMENTS_BY_INDEX: @([FBConfiguration boundElementsByIndex]),
       REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
       ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
@@ -307,6 +309,9 @@ static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
   }
   if (nil != [settings objectForKey:USE_FIRST_MATCH]) {
     [FBConfiguration setUseFirstMatch:[[settings objectForKey:USE_FIRST_MATCH] boolValue]];
+  }
+  if (nil != [settings objectForKey:BOUND_ELEMENTS_BY_INDEX]) {
+    [FBConfiguration setBoundElementsByIndex:[[settings objectForKey:BOUND_ELEMENTS_BY_INDEX] boolValue]];
   }
   if (nil != [settings objectForKey:REDUCE_MOTION]) {
     [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];

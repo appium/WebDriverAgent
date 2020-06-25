@@ -197,7 +197,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   //    }
   //    return NSOrderedSame;
   //  }];
-  return query.allElementsBoundByAccessibilityElement;
+  return query.fb_allMatches;
 }
 
 - (BOOL)fb_waitUntilSnapshotIsStable

@@ -182,6 +182,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)useFirstMatch;
 
 /**
+ * Whether to bound the lookup results by index.
+ * By default this is disabled and bounding by accessibility is used.
+ * Read https://stackoverflow.com/questions/49307513/meaning-of-allelementsboundbyaccessibilityelement
+ * for more details on these two bounding methods.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setBoundElementsByIndex:(BOOL)enabled;
++ (BOOL)boundElementsByIndex;
+
+/**
  * Modify reduce motion configuration in accessibility.
  * It works only for Simulator since Real device has security model which allows chnaging preferences
  * only from settings app.

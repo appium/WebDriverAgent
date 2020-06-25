@@ -62,6 +62,13 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 /* Performs short-circuit UI tree traversion in iOS 11+ to get the first element matched by the query. Equals to nil if no matching elements are found */
 @property(nullable, readonly) XCUIElement *fb_firstMatch;
 
+/*
+ This is the local wrapper for bounded elements extraction.
+ It uses either indexed or bounded binding based on the `boundElementsByIndex` configuration
+ flag value.
+ */
+@property(readonly) NSArray<XCUIElement *> *fb_allMatches;
+
 /**
  Since Xcode11 XCTest got a feature that caches intermediate query snapshots
 
