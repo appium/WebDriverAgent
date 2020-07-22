@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "appium-base-driver": "^6.0.1",
+    "appium-base-driver": "^7.0.0",
     "appium-ios-simulator": "^3.14.0",
     "appium-support": "^2.46.0",
     "async-lock": "^1.0.0",
