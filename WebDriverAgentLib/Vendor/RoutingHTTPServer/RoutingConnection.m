@@ -15,7 +15,7 @@
 - (id)initWithAsyncSocket:(GCDAsyncSocket *)newSocket configuration:(HTTPConfig *)aConfig {
   if (self = [super initWithAsyncSocket:newSocket configuration:aConfig]) {
     NSAssert([config.server isKindOfClass:[RoutingHTTPServer class]],
-             @"A RoutingConnection is being used with a server that is not a RoutingHTTPServer");
+             @"A RoutingConnection is being used with a server that is not a %@", NSStringFromClass([RoutingHTTPServer class]));
     
     http = (RoutingHTTPServer *)config.server;
   }
