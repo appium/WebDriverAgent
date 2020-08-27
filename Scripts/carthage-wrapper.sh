@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# carthage-build.sh
-# Usage example: ./carthage-build.sh --platform iOS
-
 set -e
 
 clang_version=$(clang --version | python3 -c "import sys, re; print(re.findall(r'clang-([0-9.]+)', sys.stdin.read())[0])")
@@ -25,4 +22,4 @@ trap 'rm -f "$xcconfig"' INT TERM HUP EXIT
 echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200 = arm64 arm64e armv7 armv7s armv6 armv8' >> $xcconfig
 echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
 
-XCODE_XCCONFIG_FILE="$xcconfig" carthage build "$@"
+XCODE_XCCONFIG_FILE="$xcconfig" carthage "$@"

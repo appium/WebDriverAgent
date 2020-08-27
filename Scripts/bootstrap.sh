@@ -58,7 +58,7 @@ function fetch_and_build_dependencies() {
       echo "tvOS platform will not be included into Carthage bootstrap, because no Simulator devices have been created for it"
     fi
     platform_str=$(join_by , "${platforms[@]}")
-    bash "$DIR/carthage-build.sh" bootstrap $USE_SSH --platform "$platform_str" $NO_USE_BINARIES
+    bash "$DIR/carthage-wrapper.sh" bootstrap $USE_SSH --platform "$platform_str" $NO_USE_BINARIES
     cp Cartfile.resolved Carthage
   else
     echo "Dependencies up-to-date"
