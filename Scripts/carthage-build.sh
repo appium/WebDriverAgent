@@ -7,7 +7,8 @@ set -e
 
 clang_version=$(clang --version | python3 -c "import sys, re; print(re.findall(r'clang-([0-9.]+)', sys.stdin.read())[0])")
 CLANG_XCODE12_BETA3="1200.0.26.2"
-need_workaround=$(python3 -c "vtuple = lambda ver: tuple(map(int, ver.split('.'))); print(int(vtuple('$clang_version') >= vtuple('$CLANG_XCODE12_BETA3')))")
+CLANG_XCODE13="1300.0.0.0"
+need_workaround=$(python3 -c "vtuple = lambda ver: tuple(map(int, ver.split('.'))); print(int(vtuple('$CLANG_XCODE12_BETA3') <= vtuple('$clang_version') < vtuple('$CLANG_XCODE13')))")
 
 if [[ $need_workaround -ne 1 ]]; then
   carthage build "$@"
