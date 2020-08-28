@@ -54,7 +54,7 @@
   [textField typeText:@"Happy typing"];
   XCTAssertTrue([textField.value length] > 0);
   NSError *error;
-  XCTAssertTrue([textField fb_clearTextWithError:&error]);
+  XCTAssertFalse([textField fb_clearTextWithError:&error]);
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.value, @"");
 }
