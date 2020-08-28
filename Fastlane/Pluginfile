@@ -2,4 +2,4 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-test_center'
+gem 'fastlane-plugin-test_center', :git => "https://github.com/lyndsey-ferguson/fastlane-plugin-test_center.git", :branch => "issue-277-unable-to-parse-html-files"
