@@ -78,6 +78,7 @@
     "build/lib",
     "Scripts/bootstrap.sh",
     "Scripts/build.sh",
+    "Scripts/carthage-wrapper.sh",
     "Scripts/fetch-prebuilt-wda.js",
     "Cartfile",
     "Cartfile.resolved",
