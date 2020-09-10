@@ -29,6 +29,7 @@ function getStartOpts (device) {
     realDevice: false,
     showXcodeLog: true,
     wdaLaunchTimeout: 60 * 3 * 1000,
+    simulatorStartupTimeout: 60 * 4 * 1000,
   };
 }
 

@@ -52,7 +52,7 @@ describe('webdriveragent utils', function () {
       mocks.simctl.expects('getDevices')
         .once().returns([]);
       mocks.teen_process.expects('exec')
-        .once().withArgs('carthage', ['bootstrap', '--platform', 'iOS'])
+        .once().withArgs('/bin/bash')
         .throws({stdout: '', stderr: '', message: 'Carthage failure'});
 
       await checkForDependencies().should.eventually.be.rejectedWith(/Carthage failure/);
