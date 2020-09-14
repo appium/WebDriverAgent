@@ -92,16 +92,27 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
       }
     }
   }
-  if (nil == activeApplicationElement && activeApplicationElements.count > 0) {
-    activeApplicationElement = [activeApplicationElements firstObject];
+
+  if (nil != activeApplicationElement) {
+    FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
+    if (nil != application) {
+      return application;
+    }
+    [FBLogger log:@"Cannot translate the active process identifier into an application object"];
   }
-  if (nil == activeApplicationElement) {
-    NSString *errMsg = @"No applications are currently active";
-    @throw [NSException exceptionWithName:FBElementNotVisibleException reason:errMsg userInfo:nil];
+
+  if (activeApplicationElements.count > 0) {
+    [FBLogger logFmt:@"Getting the most recent active application (out of %@ total items)", @(activeApplicationElements.count)];
+    for (XCAccessibilityElement *appElement in activeApplicationElements) {
+      FBApplication *application = [FBApplication fb_applicationWithPID:appElement.processIdentifier];
+      if (nil != application) {
+        return application;
+      }
+    }
   }
-  FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
-  NSAssert(nil != application, @"Active application instance is not expected to be equal to nil", nil);
-  return application;
+
+  [FBLogger log:@"Cannot retrieve any active applications. Assuming the system application is the active one"];
+  return [self fb_systemApplication];
 }
 
 + (instancetype)fb_systemApplication

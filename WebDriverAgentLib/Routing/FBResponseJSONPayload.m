@@ -9,7 +9,7 @@
 
 #import "FBResponseJSONPayload.h"
 
-#import <RoutingHTTPServer/RouteResponse.h>
+#import "RouteResponse.h"
 
 @interface FBResponseJSONPayload ()
 

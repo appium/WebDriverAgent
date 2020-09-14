@@ -15,9 +15,10 @@
 #import "NSString+FBVisualLength.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
-
+#import "FBXCodeCompatibility.h"
 
 #define MAX_CLEAR_RETRIES 2
+
 
 @interface NSString (FBRepeat)
 
@@ -38,32 +39,33 @@
 
 @implementation XCUIElement (FBTyping)
 
+- (BOOL)fb_hasKeyboardFocus
+{
+  // https://developer.apple.com/documentation/xctest/xcuielement/1500968-typetext?language=objc
+  // > The element or a descendant must have keyboard focus; otherwise an error is raised.
+  return self.hasKeyboardFocus || [[[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
+   matchingPredicate:[NSPredicate predicateWithFormat:@"hasKeyboardFocus == YES"]]
+  count] > 0;
+}
+
 - (BOOL)fb_prepareForTextInputWithError:(NSError **)error
 {
-  BOOL wasKeyboardAlreadyVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
-  if (wasKeyboardAlreadyVisible && self.hasKeyboardFocus) {
+  if (self.fb_hasKeyboardFocus) {
     return YES;
   }
 
-  BOOL isKeyboardVisible = wasKeyboardAlreadyVisible;
-  // Sometimes the keyboard is not opened after the first tap, so we need to retry
-  for (int tryNum = 0; tryNum < 2; ++tryNum) {
-    if ([self fb_tapWithError:error] && wasKeyboardAlreadyVisible) {
-      return YES;
-    }
-    // It might take some time to update the UI
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-    [self fb_waitUntilSnapshotIsStable];
-    isKeyboardVisible = [FBKeyboard waitUntilVisibleForApplication:self.application timeout:-1 error:error];
-    if (isKeyboardVisible && self.hasKeyboardFocus) {
-      return YES;
-    }
+// There is no possibility to open the keyboard by tapping a field in TvOS
+#if !TARGET_OS_TV
+  [self fb_tapWithError:nil];
+  // It might take some time to update the UI
+  [self fb_waitUntilSnapshotIsStableWithTimeout:1];
+  if (self.fb_hasKeyboardFocus) {
+    return YES;
   }
-  if (nil == error) {
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not ready for text input (hasKeyboardFocus -> %@, isKeyboardVisible -> %@)", self.description, @(self.hasKeyboardFocus), @(isKeyboardVisible)];
-    return [[[FBErrorBuilder builder] withDescription:description] buildError:error];
-  }
-  return NO;
+#endif
+
+  [FBLogger logFmt:@"'%@' is not ready for a text input. Neither the accessibility element itself nor its accessible descendants have the input focus. Continuing anyway", self.description];
+  return YES;
 }
 
 - (BOOL)fb_typeText:(NSString *)text error:(NSError **)error
@@ -73,20 +75,8 @@
 
 - (BOOL)fb_typeText:(NSString *)text frequency:(NSUInteger)frequency error:(NSError **)error
 {
-  // There is no ability to open text field via tap
-#if TARGET_OS_TV
-  if (!self.hasKeyboardFocus) {
-    return [[[FBErrorBuilder builder] withDescription:@"Keyboard is not opened."] buildError:error];
-  }
-#else
-  if (![self fb_prepareForTextInputWithError:error]) {
-    return NO;
-  }
-#endif
-  if (![FBKeyboard typeText:text frequency:frequency error:error]) {
-    return NO;
-  }
-  return YES;
+  return [self fb_prepareForTextInputWithError:error]
+    && [FBKeyboard typeText:text frequency:frequency error:error];
 }
 
 - (BOOL)fb_clearTextWithError:(NSError **)error

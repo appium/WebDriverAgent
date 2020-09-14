@@ -16,6 +16,7 @@
 #import "NSPredicate+FBFormat.h"
 #import "XCElementSnapshot.h"
 #import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -28,7 +29,7 @@
 + (NSArray<XCUIElement *> *)fb_extractMatchingElementsFromQuery:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   if (!shouldReturnAfterFirstMatch) {
-    return query.allElementsBoundByAccessibilityElement;
+    return query.fb_allMatches;
   }
   XCUIElement *matchedElement = query.fb_firstMatch;
   return matchedElement ? @[matchedElement] : @[];
@@ -84,7 +85,7 @@
 
   NSPredicate *predicate = [FBPredicate predicateWithFormat:operation];
   XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:predicate];
-  NSArray *childElements = query.allElementsBoundByAccessibilityElement;
+  NSArray *childElements = query.fb_allMatches;
   [results addObjectsFromArray:childElements];
 }
 
@@ -96,7 +97,7 @@
   NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:predicate];
   NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
   // Include self element into predicate search
-  if ([formattedPredicate evaluateWithObject:self.fb_lastSnapshot]) {
+  if ([formattedPredicate evaluateWithObject:self.fb_cachedSnapshot ?: self.fb_lastSnapshot]) {
     if (shouldReturnAfterFirstMatch) {
       return @[self];
     }

@@ -65,8 +65,8 @@
   }
   NSError *error;
   if (![alert typeText:textToType error:&error]) {
-    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
-                                                               traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:error.description
+                                                                            traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   return FBResponseWithOK();
 }

@@ -1,10 +1,8 @@
 const path = require('path');
-const request = require('request-promise');
-const requestCallback = require('request');
+const axios = require('axios');
 const { asyncify } = require('asyncbox');
-const { logger, fs, mkdirp } = require('appium-support');
+const { logger, fs, mkdirp, net } = require('appium-support');
 const _ = require('lodash');
-const _fs = require('fs');
 const B = require('bluebird');
 
 const log = logger.getLogger('WDA');
@@ -16,14 +14,15 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   log.info(`Getting WDA release ${downloadUrl}`);
   let releases;
   try {
-    releases = await request.get(downloadUrl, {
+    releases = (await axios({
+      url: downloadUrl,
       headers: {
         'user-agent': 'appium',
+        'accept': 'application/json, */*',
       },
-      json: true,
-    });
+    })).data;
   } catch (e) {
-    throw new Error(`Could not fetch endpoint '${downloadUrl}. Reason: ${e.message}'`);
+    throw new Error(`Could not fetch endpoint ${downloadUrl}. Reason: ${e.message}`);
   }
 
   const webdriveragentsDir = path.resolve(__dirname, '..', 'prebuilt-agents');
@@ -34,19 +33,7 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   // Define a method that does a streaming download of an asset
   async function downloadAgent (url, targetPath) {
     try {
-      // don't use request-promise here, we need streams
-      return await new B((resolve, reject) => {
-        requestCallback(url)
-          .on('error', reject) // handle real errors, like connection errors
-          .on('response', (res) => {
-            // handle responses that fail, like 404s
-            if (res.statusCode >= 400) {
-              return reject(new Error(`${res.statusCode} - ${res.statusMessage}`));
-            }
-          })
-          .pipe(_fs.createWriteStream(targetPath))
-          .on('close', resolve);
-      });
+      await net.downloadFile(url, targetPath);
     } catch (err) {
       throw new Error(`Problem downloading webdriveragent from url ${url}: ${err.message}`);
     }

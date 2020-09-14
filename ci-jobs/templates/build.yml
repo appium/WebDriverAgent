@@ -16,7 +16,7 @@ jobs:
       displayName: List Installed Applications
     - task: NodeTool@0
       inputs:
-        versionSpec: '12.x' 
+        versionSpec: '12.x'
     - script: npm install
       displayName: Install Node Modules
     - script: bundle update --bundler

@@ -25,7 +25,7 @@ function mockPassingResourceCreation (mocks) {
 
 function mockSkippingCarthageRun (mocks) {
   mocks.fs.expects('which').once().returns(true);
-  mocks.utils.expects('fileCompare').once()
+  mocks.utils.expects('areFilesEqual').once()
     .onFirstCall().returns(true);
   mocks.teen_process.expects('exec').never();
 }
@@ -37,7 +37,7 @@ describe('webdriveragent utils', function () {
     });
     it('should not run script if Carthage directory already present', async function () {
       mocks.fs.expects('which').once().returns(true);
-      mocks.utils.expects('fileCompare').once()
+      mocks.utils.expects('areFilesEqual').once()
         .onFirstCall().returns(true);
       mocks.teen_process.expects('exec').never();
 
@@ -47,12 +47,12 @@ describe('webdriveragent utils', function () {
     });
     it('should delete Carthage folder and throw error on script error', async function () {
       mocks.fs.expects('which').once().returns(true);
-      mocks.utils.expects('fileCompare').once()
+      mocks.utils.expects('areFilesEqual').once()
         .onFirstCall().returns(false);
       mocks.simctl.expects('getDevices')
         .once().returns([]);
       mocks.teen_process.expects('exec')
-        .once().withArgs('carthage', ['bootstrap', '--platform', 'iOS'])
+        .once().withArgs('/bin/bash')
         .throws({stdout: '', stderr: '', message: 'Carthage failure'});
 
       await checkForDependencies().should.eventually.be.rejectedWith(/Carthage failure/);

@@ -48,7 +48,8 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (id<XCTestManager_ManagerInterface>)retrieveTestRunnerProxy
 {
-  if ([[XCTestDriver sharedTestDriver] respondsToSelector:@selector(managerProxy)]) {
+  if ([XCTestDriver respondsToSelector:@selector(sharedTestDriver)] &&
+      [[XCTestDriver sharedTestDriver] respondsToSelector:@selector(managerProxy)]) {
     return [XCTestDriver sharedTestDriver].managerProxy;
   } else {
     return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;

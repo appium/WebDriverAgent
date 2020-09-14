@@ -1,8 +1,8 @@
 import wd from 'wd';
-import request from 'request-promise';
 import { startServer } from '../../..';
 import { util } from 'appium-support';
 import _ from 'lodash';
+import axios from 'axios';
 
 
 const {SAUCE_RDC, SAUCE_EMUSIM, CLOUD} = process.env;
@@ -96,7 +96,7 @@ function getServer () {
 async function initWDA (caps) {
   // first, see if this is necessary
   try {
-    await request.get({url: `http://${HOST}:${WDA_PORT}/status`});
+    await axios({url: `http://${HOST}:${WDA_PORT}/status`, timeout: 5000});
   } catch (err) {
     // easiest way to initialize WDA is to go through a test startup
     // otherwise every change to the system would require a change here

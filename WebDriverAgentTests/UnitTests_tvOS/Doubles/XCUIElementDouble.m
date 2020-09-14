@@ -49,6 +49,11 @@
   return @"test";
 }
 
+- (id)fb_cachedSnapshot
+{
+  return nil;
+}
+
 - (void)resolve
 {
   self.didResolve = YES;

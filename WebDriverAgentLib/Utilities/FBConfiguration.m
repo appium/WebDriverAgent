@@ -39,6 +39,7 @@ static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
+static BOOL FBShouldBoundElementsByIndex = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)
 static BOOL FBIncludeNonModalElements = NO;
@@ -261,7 +262,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   dlclose(handle);
 }
 
-+ (BOOL)keyboardAutocorrection
++ (FBConfigurationKeyboardPreference)keyboardAutocorrection
 {
   return [self keyboardsPreference:FBKeyboardAutocorrectionKey];
 }
@@ -271,7 +272,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   [self configureKeyboardsPreference:isEnabled forPreferenceKey:FBKeyboardAutocorrectionKey];
 }
 
-+ (BOOL)keyboardPrediction
++ (FBConfigurationKeyboardPreference)keyboardPrediction
 {
   return [self keyboardsPreference:FBKeyboardPredictionKey];
 }
@@ -314,6 +315,16 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (BOOL)useFirstMatch
 {
   return FBShouldUseFirstMatch;
+}
+
++ (void)setBoundElementsByIndex:(BOOL)enabled
+{
+  FBShouldBoundElementsByIndex = enabled;
+}
+
++ (BOOL)boundElementsByIndex
+{
+  return FBShouldBoundElementsByIndex;
 }
 
 + (void)setIncludeNonModalElements:(BOOL)isEnabled
@@ -394,14 +405,28 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 
 #pragma mark Private
 
-+ (BOOL)keyboardsPreference:(nonnull NSString *)key
++ (FBConfigurationKeyboardPreference)keyboardsPreference:(nonnull NSString *)key
 {
   Class controllerClass = NSClassFromString(controllerClassName);
   TIPreferencesController *controller = [controllerClass sharedPreferencesController];
   if ([key isEqualToString:FBKeyboardAutocorrectionKey]) {
-    return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey];
+    if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
+      return [controller boolForPreferenceKey:FBKeyboardAutocorrectionKey]
+        ? FBConfigurationKeyboardPreferenceEnabled
+        : FBConfigurationKeyboardPreferenceDisabled;
+    } else {
+      [FBLogger log:@"Updating keyboard autocorrection preference is not supported"];
+      return FBConfigurationKeyboardPreferenceNotSupported;
+    }
   } else if ([key isEqualToString:FBKeyboardPredictionKey]) {
-    return [controller boolForPreferenceKey:FBKeyboardPredictionKey];
+    if ([controller respondsToSelector:@selector(boolForPreferenceKey:)]) {
+      return [controller boolForPreferenceKey:FBKeyboardPredictionKey]
+        ? FBConfigurationKeyboardPreferenceEnabled
+        : FBConfigurationKeyboardPreferenceDisabled;
+    } else {
+      [FBLogger log:@"Updating keyboard prediction preference is not supported"];
+      return FBConfigurationKeyboardPreferenceNotSupported;
+    }
   }
   @throw [[FBErrorBuilder.builder withDescriptionFormat:@"No available keyboardsPreferenceKey: '%@'", key] build];
 }

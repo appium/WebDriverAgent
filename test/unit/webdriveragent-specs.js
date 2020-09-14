@@ -218,6 +218,15 @@ describe('get url', function () {
     const agent = new WebDriverAgent({}, args);
     agent.url.href.should.eql('http://mockurl:9100/');
   });
+  it('should use the given webDriverAgentUrl and ignore other params', function () {
+    const args = Object.assign({}, fakeConstructorArgs);
+    args.wdaBaseUrl = 'http://mockurl/';
+    args.wdaLocalPort = '9100';
+    args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
+
+    const agent = new WebDriverAgent({}, args);
+    agent.url.href.should.eql('https://127.0.0.1:8100/');
+  });
 });
 
 describe('setupCaching()', function () {

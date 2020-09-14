@@ -23,7 +23,7 @@
 #import "XCUIElement+FBUtilities.h"
 
 #if !TARGET_OS_TV
-@implementation FBBaseGestureItem
+@implementation FBBaseActionItem
 
 + (NSString *)actionName
 {
@@ -31,11 +31,15 @@
   return nil;
 }
 
-- (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray<FBBaseGestureItem *> *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
+- (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
 {
   @throw [[FBErrorBuilder.builder withDescription:@"Override this method in subclasses"] build];
   return nil;
 }
+
+@end
+
+@implementation FBBaseGestureItem
 
 - (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(XCElementSnapshot *)snapshot
 {
@@ -69,7 +73,6 @@
   CGPoint hitPoint;
   if (nil == element) {
     // Only absolute offset is defined
-    
     hitPoint = [positionOffset CGPointValue];
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
       /*
@@ -82,7 +85,7 @@
   } else {
     // The offset relative to the element is defined
 
-    XCElementSnapshot *snapshot = element.fb_lastSnapshot;
+    XCElementSnapshot *snapshot = element.fb_cachedSnapshot ?: element.fb_lastSnapshot;
     if (nil == positionOffset) {
       NSValue *hitPointValue = snapshot.fb_hitPoint;
       if (nil != hitPointValue) {
@@ -119,7 +122,7 @@
 @end
 
 
-@implementation FBBaseGestureItemsChain
+@implementation FBBaseActionItemsChain
 
 - (instancetype)init
 {
@@ -131,7 +134,7 @@
   return self;
 }
 
-- (void)addItem:(FBBaseGestureItem *)item __attribute__((noreturn))
+- (void)addItem:(FBBaseActionItem *)item __attribute__((noreturn))
 {
   @throw [[FBErrorBuilder.builder withDescription:@"Override this method in subclasses"] build];
 }
@@ -149,7 +152,7 @@
   XCPointerEventPath *previousEventPath = nil;
   XCPointerEventPath *currentEventPath = nil;
   NSUInteger index = 0;
-  for (FBBaseGestureItem *item in self.items.copy) {
+  for (FBBaseActionItem *item in self.items.copy) {
     NSArray<XCPointerEventPath *> *currentEventPaths = [item addToEventPath:currentEventPath
                                                                    allItems:self.items.copy
                                                            currentItemIndex:index++
@@ -157,8 +160,11 @@
     if (currentEventPaths == nil) {
       return nil;
     }
+
     currentEventPath = currentEventPaths.lastObject;
-    if (currentEventPath != previousEventPath) {
+    if (nil == currentEventPath) {
+      currentEventPath = previousEventPath;
+    } else if (currentEventPath != previousEventPath) {
       [result addObjectsFromArray:currentEventPaths];
       previousEventPath = currentEventPath;
     }

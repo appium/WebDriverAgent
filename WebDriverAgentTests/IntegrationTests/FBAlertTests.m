@@ -51,11 +51,6 @@
   FBAssertWaitTillBecomesTrue(self.testedApplication.sheets.count != 0);
 }
 
-- (void)testAlertException
-{
-  XCTAssertThrowsSpecificNamed([FBAlert throwRequestedItemObstructedByAlertException], NSException, FBAlertObstructingElementException);
-}
-
 - (void)testAlertPresence
 {
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
@@ -89,7 +84,9 @@
   XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
   [self showApplicationAlert];
   XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
+  FBAssertWaitTillBecomesTrue(alert.isPresent);
   XCTAssertTrue([alert clickAlertButton:@"Will do" error:nil]);
+  FBAssertWaitTillBecomesTrue(!alert.isPresent);
 }
 
 - (void)testAcceptingAlert
@@ -146,17 +143,6 @@
   XCTAssertTrue(alertElement.elementType == XCUIElementTypeAlert);
 }
 
-- (void)testFilteringObstructedElements
-{
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCUIElement *showAlertButton = self.testedApplication.buttons[FBShowAlertButtonName];
-  XCUIElement *acceptAlertButton = self.testedApplication.buttons[@"Will do"];
-  [self showApplicationAlert];
-
-  NSArray *filteredElements = [alert filterObstructedElements:@[showAlertButton, acceptAlertButton]];
-  XCTAssertEqualObjects(filteredElements, @[acceptAlertButton]);
-}
-
 - (void)testNotificationAlert
 {
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
@@ -189,25 +175,6 @@
 
   XCTAssertTrue([alert.text containsString:@"to access your location"]);
   XCTAssertTrue([alert.text containsString:@"Yo Yo"]);
-}
-
-- (void)testSheetAlert
-{
-  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
-    // This test is unstable under Xcode8
-    return;
-  }
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  BOOL isIpad = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad;
-  [self showApplicationSheet];
-  XCUIElement *showSheetButton = self.testedApplication.buttons[FBShowSheetAlertButtonName];
-  //On iphone this filterObstructedElements will throw an exception.
-  if (isIpad) {
-    NSArray *filteredElements = [alert filterObstructedElements:@[showSheetButton]];
-    XCTAssertEqualObjects(filteredElements, @[showSheetButton]);
-  } else {
-    XCTAssertThrowsSpecificNamed([alert filterObstructedElements:@[showSheetButton]], NSException, FBAlertObstructingElementException, @"should throw FBAlertObstructingElementException");
-  }
 }
 
 @end

@@ -85,7 +85,7 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  NSArray<XCUIElement *> *allMatches = query.allElementsBoundByAccessibilityElement;
+  NSArray<XCUIElement *> *allMatches = query.fb_allMatches;
   if (0 == item.position.integerValue) {
     return allMatches;
   }

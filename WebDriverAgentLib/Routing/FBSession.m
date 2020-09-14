@@ -70,10 +70,10 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 
 @implementation FBSession
 
-static FBSession *_activeSession;
+static FBSession *_activeSession = nil;
 + (instancetype)activeSession
 {
-  return _activeSession ?: [FBSession initWithApplication:nil];
+  return _activeSession;
 }
 
 + (void)markSessionActive:(FBSession *)session
@@ -182,10 +182,10 @@ static FBSession *_activeSession;
   return NO;
 }
 
-- (void)launchApplicationWithBundleId:(NSString *)bundleIdentifier
-              shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
-                            arguments:(nullable NSArray<NSString *> *)arguments
-                          environment:(nullable NSDictionary <NSString *, NSString *> *)environment
+- (FBApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+                         shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
+                                       arguments:(nullable NSArray<NSString *> *)arguments
+                                     environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   if (app.fb_state < 2) {
@@ -200,12 +200,14 @@ static FBSession *_activeSession;
   } else {
     [app fb_activate];
   }
+  return app;
 }
 
-- (void)activateApplicationWithBundleId:(NSString *)bundleIdentifier
+- (FBApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   [app fb_activate];
+  return app;
 }
 
 - (BOOL)terminateApplicationWithBundleId:(NSString *)bundleIdentifier

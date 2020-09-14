@@ -35,16 +35,6 @@
   XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Calendar"].exists);
 }
 
-- (void)disabled_testWaitingForSpringboard
-{
-  // This test is flaky on Travis
-  NSError *error;
-  [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
-  XCTAssertTrue([[FBSpringboardApplication fb_springboard] fb_waitUntilApplicationBoardIsVisible:&error]);
-  XCTAssertNil(error);
-  XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Safari"].fb_isVisible);
-}
-
 - (void)testApplicationTree
 {
   XCTAssertNotNil(self.testedApplication.fb_tree);
@@ -93,6 +83,11 @@
     }
   }
   XCTAssertTrue(isAppActive);
+}
+
+- (void)testTestmanagerdVersion
+{
+  XCTAssertGreaterThan([XCUIApplication fb_testmanagerdVersion], 0);
 }
 
 @end

@@ -114,13 +114,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)configureDefaultKeyboardPreferences;
 
+
+/**
+Defines keyboard preference enabled status
+*/
+typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
+    FBConfigurationKeyboardPreferenceDisabled = 0,
+    FBConfigurationKeyboardPreferenceEnabled = 1,
+    FBConfigurationKeyboardPreferenceNotSupported = 2,
+};
+
 /**
  * Modify keyboard configuration of 'auto-correction'.
  *
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardAutocorrection:(BOOL)isEnabled;
-+ (BOOL)keyboardAutocorrection;
++ (FBConfigurationKeyboardPreference)keyboardAutocorrection;
 
 /**
  * Modify keyboard configuration of 'predictive'
@@ -128,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param isEnabled Turn the configuration on if the value is YES
  */
 + (void)setKeyboardPrediction:(BOOL)isEnabled;
-+ (BOOL)keyboardPrediction;
++ (FBConfigurationKeyboardPreference)keyboardPrediction;
 
 /**
  * The maximum time to wait until accessibility snapshot is taken
@@ -170,6 +180,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)setUseFirstMatch:(BOOL)enabled;
 + (BOOL)useFirstMatch;
+
+/**
+ * Whether to bound the lookup results by index.
+ * By default this is disabled and bounding by accessibility is used.
+ * Read https://stackoverflow.com/questions/49307513/meaning-of-allelementsboundbyaccessibilityelement
+ * for more details on these two bounding methods.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setBoundElementsByIndex:(BOOL)enabled;
++ (BOOL)boundElementsByIndex;
 
 /**
  * Modify reduce motion configuration in accessibility.

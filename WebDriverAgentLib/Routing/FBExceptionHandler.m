@@ -9,7 +9,7 @@
 
 #import "FBExceptionHandler.h"
 
-#import <RoutingHTTPServer/RouteResponse.h>
+#import "RouteResponse.h"
 
 #import "FBAlert.h"
 #import "FBResponsePayload.h"
@@ -38,9 +38,6 @@ NSString *const FBTimeoutException = @"FBTimeoutException";
              || [exception.name isEqualToString:FBElementAttributeUnknownException]) {
     commandStatus = [FBCommandStatus invalidArgumentErrorWithMessage:exception.reason
                                                            traceback:traceback];
-  } else if ([exception.name isEqualToString:FBAlertObstructingElementException]) {
-    commandStatus =[FBCommandStatus unexpectedAlertOpenErrorWithMessage:nil
-                                                              traceback:traceback];
   } else if ([exception.name isEqualToString:FBApplicationCrashedException]
              || [exception.name isEqualToString:FBApplicationDeadlockDetectedException]) {
     commandStatus = [FBCommandStatus invalidElementStateErrorWithMessage:exception.reason

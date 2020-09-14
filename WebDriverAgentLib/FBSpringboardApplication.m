@@ -32,28 +32,24 @@ NSString *const SPRINGBOARD_BUNDLE_ID = @"com.apple.springboard";
   return _springboardApp;
 }
 
-- (BOOL)fb_waitUntilApplicationBoardIsVisible:(NSError **)error
+- (BOOL)fb_switchToWithError:(NSError **)error
 {
-  return
-  [[[[FBRunLoopSpinner new]
-     timeout:10.]
-    timeoutErrorMessage:@"Timeout waiting until SpringBoard is visible"]
-   spinUntilTrue:^BOOL{
-     return self.fb_isApplicationBoardVisible;
-   } error:error];
-}
-
-- (BOOL)fb_isApplicationBoardVisible
-{
-  [self fb_nativeResolve];
-#if TARGET_OS_TV
-  // GridCollectionView works for simulator and real device so far
-  return self.collectionViews[@"GridCollectionView"].isEnabled;
-#else
-  // the dock (and other icons) don't seem to be consistently reported as
-  // visible. esp on iOS 11 but also on 10.3.3
-  return self.otherElements[@"Dock"].isEnabled;
-#endif
+  @try {
+    if ([self fb_state] < 2) {
+      [self launch];
+    } else {
+      [self fb_activate];
+    }
+  } @catch (NSException *e) {
+    return [[[FBErrorBuilder alloc]
+             withDescription:nil == e ? @"Cannot open SpringBoard" : e.reason]
+            buildError:error];
+  }
+  return [[[[FBRunLoopSpinner new]
+            timeout:5]
+           timeoutErrorMessage:@"Timeout waiting until SpringBoard is visible"]
+          spinUntilTrue:^BOOL{ return [FBApplication.fb_activeApplication.bundleID isEqualToString:SPRINGBOARD_BUNDLE_ID]; }
+          error:error];
 }
 
 @end

@@ -8,6 +8,7 @@
  */
 
 #import <WebDriverAgentLib/WebDriverAgentLib.h>
+#import "XCPointerEvent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,6 +62,20 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 /* Performs short-circuit UI tree traversion in iOS 11+ to get the first element matched by the query. Equals to nil if no matching elements are found */
 @property(nullable, readonly) XCUIElement *fb_firstMatch;
 
+/*
+ This is the local wrapper for bounded elements extraction.
+ It uses either indexed or bounded binding based on the `boundElementsByIndex` configuration
+ flag value.
+ */
+@property(readonly) NSArray<XCUIElement *> *fb_allMatches;
+
+/**
+ Since Xcode11 XCTest got a feature that caches intermediate query snapshots
+
+ @returns The cached snapshot or nil if the feature is either not available or there's no cached snapshot
+ */
+- (nullable XCElementSnapshot *)fb_cachedSnapshot;
+
 /**
  Retrieves the snapshot for the given element
 
@@ -70,10 +85,19 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 
 @end
 
+
+@interface XCPointerEvent (FBCompatibility)
+
+- (BOOL)fb_areKeyEventsSupported;
+
+@end
+
+
 @interface XCUIElement (FBCompatibility)
 
 /**
  Enforces snapshot resolution of the destination element
+ TODO: Deprecate and remove this helper after Xcode10 support is dropped
  */
 - (void)fb_nativeResolve;
 

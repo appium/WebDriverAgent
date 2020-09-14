@@ -23,6 +23,11 @@ BOOL FBFloatFuzzyEqualToFloat(CGFloat float1, CGFloat float2, CGFloat threshold)
   return (fabs(float1 - float2) <= threshold);
 }
 
+BOOL FBVectorFuzzyEqualToVector(CGVector a, CGVector b, CGFloat threshold)
+{
+  return FBFloatFuzzyEqualToFloat(a.dx, b.dx, threshold) && FBFloatFuzzyEqualToFloat(a.dy, b.dy, threshold);
+}
+
 BOOL FBPointFuzzyEqualToPoint(CGPoint point1, CGPoint point2, CGFloat threshold)
 {
   return FBFloatFuzzyEqualToFloat(point1.x, point2.x, threshold) && FBFloatFuzzyEqualToFloat(point1.y, point2.y, threshold);

@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "2.9.0",
+  "version": "2.20.8",
   "description": "Package bundling WebDriverAgent",
   "main": "build/index.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "install:dependencies": "gulp install:dependencies",
     "build": "gulp transpile",
     "prepare": "gulp prepublish",
+    "prepublishOnly": "npm run bundle",
     "lint": "gulp lint",
     "lint:fix": "gulp eslint --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
@@ -52,25 +53,23 @@
     "glob": "^7.1.0",
     "gulp": "^4.0.2",
     "ios-uicatalog": "^3.5.0",
-    "mocha": "^6.2.1",
+    "mocha": "^8.0.1",
     "pre-commit": "^1.2.2",
-    "sinon": "^8.0.0",
+    "sinon": "^9.0.2",
     "wd": "^1.11.4"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "appium-base-driver": "^5.0.2",
+    "appium-base-driver": "^7.0.0",
     "appium-ios-simulator": "^3.14.0",
-    "appium-support": "^2.37.0",
+    "appium-support": "^2.46.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^2.5.3",
+    "axios": "^0.19.2",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
     "node-simctl": "^6.0.2",
-    "request": "^2.79.0",
-    "request-promise": "^4.1.1",
     "source-map-support": "^0.5.12",
-    "stream-equal": "^1.1.1",
     "teen_process": "^1.14.1"
   },
   "files": [
@@ -80,6 +79,7 @@
     "build/lib",
     "Scripts/bootstrap.sh",
     "Scripts/build.sh",
+    "Scripts/carthage-wrapper.sh",
     "Scripts/fetch-prebuilt-wda.js",
     "Cartfile",
     "Cartfile.resolved",
@@ -89,6 +89,7 @@
     "WebDriverAgentLib",
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
-    "XCTWebDriverAgentLib"
+    "XCTWebDriverAgentLib",
+    "WebDriverAgentRunner-Runner.app.zip"
   ]
 }

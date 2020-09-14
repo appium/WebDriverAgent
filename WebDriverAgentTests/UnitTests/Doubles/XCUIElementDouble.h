@@ -33,6 +33,7 @@
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
 - (void)resolve;
+- (nullable id)fb_cachedSnapshot;
 
 // Checks
 @property (nonatomic, assign, readonly) BOOL didResolve;

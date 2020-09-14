@@ -74,6 +74,11 @@ static NSString *const FBRouteSessionPrefix = @"/session/:sessionID";
   return route;
 }
 
++ (instancetype)OPTIONS:(NSString *)pathPattern
+{
+  return [self withVerb:@"OPTIONS" path:pathPattern requiresSession:NO];
+}
+
 + (instancetype)GET:(NSString *)pathPattern
 {
   return [self withVerb:@"GET" path:pathPattern requiresSession:YES];

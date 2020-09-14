@@ -49,7 +49,7 @@
   return [self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
 }
 
-- (BOOL)fb_performW3CTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performW3CActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
   return [self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
 }

@@ -46,7 +46,7 @@
                                 if (nil == error) {
                                   onScreenElement = element;
                                 } else {
-                                  [FBLogger logFmt:@"Cannot request the screen point at %@: %@", [NSValue valueWithCGPoint:point], error.description];
+                                  [FBLogger logFmt:@"Cannot request the screen point at %@", NSStringFromCGPoint(point)];
                                 }
                                 dispatch_semaphore_signal(sem);
                               }];

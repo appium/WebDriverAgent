@@ -9,8 +9,8 @@
 
 #import "FBWebServer.h"
 
-#import <RoutingHTTPServer/RoutingConnection.h>
-#import <RoutingHTTPServer/RoutingHTTPServer.h>
+#import "RoutingConnection.h"
+#import "RoutingHTTPServer.h"
 
 #import "FBCommandHandler.h"
 #import "FBErrorBuilder.h"
@@ -85,6 +85,8 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   self.server = [[RoutingHTTPServer alloc] init];
   [self.server setRouteQueue:dispatch_get_main_queue()];
   [self.server setDefaultHeader:@"Server" value:@"WebDriverAgent/1.0"];
+  [self.server setDefaultHeader:@"Access-Control-Allow-Origin" value:@"*"];
+  [self.server setDefaultHeader:@"Access-Control-Allow-Headers" value:@"Content-Type, X-Requested-With"];
   [self.server setConnectionClass:[FBHTTPConnection self]];
 
   [self registerRouteHandlers:[self.class collectCommandHandlerClasses]];

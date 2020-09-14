@@ -90,12 +90,18 @@
 #pragma mark - Utilities
 - (FBTVNavigationItem*)navigationItemWithElement:(id<FBElement>)element
 {
-  FBTVNavigationItem* item = [self.navigationItems objectForKey:element.wdUID];
+  NSString *uid = element.wdUID;
+  if (nil == uid) {
+    return nil;
+  }
+
+  FBTVNavigationItem* item = [self.navigationItems objectForKey:uid];
   if (nil != item) {
     return item;
   }
-  item = [FBTVNavigationItem itemWithUid:element.wdUID];
-  [self.navigationItems setObject:item forKey:element.wdUID];
+  
+  item = [FBTVNavigationItem itemWithUid:uid];
+  [self.navigationItems setObject:item forKey:uid];
   return item;
 }
 

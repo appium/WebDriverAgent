@@ -11,7 +11,6 @@
 
 #import "XCUIElement+FBUtilities.h"
 #import "FBElementUtils.h"
-#import "FBXCodeCompatibility.h"
 
 @implementation XCUIElement (FBUID)
 
@@ -20,12 +19,8 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
-  // With Xcode 10, using fb_lastSnapshot is faster than resolving and using the lastSnapshot property
-  if (isSDKVersionLessThan(@"13.0")) {
-    return self.fb_lastSnapshot.fb_uid;
-  }
-  [self fb_nativeResolve];
-  return self.lastSnapshot.fb_uid;
+  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  return snapshot.fb_uid;
 }
 
 @end
