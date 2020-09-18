@@ -252,12 +252,16 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (BOOL)fb_resetAuthorizationStatusForResource:(long long)resourceId error:(NSError **)error
 {
-  if (![self respondsToSelector:@selector(resetAuthorizationStatusForResource:)]) {
+  SEL selector = NSSelectorFromString(@"resetAuthorizationStatusForResource:");
+  if (![self respondsToSelector:selector]) {
     return [[[FBErrorBuilder builder]
              withDescription:@"'resetAuthorizationStatusForResource' API is only supported for Xcode SDK 11.4 and later"]
             buildError:error];
   }
-  [self performSelector:@selector(resetAuthorizationStatusForResource:) withObject:@(resourceId)];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+  [self performSelector:selector withObject:@(resourceId)];
+#pragma clang diagnostic pop
   return YES;
 }
 
