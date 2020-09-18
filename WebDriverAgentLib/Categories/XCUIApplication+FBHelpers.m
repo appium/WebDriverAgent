@@ -250,4 +250,15 @@ static NSString* const FBUnknownBundleId = @"unknown";
   return testmanagerdVersion;
 }
 
+- (BOOL)fb_resetAuthorizationStatusForResource:(long long)resourceId error:(NSError **)error
+{
+  if (![self respondsToSelector:@selector(resetAuthorizationStatusForResource:)]) {
+    return [[[FBErrorBuilder builder]
+             withDescription:@"'resetAuthorizationStatusForResource' API is only supported for Xcode SDK 11.4 and later"]
+            buildError:error];
+  }
+  [self performSelector:@selector(resetAuthorizationStatusForResource:) withObject:@(resourceId)];
+  return YES;
+}
+
 @end

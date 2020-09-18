@@ -26,6 +26,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_deactivateWithDuration:(NSTimeInterval)duration error:(NSError **)error;
 
 /**
+ Resets the authorization status for a protected resource. Available since Xcode 11.4
+
+ @param resourceId A valid resource id to reset the auth status for. See https://developer.apple.com/documentation/xctest/xcuiprotectedresource?language=objc
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_resetAuthorizationStatusForResource:(long long)resourceId error:(NSError **)error;
+
+/**
  Return application elements tree in form of nested dictionaries
  */
 - (NSDictionary *)fb_tree;
