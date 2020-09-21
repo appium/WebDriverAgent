@@ -375,17 +375,23 @@
 		715D5775224DE05C00DA2D99 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		715D5776224DE06500DA2D99 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		715D5777224DE17E00DA2D99 /* YYCache.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B40C224D5A5F0042A993 /* YYCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		71649EC92518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
-		71649ECA2518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
-		71649ECB2518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
-		71649ECC2518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
-		71649ECD2518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
-		71649ECE2518C19C0087F212 /* TestsSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */; };
+		71649EC92518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
+		71649ECA2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
+		71649ECB2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
+		71649ECC2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
+		71649ECD2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
+		71649ECE2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
 		716C9346224D540C004B8542 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		716C9347224D540C004B8542 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		716E0BCE1E917E810087A825 /* NSString+FBXMLSafeString.h in Headers */ = {isa = PBXBuildFile; fileRef = 716E0BCC1E917E810087A825 /* NSString+FBXMLSafeString.h */; };
 		716E0BCF1E917E810087A825 /* NSString+FBXMLSafeString.m in Sources */ = {isa = PBXBuildFile; fileRef = 716E0BCD1E917E810087A825 /* NSString+FBXMLSafeString.m */; };
 		716E0BD11E917F260087A825 /* FBXMLSafeStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 716E0BD01E917F260087A825 /* FBXMLSafeStringTests.m */; };
+		717C0D712518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */; };
+		717C0D722518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */; };
+		717C0D732518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */; };
+		717C0D872518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
+		717C0D882518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
+		717C0D892518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
 		718F49C8230844330045FE8B /* FBProtocolHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */; };
 		718F49C923087ACF0045FE8B /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
 		718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DE23080CA600646AFB /* FBProtocolHelpers.m */; };
@@ -944,7 +950,7 @@
 		715AFAC01FFA29180053896D /* FBScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBScreen.m; sourceTree = "<group>"; };
 		715AFAC31FFA2AAF0053896D /* FBScreenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBScreenTests.m; sourceTree = "<group>"; };
 		715D554A2229891B00524509 /* FBExceptionHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBExceptionHandlerTests.m; sourceTree = "<group>"; };
-		71649EC82518C19C0087F212 /* TestsSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = TestsSettings.xcconfig; path = Configurations/TestsSettings.xcconfig; sourceTree = "<group>"; };
+		71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IOSTestSettings.xcconfig; sourceTree = "<group>"; };
 		716C9342224D53A1004B8542 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/AppleTVOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		716C9343224D53DF004B8542 /* libAccessibility.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libAccessibility.tbd; path = usr/lib/libAccessibility.tbd; sourceTree = SDKROOT; };
 		716C9344224D53FC004B8542 /* XCTAutomationSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTAutomationSupport.framework; path = Platforms/iPhoneOS.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework; sourceTree = DEVELOPER_DIR; };
@@ -952,6 +958,8 @@
 		716E0BCC1E917E810087A825 /* NSString+FBXMLSafeString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+FBXMLSafeString.h"; sourceTree = "<group>"; };
 		716E0BCD1E917E810087A825 /* NSString+FBXMLSafeString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+FBXMLSafeString.m"; sourceTree = "<group>"; };
 		716E0BD01E917F260087A825 /* FBXMLSafeStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXMLSafeStringTests.m; sourceTree = "<group>"; };
+		717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSSettings.xcconfig; sourceTree = "<group>"; };
+		717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSTestSettings.xcconfig; sourceTree = "<group>"; };
 		718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBProtocolHelpersTests.m; sourceTree = "<group>"; };
 		71930C4020662E1F00D3AFEC /* FBPasteboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBPasteboard.h; sourceTree = "<group>"; };
 		71930C4120662E1F00D3AFEC /* FBPasteboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBPasteboard.m; sourceTree = "<group>"; };
@@ -1293,7 +1301,7 @@
 		EEE376471D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBWebDriverAttributes.h"; sourceTree = "<group>"; };
 		EEE376481D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBWebDriverAttributes.m"; sourceTree = "<group>"; };
 		EEE4C66A1CDFA21F00A386A2 /* bootstrap.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bootstrap.sh; sourceTree = "<group>"; };
-		EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProjectSettings.xcconfig; sourceTree = "<group>"; };
+		EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IOSSettings.xcconfig; sourceTree = "<group>"; };
 		EEE9B4701CD02B88009D2030 /* FBRunLoopSpinner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRunLoopSpinner.h; sourceTree = "<group>"; };
 		EEE9B4711CD02B88009D2030 /* FBRunLoopSpinner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRunLoopSpinner.m; sourceTree = "<group>"; };
 		EEEC7C901F21F27A0053426C /* FBPredicate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBPredicate.h; sourceTree = "<group>"; };
@@ -1479,7 +1487,6 @@
 		91F9DAE01B99DBC2001349B2 = {
 			isa = PBXGroup;
 			children = (
-				71649EC82518C19C0087F212 /* TestsSettings.xcconfig */,
 				EEE5CABE1C80361500CBBDD9 /* Configurations */,
 				91F9DB731B99DDD8001349B2 /* PrivateHeaders */,
 				498495C81BB2E6FA009CC848 /* Resources */,
@@ -2115,7 +2122,10 @@
 		EEE5CABE1C80361500CBBDD9 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
-				EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */,
+				717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */,
+				717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */,
+				71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */,
+				EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -2822,6 +2832,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				717C0D722518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */,
+				717C0D882518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2829,6 +2841,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				717C0D712518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */,
+				717C0D872518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2836,7 +2850,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71649ECA2518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				717C0D892518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */,
+				71649ECA2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
+				717C0D732518ED2800CAA6EC /* TVOSSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2851,7 +2867,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71649ECD2518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				71649ECD2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2859,7 +2875,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71649ECC2518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				71649ECC2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2867,7 +2883,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71649EC92518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				71649EC92518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2876,7 +2892,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE9B76941CF7997600275851 /* Main.storyboard in Resources */,
-				71649ECE2518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				71649ECE2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2884,7 +2900,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71649ECB2518C19C0087F212 /* TestsSettings.xcconfig in Resources */,
+				71649ECB2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3308,7 +3324,7 @@
 /* Begin XCBuildConfiguration section */
 		641EE2E02240BBE300173FCB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3338,7 +3354,7 @@
 		};
 		641EE2E12240BBE300173FCB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3367,7 +3383,7 @@
 		};
 		641EE6F62240C5CA00173FCB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3428,7 +3444,7 @@
 		};
 		641EE6F72240C5CA00173FCB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = 717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3489,7 +3505,7 @@
 		};
 		64B26502228C50E0002A5025 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3523,7 +3539,7 @@
 		};
 		64B26503228C50E0002A5025 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -3677,7 +3693,7 @@
 		};
 		EE158A9E1CBD452B00A3E3F0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3736,7 +3752,7 @@
 		};
 		EE158A9F1CBD452B00A3E3F0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3794,7 +3810,7 @@
 		};
 		EE22021A1ECC612200A29571 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3817,7 +3833,7 @@
 		};
 		EE22021B1ECC612200A29571 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3839,7 +3855,7 @@
 		};
 		EE5095FC1EBCC9090028E2FE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3862,7 +3878,7 @@
 		};
 		EE5095FD1EBCC9090028E2FE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3884,7 +3900,7 @@
 		};
 		EE836C0B1C0F118600D87246 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3905,7 +3921,7 @@
 		};
 		EE836C0C1C0F118600D87246 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3925,7 +3941,7 @@
 		};
 		EE9B75F31CF7956C00275851 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -3943,7 +3959,7 @@
 		};
 		EE9B75F41CF7956C00275851 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -3960,7 +3976,7 @@
 		};
 		EE9B75F51CF7956C00275851 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3983,7 +3999,7 @@
 		};
 		EE9B75F61CF7956C00275851 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71649EC82518C19C0087F212 /* TestsSettings.xcconfig */;
+			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -4005,7 +4021,7 @@
 		};
 		EEF988321C486604005CA669 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -4032,7 +4048,7 @@
 		};
 		EEF988331C486604005CA669 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* ProjectSettings.xcconfig */;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				FRAMEWORK_SEARCH_PATHS = (
