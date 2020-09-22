@@ -40,7 +40,7 @@ extern NSString *const FBTapsCountLabelIdentifier;
 - (void)goToAlertsPage;
 
 /**
- Navigates integration app to alerts page
+ Navigates integration app to touch page
  */
 - (void)goToTouchPage;
 
