@@ -1,6 +1,6 @@
-EXCLUDED_ARCHS[sdk=tvos*] = x86_64
+EXCLUDED_ARCHS[sdk=appletvos*] = x86_64
 EXCLUDED_ARCHS[sdk=appletvsimulator*] = arm64
-ARCHS[sdk=tvos*] = arm64
+ARCHS[sdk=appletvos*] = arm64
 ARCHS[sdk=appletvsimulator*] = x86_64
-VALID_ARCHS[sdk=tvos*] = arm64
+VALID_ARCHS[sdk=appletvos*] = arm64
 VALID_ARCHS[sdk=appletvsimulator*] = x86_64
