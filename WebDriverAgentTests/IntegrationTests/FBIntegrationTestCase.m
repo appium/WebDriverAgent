@@ -24,6 +24,8 @@
 NSString *const FBShowAlertButtonName = @"Create App Alert";
 NSString *const FBShowSheetAlertButtonName = @"Create Sheet Alert";
 NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
+NSString *const FBTouchesCountLabelIdentifier = @"numberOfTouchesLabel";
+NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
 
 @interface FBIntegrationTestCase ()
 @property (nonatomic, strong) XCUIApplication *testedApplication;
@@ -70,6 +72,14 @@ NSString *const FBShowAlertForceTouchButtonName = @"Create Alert (Force Touch)";
   [self.testedApplication fb_waitUntilSnapshotIsStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[FBShowAlertButtonName].fb_isVisible);
   FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[FBShowSheetAlertButtonName].fb_isVisible);
+}
+
+- (void)goToTouchPage
+{
+  [self.testedApplication.buttons[@"Touch"] tap];
+  [self.testedApplication fb_waitUntilSnapshotIsStable];
+  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[FBTouchesCountLabelIdentifier].fb_isVisible);
+  FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts[FBTapsCountLabelIdentifier].fb_isVisible);
 }
 
 - (void)goToSpringBoardFirstPage

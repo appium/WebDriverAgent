@@ -17,11 +17,15 @@
 #import "XCUIDevice+FBRotation.h"
 #import "FBRunLoopSpinner.h"
 
-@interface FBAppiumMultiTouchActionsIntegrationTests : FBIntegrationTestCase
+@interface FBAppiumMultiTouchActionsIntegrationTestsPart1 : FBIntegrationTestCase
 @end
 
+@interface FBAppiumMultiTouchActionsIntegrationTestsPart2 : FBIntegrationTestCase
+@property (nonatomic) XCUIElement *touchesLabel;
+@property (nonatomic) XCUIElement *tapsLabel;
+@end
 
-@implementation FBAppiumMultiTouchActionsIntegrationTests
+@implementation FBAppiumMultiTouchActionsIntegrationTestsPart1
 
 - (void)verifyGesture:(NSArray<NSArray<NSDictionary<NSString *, id> *> *> *)gesture orientation:(UIDeviceOrientation)orientation
 {
@@ -95,6 +99,101 @@
   ];
   
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
+}
+
+@end
+
+@implementation FBAppiumMultiTouchActionsIntegrationTestsPart2
+
+- (void)verifyGesture:(NSArray<NSArray<NSDictionary<NSString *, id> *>*>*)gesture orientation:(UIDeviceOrientation)orientation tapsCount:(int)tapsCount touchesCount:(int)touchesCount
+{
+  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
+  NSError *error;
+  XCTAssertTrue([self.testedApplication fb_performAppiumTouchActions:gesture elementCache:nil error:&error]);
+  NSString *taps = [[self tapsLabel] label];
+  NSString *touches = [[self touchesLabel] label] ;
+  BOOL tapsEqual = [[NSString stringWithFormat:@"%d", tapsCount] isEqualToString:taps];
+  BOOL touchesEqual = [[NSString stringWithFormat:@"%d", touchesCount] isEqualToString:touches];
+  XCTAssertTrue(tapsEqual);
+  XCTAssertTrue(touchesEqual);
+}
+
+- (void)setUp
+{
+  [super setUp];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self launchApplication];
+    [self goToTouchPage];
+  });
+  self.touchesLabel = self.testedApplication.staticTexts[FBTouchesCountLabelIdentifier];
+  self.tapsLabel = self.testedApplication.staticTexts[FBTapsCountLabelIdentifier];
+}
+
+- (void)testMultiTouchWithMultiTaps
+{
+  XCUIElement *touchableView = self.testedApplication.otherElements[@"touchableView"];
+  XCTAssertNotNil(touchableView);
+  NSArray<NSArray<NSDictionary<NSString *, id> *>*> *gesture =
+  @[@[@{
+        @"action": @"tap",
+        @"options": @{
+            @"ELEMENT": touchableView
+            }
+        },
+      @{
+        @"action": @"wait",
+        @"options": @{
+            @"ms": @1000
+            }
+        },
+      @{
+        @"action": @"tap",
+        @"options": @{
+            @"ELEMENT": touchableView
+            }
+        },
+      @{
+        @"action": @"wait",
+        @"options": @{
+            @"ms": @1000
+            }
+        },
+      @{
+        @"action": @"release"
+        }
+      ],
+      @[@{
+        @"action": @"tap",
+        @"options": @{
+            @"ELEMENT": touchableView
+            }
+        },
+      @{
+        @"action": @"wait",
+        @"options": @{
+            @"ms": @1000
+            }
+        },
+      @{
+        @"action": @"tap",
+        @"options": @{
+            @"ELEMENT": touchableView
+            }
+        },
+      @{
+        @"action": @"wait",
+        @"options": @{
+            @"ms": @1000
+            }
+        },
+      @{
+        @"action": @"release"
+        }
+    ]
+    
+  ];
+  [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait tapsCount:2 touchesCount:2];
 }
 
 @end

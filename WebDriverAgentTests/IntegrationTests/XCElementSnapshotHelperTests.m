@@ -43,6 +43,7 @@
     @"Attributes",
     @"Scrolling",
     @"Deadlock app",
+    @"Touch",
   ]];
   NSArray<XCElementSnapshot *> *matchingSnapshots = [self.testedView.fb_lastSnapshot fb_descendantsMatchingType:XCUIElementTypeButton];
   XCTAssertEqual(matchingSnapshots.count, expectedLabels.count);

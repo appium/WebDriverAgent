@@ -71,7 +71,7 @@
 - (void)testFindMatchesInElement
 {
   NSArray *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@"//XCUIElementTypeButton"];
-  XCTAssertEqual([matchingSnapshots count], 4);
+  XCTAssertEqual([matchingSnapshots count], 5);
   for (id<FBElement> element in matchingSnapshots) {
     XCTAssertTrue([element.wdType isEqualToString:@"XCUIElementTypeButton"]);
   }
@@ -80,7 +80,7 @@
 - (void)testFindMatchesInElementWithDotNotation
 {
   NSArray *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@".//XCUIElementTypeButton"];
-  XCTAssertEqual([matchingSnapshots count], 4);
+  XCTAssertEqual([matchingSnapshots count], 5);
   for (id<FBElement> element in matchingSnapshots) {
     XCTAssertTrue([element.wdType isEqualToString:@"XCUIElementTypeButton"]);
   }

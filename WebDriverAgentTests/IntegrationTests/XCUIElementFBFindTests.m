@@ -45,6 +45,7 @@
     @"Attributes",
     @"Scrolling",
     @"Deadlock app",
+    @"Touch",
   ]];
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingClassName:@"XCUIElementTypeButton" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matchingSnapshots.count, expectedLabels.count);
@@ -239,7 +240,7 @@
   NSArray<XCUIElement *> *matchingSnapshots;
   NSString *queryString =@"XCUIElementTypeWindow/XCUIElementTypeOther/**/XCUIElementTypeButton";
   matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
-  XCTAssertEqual(matchingSnapshots.count, 4); // /XCUIElementTypeButton
+  XCTAssertEqual(matchingSnapshots.count, 5); // /XCUIElementTypeButton
   for (XCUIElement *matchingSnapshot in matchingSnapshots) {
     XCTAssertEqual(matchingSnapshot.elementType, XCUIElementTypeButton);
   }
@@ -261,7 +262,7 @@
   } else {
     matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString shouldReturnAfterFirstMatch:NO];
   }
-  XCTAssertEqual(matchingSnapshots.count, 4); // /XCUIElementTypeButton
+  XCTAssertEqual(matchingSnapshots.count, 5); // /XCUIElementTypeButton
   for (XCUIElement *matchingSnapshot in matchingSnapshots) {
     XCTAssertEqual(matchingSnapshot.elementType, XCUIElementTypeButton);
   }
@@ -335,7 +336,7 @@
   
   XCTAssertEqual(matchingSnapshots.count, 1);
   XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
-  XCTAssertTrue([matchingSnapshots.lastObject.label isEqualToString:@"Scrolling"]);
+  XCTAssertTrue([matchingSnapshots.lastObject.label isEqualToString:@"Touch"]);
   
   matchingSnapshots = [self.testedView fb_descendantsMatchingClassChain:@"XCUIElementTypeButton[-10]" shouldReturnAfterFirstMatch:YES];
   XCTAssertEqual(matchingSnapshots.count, 0);

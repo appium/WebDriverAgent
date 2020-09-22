@@ -14,6 +14,8 @@
 extern NSString *const FBShowAlertButtonName;
 extern NSString *const FBShowSheetAlertButtonName;
 extern NSString *const FBShowAlertForceTouchButtonName;
+extern NSString *const FBTouchesCountLabelIdentifier;
+extern NSString *const FBTapsCountLabelIdentifier;
 
 /**
  XCTestCase helper class used for integration tests
@@ -36,6 +38,11 @@ extern NSString *const FBShowAlertForceTouchButtonName;
  Navigates integration app to alerts page
  */
 - (void)goToAlertsPage;
+
+/**
+ Navigates integration app to alerts page
+ */
+- (void)goToTouchPage;
 
 /**
  Navigates to SpringBoard first page
