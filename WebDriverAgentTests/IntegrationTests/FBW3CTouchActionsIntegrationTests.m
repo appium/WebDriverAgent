@@ -406,8 +406,7 @@
       @"actions": @[
           @{@"type": @"pointerMove", @"duration": @0, @"origin": self.pickerWheel, @"x": @0, @"y":@0},
           @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @500},
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.pickerWheel, @"x": @0, @"y": @(pickerFrame.size.height / 2)},
+          @{@"type": @"pointerMove", @"duration": @500, @"origin": self.pickerWheel, @"x": @0, @"y": @(pickerFrame.size.height / 2)},
           @{@"type": @"pointerUp"},
           ],
       },
@@ -426,8 +425,7 @@
       @"actions": @[
           @{@"type": @"pointerMove", @"duration": @250, @"origin": self.pickerWheel, @"x": @0, @"y": @0},
           @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @500},
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": @"pointer", @"x": @0, @"y": @(-pickerFrame.size.height / 2)},
+          @{@"type": @"pointerMove", @"duration": @500, @"origin": @"pointer", @"x": @0, @"y": @(-pickerFrame.size.height / 2)},
           @{@"type": @"pointerUp"},
           ],
       },
@@ -446,8 +444,7 @@
       @"actions": @[
           @{@"type": @"pointerMove", @"duration": @0, @"x": @(pickerFrame.origin.x + pickerFrame.size.width / 2), @"y": @(pickerFrame.origin.y + pickerFrame.size.height / 2)},
           @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @500},
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": @"pointer", @"x": @0, @"y": @(pickerFrame.size.height / 2)},
+          @{@"type": @"pointerMove", @"duration": @500, @"origin": @"pointer", @"x": @0, @"y": @(pickerFrame.size.height / 2)},
           @{@"type": @"pointerUp"},
           ],
       },
