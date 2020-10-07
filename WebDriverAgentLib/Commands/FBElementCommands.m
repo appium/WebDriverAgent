@@ -31,6 +31,7 @@
 #import "XCUIElement+FBScrolling.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBForceTouch.h"
+#import "XCUIElement+FBSwiping.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
@@ -471,21 +472,17 @@
     return FBResponseWithStatus([FBCommandStatus staleElementReferenceErrorWithMessage:nil
                                                                              traceback:nil]);
   }
-  NSString *const direction = request.arguments[@"direction"];
+  NSString *direction = request.arguments[@"direction"];
   if (!direction) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Missing 'direction' parameter" traceback:nil]);
   }
-  if ([direction isEqualToString:@"up"]) {
-    [element swipeUp];
-  } else if ([direction isEqualToString:@"down"]) {
-    [element swipeDown];
-  } else if ([direction isEqualToString:@"left"]) {
-    [element swipeLeft];
-  } else if ([direction isEqualToString:@"right"]) {
-    [element swipeRight];
-  } else {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Unsupported swipe type" traceback:nil]);
+  NSArray<NSString *> *supportedDirections = @[@"up", @"down", @"left", @"right"];
+  if (![supportedDirections containsObject:direction.lowercaseString]) {
+    return FBResponseWithStatus([FBCommandStatus
+                                 invalidArgumentErrorWithMessage:[NSString stringWithFormat: @"Unsupported swipe direction '%@'. Only the following directions are supported: %@", direction, supportedDirections]
+                                 traceback:nil]);
   }
+  [element fb_swipeWithDirection:direction.lowercaseString velocity:request.arguments[@"velocity"]];
   return FBResponseWithOK();
 }
 

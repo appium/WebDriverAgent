@@ -60,4 +60,10 @@
 // Available since Xcode 10.0
 - (id)screenshot;
 
+// Since Xcode 11.4
+- (void)swipeRightWithVelocity:(double)arg1;
+- (void)swipeLeftWithVelocity:(double)arg1;
+- (void)swipeDownWithVelocity:(double)arg1;
+- (void)swipeUpWithVelocity:(double)arg1;
+
 @end
