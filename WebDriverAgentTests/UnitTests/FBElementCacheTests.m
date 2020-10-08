@@ -46,14 +46,7 @@
 
 - (void)testFetchingBadIndex
 {
-  XCTAssertNil([self.cache elementForUUID:@"random"]);
-}
-
-- (void)testResolvingFetchedElement
-{
-  NSString *uuid = [self.cache storeElement:(XCUIElement *)XCUIElementDouble.new];
-  XCUIElementDouble *element = (XCUIElementDouble *)[self.cache elementForUUID:uuid];
-  XCTAssertTrue(element.didResolve);
+  XCTAssertThrows([self.cache elementForUUID:@"random"]);
 }
 
 - (void)testLinearCacheExpulsion
@@ -77,7 +70,7 @@
   }
   
   for(int i = 0; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i++) {
-    XCTAssertNil([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i < ELEMENT_COUNT; i++) {
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
@@ -119,7 +112,7 @@
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i++) {
-    XCTAssertNil([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT; i++) {
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);

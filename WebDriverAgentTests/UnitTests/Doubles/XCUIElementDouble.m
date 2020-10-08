@@ -54,6 +54,11 @@
   return nil;
 }
 
+- (id)query
+{
+  return nil;
+}
+
 - (void)fb_nativeResolve
 {
   self.didResolve = YES;

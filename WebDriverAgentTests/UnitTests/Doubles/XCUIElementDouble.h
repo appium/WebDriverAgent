@@ -34,6 +34,7 @@
 
 - (void)resolve;
 - (nullable id)fb_cachedSnapshot;
+- (nullable id)query;
 
 // Checks
 @property (nonatomic, assign, readonly) BOOL didResolve;
