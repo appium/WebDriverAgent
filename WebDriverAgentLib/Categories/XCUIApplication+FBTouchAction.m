@@ -12,7 +12,6 @@
 
 #import "FBAppiumActionsSynthesizer.h"
 #import "FBBaseActionsSynthesizer.h"
-#import "FBExceptionHandler.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBW3CActionsSynthesizer.h"

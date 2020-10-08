@@ -12,7 +12,6 @@
 
 #import <objc/message.h>
 
-#import "FBExceptionHandler.h"
 #import "FBResponsePayload.h"
 #import "FBSession.h"
 #import "FBExceptions.h"

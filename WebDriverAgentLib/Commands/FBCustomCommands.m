@@ -13,7 +13,6 @@
 
 #import "FBApplication.h"
 #import "FBConfiguration.h"
-#import "FBExceptionHandler.h"
 #import "FBPasteboard.h"
 #import "FBResponsePayload.h"
 #import "FBRoute.h"

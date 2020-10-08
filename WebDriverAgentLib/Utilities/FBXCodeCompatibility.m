@@ -11,7 +11,6 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
-#import "FBExceptionHandler.h"
 #import "FBLogger.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"

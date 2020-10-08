@@ -13,7 +13,6 @@
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBElementCache.h"
-#import "FBExceptionHandler.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBPredicate.h"
