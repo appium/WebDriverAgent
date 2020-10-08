@@ -405,7 +405,9 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   CGPoint tapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUIElement *element = request.parameters[@"uuid"] ?:[elementCache elementForUUID:request.parameters[@"uuid"]];
+  XCUIElement *element = request.parameters[@"uuid"]
+    ? [elementCache elementForUUID:request.parameters[@"uuid"]]
+    : nil;
   if (nil == element) {
     XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint application:request.session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
     [tapCoordinate tap];
