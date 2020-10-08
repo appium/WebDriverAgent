@@ -10,6 +10,7 @@
 #import "XCUIElement+FBSwiping.h"
 
 #import "FBLogger.h"
+#import "XCUIElement.h"
 
 @implementation XCUIElement (FBSwiping)
 
