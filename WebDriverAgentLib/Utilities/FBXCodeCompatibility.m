@@ -106,14 +106,19 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (XCElementSnapshot *)fb_cachedSnapshot
+- (BOOL)fb_isSnapshotsCachingSupported
 {
   static dispatch_once_t onceToken;
   static BOOL isUniqueMatchingSnapshotAvailable;
   dispatch_once(&onceToken, ^{
     isUniqueMatchingSnapshotAvailable = [self respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)];
   });
-  if (!isUniqueMatchingSnapshotAvailable) {
+  return isUniqueMatchingSnapshotAvailable;
+}
+
+- (XCElementSnapshot *)fb_cachedSnapshot
+{
+  if (![self fb_isSnapshotsCachingSupported]) {
     return nil;
   }
   NSError *error;
@@ -156,19 +161,20 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElement (FBCompatibility)
 
-- (void)fb_nativeResolve
+- (BOOL)fb_nativeResolve
 {
   if ([self respondsToSelector:@selector(resolve)]) {
     [self resolve];
-    return;
+    return YES;
   }
   if ([self respondsToSelector:@selector(resolveOrRaiseTestFailure)]) {
     @try {
       [self resolveOrRaiseTestFailure];
     } @catch (NSException *e) {
       [FBLogger logFmt:@"Failure while resolving '%@': %@", self.description, e.reason];
+      return NO;
     }
-    return;
+    return YES;
   }
   @throw [[FBErrorBuilder.builder withDescription:@"Cannot resolve elements. Please contact Appium developers"] build];
 }

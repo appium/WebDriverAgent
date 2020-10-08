@@ -10,6 +10,7 @@
 #import "FBFailureProofTestCase.h"
 
 #import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBXCTestCaseImplementationFailureHoldingProxy.h"
 

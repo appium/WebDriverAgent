@@ -14,9 +14,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Exception used to notify about application crash */
-extern NSString *const FBApplicationCrashedException;
-
 /**
  Class that represents testing session
  */

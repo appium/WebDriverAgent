@@ -83,6 +83,11 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  */
 - (XCElementSnapshot *)fb_elementSnapshotForDebugDescription;
 
+/**
+ @returns YES if the element supports snapshots caching
+ */
+- (BOOL)fb_isSnapshotsCachingSupported;
+
 @end
 
 
@@ -97,9 +102,10 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 
 /**
  Enforces snapshot resolution of the destination element
- TODO: Deprecate and remove this helper after Xcode10 support is dropped
+
+ @returns YES if the element has been successfully resolved
  */
-- (void)fb_nativeResolve;
+- (BOOL)fb_nativeResolve;
 
 /**
  Determines whether current iOS SDK supports non modal elements inlusion into snapshots

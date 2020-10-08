@@ -10,6 +10,7 @@
 #import "FBXPath.h"
 
 #import "FBConfiguration.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "NSString+FBXMLSafeString.h"
 #import "XCUIElement.h"
@@ -97,8 +98,6 @@ const static char *_UTF8Encoding = "UTF-8";
 
 static NSString *const kXMLIndexPathKey = @"private_indexPath";
 static NSString *const topNodeIndexPath = @"top";
-NSString *const FBInvalidXPathException = @"FBInvalidXPathException";
-NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationException";
 
 @implementation FBXPath
 

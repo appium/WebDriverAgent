@@ -11,9 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Exception used to notify about invalid class chain query */
-extern NSString *const FBClassChainQueryParseException;
-
 @interface XCUIElement (FBClassChain)
 
 /**

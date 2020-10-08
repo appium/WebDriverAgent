@@ -21,8 +21,8 @@
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIElement.h"
+#import "FBExceptions.h"
 
-NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException";
 /*!
  The intial value for the default application property.
  Setting this value to `defaultActiveApplication` property forces WDA to use the internal

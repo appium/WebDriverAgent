@@ -438,13 +438,13 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
       [result addObject:touchItem];
       continue;
     }
-    NSString *uuid = FBExtractElement(options);
-    if (nil == uuid || nil == self.elementCache) {
-      [result addObject:touchItem];
-      continue;
-    }
-    XCUIElement *element = [self.elementCache elementForUUID:uuid];
-    if (nil == element) {
+    id origin = FBExtractElement(options);
+    XCUIElement *element;
+    if ([origin isKindOfClass:XCUIElement.class]) {
+      element = origin;
+    } else if ([origin isKindOfClass:NSString.class]) {
+      element = [self.elementCache elementForUUID:(NSString *)origin];
+    } else {
       [result addObject:touchItem];
       continue;
     }

@@ -51,12 +51,12 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_lastSnapshot
 {
-  return [self.query fb_elementSnapshotForDebugDescription];
+  return [self.fb_query fb_elementSnapshotForDebugDescription];
 }
 
 - (XCElementSnapshot *)fb_cachedSnapshot
 {
-  return [self.query fb_cachedSnapshot];
+  return [self.fb_query fb_cachedSnapshot];
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {
@@ -65,21 +65,27 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return [self fb_snapshotWithAttributes:allNames.copy];
 }
 
+- (nullable XCAccessibilityElement *)fb_accessibilityElement
+{
+  XCElementSnapshot *lastSnapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  if (nil == lastSnapshot) {
+    [self fb_nativeResolve];
+    lastSnapshot = self.lastSnapshot;
+  }
+  if (nil == lastSnapshot) {
+    return nil;
+  }
+  return lastSnapshot.accessibilityElement;
+}
+
 - (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames {
   if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
     return nil;
   }
 
-  XCAccessibilityElement *axElement;
-  if (FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion) {
-    axElement = self.query.includingNonModalElements.rootElementSnapshot.accessibilityElement;
-  } else {
-    XCElementSnapshot *lastSnapshot = self.fb_cachedSnapshot;
-    if (nil == lastSnapshot) {
-      [self fb_nativeResolve];
-      lastSnapshot = self.lastSnapshot;
-    }
-    axElement = lastSnapshot.accessibilityElement;
+  XCAccessibilityElement *axElement = self.fb_accessibilityElement;
+  if (nil == axElement) {
+    return nil;
   }
 
   NSTimeInterval axTimeout = [FBConfiguration snapshotTimeout];
@@ -130,28 +136,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
                         parameters:FBXCAXClientProxy.sharedClient.defaultParameters
                              reply:block];
   }
-}
-
-- (XCElementSnapshot *)fb_lastSnapshotFromQuery
-{
-  XCElementSnapshot *snapshot = nil;
-  @try {
-    XCUIElementQuery *rootQuery = self.fb_query;
-    while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
-      rootQuery = rootQuery.inputQuery;
-    }
-    if (rootQuery != nil) {
-      NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootQuery.rootElementSnapshot];
-      [snapshots addObjectsFromArray:rootQuery.rootElementSnapshot._allDescendants];
-      NSOrderedSet *matchingSnapshots = (NSOrderedSet *)[self.query.transformer transform:[NSOrderedSet orderedSetWithArray:snapshots] relatedElements:nil];
-      if (matchingSnapshots != nil && matchingSnapshots.count == 1) {
-        snapshot = matchingSnapshots[0];
-      }
-    }
-  } @catch (NSException *) {
-    snapshot = nil;
-  }
-  return snapshot ?: self.fb_lastSnapshot;
 }
 
 - (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots

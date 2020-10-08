@@ -11,6 +11,7 @@
 #import "FBClassChainQueryParser.h"
 #import "FBErrorBuilder.h"
 #import "FBElementTypeTransformer.h"
+#import "FBExceptions.h"
 #import "FBPredicate.h"
 #import "NSPredicate+FBFormat.h"
 

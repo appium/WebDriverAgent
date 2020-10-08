@@ -15,6 +15,7 @@
 #import "FBExceptionHandler.h"
 #import "FBResponsePayload.h"
 #import "FBSession.h"
+#import "FBExceptions.h"
 
 @interface FBRoute ()
 @property (nonatomic, assign, readwrite) BOOL requiresSession;

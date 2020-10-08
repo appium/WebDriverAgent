@@ -718,8 +718,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
         origin = element;
       }
     }
-    XCUIElement *instance = [self.elementCache elementForUUID:origin];
-    if (nil == instance) {
+
+    XCUIElement *instance;
+    if ([origin isKindOfClass:XCUIElement.class]) {
+      instance = origin;
+    } else if ([origin isKindOfClass:NSString.class]) {
+      instance = [self.elementCache elementForUUID:(NSString *)origin];
+    } else {
       [result addObject:actionItem];
       continue;
     }

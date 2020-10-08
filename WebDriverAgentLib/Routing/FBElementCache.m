@@ -16,6 +16,8 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUID.h"
+#import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 
 const int ELEMENT_CACHE_SIZE = 1024;
 
@@ -49,11 +51,18 @@ const int ELEMENT_CACHE_SIZE = 1024;
 - (XCUIElement *)elementForUUID:(NSString *)uuid
 {
   if (!uuid) {
-    return nil;
+    NSString *reason = [NSString stringWithFormat:@"Cannot extract cached element for UUID: %@", uuid];
+    @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
+
   XCUIElement *element = [self.elementCache objectForKey:uuid];
-  if (nil == element.fb_cachedSnapshot) {
-    [element fb_nativeResolve];
+  BOOL isStale = NO;
+  if (element.query.fb_isSnapshotsCachingSupported && nil == element.fb_cachedSnapshot && ![element fb_nativeResolve]) {
+    isStale = YES;
+  }
+  if (isStale || nil == element) {
+    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore", element ? element.description : uuid];
+    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
   }
   return element;
 }

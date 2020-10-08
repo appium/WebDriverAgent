@@ -11,8 +11,7 @@
 
 #import "FBClassChainQueryParser.h"
 #import "FBXCodeCompatibility.h"
-
-NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseException";
+#import "FBExceptions.h"
 
 @implementation XCUIElement (FBClassChain)
 

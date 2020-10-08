@@ -35,8 +35,10 @@ extern const int ELEMENT_CACHE_SIZE;
 
  @param uuid uuid of element to fetch
  @return element
+ @throws FBStaleElementException if the found element is not present in DOM anymore
+ @throws FBInvalidArgumentException if uuid is nil
  */
-- (nullable XCUIElement *)elementForUUID:(NSString *__nullable)uuid;
+- (XCUIElement *)elementForUUID:(NSString *__nullable)uuid;
 
 @end
 
