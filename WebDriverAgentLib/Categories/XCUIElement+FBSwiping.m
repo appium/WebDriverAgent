@@ -8,15 +8,20 @@
  */
 
 #import "XCUIElement+FBSwiping.h"
-#import "XCUIElement.h"
+
+#import "FBLogger.h"
 
 @implementation XCUIElement (FBSwiping)
 
 - (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity
 {
   double velocityValue = .0;
-  if (nil != velocity && [self respondsToSelector:@selector(swipeUpWithVelocity:)]) {
-    velocityValue = [velocity doubleValue];
+  if (nil != velocity) {
+    if ([self respondsToSelector:@selector(swipeUpWithVelocity:)]) {
+      velocityValue = [velocity doubleValue];
+    } else {
+      [FBLogger log:@"Custom velocity values are only supported since Xcode SDK 11.4. The default velocity will be used instead"];
+    }
   }
 
 #pragma clang diagnostic push
