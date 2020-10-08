@@ -11,13 +11,12 @@
 
 #import <YYCache/YYCache.h>
 #import "FBAlert.h"
+#import "FBExceptions.h"
+#import "FBXCodeCompatibility.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUID.h"
-#import "FBExceptionHandler.h"
-#import "FBExceptions.h"
 
 const int ELEMENT_CACHE_SIZE = 1024;
 

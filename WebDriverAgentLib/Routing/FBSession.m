@@ -16,12 +16,12 @@
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBElementCache.h"
+#import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBSpringboardApplication.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIElement.h"
-#import "FBExceptions.h"
 
 /*!
  The intial value for the default application property.
