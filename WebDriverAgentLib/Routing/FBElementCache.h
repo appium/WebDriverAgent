@@ -38,7 +38,14 @@ extern const int ELEMENT_CACHE_SIZE;
  @throws FBStaleElementException if the found element is not present in DOM anymore
  @throws FBInvalidArgumentException if uuid is nil
  */
-- (XCUIElement *)elementForUUID:(NSString *__nullable)uuid;
+- (XCUIElement *)elementForUUID:(nullable NSString *)uuid;
+
+/**
+ Checks element existence in the cache
+
+ @returns YES if the element with the given UUID is present in cache
+ */
+- (BOOL)hasElementWithUUID:(nullable NSString *)uuid;
 
 @end
 

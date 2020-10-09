@@ -66,4 +66,9 @@ const int ELEMENT_CACHE_SIZE = 1024;
   return element;
 }
 
+- (BOOL)hasElementWithUUID:(NSString *)uuid
+{
+  return nil == uuid ? NO : [self.elementCache containsObjectForKey:(NSString *)uuid];
+}
+
 @end

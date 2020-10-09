@@ -405,17 +405,18 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   CGPoint tapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUIElement *element = request.parameters[@"uuid"]
-    ? [elementCache elementForUUID:request.parameters[@"uuid"]]
-    : nil;
-  if (nil == element) {
-    XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint application:request.session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
-    [tapCoordinate tap];
-  } else {
+  if ([elementCache hasElementWithUUID:request.parameters[@"uuid"]]) {
+    XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
     NSError *error;
     if (![element fb_tapCoordinate:tapPoint error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                             traceback:nil]);
     }
+  } else {
+    XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint
+                                                                    application:request.session.activeApplication
+                                               shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+    [tapCoordinate tap];
   }
   return FBResponseWithOK();
 }
