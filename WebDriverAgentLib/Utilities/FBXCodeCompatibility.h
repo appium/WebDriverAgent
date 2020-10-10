@@ -72,9 +72,9 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 /**
  Since Xcode11 XCTest got a feature that caches intermediate query snapshots
 
- @returns The cached snapshot or nil if the feature is either not available or there's no cached snapshot
+ @returns The cached unqiue snapshot or nil if the element is stale
  */
-- (nullable XCElementSnapshot *)fb_cachedSnapshot;
+- (nullable XCElementSnapshot *)fb_uniqueSnapshot;
 
 /**
  Retrieves the snapshot for the given element
@@ -84,9 +84,9 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 - (XCElementSnapshot *)fb_elementSnapshotForDebugDescription;
 
 /**
- @returns YES if the element supports snapshots caching
+ @returns YES if the element supports unique snapshots retrieval
  */
-- (BOOL)fb_isSnapshotsCachingSupported;
+- (BOOL)fb_isUniqueSnapshotSupported;
 
 @end
 

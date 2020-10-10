@@ -49,7 +49,7 @@
   return @"test";
 }
 
-- (id)fb_cachedSnapshot
+- (id)fb_uniqueSnapshot
 {
   return nil;
 }

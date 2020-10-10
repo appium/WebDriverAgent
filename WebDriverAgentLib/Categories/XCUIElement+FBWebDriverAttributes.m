@@ -12,6 +12,7 @@
 #import <objc/runtime.h>
 
 #import "FBElementTypeTransformer.h"
+#import "FBLogger.h"
 #import "FBMacros.h"
 #import "XCUIElement+FBAccessibility.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -25,23 +26,19 @@
 
 - (XCElementSnapshot *)fb_snapshotForAttributeName:(NSString *)name
 {
-  if (!self.exists) {
-    return [XCElementSnapshot new];
-  }
-
   // These attrbiutes are special, because we can only retrieve them from
   // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
   // That is why fb_snapshotWithAllAttributes method must be used instead of the default fb_lastSnapshot
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
-    return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.lastSnapshot;
   }
   if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] ||
       [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-    return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.lastSnapshot;
   }
   
-  return (self.fb_cachedSnapshot ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  return self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name

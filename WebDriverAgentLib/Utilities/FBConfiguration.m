@@ -170,7 +170,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   return FBShouldUseSingletonTestManager;
 }
 
-+ (BOOL)shouldLoadSnapshotWithAttributes
++ (BOOL)canLoadSnapshotWithAttributes
 {
   return [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector] != nil;
 }

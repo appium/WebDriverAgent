@@ -12,8 +12,9 @@
 #import <objc/runtime.h>
 
 #import "FBConfiguration.h"
-#import "FBLogger.h"
+#import "FBExceptions.h"
 #import "FBImageUtils.h"
+#import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBRunLoopSpinner.h"
@@ -51,12 +52,33 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_lastSnapshot
 {
-  return [self.fb_query fb_elementSnapshotForDebugDescription];
+  XCElementSnapshot *lastSnapshot = [self.fb_query fb_elementSnapshotForDebugDescription];
+  if (nil == lastSnapshot) {
+    [self fb_nativeResolve];
+  } else {
+    self.lastSnapshot = lastSnapshot;
+  }
+  if (nil == self.lastSnapshot) {
+    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. Try to find it again", self.description];
+    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
+  }
+  return self.lastSnapshot;
 }
 
-- (XCElementSnapshot *)fb_cachedSnapshot
+- (XCElementSnapshot *)fb_uniqueSnapshot
 {
-  return [self.fb_query fb_cachedSnapshot];
+  if (!self.query.fb_isUniqueSnapshotSupported) {
+    return nil;
+  }
+
+  XCElementSnapshot *lastSnapshot = [self.fb_query fb_uniqueSnapshot];
+  if (nil == lastSnapshot) {
+    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. Try to find it again", self.description];
+    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
+  } else {
+    self.lastSnapshot = lastSnapshot;
+  }
+  return self.lastSnapshot;
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {
@@ -65,29 +87,15 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return [self fb_snapshotWithAttributes:allNames.copy];
 }
 
-- (nullable XCAccessibilityElement *)fb_accessibilityElement
-{
-  XCElementSnapshot *lastSnapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
-  if (nil == lastSnapshot) {
-    [self fb_nativeResolve];
-    lastSnapshot = self.lastSnapshot;
-  }
-  if (nil == lastSnapshot) {
-    return nil;
-  }
-  return lastSnapshot.accessibilityElement;
-}
-
 - (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames {
-  if (![FBConfiguration shouldLoadSnapshotWithAttributes]) {
+  if (![FBConfiguration canLoadSnapshotWithAttributes]) {
     return nil;
   }
 
-  XCAccessibilityElement *axElement = self.fb_accessibilityElement;
+  XCAccessibilityElement *axElement = (self.fb_uniqueSnapshot ?: self.fb_lastSnapshot).accessibilityElement;
   if (nil == axElement) {
     return nil;
   }
-
   NSTimeInterval axTimeout = [FBConfiguration snapshotTimeout];
   __block XCElementSnapshot *snapshotWithAttributes = nil;
   __block NSError *innerError = nil;

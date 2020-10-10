@@ -19,7 +19,7 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = (self.lastSnapshot ?: self.fb_uniqueSnapshot) ?: self.fb_lastSnapshot;
   return snapshot.fb_uid;
 }
 

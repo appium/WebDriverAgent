@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (BOOL)verboseLoggingEnabled;
 
-+ (BOOL)shouldLoadSnapshotWithAttributes;
++ (BOOL)canLoadSnapshotWithAttributes;
 
 /**
  * Configure keyboards preference to make test running stable

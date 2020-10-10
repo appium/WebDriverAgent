@@ -364,17 +364,23 @@ static NSString *const topNodeIndexPath = @"top";
       [element.application fb_waitUntilSnapshotIsStable];
     }
     if ([root isKindOfClass:XCUIApplication.class]) {
-      currentSnapshot = element.fb_cachedSnapshot ?: element.fb_lastSnapshot;
+      currentSnapshot = element.fb_uniqueSnapshot ?: element.fb_lastSnapshot;
       NSArray<XCUIElement *> *windows = [element fb_filterDescendantsWithSnapshots:currentSnapshot.children
                                                                            selfUID:currentSnapshot.wdUID
                                                                       onlyChildren:YES];
       NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
       for (XCUIElement* window in windows) {
-        XCElementSnapshot *windowSnapshot = 0 == snapshotAttributes.count
-          ? window.fb_snapshotWithAllAttributes
-          : [window fb_snapshotWithAttributes:snapshotAttributes.copy];
-        if (nil == windowSnapshot) {
-          [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved", window.description];
+        XCElementSnapshot *windowSnapshot;
+        @try {
+          windowSnapshot = 0 == snapshotAttributes.count
+            ? window.fb_snapshotWithAllAttributes
+            : [window fb_snapshotWithAttributes:snapshotAttributes.copy];
+          if (nil == windowSnapshot) {
+            [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved", window.description];
+            continue;
+          }
+        } @catch (NSException *e) {
+          [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved: %@", window.description, e.reason];
           continue;
         }
         [windowsSnapshots addObject:windowSnapshot];

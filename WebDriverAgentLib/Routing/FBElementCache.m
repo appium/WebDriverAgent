@@ -55,12 +55,12 @@ const int ELEMENT_CACHE_SIZE = 1024;
   }
 
   XCUIElement *element = [self.elementCache objectForKey:uuid];
-  BOOL isStale = NO;
-  if (element.query.fb_isSnapshotsCachingSupported && nil == element.fb_cachedSnapshot && ![element fb_nativeResolve]) {
-    isStale = YES;
+  // This will throw FBStaleElementException exception if the element is stale
+  if (nil == [element fb_uniqueSnapshot]) {
+    [element fb_lastSnapshot];
   }
-  if (isStale || nil == element) {
-    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore", element ? element.description : uuid];
+  if (nil == element) {
+    NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present on the current page anymore or it has expired from the internal cache. Try to find it again", uuid];
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
   }
   return element;

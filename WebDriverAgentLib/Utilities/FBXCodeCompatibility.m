@@ -105,7 +105,7 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (BOOL)fb_isSnapshotsCachingSupported
+- (BOOL)fb_isUniqueSnapshotSupported
 {
   static dispatch_once_t onceToken;
   static BOOL isUniqueMatchingSnapshotAvailable;
@@ -115,11 +115,8 @@ static dispatch_once_t onceAppWithPIDToken;
   return isUniqueMatchingSnapshotAvailable;
 }
 
-- (XCElementSnapshot *)fb_cachedSnapshot
+- (XCElementSnapshot *)fb_uniqueSnapshot
 {
-  if (![self fb_isSnapshotsCachingSupported]) {
-    return nil;
-  }
   NSError *error;
   XCElementSnapshot *result = [self uniqueMatchingSnapshotWithError:&error];
   if (nil == result && nil != error) {

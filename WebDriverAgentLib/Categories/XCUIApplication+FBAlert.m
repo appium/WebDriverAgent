@@ -55,7 +55,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
-  XCElementSnapshot *snapshot = candidate.fb_cachedSnapshot ?: candidate.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = candidate.fb_uniqueSnapshot ?: candidate.fb_lastSnapshot;
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType curType = descendant.elementType;
     if (curType == XCUIElementTypeButton) {

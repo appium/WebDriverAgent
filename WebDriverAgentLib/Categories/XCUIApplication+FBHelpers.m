@@ -98,7 +98,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSDictionary *)fb_tree
 {
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
   NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
   NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children
                                                                      selfUID:snapshot.wdUID
@@ -106,9 +106,14 @@ static NSString* const FBUnknownBundleId = @"unknown";
   NSMutableArray<NSDictionary *> *childrenTrees = [NSMutableArray arrayWithCapacity:children.count];
   [self fb_waitUntilSnapshotIsStable];
   for (XCUIElement* child in children) {
-    XCElementSnapshot *childSnapshot = child.fb_snapshotWithAllAttributes;
-    if (nil == childSnapshot) {
-      [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved", child.description];
+    XCElementSnapshot *childSnapshot;
+    @try {
+      childSnapshot = child.fb_snapshotWithAllAttributes;
+      if (nil == childSnapshot) {
+        [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved", child.description];
+      }
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved: %@", child.description, e.reason];
       continue;
     }
     [childrenTrees addObject:[self.class dictionaryForElement:childSnapshot recursive:YES]];
