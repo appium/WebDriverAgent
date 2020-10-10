@@ -54,6 +54,11 @@
   return nil;
 }
 
+- (id)fb_lastSnapshot
+{
+  return [self lastSnapshot];
+}
+
 - (void)resolve
 {
   self.didResolve = YES;

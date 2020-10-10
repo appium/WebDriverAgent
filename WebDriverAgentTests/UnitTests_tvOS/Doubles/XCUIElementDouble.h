@@ -35,6 +35,7 @@
 
 - (void)resolve;
 - (nullable id)fb_uniqueSnapshot;
+- (id _Nonnull)fb_lastSnapshot;
 
 // Checks
 @property (nonatomic, assign, readonly) BOOL didResolve;
