@@ -255,4 +255,18 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 #endif
 }
 
+static char XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY;
+
+@dynamic fb_isResolvedFromCache;
+
+- (void)fb_setIsResolvedFromCache:(NSNumber *)isResolvedFromCache
+{
+  objc_setAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY, isResolvedFromCache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSNumber *)fb_isResolvedFromCache
+{
+  return (NSNumber *)objc_getAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY);
+}
+
 @end

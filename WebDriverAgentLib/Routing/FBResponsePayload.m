@@ -104,7 +104,7 @@ inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, NSStr
       } else if ([field isEqualToString:@"displayed"]) {
         dictionary[field] = @(snapshot.wdVisible);
       } else if ([field isEqualToString:@"selected"]) {
-        dictionary[field] = @(snapshot.selected);
+        dictionary[field] = @(snapshot.wdSelected);
       } else if ([field isEqualToString:@"label"]) {
         dictionary[field] = snapshot.wdLabel ?: [NSNull null];
       } else if ([field hasPrefix:arbitraryAttrPrefix]) {

@@ -67,6 +67,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
     NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present or it has expired from the internal cache. Try to find it again", uuid];
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
   }
+  element.fb_isResolvedFromCache = @(YES);
   return element;
 }
 

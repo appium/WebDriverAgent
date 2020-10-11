@@ -161,7 +161,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  XCElementSnapshot *snapshot = element.lastSnapshot ?: element.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
+    ? element.lastSnapshot
+    : element.fb_lastSnapshot;
   CGRect frame = snapshot.frame;
   if (CGRectIsEmpty(frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];

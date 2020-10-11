@@ -19,8 +19,9 @@
   if ([self respondsToSelector:@selector(accessibilityElement)]) {
     return [FBElementUtils uidWithAccessibilityElement:[self performSelector:@selector(accessibilityElement)]];
   }
-  XCElementSnapshot *snapshot = self.lastSnapshot ?: self.fb_lastSnapshot;
-  return snapshot.fb_uid;
+  return self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot.fb_uid
+    : self.fb_lastSnapshot.fb_uid;
 }
 
 @end

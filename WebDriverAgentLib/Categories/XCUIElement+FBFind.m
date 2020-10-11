@@ -26,7 +26,8 @@
 
 @implementation XCUIElement (FBFind)
 
-+ (NSArray<XCUIElement *> *)fb_extractMatchingElementsFromQuery:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
++ (NSArray<XCUIElement *> *)fb_extractMatchingElementsFromQuery:(XCUIElementQuery *)query
+                                    shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   if (!shouldReturnAfterFirstMatch) {
     return query.fb_allMatches;
@@ -38,11 +39,15 @@
 
 #pragma mark - Search by ClassName
 
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingClassName:(NSString *)className shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingClassName:(NSString *)className
+                                shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   NSMutableArray *result = [NSMutableArray array];
   XCUIElementType type = [FBElementTypeTransformer elementTypeWithTypeName:className];
-  if (self.elementType == type || type == XCUIElementTypeAny) {
+  XCUIElementType selfType = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot.elementType
+    : self.elementType;
+  if (selfType == type || type == XCUIElementTypeAny) {
     [result addObject:self];
     if (shouldReturnAfterFirstMatch) {
       return result.copy;
@@ -56,7 +61,9 @@
 
 #pragma mark - Search by property value
 
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingProperty:(NSString *)property value:(NSString *)value partialSearch:(BOOL)partialSearch
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingProperty:(NSString *)property
+                                                     value:(NSString *)value
+                                             partialSearch:(BOOL)partialSearch
 {
   NSMutableArray *elements = [NSMutableArray array];
   [self descendantsWithProperty:property value:value partial:partialSearch results:elements];
@@ -92,12 +99,16 @@
 
 #pragma mark - Search by Predicate String
 
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingPredicate:(NSPredicate *)predicate shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingPredicate:(NSPredicate *)predicate
+                                shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:predicate];
   NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
+  XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_lastSnapshot;
   // Include self element into predicate search
-  if ([formattedPredicate evaluateWithObject:self.fb_lastSnapshot]) {
+  if ([formattedPredicate evaluateWithObject:selfSnapshot]) {
     if (shouldReturnAfterFirstMatch) {
       return @[self];
     }
@@ -111,7 +122,8 @@
 
 #pragma mark - Search by xpath
 
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery
+                                 shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   // XPath will try to match elements only class name, so requesting elements by XCUIElementTypeAny will not work. We should use '*' instead.
   xpathQuery = [xpathQuery stringByReplacingOccurrencesOfString:@"XCUIElementTypeAny" withString:@"*"];
@@ -129,10 +141,14 @@
 
 #pragma mark - Search by Accessibility Id
 
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
+                                 shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   NSMutableArray *result = [NSMutableArray array];
-  if (self.identifier == accessibilityId) {
+  NSString *selfIdentifier = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot.identifier
+    : self.fb_lastSnapshot.identifier;
+  if (nil != selfIdentifier && [selfIdentifier isEqualToString:accessibilityId]) {
     [result addObject:self];
     if (shouldReturnAfterFirstMatch) {
       return result.copy;
