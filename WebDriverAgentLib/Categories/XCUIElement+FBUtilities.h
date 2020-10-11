@@ -24,20 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Gets the most recent snapshot of the current element. The element will be
- automatically resolved if the snapshot is not available yet
+ automatically resolved if the snapshot is not available yet.
+ Calls to this method mutate the `lastSnapshot` instance property
 
  @return The recent snapshot of the element
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
 - (XCElementSnapshot *)fb_lastSnapshot;
-
-/**
- Gets the unique snapshot of the current element
-
- @return The cached snapshot of the element or nil in case this snaphot getting mechanism is not supported by the current Xcode SDK
- @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
-*/
-- (nullable XCElementSnapshot *)fb_uniqueSnapshot;
 
 /**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes

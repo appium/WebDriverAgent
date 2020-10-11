@@ -161,7 +161,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  XCElementSnapshot *snapshot = element.fb_uniqueSnapshot ?: element.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = element.lastSnapshot ?: element.fb_lastSnapshot;
   CGRect frame = snapshot.frame;
   if (CGRectIsEmpty(frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
@@ -723,7 +723,8 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     if ([origin isKindOfClass:XCUIElement.class]) {
       instance = origin;
     } else if ([origin isKindOfClass:NSString.class]) {
-      instance = [self.elementCache elementForUUID:(NSString *)origin];
+      instance = [self.elementCache elementForUUID:(NSString *)origin
+                    resolveForAdditionalAttributes:NO];
     } else {
       [result addObject:actionItem];
       continue;

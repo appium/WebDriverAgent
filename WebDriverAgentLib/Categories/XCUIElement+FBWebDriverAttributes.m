@@ -38,7 +38,7 @@
     return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.lastSnapshot;
   }
   
-  return self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  return self.fb_lastSnapshot;
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name

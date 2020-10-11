@@ -41,12 +41,14 @@
   XCUIElement *element = (XCUIElement *)XCUIElementDouble.new;
   NSString *uuid = [self.cache storeElement:element];
   XCTAssertNotNil(uuid, @"Stored index should be higher than 0");
-  XCTAssertEqual(element, [self.cache elementForUUID:uuid]);
+  XCTAssertEqual(element, [self.cache elementForUUID:uuid
+                      resolveForAdditionalAttributes:NO]);
 }
 
 - (void)testFetchingBadIndex
 {
-  XCTAssertThrows([self.cache elementForUUID:@"random"]);
+  XCTAssertThrows([self.cache elementForUUID:@"random"
+              resolveForAdditionalAttributes:NO]);
 }
 
 - (void)testLinearCacheExpulsion
@@ -70,10 +72,12 @@
   }
   
   for(int i = 0; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i++) {
-    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]
+                resolveForAdditionalAttributes:NO]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i < ELEMENT_COUNT; i++) {
-    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
+    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]
+                            resolveForAdditionalAttributes:NO]);
   }
 }
 
@@ -101,7 +105,7 @@
   }
   
   for(int i = 0; i < ACCESSED_ELEMENT_COUNT; i++) {
-    [self.cache elementForUUID:elementIds[i]];
+    [self.cache elementForUUID:elementIds[i] resolveForAdditionalAttributes:NO];
   }
      
   for(int i = ELEMENT_CACHE_SIZE; i < ELEMENT_COUNT; i++) {
@@ -109,13 +113,16 @@
   }
   
   for(int i = 0; i < ACCESSED_ELEMENT_COUNT; i++) {
-    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
+    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]
+                            resolveForAdditionalAttributes:NO]);
   }
   for(int i = ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i++) {
-    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]
+                resolveForAdditionalAttributes:NO]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT; i++) {
-    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
+    XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]
+                            resolveForAdditionalAttributes:NO]);
   }
 }
 

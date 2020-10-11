@@ -49,11 +49,6 @@
   return @"test";
 }
 
-- (id)fb_uniqueSnapshot
-{
-  return nil;
-}
-
 - (id)fb_lastSnapshot
 {
   return [self lastSnapshot];

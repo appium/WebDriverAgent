@@ -34,11 +34,14 @@ extern const int ELEMENT_CACHE_SIZE;
  Returns cached element
 
  @param uuid uuid of element to fetch
+ @param resolveForAllAttributes whether to resolve the cached element for all attributes.
+ This might be useful if the element is extracted from the cache for visiblity or accessbility validation
  @return element
  @throws FBStaleElementException if the found element is not present in DOM anymore
  @throws FBInvalidArgumentException if uuid is nil
  */
-- (XCUIElement *)elementForUUID:(nullable NSString *)uuid;
+- (XCUIElement *)elementForUUID:(nullable NSString *)uuid
+ resolveForAdditionalAttributes:(BOOL)resolveForAllAttributes;
 
 /**
  Checks element existence in the cache

@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBTestMacros.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBFind.h"
 #import "FBElementUtils.h"
@@ -31,8 +32,7 @@
     [self launchApplication];
   });
   XCUIElement *testedView = self.testedApplication.otherElements[@"MainView"];
-  XCTAssertTrue(testedView.exists);
-  [testedView fb_nativeResolve];
+  FBAssertWaitTillBecomesTrue(testedView.exists);
   self.matchingElement = [[testedView fb_descendantsMatchingIdentifier:@"Alerts" shouldReturnAfterFirstMatch:YES] firstObject];
   XCTAssertNotNil(self.matchingElement);
 }

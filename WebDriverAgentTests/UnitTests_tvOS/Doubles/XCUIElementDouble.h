@@ -34,7 +34,6 @@
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
 - (void)resolve;
-- (nullable id)fb_uniqueSnapshot;
 - (id _Nonnull)fb_lastSnapshot;
 
 // Checks

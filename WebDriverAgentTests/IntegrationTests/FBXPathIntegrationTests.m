@@ -34,7 +34,6 @@
   });
   self.testedView = self.testedApplication.otherElements[@"MainView"];
   XCTAssertTrue(self.testedView.exists);
-  [self.testedView fb_nativeResolve];
   FBAssertWaitTillBecomesTrue(self.testedView.buttons.count > 0);
 }
 

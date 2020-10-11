@@ -443,7 +443,8 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
     if ([origin isKindOfClass:XCUIElement.class]) {
       element = origin;
     } else if ([origin isKindOfClass:NSString.class]) {
-      element = [self.elementCache elementForUUID:(NSString *)origin];
+      element = [self.elementCache elementForUUID:(NSString *)origin
+                   resolveForAdditionalAttributes:NO];
     } else {
       [result addObject:touchItem];
       continue;

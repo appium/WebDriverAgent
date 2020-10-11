@@ -52,31 +52,20 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_lastSnapshot
 {
-  XCElementSnapshot *lastSnapshot = [self.fb_query fb_elementSnapshotForDebugDescription];
-  if (nil == lastSnapshot) {
-    [self fb_nativeResolve];
+  NSError *error = nil;
+  if (self.query.fb_isUniqueSnapshotSupported) {
+    self.lastSnapshot = [self.fb_query fb_uniqueSnapshotWithError:&error];
   } else {
-    self.lastSnapshot = lastSnapshot;
+    self.lastSnapshot = nil;
+    // TODO: Remove this branch after Xcode10 support is dropped
+    [self fb_resolveWithError:&error];
   }
   if (nil == self.lastSnapshot) {
     NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. Try to find it again", self.description];
+    if (nil != error) {
+      reason = [NSString stringWithFormat:@"%@. Original error: %@", reason, error.localizedDescription];
+    }
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
-  }
-  return self.lastSnapshot;
-}
-
-- (XCElementSnapshot *)fb_uniqueSnapshot
-{
-  if (!self.query.fb_isUniqueSnapshotSupported) {
-    return nil;
-  }
-
-  XCElementSnapshot *lastSnapshot = [self.fb_query fb_uniqueSnapshot];
-  if (nil == lastSnapshot) {
-    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. Try to find it again", self.description];
-    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
-  } else {
-    self.lastSnapshot = lastSnapshot;
   }
   return self.lastSnapshot;
 }
@@ -92,7 +81,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     return nil;
   }
 
-  XCAccessibilityElement *axElement = (self.fb_uniqueSnapshot ?: self.fb_lastSnapshot).accessibilityElement;
+  XCAccessibilityElement *axElement = self.fb_lastSnapshot.accessibilityElement;
   if (nil == axElement) {
     return nil;
   }

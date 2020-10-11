@@ -49,25 +49,25 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   [snapshot fb_scrollUpByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollDownByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   [snapshot fb_scrollDownByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollLeftByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   [snapshot fb_scrollLeftByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollRightByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
   [snapshot fb_scrollRightByNormalizedDistance:distance inApplication:self.application];
 }
 
@@ -100,7 +100,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     ];
   });
 
-  XCElementSnapshot *prescrollSnapshot = self.fb_uniqueSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *prescrollSnapshot = self.fb_lastSnapshot;
   __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
   XCElementSnapshot *scrollView = [prescrollSnapshot fb_parentMatchingOneOfTypes:acceptedParents
       filter:^(XCElementSnapshot *snapshot) {
@@ -177,7 +177,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   }
 
   // Cell is now visible, but it might be only partialy visible, scrolling till whole frame is visible
-  targetCellSnapshot = [(self.fb_uniqueSnapshot ?: self.fb_lastSnapshot) fb_parentCellSnapshot];
+  targetCellSnapshot = self.fb_lastSnapshot.fb_parentCellSnapshot;
   CGVector scrollVector = CGVectorMake(targetCellSnapshot.visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        targetCellSnapshot.visibleFrame.size.height - targetCellSnapshot.frame.size.height
                                        );
@@ -193,7 +193,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     return YES;
   }
 
-  XCElementSnapshot *appSnapshot = self.application.fb_uniqueSnapshot ?: self.application.fb_lastSnapshot;
+  XCElementSnapshot *appSnapshot = self.application.fb_lastSnapshot;
   for (XCElementSnapshot *elementSnapshot in appSnapshot._allDescendants.copy) {
     // We are comparing pre-scroll snapshot so frames are irrelevant.
     if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.fb_isVisible) {
