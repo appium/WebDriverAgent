@@ -33,24 +33,28 @@ NS_ASSUME_NONNULL_BEGIN
  @return The recent snapshot of the element
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (XCElementSnapshot *)fb_lastSnapshot;
+- (XCElementSnapshot *)fb_takeSnapshot;
 
 /**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes
  needed for creating the page source of this element. No additional calls to the accessibility layer
  are required.
+ Calls to this method mutate the `lastSnapshot` instance property
  
  @return The recent snapshot of the element with the attributes resolved
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes;
 
 /**
  Gets the most recent snapshot of the current element with given attributes resolved.
  No additional calls to the accessibility layer are required.
+ Calls to this method mutate the `lastSnapshot` instance property
 
  @param attributeNames The list of attribute names to resolve. Must be one of
  FB_...Name values exported by XCTestPrivateSymbols.h module
  @return The recent snapshot of the element with the attributes resolved
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
 */
 - (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames;
 

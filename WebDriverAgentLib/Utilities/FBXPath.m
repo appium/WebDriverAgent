@@ -364,7 +364,9 @@ static NSString *const topNodeIndexPath = @"top";
       [element.application fb_waitUntilSnapshotIsStable];
     }
     if ([root isKindOfClass:XCUIApplication.class]) {
-      currentSnapshot = element.fb_lastSnapshot;
+      currentSnapshot = element.fb_isResolvedFromCache.boolValue
+        ? element.lastSnapshot
+        : element.fb_takeSnapshot;
       NSArray<XCUIElement *> *windows = [element fb_filterDescendantsWithSnapshots:currentSnapshot.children
                                                                            selfUID:currentSnapshot.wdUID
                                                                       onlyChildren:YES];

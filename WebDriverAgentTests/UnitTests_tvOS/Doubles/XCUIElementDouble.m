@@ -49,7 +49,7 @@
   return @"test";
 }
 
-- (id)fb_lastSnapshot
+- (id)fb_takeSnapshot
 {
   return [self lastSnapshot];
 }

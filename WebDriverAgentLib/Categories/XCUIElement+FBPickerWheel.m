@@ -42,7 +42,7 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
      timeout:VALUE_CHANGE_TIMEOUT]
     timeoutErrorMessage:[NSString stringWithFormat:@"Picker wheel value has not been changed after %@ seconds timeout", @(VALUE_CHANGE_TIMEOUT)]]
    spinUntilTrue:^BOOL{
-     return ![self.fb_lastSnapshot.value isEqualToString:previousValue];
+     return ![self.fb_takeSnapshot.value isEqualToString:previousValue];
    }
    error:error];
 }

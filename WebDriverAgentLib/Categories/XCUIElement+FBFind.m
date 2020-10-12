@@ -106,7 +106,7 @@
   NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
   XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
-    : self.fb_lastSnapshot;
+    : self.fb_takeSnapshot;
   // Include self element into predicate search
   if ([formattedPredicate evaluateWithObject:selfSnapshot]) {
     if (shouldReturnAfterFirstMatch) {
@@ -135,7 +135,9 @@
     XCElementSnapshot *snapshot = matchingSnapshots.firstObject;
     matchingSnapshots = @[snapshot];
   }
-  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots selfUID:nil onlyChildren:NO];
+  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots
+                                         selfUID:self.lastSnapshot.wdUID
+                                    onlyChildren:NO];
 }
 
 
@@ -147,7 +149,7 @@
   NSMutableArray *result = [NSMutableArray array];
   NSString *selfIdentifier = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot.identifier
-    : self.fb_lastSnapshot.identifier;
+    : self.fb_takeSnapshot.identifier;
   if (nil != selfIdentifier && [selfIdentifier isEqualToString:accessibilityId]) {
     [result addObject:self];
     if (shouldReturnAfterFirstMatch) {

@@ -98,7 +98,9 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSDictionary *)fb_tree
 {
-  XCElementSnapshot *snapshot = self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
   NSMutableDictionary *rootTree = [[self.class dictionaryForElement:snapshot recursive:NO] mutableCopy];
   NSArray<XCUIElement *> *children = [self fb_filterDescendantsWithSnapshots:snapshot.children
                                                                      selfUID:snapshot.wdUID
@@ -128,7 +130,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 {
   [self fb_waitUntilSnapshotIsStable];
   // We ignore all elements except for the main window for accessibility tree
-  return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAllAttributes ?: self.fb_lastSnapshot)];
+  return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAllAttributes ?: self.lastSnapshot)];
 }
 
 + (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive

@@ -28,7 +28,7 @@
 {
   // These attrbiutes are special, because we can only retrieve them from
   // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
-  // That is why fb_snapshotWithAllAttributes method must be used instead of the default fb_lastSnapshot
+  // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
     return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.lastSnapshot;
@@ -38,7 +38,7 @@
     return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.lastSnapshot;
   }
   
-  return self.fb_lastSnapshot;
+  return self.fb_takeSnapshot;
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name

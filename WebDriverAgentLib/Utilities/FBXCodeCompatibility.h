@@ -104,7 +104,7 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 /**
  Enforces snapshot resolution of the destination element.
  !!! Do not cal this method on Xcode 11 or later due to performance considerations.
- Prefer using fb_lastSnapshot instead.
+ Prefer using fb_takeSnapshot instead.
 
  @param error Contains the actual error if element resolution fails
  @returns YES if the element has been successfully resolved

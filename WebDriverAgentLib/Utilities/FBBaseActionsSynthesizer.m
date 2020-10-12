@@ -87,7 +87,7 @@
 
     XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
       ? element.lastSnapshot
-      : element.fb_lastSnapshot;
+      : element.fb_takeSnapshot;
     if (nil == positionOffset) {
       NSValue *hitPointValue = snapshot.fb_hitPoint;
       if (nil != hitPointValue) {

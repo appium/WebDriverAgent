@@ -11,6 +11,7 @@
 
 #import "FBElementCache.h"
 #import "XCUIElementDouble.h"
+#import "XCUIElement+FBUtilities.h"
 
 @interface FBElementCacheTests : XCTestCase
 @property (nonatomic, strong) FBElementCache *cache;
@@ -41,8 +42,11 @@
   XCUIElement *element = (XCUIElement *)XCUIElementDouble.new;
   NSString *uuid = [self.cache storeElement:element];
   XCTAssertNotNil(uuid, @"Stored index should be higher than 0");
-  XCTAssertEqual(element, [self.cache elementForUUID:uuid
-                      resolveForAdditionalAttributes:NO]);
+  XCTAssertFalse(element.fb_isResolvedFromCache.boolValue);
+  XCUIElement *cachedElement = [self.cache elementForUUID:uuid
+                           resolveForAdditionalAttributes:NO];
+  XCTAssertEqual(element, cachedElement);
+  XCTAssertTrue(element.fb_isResolvedFromCache.boolValue);
 }
 
 - (void)testFetchingBadIndex

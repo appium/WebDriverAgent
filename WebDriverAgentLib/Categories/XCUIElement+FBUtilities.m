@@ -50,9 +50,10 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }];
 }
 
-- (XCElementSnapshot *)fb_lastSnapshot
+- (XCElementSnapshot *)fb_takeSnapshot
 {
   NSError *error = nil;
+  self.fb_isResolvedFromCache = @(NO);
   if (self.query.fb_isUniqueSnapshotSupported) {
     self.lastSnapshot = [self.fb_query fb_uniqueSnapshotWithError:&error];
   } else {
@@ -81,7 +82,7 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     return nil;
   }
 
-  XCAccessibilityElement *axElement = self.fb_lastSnapshot.accessibilityElement;
+  XCAccessibilityElement *axElement = self.fb_takeSnapshot.accessibilityElement;
   if (nil == axElement) {
     return nil;
   }
@@ -111,6 +112,8 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     if (nil != innerError) {
       [FBLogger logFmt:@"Internal error: %@", innerError.description];
     }
+  } else {
+    self.lastSnapshot = snapshotWithAttributes;
   }
   return snapshotWithAttributes;
 }
@@ -144,7 +147,13 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   }
   NSArray<NSString *> *sortedIds = [snapshots valueForKey:FBStringify(XCUIElement, wdUID)];
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
-  if ([sortedIds containsObject:(selfUID ?: self.fb_uid)]) {
+  NSString *uid = selfUID;
+  if (nil == uid) {
+    uid = self.fb_isResolvedFromCache.boolValue
+      ? self.lastSnapshot.fb_uid
+      : self.fb_uid;
+  }
+  if ([sortedIds containsObject:uid]) {
     if (1 == snapshots.count) {
       return @[self];
     }
@@ -220,7 +229,9 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
-    XCElementSnapshot *selfSnapshot = self.fb_lastSnapshot;
+    XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
+      ? self.lastSnapshot
+      : self.fb_takeSnapshot;
     NSArray<XCElementSnapshot *> *ancestors = selfSnapshot.fb_ancestors;
     XCElementSnapshot *parentWindow = nil;
     if (1 == ancestors.count) {
@@ -259,7 +270,7 @@ static char XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY;
 
 @dynamic fb_isResolvedFromCache;
 
-- (void)fb_setIsResolvedFromCache:(NSNumber *)isResolvedFromCache
+- (void)setFb_isResolvedFromCache:(NSNumber *)isResolvedFromCache
 {
   objc_setAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY, isResolvedFromCache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }

@@ -61,7 +61,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
   if (resolveForAdditionalAttributes) {
     [element fb_snapshotWithAllAttributes];
   } else {
-    [element fb_lastSnapshot];
+    [element fb_takeSnapshot];
   }
   if (nil == element) {
     NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present or it has expired from the internal cache. Try to find it again", uuid];

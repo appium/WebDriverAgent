@@ -40,7 +40,7 @@
   [allElements addObjectsFromArray:windows];
   
   NSMutableArray<XCElementSnapshot *> *buttonSnapshots = [NSMutableArray array];
-  [buttonSnapshots addObject:[buttons.firstObject fb_lastSnapshot]];
+  [buttonSnapshots addObject:[buttons.firstObject fb_takeSnapshot]];
   
   NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots selfUID:nil onlyChildren:NO];
   XCTAssertEqual(1, result.count);
