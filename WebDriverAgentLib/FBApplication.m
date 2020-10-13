@@ -40,6 +40,21 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   return [self fb_activeApplicationWithDefaultBundleId:nil];
 }
 
++ (NSArray<FBApplication *> *)fb_activeApplications
+{
+  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  NSMutableArray<FBApplication *> *result = [NSMutableArray array];
+  if (activeApplicationElements.count > 0) {
+    for (XCAccessibilityElement *applicationElement in activeApplicationElements) {
+      FBApplication *app = [FBApplication fb_applicationWithPID:applicationElement.processIdentifier];
+      if (nil != app) {
+        [result addObject:app];
+      }
+    }
+  }
+  return result.count > 0 ? result.copy : @[self.class.fb_systemApplication];
+}
+
 + (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId
 {
   NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];

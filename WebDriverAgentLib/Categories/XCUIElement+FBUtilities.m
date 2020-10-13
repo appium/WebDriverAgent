@@ -79,24 +79,33 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_cachedSnapshot
 {
-  XCElementSnapshot *snapshot = nil;
-  @try {
-    XCUIElementQuery *rootQuery = self.fb_query;
-    while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
-      rootQuery = rootQuery.inputQuery;
+  XCUIElementQuery *inputQuery = self.fb_query;
+  NSMutableArray<id<XCTElementSetTransformer>> *transformersChain = [NSMutableArray array];
+  XCElementSnapshot *rootElementSnapshot = nil;
+  while (nil != inputQuery && nil != inputQuery.transformer) {
+    [transformersChain insertObject:inputQuery.transformer atIndex:0];
+    if (nil != inputQuery.rootElementSnapshot) {
+      rootElementSnapshot = inputQuery.rootElementSnapshot;
     }
-    if (rootQuery != nil) {
-      NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootQuery.rootElementSnapshot];
-      [snapshots addObjectsFromArray:rootQuery.rootElementSnapshot._allDescendants];
-      NSOrderedSet *matchingSnapshots = (NSOrderedSet *)[self.fb_query.transformer transform:[NSOrderedSet orderedSetWithArray:snapshots] relatedElements:nil];
-      if (nil != matchingSnapshots && matchingSnapshots.count == 1) {
-        snapshot = matchingSnapshots.firstObject;
-      }
-    }
-  } @catch (NSException *) {
-    snapshot = nil;
+    inputQuery = inputQuery.inputQuery;
   }
-  return snapshot;
+  if (nil == rootElementSnapshot) {
+    return nil;
+  }
+
+  NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootElementSnapshot];
+  [snapshots addObjectsFromArray:rootElementSnapshot._allDescendants];
+  NSOrderedSet *matchingSnapshots = [NSOrderedSet orderedSetWithArray:snapshots];
+  @try {
+    for (id<XCTElementSetTransformer> transformer in transformersChain) {
+      matchingSnapshots = (NSOrderedSet *)[transformer transform:matchingSnapshots
+                                                 relatedElements:nil];
+    }
+    return matchingSnapshots.count == 1 ? matchingSnapshots.firstObject : nil;
+  } @catch (NSException *e) {
+    [FBLogger logFmt:@"Got an unexpected error while retriveing the cached snapshot: %@", e.reason];
+  }
+  return nil;
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {

@@ -173,7 +173,7 @@
   [self.testedApplication.buttons[@"Create GPS access Alert"] tap];
   FBAssertWaitTillBecomesTrue(alert.isPresent);
 
-  XCTAssertTrue([alert.text containsString:@"to access your location"]);
+  XCTAssertTrue([alert.text containsString:@"location"]);
   XCTAssertTrue([alert.text containsString:@"Yo Yo"]);
 }
 

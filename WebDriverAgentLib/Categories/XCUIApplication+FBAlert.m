@@ -21,9 +21,10 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 @implementation XCUIApplication (FBAlert)
 
 - (nullable XCUIElement *)fb_alertElementFromSafariWithScrollView:(XCUIElement *)scrollView
+                                                     viewSnapshot:(XCElementSnapshot *)viewSnapshot
 {
-  CGRect appFrame = self.frame;
-  NSPredicate *dstViewPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
+  CGRect appFrame = viewSnapshot.frame;
+  NSPredicate *dstViewMatchPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
     CGRect curFrame = snapshot.frame;
     if (!CGRectEqualToRect(appFrame, curFrame)
         && curFrame.origin.x > 0 && curFrame.size.width < appFrame.size.width) {
@@ -32,21 +33,29 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
     }
     return NO;
   }];
+  NSPredicate *dstViewContainPredicate1 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeTextView];
+  NSPredicate *dstViewContainPredicate2 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeButton];
   XCUIElement *candidate = nil;
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
     // Find the first XCUIElementTypeOther which is the grandchild of the web view
     // and is horizontally aligned to the center of the screen
-    candidate = [[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
-                    matchingIdentifier:@"WebView"]
-                   descendantsMatchingType:XCUIElementTypeOther]
-                 matchingPredicate:dstViewPredicate].allElementsBoundByIndex.firstObject;
+    candidate = [[[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
+                     matchingIdentifier:@"WebView"]
+                    descendantsMatchingType:XCUIElementTypeOther]
+                   matchingPredicate:dstViewMatchPredicate]
+                  containingPredicate:dstViewContainPredicate1]
+                 containingPredicate:dstViewContainPredicate2]
+    .allElementsBoundByIndex.firstObject;
   } else {
     NSPredicate *webViewPredicate = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeWebView];
     // Find the first XCUIElementTypeOther which is the descendant of the scroll view
     // and is horizontally aligned to the center of the screen
-    candidate = [[[scrollView.fb_query containingPredicate:webViewPredicate]
-                   descendantsMatchingType:XCUIElementTypeOther]
-                 matchingPredicate:dstViewPredicate].allElementsBoundByIndex.firstObject;
+    candidate = [[[[[scrollView.fb_query containingPredicate:webViewPredicate]
+                    descendantsMatchingType:XCUIElementTypeOther]
+                   matchingPredicate:dstViewMatchPredicate]
+                  containingPredicate:dstViewContainPredicate1]
+                 containingPredicate:dstViewContainPredicate2]
+    .allElementsBoundByIndex.firstObject;
   }
   if (nil == candidate) {
     return nil;
@@ -55,7 +64,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
-  XCElementSnapshot *snapshot = candidate.fb_takeSnapshot;
+  XCElementSnapshot *snapshot = candidate.fb_cachedSnapshot ?: candidate.fb_takeSnapshot;
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType curType = descendant.elementType;
     if (curType == XCUIElementTypeButton) {
@@ -71,18 +80,18 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 {
   NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
                                           XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
-  XCUIElement *alert = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
-                        matchingPredicate:alertCollectorPredicate].allElementsBoundByIndex.firstObject;
+  XCUIElement *alert = [[self descendantsMatchingType:XCUIElementTypeAny]
+                        matchingPredicate:alertCollectorPredicate].allElementsBoundByAccessibilityElement.firstObject;
   if (nil == alert) {
     return nil;
   }
+  XCElementSnapshot *alertSnapshot = alert.fb_cachedSnapshot ?: alert.fb_takeSnapshot;
 
-  XCUIElementType alertType = alert.elementType;
-  if (alertType == XCUIElementTypeAlert) {
+  if (alertSnapshot.elementType == XCUIElementTypeAlert) {
     return alert;
   }
 
-  if (alertType == XCUIElementTypeSheet) {
+  if (alertSnapshot.elementType == XCUIElementTypeSheet) {
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
       return alert;
     }
@@ -92,9 +101,12 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
     return (nil == [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) ? alert : nil;
   }
 
-  if (alertType == XCUIElementTypeScrollView && [self.label isEqualToString:FB_SAFARI_APP_NAME]) {
-    // Check alert presence in Safari web view
-    return [self fb_alertElementFromSafariWithScrollView:alert];
+  if (alertSnapshot.elementType == XCUIElementTypeScrollView) {
+    XCElementSnapshot *app = [alertSnapshot fb_parentMatchingType:XCUIElementTypeApplication];
+    if (nil != app && [app.label isEqualToString:FB_SAFARI_APP_NAME]) {
+      // Check alert presence in Safari web view
+      return [self fb_alertElementFromSafariWithScrollView:alert viewSnapshot:alertSnapshot];
+    }
   }
 
   return nil;

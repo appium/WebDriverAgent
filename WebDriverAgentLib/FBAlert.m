@@ -48,7 +48,15 @@
 
 - (BOOL)isPresent
 {
-  return nil != self.alertElement && self.alertElement.exists;
+  if (nil == self.alertElement) {
+    return NO;
+  }
+  @try {
+    [self.alertElement fb_takeSnapshot];
+    return YES;
+  } @catch (NSException *) {
+    return NO;
+  }
 }
 
 - (BOOL)notPresentWithError:(NSError **)error
@@ -58,11 +66,14 @@
           buildError:error];
 }
 
-- (BOOL)isSafariWebAlert
++ (BOOL)isSafariWebAlertWithSnapshot:(XCElementSnapshot *)snapshot
 {
-  return nil != self.alertElement
-    && self.alertElement.elementType == XCUIElementTypeOther
-    && [self.application.label isEqualToString:FB_SAFARI_APP_NAME];
+  if (snapshot.elementType != XCUIElementTypeOther) {
+    return NO;
+  }
+
+  XCElementSnapshot *application = [snapshot fb_parentMatchingType:XCUIElementTypeApplication];
+  return nil != application && [application.label isEqualToString:FB_SAFARI_APP_NAME];
 }
 
 - (NSString *)text
@@ -72,7 +83,8 @@
   }
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  XCElementSnapshot *snapshot = self.alertElement.fb_takeSnapshot;
+  XCElementSnapshot *snapshot = self.alertElement.lastSnapshot;
+  BOOL isSafariAlert = [self.class isSafariWebAlertWithSnapshot:snapshot];
   [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     XCUIElementType elementType = descendant.elementType;
     if (!(elementType == XCUIElementTypeTextView || elementType == XCUIElementTypeStaticText)) {
@@ -88,7 +100,9 @@
       return;
     }
 
-    NSString *text = descendant.wdLabel ?: descendant.wdValue;
+    NSString *text = isSafariAlert
+      ? descendant.wdLabel
+      : (descendant.wdLabel ?: descendant.wdValue);
     if (nil != text) {
       [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }
@@ -101,7 +115,7 @@
   if (!self.isPresent) {
     return [self notPresentWithError:error];
   }
-  
+
   NSPredicate *textCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu}",
                                          XCUIElementTypeTextField, XCUIElementTypeSecureTextField];
   NSArray<XCUIElement *> *dstFields = [[self.alertElement descendantsMatchingType:XCUIElementTypeAny]
@@ -128,8 +142,7 @@
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  XCElementSnapshot *snapshot = self.alertElement.fb_takeSnapshot;
-  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  [self.alertElement.lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
@@ -147,6 +160,7 @@
     return [self notPresentWithError:error];
   }
 
+  XCElementSnapshot *alertSnapshot = self.alertElement.lastSnapshot;
   XCUIElement *acceptButton = nil;
   if (FBConfiguration.acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
@@ -168,7 +182,7 @@
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [self.alertElement.fb_query
                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-    acceptButton = (self.alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
+    acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
       ? buttons.lastObject
       : buttons.firstObject;
   }
@@ -185,6 +199,7 @@
     return [self notPresentWithError:error];
   }
 
+  XCElementSnapshot *alertSnapshot = self.alertElement.lastSnapshot;
   XCUIElement *dismissButton = nil;
   if (FBConfiguration.dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;
@@ -206,7 +221,7 @@
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [self.alertElement.fb_query
                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-    dismissButton = (self.alertElement.elementType == XCUIElementTypeAlert || [self isSafariWebAlert])
+    dismissButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
       ? buttons.firstObject
       : buttons.lastObject;
   }
@@ -237,7 +252,16 @@
 - (XCUIElement *)alertElement
 {
   if (nil == self.element) {
-    self.element = self.application.fb_alertElement ?: [FBSpringboardApplication fb_springboard].fb_alertElement;
+    self.element = self.application.fb_alertElement;
+    if (nil == self.element) {
+      FBApplication *springboardApp = [FBSpringboardApplication fb_springboard];
+      for (FBApplication *activeApp in FBApplication.fb_activeApplications) {
+        if (springboardApp.processID == activeApp.processID) {
+          self.element = activeApp.fb_alertElement;
+          break;
+        }
+      }
+    }
   }
   return self.element;
 }
