@@ -63,12 +63,12 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     [self fb_resolveWithError:&error];
   }
   if (nil == self.lastSnapshot) {
-    NSString *hintText = @"Make sure the application UI is in the expected state";
+    NSString *hintText = @"Make sure the application UI has the expected state";
     if (nil != error
         && [error.localizedDescription containsString:@"Identity Binding"]) {
       hintText = [NSString stringWithFormat:@"%@. You could also try to switch the binding strategy using the 'boundElementsByIndex' setting for the element lookup", hintText];
     }
-    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. %@", self.description, hintText];
+    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present in the current view anymore. %@", self.description, hintText];
     if (nil != error) {
       reason = [NSString stringWithFormat:@"%@. Original error: %@", reason, error.localizedDescription];
     }
