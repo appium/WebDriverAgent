@@ -16,6 +16,7 @@
 #import "FBPredicate.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBTouchAction.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot.h"
 #import "XCUIApplication.h"

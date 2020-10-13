@@ -17,6 +17,7 @@
 #import "XCElementSnapshot.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -36,7 +37,6 @@
   return matchedElement ? @[matchedElement] : @[];
 }
 
-
 #pragma mark - Search by ClassName
 
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingClassName:(NSString *)className
@@ -44,9 +44,10 @@
 {
   NSMutableArray *result = [NSMutableArray array];
   XCUIElementType type = [FBElementTypeTransformer elementTypeWithTypeName:className];
-  XCUIElementType selfType = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot.elementType
-    : self.elementType;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  XCUIElementType selfType = snapshot.elementType;
   if (selfType == type || type == XCUIElementTypeAny) {
     [result addObject:self];
     if (shouldReturnAfterFirstMatch) {
@@ -109,10 +110,10 @@
     : self.fb_takeSnapshot;
   // Include self element into predicate search
   if ([formattedPredicate evaluateWithObject:selfSnapshot]) {
-    if (shouldReturnAfterFirstMatch) {
-      return @[self];
-    }
     [result addObject:self];
+    if (shouldReturnAfterFirstMatch) {
+      return result.copy;
+    }
   }
   XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];

@@ -17,6 +17,7 @@
 @property (nonatomic, strong, nonnull) XCUIApplication *application;
 @property (nonatomic, readwrite, assign) CGRect frame;
 @property (nonatomic, assign) BOOL fb_isObstructedByAlert;
+@property (nonatomic, readonly, nonnull) NSString *fb_cacheId;
 @property (nonatomic, nullable) NSNumber *fb_isResolvedFromCache;
 @property (nonatomic, readwrite, copy, nonnull) NSDictionary *wdRect;
 @property (nonatomic, readwrite, assign) CGRect wdFrame;

@@ -64,6 +64,11 @@
   return [self lastSnapshot];
 }
 
+- (NSString *)fb_cacheId
+{
+  return self.wdUID;
+}
+
 - (id)lastSnapshot
 {
   return self;

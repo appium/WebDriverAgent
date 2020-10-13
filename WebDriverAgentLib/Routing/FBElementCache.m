@@ -14,6 +14,7 @@
 #import "FBExceptions.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBUID.h"
@@ -39,7 +40,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
 
 - (NSString *)storeElement:(XCUIElement *)element
 {
-  NSString *uuid = element.fb_uid;
+  NSString *uuid = element.fb_cacheId;
   if (nil == uuid) {
     return nil;
   }

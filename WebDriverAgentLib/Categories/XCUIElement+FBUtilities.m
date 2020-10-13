@@ -25,6 +25,7 @@
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
 #import "XCUIScreen.h"
@@ -62,13 +63,40 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
     [self fb_resolveWithError:&error];
   }
   if (nil == self.lastSnapshot) {
-    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. Try to find it again", self.description];
+    NSString *hintText = @"Make sure the application UI is in the expected state";
+    if (nil != error
+        && [error.localizedDescription containsString:@"Identity Binding"]) {
+      hintText = [NSString stringWithFormat:@"%@. You could also try to switch the binding strategy using the 'boundElementsByIndex' setting for the element lookup", hintText];
+    }
+    NSString *reason = [NSString stringWithFormat:@"The previously found element \"%@\" is not present on the current page anymore. %@", self.description, hintText];
     if (nil != error) {
       reason = [NSString stringWithFormat:@"%@. Original error: %@", reason, error.localizedDescription];
     }
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
   }
   return self.lastSnapshot;
+}
+
+- (XCElementSnapshot *)fb_cachedSnapshot
+{
+  XCElementSnapshot *snapshot = nil;
+  @try {
+    XCUIElementQuery *rootQuery = self.fb_query;
+    while (rootQuery != nil && rootQuery.rootElementSnapshot == nil) {
+      rootQuery = rootQuery.inputQuery;
+    }
+    if (rootQuery != nil) {
+      NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootQuery.rootElementSnapshot];
+      [snapshots addObjectsFromArray:rootQuery.rootElementSnapshot._allDescendants];
+      NSOrderedSet *matchingSnapshots = (NSOrderedSet *)[self.fb_query.transformer transform:[NSOrderedSet orderedSetWithArray:snapshots] relatedElements:nil];
+      if (nil != matchingSnapshots && matchingSnapshots.count == 1) {
+        snapshot = matchingSnapshots.firstObject;
+      }
+    }
+  } @catch (NSException *) {
+    snapshot = nil;
+  }
+  return snapshot;
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {
@@ -264,20 +292,6 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 #else
   return imageData;
 #endif
-}
-
-static char XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY;
-
-@dynamic fb_isResolvedFromCache;
-
-- (void)setFb_isResolvedFromCache:(NSNumber *)isResolvedFromCache
-{
-  objc_setAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY, isResolvedFromCache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber *)fb_isResolvedFromCache
-{
-  return (NSNumber *)objc_getAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY);
 }
 
 @end

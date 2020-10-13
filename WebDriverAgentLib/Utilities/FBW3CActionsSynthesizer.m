@@ -21,6 +21,7 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement.h"

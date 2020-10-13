@@ -14,6 +14,7 @@
 #import "FBLogger.h"
 #import "NSString+FBXMLSafeString.h"
 #import "XCUIElement.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCTestPrivateSymbols.h"

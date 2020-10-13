@@ -15,9 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIElement (FBUtilities)
 
-/*! This property is set to YES if the given element has been resolved from the cache, so it is safe to use the `lastSnapshot` property */
-@property (nullable, nonatomic) NSNumber *fb_isResolvedFromCache;
-
 /**
  Waits for receiver's frame to become stable with the default timeout
 
@@ -35,6 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
 - (XCElementSnapshot *)fb_takeSnapshot;
+
+/**
+ Extracts the cached element snapshot from its query.
+ No requests to the accessiblity framework is made.
+
+ @return Either the cached snapshot or nil
+ */
+- (nullable XCElementSnapshot *)fb_cachedSnapshot;
 
 /**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes

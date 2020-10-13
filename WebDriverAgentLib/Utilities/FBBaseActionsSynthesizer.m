@@ -16,6 +16,7 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCElementSnapshot.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCPointerEventPath.h"

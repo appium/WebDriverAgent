@@ -14,6 +14,7 @@
 @class FBElementCache;
 @class RouteResponse;
 @class XCUIElement;
+@class XCElementSnapshot;
 @protocol FBResponsePayload;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,10 +55,10 @@ id<FBResponsePayload> FBResponseWithUnknownErrorFormat(NSString *errorFormat, ..
 id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status);
 
 /**
- Returns a response payload as a NSDictionary for given element and elementUUID.
+ Returns a response payload as a NSDictionary for given element.
  Set compact=NO to include further attributes (defined by FBConfiguration.elementResponseAttributes)
  */
-NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, NSString *elementUUID, BOOL compact);
+NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact);
 
 
 /**

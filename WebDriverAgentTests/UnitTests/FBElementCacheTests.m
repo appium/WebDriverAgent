@@ -11,6 +11,7 @@
 
 #import "FBElementCache.h"
 #import "XCUIElementDouble.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 
 @interface FBElementCacheTests : XCTestCase
