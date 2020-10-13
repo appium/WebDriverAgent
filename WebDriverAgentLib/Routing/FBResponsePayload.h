@@ -14,7 +14,6 @@
 @class FBElementCache;
 @class RouteResponse;
 @class XCUIElement;
-@class XCElementSnapshot;
 @protocol FBResponsePayload;
 
 NS_ASSUME_NONNULL_BEGIN
