@@ -204,7 +204,10 @@
   }
   NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error = nil;
-  if (![element fb_typeText:textToType frequency:frequency error:&error]) {
+  if (![element fb_typeText:textToType
+                shouldClear:NO
+                  frequency:frequency
+                      error:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
   return FBResponseWithOK();

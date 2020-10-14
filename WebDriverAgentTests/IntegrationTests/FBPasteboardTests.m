@@ -55,7 +55,7 @@
   NSString *text = @"Happy copying";
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
   NSError *error;
-  XCTAssertTrue([textField fb_typeText:text error:&error]);
+  XCTAssertTrue([textField fb_typeText:text shouldClear:NO error:&error]);
   [textField pressForDuration:2.0];
   XCUIElement *selectAllItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
                                 matchingIdentifier:@"Select All"].fb_firstMatch;

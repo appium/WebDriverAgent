@@ -13,6 +13,7 @@
 #import "FBErrorBuilder.h"
 #import "FBKeyboard.h"
 #import "NSString+FBVisualLength.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCodeCompatibility.h"
@@ -37,64 +38,90 @@
 @end
 
 
-@implementation XCUIElement (FBTyping)
+@interface XCElementSnapshot (FBKeyboardFocus)
+
+- (BOOL)fb_hasKeyboardFocus;
+
+@end
+
+@implementation XCElementSnapshot (FBKeyboardFocus)
 
 - (BOOL)fb_hasKeyboardFocus
 {
   // https://developer.apple.com/documentation/xctest/xcuielement/1500968-typetext?language=objc
   // > The element or a descendant must have keyboard focus; otherwise an error is raised.
-  return self.hasKeyboardFocus || [[[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
-   matchingPredicate:[NSPredicate predicateWithFormat:@"hasKeyboardFocus == YES"]]
-  count] > 0;
+  return self.hasKeyboardFocus || [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
+    return snapshot.hasKeyboardFocus;
+  }].count > 0;
 }
 
-- (BOOL)fb_prepareForTextInputWithError:(NSError **)error
+@end
+
+
+@implementation XCUIElement (FBTyping)
+
+- (void)fb_prepareForTextInputWithSnapshot:(XCElementSnapshot *)snapshot
 {
-  if (self.fb_hasKeyboardFocus) {
-    return YES;
+  if (snapshot.fb_hasKeyboardFocus) {
+    return;
   }
 
+  [FBLogger logFmt:@"Neither the \"%@\" element itself nor its accessible descendants have the keyboard input focus", self.description];
 // There is no possibility to open the keyboard by tapping a field in TvOS
 #if !TARGET_OS_TV
+  [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", self.description];
   [self fb_tapWithError:nil];
   // It might take some time to update the UI
   [self fb_waitUntilSnapshotIsStableWithTimeout:1];
-  if (self.fb_hasKeyboardFocus) {
-    return YES;
-  }
+  [self fb_takeSnapshot];
 #endif
-
-  [FBLogger logFmt:@"'%@' is not ready for a text input. Neither the accessibility element itself nor its accessible descendants have the input focus. Continuing anyway", self.description];
-  return YES;
 }
 
-- (BOOL)fb_typeText:(NSString *)text error:(NSError **)error
+- (BOOL)fb_typeText:(NSString *)text
+        shouldClear:(BOOL)shouldClear
+              error:(NSError **)error
 {
-  return [self fb_typeText:text frequency:[FBConfiguration maxTypingFrequency] error:error];
+  return [self fb_typeText:text
+               shouldClear:shouldClear
+                 frequency:FBConfiguration.maxTypingFrequency
+                     error:error];
 }
 
-- (BOOL)fb_typeText:(NSString *)text frequency:(NSUInteger)frequency error:(NSError **)error
+- (BOOL)fb_typeText:(NSString *)text
+        shouldClear:(BOOL)shouldClear
+          frequency:(NSUInteger)frequency
+              error:(NSError **)error
 {
-  return [self fb_prepareForTextInputWithError:error]
-    && [FBKeyboard typeText:text frequency:frequency error:error];
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  [self fb_prepareForTextInputWithSnapshot:snapshot];
+  if (shouldClear && ![self fb_clearTextWithSnapshot:self.lastSnapshot error:error]) {
+    return NO;
+  }
+  return [FBKeyboard typeText:text frequency:frequency error:error];
 }
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  id currentValue = self.value;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  return [self fb_clearTextWithSnapshot:snapshot error:error];
+}
+
+- (BOOL)fb_clearTextWithSnapshot:(XCElementSnapshot *)snapshot error:(NSError **)error
+{
+  id currentValue = snapshot.value;
   if (nil != currentValue && ![currentValue isKindOfClass:NSString.class]) {
     return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be cleared", self.description]
+               withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be edited", self.description]
               buildError:error];
   }
   
   if (nil == currentValue || 0 == [currentValue fb_visualLength]) {
     // Short circuit if the content is not present
     return YES;
-  }
-
-  if (![self fb_prepareForTextInputWithError:error]) {
-    return NO;
   }
   
   static NSString *backspaceDeleteSequence;
@@ -105,7 +132,7 @@
   });
   
   NSUInteger retry = 0;
-  NSString *placeholderValue = self.placeholderValue;
+  NSString *placeholderValue = snapshot.placeholderValue;
   NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
     if (retry >= MAX_CLEAR_RETRIES - 1) {
@@ -119,7 +146,7 @@
       return NO;
     }
 
-    currentValue = self.value;
+    currentValue = self.fb_takeSnapshot.value;
     if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
       // Short circuit if only the placeholder value left
       return YES;

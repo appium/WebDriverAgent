@@ -51,8 +51,9 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   if (!urlInput.exists) {
     [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingIdentifier:@"URL"].firstMatch tap];
   }
-  XCTAssertTrue([urlInput fb_clearTextWithError:nil]);
-  XCTAssertTrue([urlInput fb_typeText:@"https://www.seleniumeasy.com/test/javascript-alert-box-demo.html" error:nil]);
+  XCTAssertTrue([urlInput fb_typeText:@"https://www.seleniumeasy.com/test/javascript-alert-box-demo.html"
+                          shouldClear:YES
+                                error:nil]);
   [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingIdentifier:@"Go"].firstMatch tap];
   XCUIElement *clickMeButton = [[self.safariApp descendantsMatchingType:XCUIElementTypeButton]
                                 matchingPredicate:[NSPredicate predicateWithFormat:@"label == 'Click for Prompt Box'"]].firstMatch;

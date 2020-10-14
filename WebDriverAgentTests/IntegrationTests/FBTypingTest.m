@@ -30,7 +30,7 @@
   NSString *text = @"Happy typing";
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
   NSError *error;
-  XCTAssertTrue([textField fb_typeText:text error:&error]);
+  XCTAssertTrue([textField fb_typeText:text shouldClear:NO error:&error]);
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.value, text);
 }
@@ -42,9 +42,12 @@
   [textField tap];
   XCTAssertTrue(textField.hasKeyboardFocus);
   NSError *error;
-  XCTAssertTrue([textField fb_typeText:text error:&error]);
+  XCTAssertTrue([textField fb_typeText:text shouldClear:NO error:&error]);
   XCTAssertNil(error);
-  XCTAssertEqualObjects(textField.value, text);
+  XCTAssertTrue([textField fb_typeText:text shouldClear:NO error:&error]);
+  XCTAssertNil(error);
+  NSString *expectedText = [NSString stringWithFormat:@"%@%@", text, text];
+  XCTAssertEqualObjects(textField.value, expectedText);
 }
 
 - (void)testTextClearing
