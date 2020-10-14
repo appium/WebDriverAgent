@@ -12,6 +12,7 @@
 
 #import "FBApplication.h"
 #import "FBMathUtils.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIApplication+FBHelpers.h"
@@ -55,9 +56,12 @@
 - (instancetype)initWithTargetElement:(XCUIElement *)targetElement
 {
   self = [super init];
-  if(self) {
+  if (self) {
     _targetElement = targetElement;
-    _targetCenter = FBRectGetCenter(targetElement.wdFrame);
+    CGRect frame = targetElement.fb_isResolvedFromCache.boolValue
+      ? targetElement.lastSnapshot.wdFrame
+      : targetElement.wdFrame;
+    _targetCenter = FBRectGetCenter(frame);
     _navigationItems = [NSMutableDictionary dictionary];
   }
   return self;

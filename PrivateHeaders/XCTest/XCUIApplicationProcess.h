@@ -10,6 +10,7 @@
 @class XCAccessibilityElement;
 @class XCApplicationMonitor;
 @class XCUIApplicationImpl;
+@class XCElementSnapshot;
 @protocol XCTestManager_IDEInterface;
 @protocol XCTRunnerAutomationSession;
 
@@ -29,12 +30,15 @@
     BOOL _hasCrashReport;
     XCUIApplicationImpl *_applicationImplementation;
     id <XCTRunnerAutomationSession> _automationSession;
+    XCElementSnapshot *_lastSnapshot;
     XCApplicationMonitor *_applicationMonitor;
     XCAXClient_iOS *_AXClient_iOS;
 }
 
 + (BOOL)automaticallyNotifiesObserversForKey:(id)arg1;
 @property XCAXClient_iOS *AXClient_iOS; // @synthesize AXClient_iOS=_AXClient_iOS;
+// Since Xcode 10
+@property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 @property XCApplicationMonitor *applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
 @property(retain) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
 @property BOOL hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;

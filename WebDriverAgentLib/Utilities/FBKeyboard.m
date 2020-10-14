@@ -54,8 +54,7 @@
 + (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app timeout:(NSTimeInterval)timeout error:(NSError **)error
 {
   BOOL (^keyboardIsVisible)(void) = ^BOOL(void) {
-    XCUIElement *keyboard = [app.fb_query descendantsMatchingType:XCUIElementTypeKeyboard].fb_firstMatch;
-    return keyboard && keyboard.hittable;
+    return app.keyboard.exists;
   };
   NSString* errMessage = @"The on-screen keyboard must be present to send keys";
   if (timeout <= 0) {

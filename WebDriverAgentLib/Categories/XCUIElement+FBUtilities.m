@@ -21,6 +21,9 @@
 #import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
+#import "XCUIApplication.h"
+#import "XCUIApplicationImpl.h"
+#import "XCUIApplicationProcess.h"
 #import "XCTElementSetTransformer-Protocol.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
@@ -79,6 +82,10 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
 
 - (XCElementSnapshot *)fb_cachedSnapshot
 {
+  if ([self isKindOfClass:XCUIApplication.class]) {
+    return [[[(XCUIApplication *)self applicationImpl] currentProcess] lastSnapshot];
+  }
+
   XCUIElementQuery *inputQuery = self.fb_query;
   NSMutableArray<id<XCTElementSetTransformer>> *transformersChain = [NSMutableArray array];
   XCElementSnapshot *rootElementSnapshot = nil;

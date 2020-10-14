@@ -138,8 +138,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
                        resolveForAdditionalAttributes:YES];
-  BOOL isVisible = element.lastSnapshot.isWDVisible;
-  return FBResponseWithObject(isVisible ? @YES : @NO);
+  return FBResponseWithObject(@(element.lastSnapshot.isWDVisible));
 }
 
 + (id<FBResponsePayload>)handleGetAccessible:(FBRouteRequest *)request
@@ -163,8 +162,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
                        resolveForAdditionalAttributes:NO];
-  NSString *type = element.lastSnapshot.wdType;
-  return FBResponseWithObject(type);
+  return FBResponseWithObject(element.lastSnapshot.wdType);
 }
 
 + (id<FBResponsePayload>)handleGetSelected:(FBRouteRequest *)request
@@ -257,7 +255,7 @@
     }
   }
 
-  return FBResponseWithObject(isFocused ? @YES : @NO);
+  return FBResponseWithObject(@(isFocused));
 }
 
 + (id<FBResponsePayload>)handleFocuse:(FBRouteRequest *)request
@@ -545,7 +543,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
                        resolveForAdditionalAttributes:NO];
-  if (element.elementType != XCUIElementTypePickerWheel) {
+  if (element.lastSnapshot.elementType != XCUIElementTypePickerWheel) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   NSString* order = [request.arguments[@"order"] lowercaseString];
@@ -602,7 +600,8 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 {
   CGPoint point = coordinate;
   if (shouldApplyOrientationWorkaround) {
-    point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
+    XCElementSnapshot *snapshot = application.fb_cachedSnapshot ?: application.fb_takeSnapshot;
+    point = FBInvertPointForApplication(coordinate, snapshot.frame.size, application.interfaceOrientation);
   }
 
   /**
@@ -623,8 +622,9 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
     XCUIElement *window = application.windows.fb_firstMatch;
     if (window) {
       element = window;
-      point.x -= element.frame.origin.x;
-      point.y -= element.frame.origin.y;
+      XCElementSnapshot *snapshot = element.fb_cachedSnapshot ?: element.fb_takeSnapshot;
+      point.x -= snapshot.frame.origin.x;
+      point.y -= snapshot.frame.origin.y;
     }
   }
   return [self gestureCoordinateWithCoordinate:point element:element];
