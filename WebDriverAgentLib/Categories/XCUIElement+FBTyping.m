@@ -96,7 +96,9 @@
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
   [self fb_prepareForTextInputWithSnapshot:snapshot];
-  if (shouldClear && ![self fb_clearTextWithSnapshot:self.lastSnapshot error:error]) {
+  if (shouldClear && ![self fb_clearTextWithSnapshot:self.lastSnapshot
+                               shouldPrepareForInput:NO
+                                               error:error]) {
     return NO;
   }
   return [FBKeyboard typeText:text frequency:frequency error:error];
@@ -107,10 +109,14 @@
   XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
-  return [self fb_clearTextWithSnapshot:snapshot error:error];
+  return [self fb_clearTextWithSnapshot:snapshot
+                  shouldPrepareForInput:YES
+                                  error:error];
 }
 
-- (BOOL)fb_clearTextWithSnapshot:(XCElementSnapshot *)snapshot error:(NSError **)error
+- (BOOL)fb_clearTextWithSnapshot:(XCElementSnapshot *)snapshot
+           shouldPrepareForInput:(BOOL)shouldPrepareForInput
+                           error:(NSError **)error
 {
   id currentValue = snapshot.value;
   if (nil != currentValue && ![currentValue isKindOfClass:NSString.class]) {
@@ -142,6 +148,9 @@
     }
 
     NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
+    if (shouldPrepareForInput && 0 == retry) {
+      [self fb_prepareForTextInputWithSnapshot:snapshot];
+    }
     if (![FBKeyboard typeText:textToType error:error]) {
       return NO;
     }
