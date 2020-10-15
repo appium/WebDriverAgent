@@ -19,16 +19,15 @@
 
 - (BOOL)fb_tapWithError:(NSError **)error
 {
+  [self fb_waitUntilStable];
+
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
     // Tap coordinates calculation issues have been fixed
     // for different device orientations since Xcode 11
     // however, [self tap] calls XCTest quiescence validation before and after the operation which doesn't play nice with animations
     // therfore, disabling animation check and waiting for stability manually
     // see https://github.com/appium/WebDriverAgent/pull/278
-    [self fb_waitUntilFrameIsStable];
-    [XCUIApplicationProcessQuiescence setAnimationCheckEnabled:NO];
     [self tap];
-    [XCUIApplicationProcessQuiescence setAnimationCheckEnabled:YES];
     return YES;
   }
 
@@ -38,12 +37,13 @@
       @"options": @{@"element": self}
       }
     ];
-  [self fb_waitUntilFrameIsStable];
   return [self.application fb_performAppiumTouchActions:tapGesture elementCache:nil error:error];
 }
 
 - (BOOL)fb_tapCoordinate:(CGPoint)relativeCoordinate error:(NSError **)error
 {
+  [self fb_waitUntilStable];
+
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
     // Coordinates calculation issues have been fixed
     // for different device orientations since Xcode 11
@@ -63,7 +63,6 @@
                     }
       }
     ];
-  [self fb_waitUntilFrameIsStable];
   return [self.application fb_performAppiumTouchActions:tapGesture elementCache:nil error:error];
 }
 

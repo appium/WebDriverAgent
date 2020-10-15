@@ -205,6 +205,9 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (void)setReduceMotionEnabled:(BOOL)isEnabled;
 + (BOOL)reduceMotionEnabled;
 
++ (NSTimeInterval)waitForIdleTimeout;
++ (void)setWaitForIdleTimeout:(NSTimeInterval)timeout;
+
 /**
  Enforces the page hierarchy to include non modal elements,
  like Contacts. By default such elements are not present there.

@@ -36,24 +36,6 @@
 
 @implementation XCUIElement (FBUtilities)
 
-static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
-
-- (BOOL)fb_waitUntilFrameIsStable
-{
-  __block CGRect frame = self.frame;
-  // Initial wait
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-  return
-  [[[FBRunLoopSpinner new]
-    timeout:10.]
-   spinUntilTrue:^BOOL{
-    CGRect newFrame = self.frame;
-    const BOOL isSameFrame = FBRectFuzzyEqualToRect(newFrame, frame, FBDefaultFrameFuzzyThreshold);
-    frame = newFrame;
-    return isSameFrame;
-  }];
-}
-
 - (XCElementSnapshot *)fb_takeSnapshot
 {
   NSError *error = nil;
@@ -234,21 +216,17 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
   return query.fb_allMatches;
 }
 
-- (BOOL)fb_waitUntilSnapshotIsStable
+- (void)fb_waitUntilStable
 {
-  return [self fb_waitUntilSnapshotIsStableWithTimeout:FB_ANIMATION_TIMEOUT];
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.waitForIdleTimeout];
 }
 
-- (BOOL)fb_waitUntilSnapshotIsStableWithTimeout:(NSTimeInterval)timeout
+- (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
 {
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [FBXCAXClientProxy.sharedClient notifyWhenNoAnimationsAreActiveForApplication:self.application reply:^{dispatch_semaphore_signal(sem);}];
-  dispatch_time_t absoluteTimeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC));
-  BOOL result = 0 == dispatch_semaphore_wait(sem, absoluteTimeout);
-  if (!result) {
-    [FBLogger logFmt:@"The applicaion has still not finished animations after %.2f seconds timeout", timeout];
-  }
-  return result;
+  NSTimeInterval previousTimeout = FBConfiguration.waitForIdleTimeout;
+  FBConfiguration.waitForIdleTimeout = timeout;
+  [[[self.application applicationImpl] currentProcess] waitForQuiescenceIncludingAnimationsIdle:YES];
+  FBConfiguration.waitForIdleTimeout = previousTimeout;
 }
 
 - (NSData *)fb_screenshotWithError:(NSError **)error

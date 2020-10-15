@@ -1,12 +1,12 @@
 # https://github.com/Microsoft/azure-pipelines-image-generation/blob/master/images/macos/
 variables:
   MIN_VM_IMAGE: macOS-10.14
-  MIN_XCODE_VERSION: 10
+  MIN_XCODE_VERSION: 10.2
   # Xcode 10.0 did not have Apple TV
   MIN_TV_XCODE_VERSION: 10.2
   MIN_TV_PLATFORM_VERSION: 12.2
   MIN_TV_DEVICE_NAME: Apple TV
-  MIN_PLATFORM_VERSION: 12.0
+  MIN_PLATFORM_VERSION: 12.2
   MIN_IPHONE_DEVICE_NAME: iPhone X
   MIN_IPAD_DEVICE_NAME: iPad Air 2
   MAX_VM_IMAGE: macOS-10.15

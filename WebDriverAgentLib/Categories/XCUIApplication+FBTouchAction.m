@@ -17,6 +17,7 @@
 #import "FBW3CActionsSynthesizer.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCEventGenerator.h"
+#import "XCUIElement+FBUtilities.h"
 #import "FBExceptions.h"
 
 #if !TARGET_OS_TV
@@ -46,12 +47,20 @@
 
 - (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
-  return [self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
+  if (![self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error]) {
+    return NO;
+  }
+  [self fb_waitUntilStable];
+  return YES;
 }
 
 - (BOOL)fb_performW3CActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
 {
-  return [self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
+  if (![self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error]) {
+    return NO;
+  }
+  [self fb_waitUntilStable];
+  return YES;
 }
 
 - (BOOL)fb_synthesizeEvent:(XCSynthesizedEventRecord *)event error:(NSError *__autoreleasing*)error

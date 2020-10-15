@@ -362,7 +362,7 @@ static NSString *const topNodeIndexPath = @"top";
         || 0 == snapshotAttributes.count) {
       // If the app is not idle state while we retrieve the visiblity state
       // then the snapshot retrieval operation might freeze and time out
-      [element.application fb_waitUntilSnapshotIsStable];
+      [element.application fb_waitUntilStable];
     }
     if ([root isKindOfClass:XCUIApplication.class]) {
       currentSnapshot = element.fb_isResolvedFromCache.boolValue

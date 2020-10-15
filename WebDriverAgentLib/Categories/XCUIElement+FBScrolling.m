@@ -320,13 +320,14 @@ const CGFloat FBScrollTouchProportion = 0.75f;
       @"action": @"release"
     }
   ];
-  BOOL result = [application fb_performAppiumTouchActions:gesture
-                                             elementCache:nil
-                                                    error:error];
-  if (result) {
-    [application fb_waitUntilSnapshotIsStableWithTimeout:FBAnimationCoolOffTimeout];
+  if (![application fb_performAppiumTouchActions:gesture
+                                    elementCache:nil
+                                           error:error]) {
+    return NO;
   }
-  return result;
+
+  [application fb_waitUntilStableWithTimeout:FBAnimationCoolOffTimeout];
+  return YES;
 }
 
 @end

@@ -107,7 +107,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
                                                                      selfUID:snapshot.wdUID
                                                                 onlyChildren:YES];
   NSMutableArray<NSDictionary *> *childrenTrees = [NSMutableArray arrayWithCapacity:children.count];
-  [self fb_waitUntilSnapshotIsStable];
+  [self fb_waitUntilStable];
   for (XCUIElement* child in children) {
     XCElementSnapshot *childSnapshot;
     @try {
@@ -129,7 +129,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSDictionary *)fb_accessibilityTree
 {
-  [self fb_waitUntilSnapshotIsStable];
+  [self fb_waitUntilStable];
   // We ignore all elements except for the main window for accessibility tree
   return [self.class accessibilityInfoForElement:(self.fb_snapshotWithAllAttributes ?: self.lastSnapshot)];
 }

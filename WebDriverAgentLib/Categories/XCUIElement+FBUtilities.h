@@ -16,13 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCUIElement (FBUtilities)
 
 /**
- Waits for receiver's frame to become stable with the default timeout
-
- @return Whether the frame is stable
- */
-- (BOOL)fb_waitUntilFrameIsStable;
-
-/**
  Gets the most recent snapshot of the current element. The element will be
  automatically resolved if the snapshot is not available yet.
  Calls to this method mutate the `lastSnapshot` instance property..
@@ -84,18 +77,15 @@ NS_ASSUME_NONNULL_BEGIN
  Waits until element snapshot is stable to avoid "Error copying attributes -25202 error".
  This error usually happens for testmanagerd if there is an active UI animation in progress and
  causes 15-seconds delay while getting hitpoint value of element's snapshot.
-
- @return YES if wait succeeded ortherwise NO if there is still some active animation in progress
 */
-- (BOOL)fb_waitUntilSnapshotIsStable;
+- (void)fb_waitUntilStable;
 
 /**
  Waits for receiver's snapshot to become stable with the given timeout
 
  @param timeout The max time to wait util the snapshot is stable
- @return Whether the snapshot is stiable after the timeout
 */
-- (BOOL)fb_waitUntilSnapshotIsStableWithTimeout:(NSTimeInterval)timeout;
+- (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout;
 
 /**
  Returns screenshot of the particular element

@@ -72,7 +72,7 @@
   [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", self.description];
   [self fb_tapWithError:nil];
   // It might take some time to update the UI
-  [self fb_waitUntilSnapshotIsStableWithTimeout:1];
+  [self fb_waitUntilStableWithTimeout:1];
   [self fb_takeSnapshot];
 #endif
 }

@@ -16,16 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface XCUIApplicationProcessQuiescence : NSObject
 
-/**
- Set the usage of application quiescence validation (defaults to NO).
- */
-+ (void)setQuiescenceCheck:(BOOL)value;
-
-/**
- Set the usage of animation check in quiescence validation (defaults to YES).
- */
-+ (void)setAnimationCheckEnabled:(BOOL)enabled;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -11,6 +11,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBApplication.h"
+#import "FBTestMacros.h"
 #import "FBMacros.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
@@ -60,7 +61,7 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   XCTAssertTrue([clickMeButton waitForExistenceWithTimeout:15.0]);
   [clickMeButton tap];
   FBAlert *alert = [FBAlert alertWithApplication:self.safariApp];
-  XCTAssertEqualObjects(alert.text, @"Please enter your name");
+  FBAssertWaitTillBecomesTrue([alert.text isEqualToString:@"Please enter your name"]);
   NSArray *buttonLabels = alert.buttonLabels;
   XCTAssertEqualObjects(buttonLabels.firstObject, @"Cancel");
   XCTAssertEqualObjects(buttonLabels.lastObject, @"OK");
