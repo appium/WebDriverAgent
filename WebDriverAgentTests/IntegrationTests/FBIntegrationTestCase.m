@@ -40,6 +40,7 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration disableAttributeKeyPathAnalysis];
   [FBConfiguration configureDefaultKeyboardPreferences];
+  [FBConfiguration disableScreenshots];
   self.continueAfterFailure = NO;
   self.springboard = [FBSpringboardApplication fb_springboard];
   self.testedApplication = [XCUIApplication new];
