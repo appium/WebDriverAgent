@@ -30,7 +30,6 @@ static NSString *const axSettingsClassName = @"AXSettings";
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
-static BOOL FBShouldWaitForQuiescence = YES;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
@@ -179,16 +178,6 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (BOOL)canLoadSnapshotWithAttributes
 {
   return [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector] != nil;
-}
-
-+ (BOOL)shouldWaitForQuiescence
-{
-  return FBShouldWaitForQuiescence;
-}
-
-+ (void)setShouldWaitForQuiescence:(BOOL)value
-{
-  FBShouldWaitForQuiescence = value;
 }
 
 + (NSUInteger)mjpegServerFramerate

@@ -7,18 +7,17 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "XCUIApplicationProcessQuiescence.h"
+#import "XCUIApplicationProcess+FBQuiescence.h"
 
 #import <objc/runtime.h>
 
 #import "FBConfiguration.h"
 #import "FBLogger.h"
-#import "XCUIApplicationProcess.h"
 
 
 static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, BOOL includeAnimations)
 {
-  if (!FBConfiguration.shouldWaitForQuiescence || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
+  if (![self fb_shouldWaitForQuiescence] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     return;
   }
 
@@ -62,17 +61,35 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
 }
 
 
-@implementation XCUIApplicationProcessQuiescence
+@implementation XCUIApplicationProcess (FBQuiescence)
 
 + (void)load
 {
-  Method waitForQuiescenceMethod = class_getInstanceMethod(XCUIApplicationProcess.class, @selector(waitForQuiescenceIncludingAnimationsIdle:));
+  Method waitForQuiescenceMethod = class_getInstanceMethod(self.class, @selector(waitForQuiescenceIncludingAnimationsIdle:));
   if (waitForQuiescenceMethod != nil) {
     IMP swizzledImp = (IMP)swizzledWaitForQuiescenceIncludingAnimationsIdle;
     method_setImplementation(waitForQuiescenceMethod, swizzledImp);
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:]"];
   }
+}
+
+static char XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE;
+
+@dynamic fb_shouldWaitForQuiescence;
+
+- (NSNumber *)fb_shouldWaitForQuiescence
+{
+  id result = objc_getAssociatedObject(self, &XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE);
+  if (nil == result) {
+    return @(YES);
+  }
+  return (NSNumber *)result;
+}
+
+- (void)setFb_shouldWaitForQuiescence:(NSNumber *)value
+{
+  objc_setAssociatedObject(self, &XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE, value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

@@ -12,7 +12,7 @@
 #import "FBMacros.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBUtilities.h"
-#import "XCUIApplicationProcessQuiescence.h"
+
 
 #if !TARGET_OS_TV
 @implementation XCUIElement (FBTap)

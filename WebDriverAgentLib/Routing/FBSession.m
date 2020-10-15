@@ -189,11 +189,7 @@ static FBSession *_activeSession = nil;
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   if (app.fb_state < 2) {
-    if (nil != shouldWaitForQuiescence) {
-      app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
-    } else if ([bundleIdentifier isEqualToString:self.testedApplicationBundleId]) {
-      app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
-    }
+    app.fb_shouldWaitForQuiescence = shouldWaitForQuiescence == nil || [shouldWaitForQuiescence boolValue];
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
     [app launch];

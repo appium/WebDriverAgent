@@ -124,14 +124,17 @@ static NSString* const WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
     [XCUIApplicationProcessDelay disableEventLoopDelay];
   }
 
-  [FBConfiguration setShouldWaitForQuiescence:[requirements[@"shouldWaitForQuiescence"] boolValue]];
+  if (nil != requirements[WAIT_FOR_IDLE_TIMEOUT]) {
+    FBConfiguration.waitForIdleTimeout = [requirements[WAIT_FOR_IDLE_TIMEOUT] doubleValue] / 1000;
+  }
 
   NSString *bundleID = requirements[@"bundleId"];
   FBApplication *app = nil;
   if (bundleID != nil) {
     app = [[FBApplication alloc] initPrivateWithPath:requirements[@"app"]
                                             bundleID:bundleID];
-    app.fb_shouldWaitForQuiescence = FBConfiguration.shouldWaitForQuiescence;
+    app.fb_shouldWaitForQuiescence = nil == requirements[@"shouldWaitForQuiescence"]
+                                             || [requirements[@"shouldWaitForQuiescence"] boolValue];
     app.launchArguments = (NSArray<NSString *> *)requirements[@"arguments"] ?: @[];
     app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)requirements[@"environment"] ?: @{};
     [app launch];
