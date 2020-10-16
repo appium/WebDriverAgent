@@ -44,8 +44,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
                     descendantsMatchingType:XCUIElementTypeOther]
                    matchingPredicate:dstViewMatchPredicate]
                   containingPredicate:dstViewContainPredicate1]
-                 containingPredicate:dstViewContainPredicate2]
-    .allElementsBoundByIndex.firstObject;
+                 containingPredicate:dstViewContainPredicate2].fb_firstMatch;
   } else {
     NSPredicate *webViewPredicate = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeWebView];
     // Find the first XCUIElementTypeOther which is the descendant of the scroll view
@@ -54,8 +53,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
                     descendantsMatchingType:XCUIElementTypeOther]
                    matchingPredicate:dstViewMatchPredicate]
                   containingPredicate:dstViewContainPredicate1]
-                 containingPredicate:dstViewContainPredicate2]
-    .allElementsBoundByIndex.firstObject;
+                 containingPredicate:dstViewContainPredicate2].fb_firstMatch;
   }
   if (nil == candidate) {
     return nil;
@@ -81,7 +79,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
                                           XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
   XCUIElement *alert = [[self descendantsMatchingType:XCUIElementTypeAny]
-                        matchingPredicate:alertCollectorPredicate].allElementsBoundByAccessibilityElement.firstObject;
+                        matchingPredicate:alertCollectorPredicate].fb_firstMatch;
   if (nil == alert) {
     return nil;
   }
