@@ -58,13 +58,13 @@
   XCTAssertTrue([textField fb_typeText:text shouldClear:NO error:&error]);
   [textField pressForDuration:2.0];
   XCUIElement *selectAllItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
-                                matchingIdentifier:@"Select All"].fb_firstMatch;
-  XCTAssertNotNil(selectAllItem);
+                                matchingIdentifier:@"Select All"].firstMatch;
+  XCTAssertTrue([selectAllItem waitForExistenceWithTimeout:5]);
   [selectAllItem tap];
   [textField pressForDuration:2.0];
   XCUIElement *copyItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
-                           matchingIdentifier:@"Copy"].fb_firstMatch;
-  XCTAssertNotNil(copyItem);
+                           matchingIdentifier:@"Copy"].firstMatch;
+  XCTAssertTrue([copyItem waitForExistenceWithTimeout:5]);
   [copyItem tap];
   FBWaitExact(1.0);
   NSData *result = [FBPasteboard dataForType:@"plaintext" error:&error];

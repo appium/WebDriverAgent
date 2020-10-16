@@ -113,7 +113,8 @@ static NSString* const FBUnknownBundleId = @"unknown";
     @try {
       childSnapshot = child.fb_snapshotWithAllAttributes;
       if (nil == childSnapshot) {
-        [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved", child.description];
+        [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@'", child.description];
+        childSnapshot = child.fb_takeSnapshot;
       }
     } @catch (NSException *e) {
       [FBLogger logFmt:@"Skipping source dump for '%@' because its snapshot cannot be resolved: %@", child.description, e.reason];

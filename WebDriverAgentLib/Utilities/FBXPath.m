@@ -379,8 +379,8 @@ static NSString *const topNodeIndexPath = @"top";
             ? window.fb_snapshotWithAllAttributes
             : [window fb_snapshotWithAttributes:snapshotAttributes.copy];
           if (nil == windowSnapshot) {
-            [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved", window.description];
-            continue;
+            [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@'", window.description];
+            windowSnapshot = window.fb_takeSnapshot;
           }
         } @catch (NSException *e) {
           [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved: %@", window.description, e.reason];

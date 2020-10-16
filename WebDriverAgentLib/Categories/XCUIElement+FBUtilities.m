@@ -135,6 +135,7 @@
   dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(axTimeout * NSEC_PER_SEC)));
   if (nil == snapshotWithAttributes) {
     [FBLogger logFmt:@"Cannot take the snapshot of %@ after %@ seconds", self.description, @(axTimeout)];
+    [FBLogger log:@"This timeout could be customized via 'snapshotTimeout' setting"];
     if (nil != innerError) {
       [FBLogger logFmt:@"Internal error: %@", innerError.description];
     }
@@ -231,29 +232,21 @@
 
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
-  if (CGRectIsEmpty(self.frame)) {
+  XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  if (CGRectIsEmpty(selfSnapshot.frame)) {
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:@"Cannot get a screenshot of zero-sized element"] build];
     }
     return nil;
   }
 
-  CGRect elementRect = self.frame;
-
-  if (@available(iOS 13.0, *)) {
-    // landscape also works correctly on over iOS13 x Xcode 11
-    return FBToPngData([XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
-                                                      rect:elementRect
-                                                     error:error]);
-  }
-
+  CGRect elementRect = selfSnapshot.frame;
 #if !TARGET_OS_TV
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
-    XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
-      ? self.lastSnapshot
-      : self.fb_takeSnapshot;
     NSArray<XCElementSnapshot *> *ancestors = selfSnapshot.fb_ancestors;
     XCElementSnapshot *parentWindow = nil;
     if (1 == ancestors.count) {
