@@ -189,7 +189,13 @@ static FBSession *_activeSession = nil;
 {
   FBApplication *app = [self registerApplicationWithBundleId:bundleIdentifier];
   if (app.fb_state < 2) {
-    app.fb_shouldWaitForQuiescence = shouldWaitForQuiescence == nil || [shouldWaitForQuiescence boolValue];
+    if (nil == shouldWaitForQuiescence) {
+      // Iherit the quiescence check setting from the main app under test by default
+      FBApplication *testedApplication = [self.applications objectForKey:self.testedApplicationBundleId];
+      app.fb_shouldWaitForQuiescence = nil == testedApplication || testedApplication.fb_shouldWaitForQuiescence;
+    } else {
+      app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
+    }
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
     [app launch];
