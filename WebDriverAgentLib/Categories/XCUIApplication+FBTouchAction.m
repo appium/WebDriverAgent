@@ -27,14 +27,22 @@
 + (BOOL)handleEventSynthesWithError:(NSError *)error
 {
   if ([error.localizedDescription containsString:@"not visible"]) {
-    [[NSException exceptionWithName:FBElementNotVisibleException reason:error.localizedDescription userInfo:error.userInfo] raise];
+    [[NSException exceptionWithName:FBElementNotVisibleException
+                             reason:error.localizedDescription
+                           userInfo:error.userInfo] raise];
   }
   return NO;
 }
 
-- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType actions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType
+                                     actions:(NSArray *)actions
+                                elementCache:(FBElementCache *)elementCache
+                                       error:(NSError **)error
 {
-  FBBaseActionsSynthesizer *synthesizer = [[synthesizerType alloc] initWithActions:actions forApplication:self elementCache:elementCache error:error];
+  FBBaseActionsSynthesizer *synthesizer = [[synthesizerType alloc] initWithActions:actions
+                                                                    forApplication:self
+                                                                      elementCache:elementCache
+                                                                             error:error];
   if (nil == synthesizer) {
     return NO;
   }
@@ -45,18 +53,28 @@
   return [self fb_synthesizeEvent:eventRecord error:error];
 }
 
-- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions
+                        elementCache:(FBElementCache *)elementCache
+                               error:(NSError **)error
 {
-  if (![self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error]) {
+  if (![self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class
+                                          actions:actions
+                                     elementCache:elementCache
+                                            error:error]) {
     return NO;
   }
   [self fb_waitUntilStable];
   return YES;
 }
 
-- (BOOL)fb_performW3CActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performW3CActions:(NSArray *)actions
+                elementCache:(FBElementCache *)elementCache
+                       error:(NSError **)error
 {
-  if (![self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error]) {
+  if (![self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class
+                                          actions:actions
+                                     elementCache:elementCache
+                                            error:error]) {
     return NO;
   }
   [self fb_waitUntilStable];
