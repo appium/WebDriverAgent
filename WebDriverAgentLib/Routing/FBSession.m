@@ -191,7 +191,9 @@ static FBSession *_activeSession = nil;
   if (app.fb_state < 2) {
     if (nil == shouldWaitForQuiescence) {
       // Iherit the quiescence check setting from the main app under test by default
-      FBApplication *testedApplication = [self.applications objectForKey:self.testedApplicationBundleId];
+      FBApplication *testedApplication = nil == self.testedApplicationBundleId
+        ? nil
+        : [self.applications objectForKey:self.testedApplicationBundleId];
       app.fb_shouldWaitForQuiescence = nil == testedApplication || testedApplication.fb_shouldWaitForQuiescence;
     } else {
       app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
