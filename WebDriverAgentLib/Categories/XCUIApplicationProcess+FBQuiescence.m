@@ -36,21 +36,27 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
     setProperty(@"setAnimationsHaveFinished:", NO);
   }
 
+  __block BOOL isSignalSet = NO;
   dispatch_group_t group = dispatch_group_create();
   dispatch_group_enter(group);
   [self _notifyWhenMainRunLoopIsIdle:^{
-    setProperty(@"setEventLoopHasIdled:", YES);
+    if (!isSignalSet) {
+      setProperty(@"setEventLoopHasIdled:", YES);
+    }
     dispatch_group_leave(group);
   }];
   if (isAnimationsIdleNotificationsSupported) {
     dispatch_group_enter(group);
     [self _notifyWhenAnimationsAreIdle:^{
-      setProperty(@"setAnimationsHaveFinished:", YES);
+      if (!isSignalSet) {
+        setProperty(@"setAnimationsHaveFinished:", YES);
+      }
       dispatch_group_leave(group);
     }];
   }
   dispatch_time_t absoluteTimeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC));
   BOOL result = 0 == dispatch_group_wait(group, absoluteTimeout);
+  isSignalSet = YES;
   if (!result) {
     [FBLogger logFmt:@"The application %@ is still waiting for quiescence after %.2f seconds timeout. This timeout value could be customized by changing the 'waitForIdleTimeout' setting", [self bundleID], FBConfiguration.waitForIdleTimeout];
     setProperty(@"setEventLoopHasIdled:", YES);
