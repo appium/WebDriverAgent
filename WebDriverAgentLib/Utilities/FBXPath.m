@@ -379,7 +379,7 @@ static NSString *const topNodeIndexPath = @"top";
             ? window.fb_snapshotWithAllAttributes
             : [window fb_snapshotWithAttributes:snapshotAttributes.copy];
           if (nil == windowSnapshot) {
-            [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@'", window.description];
+            [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", window.description];
             windowSnapshot = window.fb_takeSnapshot;
           }
         } @catch (NSException *e) {

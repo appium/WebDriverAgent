@@ -113,7 +113,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
     @try {
       childSnapshot = child.fb_snapshotWithAllAttributes;
       if (nil == childSnapshot) {
-        [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@'", child.description];
+        [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", child.description];
         childSnapshot = child.fb_takeSnapshot;
       }
     } @catch (NSException *e) {
