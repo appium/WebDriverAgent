@@ -100,9 +100,14 @@
       return;
     }
 
-    NSString *text = isSafariAlert
-      ? descendant.wdLabel
-      : (descendant.wdLabel ?: descendant.wdValue);
+    NSString *text = descendant.wdLabel ?: descendant.wdValue;
+    if (isSafariAlert && nil != descendant.parent) {
+      NSString *parentText = descendant.parent.wdLabel ?: descendant.parent.wdValue;
+      if ([parentText isEqualToString:text]) {
+        // Avoid duplicated texts on Safari alerts
+        text = nil;
+      }
+    }
     if (nil != text) {
       [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }

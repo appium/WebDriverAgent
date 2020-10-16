@@ -154,15 +154,16 @@ static dispatch_once_t onceAppWithPIDToken;
 
 - (BOOL)fb_resolveWithError:(NSError **)error
 {
-  if ([self respondsToSelector:@selector(resolve)]) {
-    [self resolve];
-    return nil != self.lastSnapshot;
-  }
-  if ([self respondsToSelector:@selector(resolveOrRaiseTestFailure)]) {
-    @try {
+  @try {
+    if ([self respondsToSelector:@selector(resolve)]) {
+      [self resolve];
+      return nil != self.lastSnapshot;
+    } else if ([self respondsToSelector:@selector(resolveOrRaiseTestFailure)]) {
       [self resolveOrRaiseTestFailure];
       return YES;
-    } @catch (NSException *e) {
+    }
+  } @catch (NSException *e) {
+    if (nil != e.reason) {
       return [[FBErrorBuilder.builder withDescription:(NSString *)e.reason] buildError:error];
     }
   }
