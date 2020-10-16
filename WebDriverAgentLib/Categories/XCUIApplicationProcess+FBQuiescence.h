@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIApplicationProcess (FBQuiescence)
 
+/*! Defines wtether the process should perform quiescence checks. YES by default */
 @property (nonatomic) NSNumber* fb_shouldWaitForQuiescence;
 
 @end

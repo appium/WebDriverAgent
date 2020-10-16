@@ -17,7 +17,7 @@
 
 static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, BOOL includeAnimations)
 {
-  if (![self fb_shouldWaitForQuiescence] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
+  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     return;
   }
 

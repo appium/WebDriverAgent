@@ -37,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<FBApplication *> *)fb_activeApplications;
 
 /**
- It allows to turn on/off waiting for application quiescence, while performing queries. Defaults to NO.
+ It allows to turn on/off waiting for application quiescence, while performing queries. Defaults to YES.
+ This value mirrors the corresponding property of the connected XCUIApplicationProcess instance.
  */
 @property (nonatomic, assign) BOOL fb_shouldWaitForQuiescence;
 
