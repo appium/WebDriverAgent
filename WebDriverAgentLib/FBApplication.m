@@ -17,9 +17,6 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIApplication.h"
-#import "XCUIApplicationImpl.h"
-#import "XCUIApplicationProcess.h"
-#import "XCUIApplicationProcess+FBQuiescence.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplicationImpl.h"
 #import "XCUIApplicationProcess.h"
@@ -53,16 +50,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
     }
   }
   return result.count > 0 ? result.copy : @[self.class.fb_systemApplication];
-}
-
-- (BOOL)fb_shouldWaitForQuiescence
-{
-  return [[self applicationImpl] currentProcess].fb_shouldWaitForQuiescence.boolValue;
-}
-
-- (void)setFb_shouldWaitForQuiescence:(BOOL)value
-{
-  [[self applicationImpl] currentProcess].fb_shouldWaitForQuiescence = @(value);
 }
 
 + (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId

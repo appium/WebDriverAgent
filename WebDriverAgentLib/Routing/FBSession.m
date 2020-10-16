@@ -21,6 +21,7 @@
 #import "FBSpringboardApplication.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement.h"
+#import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
 
 /*!

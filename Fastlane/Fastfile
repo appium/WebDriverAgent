@@ -27,6 +27,8 @@ lane :test do
     testrun_completed_block: test_run_block
   )
   unless result[:failed_testcount].zero?
-    UI.message("There are #{result[:failed_testcount]} legitimate failing tests")
+    msg = "There are #{result[:failed_testcount]} legitimate failing tests"
+    UI.message(msg)
+    raise msg
   end
 end
