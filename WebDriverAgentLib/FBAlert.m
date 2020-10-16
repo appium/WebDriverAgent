@@ -48,10 +48,10 @@
 
 - (BOOL)isPresent
 {
-  if (nil == self.alertElement) {
-    return NO;
-  }
   @try {
+    if (nil == self.alertElement) {
+      return NO;
+    }
     [self.alertElement fb_takeSnapshot];
     return YES;
   } @catch (NSException *) {

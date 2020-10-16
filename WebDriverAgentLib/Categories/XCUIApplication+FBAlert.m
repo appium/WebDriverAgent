@@ -96,7 +96,14 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    return (nil == [self.fb_query matchingIdentifier:@"PopoverDismissRegion"].fb_firstMatch) ? alert : nil;
+    XCElementSnapshot *ancestor = alertSnapshot.parent;
+    while (nil != ancestor) {
+      if (nil != ancestor.identifier && [ancestor.identifier isEqualToString:@"PopoverDismissRegion"]) {
+        return nil;
+      }
+      ancestor = ancestor.parent;
+    }
+    return alert;
   }
 
   if (alertSnapshot.elementType == XCUIElementTypeScrollView) {
