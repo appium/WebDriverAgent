@@ -91,10 +91,6 @@
       return;
     }
 
-    if (elementType == XCUIElementTypeTextView
-        && [descendant fb_descendantsMatchingType:XCUIElementTypeStaticText].count > 0) {
-      return;
-    }
     if (elementType == XCUIElementTypeStaticText
         && nil != [descendant fb_parentMatchingType:XCUIElementTypeButton]) {
       return;
@@ -105,9 +101,10 @@
       NSString *parentText = descendant.parent.wdLabel ?: descendant.parent.wdValue;
       if ([parentText isEqualToString:text]) {
         // Avoid duplicated texts on Safari alerts
-        text = nil;
+        return;
       }
     }
+
     if (nil != text) {
       [resultText addObject:[NSString stringWithFormat:@"%@", text]];
     }

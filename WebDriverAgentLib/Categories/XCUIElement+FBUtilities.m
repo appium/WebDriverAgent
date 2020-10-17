@@ -68,24 +68,24 @@
     return [[[(XCUIApplication *)self applicationImpl] currentProcess] lastSnapshot];
   }
 
-  @try {
-    XCUIElementQuery *inputQuery = self.fb_query;
-    NSMutableArray<id<XCTElementSetTransformer>> *transformersChain = [NSMutableArray array];
-    XCElementSnapshot *rootElementSnapshot = nil;
-    while (nil != inputQuery && nil != inputQuery.transformer) {
-      [transformersChain insertObject:inputQuery.transformer atIndex:0];
-      if (nil != inputQuery.rootElementSnapshot) {
-        rootElementSnapshot = inputQuery.rootElementSnapshot;
-      }
-      inputQuery = inputQuery.inputQuery;
+  XCUIElementQuery *inputQuery = self.fb_query;
+  NSMutableArray<id<XCTElementSetTransformer>> *transformersChain = [NSMutableArray array];
+  XCElementSnapshot *rootElementSnapshot = nil;
+  while (nil != inputQuery && nil != inputQuery.transformer) {
+    [transformersChain insertObject:inputQuery.transformer atIndex:0];
+    if (nil != inputQuery.rootElementSnapshot) {
+      rootElementSnapshot = inputQuery.rootElementSnapshot;
     }
-    if (nil == rootElementSnapshot) {
-      return nil;
-    }
+    inputQuery = inputQuery.inputQuery;
+  }
+  if (nil == rootElementSnapshot) {
+    return nil;
+  }
 
-    NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootElementSnapshot];
-    [snapshots addObjectsFromArray:rootElementSnapshot._allDescendants];
-    NSOrderedSet *matchingSnapshots = [NSOrderedSet orderedSetWithArray:snapshots];
+  NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootElementSnapshot];
+  [snapshots addObjectsFromArray:rootElementSnapshot._allDescendants];
+  NSOrderedSet *matchingSnapshots = [NSOrderedSet orderedSetWithArray:snapshots];
+  @try {
     for (id<XCTElementSetTransformer> transformer in transformersChain) {
       matchingSnapshots = (NSOrderedSet *)[transformer transform:matchingSnapshots
                                                  relatedElements:nil];
@@ -134,7 +134,8 @@
   }];
   dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(axTimeout * NSEC_PER_SEC)));
   if (nil == snapshotWithAttributes) {
-    [FBLogger logFmt:@"Cannot take the snapshot of %@ after %@ seconds", self.description, @(axTimeout)];
+    [FBLogger logFmt:@"Cannot take a snapshot with custom attribute(s) %@ of '%@' after %@ seconds",
+     attributeNames, self.description, @(axTimeout)];
     [FBLogger log:@"This timeout could be customized via 'snapshotTimeout' setting"];
     if (nil != innerError) {
       [FBLogger logFmt:@"Internal error: %@", innerError.description];
