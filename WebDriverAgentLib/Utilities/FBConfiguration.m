@@ -47,6 +47,7 @@ static NSString *FBDismissAlertButtonSelector = @"";
 static NSString *FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 static NSTimeInterval FBWaitForIdleTimeout = 10.;
+static NSTimeInterval FBWaitForAnimationTimeout = 5.;
 
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
@@ -218,6 +219,16 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (void)setWaitForIdleTimeout:(NSTimeInterval)timeout
 {
   FBWaitForIdleTimeout = timeout;
+}
+
++ (NSTimeInterval)waitForAnimationTimeout
+{
+  return FBWaitForAnimationTimeout;
+}
+
++ (void)setWaitForAnimationTimeout:(NSTimeInterval)timeout
+{
+  FBWaitForAnimationTimeout = timeout;
 }
 
 // Works for Simulator and Real devices

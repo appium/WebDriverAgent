@@ -47,6 +47,7 @@ static NSString* const ACCEPT_ALERT_BUTTON_SELECTOR = @"acceptAlertButtonSelecto
 static NSString* const DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelector";
 static NSString* const SCREENSHOT_ORIENTATION = @"screenshotOrientation";
 static NSString* const WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
+static NSString* const WAIT_FOR_ANIMATION_TIMEOUT = @"waitForAnimationTimeout";
 
 
 @implementation FBSessionCommands
@@ -127,6 +128,9 @@ static NSString* const WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
 
   if (nil != requirements[WAIT_FOR_IDLE_TIMEOUT]) {
     FBConfiguration.waitForIdleTimeout = [requirements[WAIT_FOR_IDLE_TIMEOUT] doubleValue] / 1000;
+  }
+  if (nil != requirements[WAIT_FOR_ANIMATION_TIMEOUT]) {
+    FBConfiguration.waitForAnimationTimeout = [requirements[WAIT_FOR_ANIMATION_TIMEOUT] doubleValue] / 1000;
   }
 
   NSString *bundleID = requirements[@"bundleId"];
@@ -263,6 +267,7 @@ static NSString* const WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
       SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
       USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
       WAIT_FOR_IDLE_TIMEOUT: @([FBConfiguration waitForIdleTimeout] * 1000.0),
+      WAIT_FOR_ANIMATION_TIMEOUT: @([FBConfiguration waitForAnimationTimeout] * 1000.0),
       BOUND_ELEMENTS_BY_INDEX: @([FBConfiguration boundElementsByIndex]),
       REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,

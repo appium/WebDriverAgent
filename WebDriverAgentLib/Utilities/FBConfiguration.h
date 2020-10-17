@@ -202,9 +202,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)reduceMotionEnabled;
 
 /**
- * Set the animation/idling timeout. If the timeout expires the WDA
- * tries to take a snapshot of the application under test even if the app
- * is not in idle state and is not running any animations.
+ * Set the idling timeout. If the timeout expires then WDA
+ * tries to interact with the application even if it is not idling.
  * Setting it to zero disables idling checks.
  * The default timeout is set to 10 seconds.
  *
@@ -212,6 +211,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  */
 + (void)setWaitForIdleTimeout:(NSTimeInterval)timeout;
 + (NSTimeInterval)waitForIdleTimeout;
+
+/**
+ * Set the animation timeout. If the timeout expires then WDA
+ * tries to interact with the application even if there are some active running animations.
+ * Setting it to zero disables animations checks.
+ * The default timeout is set to 5 seconds.
+ *
+ * @param timeout The actual timeout value in float seconds
+ */
++ (void)setWaitForAnimationTimeout:(NSTimeInterval)timeout;
++ (NSTimeInterval)waitForAnimationTimeout;
 
 /**
  Enforces the page hierarchy to include non modal elements,
