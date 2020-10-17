@@ -35,8 +35,8 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
   };
 
   original_notifyWhenMainRunLoopIsIdle(self, _cmd, onIdleTimed);
-  BOOL isIdlingAfterTimeout = 0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC)));
-  if (!isIdlingAfterTimeout) {
+  BOOL isIdling = 0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC)));
+  if (!isIdling) {
     isSignalSet = YES;
     [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. This timeout value could be customized by changing the 'waitForIdleTimeout' setting", [self bundleID], FBConfiguration.waitForIdleTimeout];
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
