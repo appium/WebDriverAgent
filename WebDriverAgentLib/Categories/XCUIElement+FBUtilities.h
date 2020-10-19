@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Extracts the cached element snapshot from its query.
  No requests to the accessiblity framework is made.
+ It is only safe to use this call right after element lookup query
+ has been executed.
 
  @return Either the cached snapshot or nil
  */

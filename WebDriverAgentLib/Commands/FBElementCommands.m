@@ -600,8 +600,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 {
   CGPoint point = coordinate;
   if (shouldApplyOrientationWorkaround) {
-    XCElementSnapshot *snapshot = application.fb_cachedSnapshot ?: application.fb_takeSnapshot;
-    point = FBInvertPointForApplication(coordinate, snapshot.frame.size, application.interfaceOrientation);
+    point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
   }
 
   /**
