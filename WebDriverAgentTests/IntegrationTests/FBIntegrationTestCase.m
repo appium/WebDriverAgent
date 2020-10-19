@@ -20,6 +20,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCTestConfiguration.h"
 
 NSString *const FBShowAlertButtonName = @"Create App Alert";
 NSString *const FBShowSheetAlertButtonName = @"Create Sheet Alert";
@@ -41,6 +42,8 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
   [FBConfiguration disableAttributeKeyPathAnalysis];
   [FBConfiguration configureDefaultKeyboardPreferences];
   [FBConfiguration disableScreenshots];
+  // Enable it to get extended XCTest logs
+  // ((XCTestConfiguration *)XCTestConfiguration.activeTestConfiguration).emitOSLogs = YES;
   self.continueAfterFailure = NO;
   self.springboard = [FBSpringboardApplication fb_springboard];
   self.testedApplication = [XCUIApplication new];
