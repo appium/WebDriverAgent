@@ -19,11 +19,11 @@
 - (CGPoint)fb_screenPoint
 {
   CGPoint referencePoint = CGPointMake(0, 0);
-  NSValue *referenceElementFrame = nil;
+  NSValue *referencedElementFrame = nil;
   if (self.element) {
     CGRect elementFrame = self.element.frame;
     if (self.referencedElement == self.element) {
-      referenceElementFrame = [NSValue valueWithCGRect:elementFrame];
+      referencedElementFrame = [NSValue valueWithCGRect:elementFrame];
     }
     referencePoint = CGPointMake(
       CGRectGetMinX(elementFrame) + CGRectGetWidth(elementFrame) * self.normalizedOffset.dx,
@@ -35,12 +35,12 @@
   CGPoint screenPoint = CGPointMake(
     referencePoint.x + self.pointsOffset.dx,
     referencePoint.y + self.pointsOffset.dy);
-  if (nil == referenceElementFrame) {
-    referenceElementFrame = [NSValue valueWithCGRect:self.referencedElement.frame];
+  if (nil == referencedElementFrame) {
+    referencedElementFrame = [NSValue valueWithCGRect:self.referencedElement.frame];
   }
   return CGPointMake(
-    MIN(CGRectGetMaxX(referenceElementFrame.CGRectValue), screenPoint.x),
-    MIN(CGRectGetMaxY(referenceElementFrame.CGRectValue), screenPoint.y));
+    MIN(CGRectGetMaxX(referencedElementFrame.CGRectValue), screenPoint.x),
+    MIN(CGRectGetMaxY(referencedElementFrame.CGRectValue), screenPoint.y));
 }
 
 @end
