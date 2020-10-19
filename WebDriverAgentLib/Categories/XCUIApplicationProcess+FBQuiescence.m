@@ -21,7 +21,7 @@ static void (*original_notifyWhenAnimationsAreIdle)(id, SEL, void (^onIdle)(id, 
 static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
 {
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
-    [FBLogger logFmt:@"Quiescence is disabled for %@ application. Making it to believe it is idling", [self bundleID]];
+    [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling", [self bundleID]];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       onIdle(nil, nil);
     });
@@ -52,7 +52,7 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
 static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
 {
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForAnimationTimeout < DBL_EPSILON) {
-    [FBLogger logFmt:@"Quiescence is disabled for %@ application. Making it to believe there are no animations", [self bundleID]];
+    [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe there are no animations", [self bundleID]];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       onIdle(nil, nil);
     });

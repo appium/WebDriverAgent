@@ -20,6 +20,8 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBExceptions.h"
 
+const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
+
 #if !TARGET_OS_TV
 
 @implementation XCUIApplication (FBTouchAction)
@@ -63,7 +65,7 @@
                                             error:error]) {
     return NO;
   }
-  [self fb_waitUntilStable];
+  [self fb_waitUntilStableWithTimeout:FBAnimationCoolOffTimeout];
   return YES;
 }
 
@@ -77,7 +79,7 @@
                                             error:error]) {
     return NO;
   }
-  [self fb_waitUntilStable];
+  [self fb_waitUntilStableWithTimeout:FBAnimationCoolOffTimeout];
   return YES;
 }
 

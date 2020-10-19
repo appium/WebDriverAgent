@@ -19,8 +19,6 @@
 
 - (BOOL)fb_tapWithError:(NSError **)error
 {
-  [self fb_waitUntilStable];
-
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
     [self tap];
     return YES;
@@ -37,8 +35,6 @@
 
 - (BOOL)fb_tapCoordinate:(CGPoint)relativeCoordinate error:(NSError **)error
 {
-  [self fb_waitUntilStable];
-
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
     // Coordinates calculation issues have been fixed
     // for different device orientations since Xcode 11
