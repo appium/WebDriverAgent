@@ -131,7 +131,7 @@ static id FBAXClient = nil;
                                                  attributes:attributes
                                                       error:&error];
     if (error) {
-      [FBLogger logFmt:@"Cannot retrieve the list of %@ element attributes: %@", attributes, error.description];
+      [FBLogger logFmt:@"Cannot retrieve element attribute(s) %@. Original error: %@", attributes, error.description];
     }
     return result;
   }
