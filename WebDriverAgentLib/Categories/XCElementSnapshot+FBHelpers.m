@@ -22,6 +22,15 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 
 @implementation XCElementSnapshot (FBHelpers)
 
+- (NSString *)fb_description
+{
+  NSString *result = [NSString stringWithFormat:@"%@", self.wdType];
+  if (nil != self.wdName) {
+    result = [NSString stringWithFormat:@"%@ (%@)", result, self.wdName];
+  }
+  return result;
+}
+
 - (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
 {
   return [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {

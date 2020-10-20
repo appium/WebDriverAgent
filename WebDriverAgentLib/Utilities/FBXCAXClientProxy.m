@@ -9,11 +9,12 @@
 
 #import "FBXCAXClientProxy.h"
 
+#import <objc/runtime.h>
+
+#import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "XCAXClient_iOS.h"
 #import "XCUIDevice.h"
-#import <objc/runtime.h>
-#import "FBConfiguration.h"
 
 static id FBAXClient = nil;
 
@@ -75,6 +76,29 @@ static id FBAXClient = nil;
     }
   });
   return instance;
+}
+
+- (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+  return [FBAXClient _setAXTimeout:timeout error:error];
+}
+
+- (XCElementSnapshot *)snapshotForElement:(XCAccessibilityElement *)element
+                               attributes:(NSArray<NSString *> *)attributes
+                                    error:(NSError **)error
+{
+  if ([FBAXClient respondsToSelector:@selector(requestSnapshotForElement:attributes:parameters:error:)]) {
+    id result = [FBAXClient requestSnapshotForElement:element
+                                           attributes:attributes
+                                           parameters:nil
+                                                error:error];
+    XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
+    return nil == snapshot ? result : snapshot;
+  }
+  return [FBAXClient snapshotForElement:element
+                             attributes:attributes
+                             parameters:nil
+                                  error:error];
 }
 
 - (NSArray<XCAccessibilityElement *> *)activeApplications

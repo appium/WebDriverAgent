@@ -22,6 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedClient;
 
+- (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error;
+
+- (nullable XCElementSnapshot *)snapshotForElement:(XCAccessibilityElement *)element
+                                        attributes:(nullable NSArray<NSString *> *)attributes
+                                             error:(NSError **)error;
+
 - (NSArray<XCAccessibilityElement *> *)activeApplications;
 
 - (XCAccessibilityElement *)systemApplication;

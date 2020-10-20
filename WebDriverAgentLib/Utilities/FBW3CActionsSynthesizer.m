@@ -168,7 +168,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   CGRect frame = snapshot.frame;
   if (CGRectIsEmpty(frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", snapshot.fb_description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }

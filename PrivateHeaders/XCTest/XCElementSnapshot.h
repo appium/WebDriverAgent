@@ -8,7 +8,7 @@
 
 #import <XCTest/XCUIElementAttributes.h>
 
-@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCUIApplication;
+@class NSArray, NSDictionary, NSString, NSArray, XCAccessibilityElement, XCUIApplication;
 
 @interface XCElementSnapshot : NSObject <XCUIElementAttributes, NSSecureCoding>
 {
@@ -103,5 +103,7 @@
 + (id)axAttributesForElementSnapshotKeyPaths:(id)arg1;
 // Since Xcode 10.2
 + (id)axAttributesForElementSnapshotKeyPaths:(id)arg1 isMacOS:(_Bool)arg2;
+// Since Xcode 10.0
++ (NSArray<NSString *> *)sanitizedElementSnapshotHierarchyAttributesForAttributes:(NSArray<NSString *> *)arg1 isMacOS:(_Bool)arg2;
 
 @end

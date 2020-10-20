@@ -55,11 +55,12 @@ NS_ASSUME_NONNULL_BEGIN
  Calls to this method reset the `fb_isResolvedFromCache` property value to `NO`.
 
  @param attributeNames The list of attribute names to resolve. Must be one of
- FB_...Name values exported by XCTestPrivateSymbols.h module
+ FB_...Name values exported by XCTestPrivateSymbols.h module.
+ `nil` value means that only the default attributes must be extracted
  @return The recent snapshot of the element with the attributes resolved
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
 */
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames;
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames;
 
 /**
  Filters elements by matching them to snapshots from the corresponding array

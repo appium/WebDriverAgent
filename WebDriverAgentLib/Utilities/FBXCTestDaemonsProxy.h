@@ -26,9 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIInterfaceOrientation)orientationWithApplication:(XCUIApplication *)application;
 #endif
 
-+ (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record error:(NSError *__autoreleasing*)error;
-
-+ (void)tryToSetAxTimeout:(double)timeout forProxy:(id<XCTestManager_ManagerInterface>)proxy withHandler:(void (^)(int res))handler;
++ (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record
+                            error:(NSError *__autoreleasing*)error;
 
 @end
 

@@ -176,11 +176,6 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   return FBShouldUseSingletonTestManager;
 }
 
-+ (BOOL)canLoadSnapshotWithAttributes
-{
-  return [XCElementSnapshot fb_attributesForElementSnapshotKeyPathsSelector] != nil;
-}
-
 + (NSUInteger)mjpegServerFramerate
 {
   return FBMjpegServerFramerate;

@@ -84,6 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable XCElementSnapshot *)fb_parentCellSnapshot;
 
+/**! Human-readable snapshot description */
+- (NSString *)fb_description;
+
 @end
 
 NS_ASSUME_NONNULL_END

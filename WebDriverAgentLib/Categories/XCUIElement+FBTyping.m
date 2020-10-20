@@ -13,6 +13,7 @@
 #import "FBErrorBuilder.h"
 #import "FBKeyboard.h"
 #import "NSString+FBVisualLength.h"
+#import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
@@ -66,10 +67,10 @@
     return;
   }
 
-  [FBLogger logFmt:@"Neither the \"%@\" element itself nor its accessible descendants have the keyboard input focus", self.description];
+  [FBLogger logFmt:@"Neither the \"%@\" element itself nor its accessible descendants have the keyboard input focus", snapshot.fb_description];
 // There is no possibility to open the keyboard by tapping a field in TvOS
 #if !TARGET_OS_TV
-  [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", self.description];
+  [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", snapshot.fb_description];
   [self fb_tapWithError:nil];
   // It might take some time to update the UI
   [self fb_takeSnapshot];
@@ -120,7 +121,7 @@
   id currentValue = snapshot.value;
   if (nil != currentValue && ![currentValue isKindOfClass:NSString.class]) {
     return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"The value of '%@' element is not a string and thus cannot be edited", self.description]
+               withDescriptionFormat:@"The value of '%@' is not a string and thus cannot be edited", snapshot.fb_description]
               buildError:error];
   }
   

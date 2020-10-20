@@ -8,14 +8,16 @@
  */
 
 #import "FBXCTestDaemonsProxy.h"
+
+#import <objc/runtime.h>
+
+#import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "XCTestDriver.h"
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIApplication.h"
 #import "XCUIDevice.h"
-#import "FBConfiguration.h"
-#import "FBLogger.h"
-#import <objc/runtime.h>
 
 @implementation FBXCTestDaemonsProxy
 
@@ -97,23 +99,6 @@ static dispatch_once_t onceTestRunnerDaemonClass;
     }
   }];
   return didSucceed;
-}
-
-+ (void)tryToSetAxTimeout:(double)timeout forProxy:(id<XCTestManager_ManagerInterface>)proxy withHandler:(void (^)(int res))handler {
-  if ([self canSetAXTimeout:proxy]) {
-    [proxy _XCT_setAXTimeout:timeout
-                       reply:handler];
-    return;
-  }
-  handler(0);
-}
-
-+ (BOOL)canSetAXTimeout:(id<XCTestManager_ManagerInterface>)proxy {
-  if (![object_getClass(proxy) conformsToProtocol:@protocol(NSObject)]) {
-    return NO;
-  }
-  id<NSObject> obj = (id<NSObject>)proxy;
-  return [obj respondsToSelector:@selector(_XCT_setAXTimeout:reply:)];
 }
 
 @end
