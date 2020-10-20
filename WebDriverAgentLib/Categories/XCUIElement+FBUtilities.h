@@ -43,10 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
  Calls to this method mutate the `lastSnapshot` instance property.
  Calls to this method reset the `fb_isResolvedFromCache` property value to `NO`.
 
+ @param useFallback set it to YES if a "normal" element snapshot should be returned if the one
+ with custom attributes cannot be resolved
+ 
  @return The recent snapshot of the element with the attributes resolved
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes;
+- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesUsingFallback:(BOOL)useFallback;
 
 /**
  Gets the most recent snapshot of the current element with given attributes resolved.
@@ -57,10 +60,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param attributeNames The list of attribute names to resolve. Must be one of
  FB_...Name values exported by XCTestPrivateSymbols.h module.
  `nil` value means that only the default attributes must be extracted
+ @param useFallback set it to YES if a "normal" element snapshot should be returned if the one
+ with custom attributes cannot be resolved
+
  @return The recent snapshot of the element with the attributes resolved
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
 */
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames;
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames
+                                              useFallback:(BOOL)useFallback;
 
 /**
  Filters elements by matching them to snapshots from the corresponding array

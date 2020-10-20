@@ -99,13 +99,16 @@
   return nil;
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes {
+- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesUsingFallback:(BOOL)useFallback
+{
   NSMutableArray *allNames = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
   [allNames addObjectsFromArray:FBCustomAttributeNames()];
-  return [self fb_snapshotWithAttributes:allNames.copy];
+  return [self fb_snapshotWithAttributes:allNames.copy useFallback:useFallback];
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames {
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames
+                                              useFallback:(BOOL)useFallback
+{
   NSSet<NSString *> *standardAttributes = [NSSet setWithArray:FBStandardAttributeNames()];
   XCElementSnapshot *snapshot = self.fb_takeSnapshot;
   if (nil == attributeNames
@@ -133,10 +136,14 @@
                                                                                       attributes:attributeNames
                                                                                            error:&error];
   if (nil == snapshotWithAttributes) {
-    [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %@ seconds",
-     attributeNames, snapshot.fb_description, @(axTimeout)];
+    [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
+     attributeNames, snapshot.fb_description, axTimeout];
     [FBLogger log:@"This timeout could be customized via 'snapshotTimeout' setting"];
     [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
+    if (useFallback) {
+      [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
+      snapshotWithAttributes = self.lastSnapshot;
+    }
   } else {
     self.lastSnapshot = snapshotWithAttributes;
   }

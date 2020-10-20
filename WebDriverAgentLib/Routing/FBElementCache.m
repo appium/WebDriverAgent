@@ -60,7 +60,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
   // This will throw FBStaleElementException exception if the element is stale
   // or resolve the element and set lastSnapshot property
   if (resolveForAdditionalAttributes) {
-    [element fb_snapshotWithAllAttributes];
+    [element fb_snapshotWithAllAttributesUsingFallback:YES];
   } else {
     [element fb_takeSnapshot];
   }

@@ -347,20 +347,9 @@ static NSString *const topNodeIndexPath = @"top";
   NSArray<XCElementSnapshot *> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
     XCUIElement *element = (XCUIElement *)root;
-    NSMutableArray<NSString *> *snapshotAttributes = [NSMutableArray array];
-    if (nil != includedAttributes) {
-      if ([includedAttributes containsObject:FBVisibleAttribute.class]) {
-        [snapshotAttributes addObject:FB_XCAXAIsVisibleAttributeName];
-        if (includedAttributes.count > 1) {
-          [snapshotAttributes addObjectsFromArray:FBStandardAttributeNames()];
-        }
-      } else {
-        // Just take a "normal" snapshot if we only need standard attributes
-        [snapshotAttributes addObjectsFromArray:FBStandardAttributeNames()];
-      }
-    }
-    if ([snapshotAttributes containsObject:FB_XCAXAIsVisibleAttributeName]
-        || 0 == snapshotAttributes.count) {
+    NSMutableArray<NSString *> *snapshotAttributes = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
+    if (nil == includedAttributes || [includedAttributes containsObject:FBVisibleAttribute.class]) {
+      [snapshotAttributes addObject:FB_XCAXAIsVisibleAttributeName];
       // If the app is not idle state while we retrieve the visiblity state
       // then the snapshot retrieval operation might freeze and time out
       [element.application fb_waitUntilStable];
@@ -376,13 +365,8 @@ static NSString *const topNodeIndexPath = @"top";
       for (XCUIElement* window in windows) {
         XCElementSnapshot *windowSnapshot;
         @try {
-          windowSnapshot = 0 == snapshotAttributes.count
-            ? window.fb_snapshotWithAllAttributes
-            : [window fb_snapshotWithAttributes:snapshotAttributes.copy];
-          if (nil == windowSnapshot) {
-            [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", window.lastSnapshot.fb_description];
-            windowSnapshot = window.lastSnapshot;
-          }
+          windowSnapshot = [window fb_snapshotWithAttributes:snapshotAttributes.copy
+                                                 useFallback:YES];
         } @catch (NSException *e) {
           [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved: %@", window.description, e.reason];
           continue;
@@ -392,9 +376,8 @@ static NSString *const topNodeIndexPath = @"top";
       // This is necessary because web views are not visible in the native page source otherwise
       children = windowsSnapshots.copy;
     } else {
-      currentSnapshot = 0 == snapshotAttributes.count
-        ? element.fb_snapshotWithAllAttributes
-        : [element fb_snapshotWithAttributes:snapshotAttributes.copy];
+      currentSnapshot = [element fb_snapshotWithAttributes:snapshotAttributes.copy
+                                               useFallback:YES];
       children = currentSnapshot.children;
     }
   } else {

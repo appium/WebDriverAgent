@@ -24,7 +24,8 @@
 
 - (BOOL)fb_isVisible
 {
-  return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.lastSnapshot).fb_isVisible;
+  return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                             useFallback:YES].fb_isVisible;
 }
 
 @end

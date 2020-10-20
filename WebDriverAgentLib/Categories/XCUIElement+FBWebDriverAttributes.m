@@ -31,11 +31,13 @@
   // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
-    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.lastSnapshot;
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                               useFallback:YES];
   }
   if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] ||
       [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.lastSnapshot;
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
+                               useFallback:YES];
   }
   
   return self.fb_takeSnapshot;
