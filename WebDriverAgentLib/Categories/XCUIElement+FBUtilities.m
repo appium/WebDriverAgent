@@ -225,10 +225,15 @@
 
 - (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
 {
-  NSTimeInterval previousTimeout = FBConfiguration.waitForIdleTimeout;
-  FBConfiguration.waitForIdleTimeout = timeout;
+  NSTimeInterval previousAnimationTimeout = FBConfiguration.waitForAnimationTimeout;
+  NSTimeInterval previousIdleTimeout = FBConfiguration.waitForIdleTimeout;
+
+  FBConfiguration.waitForIdleTimeout = timeout / 2.;
+  FBConfiguration.waitForAnimationTimeout = timeout / 2.;
   [[[self.application applicationImpl] currentProcess] waitForQuiescenceIncludingAnimationsIdle:YES];
-  FBConfiguration.waitForIdleTimeout = previousTimeout;
+
+  FBConfiguration.waitForIdleTimeout = previousIdleTimeout;
+  FBConfiguration.waitForAnimationTimeout = previousAnimationTimeout;
 }
 
 - (NSData *)fb_screenshotWithError:(NSError **)error
