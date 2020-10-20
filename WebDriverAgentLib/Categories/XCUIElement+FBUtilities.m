@@ -228,9 +228,15 @@
   NSTimeInterval previousAnimationTimeout = FBConfiguration.waitForAnimationTimeout;
   NSTimeInterval previousIdleTimeout = FBConfiguration.waitForIdleTimeout;
 
-  FBConfiguration.waitForIdleTimeout = timeout / 2.;
-  FBConfiguration.waitForAnimationTimeout = timeout / 2.;
-  [[[self.application applicationImpl] currentProcess] waitForQuiescenceIncludingAnimationsIdle:YES];
+  XCUIApplicationProcess *process = [[self.application applicationImpl] currentProcess];
+  BOOL doesAppSupportAnimationChecks = [process _supportsAnimationsIdleNotifications];
+  if (doesAppSupportAnimationChecks) {
+    FBConfiguration.waitForIdleTimeout = timeout / 2.;
+    FBConfiguration.waitForAnimationTimeout = timeout / 2.;
+  } else {
+    FBConfiguration.waitForIdleTimeout = timeout;
+  }
+  [process waitForQuiescenceIncludingAnimationsIdle:doesAppSupportAnimationChecks];
 
   FBConfiguration.waitForIdleTimeout = previousIdleTimeout;
   FBConfiguration.waitForAnimationTimeout = previousAnimationTimeout;
