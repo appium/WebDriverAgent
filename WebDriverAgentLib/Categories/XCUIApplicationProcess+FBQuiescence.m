@@ -50,7 +50,8 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
     BOOL shouldRunCustomHandler = !didOriginalHandlerWinRace;
     [handlerGuard unlock];
     if (shouldRunCustomHandler) {
-      [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling", [self bundleID], FBConfiguration.waitForIdleTimeout];
+      [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling",
+       [self bundleID], FBConfiguration.waitForIdleTimeout];
       [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
       onIdle(nil, nil);
     }
@@ -59,7 +60,7 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
 
 static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
 {
-  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForAnimationTimeout < DBL_EPSILON) {
+  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe there are no animations", [self bundleID]];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       onIdle(nil, nil);
@@ -89,8 +90,9 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
     BOOL shouldRunCustomHandler = !didOriginalHandlerWinRace;
     [handlerGuard unlock];
     if (shouldRunCustomHandler) {
-      [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations", [self bundleID], FBConfiguration.waitForAnimationTimeout];
-      [FBLogger log:@"The timeout value could be customized via 'waitForAnimationTimeout' setting"];
+      [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations",
+       [self bundleID], FBConfiguration.waitForIdleTimeout];
+      [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
       onIdle(nil, nil);
     }
   });

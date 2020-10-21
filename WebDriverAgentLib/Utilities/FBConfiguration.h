@@ -213,17 +213,6 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (NSTimeInterval)waitForIdleTimeout;
 
 /**
- * Set the animation timeout. If the timeout expires then WDA
- * tries to interact with the application even if there are some active running animations.
- * Setting it to zero disables animations checks.
- * The default timeout is set to 5 seconds.
- *
- * @param timeout The actual timeout value in float seconds
- */
-+ (void)setWaitForAnimationTimeout:(NSTimeInterval)timeout;
-+ (NSTimeInterval)waitForAnimationTimeout;
-
-/**
  Enforces the page hierarchy to include non modal elements,
  like Contacts. By default such elements are not present there.
  See https://github.com/appium/appium/issues/13227
