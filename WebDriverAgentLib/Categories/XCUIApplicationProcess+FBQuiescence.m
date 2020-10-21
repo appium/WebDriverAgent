@@ -29,18 +29,24 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
   }
 
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  __block BOOL isSignalSet = NO;
+  __block BOOL didTimeout = NO;
+  NSLock *didTimeoutGuard = [[NSLock alloc] init];
   void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
     dispatch_semaphore_signal(sem);
-    if (!isSignalSet) {
+    [didTimeoutGuard lock];
+    BOOL shouldRunOriginalHandler = !didTimeout;
+    [didTimeoutGuard unlock];
+    if (shouldRunOriginalHandler) {
       onIdle(sender, error);
     }
   };
 
   original_notifyWhenMainRunLoopIsIdle(self, _cmd, onIdleTimed);
   BOOL isIdling = 0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC)));
+  [didTimeoutGuard lock];
+  didTimeout = !isIdling;
+  [didTimeoutGuard unlock];
   if (!isIdling) {
-    isSignalSet = YES;
     [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling", [self bundleID], FBConfiguration.waitForIdleTimeout];
     [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -60,18 +66,24 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   }
 
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  __block BOOL isSignalSet = NO;
+  __block BOOL didTimeout = NO;
+  NSLock *didTimeoutGuard = [[NSLock alloc] init];
   void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
     dispatch_semaphore_signal(sem);
-    if (!isSignalSet) {
+    [didTimeoutGuard lock];
+    BOOL shouldRunOriginalHandler = !didTimeout;
+    [didTimeoutGuard unlock];
+    if (shouldRunOriginalHandler) {
       onIdle(sender, error);
     }
   };
 
   original_notifyWhenAnimationsAreIdle(self, _cmd, onIdleTimed);
   BOOL hasActiveAnimationsAfterTimeout = 0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForAnimationTimeout * NSEC_PER_SEC)));
+  [didTimeoutGuard lock];
+  didTimeout = hasActiveAnimationsAfterTimeout;
+  [didTimeoutGuard unlock];
   if (hasActiveAnimationsAfterTimeout) {
-    isSignalSet = YES;
     [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations", [self bundleID], FBConfiguration.waitForAnimationTimeout];
     [FBLogger log:@"The timeout value could be customized via 'waitForAnimationTimeout' setting"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
