@@ -14,11 +14,11 @@
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 
-static void (*original_notifyWhenMainRunLoopIsIdle)(id, SEL, void (^onIdle)(id, NSError *));
-static void (*original_notifyWhenAnimationsAreIdle)(id, SEL, void (^onIdle)(id, NSError *));
+static void (*original_notifyWhenMainRunLoopIsIdle)(id, SEL, void (^onIdle)(id, void *));
+static void (*original_notifyWhenAnimationsAreIdle)(id, SEL, void (^onIdle)(id, void *));
 
 
-static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
+static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle)(id, void *))
 {
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling", [self bundleID]];
@@ -28,30 +28,39 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
     return;
   }
 
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  __block BOOL isSignalSet = NO;
-  void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
-    dispatch_semaphore_signal(sem);
-    if (!isSignalSet) {
+  __block BOOL didOriginalHandlerWinRace = NO;
+  __block BOOL didCustomHandlerWinRace = NO;
+  NSLock *handlerGuard = [[NSLock alloc] init];
+  void (^onIdleTimed)(id, void *) = ^void(id sender, void *error) {
+    [handlerGuard lock];
+    didOriginalHandlerWinRace = YES;
+    BOOL shouldRunOriginalHandler = !didCustomHandlerWinRace;
+    [handlerGuard unlock];
+    if (shouldRunOriginalHandler) {
       onIdle(sender, error);
     }
   };
 
   original_notifyWhenMainRunLoopIsIdle(self, _cmd, onIdleTimed);
-  BOOL isIdling = 0 == dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC)));
-  if (!isIdling) {
-    isSignalSet = YES;
-    [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling", [self bundleID], FBConfiguration.waitForIdleTimeout];
-    [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+  dispatch_time_t nextTimestamp = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC));
+  dispatch_after(nextTimestamp, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [handlerGuard lock];
+    didCustomHandlerWinRace = YES;
+    BOOL shouldRunCustomHandler = !didOriginalHandlerWinRace;
+    [handlerGuard unlock];
+    if (shouldRunCustomHandler) {
+      [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling",
+       [self bundleID], FBConfiguration.waitForIdleTimeout];
+      [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
       onIdle(nil, nil);
-    });
-  }
+    }
+  });
 }
 
-static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
+static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, void *))
 {
-  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForAnimationTimeout < DBL_EPSILON) {
+  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe there are no animations", [self bundleID]];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       onIdle(nil, nil);
@@ -59,25 +68,34 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
     return;
   }
 
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  __block BOOL isSignalSet = NO;
-  void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
-    dispatch_semaphore_signal(sem);
-    if (!isSignalSet) {
+  __block BOOL didOriginalHandlerWinRace = NO;
+  __block BOOL didCustomHandlerWinRace = NO;
+  NSLock *handlerGuard = [[NSLock alloc] init];
+  void (^onIdleTimed)(id, void *) = ^void(id sender, void *error) {
+    [handlerGuard lock];
+    didOriginalHandlerWinRace = YES;
+    BOOL shouldRunOriginalHandler = !didCustomHandlerWinRace;
+    [handlerGuard unlock];
+    if (shouldRunOriginalHandler) {
       onIdle(sender, error);
     }
   };
 
   original_notifyWhenAnimationsAreIdle(self, _cmd, onIdleTimed);
-  BOOL hasActiveAnimationsAfterTimeout = 0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForAnimationTimeout * NSEC_PER_SEC)));
-  if (hasActiveAnimationsAfterTimeout) {
-    isSignalSet = YES;
-    [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations", [self bundleID], FBConfiguration.waitForAnimationTimeout];
-    [FBLogger log:@"The timeout value could be customized via 'waitForAnimationTimeout' setting"];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
+  dispatch_time_t nextTimestamp = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBConfiguration.waitForIdleTimeout * NSEC_PER_SEC));
+  dispatch_after(nextTimestamp, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [handlerGuard lock];
+    didCustomHandlerWinRace = YES;
+    BOOL shouldRunCustomHandler = !didOriginalHandlerWinRace;
+    [handlerGuard unlock];
+    if (shouldRunCustomHandler) {
+      [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations",
+       [self bundleID], FBConfiguration.waitForIdleTimeout];
+      [FBLogger log:@"The timeout value could be customized via 'waitForIdleTimeout' setting"];
       onIdle(nil, nil);
-    });
-  }
+    }
+  });
 }
 
 
@@ -88,7 +106,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   Method notifyWhenMainRunLoopIsIdleMethod = class_getInstanceMethod(self.class, @selector(_notifyWhenMainRunLoopIsIdle:));
   if (notifyWhenMainRunLoopIsIdleMethod != nil) {
     IMP swizzledImp = (IMP)swizzledNotifyWhenMainRunLoopIsIdle;
-    original_notifyWhenMainRunLoopIsIdle = (void (*)(id, SEL, void (^onIdle)(id, NSError *))) method_setImplementation(notifyWhenMainRunLoopIsIdleMethod, swizzledImp);
+    original_notifyWhenMainRunLoopIsIdle = (void (*)(id, SEL, void (^onIdle)(id, void *))) method_setImplementation(notifyWhenMainRunLoopIsIdleMethod, swizzledImp);
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess _notifyWhenMainRunLoopIsIdle:]"];
   }
@@ -96,7 +114,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   Method notifyWhenAnimationsAreIdleMethod = class_getInstanceMethod(self.class, @selector(_notifyWhenAnimationsAreIdle:));
   if (notifyWhenAnimationsAreIdleMethod != nil) {
     IMP swizzledImp = (IMP)swizzledNotifyWhenAnimationsAreIdle;
-    original_notifyWhenAnimationsAreIdle = (void (*)(id, SEL, void (^onIdle)(id, NSError *))) method_setImplementation(notifyWhenAnimationsAreIdleMethod, swizzledImp);
+    original_notifyWhenAnimationsAreIdle = (void (*)(id, SEL, void (^onIdle)(id, void *))) method_setImplementation(notifyWhenAnimationsAreIdleMethod, swizzledImp);
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess _notifyWhenAnimationsAreIdle:]"];
   }

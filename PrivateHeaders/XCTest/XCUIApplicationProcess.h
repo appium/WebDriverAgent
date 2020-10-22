@@ -76,8 +76,8 @@
 - (void)waitForQuiescence;
 
 // Since Xcode 10.2
-- (void)_notifyWhenAnimationsAreIdle:(CDUnknownBlockType)arg1;
+- (void)_notifyWhenAnimationsAreIdle:(void (^)(id, void *))arg1;
 - (_Bool)_supportsAnimationsIdleNotifications;
-- (void)_notifyWhenMainRunLoopIsIdle:(CDUnknownBlockType)arg1;
+- (void)_notifyWhenMainRunLoopIsIdle:(void (^)(id, void *))arg1;
 
 @end
