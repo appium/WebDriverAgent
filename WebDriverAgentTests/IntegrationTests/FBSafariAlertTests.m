@@ -64,6 +64,8 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   FBAssertWaitTillBecomesTrue([alert.text isEqualToString:@"Please enter your name"]);
   NSArray *buttonLabels = alert.buttonLabels;
   XCTAssertEqualObjects(buttonLabels.firstObject, @"Cancel");
+  XCTAssertNotNil([self.safariApp fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeButton[@label='Cancel' and @visible='true']"
+                                       shouldReturnAfterFirstMatch:YES].firstObject);
   XCTAssertEqualObjects(buttonLabels.lastObject, @"OK");
   XCTAssertTrue([alert typeText:@"yolo" error:nil]);
   XCTAssertTrue([alert acceptWithError:nil]);

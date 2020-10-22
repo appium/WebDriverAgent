@@ -354,32 +354,9 @@ static NSString *const topNodeIndexPath = @"top";
       // then the snapshot retrieval operation might freeze and time out
       [element.application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
     }
-    if ([root isKindOfClass:XCUIApplication.class]) {
-      currentSnapshot = element.fb_isResolvedFromCache.boolValue
-        ? element.lastSnapshot
-        : element.fb_takeSnapshot;
-      NSArray<XCUIElement *> *windows = [element fb_filterDescendantsWithSnapshots:currentSnapshot.children
-                                                                           selfUID:currentSnapshot.wdUID
-                                                                      onlyChildren:YES];
-      NSMutableArray<XCElementSnapshot *> *windowsSnapshots = [NSMutableArray array];
-      for (XCUIElement* window in windows) {
-        XCElementSnapshot *windowSnapshot;
-        @try {
-          windowSnapshot = [window fb_snapshotWithAttributes:snapshotAttributes.copy
-                                                 useFallback:YES];
-        } @catch (NSException *e) {
-          [FBLogger logFmt:@"Skipping source dump for the element '%@' because its snapshot cannot be resolved: %@", window.description, e.reason];
-          continue;
-        }
-        [windowsSnapshots addObject:windowSnapshot];
-      }
-      // This is necessary because web views are not visible in the native page source otherwise
-      children = windowsSnapshots.copy;
-    } else {
-      currentSnapshot = [element fb_snapshotWithAttributes:snapshotAttributes.copy
-                                               useFallback:YES];
-      children = currentSnapshot.children;
-    }
+    currentSnapshot = [element fb_snapshotWithAttributes:snapshotAttributes.copy
+                                             useFallback:YES];
+    children = currentSnapshot.children;
   } else {
     currentSnapshot = (XCElementSnapshot *)root;
     children = currentSnapshot.children;

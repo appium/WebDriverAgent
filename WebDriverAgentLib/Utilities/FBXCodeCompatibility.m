@@ -135,18 +135,6 @@ static dispatch_once_t onceAppWithPIDToken;
     : self.allElementsBoundByAccessibilityElement;
 }
 
-- (XCElementSnapshot *)fb_elementSnapshotForDebugDescription
-{
-  if ([self respondsToSelector:@selector(elementSnapshotForDebugDescription)]) {
-    return [self elementSnapshotForDebugDescription];
-  }
-  if ([self respondsToSelector:@selector(elementSnapshotForDebugDescriptionWithNoMatchesMessage:)]) {
-    return [self elementSnapshotForDebugDescriptionWithNoMatchesMessage:nil];
-  }
-  @throw [[FBErrorBuilder.builder withDescription:@"Cannot retrieve element snapshots for debug description. Please contact Appium developers"] build];
-  return nil;
-}
-
 @end
 
 
