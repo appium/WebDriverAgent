@@ -14,11 +14,11 @@
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 
-static void (*original_notifyWhenMainRunLoopIsIdle)(id, SEL, void (^onIdle)(id, NSError *));
-static void (*original_notifyWhenAnimationsAreIdle)(id, SEL, void (^onIdle)(id, NSError *));
+static void (*original_notifyWhenMainRunLoopIsIdle)(id, SEL, void (^onIdle)(id, void *));
+static void (*original_notifyWhenAnimationsAreIdle)(id, SEL, void (^onIdle)(id, void *));
 
 
-static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
+static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle)(id, void *))
 {
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling", [self bundleID]];
@@ -31,7 +31,7 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
   __block BOOL didOriginalHandlerWinRace = NO;
   __block BOOL didCustomHandlerWinRace = NO;
   NSLock *handlerGuard = [[NSLock alloc] init];
-  void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
+  void (^onIdleTimed)(id, void *) = ^void(id sender, void *error) {
     [handlerGuard lock];
     didOriginalHandlerWinRace = YES;
     BOOL shouldRunOriginalHandler = !didCustomHandlerWinRace;
@@ -58,7 +58,7 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
   });
 }
 
-static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, NSError *))
+static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle)(id, void *))
 {
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe there are no animations", [self bundleID]];
@@ -71,7 +71,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   __block BOOL didOriginalHandlerWinRace = NO;
   __block BOOL didCustomHandlerWinRace = NO;
   NSLock *handlerGuard = [[NSLock alloc] init];
-  void (^onIdleTimed)(id, NSError *) = ^void(id sender, NSError *error) {
+  void (^onIdleTimed)(id, void *) = ^void(id sender, void *error) {
     [handlerGuard lock];
     didOriginalHandlerWinRace = YES;
     BOOL shouldRunOriginalHandler = !didCustomHandlerWinRace;
@@ -106,7 +106,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   Method notifyWhenMainRunLoopIsIdleMethod = class_getInstanceMethod(self.class, @selector(_notifyWhenMainRunLoopIsIdle:));
   if (notifyWhenMainRunLoopIsIdleMethod != nil) {
     IMP swizzledImp = (IMP)swizzledNotifyWhenMainRunLoopIsIdle;
-    original_notifyWhenMainRunLoopIsIdle = (void (*)(id, SEL, void (^onIdle)(id, NSError *))) method_setImplementation(notifyWhenMainRunLoopIsIdleMethod, swizzledImp);
+    original_notifyWhenMainRunLoopIsIdle = (void (*)(id, SEL, void (^onIdle)(id, void *))) method_setImplementation(notifyWhenMainRunLoopIsIdleMethod, swizzledImp);
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess _notifyWhenMainRunLoopIsIdle:]"];
   }
@@ -114,7 +114,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
   Method notifyWhenAnimationsAreIdleMethod = class_getInstanceMethod(self.class, @selector(_notifyWhenAnimationsAreIdle:));
   if (notifyWhenAnimationsAreIdleMethod != nil) {
     IMP swizzledImp = (IMP)swizzledNotifyWhenAnimationsAreIdle;
-    original_notifyWhenAnimationsAreIdle = (void (*)(id, SEL, void (^onIdle)(id, NSError *))) method_setImplementation(notifyWhenAnimationsAreIdleMethod, swizzledImp);
+    original_notifyWhenAnimationsAreIdle = (void (*)(id, SEL, void (^onIdle)(id, void *))) method_setImplementation(notifyWhenAnimationsAreIdleMethod, swizzledImp);
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess _notifyWhenAnimationsAreIdle:]"];
   }
