@@ -36,7 +36,7 @@ static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
 static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
-static NSTimeInterval FBSnapshotTimeout = 15.;
+static NSTimeInterval FBCustomSnapshotTimeout = 15.;
 static BOOL FBShouldUseFirstMatch = NO;
 static BOOL FBShouldBoundElementsByIndex = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
@@ -47,6 +47,7 @@ static NSString *FBDismissAlertButtonSelector = @"";
 static NSString *FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 static NSTimeInterval FBWaitForIdleTimeout = 10.;
+static NSTimeInterval FBAnimationCoolOffTimeout = 2.;
 
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
@@ -215,6 +216,16 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   FBWaitForIdleTimeout = timeout;
 }
 
++ (NSTimeInterval)animationCoolOffTimeout
+{
+  return FBAnimationCoolOffTimeout;
+}
+
++ (void)setAnimationCoolOffTimeout:(NSTimeInterval)timeout
+{
+  FBAnimationCoolOffTimeout = timeout;
+}
+
 // Works for Simulator and Real devices
 + (void)configureDefaultKeyboardPreferences
 {
@@ -282,14 +293,14 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   [self configureKeyboardsPreference:isEnabled forPreferenceKey:FBKeyboardPredictionKey];
 }
 
-+ (void)setSnapshotTimeout:(NSTimeInterval)timeout
++ (void)setCustomSnapshotTimeout:(NSTimeInterval)timeout
 {
-  FBSnapshotTimeout = timeout;
+  FBCustomSnapshotTimeout = timeout;
 }
 
-+ (NSTimeInterval)snapshotTimeout
++ (NSTimeInterval)customSnapshotTimeout
 {
-  return FBSnapshotTimeout;
+  return FBCustomSnapshotTimeout;
 }
 
 + (void)setSnapshotMaxDepth:(int)maxDepth

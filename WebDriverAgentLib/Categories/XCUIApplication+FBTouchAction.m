@@ -12,15 +12,14 @@
 
 #import "FBAppiumActionsSynthesizer.h"
 #import "FBBaseActionsSynthesizer.h"
+#import "FBConfiguration.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBW3CActionsSynthesizer.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCEventGenerator.h"
 #import "XCUIElement+FBUtilities.h"
-#import "FBExceptions.h"
-
-const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
 
 #if !TARGET_OS_TV
 
@@ -65,7 +64,7 @@ const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
                                             error:error]) {
     return NO;
   }
-  [self fb_waitUntilStableWithTimeout:FBAnimationCoolOffTimeout];
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   return YES;
 }
 
@@ -79,7 +78,7 @@ const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
                                             error:error]) {
     return NO;
   }
-  [self fb_waitUntilStableWithTimeout:FBAnimationCoolOffTimeout];
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   return YES;
 }
 

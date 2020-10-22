@@ -18,10 +18,12 @@
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBRunLoopSpinner.h"
+#import "FBSettings.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication.h"
+#import "XCUIApplication+FBQuiescence.h"
 #import "XCUIApplicationImpl.h"
 #import "XCUIApplicationProcess.h"
 #import "XCTElementSetTransformer-Protocol.h"
@@ -111,8 +113,10 @@
 {
   NSSet<NSString *> *standardAttributes = [NSSet setWithArray:FBStandardAttributeNames()];
   XCElementSnapshot *snapshot = self.fb_takeSnapshot;
+  NSTimeInterval axTimeout = FBConfiguration.customSnapshotTimeout;
   if (nil == attributeNames
-      || [[NSSet setWithArray:attributeNames] isSubsetOfSet:standardAttributes]) {
+      || [[NSSet setWithArray:attributeNames] isSubsetOfSet:standardAttributes]
+      || axTimeout < DBL_EPSILON) {
     // return the "normal" element snapshot if no custom attributes are requested
     return snapshot;
   }
@@ -122,7 +126,6 @@
     return nil;
   }
 
-  NSTimeInterval axTimeout = FBConfiguration.snapshotTimeout;
   NSError *setTimeoutError;
   BOOL isTimeoutSet = [FBXCAXClientProxy.sharedClient setAXTimeout:axTimeout
                                                              error:&setTimeoutError];
@@ -138,7 +141,7 @@
   if (nil == snapshotWithAttributes) {
     [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
      attributeNames, snapshot.fb_description, axTimeout];
-    [FBLogger log:@"This timeout could be customized via 'snapshotTimeout' setting"];
+    [FBLogger logFmt:@"This timeout could be customized via '%@' setting", CUSTOM_SNAPSHOT_TIMEOUT];
     [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
     if (useFallback) {
       [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
@@ -214,8 +217,17 @@
 - (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
 {
   NSTimeInterval previousTimeout = FBConfiguration.waitForIdleTimeout;
+  BOOL previousQuiescence = self.application.fb_shouldWaitForQuiescence;
+
   FBConfiguration.waitForIdleTimeout = timeout;
+  if (!previousQuiescence) {
+    self.application.fb_shouldWaitForQuiescence = YES;
+  }
   [[[self.application applicationImpl] currentProcess] waitForQuiescenceIncludingAnimationsIdle:YES];
+
+  if (previousQuiescence != self.application.fb_shouldWaitForQuiescence) {
+    self.application.fb_shouldWaitForQuiescence = previousQuiescence;
+  }
   FBConfiguration.waitForIdleTimeout = previousTimeout;
 }
 

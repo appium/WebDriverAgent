@@ -11,6 +11,7 @@
 
 #import <XCTest/XCUIRemote.h>
 #import "FBApplication.h"
+#import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import <FBTVNavigationTracker.h>
 #import "XCUIElement+FBUtilities.h"
@@ -24,7 +25,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 
 - (BOOL)fb_setFocusWithError:(NSError**) error
 {
-  [FBApplication.fb_activeApplication fb_waitUntilStable];
+  [FBApplication.fb_activeApplication fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
 
   if (!self.wdEnabled) {
     if (error) {

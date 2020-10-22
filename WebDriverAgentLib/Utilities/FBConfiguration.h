@@ -142,8 +142,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  *
  * @param timeout The number of float seconds to wait (15 seconds by default)
  */
-+ (void)setSnapshotTimeout:(NSTimeInterval)timeout;
-+ (NSTimeInterval)snapshotTimeout;
++ (void)setCustomSnapshotTimeout:(NSTimeInterval)timeout;
++ (NSTimeInterval)customSnapshotTimeout;
 
 /**
  Sets maximum depth for traversing elements tree from parents to children while requesting XCElementSnapshot.
@@ -209,6 +209,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  */
 + (void)setWaitForIdleTimeout:(NSTimeInterval)timeout;
 + (NSTimeInterval)waitForIdleTimeout;
+
+/**
+ * Set the idling timeout for different actions, for example events synthesis, rotation change,
+ * etc. If the timeout expires then WDA tries to interact with the application even if it is not idling.
+ * Setting it to zero disables idling checks.
+ * The default timeout is set to 2 seconds.
+ *
+ * @param timeout The actual timeout value in float seconds
+ */
++ (void)setAnimationCoolOffTimeout:(NSTimeInterval)timeout;
++ (NSTimeInterval)animationCoolOffTimeout;
 
 /**
  Enforces the page hierarchy to include non modal elements,
