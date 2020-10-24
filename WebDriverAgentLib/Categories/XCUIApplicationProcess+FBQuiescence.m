@@ -53,7 +53,7 @@ static void swizzledNotifyWhenMainRunLoopIsIdle(id self, SEL _cmd, void (^onIdle
     if (shouldRunCustomHandler) {
       [FBLogger logFmt:@"The application %@ is still waiting for being in idle state after %.3f seconds timeout. Making it to believe it is idling",
        [self bundleID], FBConfiguration.waitForIdleTimeout];
-      [FBLogger logFmt:@"The timeout value could be customized via '%@' setting", WAIT_FOR_IDLE_TIMEOUT];
+      [FBLogger logFmt:@"The timeout value could be customized via '%@'/'%@' settings", WAIT_FOR_IDLE_TIMEOUT, ANIMATION_COOL_OFF_TIMEOUT];
       onIdle(nil, nil);
     }
   });
@@ -93,7 +93,7 @@ static void swizzledNotifyWhenAnimationsAreIdle(id self, SEL _cmd, void (^onIdle
     if (shouldRunCustomHandler) {
       [FBLogger logFmt:@"The application %@ is still waiting for its animations to finish after %.3f seconds timeout. Making it to believe there are no animations",
        [self bundleID], FBConfiguration.waitForIdleTimeout];
-      [FBLogger logFmt:@"The timeout value could be customized via '%@' setting", WAIT_FOR_IDLE_TIMEOUT];
+      [FBLogger logFmt:@"The timeout value could be customized via '%@'/'%@' settings", WAIT_FOR_IDLE_TIMEOUT, ANIMATION_COOL_OFF_TIMEOUT];
       onIdle(nil, nil);
     }
   });

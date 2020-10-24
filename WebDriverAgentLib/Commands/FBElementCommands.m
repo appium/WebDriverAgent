@@ -20,6 +20,7 @@
 #import "FBErrorBuilder.h"
 #import "FBSession.h"
 #import "FBApplication.h"
+#import "FBElementUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBRuntimeUtils.h"
@@ -116,11 +117,17 @@
 + (id<FBResponsePayload>)handleGetAttribute:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
+  NSString *attributeName = request.parameters[@"name"];
+  NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:attributeName];
+  BOOL shouldResolveForAdditionalAttributes = [@[
+    FBStringify(XCUIElement, isWDVisible),
+    FBStringify(XCUIElement, isWDEnabled),
+    FBStringify(XCUIElement, isWDAccessibilityContainer)
+  ] containsObject:wdAttributeName];
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:YES];
-  id attributeValue = [element.lastSnapshot fb_valueForWDAttributeName:request.parameters[@"name"]];
-  attributeValue = attributeValue ?: [NSNull null];
-  return FBResponseWithObject(attributeValue);
+                       resolveForAdditionalAttributes:shouldResolveForAdditionalAttributes];
+  id attributeValue = [element.lastSnapshot fb_valueForWDAttributeName:attributeName];
+  return FBResponseWithObject(attributeValue ?: [NSNull null]);
 }
 
 + (id<FBResponsePayload>)handleGetText:(FBRouteRequest *)request

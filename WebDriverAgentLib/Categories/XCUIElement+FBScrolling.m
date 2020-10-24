@@ -93,7 +93,8 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance scrollDirection:(FBXCUIElementScrollDirection)scrollDirection error:(NSError **)error
 {
-  if (self.fb_isVisible) {
+  XCElementSnapshot *prescrollSnapshot = [self fb_takeSnapshot];
+  if (prescrollSnapshot.isWDVisible) {
     return YES;
   }
 
@@ -108,7 +109,6 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     ];
   });
 
-  XCElementSnapshot *prescrollSnapshot = self.fb_takeSnapshot;
   __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
   XCElementSnapshot *scrollView = [prescrollSnapshot fb_parentMatchingOneOfTypes:acceptedParents
       filter:^(XCElementSnapshot *snapshot) {
@@ -174,7 +174,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     }
     scrollCount++;
     // Wait for scroll animation
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   }
 
   if (scrollCount >= maxScrollCount) {
@@ -197,14 +197,14 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (BOOL)fb_isEquivalentElementSnapshotVisible:(XCElementSnapshot *)snapshot
 {
-  if (self.fb_isVisible) {
+  if (snapshot.isWDVisible) {
     return YES;
   }
 
-  XCElementSnapshot *appSnapshot = self.application.fb_takeSnapshot;
+  XCElementSnapshot *appSnapshot = [self.application fb_takeSnapshot];
   for (XCElementSnapshot *elementSnapshot in appSnapshot._allDescendants.copy) {
     // We are comparing pre-scroll snapshot so frames are irrelevant.
-    if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.fb_isVisible) {
+    if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.isWDVisible) {
       return YES;
     }
   }
