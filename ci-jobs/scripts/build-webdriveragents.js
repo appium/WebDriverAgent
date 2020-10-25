@@ -17,8 +17,17 @@ async function buildAndUploadWebDriverAgents () {
 
   for (let xcodePath of xcodePaths) {
     if (xcodePath.includes('beta')) {
+      log.info(`Skipping beta Xcode '${xcodePath}'`);
       continue;
     }
+
+    // Skip if .0 because redundant (example: skip 11.4.0 because it already does 11.4)
+    const [, , patch] = xcodePath.split('.');
+    if (patch === '0') {
+      log.info(`Skipping xcode '${xcodePath}'`);
+      continue
+    }
+
     // Build webdriveragent for this xcode version
     log.info(`Running xcode-select for '${xcodePath}'`);
     await exec('sudo', ['xcode-select', '-s', `/Applications/${xcodePath}/Contents/Developer`]);
