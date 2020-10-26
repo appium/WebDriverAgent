@@ -18,6 +18,7 @@
 #import "FBPredicate.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
+#import "XCTestPrivateSymbols.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBFind.h"
@@ -80,8 +81,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleFindVisibleCells:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:YES];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                       resolveForAdditionalAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                                          andMaxDepth:nil];
   NSArray<XCElementSnapshot *> *visibleCellSnapshots = [element.lastSnapshot descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
     return snapshot.elementType == XCUIElementTypeCell && snapshot.wdVisible;
   }];
@@ -94,8 +96,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleFindSubElement:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   XCUIElement *foundElement = [self.class elementUsing:request.arguments[@"using"]
                                              withValue:request.arguments[@"value"]
                                                  under:element];
@@ -108,8 +109,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 + (id<FBResponsePayload>)handleFindSubElements:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                              resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSArray *foundElements = [self.class elementsUsing:request.arguments[@"using"]
                                            withValue:request.arguments[@"value"]
                                                under:element

@@ -32,12 +32,15 @@
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
     return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
-                               useFallback:YES];
+                                  maxDepth:@1];
   }
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] ||
-      [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]) {
     return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
-                               useFallback:YES];
+                                  maxDepth:@1];
+  }
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
+                                  maxDepth:nil];
   }
   
   return self.fb_takeSnapshot;

@@ -178,16 +178,6 @@ static dispatch_once_t onceAppWithPIDToken;
     : self.query;
 }
 
-+ (BOOL)fb_isSdk11SnapshotApiSupported
-{
-  static dispatch_once_t newSnapshotIsSupported;
-  static BOOL result;
-  dispatch_once(&newSnapshotIsSupported, ^{
-    result = [(id)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestSnapshotForElement:attributes:parameters:reply:)];
-  });
-  return result;
-}
-
 @end
 
 @implementation XCPointerEvent (FBXcodeCompatibility)

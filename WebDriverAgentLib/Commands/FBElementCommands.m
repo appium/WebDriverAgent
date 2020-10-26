@@ -25,6 +25,7 @@
 #import "FBMathUtils.h"
 #import "FBRuntimeUtils.h"
 #import "NSPredicate+FBFormat.h"
+#import "XCTestPrivateSymbols.h"
 #import "XCUICoordinate.h"
 #import "XCUIDevice.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -100,8 +101,7 @@
 + (id<FBResponsePayload>)handleGetEnabled:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   BOOL isEnabled = element.lastSnapshot.isWDEnabled;
   return FBResponseWithObject(isEnabled ? @YES : @NO);
 }
@@ -109,8 +109,7 @@
 + (id<FBResponsePayload>)handleGetRect:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   return FBResponseWithObject(element.lastSnapshot.wdRect);
 }
 
@@ -119,13 +118,20 @@
   FBElementCache *elementCache = request.session.elementCache;
   NSString *attributeName = request.parameters[@"name"];
   NSString *wdAttributeName = [FBElementUtils wdAttributeNameForAttributeName:attributeName];
-  BOOL shouldResolveForAdditionalAttributes = [@[
-    FBStringify(XCUIElement, isWDVisible),
-    FBStringify(XCUIElement, isWDEnabled),
-    FBStringify(XCUIElement, isWDAccessibilityContainer)
-  ] containsObject:wdAttributeName];
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:shouldResolveForAdditionalAttributes];
+  NSArray *additionalAttributes = nil;
+  NSNumber *maxDepth = nil;
+  if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
+    additionalAttributes = @[FB_XCAXAIsVisibleAttributeName];
+    maxDepth = @1;
+  } else if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDEnabled)]) {
+    additionalAttributes = @[FB_XCAXAIsElementAttributeName];
+    maxDepth = @1;
+  } else if ([wdAttributeName isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    additionalAttributes = @[FB_XCAXAIsElementAttributeName];
+  }
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                       resolveForAdditionalAttributes:additionalAttributes
+                                          andMaxDepth:maxDepth];
   id attributeValue = [element.lastSnapshot fb_valueForWDAttributeName:attributeName];
   return FBResponseWithObject(attributeValue ?: [NSNull null]);
 }
@@ -133,58 +139,56 @@
 + (id<FBResponsePayload>)handleGetText:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   id text = FBFirstNonEmptyValue(element.lastSnapshot.wdValue, element.lastSnapshot.wdLabel);
-  text = text ?: @"";
-  return FBResponseWithObject(text);
+  return FBResponseWithObject(text ?: @"");
 }
 
 + (id<FBResponsePayload>)handleGetDisplayed:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:YES];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                       resolveForAdditionalAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                                          andMaxDepth:@1];
   return FBResponseWithObject(@(element.lastSnapshot.isWDVisible));
 }
 
 + (id<FBResponsePayload>)handleGetAccessible:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:YES];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                       resolveForAdditionalAttributes:@[FB_XCAXAIsElementAttributeName]
+                                          andMaxDepth:@1];
   return FBResponseWithObject(@(element.lastSnapshot.isWDAccessible));
 }
 
 + (id<FBResponsePayload>)handleGetIsAccessibilityContainer:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:YES];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                       resolveForAdditionalAttributes:@[FB_XCAXAIsElementAttributeName]
+                                          andMaxDepth:nil];
   return FBResponseWithObject(@(element.lastSnapshot.isWDAccessibilityContainer));
 }
 
 + (id<FBResponsePayload>)handleGetName:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   return FBResponseWithObject(element.lastSnapshot.wdType);
 }
 
 + (id<FBResponsePayload>)handleGetSelected:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   return FBResponseWithObject(@(element.lastSnapshot.wdSelected));
 }
 
 + (id<FBResponsePayload>)handleSetValue:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   id value = request.arguments[@"value"] ?: request.arguments[@"text"];
   if (!value) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Neither 'value' nor 'text' parameter is provided" traceback:nil]);
@@ -221,8 +225,7 @@
 + (id<FBResponsePayload>)handleClick:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error = nil;
 #if TARGET_OS_IOS
   if (![element fb_tapWithError:&error]) {
@@ -237,8 +240,7 @@
 + (id<FBResponsePayload>)handleClear:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error;
   if (![element fb_clearTextWithError:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
@@ -269,8 +271,7 @@
 {
   NSString *elementUUID = request.parameters[@"uuid"];
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:elementUUID
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error;
   if (![element fb_setFocusWithError:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
@@ -281,8 +282,7 @@
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   [element doubleTap];
   return FBResponseWithOK();
 }
@@ -298,8 +298,7 @@
 + (id<FBResponsePayload>)handleTwoFingerTap:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   [element twoFingerTap];
   return FBResponseWithOK();
 }
@@ -311,8 +310,7 @@
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both 'numberOfTaps' and 'numberOfTouches' arguments must be provided"
                                                                        traceback:nil]);
   }
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   [element tapWithNumberOfTaps:[request.arguments[@"numberOfTaps"] integerValue]
                numberOfTouches:[request.arguments[@"numberOfTouches"] integerValue]];
   return FBResponseWithOK();
@@ -321,8 +319,7 @@
 + (id<FBResponsePayload>)handleTouchAndHold:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   [element pressForDuration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
@@ -338,8 +335,7 @@
 + (id<FBResponsePayload>)handleScroll:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   // Using presence of arguments as a way to convey control flow seems like a pretty bad idea but it's
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
@@ -399,8 +395,7 @@
 {
   FBSession *session = request.session;
   FBElementCache *elementCache = session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   CGRect frame = element.lastSnapshot.frame;
   CGPoint startPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"fromX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"fromY"] doubleValue]));
   CGPoint endPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"toX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"toY"] doubleValue]));
@@ -415,8 +410,7 @@
 + (id<FBResponsePayload>)handleSwipe:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSString *const direction = request.arguments[@"direction"];
   if (!direction) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Missing 'direction' parameter" traceback:nil]);
@@ -436,8 +430,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   CGPoint tapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
   if ([elementCache hasElementWithUUID:request.parameters[@"uuid"]]) {
-    XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                         resolveForAdditionalAttributes:NO];
+    XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
     NSError *error;
     if (![element fb_tapCoordinate:tapPoint error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
@@ -455,8 +448,7 @@
 + (id<FBResponsePayload>)handlePinch:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   CGFloat scale = (CGFloat)[request.arguments[@"scale"] doubleValue];
   CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
   [element pinchWithScale:scale velocity:velocity];
@@ -466,8 +458,7 @@
 + (id<FBResponsePayload>)handleRotate:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   CGFloat rotation = (CGFloat)[request.arguments[@"rotation"] doubleValue];
   CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
   [element rotate:rotation withVelocity:velocity];
@@ -478,8 +469,7 @@
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   double pressure = [request.arguments[@"pressure"] doubleValue];
   double duration = [request.arguments[@"duration"] doubleValue];
   NSError *error;
@@ -530,8 +520,7 @@
 + (id<FBResponsePayload>)handleElementScreenshot:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error;
   NSData *screenshotData = [element fb_screenshotWithError:&error];
   if (nil == screenshotData) {
@@ -548,8 +537,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]
-                       resolveForAdditionalAttributes:NO];
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   if (element.lastSnapshot.elementType != XCUIElementTypePickerWheel) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }

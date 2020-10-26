@@ -355,7 +355,7 @@ static NSString *const topNodeIndexPath = @"top";
       [element.application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
     }
     currentSnapshot = [element fb_snapshotWithAttributes:snapshotAttributes.copy
-                                             useFallback:YES];
+                                                maxDepth:nil];
     children = currentSnapshot.children;
   } else {
     currentSnapshot = (XCElementSnapshot *)root;

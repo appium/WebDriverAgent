@@ -44,7 +44,7 @@ static BOOL FBShouldBoundElementsByIndex = NO;
 static BOOL FBIncludeNonModalElements = NO;
 static NSString *FBAcceptAlertButtonSelector = @"";
 static NSString *FBDismissAlertButtonSelector = @"";
-static NSString *FBSnapshotMaxDepthKey = @"maxDepth";
+NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 static NSTimeInterval FBWaitForIdleTimeout = 10.;
 static NSTimeInterval FBAnimationCoolOffTimeout = 2.;

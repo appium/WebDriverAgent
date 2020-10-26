@@ -101,7 +101,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 {
   XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
-    : [self fb_snapshotWithAllAttributesUsingFallback:YES];
+    : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
   return [self.class dictionaryForElement:snapshot recursive:YES];
 }
 
@@ -109,7 +109,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 {
   XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
-    : [self fb_snapshotWithAllAttributesUsingFallback:YES];
+    : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
   return [self.class accessibilityInfoForElement:snapshot];
 }
 

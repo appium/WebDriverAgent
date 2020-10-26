@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable XCElementSnapshot *)snapshotForElement:(XCAccessibilityElement *)element
                                         attributes:(nullable NSArray<NSString *> *)attributes
+                                          maxDepth:(nullable NSNumber *)maxDepth
                                              error:(NSError **)error;
 
 - (NSArray<XCAccessibilityElement *> *)activeApplications;

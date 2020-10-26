@@ -101,15 +101,16 @@
   return nil;
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesUsingFallback:(BOOL)useFallback
+- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesAndMaxDepth:(NSNumber *)maxDepth
 {
   NSMutableArray *allNames = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
   [allNames addObjectsFromArray:FBCustomAttributeNames()];
-  return [self fb_snapshotWithAttributes:allNames.copy useFallback:useFallback];
+  return [self fb_snapshotWithAttributes:allNames.copy
+                                maxDepth:maxDepth];
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames
-                                              useFallback:(BOOL)useFallback
+                                                 maxDepth:(NSNumber *)maxDepth
 {
   NSSet<NSString *> *standardAttributes = [NSSet setWithArray:FBStandardAttributeNames()];
   XCElementSnapshot *snapshot = self.fb_takeSnapshot;
@@ -137,16 +138,15 @@
   NSError *error;
   XCElementSnapshot *snapshotWithAttributes = [FBXCAXClientProxy.sharedClient snapshotForElement:axElement
                                                                                       attributes:attributeNames
+                                                                                        maxDepth:maxDepth
                                                                                            error:&error];
   if (nil == snapshotWithAttributes) {
     [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
      attributeNames, snapshot.fb_description, axTimeout];
     [FBLogger logFmt:@"This timeout could be customized via '%@' setting", CUSTOM_SNAPSHOT_TIMEOUT];
     [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
-    if (useFallback) {
-      [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
-      snapshotWithAttributes = self.lastSnapshot;
-    }
+    [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
+    snapshotWithAttributes = self.lastSnapshot;
   } else {
     self.lastSnapshot = snapshotWithAttributes;
   }

@@ -85,19 +85,25 @@ static id FBAXClient = nil;
 
 - (XCElementSnapshot *)snapshotForElement:(XCAccessibilityElement *)element
                                attributes:(NSArray<NSString *> *)attributes
+                                 maxDepth:(nullable NSNumber *)maxDepth
                                     error:(NSError **)error
 {
+  NSMutableDictionary *parameters = nil;
+  if (nil != maxDepth) {
+    parameters = self.defaultParameters.mutableCopy;
+    parameters[FBSnapshotMaxDepthKey] = maxDepth;
+  }
   if ([FBAXClient respondsToSelector:@selector(requestSnapshotForElement:attributes:parameters:error:)]) {
     id result = [FBAXClient requestSnapshotForElement:element
                                            attributes:attributes
-                                           parameters:nil
+                                           parameters:[parameters copy]
                                                 error:error];
     XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
     return nil == snapshot ? result : snapshot;
   }
   return [FBAXClient snapshotForElement:element
                              attributes:attributes
-                             parameters:nil
+                             parameters:[parameters copy]
                                   error:error];
 }
 
