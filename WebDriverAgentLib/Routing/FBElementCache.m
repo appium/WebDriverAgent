@@ -70,9 +70,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
     [element fb_takeSnapshot];
   } else {
     NSMutableArray *attributes = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
-    if (nil != additionalAttributes) {
-      [attributes addObjectsFromArray:additionalAttributes];
-    }
+    [attributes addObjectsFromArray:additionalAttributes];
     [element fb_snapshotWithAttributes:attributes.copy maxDepth:maxDepth];
   }
   if (nil == element) {
