@@ -269,7 +269,6 @@
 
 + (id<FBResponsePayload>)handleFocuse:(FBRouteRequest *)request
 {
-  NSString *elementUUID = request.parameters[@"uuid"];
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error;
