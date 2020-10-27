@@ -53,7 +53,7 @@
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
   XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
   if (type == XCUIElementTypeAny || cachedSnapshot.elementType == type) {
-    if (shouldReturnAfterFirstMatch) {
+    if (shouldReturnAfterFirstMatch || result.count == 0) {
       return @[self];
     }
     [result insertObject:self atIndex:0];
@@ -113,7 +113,7 @@
   XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
   // Include self element into predicate search
   if ([formattedPredicate evaluateWithObject:cachedSnapshot]) {
-    if (shouldReturnAfterFirstMatch) {
+    if (shouldReturnAfterFirstMatch || result.count == 0) {
       return @[self];
     }
     [result insertObject:self atIndex:0];
@@ -153,7 +153,7 @@
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
   XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
   if (nil != cachedSnapshot.wdName && [cachedSnapshot.wdName isEqualToString:accessibilityId]) {
-    if (shouldReturnAfterFirstMatch) {
+    if (shouldReturnAfterFirstMatch || result.count == 0) {
       return @[self];
     }
     [result insertObject:self atIndex:0];
