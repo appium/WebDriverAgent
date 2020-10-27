@@ -74,6 +74,8 @@
   XCTAssertEqual(matchingSnapshots.count, snapshotsCount);
   XCTAssertEqual(matchingSnapshots.firstObject.elementType, XCUIElementTypeButton);
   XCTAssertEqualObjects(matchingSnapshots.lastObject.label, @"Alerts");
+  NSArray<XCUIElement *> *selfElementsById = [matchingSnapshots.lastObject fb_descendantsMatchingIdentifier:@"Alerts" shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(selfElementsById.count, 1);
 }
 
 - (void)testSingleDescendantWithIdentifier
@@ -177,6 +179,9 @@
   XCTAssertEqual(matchingSnapshots.count, snapshotsCount);
   XCTAssertEqual(matchingSnapshots.firstObject.elementType, XCUIElementTypeButton);
   XCTAssertEqualObjects(matchingSnapshots.lastObject.label, @"Alerts");
+  NSPredicate *selfPredicate = [NSPredicate predicateWithFormat:@"label == 'Alerts'"];
+  NSArray<XCUIElement *> *selfElementsByPredicate = [matchingSnapshots.lastObject fb_descendantsMatchingPredicate:selfPredicate shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(selfElementsByPredicate.count, 1);
 }
 
 - (void)testSelfWithPredicateString
