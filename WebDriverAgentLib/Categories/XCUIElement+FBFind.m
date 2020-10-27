@@ -147,19 +147,9 @@
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
                                  shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSMutableArray *result = [NSMutableArray array];
-  NSString *selfIdentifier = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot.identifier
-    : self.fb_takeSnapshot.identifier;
-  if (nil != selfIdentifier && [selfIdentifier isEqualToString:accessibilityId]) {
-    [result addObject:self];
-    if (shouldReturnAfterFirstMatch) {
-      return result.copy;
-    }
-  }
-  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:accessibilityId];
-  [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
-  return result.copy;
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", accessibilityId];
+  return [self fb_descendantsMatchingPredicate:predicate
+                   shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
 }
 
 @end

@@ -172,8 +172,9 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
     elements = [element fb_descendantsMatchingPredicate:predicate
                             shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else if (isSearchByIdentifier) {
-    elements = [element fb_descendantsMatchingIdentifier:value
-                             shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
+    NSPredicate *predicate = [FBPredicate predicateWithFormat:@"name == %@", value];
+    elements = [element fb_descendantsMatchingPredicate:predicate
+                            shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else {
     [[NSException exceptionWithName:FBElementAttributeUnknownException reason:[NSString stringWithFormat:@"Invalid locator requested: %@", usingText] userInfo:nil] raise];
   }
