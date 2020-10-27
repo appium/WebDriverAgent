@@ -13,6 +13,7 @@
 
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBUID.h"
 
 @implementation XCUIElement (FBCaching)
 
@@ -41,8 +42,14 @@ static char XCUIELEMENT_CACHE_ID_KEY;
     return (NSString *)result;
   }
 
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
-  NSString *uid = snapshot.wdUID;
+  NSString *uid;
+  if ([self isKindOfClass:XCUIApplication.class]) {
+    uid = self.fb_uid;
+  } else {
+    XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
+    uid = snapshot.wdUID;
+  }
+
   objc_setAssociatedObject(self, &XCUIELEMENT_CACHE_ID_KEY, uid, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   return uid;
 }

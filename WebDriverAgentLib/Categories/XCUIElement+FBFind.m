@@ -37,25 +37,27 @@
   return matchedElement ? @[matchedElement] : @[];
 }
 
+- (XCElementSnapshot *)fb_cachedSnapshotWithQuery:(XCUIElementQuery *)query
+{
+  return [self isKindOfClass:XCUIApplication.class] ? query.rootElementSnapshot : self.fb_cachedSnapshot;
+}
+
 #pragma mark - Search by ClassName
 
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingClassName:(NSString *)className
                                 shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSMutableArray *result = [NSMutableArray array];
   XCUIElementType type = [FBElementTypeTransformer elementTypeWithTypeName:className];
-  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot
-    : self.fb_takeSnapshot;
-  XCUIElementType selfType = snapshot.elementType;
-  if (selfType == type || type == XCUIElementTypeAny) {
-    [result addObject:self];
-    if (shouldReturnAfterFirstMatch) {
-      return result.copy;
-    }
-  }
   XCUIElementQuery *query = [self.fb_query descendantsMatchingType:type];
+  NSMutableArray *result = [NSMutableArray array];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
+  XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
+  if (type == XCUIElementTypeAny || cachedSnapshot.elementType == type) {
+    if (shouldReturnAfterFirstMatch) {
+      return @[self];
+    }
+    [result insertObject:self atIndex:0];
+  }
   return result.copy;
 }
 
@@ -104,19 +106,18 @@
                                 shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:predicate];
-  NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
-  XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot
-    : self.fb_takeSnapshot;
-  // Include self element into predicate search
-  if ([formattedPredicate evaluateWithObject:selfSnapshot]) {
-    [result addObject:self];
-    if (shouldReturnAfterFirstMatch) {
-      return result.copy;
-    }
-  }
   XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate];
-  [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
+  NSMutableArray<XCUIElement *> *result = [NSMutableArray array];
+  [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query
+                                                  shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
+  XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
+  // Include self element into predicate search
+  if ([formattedPredicate evaluateWithObject:cachedSnapshot]) {
+    if (shouldReturnAfterFirstMatch) {
+      return @[self];
+    }
+    [result insertObject:self atIndex:0];
+  }
   return result.copy;
 }
 
@@ -147,18 +148,16 @@
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
                                  shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSMutableArray *result = [NSMutableArray array];
-  NSString *selfIdentifier = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot.identifier
-    : self.fb_takeSnapshot.identifier;
-  if (nil != selfIdentifier && [selfIdentifier isEqualToString:accessibilityId]) {
-    [result addObject:self];
-    if (shouldReturnAfterFirstMatch) {
-      return result.copy;
-    }
-  }
   XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:accessibilityId];
+  NSMutableArray *result = [NSMutableArray array];
   [result addObjectsFromArray:[self.class fb_extractMatchingElementsFromQuery:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
+  XCElementSnapshot *cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
+  if (nil != cachedSnapshot.wdName && [cachedSnapshot.wdName isEqualToString:accessibilityId]) {
+    if (shouldReturnAfterFirstMatch) {
+      return @[self];
+    }
+    [result insertObject:self atIndex:0];
+  }
   return result.copy;
 }
 

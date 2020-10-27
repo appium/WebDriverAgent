@@ -33,6 +33,7 @@
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
+#import "XCUIElementQuery+FBHelpers.h"
 #import "XCUIScreen.h"
 #import "XCUIElement+FBUID.h"
 
@@ -68,37 +69,7 @@
 
 - (XCElementSnapshot *)fb_cachedSnapshot
 {
-  if ([self isKindOfClass:XCUIApplication.class]) {
-    return [[[(XCUIApplication *)self applicationImpl] currentProcess] lastSnapshot];
-  }
-
-  XCUIElementQuery *inputQuery = self.fb_query;
-  NSMutableArray<id<XCTElementSetTransformer>> *transformersChain = [NSMutableArray array];
-  XCElementSnapshot *rootElementSnapshot = nil;
-  while (nil != inputQuery && nil != inputQuery.transformer) {
-    [transformersChain insertObject:inputQuery.transformer atIndex:0];
-    if (nil != inputQuery.rootElementSnapshot) {
-      rootElementSnapshot = inputQuery.rootElementSnapshot;
-    }
-    inputQuery = inputQuery.inputQuery;
-  }
-  if (nil == rootElementSnapshot) {
-    return nil;
-  }
-
-  NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootElementSnapshot];
-  [snapshots addObjectsFromArray:rootElementSnapshot._allDescendants];
-  NSOrderedSet *matchingSnapshots = [NSOrderedSet orderedSetWithArray:snapshots];
-  @try {
-    for (id<XCTElementSetTransformer> transformer in transformersChain) {
-      matchingSnapshots = (NSOrderedSet *)[transformer transform:matchingSnapshots
-                                                 relatedElements:nil];
-    }
-    return matchingSnapshots.count == 1 ? matchingSnapshots.firstObject : nil;
-  } @catch (NSException *e) {
-    [FBLogger logFmt:@"Got an unexpected error while retriveing the cached snapshot: %@", e.reason];
-  }
-  return nil;
+  return [self.query fb_cachedSnapshot];
 }
 
 - (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesAndMaxDepth:(NSNumber *)maxDepth
