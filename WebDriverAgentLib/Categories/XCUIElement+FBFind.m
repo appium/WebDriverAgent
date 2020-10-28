@@ -148,7 +148,7 @@
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
                                  shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", accessibilityId];
+  NSPredicate *predicate = [FBPredicate predicateWithFormat:@"name == %@", accessibilityId];
   return [self fb_descendantsMatchingPredicate:predicate
                    shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
 }
