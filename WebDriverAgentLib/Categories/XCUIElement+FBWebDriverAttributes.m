@@ -196,6 +196,19 @@
   return self.isSelected;
 }
 
+- (NSUInteger)wdIndex
+{
+  if (nil != self.parent) {
+    for (NSUInteger index = 0; index < self.parent.children.count; ++index) {
+      if ([self.parent.children objectAtIndex:index] == self) {
+        return index;
+      }
+    }
+  }
+
+  return 0;
+}
+
 - (NSDictionary *)wdRect
 {
   CGRect frame = self.wdFrame;

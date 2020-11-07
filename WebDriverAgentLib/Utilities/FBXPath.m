@@ -80,6 +80,10 @@
 
 @interface FBIndexAttribute : FBElementAttribute
 
+@end
+
+@interface FBInternalIndexAttribute : FBElementAttribute
+
 @property (nonatomic, nonnull, readonly) NSString* indexValue;
 
 + (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(NSString *)value;
@@ -330,7 +334,7 @@ static NSString *const topNodeIndexPath = @"top";
 
   if (nil != indexPath) {
     // index path is the special case
-    return [FBIndexAttribute recordWithWriter:writer forValue:indexPath];
+    return [FBInternalIndexAttribute recordWithWriter:writer forValue:indexPath];
   }
   return 0;
 }
@@ -462,7 +466,9 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBXAttribute.class,
            FBYAttribute.class,
            FBWidthAttribute.class,
-           FBHeightAttribute.class];
+           FBHeightAttribute.class,
+           FBIndexAttribute.class,
+          ];
 }
 
 @end
@@ -621,6 +627,20 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 @end
 
 @implementation FBIndexAttribute
+
++ (NSString *)name
+{
+  return @"index";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return [NSString stringWithFormat:@"%lu", element.wdIndex];
+}
+
+@end
+
+@implementation FBInternalIndexAttribute
 
 + (NSString *)name
 {

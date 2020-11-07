@@ -27,6 +27,7 @@
     self.wdAccessible = YES;
     self.wdEnabled = YES;
     self.wdSelected = YES;
+    self.wdIndex = 0;
 #if TARGET_OS_TV
     self.wdFocused = YES;
 #endif
@@ -52,6 +53,11 @@
 - (id)query
 {
   return nil;
+}
+
+- (void)resolve
+{
+  self.didResolve = YES;
 }
 
 - (void)fb_nativeResolve

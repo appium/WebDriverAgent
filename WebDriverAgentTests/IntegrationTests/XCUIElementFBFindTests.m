@@ -200,6 +200,14 @@
   XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
 }
 
+- (void)testSingleDescendantWithPredicateStringByIndex
+{
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"type == 'XCUIElementTypeButton' AND index == 2"];
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingPredicate:predicate shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(matchingSnapshots.count, 1);
+  XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
+}
+
 - (void)testDescendantsWithPropertyStrict
 {
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingProperty:@"label" value:@"Alert" partialSearch:NO];
