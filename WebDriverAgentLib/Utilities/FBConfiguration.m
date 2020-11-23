@@ -386,7 +386,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   } else {
     return [[FBErrorBuilder.builder withDescriptionFormat:
              @"The orientation value '%@' is not known. Only the following orientation values are supported: " \
-             "'auto', 'portrate', 'portraitUpsideDown', 'landscapeRight' and 'landscapeLeft'", orientation]
+             "'auto', 'portrait', 'portraitUpsideDown', 'landscapeRight' and 'landscapeLeft'", orientation]
             buildError:error];
   }
   return YES;
