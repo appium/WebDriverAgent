@@ -22,17 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type;
 
 /**
- Returns an array of descendants matching given xpath query. This method will always
- throw an exception if there is an error during XPath evaluation, so the returned array
- is never expected to be equal to nil
- 
- @param xpathQuery requested xpath query. Only XPath v1.0 libxml2-based implementation is supported
- @return an array of descendants matching given xpath query. Empty array will be retuned if
- no matches are found (XPath query should be still valid though)
- */
-- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery;
-
-/**
  Returns first (going up element tree) parent that matches given type. If non found returns nil.
 
  @param type requested parent type
@@ -58,12 +47,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable XCElementSnapshot *)fb_parentMatchingOneOfTypes:(NSArray<NSNumber *> *)types filter:(BOOL(^)(XCElementSnapshot *snapshot))filter;
 
 /**
+ Retrieves the list of all element ancestors in the snapshot hierarchy.
+ 
+ @return the list of element ancestors or an empty list if the snapshot has no parent.
+ */
+- (NSArray<XCElementSnapshot *> *)fb_ancestors;
+
+/**
  Returns value for given accessibility property identifier.
 
- @param attribute attribute's accessibility identifier
+ @param attribute attribute's accessibility identifier. Can be one of
+ `XC_kAXXCAttribute`-prefixed attribute names.
  @return value for given accessibility property identifier
  */
-- (id)fb_attributeValue:(NSNumber *)attribute;
+- (nullable id)fb_attributeValue:(NSString *)attribute;
 
 /**
  Method used to determine whether given element matches receiver by comparing it's parameters except frame.
@@ -86,6 +83,9 @@ NS_ASSUME_NONNULL_BEGIN
  @return parent element matching either XCUIElementTypeIcon or XCUIElementTypeCell.
  */
 - (nullable XCElementSnapshot *)fb_parentCellSnapshot;
+
+/**! Human-readable snapshot description */
+- (NSString *)fb_description;
 
 @end
 

@@ -9,8 +9,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBIntegrationTestCase.h"
 #import "FBApplication.h"
+#import "FBIntegrationTestCase.h"
+#import "FBImageUtils.h"
+#import "FBMacros.h"
+#import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
 
 @interface XCUIDeviceHelperTests : FBIntegrationTestCase
@@ -33,6 +36,7 @@
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   XCTAssertNotNil([UIImage imageWithData:screenshotData]);
   XCTAssertNil(error);
+  XCTAssertTrue(FBIsPngImage(screenshotData));
 }
 
 - (void)testWifiAddress
@@ -51,6 +55,41 @@
   XCTAssertTrue([[XCUIDevice sharedDevice] fb_goToHomescreenWithError:&error]);
   XCTAssertNil(error);
   XCTAssertTrue([FBApplication fb_activeApplication].icons[@"Safari"].exists);
+}
+
+- (void)testLockUnlockScreen
+{
+  XCTAssertFalse([[XCUIDevice sharedDevice] fb_isScreenLocked]);
+  NSError *error;
+  XCTAssertTrue([[XCUIDevice sharedDevice] fb_lockScreen:&error]);
+  XCTAssertTrue([[XCUIDevice sharedDevice] fb_isScreenLocked]);
+  XCTAssertNil(error);
+  XCTAssertTrue([[XCUIDevice sharedDevice] fb_unlockScreen:&error]);
+  XCTAssertFalse([[XCUIDevice sharedDevice] fb_isScreenLocked]);
+  XCTAssertNil(error);
+}
+
+- (void)disabled_testUrlSchemeActivation
+{
+  // This test is not stable on CI because of system slowness
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com" error:&error]);
+  FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
+  XCTAssertNil(error);
+}
+
+- (void)testPressingUnsupportedButton
+{
+  NSError *error;
+  XCTAssertFalse([XCUIDevice.sharedDevice fb_pressButton:@"volumeUpp" error:&error]);
+  XCTAssertNotNil(error);
+}
+
+- (void)testPressingSupportedButton
+{
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home" error:&error]);
+  XCTAssertNil(error);
 }
 
 @end

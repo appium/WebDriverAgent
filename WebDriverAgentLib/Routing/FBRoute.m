@@ -13,6 +13,7 @@
 #import <objc/message.h>
 
 #import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 #import "FBResponsePayload.h"
 #import "FBSession.h"
 
@@ -72,6 +73,11 @@ static NSString *const FBRouteSessionPrefix = @"/session/:sessionID";
   route.path = [FBRoute pathPatternWithSession:pathPattern requiresSession:requiresSession];
   route.requiresSession = requiresSession;
   return route;
+}
+
++ (instancetype)OPTIONS:(NSString *)pathPattern
+{
+  return [self withVerb:@"OPTIONS" path:pathPattern requiresSession:NO];
 }
 
 + (instancetype)GET:(NSString *)pathPattern
@@ -158,7 +164,9 @@ static NSString *const FBRouteSessionPrefix = @"/session/:sessionID";
 
 - (void)mountRequest:(FBRouteRequest *)request intoResponse:(RouteResponse *)response
 {
-  [FBResponseWithErrorFormat(@"Unhandled route") dispatchWithResponse:response];
+  id<FBResponsePayload> payload = FBResponseWithStatus([FBCommandStatus unknownCommandErrorWithMessage:@"Unhandled route"
+                                                                                             traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+  [payload dispatchWithResponse:response];
 }
 
 @end

@@ -1,0 +1,11 @@
+steps:
+  - task: UseRubyVersion@0
+    inputs:
+      versionSpec: "$(DEFAULT_RUBY_VERSION)"
+      addToPath: true
+  - script: bundle update --bundler
+  - script: bundle install
+  - script: sudo xcode-select --switch "/Applications/Xcode_$(XCODE_VERSION).app/Contents/Developer"
+  # retry once on bootstrap failure
+  - script: ./Scripts/bootstrap.sh -dn || (sleep $[ ( $RANDOM % 60 )  + 1 ]s && ./Scripts/bootstrap.sh -dn)
+  - script: mkdir -p ./Resources/WebDriverAgent.bundle

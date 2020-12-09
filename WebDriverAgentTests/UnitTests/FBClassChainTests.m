@@ -26,12 +26,12 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeWindow);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertFalse(firstElement.isDescendant);
 
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertFalse(secondElement.isDescendant);
 }
 
@@ -44,27 +44,27 @@
   
     FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeWindow);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertFalse(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, 3);
+  XCTAssertEqual(secondElement.position.integerValue, 3);
   XCTAssertFalse(secondElement.isDescendant);
   
   FBClassChainItem *thirdElement = [result.elements objectAtIndex:2];
   XCTAssertEqual(thirdElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(thirdElement.position, 4);
+  XCTAssertEqual(thirdElement.position.integerValue, 4);
   XCTAssertFalse(thirdElement.isDescendant);
   
   FBClassChainItem *fourthElement = [result.elements objectAtIndex:3];
   XCTAssertEqual(fourthElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(fourthElement.position, 5);
+  XCTAssertEqual(fourthElement.position.integerValue, 5);
   XCTAssertFalse(fourthElement.isDescendant);
   
   FBClassChainItem *fifthsElement = [result.elements objectAtIndex:4];
   XCTAssertEqual(fifthsElement.type, XCUIElementTypeAlert);
-  XCTAssertEqual(fifthsElement.position, 0);
+  XCTAssertNil(fifthsElement.position);
   XCTAssertFalse(fifthsElement.isDescendant);
 }
 
@@ -77,7 +77,7 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(firstElement.position, 0);
+  XCTAssertNil(firstElement.position);
   XCTAssertFalse(firstElement.isDescendant);
 }
 
@@ -90,17 +90,17 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertTrue(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(secondElement.position, 1);
+  XCTAssertNil(secondElement.position);
   XCTAssertFalse(secondElement.isDescendant);
   
   FBClassChainItem *thirdElement = [result.elements objectAtIndex:2];
   XCTAssertEqual(thirdElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(thirdElement.position, 0);
+  XCTAssertNil(thirdElement.position);
   XCTAssertFalse(thirdElement.isDescendant);
 }
 
@@ -113,12 +113,12 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertTrue(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertTrue(secondElement.isDescendant);
 }
 
@@ -131,12 +131,12 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertTrue(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeImage);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertTrue(secondElement.isDescendant);
 }
 
@@ -149,13 +149,13 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeWindow);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertEqual(firstElement.predicates.count, 0);
   XCTAssertFalse(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, -1);
+  XCTAssertEqual(secondElement.position.integerValue, -1);
   XCTAssertEqual(secondElement.predicates.count, 0);
   XCTAssertFalse(secondElement.isDescendant);
 }
@@ -169,13 +169,13 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeWindow);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertEqual(firstElement.predicates.count, 1);
   XCTAssertFalse(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertEqual(secondElement.predicates.count, 0);
   XCTAssertFalse(secondElement.isDescendant);
 }
@@ -189,13 +189,13 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeWindow);
-  XCTAssertEqual(firstElement.position, 1);
+  XCTAssertNil(firstElement.position);
   XCTAssertEqual(firstElement.predicates.count, 1);
   XCTAssertFalse(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertEqual(secondElement.predicates.count, 1);
   XCTAssertFalse(secondElement.isDescendant);
 }
@@ -209,13 +209,13 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeTable);
-  XCTAssertEqual(firstElement.position, 10);
+  XCTAssertEqual(firstElement.position.integerValue, 10);
   XCTAssertEqual(firstElement.predicates.count, 1);
   XCTAssertTrue(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, 0);
+  XCTAssertNil(secondElement.position);
   XCTAssertEqual(secondElement.predicates.count, 1);
   XCTAssertTrue(secondElement.isDescendant);
 }
@@ -229,13 +229,13 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeAny);
-  XCTAssertEqual(firstElement.position, 3);
+  XCTAssertEqual(firstElement.position.integerValue, 3);
   XCTAssertEqual(firstElement.predicates.count, 1);
   XCTAssertFalse(firstElement.isDescendant);
   
   FBClassChainItem *secondElement = [result.elements objectAtIndex:1];
   XCTAssertEqual(secondElement.type, XCUIElementTypeButton);
-  XCTAssertEqual(secondElement.position, -1);
+  XCTAssertEqual(secondElement.position.integerValue, -1);
   XCTAssertEqual(secondElement.predicates.count, 1);
   XCTAssertFalse(secondElement.isDescendant);
 }
@@ -249,7 +249,7 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeTable);
-  XCTAssertEqual(firstElement.position, 10);
+  XCTAssertEqual(firstElement.position.integerValue, 10);
   XCTAssertEqual(firstElement.predicates.count, 2);
   XCTAssertTrue(firstElement.isDescendant);
 }
@@ -263,7 +263,7 @@
   
   FBClassChainItem *firstElement = [result.elements firstObject];
   XCTAssertEqual(firstElement.type, XCUIElementTypeTable);
-  XCTAssertEqual(firstElement.position, 10);
+  XCTAssertEqual(firstElement.position.integerValue, 10);
   XCTAssertEqual(firstElement.predicates.count, 4);
   XCTAssertTrue(firstElement.isDescendant);
 }

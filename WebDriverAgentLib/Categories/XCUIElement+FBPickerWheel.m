@@ -10,24 +10,43 @@
 #import "XCUIElement+FBPickerWheel.h"
 
 #import "FBRunLoopSpinner.h"
+#import "FBXCodeCompatibility.h"
+#import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
+#import "XCUICoordinate+FBFix.h"
+#import "XCUIElement+FBCaching.h"
 
+#if !TARGET_OS_TV
 @implementation XCUIElement (FBPickerWheel)
 
 static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 
 - (BOOL)fb_scrollWithOffset:(CGFloat)relativeHeightOffset error:(NSError **)error
 {
-  NSString *previousValue = self.value;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  NSString *previousValue = snapshot.value;
   XCUICoordinate *startCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
-  XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * self.frame.size.height)];
-  [endCoord tap];
+  XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * snapshot.frame.size.height)];
+  CGPoint tapPoint = endCoord.fb_screenPoint;
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[@{
+      @"action": @"tap",
+      @"options": @{
+          @"x": @(tapPoint.x),
+          @"y": @(tapPoint.y),
+          }
+      }
+    ];
+  if (![self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error]) {
+    return NO;
+  }
   return [[[[FBRunLoopSpinner new]
      timeout:VALUE_CHANGE_TIMEOUT]
     timeoutErrorMessage:[NSString stringWithFormat:@"Picker wheel value has not been changed after %@ seconds timeout", @(VALUE_CHANGE_TIMEOUT)]]
    spinUntilTrue:^BOOL{
-     [self resolve];
-     return ![self.value isEqualToString:previousValue];
+     return ![self.fb_takeSnapshot.value isEqualToString:previousValue];
    }
    error:error];
 }
@@ -43,3 +62,4 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 }
 
 @end
+#endif

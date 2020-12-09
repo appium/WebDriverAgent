@@ -9,12 +9,14 @@
 
 #import "FBElementTypeTransformer.h"
 
-#import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 
 @implementation FBElementTypeTransformer
 
 static NSDictionary *ElementTypeToStringMapping;
 static NSDictionary *StringToElementTypeMapping;
+
+static NSString const *FB_ELEMENT_TYPE_PREFIX = @"XCUIElementType";
 
 + (void)createMapping
 {
@@ -103,6 +105,9 @@ static NSDictionary *StringToElementTypeMapping;
       @78 : @"XCUIElementTypeHandle",
       @79 : @"XCUIElementTypeStepper",
       @80 : @"XCUIElementTypeTab",
+      @81 : @"XCUIElementTypeTouchBar",
+      @82 : @"XCUIElementTypeStatusItem",
+      // !!! This mapping should be updated if there are changes after each new XCTest release
       };
     NSMutableDictionary *swappedMapping = [NSMutableDictionary dictionary];
     [ElementTypeToStringMapping enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -116,26 +121,30 @@ static NSDictionary *StringToElementTypeMapping;
 {
   [self createMapping];
   NSNumber *type = StringToElementTypeMapping[typeName];
-  if (!type) {
-    NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean XCUIElementType%@?", typeName, typeName];
+  if (nil == type) {
+    if ([typeName hasPrefix:(NSString *)FB_ELEMENT_TYPE_PREFIX] && typeName.length > FB_ELEMENT_TYPE_PREFIX.length) {
+      // Consider the element type is something new and has to be added into ElementTypeToStringMapping
+      return XCUIElementTypeOther;
+    }
+    NSString *reason = [NSString stringWithFormat:@"Invalid argument for class used '%@'. Did you mean %@%@?", typeName, FB_ELEMENT_TYPE_PREFIX, typeName];
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
-  return (XCUIElementType) ( type ? type.unsignedIntegerValue : XCUIElementTypeAny);
+  return (XCUIElementType) type.unsignedIntegerValue;
 }
 
 + (NSString *)stringWithElementType:(XCUIElementType)type
 {
   [self createMapping];
   NSString *typeName = ElementTypeToStringMapping[@(type)];
-  if (!typeName) {
-    return [NSString stringWithFormat:@"Unknown(%lu)", (unsigned long)type];
-  }
-  return typeName;
+  return nil == typeName
+    // Consider the type name is something new and has to be added into ElementTypeToStringMapping
+    ? [NSString stringWithFormat:@"%@Other", FB_ELEMENT_TYPE_PREFIX]
+    : typeName;
 }
 
 + (NSString *)shortStringWithElementType:(XCUIElementType)type
 {
-  return [[self stringWithElementType:type] stringByReplacingOccurrencesOfString:@"XCUIElementType" withString:@""];
+  return [[self stringWithElementType:type] stringByReplacingOccurrencesOfString:(NSString *)FB_ELEMENT_TYPE_PREFIX withString:@""];
 }
 
 @end

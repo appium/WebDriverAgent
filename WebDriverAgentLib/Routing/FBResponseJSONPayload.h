@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 
 #import <WebDriverAgentLib/FBResponsePayload.h>
+#import <WebDriverAgentLib/FBHTTPStatusCodes.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Initializer for JSON respond that converts given 'dictionary' to JSON
  */
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary
+                    httpStatusCode:(HTTPStatusCode)httpStatusCode;
 
 @end
 

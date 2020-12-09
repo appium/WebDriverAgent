@@ -8,6 +8,10 @@
 
 @interface XCUIDevice ()
 
+// Since Xcode 10.2
+@property (readonly) id accessibilityInterface; // implements XCUIAccessibilityInterface
+@property (readonly) id eventSynthesizer; // implements XCUIEventSynthesizing
+
 - (void)pressLockButton;
 - (void)holdHomeButtonForDuration:(double)arg1;
 - (void)_silentPressButton:(long long)arg1;

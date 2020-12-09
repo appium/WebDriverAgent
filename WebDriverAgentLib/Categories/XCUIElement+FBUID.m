@@ -9,31 +9,26 @@
 
 #import "XCUIElement+FBUID.h"
 
-#import "XCAccessibilityElement.h"
+#import "FBElementUtils.h"
+#import "XCUIApplication.h"
 #import "XCUIElement+FBUtilities.h"
 
 @implementation XCUIElement (FBUID)
 
-- (NSUInteger)fb_uid
+- (NSString *)fb_uid
 {
-  return self.fb_lastSnapshot.fb_uid;
+  return [self isKindOfClass:XCUIApplication.class]
+    ? [FBElementUtils uidWithAccessibilityElement:[(XCUIApplication *)self accessibilityElement]]
+    : [self fb_takeSnapshot].fb_uid;
 }
 
 @end
 
-static BOOL FBShouldUsePayloadForUIDExtraction = YES;
-static dispatch_once_t oncePayloadToken;
 @implementation XCElementSnapshot (FBUID)
 
-- (NSUInteger)fb_uid
+- (NSString *)fb_uid
 {
-  dispatch_once(&oncePayloadToken, ^{
-    FBShouldUsePayloadForUIDExtraction = [self.accessibilityElement respondsToSelector:@selector(payload)];
-  });
-  if (FBShouldUsePayloadForUIDExtraction) {
-    return [[self.accessibilityElement.payload objectForKey:@"uid.elementID"] intValue];
-  }
-  return [[self.accessibilityElement valueForKey:@"_elementID"] intValue];
+  return [FBElementUtils uidWithAccessibilityElement:self.accessibilityElement];
 }
 
 @end

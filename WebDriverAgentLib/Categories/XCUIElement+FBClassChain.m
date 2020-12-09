@@ -11,8 +11,7 @@
 
 #import "FBClassChainQueryParser.h"
 #import "FBXCodeCompatibility.h"
-
-NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseException";
+#import "FBExceptions.h"
 
 @implementation XCUIElement (FBClassChain)
 
@@ -31,10 +30,12 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
   [lookupChain removeObjectAtIndex:0];
   while (lookupChain.count > 0) {
     BOOL isRootChanged = NO;
-    if (chainItem.position < 0 || chainItem.position > 1) {
+    if (nil != chainItem.position) {
       // It is necessary to resolve the query if intermediate element index is not zero or one,
       // because predicates don't support search by indexes
-      NSArray<XCUIElement *> *currentRootMatch = [self.class fb_matchingElementsWithItem:chainItem query:query shouldReturnAfterFirstMatch:NO];
+      NSArray<XCUIElement *> *currentRootMatch = [self.class fb_matchingElementsWithItem:chainItem
+                                                                                   query:query
+                                                             shouldReturnAfterFirstMatch:nil];
       if (0 == currentRootMatch.count) {
         return @[];
       }
@@ -45,7 +46,9 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
     query = [currentRoot fb_queryWithChainItem:chainItem query:isRootChanged ? nil : query];
     [lookupChain removeObjectAtIndex:0];
   }
-  return [self.class fb_matchingElementsWithItem:chainItem query:query shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
+  return [self.class fb_matchingElementsWithItem:chainItem
+                                           query:query
+                     shouldReturnAfterFirstMatch:@(shouldReturnAfterFirstMatch)];
 }
 
 - (XCUIElementQuery *)fb_queryWithChainItem:(FBClassChainItem *)item query:(nullable XCUIElementQuery *)query
@@ -54,13 +57,13 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
     if (query) {
       query = [query descendantsMatchingType:item.type];
     } else {
-      query = [self descendantsMatchingType:item.type];
+      query = [self.fb_query descendantsMatchingType:item.type];
     }
   } else {
     if (query) {
       query = [query childrenMatchingType:item.type];
     } else {
-      query = [self childrenMatchingType:item.type];
+      query = [self.fb_query childrenMatchingType:item.type];
     }
   }
   if (item.predicates) {
@@ -75,21 +78,20 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
   return query;
 }
 
-+ (NSArray<XCUIElement *> *)fb_matchingElementsWithItem:(FBClassChainItem *)item query:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
++ (NSArray<XCUIElement *> *)fb_matchingElementsWithItem:(FBClassChainItem *)item query:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(nullable NSNumber *)shouldReturnAfterFirstMatch
 {
-  if (shouldReturnAfterFirstMatch && (item.position == 0 || item.position == 1)) {
+  if (1 == item.position.integerValue || (0 == item.position.integerValue && shouldReturnAfterFirstMatch.boolValue)) {
     XCUIElement *result = query.fb_firstMatch;
     return result ? @[result] : @[];
   }
-  NSArray<XCUIElement *> *allMatches = query.allElementsBoundByIndex;
-  if (0 == item.position) {
+  NSArray<XCUIElement *> *allMatches = query.fb_allMatches;
+  if (0 == item.position.integerValue) {
     return allMatches;
   }
-  if (item.position > 0 && allMatches.count >= (NSUInteger)ABS(item.position)) {
-    return @[[allMatches objectAtIndex:item.position - 1]];
-  }
-  if (item.position < 0 && allMatches.count >= (NSUInteger)ABS(item.position)) {
-    return @[[allMatches objectAtIndex:allMatches.count + item.position]];
+  if (allMatches.count >= (NSUInteger)ABS(item.position.integerValue)) {
+    return item.position.integerValue > 0
+      ? @[[allMatches objectAtIndex:item.position.integerValue - 1]]
+      : @[[allMatches objectAtIndex:allMatches.count + item.position.integerValue]];
   }
   return @[];
 }

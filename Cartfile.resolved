@@ -1,1 +1,2 @@
-github "marekcirkos/RoutingHTTPServer" "v1.0.1"
+github "robbiehanson/CocoaAsyncSocket" "72e0fa9e62d56e5bbb3f67e9cfd5aa85841735bc"
+github "appium/YYCache" "1.1.2"

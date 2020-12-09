@@ -16,12 +16,25 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Constructor used to get current active application
  */
-+ (nullable instancetype)fb_activeApplication;
++ (instancetype)fb_activeApplication;
 
 /**
- It allows to turn on/off waiting for application quiescence, while performing queries. Defaults to NO.
+ Constructor used to get current active application
+
+ @param bundleId The bundle identifier of an app, which should be selected as active by default
+ if it is present in the list of active applications
  */
-@property (nonatomic, assign) BOOL fb_shouldWaitForQuiescence;
++ (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId;
+
+/**
+ Constructor used to get the system application
+ */
++ (instancetype)fb_systemApplication;
+
+/**
+ Retrieves the list of all currently active applications
+ */
++ (NSArray<FBApplication *> *)fb_activeApplications;
 
 @end
 

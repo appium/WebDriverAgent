@@ -9,17 +9,19 @@
 
 #import "FBResponseJSONPayload.h"
 
-#import <RoutingHTTPServer/RouteResponse.h>
+#import "RouteResponse.h"
 
 @interface FBResponseJSONPayload ()
 
 @property (nonatomic, copy, readonly) NSDictionary *dictionary;
+@property (nonatomic, readonly) HTTPStatusCode httpStatusCode;
 
 @end
 
 @implementation FBResponseJSONPayload
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
+                    httpStatusCode:(HTTPStatusCode)httpStatusCode
 {
   NSParameterAssert(dictionary);
   if (!dictionary) {
@@ -29,6 +31,7 @@
   self = [super init];
   if (self) {
     _dictionary = dictionary;
+    _httpStatusCode = httpStatusCode;
   }
   return self;
 }
@@ -41,6 +44,7 @@
                                                        error:&error];
   NSCAssert(jsonData, @"Valid JSON must be responded, error of %@", error);
   [response setHeader:@"Content-Type" value:@"application/json;charset=UTF-8"];
+  [response setStatusCode:self.httpStatusCode];
   [response respondWithData:jsonData];
 }
 

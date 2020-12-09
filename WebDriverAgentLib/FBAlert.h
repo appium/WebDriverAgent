@@ -14,23 +14,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Notification used to notify about requested element being obstructed by alert */
-extern NSString *const FBAlertObstructingElementException;
-
 /**
  Alert helper class that abstracts alert handling
  */
 @interface FBAlert : NSObject
 
 /**
- Throws FBAlertObstructingElementException
+ Creates alert helper for given application
+
+ @param application The application that contains the alert
  */
-+ (void)throwRequestedItemObstructedByAlertException __attribute__((noreturn));
++ (instancetype)alertWithApplication:(XCUIApplication *)application;
 
 /**
  Creates alert helper for given application
+
+ @param element The element which represents the alert
  */
-+ (instancetype)alertWithApplication:(XCUIApplication *)application;
++ (instancetype)alertWithElement:(XCUIElement *)element;
 
 /**
  Determines whether alert is present
@@ -73,17 +74,18 @@ extern NSString *const FBAlertObstructingElementException;
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error;
 
 /**
- Filters out elements obstructed by alert
-
- @param elements array of elements we want to filter
- @return elements not obstructed by alert
- */
-- (NSArray<XCUIElement *> *)filterObstructedElements:(NSArray<XCUIElement *> *)elements;
-
-/**
  XCUElement that represents alert
  */
 - (nullable XCUIElement *)alertElement;
+
+/**
+ Types a text into an input inside the alert container, if it is present
+
+ @param text the text to type
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)typeText:(NSString *)text error:(NSError **)error;
 
 @end
 

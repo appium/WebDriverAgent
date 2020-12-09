@@ -22,21 +22,12 @@ extern NSString *const SPRINGBOARD_BUNDLE_ID;
 + (instancetype)fb_springboard;
 
 /**
- Taps application on SpringBoard app with given identifier
-
- @param identifier identifier of the application to tap
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
- */
-- (BOOL)fb_tapApplicationWithIdentifier:(NSString *)identifier error:(NSError **)error;
-
-/**
- Waits until application board is visible with timeout
+ Switch to Springboard app
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
- */
-- (BOOL)fb_waitUntilApplicationBoardIsVisible:(NSError **)error;
+*/
+- (BOOL)fb_switchToWithError:(NSError **)error;
 
 @end
 

@@ -7,7 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "XCSynthesizedEventRecord.h"
+#import "XCElementSnapshot.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @protocol XCTestManager_ManagerInterface;
 
@@ -18,4 +22,13 @@
 
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy;
 
+#if !TARGET_OS_TV
++ (UIInterfaceOrientation)orientationWithApplication:(XCUIApplication *)application;
+#endif
+
++ (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record
+                            error:(NSError *__autoreleasing*)error;
+
 @end
+
+NS_ASSUME_NONNULL_END

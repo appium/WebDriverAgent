@@ -23,3 +23,12 @@
     }]); \
     XCTAssertNil(__error); \
   })
+
+#define FBWaitExact(timeoutSeconds) \
+  ({ \
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:(timeoutSeconds)]]; \
+  })
+
+#define FBCellElementWithLabel(label) ([self.testedApplication descendantsMatchingType:XCUIElementTypeAny][label])
+#define FBAssertVisibleCell(label) FBAssertWaitTillBecomesTrue(FBCellElementWithLabel(label).fb_isVisible)
+#define FBAssertInvisibleCell(label) FBAssertWaitTillBecomesTrue(!FBCellElementWithLabel(label).fb_isVisible)

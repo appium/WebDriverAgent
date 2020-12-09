@@ -24,6 +24,8 @@
 {
   [FBDebugLogDelegateDecorator decorateXCTestLogger];
   [FBConfiguration disableRemoteQueryEvaluation];
+  [FBConfiguration configureDefaultKeyboardPreferences];
+  [FBConfiguration disableScreenshots];
   [super setUp];
 }
 

@@ -8,7 +8,7 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 #
 
-set -eu
+set -ex
 
 function define_xc_macros() {
   XC_MACROS="CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
@@ -16,12 +16,17 @@ function define_xc_macros() {
   case "$TARGET" in
     "lib" ) XC_TARGET="WebDriverAgentLib";;
     "runner" ) XC_TARGET="WebDriverAgentRunner";;
+    "tv_lib" ) XC_TARGET="WebDriverAgentLib_tvOS";;
+    "tv_runner" ) XC_TARGET="WebDriverAgentRunner_tvOS";;
     *) echo "Unknown TARGET"; exit 1 ;;
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="-destination \"name=iPhone SE,OS=11.2\"";;
-    "ipad" ) XC_DESTINATION="-destination \"name=iPad Air 2,OS=11.2\"";;
+    "iphone" ) XC_DESTINATION="name=`echo $IPHONE_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
+    "ipad" ) XC_DESTINATION="name=`echo $IPAD_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
+    "tv" ) XC_DESTINATION="name=`echo $TV_MODEL | tr -d "'"`,OS=$TV_VERSION";;
+    "generic" ) XC_DESTINATION="generic/platform=iOS";;
+    "tv_generic" ) XC_DESTINATION="generic/platform=tvOS" XC_MACROS="${XC_MACROS} ARCHS=arm64";; # tvOS only supports arm64
   esac
 
   case "$ACTION" in
@@ -31,16 +36,19 @@ function define_xc_macros() {
       XC_MACROS="${XC_MACROS} CLANG_ANALYZER_OUTPUT=plist-html CLANG_ANALYZER_OUTPUT_DIR=\"$(pwd)/clang\""
     ;;
     "unit_test" ) XC_ACTION="test -only-testing:UnitTests";;
-    "int_test_1" ) XC_ACTION="test -only-testing:IntegrationTests_1";;
-    "int_test_2" ) XC_ACTION="test -only-testing:IntegrationTests_2";;
-    "int_test_3" ) XC_ACTION="test -only-testing:IntegrationTests_3";;
-    *) echo "Unknown ACTION"; exit 1 ;;
+    "tv_unit_test" ) XC_ACTION="test -only-testing:UnitTests_tvOS";;
   esac
 
   case "$SDK" in
     "sim" ) XC_SDK="iphonesimulator";;
     "device" ) XC_SDK="iphoneos";;
+    "tv_sim" ) XC_SDK="appletvsimulator";;
+    "tv_device" ) XC_SDK="appletvos";;
     *) echo "Unknown SDK"; exit 1 ;;
+  esac
+
+  case "${CODE_SIGN:-}" in
+    "no" ) XC_MACROS="${XC_MACROS} CODE_SIGNING_ALLOWED=NO";;
   esac
 }
 
@@ -55,21 +63,45 @@ function analyze() {
 }
 
 function xcbuild() {
-  lines=(
-    "xcodebuild"
-    "-project WebDriverAgent.xcodeproj"
-    "-scheme ${XC_TARGET}"
-    "-sdk ${XC_SDK}"
-    "${XC_DESTINATION-}"
-    "${XC_ACTION}"
-    "${XC_MACROS}"
-  )
-  eval "${lines[*]}" | xcpretty && exit ${PIPESTATUS[0]}
+    destination=""
+    output_command=cat
+    if [ $(which xcpretty) ] ; then
+        output_command=xcpretty
+    fi
+    if [[ -n "$XC_DESTINATION" ]]; then
+      xcodebuild \
+        -project "WebDriverAgent.xcodeproj" \
+        -scheme "$XC_TARGET" \
+        -sdk "$XC_SDK" \
+        -destination "$XC_DESTINATION" \
+        $XC_ACTION \
+        $XC_MACROS \
+      | $output_command && exit ${PIPESTATUS[0]}
+    else
+      xcodebuild \
+        -project "WebDriverAgent.xcodeproj" \
+        -scheme "$XC_TARGET" \
+        -sdk "$XC_SDK" \
+        $XC_ACTION \
+        $XC_MACROS \
+      | $output_command && exit ${PIPESTATUS[0]}
+    fi
 }
 
-./Scripts/bootstrap.sh
+function fastlane_test() {
+  if [[ -n "$XC_DESTINATION" ]]; then
+    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
+  else
+    SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test
+  fi
+}
+
+./Scripts/bootstrap.sh -dn
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;
+  "int_test_1" ) fastlane_test IntegrationTests_1 ;;
+  "int_test_2" ) fastlane_test IntegrationTests_2 ;;
+  "int_test_3" ) fastlane_test IntegrationTests_3 ;;
   *) xcbuild ;;
 esac

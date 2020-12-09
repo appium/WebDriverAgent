@@ -13,27 +13,35 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 
+# if !TARGET_OS_TV
 @implementation XCUICoordinate (FBFix)
 
 - (CGPoint)fb_screenPoint
 {
   CGPoint referencePoint = CGPointMake(0, 0);
+  NSValue *referencedElementFrame = nil;
   if (self.element) {
-    CGRect frame = self.element.frame;
+    CGRect elementFrame = self.element.frame;
+    if (self.referencedElement == self.element) {
+      referencedElementFrame = [NSValue valueWithCGRect:elementFrame];
+    }
     referencePoint = CGPointMake(
-      CGRectGetMinX(frame) + CGRectGetWidth(frame) * self.normalizedOffset.dx,
-      CGRectGetMinY(frame) + CGRectGetHeight(frame) * self.normalizedOffset.dy);
-  }
-  else if (self.coordinate) {
+      CGRectGetMinX(elementFrame) + CGRectGetWidth(elementFrame) * self.normalizedOffset.dx,
+      CGRectGetMinY(elementFrame) + CGRectGetHeight(elementFrame) * self.normalizedOffset.dy);
+  } else if (self.coordinate) {
     referencePoint = self.coordinate.fb_screenPoint;
   }
+
   CGPoint screenPoint = CGPointMake(
     referencePoint.x + self.pointsOffset.dx,
     referencePoint.y + self.pointsOffset.dy);
-  CGRect rect = self.referencedElement.frame;
+  if (nil == referencedElementFrame) {
+    referencedElementFrame = [NSValue valueWithCGRect:self.referencedElement.frame];
+  }
   return CGPointMake(
-    MIN(CGRectGetMaxX(rect), screenPoint.x),
-    MIN(CGRectGetMaxY(rect), screenPoint.y));
+    MIN(CGRectGetMaxX(referencedElementFrame.CGRectValue), screenPoint.x),
+    MIN(CGRectGetMaxY(referencedElementFrame.CGRectValue), screenPoint.y));
 }
 
 @end
+#endif

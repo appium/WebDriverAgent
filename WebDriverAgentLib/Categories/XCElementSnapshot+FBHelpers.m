@@ -10,29 +10,32 @@
 #import "XCElementSnapshot+FBHelpers.h"
 
 #import "FBFindElementCommands.h"
-#import "FBXPathCreator.h"
 #import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
-#import "XCAXClient_iOS.h"
+#import "FBXCAXClientProxy.h"
 #import "XCTestDriver.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXPath.h"
 
 inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types);
 
 @implementation XCElementSnapshot (FBHelpers)
 
-- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
+- (NSString *)fb_description
 {
-  NSString *xpathQuery = [FBXPathCreator xpathWithSubelementsOfType:type];
-  return [self fb_descendantsMatchingXPathQuery:xpathQuery];
+  NSString *result = [NSString stringWithFormat:@"%@", self.wdType];
+  if (nil != self.wdName) {
+    result = [NSString stringWithFormat:@"%@ (%@)", result, self.wdName];
+  }
+  return result;
 }
 
-- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingXPathQuery:(NSString *)xpathQuery
+- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
 {
-  return (NSArray<XCElementSnapshot *> *)[FBXPath findMatchesIn:self xpathQuery:xpathQuery];
+  return [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
+    return snapshot.elementType == type;
+  }];
 }
 
 - (XCElementSnapshot *)fb_parentMatchingType:(XCUIElementType)type
@@ -57,15 +60,31 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   return snapshot;
 }
 
-- (id)fb_attributeValue:(NSNumber *)attribute
+- (id)fb_attributeValue:(NSString *)attribute
 {
-  NSDictionary *attributesResult = [[XCAXClient_iOS sharedClient] attributesForElementSnapshot:self attributeList:@[attribute]];
-  return (id __nonnull)attributesResult[attribute];
+  NSDictionary *result = [FBXCAXClientProxy.sharedClient attributesForElement:[self accessibilityElement]
+                                                                   attributes:@[attribute]];
+  return result[attribute];
 }
+
+inline static BOOL valuesAreEqual(id value1, id value2);
+
+inline static BOOL isNilOrEmpty(id value);
 
 - (BOOL)fb_framelessFuzzyMatchesElement:(XCElementSnapshot *)snapshot
 {
-  return self.wdUID == snapshot.wdUID;
+    // Pure payload-based comparison sometimes yield false negatives, therefore relying on it only if all of the identifying properties are blank
+  if (isNilOrEmpty(self.identifier) && isNilOrEmpty(self.title) && isNilOrEmpty(self.label) &&
+      isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue)) {
+    return [self.wdUID isEqualToString:(snapshot.wdUID ?: @"")];
+  }
+  
+  return self.elementType == snapshot.elementType &&
+    valuesAreEqual(self.identifier, snapshot.identifier) &&
+    valuesAreEqual(self.title, snapshot.title) &&
+    valuesAreEqual(self.label, snapshot.label) &&
+    valuesAreEqual(self.value, snapshot.value) &&
+    valuesAreEqual(self.placeholderValue, snapshot.placeholderValue);
 }
 
 - (NSArray<XCElementSnapshot *> *)fb_descendantsCellSnapshots
@@ -83,6 +102,17 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   }
   
     return cellSnapshots;
+}
+
+- (NSArray<XCElementSnapshot *> *)fb_ancestors
+{
+  NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
+  XCElementSnapshot *parent = self.parent;
+  while (parent) {
+    [ancestors addObject:parent];
+    parent = parent.parent;
+  }
+  return ancestors.copy;
 }
 
 - (XCElementSnapshot *)fb_parentCellSnapshot
@@ -108,4 +138,17 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
    }
   }
   return NO;
+}
+
+inline static BOOL valuesAreEqual(id value1, id value2)
+{
+  return value1 == value2 || [value1 isEqual:value2];
+}
+
+inline static BOOL isNilOrEmpty(id value)
+{
+  if ([value isKindOfClass:NSString.class]) {
+    return [(NSString*)value length] == 0;
+  }
+  return value == nil;
 }

@@ -18,4 +18,3 @@
 - (id)initWithHitPoint:(struct CGPoint)arg1 hittable:(BOOL)arg2;
 
 @end
-

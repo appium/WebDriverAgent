@@ -19,8 +19,9 @@
 {
   return @[
     [[FBRoute POST:@"/wda/touch_id"] respondWithBlock: ^ id<FBResponsePayload> (FBRouteRequest *request) {
-      if (![[XCUIDevice sharedDevice] fb_fingerTouchShouldMatch:[request.arguments[@"match"] boolValue]]) {
-        return FBResponseWithStatus(FBCommandStatusUnsupported, nil);
+      BOOL isMatch = [request.arguments[@"match"] boolValue];
+      if (![[XCUIDevice sharedDevice] fb_fingerTouchShouldMatch:isMatch]) {
+        return FBResponseWithUnknownErrorFormat(@"Cannot perform Touch Id %@match", isMatch ? @"" : @"non-");
       }
       return FBResponseWithOK();
     }],

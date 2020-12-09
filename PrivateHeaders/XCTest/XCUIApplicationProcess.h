@@ -6,10 +6,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import <WebDriverAgentLib/CDStructures.h>
+
 @class XCAXClient_iOS;
 @class XCAccessibilityElement;
 @class XCApplicationMonitor;
 @class XCUIApplicationImpl;
+@class XCElementSnapshot;
 @protocol XCTestManager_IDEInterface;
 @protocol XCTRunnerAutomationSession;
 
@@ -27,14 +30,18 @@
     BOOL _hasReceivedAnimationsHaveFinished;
     BOOL _hasExitCode;
     BOOL _hasCrashReport;
+    NSString *_bundleID;
     XCUIApplicationImpl *_applicationImplementation;
     id <XCTRunnerAutomationSession> _automationSession;
+    XCElementSnapshot *_lastSnapshot;
     XCApplicationMonitor *_applicationMonitor;
     XCAXClient_iOS *_AXClient_iOS;
 }
 
 + (BOOL)automaticallyNotifiesObserversForKey:(id)arg1;
 @property XCAXClient_iOS *AXClient_iOS; // @synthesize AXClient_iOS=_AXClient_iOS;
+// Since Xcode 10
+@property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 @property XCApplicationMonitor *applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
 @property(retain) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
 @property BOOL hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;
@@ -46,6 +53,8 @@
 @property int exitCode;
 @property(retain) id token;
 @property(nonatomic) int processID;
+// Since Xcode 10.2
+@property(readonly, copy, nonatomic) NSString *bundleID; // @synthesize bundleID=_bundleID;
 @property(readonly) BOOL running;
 @property XCUIApplicationImpl *applicationImplementation; // @synthesize applicationImplementation=_applicationImplementation;
 @property(nonatomic) unsigned long long applicationState;
@@ -65,5 +74,10 @@
 
 // Gone with iOS 10.3
 - (void)waitForQuiescence;
+
+// Since Xcode 10.2
+- (void)_notifyWhenAnimationsAreIdle:(void (^)(id, void *))arg1;
+- (_Bool)_supportsAnimationsIdleNotifications;
+- (void)_notifyWhenMainRunLoopIsIdle:(void (^)(id, void *))arg1;
 
 @end

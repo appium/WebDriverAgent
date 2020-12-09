@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <WebDriverAgentLib/FBElementHitPoint.h>
 #import <WebDriverAgentLib/XCElementSnapshot.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,14 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Wrapper for Apple's hitpoint, thats resolves few known issues
- */
-- (nullable FBElementHitPoint *)fb_hitPoint:(NSError **)error;
 
-/**
- Wrapper for Apple's hitpoint, thats resolves few known issues
- and will try provide alternatives in case of failure
+ @return Element's hitpoint if exists nil otherwise
  */
-- (nullable FBElementHitPoint *)fb_hitPointWithAlternativeOnFailure:(NSError **)error;
+- (nullable NSValue *)fb_hitPoint;
 
 @end
 

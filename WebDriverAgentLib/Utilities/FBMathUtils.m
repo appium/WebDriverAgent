@@ -9,6 +9,8 @@
 
 #import "FBMathUtils.h"
 
+#import "FBMacros.h"
+
 CGFloat FBDefaultFrameFuzzyThreshold = 2.0;
 
 CGPoint FBRectGetCenter(CGRect rect)
@@ -19,6 +21,11 @@ CGPoint FBRectGetCenter(CGRect rect)
 BOOL FBFloatFuzzyEqualToFloat(CGFloat float1, CGFloat float2, CGFloat threshold)
 {
   return (fabs(float1 - float2) <= threshold);
+}
+
+BOOL FBVectorFuzzyEqualToVector(CGVector a, CGVector b, CGFloat threshold)
+{
+  return FBFloatFuzzyEqualToFloat(a.dx, b.dx, threshold) && FBFloatFuzzyEqualToFloat(a.dy, b.dy, threshold);
 }
 
 BOOL FBPointFuzzyEqualToPoint(CGPoint point1, CGPoint point2, CGFloat threshold)
@@ -38,6 +45,7 @@ BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold)
   FBSizeFuzzyEqualToSize(rect1.size, rect2.size, threshold);
 }
 
+#if !TARGET_OS_TV
 CGPoint FBInvertPointForApplication(CGPoint point, CGSize screenSize, UIInterfaceOrientation orientation)
 {
   switch (orientation) {
@@ -47,9 +55,24 @@ CGPoint FBInvertPointForApplication(CGPoint point, CGSize screenSize, UIInterfac
     case UIInterfaceOrientationPortraitUpsideDown:
       return CGPointMake(screenSize.width - point.x, screenSize.height - point.y);
     case UIInterfaceOrientationLandscapeLeft:
-      return CGPointMake(point.y, screenSize.height - point.x);
+      return CGPointMake(point.y, MAX(screenSize.width, screenSize.height) - point.x);
     case UIInterfaceOrientationLandscapeRight:
-      return CGPointMake(screenSize.width - point.y, point.x);
+      return CGPointMake(MIN(screenSize.width, screenSize.height) - point.y, point.x);
+  }
+}
+
+CGPoint FBInvertOffsetForOrientation(CGPoint offset, UIInterfaceOrientation orientation)
+{
+  switch (orientation) {
+    case UIInterfaceOrientationUnknown:
+    case UIInterfaceOrientationPortrait:
+      return offset;
+    case UIInterfaceOrientationPortraitUpsideDown:
+      return CGPointMake(-offset.x, -offset.y);
+    case UIInterfaceOrientationLandscapeLeft:
+      return CGPointMake(offset.y, -offset.x);
+    case UIInterfaceOrientationLandscapeRight:
+      return CGPointMake(-offset.y, offset.x);
   }
 }
 
@@ -66,4 +89,18 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
     }
   }
   return actualSize;
+}
+#endif
+
+NSDictionary<NSString *, NSNumber *> *FBwdRectNoInf(NSDictionary<NSString *, NSNumber *> *wdRect)
+{
+  NSMutableDictionary<NSString *, NSNumber *> *result = wdRect.mutableCopy;
+  if (isinf(result[@"x"].doubleValue) || isinf(result[@"y"].doubleValue) ||
+      isinf(result[@"width"].doubleValue) || isinf(result[@"height"].doubleValue)) {
+    [result setObject:@-1 forKey:@"x"];
+    [result setObject:@-1 forKey:@"y"];
+    [result setObject:@0 forKey:@"width"];
+    [result setObject:@0 forKey:@"height"];
+  }
+  return result.copy;
 }

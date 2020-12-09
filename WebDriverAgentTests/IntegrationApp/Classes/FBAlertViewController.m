@@ -20,7 +20,7 @@
 
 - (IBAction)createAppAlert:(UIButton *)sender
 {
-    [self presentAlertController];
+  [self presentAlertController];
 }
 
 - (IBAction)createAppSheet:(UIButton *)sender
@@ -52,16 +52,19 @@
   [self.locationManager requestAlwaysAuthorization];
 }
 
-- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [super touchesMoved:touches withEvent:event];
-    for (UITouch *touch in touches) {
-        if (fabs(touch.maximumPossibleForce - touch.force) < 0.0001) {
-            [self presentAlertController];
-        }
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+  [super touchesMoved:touches withEvent:event];
+  for (UITouch *touch in touches) {
+    if (fabs(touch.maximumPossibleForce - touch.force) < 0.0001) {
+      [self presentAlertController];
+      return;
     }
+  }
 }
 
-- (void)presentAlertController {
+- (void)presentAlertController
+{
   UIAlertController *alerController =
   [UIAlertController alertControllerWithTitle:@"Magic"
                                       message:@"Should read"

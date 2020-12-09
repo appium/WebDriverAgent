@@ -22,14 +22,25 @@ BOOL FBFloatFuzzyEqualToFloat(CGFloat float1, CGFloat float2, CGFloat threshold)
 /*! Returns whether points are equal within given threshold */
 BOOL FBPointFuzzyEqualToPoint(CGPoint point1, CGPoint point2, CGFloat threshold);
 
+/*! Returns whether vectors are equal within given threshold */
+BOOL FBVectorFuzzyEqualToVector(CGVector a, CGVector b, CGFloat threshold);
+
 /*! Returns whether size are equal within given threshold */
 BOOL FBSizeFuzzyEqualToSize(CGSize size1, CGSize size2, CGFloat threshold);
 
 /*! Returns whether rect are equal within given threshold */
 BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold);
 
+#if !TARGET_OS_TV
 /*! Inverts point if necessary to match location on screen */
 CGPoint FBInvertPointForApplication(CGPoint point, CGSize screenSize, UIInterfaceOrientation orientation);
 
+/*! Inverts offset if necessary to match screen orientation */
+CGPoint FBInvertOffsetForOrientation(CGPoint offset, UIInterfaceOrientation orientation);
+
 /*! Inverts size if necessary to match current screen orientation */
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation);
+#endif
+
+/*! Replaces the wdRect dictionary passed as the argument with zero-size wdRect if any of its attributes equal to Infinity */
+NSDictionary<NSString *, NSNumber *> *FBwdRectNoInf(NSDictionary<NSString *, NSNumber *> *wdRect);

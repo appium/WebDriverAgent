@@ -1,0 +1,19 @@
+jobs:
+  - job: create_github_release
+    steps:
+      - task: GithubRelease@0
+        inputs:
+          action: create
+          githubConnection: appiumbot
+          repositoryName: appium/WebDriverAgent
+          addChangeLog: false
+  - template: ./templates/build.yml
+    parameters:
+      vmImage: 'macOS-10.15'
+      name: 'macOS_10_15'
+      excludeXcode: '10.3.0,10.3,11.3,11.4,12'
+  - template: ./templates/build.yml
+    parameters:
+      # Exclude Xcode versions that were already covered in 10.15
+      excludeXcode: '11.1,11.2.1,11.2,11.3.1,11.3,11'
+      name: 'macOS_10_14'

@@ -12,14 +12,13 @@
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 
+#import "FBMacros.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBScrolling.h"
 
 #import "XCUIElement+FBClassChain.h"
+#import "FBXCodeCompatibility.h"
 
-#define FBCellElementWithLabel(label) ([self.testedApplication descendantsMatchingType:XCUIElementTypeAny][label])
-#define FBAssertVisibleCell(label) FBAssertWaitTillBecomesTrue(FBCellElementWithLabel(label).fb_isVisible)
-#define FBAssertInvisibleCell(label) FBAssertWaitTillBecomesTrue(!FBCellElementWithLabel(label).fb_isVisible)
 
 @interface FBScrollingTests : FBIntegrationTestCase
 @property (nonatomic, strong) XCUIElement *scrollView;
@@ -38,7 +37,6 @@
   [self launchApplication];
   [self goToScrollPageWithCells:YES];
   self.scrollView = [[self.testedApplication.query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"scrollView"].element;
-  [self.scrollView resolve];
 }
 
 - (void)testCellVisibility
@@ -93,8 +91,7 @@
   XCTAssertNil(error);
   XCTAssertTrue(element.fb_isVisible);
   [element tap];
-  [element resolve];
-  XCTAssertTrue(element.lastSnapshot.selected);
+  XCTAssertTrue(element.wdSelected);
 }
 
 @end

@@ -1,0 +1,34 @@
+XC_PROJECT = File.absolute_path('../WebDriverAgent.xcodeproj')
+RETRIES = 3
+
+lane :test do
+  test_run_block = lambda do |testrun_info|
+    failed_test_count = testrun_info[:failed].size
+
+    if failed_test_count > 0
+      UI.important("Failed tests count: #{failed_test_count}")
+
+      try_attempt = testrun_info[:try_count]
+      if try_attempt < RETRIES
+        UI.header("Re-running failing tests (attempt #{try_attempt} of #{RETRIES})")
+        reset_simulator_contents
+      end
+    end
+  end
+
+  # https://docs.fastlane.tools/actions/scan/
+  result = multi_scan(
+    project: XC_PROJECT,
+    try_count: RETRIES,
+    fail_build: false,
+    scheme: ENV['SCHEME'],
+    sdk: ENV['SDK'],
+    destination: ENV['DEST'],
+    testrun_completed_block: test_run_block
+  )
+  unless result[:failed_testcount].zero?
+    msg = "There are #{result[:failed_testcount]} legitimate failing tests"
+    UI.message(msg)
+    raise msg
+  end
+end

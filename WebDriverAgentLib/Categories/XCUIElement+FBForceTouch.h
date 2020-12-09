@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @param pressure The pressure of the force touch – valid values are [0, touch.maximumPossibleForce]
- @param duration The duration of the gesture
+ @param duration The duration of the gesture in float seconds
  @return YES if the operation succeeds, otherwise NO.
  */
 - (BOOL)fb_forceTouchWithPressure:(double)pressure duration:(double)duration error:(NSError **)error;
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param relativeCoordinate hit point coordinate relative to the current element position
  @param pressure The pressure of the force touch – valid values are [0, touch.maximumPossibleForce]
- @param duration The duration of the gesture
+ @param duration The duration of the gesture in float seconds
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
  */

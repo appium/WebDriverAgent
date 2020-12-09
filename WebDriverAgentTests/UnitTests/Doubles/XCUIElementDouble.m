@@ -26,6 +26,11 @@
     self.wdVisible = YES;
     self.wdAccessible = YES;
     self.wdEnabled = YES;
+    self.wdSelected = YES;
+    self.wdIndex = 0;
+#if TARGET_OS_TV
+    self.wdFocused = YES;
+#endif
     self.children = @[];
     self.wdRect =  @{@"x": @0,
                      @"y": @0,
@@ -35,7 +40,7 @@
     self.wdAccessibilityContainer = NO;
     self.elementType = XCUIElementTypeOther;
     self.wdType = @"XCUIElementTypeOther";
-    self.wdUID = 0;
+    self.wdUID = @"0";
   }
   return self;
 }
@@ -45,14 +50,39 @@
   return @"test";
 }
 
+- (id)query
+{
+  return nil;
+}
+
 - (void)resolve
 {
   self.didResolve = YES;
 }
 
+- (void)fb_nativeResolve
+{
+  self.didResolve = YES;
+}
+
+- (id)fb_takeSnapshot
+{
+  return [self lastSnapshot];
+}
+
+- (NSString *)fb_cacheId
+{
+  return self.wdUID;
+}
+
 - (id)lastSnapshot
 {
   return self;
+}
+
+- (id)fb_uid
+{
+  return self.wdUID;
 }
 
 @end

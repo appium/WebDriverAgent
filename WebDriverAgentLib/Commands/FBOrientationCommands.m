@@ -29,6 +29,8 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
   .portraitUpsideDown = @"UIA_DEVICE_ORIENTATION_PORTRAIT_UPSIDEDOWN",
 };
 
+#if !TARGET_OS_TV
+
 @implementation FBOrientationCommands
 
 #pragma mark - <FBCommandHandler>
@@ -50,32 +52,54 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 + (id<FBResponsePayload>)handleGetOrientation:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  return FBResponseWithStatus(FBCommandStatusNoError, [self.class interfaceOrientationForApplication:session.application]);
+  NSString *orientation = [self.class interfaceOrientationForApplication:session.activeApplication];
+  return FBResponseWithObject([[self _wdOrientationsMapping] objectForKey:orientation]);
 }
 
 + (id<FBResponsePayload>)handleSetOrientation:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  if ([self.class setDeviceOrientation:request.arguments[@"orientation"] forApplication:session.application]) {
+  if ([self.class setDeviceOrientation:request.arguments[@"orientation"] forApplication:session.activeApplication]) {
     return FBResponseWithOK();
   }
-  return FBResponseWithStatus(FBCommandStatusRotationNotAllowed, @"Unable To Rotate Device");
+
+  return FBResponseWithUnknownErrorFormat(@"Unable To Rotate Device");
 }
 
 + (id<FBResponsePayload>)handleGetRotation:(FBRouteRequest *)request
 {
-    XCUIDevice *device = [XCUIDevice sharedDevice];
-    UIDeviceOrientation orientation = device.orientation;
-    return FBResponseWithStatus(FBCommandStatusNoError, device.fb_rotationMapping[@(orientation)]);
+  XCUIDevice *device = [XCUIDevice sharedDevice];
+  UIInterfaceOrientation orientation = request.session.activeApplication.interfaceOrientation;
+  return FBResponseWithObject(device.fb_rotationMapping[@(orientation)]);
 }
 
 + (id<FBResponsePayload>)handleSetRotation:(FBRouteRequest *)request
 {
-    FBSession *session = request.session;
-    if ([self.class setDeviceRotation:request.arguments forApplication:session.application]) {
-        return FBResponseWithOK();
-    }
-    return FBResponseWithStatus(FBCommandStatusRotationNotAllowed, [NSString stringWithFormat:@"Rotation not supported: %@", request.arguments[@"rotation"]]);
+  if (nil == request.arguments[@"x"] || nil == request.arguments[@"y"] || nil == request.arguments[@"z"]) {
+    NSString *errMessage = [NSString stringWithFormat:@"x, y and z arguments must exist in the request body: %@", request.arguments];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMessage
+                                                                       traceback:nil]);
+  }
+
+  NSDictionary* rotation = @{
+    @"x": request.arguments[@"x"] ?: @0,
+    @"y": request.arguments[@"y"] ?: @0,
+    @"z": request.arguments[@"z"] ?: @0,
+  };
+  NSArray<NSDictionary *> *supportedRotations = XCUIDevice.sharedDevice.fb_rotationMapping.allValues;
+  if (![supportedRotations containsObject:rotation]) {
+    NSString *errMessage = [NSString stringWithFormat:@"%@ rotation is not supported. Only the following values are supported: %@", rotation, supportedRotations];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMessage
+                                                                       traceback:nil]);
+  }
+
+  FBApplication *app = request.session.activeApplication;
+  if (![self.class setDeviceRotation:request.arguments forApplication:app]) {
+    NSString *errMessage = [NSString stringWithFormat:@"The current rotation cannot be set to %@. Make sure the %@ application supports it", rotation, app.bundleID];
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:errMessage
+                                                                           traceback:nil]);
+  }
+  return FBResponseWithOK();
 }
 
 
@@ -123,4 +147,28 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
   return orientationMap;
 }
 
+/*
+ We already have FBWDOrientationValues as orientation descriptions, however the strings are not valid
+ WebDriver responses. WebDriver can only receive 'portrait' or 'landscape'. So we can pass the keys
+ through this additional filter to ensure we get one of those. It's essentially a mapping from
+ FBWDOrientationValues to the valid subset of itself we can return to the client
+ */
++ (NSDictionary *)_wdOrientationsMapping
+{
+  static NSDictionary *orientationMap;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    orientationMap =
+    @{
+      FBWDOrientationValues.portrait : FBWDOrientationValues.portrait,
+      FBWDOrientationValues.portraitUpsideDown : FBWDOrientationValues.portrait,
+      FBWDOrientationValues.landscapeLeft : FBWDOrientationValues.landscapeLeft,
+      FBWDOrientationValues.landscapeRight : FBWDOrientationValues.landscapeLeft,
+      };
+  });
+  return orientationMap;
+}
+
 @end
+
+#endif

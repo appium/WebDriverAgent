@@ -11,7 +11,6 @@
 
 #import "FBIntegrationTestCase.h"
 
-#import "FBAlert.h"
 #import "FBElementCache.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
@@ -25,7 +24,7 @@
 
 @implementation FBForceTouchTests
 
-- (void)verifyTapWithOrientation:(UIDeviceOrientation)orientation
+- (void)verifyForceTapWithOrientation:(UIDeviceOrientation)orientation
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
@@ -42,32 +41,29 @@
     [self launchApplication];
     [self goToAlertsPage];
   });
+  [self clearAlert];
 }
 
 - (void)tearDown
 {
+  [self clearAlert];
+  [self resetOrientation];
   [super tearDown];
-  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
 }
 
-- (void)testTap
+- (void)testForceTap
 {
-  [self verifyTapWithOrientation:UIDeviceOrientationPortrait];
+  [self verifyForceTapWithOrientation:UIDeviceOrientationPortrait];
 }
 
-- (void)testTapInLandscapeLeft
+- (void)disabled_testForceTapInLandscapeLeft
 {
-  [self verifyTapWithOrientation:UIDeviceOrientationLandscapeLeft];
+  [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeLeft];
 }
 
-- (void)testTapInLandscapeRight
+- (void)disabled_testForceTapInLandscapeRight
 {
-  [self verifyTapWithOrientation:UIDeviceOrientationLandscapeRight];
-}
-
-- (void)testTapInPortraitUpsideDown
-{
-  [self verifyTapWithOrientation:UIDeviceOrientationPortraitUpsideDown];
+  [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeRight];
 }
 
 @end

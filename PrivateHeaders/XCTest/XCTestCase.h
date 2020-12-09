@@ -18,6 +18,7 @@
 @property(readonly) XCTestContext *testContext;
 @property(readonly) unsigned long long activityRecordStackDepth;
 @property(nonatomic) BOOL shouldHaltWhenReceivesControl;
+@property(nonatomic) BOOL shouldSetShouldHaltWhenReceivesControl; // @synthesize shouldSetShouldHaltWhenReceivesControl=_shouldSetShouldHaltWhenReceivesControl;
 @property(retain) XCTestCaseRun *testCaseRun;
 
 + (id)_baselineDictionary;
@@ -71,6 +72,8 @@
 - (Class)_requiredTestRunBaseClass;
 - (void)_recordUnexpectedFailureWithDescription:(id)arg1 error:(id)arg2;
 - (void)_recordUnexpectedFailureWithDescription:(id)arg1 exception:(id)arg2;
+// Exists since Xcode 9.4.1, at least
+- (void)recordFailureWithDescription:(NSString *)arg1 inFile:(NSString *)arg2 atLine:(NSUInteger)arg3 expected:(BOOL)arg4;
 - (void)_enqueueFailureWithDescription:(NSString *)description inFile:(NSString *)filePath atLine:(NSUInteger)lineNumber expected:(BOOL)expected;
 - (void)_dequeueFailures;
 - (void)_interruptTest;

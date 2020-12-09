@@ -40,39 +40,35 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
 
 + (id<FBResponsePayload>)handleGetSourceCommand:(FBRouteRequest *)request
 {
-  FBApplication *application = request.session.application ?: [FBApplication fb_activeApplication];
+  // This method might be called without session
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *sourceType = request.parameters[@"format"] ?: SOURCE_FORMAT_XML;
   id result;
   if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_XML] == NSOrderedSame) {
-    [application fb_waitUntilSnapshotIsStable];
-    result = [FBXPath xmlStringWithSnapshot:application.fb_lastSnapshot];
+    NSArray<NSString *> *excludedAttributes = nil == request.parameters[@"excluded_attributes"]
+      ? nil
+      : [request.parameters[@"excluded_attributes"] componentsSeparatedByString:@","];
+    result = nil == excludedAttributes
+      ? application.fb_xmlRepresentation
+      : [application fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes];
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_JSON] == NSOrderedSame) {
     result = application.fb_tree;
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_DESCRIPTION] == NSOrderedSame) {
-    NSMutableArray<NSString *> *childrenDescriptions = [NSMutableArray array];
-    for (XCUIElement *child in [application childrenMatchingType:XCUIElementTypeAny].allElementsBoundByIndex) {
-      [childrenDescriptions addObject:child.debugDescription];
-    }
-    // debugDescription property of XCUIApplication instance shows descendants addresses in memory
-    // instead of the actual information about them, however the representation works properly
-    // for all descendant elements
-    result = (0 == childrenDescriptions.count) ? application.debugDescription : [childrenDescriptions componentsJoinedByString:@"\n\n"];
+    result = application.fb_descriptionRepresentation;
   } else {
-    return FBResponseWithStatus(
-      FBCommandStatusUnsupported,
-      [NSString stringWithFormat:@"Unknown source format '%@'. Only %@ source formats are supported.",
-       sourceType, @[SOURCE_FORMAT_XML, SOURCE_FORMAT_JSON, SOURCE_FORMAT_DESCRIPTION]]
-    );
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Unknown source format '%@'. Only %@ source formats are supported.",
+                                                                                  sourceType, @[SOURCE_FORMAT_XML, SOURCE_FORMAT_JSON, SOURCE_FORMAT_DESCRIPTION]] traceback:nil]);
   }
   if (nil == result) {
-    return FBResponseWithErrorFormat(@"Cannot get '%@' source of the current application", sourceType);
+    return FBResponseWithUnknownErrorFormat(@"Cannot get '%@' source of the current application", sourceType);
   }
   return FBResponseWithObject(result);
 }
 
 + (id<FBResponsePayload>)handleGetAccessibleSourceCommand:(FBRouteRequest *)request
 {
-  FBApplication *application = request.session.application ?: [FBApplication fb_activeApplication];
+  // This method might be called without session
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   return FBResponseWithObject(application.fb_accessibilityTree ?: @{});
 }
 

@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <WebDriverAgentLib/XCUIElement.h>
+#import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,10 +18,28 @@ NS_ASSUME_NONNULL_BEGIN
  It will try to activate keyboard on element, if element has no keyboard focus.
 
  @param text text that should be typed
+ @param shouldClear Whether to clear the input field before start typing
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
  */
-- (BOOL)fb_typeText:(NSString *)text error:(NSError **)error;
+- (BOOL)fb_typeText:(NSString *)text
+        shouldClear:(BOOL)shouldClear
+              error:(NSError **)error;
+
+/**
+ Types a text into element.
+ It will try to activate keyboard on element, if element has no keyboard focus.
+
+ @param text text that should be typed
+ @param shouldClear Whether to clear the input field before start typing
+ @param frequency Frequency of typing (letters per sec)
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_typeText:(NSString *)text
+        shouldClear:(BOOL)shouldClear
+          frequency:(NSUInteger)frequency
+              error:(NSError **)error;
 
 /**
  Types a text into element.

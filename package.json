@@ -1,0 +1,95 @@
+{
+  "name": "appium-webdriveragent",
+  "version": "2.31.0",
+  "description": "Package bundling WebDriverAgent",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "gulp once",
+    "e2e-test": "npm run build && _FORCE_LOGS=1 npx mocha -t 0 -R spec build/test/functional --exit",
+    "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
+    "clean:carthage": "gulp clean:carthage",
+    "install:dependencies": "gulp install:dependencies",
+    "build": "gulp transpile",
+    "prepare": "gulp prepublish",
+    "prepublishOnly": "npm run bundle",
+    "lint": "gulp lint",
+    "lint:fix": "gulp eslint --fix",
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "precommit-test": "gulp lint",
+    "bundle": "node ./ci-jobs/scripts/build-webdriveragent.js",
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda"
+  },
+  "bin": {
+    "appium-wda-bootstrap": "./build/index.js"
+  },
+  "pre-commit": [
+    "precommit-msg",
+    "precommit-test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appium/WebDriverAgent.git"
+  },
+  "keywords": [
+    "Appium",
+    "iOS",
+    "WebDriver",
+    "Selenium",
+    "WebDriverAgent"
+  ],
+  "author": "appium",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/appium/WebDriverAgent/issues"
+  },
+  "homepage": "https://github.com/appium/WebDriverAgent#readme",
+  "devDependencies": {
+    "appium-gulp-plugins": "^5.0.0",
+    "appium-test-support": "^1.3.1",
+    "appium-xcode": "^3.8.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint-config-appium": "^4.0.1",
+    "glob": "^7.1.0",
+    "gulp": "^4.0.2",
+    "ios-uicatalog": "^3.5.0",
+    "mocha": "^8.0.1",
+    "pre-commit": "^1.2.2",
+    "sinon": "^9.0.2",
+    "wd": "^1.11.4"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0",
+    "appium-base-driver": "^7.0.0",
+    "appium-ios-simulator": "^3.14.0",
+    "appium-support": "^2.46.0",
+    "async-lock": "^1.0.0",
+    "asyncbox": "^2.5.3",
+    "axios": "^0.21.0",
+    "bluebird": "^3.5.5",
+    "lodash": "^4.17.11",
+    "node-simctl": "^6.0.2",
+    "source-map-support": "^0.5.12",
+    "teen_process": "^1.14.1"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "build/index.js",
+    "build/lib",
+    "Scripts/bootstrap.sh",
+    "Scripts/build.sh",
+    "Scripts/carthage-wrapper.sh",
+    "Scripts/fetch-prebuilt-wda.js",
+    "Cartfile",
+    "Cartfile.resolved",
+    "Configurations",
+    "PrivateHeaders",
+    "WebDriverAgent.xcodeproj",
+    "WebDriverAgentLib",
+    "WebDriverAgentRunner",
+    "WebDriverAgentTests",
+    "XCTWebDriverAgentLib",
+    "WebDriverAgentRunner-Runner.app.zip"
+  ]
+}

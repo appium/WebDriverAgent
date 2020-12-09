@@ -1,0 +1,41 @@
+parameters:
+  vmImage: 'macOS-10.14'
+  name: macOS_10_14
+  excludeXcode: $(excludeXcode)
+jobs:
+  - job: ${{ parameters.name }}
+    variables:
+      EXCLUDE_XCODE: ${{ parameters.excludeXcode }}
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn: create_github_release
+    steps:
+    - script: node ./ci-jobs/scripts/azure-print-tag-name
+      displayName: Print Tag Name
+    - script: ls /Applications/
+      displayName: List Installed Applications
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+    - script: npm install
+      displayName: Install Node Modules
+    - script: bundle update --bundler
+      displayName: Update Bundler
+    - script: bundle install
+      displayName: Install Ruby dependencies
+    - script: mkdir -p Resources/WebDriverAgent.bundle
+      displayName: Make Resources Folder
+    - script: node ./ci-jobs/scripts/build-webdriveragents.js
+      displayName: Build WebDriverAgents
+    - script: ls ./bundles
+      displayName: List WDA Bundles
+    - task: PublishPipelineArtifact@0
+      inputs:
+        targetPath: bundles/
+        artifactName: ${{ parameters.name }}
+    - script: |
+        brew install ghr
+        ghr $(node ./ci-jobs/scripts/azure-print-tag-name) bundles/
+      env:
+        GITHUB_TOKEN: $(GITHUB_TOKEN)
+      displayName: Upload to GitHub Releases
