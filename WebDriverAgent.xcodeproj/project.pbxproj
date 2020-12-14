@@ -3512,6 +3512,7 @@
 					"@loader_path/Frameworks",
 				);
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -3602,6 +3603,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3651,9 +3653,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3683,9 +3683,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3694,6 +3692,7 @@
 					"@loader_path/Frameworks",
 				);
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentTvOSCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3906,6 +3905,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3946,9 +3946,7 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3967,9 +3965,7 @@
 			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3977,6 +3973,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_TARGET_NAME = IntegrationApp;
@@ -3989,9 +3986,7 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4010,9 +4005,7 @@
 			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4020,6 +4013,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_TARGET_NAME = IntegrationApp;
@@ -4031,9 +4025,7 @@
 			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4050,9 +4042,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4060,6 +4050,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -4095,6 +4086,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -4106,9 +4098,7 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4127,9 +4117,7 @@
 			baseConfigurationReference = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4137,6 +4125,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.IntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_TARGET_NAME = IntegrationApp;
@@ -4149,9 +4138,7 @@
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4174,9 +4161,7 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4184,6 +4169,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-all_load",
