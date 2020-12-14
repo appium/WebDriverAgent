@@ -7,6 +7,7 @@
     "test": "gulp once",
     "e2e-test": "npm run build && _FORCE_LOGS=1 npx mocha -t 0 -R spec build/test/functional --exit",
     "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
+    "install:dependencies": "gulp install:dependencies",
     "build": "gulp transpile",
     "prepare": "gulp prepublish",
     "prepublishOnly": "npm run bundle",
