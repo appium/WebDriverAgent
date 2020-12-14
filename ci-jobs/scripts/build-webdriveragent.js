@@ -25,7 +25,6 @@ async function buildWebDriverAgent (xcodeVersion) {
   }
 
   // Clean and build
-  await exec('npx', ['gulp', 'clean:carthage']);
   log.info('Running ./Scripts/build.sh');
   let env = {TARGET: 'runner', SDK: 'sim'};
   try {

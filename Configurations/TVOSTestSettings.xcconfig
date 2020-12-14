@@ -1,4 +1,2 @@
-ARCHS[sdk=appletvos*] = arm64
-ARCHS[sdk=appletvsimulator*] = x86_64
-VALID_ARCHS[sdk=appletvos*] = arm64
-VALID_ARCHS[sdk=appletvsimulator*] = x86_64
+EXCLUDED_ARCHS = i386
+

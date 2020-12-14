@@ -1,13 +1,10 @@
 import { WebDriverAgent, BOOTSTRAP_PATH } from '../..';
-import * as dependencies from '../../lib/check-dependencies';
 import * as utils from '../../lib/utils';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
 import _ from 'lodash';
 import sinon from 'sinon';
-import { withMocks } from 'appium-test-support';
-import { fs } from 'appium-support';
 
 
 chai.should();
@@ -54,82 +51,6 @@ describe('Constructor', function () {
     agent.xcodebuild.derivedDataPath.should.eql(customDerivedDataPath);
   });
 });
-
-describe('checking for dependencies', function () {
-  const wda = new WebDriverAgent('12.1');
-  const xcodebuild = wda.xcodebuild;
-  describe('#launch', withMocks({wda, fs, dependencies, xcodebuild}, function (mocks) {
-
-    afterEach(function () {
-      mocks.verify();
-    });
-
-    it('should call checkForDependencies', async function () {
-      wda.useXctestrunFile = false;
-      wda.usePrebuiltWDA = false;
-      wda.derivedDataPath = undefined;
-      wda.device = {};
-      wda.device.udid = 'udid';
-
-      mocks.wda.expects('setupProxies').once().returns();
-      mocks.fs.expects('exists').returns(true);
-      mocks.dependencies.expects('checkForDependencies').once().returns(false);
-      mocks.xcodebuild.expects('init').once().returns();
-      mocks.xcodebuild.expects('start').once().returns();
-
-      await wda.launch();
-    });
-
-    it('should call checkForDependencies since only usePrebuiltWDA', async function () {
-      wda.useXctestrunFile = false;
-      wda.usePrebuiltWDA = true;
-      wda.derivedDataPath = undefined;
-      wda.device = {};
-      wda.device.udid = 'udid';
-
-      mocks.wda.expects('setupProxies').once().returns();
-      mocks.fs.expects('exists').returns(true);
-      mocks.dependencies.expects('checkForDependencies').once().returns(false);
-      mocks.xcodebuild.expects('init').once().returns();
-      mocks.xcodebuild.expects('start').once().returns();
-
-      await wda.launch();
-    });
-
-    it('should not call checkForDependencies with usePrebuiltWDA and derivedDataPath', async function () {
-      wda.useXctestrunFile = false;
-      wda.usePrebuiltWDA = true;
-      wda.derivedDataPath = 'path/to/data';
-      wda.device = {};
-      wda.device.udid = 'udid';
-
-      mocks.wda.expects('setupProxies').once().returns();
-      mocks.fs.expects('exists').returns(true);
-      mocks.dependencies.expects('checkForDependencies').never();
-      mocks.xcodebuild.expects('init').once().returns();
-      mocks.xcodebuild.expects('start').once().returns();
-
-      await wda.launch();
-    });
-
-    it('should not call checkForDependencies with useXctestrunFile', async function () {
-      wda.useXctestrunFile = true;
-      wda.usePrebuiltWDA = false;
-      wda.derivedDataPath = undefined;
-      wda.device = {};
-      wda.device.udid = 'udid';
-
-      mocks.wda.expects('setupProxies').once().returns();
-      mocks.fs.expects('exists').returns(true);
-      mocks.dependencies.expects('checkForDependencies').never();
-      mocks.xcodebuild.expects('init').once().returns();
-      mocks.xcodebuild.expects('start').once().returns();
-
-      await wda.launch();
-    });
-  }));
-});
-
 
 describe('launch', function () {
   it('should use webDriverAgentUrl override and return current status', async function () {

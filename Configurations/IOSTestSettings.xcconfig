@@ -1,4 +1,1 @@
-ARCHS[sdk=iphoneos*] = arm64
-ARCHS[sdk=iphonesimulator*] = x86_64
-VALID_ARCHS[sdk=iphoneos*] = arm64
-VALID_ARCHS[sdk=iphonesimulator*] = x86_64
+EXCLUDED_ARCHS = i386

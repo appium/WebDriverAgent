@@ -19,14 +19,6 @@ if [[ ! -f Scripts/bootstrap.sh ]]; then
   exit 1
 fi
 
-function assert_has_carthage() {
-  if ! command -v carthage > /dev/null; then
-    echo "Please make sure that you have Carthage installed (https://github.com/Carthage/Carthage)"
-    echo "Note: We are expecting that carthage installed in /usr/local/bin/"
-    exit 1;
-  fi
-}
-
 function assert_has_npm() {
   if ! command -v npm > /dev/null; then
     echo "Please make sure that you have npm installed (https://www.npmjs.com)"
@@ -47,22 +39,7 @@ function join_by {
 }
 
 function fetch_and_build_dependencies() {
-  echo -e "${BOLD}Fetching dependencies"
-  assert_has_carthage
-  if ! cmp -s Cartfile.resolved Carthage/Cartfile.resolved; then
-    runtimes_with_devices=`xcrun simctl list -j devices | python -c "import sys,json;print(' '.join(map(lambda x: x[0], filter(lambda x: len([y for y in x[1] if y.get('availability') == '(available)' or y.get('isAvailable')]) > 0, json.load(sys.stdin)['devices'].items()))))"`
-    platforms=(iOS)
-    if echo "$runtimes_with_devices" | grep -q tvOS; then
-      platforms+=(tvOS)
-    else
-      echo "tvOS platform will not be included into Carthage bootstrap, because no Simulator devices have been created for it"
-    fi
-    platform_str=$(join_by , "${platforms[@]}")
-    bash "$DIR/carthage-wrapper.sh" bootstrap $USE_SSH --platform "$platform_str" $NO_USE_BINARIES
-    cp Cartfile.resolved Carthage
-  else
-    echo "Dependencies up-to-date"
-  fi
+  echo "Dependencies up-to-date"
 }
 
 FETCH_DEPS=1

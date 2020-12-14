@@ -11,7 +11,7 @@
 
 #import <mach/mach_time.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-#import <CocoaAsyncSocket/GCDAsyncSocket.h>
+#import "GCDAsyncSocket.h"
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
