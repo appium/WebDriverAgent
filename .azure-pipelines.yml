@@ -103,6 +103,7 @@ stages:
       codeSign: no
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
+      extraXcArgs: IPHONEOS_DEPLOYMENT_TARGET=$(MIN_PLATFORM_VERSION)
   - template: ./azure-templates/base_job.yml
     parameters:
       name: Generic_tvOS_Build_Min_Xcode

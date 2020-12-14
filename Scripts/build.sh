@@ -75,7 +75,7 @@ function xcbuild() {
         -sdk "$XC_SDK" \
         -destination "$XC_DESTINATION" \
         $XC_ACTION \
-        $XC_MACROS \
+        $XC_MACROS $EXTRA_XC_ARGS \
       | $output_command && exit ${PIPESTATUS[0]}
     else
       xcodebuild \
@@ -83,7 +83,7 @@ function xcbuild() {
         -scheme "$XC_TARGET" \
         -sdk "$XC_SDK" \
         $XC_ACTION \
-        $XC_MACROS \
+        $XC_MACROS $EXTRA_XC_ARGS \
       | $output_command && exit ${PIPESTATUS[0]}
     fi
 }
