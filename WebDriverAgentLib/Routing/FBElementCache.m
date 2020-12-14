@@ -9,7 +9,7 @@
 
 #import "FBElementCache.h"
 
-#import <YYCache/YYCache.h>
+#import "YYCache.h"
 #import "FBAlert.h"
 #import "FBExceptions.h"
 #import "FBXCodeCompatibility.h"

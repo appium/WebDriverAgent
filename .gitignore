@@ -34,11 +34,6 @@ xcuserdata
 # AppCode
 .idea/
 
-# Carthage
-Carthage/Build
-Carthage/Checkouts
-Carthage/Cartfile.resolved
-
 # Modules map recreated on each build
 Modules/module.modulemap
 

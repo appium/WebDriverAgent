@@ -346,18 +346,13 @@
 		715557D4211DBCE700613B26 /* FBTCPSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 715557D2211DBCE700613B26 /* FBTCPSocket.m */; };
 		71555A3D1DEC460A007D4A8B /* NSExpression+FBFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 71555A3B1DEC460A007D4A8B /* NSExpression+FBFormat.h */; };
 		71555A3E1DEC460A007D4A8B /* NSExpression+FBFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 71555A3C1DEC460A007D4A8B /* NSExpression+FBFormat.m */; };
-		7155B40D224D5A5F0042A993 /* YYCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B40C224D5A5F0042A993 /* YYCache.framework */; };
 		7155B40E224D5A850042A993 /* libAccessibility.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9343224D53DF004B8542 /* libAccessibility.tbd */; };
 		7155B414224D5B170042A993 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9342224D53A1004B8542 /* XCTest.framework */; };
 		7155B41B224D5B5A0042A993 /* libAccessibility.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B41A224D5B480042A993 /* libAccessibility.tbd */; };
 		7155B41C224D5B5D0042A993 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B419224D5B460042A993 /* libxml2.tbd */; };
-		7155B41D224D5B6C0042A993 /* YYCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE73A2240F49D00173FCB /* YYCache.framework */; };
-		7155B41F224D5B770042A993 /* YYCache.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE73A2240F49D00173FCB /* YYCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7155B424224D5BA10042A993 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B423224D5B980042A993 /* XCTest.framework */; };
 		7155B426224D5C130042A993 /* XCTAutomationSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B425224D5C130042A993 /* XCTAutomationSupport.framework */; };
 		7155B427224D5C170042A993 /* XCTAutomationSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B425224D5C130042A993 /* XCTAutomationSupport.framework */; };
-		7155B428224D5CB10042A993 /* YYCache.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 7155B40C224D5A5F0042A993 /* YYCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		7155B429224D5CC10042A993 /* YYCache.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = 641EE73A2240F49D00173FCB /* YYCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7155D703211DCEF400166C20 /* FBMjpegServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 7155D701211DCEF400166C20 /* FBMjpegServer.h */; };
 		7155D704211DCEF400166C20 /* FBMjpegServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7155D702211DCEF400166C20 /* FBMjpegServer.m */; };
 		7157B291221DADD2001C348C /* FBXCAXClientProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 7157B28F221DADD2001C348C /* FBXCAXClientProxy.h */; };
@@ -370,7 +365,6 @@
 		715D5774224DE05400DA2D99 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		715D5775224DE05C00DA2D99 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
 		715D5776224DE06500DA2D99 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 716C9345224D540C004B8542 /* libxml2.tbd */; };
-		715D5777224DE17E00DA2D99 /* YYCache.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B40C224D5A5F0042A993 /* YYCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		71649EC92518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
 		71649ECA2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
 		71649ECB2518C19C0087F212 /* IOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 71649EC82518C19C0087F212 /* IOSTestSettings.xcconfig */; };
@@ -388,6 +382,45 @@
 		717C0D872518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
 		717C0D882518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
 		717C0D892518ED7000CAA6EC /* TVOSTestSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */; };
+		718226CA2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226C62587443600661B83 /* GCDAsyncUdpSocket.h */; };
+		718226CB2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226C62587443600661B83 /* GCDAsyncUdpSocket.h */; };
+		718226CC2587443700661B83 /* GCDAsyncSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226C72587443600661B83 /* GCDAsyncSocket.h */; };
+		718226CD2587443700661B83 /* GCDAsyncSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226C72587443600661B83 /* GCDAsyncSocket.h */; };
+		718226CE2587443700661B83 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C82587443600661B83 /* GCDAsyncSocket.m */; };
+		718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C82587443600661B83 /* GCDAsyncSocket.m */; };
+		718226D02587443700661B83 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C92587443600661B83 /* GCDAsyncUdpSocket.m */; };
+		718226D12587443700661B83 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C92587443600661B83 /* GCDAsyncUdpSocket.m */; };
+		718226EA2587446200661B83 /* YYKVStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E22587446100661B83 /* YYKVStorage.m */; };
+		718226EB2587446200661B83 /* YYKVStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E22587446100661B83 /* YYKVStorage.m */; };
+		718226EC2587446200661B83 /* YYKVStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E32587446100661B83 /* YYKVStorage.h */; };
+		718226ED2587446200661B83 /* YYKVStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E32587446100661B83 /* YYKVStorage.h */; };
+		718226EE2587446200661B83 /* YYCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E42587446100661B83 /* YYCache.m */; };
+		718226EF2587446200661B83 /* YYCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E42587446100661B83 /* YYCache.m */; };
+		718226F02587446200661B83 /* YYDiskCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E52587446100661B83 /* YYDiskCache.h */; };
+		718226F12587446200661B83 /* YYDiskCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E52587446100661B83 /* YYDiskCache.h */; };
+		718226F22587446200661B83 /* YYMemoryCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E62587446100661B83 /* YYMemoryCache.h */; };
+		718226F32587446200661B83 /* YYMemoryCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E62587446100661B83 /* YYMemoryCache.h */; };
+		718226F42587446200661B83 /* YYMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E72587446100661B83 /* YYMemoryCache.m */; };
+		718226F52587446200661B83 /* YYMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E72587446100661B83 /* YYMemoryCache.m */; };
+		718226F62587446200661B83 /* YYDiskCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E82587446100661B83 /* YYDiskCache.m */; };
+		718226F72587446200661B83 /* YYDiskCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E82587446100661B83 /* YYDiskCache.m */; };
+		718226F82587446200661B83 /* YYCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E92587446200661B83 /* YYCache.h */; };
+		718226F92587446200661B83 /* YYCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E92587446200661B83 /* YYCache.h */; };
+		71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA224913C210060D7EB /* HTTPResponseProxy.h */; };
+		7182270B258744A700661B83 /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA324913C210060D7EB /* Route.h */; };
+		71822714258744A900661B83 /* RouteRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCAA24913C220060D7EB /* RouteRequest.h */; };
+		7182271D258744AB00661B83 /* RouteResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA124913C210060D7EB /* RouteResponse.h */; };
+		71822726258744AE00661B83 /* RoutingConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA524913C210060D7EB /* RoutingConnection.h */; };
+		7182272F258744B000661B83 /* RoutingHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA724913C210060D7EB /* RoutingHTTPServer.h */; };
+		71822738258744B800661B83 /* HTTPConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC89249131D30060D7EB /* HTTPConnection.h */; };
+		71822741258744BB00661B83 /* HTTPLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC8D249131D30060D7EB /* HTTPLogging.h */; };
+		7182274A258744BE00661B83 /* HTTPMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC87249131D30060D7EB /* HTTPMessage.h */; };
+		71822753258744C100661B83 /* HTTPResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC8F249131D40060D7EB /* HTTPResponse.h */; };
+		7182275C258744C300661B83 /* HTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC8B249131D30060D7EB /* HTTPServer.h */; };
+		71822765258744C700661B83 /* HTTPDataResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC60249131890060D7EB /* HTTPDataResponse.h */; };
+		7182276E258744C900661B83 /* HTTPErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC59249131880060D7EB /* HTTPErrorResponse.h */; };
+		71822777258744CE00661B83 /* DDNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC7D249131B00060D7EB /* DDNumber.h */; };
+		71822780258744D000661B83 /* DDRange.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC7B249131B00060D7EB /* DDRange.h */; };
 		718F49C8230844330045FE8B /* FBProtocolHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */; };
 		718F49C923087ACF0045FE8B /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
 		718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DE23080CA600646AFB /* FBProtocolHelpers.m */; };
@@ -450,8 +483,6 @@
 		71F5BE50252F14EB00EE9EBA /* FBExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */; };
 		71F5BE51252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
 		71F5BE52252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
-		7255FBD0249F2EC10079B1E4 /* CocoaAsyncSocket.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FD92493A41000C9FC04 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		7255FBD1249F2ED80079B1E4 /* CocoaAsyncSocket.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FDC2493A41A00C9FC04 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = EE158A991CBD452B00A3E3F0 /* WebDriverAgentLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD6C26941CF2379700F8B5FF /* FBAlert.h in Headers */ = {isa = PBXBuildFile; fileRef = AD6C26921CF2379700F8B5FF /* FBAlert.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AD6C26951CF2379700F8B5FF /* FBAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = AD6C26931CF2379700F8B5FF /* FBAlert.m */; };
@@ -512,10 +543,6 @@
 		E444DCD224917A5E0060D7EB /* HTTPErrorResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = E444DC61249131890060D7EB /* HTTPErrorResponse.m */; };
 		E444DCD424917A5E0060D7EB /* DDNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = E444DC7F249131B00060D7EB /* DDNumber.m */; };
 		E444DCD624917A5E0060D7EB /* DDRange.m in Sources */ = {isa = PBXBuildFile; fileRef = E444DC7E249131B00060D7EB /* DDRange.m */; };
-		E4C91FDA2493A41000C9FC04 /* CocoaAsyncSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FD92493A41000C9FC04 /* CocoaAsyncSocket.framework */; };
-		E4C91FDB2493A41000C9FC04 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FD92493A41000C9FC04 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E4C91FDD2493A41A00C9FC04 /* CocoaAsyncSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FDC2493A41A00C9FC04 /* CocoaAsyncSocket.framework */; };
-		E4C91FDE2493A41A00C9FC04 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = E4C91FDC2493A41A00C9FC04 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EE006EAD1EB99B15006900A4 /* FBElementVisibilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */; };
 		EE006EB01EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */; };
 		EE006EB11EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */; };
@@ -846,23 +873,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7255FBD1249F2ED80079B1E4 /* CocoaAsyncSocket.framework in Copy frameworks */,
-				7155B429224D5CC10042A993 /* YYCache.framework in Copy frameworks */,
 				641EE6FD2240C61D00173FCB /* WebDriverAgentLib_tvOS.framework in Copy frameworks */,
 			);
 			name = "Copy frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		641EE6F12240C5CA00173FCB /* Copy Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E4C91FDE2493A41A00C9FC04 /* CocoaAsyncSocket.framework in Copy Frameworks */,
-				7155B41F224D5B770042A993 /* YYCache.framework in Copy Frameworks */,
-			);
-			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		EE93CFF41CCA501300708122 /* Copy frameworks */ = {
@@ -871,23 +884,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7255FBD0249F2EC10079B1E4 /* CocoaAsyncSocket.framework in Copy frameworks */,
-				7155B428224D5CB10042A993 /* YYCache.framework in Copy frameworks */,
 				AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */,
 			);
 			name = "Copy frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEFAA8471CEF3B0900F7181F /* Copy Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E4C91FDB2493A41000C9FC04 /* CocoaAsyncSocket.framework in Copy Frameworks */,
-				715D5777224DE17E00DA2D99 /* YYCache.framework in Copy Frameworks */,
-			);
-			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -915,8 +914,6 @@
 		641EE7072240CDEB00173FCB /* XCUIElement+FBTVFocuse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBTVFocuse.m"; sourceTree = "<group>"; };
 		641EE70A2240CE2D00173FCB /* FBTVNavigationTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBTVNavigationTracker.h; sourceTree = "<group>"; };
 		641EE70D2240CE4800173FCB /* FBTVNavigationTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTVNavigationTracker.m; sourceTree = "<group>"; };
-		641EE7122240DE5E00173FCB /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoutingHTTPServer.framework; path = Carthage/Build/tvOS/RoutingHTTPServer.framework; sourceTree = "<group>"; };
-		641EE73A2240F49D00173FCB /* YYCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = YYCache.framework; path = Carthage/Build/tvOS/YYCache.framework; sourceTree = "<group>"; };
 		644D9CCD230E1F1A00C90459 /* FBConfigurationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBConfigurationTests.m; sourceTree = "<group>"; };
 		648C10AA22AAAD9C00B81B9A /* UIKeyboardImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIKeyboardImpl.h; sourceTree = "<group>"; };
 		648C10AE22AAAE4000B81B9A /* TIPreferencesController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TIPreferencesController.h; sourceTree = "<group>"; };
@@ -963,7 +960,6 @@
 		715557D2211DBCE700613B26 /* FBTCPSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTCPSocket.m; sourceTree = "<group>"; };
 		71555A3B1DEC460A007D4A8B /* NSExpression+FBFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSExpression+FBFormat.h"; sourceTree = "<group>"; };
 		71555A3C1DEC460A007D4A8B /* NSExpression+FBFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSExpression+FBFormat.m"; sourceTree = "<group>"; };
-		7155B40C224D5A5F0042A993 /* YYCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = YYCache.framework; path = Carthage/Build/iOS/YYCache.framework; sourceTree = "<group>"; };
 		7155B419224D5B460042A993 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.2.sdk/usr/lib/libxml2.tbd; sourceTree = DEVELOPER_DIR; };
 		7155B41A224D5B480042A993 /* libAccessibility.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libAccessibility.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.2.sdk/usr/lib/libAccessibility.tbd; sourceTree = DEVELOPER_DIR; };
 		7155B423224D5B980042A993 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -986,6 +982,18 @@
 		716E0BD01E917F260087A825 /* FBXMLSafeStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXMLSafeStringTests.m; sourceTree = "<group>"; };
 		717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSSettings.xcconfig; sourceTree = "<group>"; };
 		717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSTestSettings.xcconfig; sourceTree = "<group>"; };
+		718226C62587443600661B83 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncUdpSocket.h; sourceTree = SOURCE_ROOT; };
+		718226C72587443600661B83 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.h; sourceTree = SOURCE_ROOT; };
+		718226C82587443600661B83 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m; sourceTree = SOURCE_ROOT; };
+		718226C92587443600661B83 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncUdpSocket.m; sourceTree = SOURCE_ROOT; };
+		718226E22587446100661B83 /* YYKVStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYKVStorage.m; path = WebDriverAgentLib/Vendor/YYCache/YYKVStorage.m; sourceTree = SOURCE_ROOT; };
+		718226E32587446100661B83 /* YYKVStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYKVStorage.h; path = WebDriverAgentLib/Vendor/YYCache/YYKVStorage.h; sourceTree = SOURCE_ROOT; };
+		718226E42587446100661B83 /* YYCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYCache.m; sourceTree = SOURCE_ROOT; };
+		718226E52587446100661B83 /* YYDiskCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYDiskCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYDiskCache.h; sourceTree = SOURCE_ROOT; };
+		718226E62587446100661B83 /* YYMemoryCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYMemoryCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYMemoryCache.h; sourceTree = SOURCE_ROOT; };
+		718226E72587446100661B83 /* YYMemoryCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYMemoryCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYMemoryCache.m; sourceTree = SOURCE_ROOT; };
+		718226E82587446100661B83 /* YYDiskCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYDiskCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYDiskCache.m; sourceTree = SOURCE_ROOT; };
+		718226E92587446200661B83 /* YYCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYCache.h; sourceTree = SOURCE_ROOT; };
 		718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBProtocolHelpersTests.m; sourceTree = "<group>"; };
 		71930C4020662E1F00D3AFEC /* FBPasteboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBPasteboard.h; sourceTree = "<group>"; };
 		71930C4120662E1F00D3AFEC /* FBPasteboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBPasteboard.m; sourceTree = "<group>"; };
@@ -1033,7 +1041,6 @@
 		71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBExceptions.h; sourceTree = "<group>"; };
 		71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBExceptions.m; sourceTree = "<group>"; };
 		AD42DD2A1CF121E600806E5D /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		AD42DD2B1CF1238500806E5D /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoutingHTTPServer.framework; path = Carthage/Build/iOS/RoutingHTTPServer.framework; sourceTree = "<group>"; };
 		AD6C26921CF2379700F8B5FF /* FBAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBAlert.h; path = WebDriverAgentLib/FBAlert.h; sourceTree = SOURCE_ROOT; };
 		AD6C26931CF2379700F8B5FF /* FBAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = FBAlert.m; path = WebDriverAgentLib/FBAlert.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		AD6C26961CF2481700F8B5FF /* XCUIDevice+FBHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIDevice+FBHelpers.h"; sourceTree = "<group>"; };
@@ -1080,8 +1087,6 @@
 		E444DCA824913C220060D7EB /* RoutingHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoutingHTTPServer.m; path = WebDriverAgentLib/Vendor/RoutingHTTPServer/RoutingHTTPServer.m; sourceTree = SOURCE_ROOT; };
 		E444DCA924913C220060D7EB /* RouteRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RouteRequest.m; path = WebDriverAgentLib/Vendor/RoutingHTTPServer/RouteRequest.m; sourceTree = SOURCE_ROOT; };
 		E444DCAA24913C220060D7EB /* RouteRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RouteRequest.h; path = WebDriverAgentLib/Vendor/RoutingHTTPServer/RouteRequest.h; sourceTree = SOURCE_ROOT; };
-		E4C91FD92493A41000C9FC04 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaAsyncSocket.framework; path = Carthage/Build/iOS/CocoaAsyncSocket.framework; sourceTree = "<group>"; };
-		E4C91FDC2493A41A00C9FC04 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaAsyncSocket.framework; path = Carthage/Build/tvOS/CocoaAsyncSocket.framework; sourceTree = "<group>"; };
 		EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBElementVisibilityTests.m; sourceTree = "<group>"; };
 		EE006EAE1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCElementSnapshot+FBHitPoint.h"; sourceTree = "<group>"; };
 		EE006EAF1EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCElementSnapshot+FBHitPoint.m"; sourceTree = "<group>"; };
@@ -1361,11 +1366,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4C91FDD2493A41A00C9FC04 /* CocoaAsyncSocket.framework in Frameworks */,
 				7155B414224D5B170042A993 /* XCTest.framework in Frameworks */,
 				7155B41C224D5B5D0042A993 /* libxml2.tbd in Frameworks */,
 				7155B41B224D5B5A0042A993 /* libAccessibility.tbd in Frameworks */,
-				7155B41D224D5B6C0042A993 /* YYCache.framework in Frameworks */,
 				7155B427224D5C170042A993 /* XCTAutomationSupport.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1382,11 +1385,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4C91FDA2493A41000C9FC04 /* CocoaAsyncSocket.framework in Frameworks */,
 				7155B40E224D5A850042A993 /* libAccessibility.tbd in Frameworks */,
 				7155B424224D5BA10042A993 /* XCTest.framework in Frameworks */,
 				716C9347224D540C004B8542 /* libxml2.tbd in Frameworks */,
-				7155B40D224D5A5F0042A993 /* YYCache.framework in Frameworks */,
 				7155B426224D5C130042A993 /* XCTAutomationSupport.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1503,8 +1504,6 @@
 				7155B425224D5C130042A993 /* XCTAutomationSupport.framework */,
 				7155B41A224D5B480042A993 /* libAccessibility.tbd */,
 				7155B419224D5B460042A993 /* libxml2.tbd */,
-				641EE7122240DE5E00173FCB /* RoutingHTTPServer.framework */,
-				641EE73A2240F49D00173FCB /* YYCache.framework */,
 				716C9342224D53A1004B8542 /* XCTest.framework */,
 			);
 			name = tvOS;
@@ -1514,13 +1513,37 @@
 			isa = PBXGroup;
 			children = (
 				7155B423224D5B980042A993 /* XCTest.framework */,
-				7155B40C224D5A5F0042A993 /* YYCache.framework */,
 				716C9344224D53FC004B8542 /* XCTAutomationSupport.framework */,
 				716C9343224D53DF004B8542 /* libAccessibility.tbd */,
 				716C9345224D540C004B8542 /* libxml2.tbd */,
-				AD42DD2B1CF1238500806E5D /* RoutingHTTPServer.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		7182261925873B7800661B83 /* YYCache */ = {
+			isa = PBXGroup;
+			children = (
+				718226E92587446200661B83 /* YYCache.h */,
+				718226E42587446100661B83 /* YYCache.m */,
+				718226E52587446100661B83 /* YYDiskCache.h */,
+				718226E82587446100661B83 /* YYDiskCache.m */,
+				718226E32587446100661B83 /* YYKVStorage.h */,
+				718226E22587446100661B83 /* YYKVStorage.m */,
+				718226E62587446100661B83 /* YYMemoryCache.h */,
+				718226E72587446100661B83 /* YYMemoryCache.m */,
+			);
+			name = YYCache;
+			sourceTree = "<group>";
+		};
+		7182268F2587432E00661B83 /* CocoaAsyncSocket */ = {
+			isa = PBXGroup;
+			children = (
+				718226C72587443600661B83 /* GCDAsyncSocket.h */,
+				718226C82587443600661B83 /* GCDAsyncSocket.m */,
+				718226C62587443600661B83 /* GCDAsyncUdpSocket.h */,
+				718226C92587443600661B83 /* GCDAsyncUdpSocket.m */,
+			);
+			name = CocoaAsyncSocket;
 			sourceTree = "<group>";
 		};
 		91F9DAE01B99DBC2001349B2 = {
@@ -1593,8 +1616,6 @@
 		B6E83A410C45944B036B6B0F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E4C91FD92493A41000C9FC04 /* CocoaAsyncSocket.framework */,
-				E4C91FDC2493A41A00C9FC04 /* CocoaAsyncSocket.framework */,
 				716C9341224D5369004B8542 /* iOS */,
 				716C9340224D5358004B8542 /* tvOS */,
 			);
@@ -1612,6 +1633,8 @@
 		E444DC4A24912EC40060D7EB /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				7182268F2587432E00661B83 /* CocoaAsyncSocket */,
+				7182261925873B7800661B83 /* YYCache */,
 				E444DC9E24913C080060D7EB /* RoutingHTTPServer */,
 				E444DC52249131050060D7EB /* CocoaHTTPServer */,
 			);
@@ -2203,16 +2226,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				641EE6312240C5CA00173FCB /* XCUIElement+FBWebDriverAttributes.h in Headers */,
+				7182274A258744BE00661B83 /* HTTPMessage.h in Headers */,
 				641EE6322240C5CA00173FCB /* FBScreen.h in Headers */,
 				641EE6332240C5CA00173FCB /* XCTestPrivateSymbols.h in Headers */,
 				641EE6342240C5CA00173FCB /* XCUIElement+FBTyping.h in Headers */,
+				7182270B258744A700661B83 /* Route.h in Headers */,
 				641EE6352240C5CA00173FCB /* XCUIElement+FBUtilities.h in Headers */,
 				641EE6362240C5CA00173FCB /* XCUIElement+FBScrolling.h in Headers */,
+				718226ED2587446200661B83 /* YYKVStorage.h in Headers */,
 				1357E297233D05240054BDB8 /* XCUIHitPointResult.h in Headers */,
 				641EE6372240C5CA00173FCB /* XCSourceCodeTreeNode.h in Headers */,
 				641EE6382240C5CA00173FCB /* XCPointerEventPath.h in Headers */,
 				641EE6392240C5CA00173FCB /* FBRouteRequest.h in Headers */,
 				648C10AC22AAAD9C00B81B9A /* UIKeyboardImpl.h in Headers */,
+				718226CD2587443700661B83 /* GCDAsyncSocket.h in Headers */,
 				71F3E7D525417FF400E0C22B /* FBSettings.h in Headers */,
 				641EE63A2240C5CA00173FCB /* XCTest.h in Headers */,
 				641EE63B2240C5CA00173FCB /* FBAlertsMonitor.h in Headers */,
@@ -2236,6 +2263,7 @@
 				641EE64C2240C5CA00173FCB /* XCTestMisuseObserver.h in Headers */,
 				641EE64D2240C5CA00173FCB /* XCTRunnerDaemonSession.h in Headers */,
 				64B2650B228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */,
+				718226F12587446200661B83 /* YYDiskCache.h in Headers */,
 				641EE64E2240C5CA00173FCB /* FBApplication.h in Headers */,
 				641EE64F2240C5CA00173FCB /* XCTestExpectationWaiter.h in Headers */,
 				641EE6502240C5CA00173FCB /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2258,7 +2286,9 @@
 				641EE6612240C5CA00173FCB /* XCUIElement+FBTap.h in Headers */,
 				641EE6622240C5CA00173FCB /* FBResponsePayload.h in Headers */,
 				641EE6632240C5CA00173FCB /* FBUnknownCommands.h in Headers */,
+				718226F92587446200661B83 /* YYCache.h in Headers */,
 				641EE7062240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */,
+				71822738258744B800661B83 /* HTTPConnection.h in Headers */,
 				641EE6642240C5CA00173FCB /* NSPredicate+FBFormat.h in Headers */,
 				641EE6652240C5CA00173FCB /* UILongPressGestureRecognizer-RecordingAdditions.h in Headers */,
 				641EE6662240C5CA00173FCB /* XCTestCase.h in Headers */,
@@ -2271,6 +2301,7 @@
 				641EE66C2240C5CA00173FCB /* UIPinchGestureRecognizer-RecordingAdditions.h in Headers */,
 				641EE66D2240C5CA00173FCB /* XCTestManager_TestsInterface-Protocol.h in Headers */,
 				641EE66E2240C5CA00173FCB /* XCUIApplication+FBAlert.h in Headers */,
+				7182275C258744C300661B83 /* HTTPServer.h in Headers */,
 				641EE66F2240C5CA00173FCB /* XCDeviceEvent.h in Headers */,
 				641EE6702240C5CA00173FCB /* FBMathUtils.h in Headers */,
 				641EE6712240C5CA00173FCB /* UISwipeGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2294,19 +2325,23 @@
 				641EE6822240C5CA00173FCB /* FBElementCache.h in Headers */,
 				641EE6832240C5CA00173FCB /* XCTMetric.h in Headers */,
 				641EE6842240C5CA00173FCB /* XCTestContextScope.h in Headers */,
+				7182271D258744AB00661B83 /* RouteResponse.h in Headers */,
 				641EE6852240C5CA00173FCB /* XCUIElement+FBClassChain.h in Headers */,
 				641EE6862240C5CA00173FCB /* FBResponseJSONPayload.h in Headers */,
+				71822714258744A900661B83 /* RouteRequest.h in Headers */,
 				641EE6872240C5CA00173FCB /* XCTAutomationTarget-Protocol.h in Headers */,
 				641EE6882240C5CA00173FCB /* FBElement.h in Headers */,
 				641EE6892240C5CA00173FCB /* XCTAXClient-Protocol.h in Headers */,
 				641EE68A2240C5CA00173FCB /* FBPredicate.h in Headers */,
 				641EE68B2240C5CA00173FCB /* FBExceptionHandler.h in Headers */,
+				71822726258744AE00661B83 /* RoutingConnection.h in Headers */,
 				641EE68C2240C5CA00173FCB /* FBRoute.h in Headers */,
 				641EE68D2240C5CA00173FCB /* XCTestDriver.h in Headers */,
 				641EE68E2240C5CA00173FCB /* _XCTNSNotificationExpectationImplementation.h in Headers */,
 				641EE68F2240C5CA00173FCB /* XCSynthesizedEventRecord.h in Headers */,
 				641EE6922240C5CA00173FCB /* XCTWaiterDelegatePrivate-Protocol.h in Headers */,
 				641EE6932240C5CA00173FCB /* XCTestManager_IDEInterface-Protocol.h in Headers */,
+				71822753258744C100661B83 /* HTTPResponse.h in Headers */,
 				641EE6942240C5CA00173FCB /* FBXPath.h in Headers */,
 				641EE6952240C5CA00173FCB /* XCUIRecorderTimingMessage.h in Headers */,
 				641EE6962240C5CA00173FCB /* XCApplicationMonitor.h in Headers */,
@@ -2322,6 +2357,7 @@
 				641EE6A02240C5CA00173FCB /* XCUIElement+FBUID.h in Headers */,
 				641EE6A12240C5CA00173FCB /* XCSymbolicationRecord.h in Headers */,
 				641EE6A22240C5CA00173FCB /* XCUIDevice.h in Headers */,
+				7182272F258744B000661B83 /* RoutingHTTPServer.h in Headers */,
 				641EE6A32240C5CA00173FCB /* XCUIApplication+FBTouchAction.h in Headers */,
 				641EE6A42240C5CA00173FCB /* FBCommandHandler.h in Headers */,
 				641EE6A52240C5CA00173FCB /* FBSessionCommands.h in Headers */,
@@ -2330,7 +2366,9 @@
 				641EE6A72240C5CA00173FCB /* FBSession-Private.h in Headers */,
 				641EE6A82240C5CA00173FCB /* NSString+FBXMLSafeString.h in Headers */,
 				641EE6A92240C5CA00173FCB /* FBCommandStatus.h in Headers */,
+				71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */,
 				641EE6AA2240C5CA00173FCB /* XCElementSnapshot.h in Headers */,
+				71822741258744BB00661B83 /* HTTPLogging.h in Headers */,
 				641EE6AB2240C5CA00173FCB /* FBAlertViewCommands.h in Headers */,
 				641EE6AC2240C5CA00173FCB /* XCTWaiter.h in Headers */,
 				641EE6AD2240C5CA00173FCB /* XCTWaiterManagement-Protocol.h in Headers */,
@@ -2346,6 +2384,7 @@
 				71F5BE24252E576C00EE9EBA /* XCUIElement+FBSwiping.h in Headers */,
 				641EE6B62240C5CA00173FCB /* _XCTestSuiteImplementation.h in Headers */,
 				641EE6B72240C5CA00173FCB /* FBBaseActionsSynthesizer.h in Headers */,
+				7182276E258744C900661B83 /* HTTPErrorResponse.h in Headers */,
 				641EE6B82240C5CA00173FCB /* FBAlert.h in Headers */,
 				641EE6B92240C5CA00173FCB /* XCUIElementQuery.h in Headers */,
 				641EE6BA2240C5CA00173FCB /* XCPointerEvent.h in Headers */,
@@ -2363,6 +2402,7 @@
 				641EE6C42240C5CA00173FCB /* FBMacros.h in Headers */,
 				641EE6C52240C5CA00173FCB /* XCTestExpectationDelegate-Protocol.h in Headers */,
 				641EE6C62240C5CA00173FCB /* XCTUIApplicationMonitor-Protocol.h in Headers */,
+				71822777258744CE00661B83 /* DDNumber.h in Headers */,
 				641EE6C72240C5CA00173FCB /* XCElementSnapshot+FBHelpers.h in Headers */,
 				641EE6C82240C5CA00173FCB /* XCTKVOExpectation.h in Headers */,
 				641EE6C92240C5CA00173FCB /* XCUIDevice+FBRotation.h in Headers */,
@@ -2371,6 +2411,7 @@
 				641EE6CC2240C5CA00173FCB /* XCTestSuiteRun.h in Headers */,
 				641EE6CD2240C5CA00173FCB /* XCUIElementAsynchronousHandlerWrapper.h in Headers */,
 				641EE6CE2240C5CA00173FCB /* XCTestLog.h in Headers */,
+				718226F32587446200661B83 /* YYMemoryCache.h in Headers */,
 				C845206222D5E79400EA68CB /* FBUnattachedAppLauncher.h in Headers */,
 				641EE6CF2240C5CA00173FCB /* UITapGestureRecognizer-RecordingAdditions.h in Headers */,
 				641EE6D02240C5CA00173FCB /* XCDebugLogDelegate-Protocol.h in Headers */,
@@ -2384,6 +2425,7 @@
 				641EE6D82240C5CA00173FCB /* XCUIElement.h in Headers */,
 				641EE6D92240C5CA00173FCB /* XCKeyboardInputSolver.h in Headers */,
 				641EE6DA2240C5CA00173FCB /* FBXCTestCaseImplementationFailureHoldingProxy.h in Headers */,
+				718226CB2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */,
 				641EE6DB2240C5CA00173FCB /* FBPasteboard.h in Headers */,
 				641EE6DC2240C5CA00173FCB /* FBAppiumActionsSynthesizer.h in Headers */,
 				641EE6DD2240C5CA00173FCB /* FBDebugLogDelegateDecorator.h in Headers */,
@@ -2393,9 +2435,11 @@
 				641EE6E12240C5CA00173FCB /* XCUIApplicationProcess.h in Headers */,
 				641EE6E22240C5CA00173FCB /* FBW3CActionsSynthesizer.h in Headers */,
 				641EE6E32240C5CA00173FCB /* CDStructures.h in Headers */,
+				71822780258744D000661B83 /* DDRange.h in Headers */,
 				641EE6E42240C5CA00173FCB /* XCKeyboardLayout.h in Headers */,
 				641EE6E52240C5CA00173FCB /* XCTAsyncActivity-Protocol.h in Headers */,
 				641EE6E62240C5CA00173FCB /* XCActivityRecord.h in Headers */,
+				71822765258744C700661B83 /* HTTPDataResponse.h in Headers */,
 				641EE6E72240C5CA00173FCB /* XCUIElement+FBFind.h in Headers */,
 				641EE6E82240C5CA00173FCB /* XCTestManager_ManagerInterface-Protocol.h in Headers */,
 				641EE6E92240C5CA00173FCB /* FBFailureProofTestCase.h in Headers */,
@@ -2448,6 +2492,7 @@
 				EE35AD601E3B77D600A02D78 /* XCTRunnerDaemonSession.h in Headers */,
 				64B2650A228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */,
 				EE158AF51CBD456F00A3E3F0 /* FBApplication.h in Headers */,
+				718226F22587446200661B83 /* YYMemoryCache.h in Headers */,
 				71B155DF23080CA600646AFB /* FBProtocolHelpers.h in Headers */,
 				EE35AD4B1E3B77D600A02D78 /* XCTestExpectationWaiter.h in Headers */,
 				EE35AD1E1E3B77D600A02D78 /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2461,9 +2506,11 @@
 				EE158AE61CBD456F00A3E3F0 /* FBWebServer.h in Headers */,
 				EE158AC61CBD456F00A3E3F0 /* FBScreenshotCommands.h in Headers */,
 				EE35AD0A1E3B77D600A02D78 /* _XCKVOExpectationImplementation.h in Headers */,
+				718226F02587446200661B83 /* YYDiskCache.h in Headers */,
 				EE0D1F611EBCDCF7006A3123 /* NSString+FBVisualLength.h in Headers */,
 				EE35AD7B1E3B80C000A02D78 /* FBXCTestDaemonsProxy.h in Headers */,
 				EE35AD721E3B77D600A02D78 /* XCUIElementHitPointCoordinate.h in Headers */,
+				718226F82587446200661B83 /* YYCache.h in Headers */,
 				EE35AD3F1E3B77D600A02D78 /* XCTDarwinNotificationExpectation.h in Headers */,
 				EE35AD5F1E3B77D600A02D78 /* XCTRunnerAutomationSession.h in Headers */,
 				EEC9EED620064FAA00BC0D5B /* XCUICoordinate+FBFix.h in Headers */,
@@ -2482,6 +2529,7 @@
 				EE35AD201E3B77D600A02D78 /* UIPanGestureRecognizer-RecordingAdditions.h in Headers */,
 				71555A3D1DEC460A007D4A8B /* NSExpression+FBFormat.h in Headers */,
 				EE35AD0C1E3B77D600A02D78 /* _XCTestCaseImplementation.h in Headers */,
+				718226EC2587446200661B83 /* YYKVStorage.h in Headers */,
 				EE35AD211E3B77D600A02D78 /* UIPinchGestureRecognizer-RecordingAdditions.h in Headers */,
 				EE35AD4F1E3B77D600A02D78 /* XCTestManager_TestsInterface-Protocol.h in Headers */,
 				719CD8FC2126C88B00C7D0C2 /* XCUIApplication+FBAlert.h in Headers */,
@@ -2505,6 +2553,7 @@
 				EE35AD421E3B77D600A02D78 /* XCTestCaseRun.h in Headers */,
 				EE35AD441E3B77D600A02D78 /* XCTestConfiguration.h in Headers */,
 				EE35AD0B1E3B77D600A02D78 /* _XCTDarwinNotificationExpectationImplementation.h in Headers */,
+				718226CA2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */,
 				EE35AD491E3B77D600A02D78 /* XCTestExpectation.h in Headers */,
 				EE158AE81CBD456F00A3E3F0 /* FBElementTypeTransformer.h in Headers */,
 				7157B291221DADD2001C348C /* FBXCAXClientProxy.h in Headers */,
@@ -2624,6 +2673,7 @@
 				EE35AD311E3B77D600A02D78 /* XCKeyboardLayout.h in Headers */,
 				E444DCB624913C220060D7EB /* RouteRequest.h in Headers */,
 				71F5BE23252E576C00EE9EBA /* XCUIElement+FBSwiping.h in Headers */,
+				718226CC2587443700661B83 /* GCDAsyncSocket.h in Headers */,
 				EE35AD3B1E3B77D600A02D78 /* XCTAsyncActivity-Protocol.h in Headers */,
 				EE35AD251E3B77D600A02D78 /* XCActivityRecord.h in Headers */,
 				EEBBD48B1D47746D00656A81 /* XCUIElement+FBFind.h in Headers */,
@@ -2668,7 +2718,6 @@
 				641EE6282240C5CA00173FCB /* Frameworks */,
 				641EE6302240C5CA00173FCB /* Headers */,
 				641EE6EF2240C5CA00173FCB /* Resources */,
-				641EE6F12240C5CA00173FCB /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2705,7 +2754,6 @@
 				EE158A951CBD452B00A3E3F0 /* Frameworks */,
 				EE158A961CBD452B00A3E3F0 /* Headers */,
 				EE158A971CBD452B00A3E3F0 /* Resources */,
-				EEFAA8471CEF3B0900F7181F /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2991,6 +3039,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				E444DCBC24917A5E0060D7EB /* HTTPResponseProxy.m in Sources */,
 				E444DCBE24917A5E0060D7EB /* Route.m in Sources */,
 				E444DCC024917A5E0060D7EB /* RouteRequest.m in Sources */,
@@ -3003,6 +3052,7 @@
 				E444DCD024917A5E0060D7EB /* HTTPDataResponse.m in Sources */,
 				E444DCD224917A5E0060D7EB /* HTTPErrorResponse.m in Sources */,
 				E444DCD424917A5E0060D7EB /* DDNumber.m in Sources */,
+				718226EB2587446200661B83 /* YYKVStorage.m in Sources */,
 				E444DCD624917A5E0060D7EB /* DDRange.m in Sources */,
 				641EE5D72240C5CA00173FCB /* FBScreenshotCommands.m in Sources */,
 				641EE5D82240C5CA00173FCB /* FBPredicate.m in Sources */,
@@ -3039,11 +3089,13 @@
 				718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */,
 				641EE5F32240C5CA00173FCB /* XCAccessibilityElement+FBComparison.m in Sources */,
 				641EE5F42240C5CA00173FCB /* XCUIDevice+FBRotation.m in Sources */,
+				718226EF2587446200661B83 /* YYCache.m in Sources */,
 				13815F722328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */,
 				71D475C52538F5A8008D9401 /* XCUIApplicationProcess+FBQuiescence.m in Sources */,
 				641EE5F52240C5CA00173FCB /* XCUIElement+FBUID.m in Sources */,
 				641EE5F62240C5CA00173FCB /* FBRouteRequest.m in Sources */,
 				641EE5F72240C5CA00173FCB /* FBResponseJSONPayload.m in Sources */,
+				718226D12587443700661B83 /* GCDAsyncUdpSocket.m in Sources */,
 				641EE5F82240C5CA00173FCB /* FBXCTestCaseImplementationFailureHoldingProxy.m in Sources */,
 				641EE5F92240C5CA00173FCB /* FBMjpegServer.m in Sources */,
 				641EE5FA2240C5CA00173FCB /* XCUIDevice+FBHealthCheck.m in Sources */,
@@ -3052,7 +3104,9 @@
 				641EE5FE2240C5CA00173FCB /* XCUIElement+FBWebDriverAttributes.m in Sources */,
 				641EE5FF2240C5CA00173FCB /* XCUIElement+FBForceTouch.m in Sources */,
 				641EE6002240C5CA00173FCB /* FBTouchActionCommands.m in Sources */,
+				718226F52587446200661B83 /* YYMemoryCache.m in Sources */,
 				641EE6012240C5CA00173FCB /* FBImageIOScaler.m in Sources */,
+				718226F72587446200661B83 /* YYDiskCache.m in Sources */,
 				641EE6022240C5CA00173FCB /* FBTouchIDCommands.m in Sources */,
 				641EE6032240C5CA00173FCB /* FBDebugCommands.m in Sources */,
 				641EE6042240C5CA00173FCB /* NSString+FBXMLSafeString.m in Sources */,
@@ -3123,6 +3177,8 @@
 				641EE70E2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,
 				71BD20741F86116100B36EC2 /* XCUIApplication+FBTouchAction.m in Sources */,
 				EE158AE71CBD456F00A3E3F0 /* FBWebServer.m in Sources */,
+				718226EA2587446200661B83 /* YYKVStorage.m in Sources */,
+				718226EE2587446200661B83 /* YYCache.m in Sources */,
 				715557D4211DBCE700613B26 /* FBTCPSocket.m in Sources */,
 				EE3A18631CDE618F00DE4205 /* FBErrorBuilder.m in Sources */,
 				71A7EAF61E20516B001DA4F2 /* XCUIElement+FBClassChain.m in Sources */,
@@ -3130,6 +3186,7 @@
 				AD6C269D1CF2494200F8B5FF /* XCUIApplication+FBHelpers.m in Sources */,
 				EE3A18671CDE734B00DE4205 /* FBKeyboard.m in Sources */,
 				E444DCAC24913C220060D7EB /* Route.m in Sources */,
+				718226F62587446200661B83 /* YYDiskCache.m in Sources */,
 				713C6DD01DDC772A00285B92 /* FBElementUtils.m in Sources */,
 				7140974C1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m in Sources */,
 				EE6A893B1D0B38640083E92B /* FBFailureProofTestCase.m in Sources */,
@@ -3145,6 +3202,7 @@
 				EEE9B4731CD02B88009D2030 /* FBRunLoopSpinner.m in Sources */,
 				719CD8F92126C78F00C7D0C2 /* FBAlertsMonitor.m in Sources */,
 				71A7EAFA1E224648001DA4F2 /* FBClassChainQueryParser.m in Sources */,
+				718226D02587443700661B83 /* GCDAsyncUdpSocket.m in Sources */,
 				71A224E61DE2F56600844D55 /* NSPredicate+FBFormat.m in Sources */,
 				E444DC85249131B10060D7EB /* DDNumber.m in Sources */,
 				710C16CE21497A08006EA1D0 /* XCAccessibilityElement+FBComparison.m in Sources */,
@@ -3181,6 +3239,7 @@
 				AD6C26991CF2481700F8B5FF /* XCUIDevice+FBHelpers.m in Sources */,
 				EE6B64FE1D0F86EF00E85F5D /* XCTestPrivateSymbols.m in Sources */,
 				AD76723E1D6B7CC000610457 /* XCUIElement+FBTyping.m in Sources */,
+				718226F42587446200661B83 /* YYMemoryCache.m in Sources */,
 				EE158AAF1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.m in Sources */,
 				7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */,
 				E444DCAB24913C220060D7EB /* HTTPResponseProxy.m in Sources */,
@@ -3194,6 +3253,7 @@
 				EE158AB91CBD456F00A3E3F0 /* FBAlertViewCommands.m in Sources */,
 				71F3E7D625417FF400E0C22B /* FBSettings.m in Sources */,
 				EE158AB31CBD456F00A3E3F0 /* XCUIElement+FBScrolling.m in Sources */,
+				718226CE2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				EE158AC91CBD456F00A3E3F0 /* FBSessionCommands.m in Sources */,
 				EE006EB11EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m in Sources */,
 				EE9B76A71CF7A43900275851 /* FBConfiguration.m in Sources */,
@@ -3473,9 +3533,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -3533,9 +3592,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/tvOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -3595,7 +3653,6 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
@@ -3628,7 +3685,6 @@
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests_tvOS/Info.plist;
@@ -3783,9 +3839,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
@@ -3841,9 +3896,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentLib/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
@@ -3894,7 +3948,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -3916,7 +3969,6 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -3939,7 +3991,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -3961,7 +4012,6 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -3983,7 +4033,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4003,7 +4052,6 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4060,7 +4108,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4082,7 +4129,6 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4105,7 +4151,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4131,7 +4176,6 @@
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;

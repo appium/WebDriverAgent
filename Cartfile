@@ -1,5 +1,0 @@
-# Used by the HTTP server
-github "robbiehanson/CocoaAsyncSocket"
-
-# Used by the element cache
-github "appium/YYCache"
