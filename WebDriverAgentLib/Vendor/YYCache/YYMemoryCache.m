@@ -440,15 +440,15 @@ static inline dispatch_queue_t YYMemoryCacheGetReleaseQueue() {
         });
     }
     if (_lru->_totalCount > _countLimit) {
-        _YYLinkedMapNode *node = [_lru removeTailNode];
+        _YYLinkedMapNode *linkedMapNode = [_lru removeTailNode];
         if (_lru->_releaseAsynchronously) {
             dispatch_queue_t queue = _lru->_releaseOnMainThread ? dispatch_get_main_queue() : YYMemoryCacheGetReleaseQueue();
             dispatch_async(queue, ^{
-                [node class]; //hold and release in queue
+                [linkedMapNode class]; //hold and release in queue
             });
         } else if (_lru->_releaseOnMainThread && !pthread_main_np()) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [node class]; //hold and release in queue
+                [linkedMapNode class]; //hold and release in queue
             });
         }
     }
@@ -498,8 +498,8 @@ static inline dispatch_queue_t YYMemoryCacheGetReleaseQueue() {
 }
 
 - (NSString *)description {
-    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, self, _name];
-    else return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
+    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, (void *)self, _name];
+    else return [NSString stringWithFormat:@"<%@: %p>", self.class, (void *)self];
 }
 
 @end

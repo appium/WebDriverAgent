@@ -343,7 +343,7 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
             return;
         }
         Lock();
-      [self->_kv removeAllItemsWithProgressBlock:progress endBlock:end];
+        [self->_kv removeAllItemsWithProgressBlock:progress endBlock:end];
         Unlock();
     });
 }
@@ -438,8 +438,8 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
 }
 
 - (NSString *)description {
-    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@:%@)", self.class, self, _name, _path];
-    else return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, self, _path];
+    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@:%@)", self.class, (void *)self, _name, _path];
+    else return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, (void *)self, _path];
 }
 
 - (BOOL)errorLogsEnabled {

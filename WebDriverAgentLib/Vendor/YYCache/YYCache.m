@@ -132,10 +132,8 @@
 }
 
 - (NSString *)description {
-  if (_name) return [NSString stringWithFormat:@"<%@: %@> (%@)", self.class, self, _name];
-  else return [NSString stringWithFormat:@"<%@: %@>", self.class, self];
-}
-
+    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, (void *)self, _name];
+    else return [NSString stringWithFormat:@"<%@: %p>", self.class, (void *)self]; }
 @end
 
 #pragma clang diagnostic pop
