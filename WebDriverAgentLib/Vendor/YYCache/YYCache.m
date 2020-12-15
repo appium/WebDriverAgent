@@ -85,11 +85,11 @@
             block(key, object);
         });
     } else {
-        [_diskCache objectForKey:key withBlock:^(NSString *key, id<NSCoding> object) {
-          if (object && ![self->_memoryCache objectForKey:key]) {
-            [self->_memoryCache setObject:object forKey:key];
+        [_diskCache objectForKey:key withBlock:^(NSString *cacheKey, id<NSCoding> cacheObject) {
+            if (cacheObject && ![self.memoryCache objectForKey:cacheKey]) {
+               [self.memoryCache setObject:cacheObject forKey:cacheKey];
             }
-            block(key, object);
+            block(cacheKey, cacheObject);
         }];
     }
 }
