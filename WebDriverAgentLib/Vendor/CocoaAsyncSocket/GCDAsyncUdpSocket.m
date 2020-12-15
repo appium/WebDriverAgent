@@ -28,6 +28,8 @@
 #import <sys/socket.h>
 #import <sys/types.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
 #if 0
 
@@ -4932,7 +4934,9 @@ static void CFReadStreamCallback(CFReadStreamRef stream, CFStreamEventType type,
 {
 	@autoreleasepool {
 		GCDAsyncUdpSocket *asyncUdpSocket = (__bridge GCDAsyncUdpSocket *)pInfo;
-	
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
 		switch(type)
 		{
 			case kCFStreamEventOpenCompleted:
@@ -4977,6 +4981,7 @@ static void CFReadStreamCallback(CFReadStreamRef stream, CFStreamEventType type,
 				LogCError(@"CFReadStreamCallback - UnknownType: %i", (int)type);
 			}
 		}
+#pragma clang diagnostic pop
 	}
 }
 
@@ -4984,7 +4989,9 @@ static void CFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType typ
 {
 	@autoreleasepool {
 		GCDAsyncUdpSocket *asyncUdpSocket = (__bridge GCDAsyncUdpSocket *)pInfo;
-		
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
 		switch(type)
 		{
 			case kCFStreamEventOpenCompleted:
@@ -5029,6 +5036,7 @@ static void CFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType typ
 				LogCError(@"CFWriteStreamCallback - UnknownType: %i", (int)type);
 			}
 		}
+#pragma clang diagnostic pop
 	}
 }
 
@@ -5630,3 +5638,5 @@ Failed:
 }
 
 @end
+
+#pragma clang diagnostic pop

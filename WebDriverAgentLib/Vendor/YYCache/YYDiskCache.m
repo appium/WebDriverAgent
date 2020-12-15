@@ -19,6 +19,9 @@
 #define Lock() dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER)
 #define Unlock() dispatch_semaphore_signal(self->_lock)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+
 static const int extended_data_key;
 
 /// Free disk space in bytes.
@@ -164,7 +167,6 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
 
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"YYDiskCache init error" reason:@"YYDiskCache must be initialized with a path. Use 'initWithPath:' or 'initWithPath:inlineThreshold:' instead." userInfo:nil];
-    return [self initWithPath:@"" inlineThreshold:0];
 }
 
 - (instancetype)initWithPath:(NSString *)path {
@@ -241,7 +243,7 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
         @try {
             object = [NSKeyedUnarchiver unarchiveObjectWithData:item.value];
         }
-        @catch (NSException *exception) {
+        @catch (NSException *) {
             // nothing to do...
         }
     }
@@ -276,7 +278,7 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
         @try {
             value = [NSKeyedArchiver archivedDataWithRootObject:object];
         }
-        @catch (NSException *exception) {
+        @catch (NSException *) {
             // nothing to do...
         }
     }
@@ -456,3 +458,5 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
 }
 
 @end
+
+#pragma clang diagnostic pop

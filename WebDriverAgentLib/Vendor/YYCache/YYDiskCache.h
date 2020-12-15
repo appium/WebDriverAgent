@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Set `YES` to enable error logs for debug.
  */
-@property BOOL errorLogsEnabled;
+@property (atomic) BOOL errorLogsEnabled;
 
 #pragma mark - Initializer
 ///=============================================================================

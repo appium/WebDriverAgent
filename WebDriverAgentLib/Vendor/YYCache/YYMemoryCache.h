@@ -39,10 +39,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, copy) NSString *name;
 
 /** The number of objects in the cache (read-only) */
-@property (readonly) NSUInteger totalCount;
+@property (atomic, readonly) NSUInteger totalCount;
 
 /** The total cost of objects in the cache (read-only). */
-@property (readonly) NSUInteger totalCost;
+@property (atomic, readonly) NSUInteger totalCost;
 
 
 #pragma mark - Limit
@@ -116,14 +116,14 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion You may set this value to `YES` if the key-value object contains
  the instance which should be released in main thread (such as UIView/CALayer).
  */
-@property BOOL releaseOnMainThread;
+@property (atomic) BOOL releaseOnMainThread;
 
 /**
  If `YES`, the key-value pair will be released asynchronously to avoid blocking 
  the access methods, otherwise it will be released in the access method  
  (such as removeObjectForKey:). Default is YES.
  */
-@property BOOL releaseAsynchronously;
+@property (atomic) BOOL releaseAsynchronously;
 
 
 #pragma mark - Access Methods

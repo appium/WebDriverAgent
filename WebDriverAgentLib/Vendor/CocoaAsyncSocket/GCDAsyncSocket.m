@@ -29,6 +29,9 @@
 #import <sys/un.h>
 #import <unistd.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+
 #if ! __has_feature(objc_arc)
 #warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
 // For more information see: https://github.com/robbiehanson/CocoaAsyncSocket/wiki/ARC
@@ -7722,7 +7725,9 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 static void CFReadStreamCallback (CFReadStreamRef stream, CFStreamEventType type, void *pInfo)
 {
 	GCDAsyncSocket *asyncSocket = (__bridge GCDAsyncSocket *)pInfo;
-	
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
 	switch(type)
 	{
 		case kCFStreamEventHasBytesAvailable:
@@ -7783,13 +7788,15 @@ static void CFReadStreamCallback (CFReadStreamRef stream, CFStreamEventType type
 			break;
 		}
 	}
-	
+#pragma clang diagnostic pop
 }
 
 static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType type, void *pInfo)
 {
 	GCDAsyncSocket *asyncSocket = (__bridge GCDAsyncSocket *)pInfo;
-	
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
 	switch(type)
 	{
 		case kCFStreamEventCanAcceptBytes:
@@ -7850,7 +7857,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType ty
 			break;
 		}
 	}
-	
+#pragma clang diagnostic pop
 }
 
 - (BOOL)createReadAndWriteStream
@@ -8524,3 +8531,5 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType ty
 }
 
 @end	
+
+#pragma clang diagnostic pop

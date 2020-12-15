@@ -181,7 +181,10 @@ static inline dispatch_queue_t YYMemoryCacheGetReleaseQueue() {
 - (void)_trimRecursively {
     __weak typeof(self) _self = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_autoTrimInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
         __strong typeof(_self) self = _self;
+#pragma clang diagnostic pop
         if (!self) return;
         [self _trimInBackground];
         [self _trimRecursively];

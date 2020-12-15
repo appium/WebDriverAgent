@@ -674,7 +674,6 @@ static UIApplication *_YYSharedApplication() {
 
 - (instancetype)init {
     @throw [NSException exceptionWithName:@"YYKVStorage init error" reason:@"Please use the designated initializer and pass the 'path' and 'type'." userInfo:nil];
-    return [self initWithPath:@"" type:YYKVStorageTypeFile];
 }
 
 - (instancetype)initWithPath:(NSString *)path type:(YYKVStorageType)type {
@@ -759,9 +758,9 @@ static UIApplication *_YYSharedApplication() {
         return YES;
     } else {
         if (_type != YYKVStorageTypeSQLite) {
-            NSString *filename = [self _dbGetFilenameWithKey:key];
-            if (filename) {
-                [self _fileDeleteWithName:filename];
+            NSString *fname = [self _dbGetFilenameWithKey:key];
+            if (fname) {
+                [self _fileDeleteWithName:fname];
             }
         }
         return [self _dbSaveWithKey:key value:value fileName:nil extendedData:extendedData];
@@ -773,7 +772,7 @@ static UIApplication *_YYSharedApplication() {
     switch (_type) {
         case YYKVStorageTypeSQLite: {
             return [self _dbDeleteItemWithKey:key];
-        } break;
+        }
         case YYKVStorageTypeFile:
         case YYKVStorageTypeMixed: {
             NSString *filename = [self _dbGetFilenameWithKey:key];
@@ -781,7 +780,7 @@ static UIApplication *_YYSharedApplication() {
                 [self _fileDeleteWithName:filename];
             }
             return [self _dbDeleteItemWithKey:key];
-        } break;
+        }
         default: return NO;
     }
 }
@@ -791,7 +790,7 @@ static UIApplication *_YYSharedApplication() {
     switch (_type) {
         case YYKVStorageTypeSQLite: {
             return [self _dbDeleteItemWithKeys:keys];
-        } break;
+        }
         case YYKVStorageTypeFile:
         case YYKVStorageTypeMixed: {
             NSArray *filenames = [self _dbGetFilenameWithKeys:keys];
@@ -799,7 +798,7 @@ static UIApplication *_YYSharedApplication() {
                 [self _fileDeleteWithName:filename];
             }
             return [self _dbDeleteItemWithKeys:keys];
-        } break;
+        }
         default: return NO;
     }
 }
