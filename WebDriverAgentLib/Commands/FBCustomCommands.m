@@ -10,6 +10,7 @@
 #import "FBCustomCommands.h"
 
 #import <XCTest/XCUIDevice.h>
+#import <CoreLocation/CoreLocation.h>
 
 #import "FBApplication.h"
 #import "FBConfiguration.h"
@@ -305,6 +306,15 @@
   // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
   NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
 
+
+  // TODO: need some interactions to check location service.
+  CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+  [locationManager setDistanceFilter:kCLHeadingFilterNone];
+  [locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+  [locationManager setPausesLocationUpdatesAutomatically:NO];
+  [locationManager startUpdatingLocation];
+  CLLocation *location = locationManager.location;
+
   return FBResponseWithObject(@{
     @"currentLocale": currentLocale,
     @"timeZone": self.timeZone,
@@ -314,6 +324,10 @@
     // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
     @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),
     @"userInterfaceStyle": self.userInterfaceStyle,
+    @"location": @{
+        @"latitude": @(location.coordinate.latitude),
+        @"longitude": @(location.coordinate.longitude),
+    },
 #if TARGET_OS_SIMULATOR
     @"isSimulator": @(YES),
 #else
