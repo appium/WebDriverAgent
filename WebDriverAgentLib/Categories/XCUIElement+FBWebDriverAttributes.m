@@ -109,8 +109,7 @@
 - (NSString *)wdLabel
 {
   NSString *label = self.label;
-  XCUIElementType elementType = self.elementType;
-  if (elementType == XCUIElementTypeTextField || elementType == XCUIElementTypeSecureTextField ) {
+  if (nil != label && label.length != 0) {
     return label;
   }
   return FBTransferEmptyStringToNil(label);
