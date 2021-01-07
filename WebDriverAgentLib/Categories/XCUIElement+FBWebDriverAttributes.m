@@ -103,8 +103,7 @@
   if (nil != identifier && identifier.length != 0) {
     return identifier;
   }
-  NSString *label = self.label;
-  return FBTransferEmptyStringToNil(label);
+  return FBTransferEmptyStringToNil(identifier);
 }
 
 - (NSString *)wdLabel
