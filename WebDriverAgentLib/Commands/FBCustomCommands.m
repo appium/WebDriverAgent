@@ -323,17 +323,14 @@
   [locationManager setPausesLocationUpdatesAutomatically:NO];
   [locationManager startUpdatingLocation];
 
-  CLAuthorizationStatus authStatus;
-  if ([locationManager respondsToSelector:@selector(authorizationStatus)]) {
-    authStatus = locationManager.authorizationStatus;
-  } else {
-    authStatus = [CLLocationManager authorizationStatus];
-  }
-  CLLocation *location = locationManager.location;
+  CLAuthorizationStatus authStatus = [locationManager respondsToSelector:@selector(authorizationStatus)]
+  ? locationManager.authorizationStatus
+  : [CLLocationManager authorizationStatus];
+
   return FBResponseWithObject(@{
     @"authorizationStatus": @(authStatus),
-    @"latitude": @(location.coordinate.latitude),
-    @"longitude": @(location.coordinate.longitude),
+    @"latitude": @(locationManager.location.coordinate.latitude),
+    @"longitude": @(locationManager.location.coordinate.longitude),
   });
 #endif
 }
