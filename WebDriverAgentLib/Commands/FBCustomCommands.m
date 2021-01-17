@@ -327,8 +327,8 @@
   [locationManager startUpdatingLocation];
 
   CLAuthorizationStatus authStatus = [locationManager respondsToSelector:@selector(authorizationStatus)]
-  ? (CLAuthorizationStatus) [locationManager performSelector:@selector(authorizationStatus)]
-  : [CLLocationManager authorizationStatus];
+    ? (CLAuthorizationStatus) [locationManager performSelector:@selector(authorizationStatus)]
+    : [CLLocationManager authorizationStatus];
 
   return FBResponseWithObject(@{
     @"authorizationStatus": @(authStatus),
