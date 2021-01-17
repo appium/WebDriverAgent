@@ -309,6 +309,9 @@
  https://developer.apple.com/documentation/corelocation/clauthorizationstatus
 
  Settings -> Privacy -> Location Service -> WebDriverAgent-Runner -> Always
+
+ The return value could be zero even the permission is Always
+ since the location service needs to update the location data.
  */
 + (id<FBResponsePayload>)handleGetLocation:(FBRouteRequest *)request
 {
@@ -324,7 +327,7 @@
   [locationManager startUpdatingLocation];
 
   CLAuthorizationStatus authStatus = [locationManager respondsToSelector:@selector(authorizationStatus)]
-  ? locationManager.authorizationStatus
+  ? (CLAuthorizationStatus) [locationManager performSelector:@selector(authorizationStatus)]
   : [CLLocationManager authorizationStatus];
 
   return FBResponseWithObject(@{
