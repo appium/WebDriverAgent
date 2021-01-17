@@ -61,6 +61,8 @@
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
+    [[FBRoute GET:@"/wda/device/location"] respondWithTarget:self action:@selector(handleGetLocation:)],
+    [[FBRoute GET:@"/wda/device/location"].withoutSession respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
   ];
 }
@@ -299,21 +301,49 @@
   return FBResponseWithOK();
 }
 
+/**
+ Returns device location data.
+ It requires to configure location access permission by manual.
+ The response is always zero (0) without authorization.
+ 'authorizationStatus' indidates current authorization status.
+ https://developer.apple.com/documentation/corelocation/clauthorizationstatus
+
+ Settings -> Privacy -> Location Service -> WebDriverAgent-Runner -> Always
+ */
++ (id<FBResponsePayload>)handleGetLocation:(FBRouteRequest *)request
+{
+#if TARGET_OS_TV
+  return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"unsupported"
+                                                                          traceback:nil]);
+#else
+  CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+  [locationManager setDistanceFilter:kCLHeadingFilterNone];
+  // Always return the best acurate location data
+  [locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+  [locationManager setPausesLocationUpdatesAutomatically:NO];
+  [locationManager startUpdatingLocation];
+
+  CLAuthorizationStatus authStatus;
+  if ([locationManager respondsToSelector:@selector(authorizationStatus)]) {
+    authStatus = locationManager.authorizationStatus;
+  } else {
+    authStatus = [CLLocationManager authorizationStatus];
+  }
+  CLLocation *location = locationManager.location;
+  return FBResponseWithObject(@{
+    @"authorizationStatus": @(authStatus),
+    @"latitude": @(location.coordinate.latitude),
+    @"longitude": @(location.coordinate.longitude),
+  });
+#endif
+}
+
 + (id<FBResponsePayload>)handleGetDeviceInfo:(FBRouteRequest *)request
 {
   // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
   // Developers should use this locale by default
   // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
   NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
-
-
-  // TODO: need some interactions to check location service.
-  CLLocationManager *locationManager = [[CLLocationManager alloc] init];
-  [locationManager setDistanceFilter:kCLHeadingFilterNone];
-  [locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
-  [locationManager setPausesLocationUpdatesAutomatically:NO];
-  [locationManager startUpdatingLocation];
-  CLLocation *location = locationManager.location;
 
   return FBResponseWithObject(@{
     @"currentLocale": currentLocale,
@@ -324,10 +354,6 @@
     // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
     @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),
     @"userInterfaceStyle": self.userInterfaceStyle,
-    @"location": @{
-        @"latitude": @(location.coordinate.latitude),
-        @"longitude": @(location.coordinate.longitude),
-    },
 #if TARGET_OS_SIMULATOR
     @"isSimulator": @(YES),
 #else
