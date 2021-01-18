@@ -305,7 +305,7 @@
  Returns device location data.
  It requires to configure location access permission by manual.
  The response is always zero (0) without authorization.
- 'authorizationStatus' indidates current authorization status.
+ 'authorizationStatus' indicates current authorization status.
  https://developer.apple.com/documentation/corelocation/clauthorizationstatus
 
  Settings -> Privacy -> Location Service -> WebDriverAgent-Runner -> Always
