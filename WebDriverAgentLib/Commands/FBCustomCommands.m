@@ -304,7 +304,7 @@
 /**
  Returns device location data.
  It requires to configure location access permission by manual.
- The response of 'latitude' and 'longitude' are always zero (0) without authorization.
+ The response of 'latitude', 'longitude' and 'altitude' are always zero (0) without authorization.
  'authorizationStatus' indicates current authorization status. '3' is 'Always'.
  https://developer.apple.com/documentation/corelocation/clauthorizationstatus
 
