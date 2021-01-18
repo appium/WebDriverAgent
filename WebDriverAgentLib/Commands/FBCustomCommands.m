@@ -310,8 +310,8 @@
 
  Settings -> Privacy -> Location Service -> WebDriverAgent-Runner -> Always
 
- The return value could be zero even the permission is Always
- since the location service needs to update the location data.
+ The return value could be zero even if the permission is set to 'Always'
+ since the location service needs some time to update the location data.
  */
 + (id<FBResponsePayload>)handleGetLocation:(FBRouteRequest *)request
 {
@@ -334,6 +334,7 @@
     @"authorizationStatus": @(authStatus),
     @"latitude": @(locationManager.location.coordinate.latitude),
     @"longitude": @(locationManager.location.coordinate.longitude),
+    @"altitude": @(locationManager.location.altitude),
   });
 #endif
 }
