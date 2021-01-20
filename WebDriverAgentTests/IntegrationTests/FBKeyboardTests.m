@@ -44,6 +44,8 @@
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
   [textField tap];
   NSError *error;
+  XCTAssertTrue([FBKeyboard waitUntilVisibleForApplication:self.testedApplication timeout:1 error:&error]);
+  XCTAssertNil(error);
   if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
     XCTAssertTrue([self.testedApplication fb_dismissKeyboardWithKeyNames:nil error:&error]);
     XCTAssertNil(error);
