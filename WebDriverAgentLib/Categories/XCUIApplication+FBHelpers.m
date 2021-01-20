@@ -269,11 +269,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
   }
 
 #if TARGET_OS_TV
-  if ([FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
-                                         timeout:0
-                                           error:nil]) {
-    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
-  }
+  [[XCUIRemote sharedRemote] pressButton:XCUIRemoteButtonMenu];
 #else
   if (!isKeyboardInvisible()) {
     if (nil != keyNames && keyNames.count > 0) {
@@ -305,10 +301,10 @@ static NSString* const FBUnknownBundleId = @"unknown";
 #endif
   NSString *errorDescription = @"Did not know how to dismiss the keyboard. Try to dismiss it in the way supported by your application under test.";
   return [[[[FBRunLoopSpinner new]
-          timeout:3]
-         timeoutErrorMessage:errorDescription]
-        spinUntilTrue:isKeyboardInvisible
-        error:error];
+            timeout:3]
+           timeoutErrorMessage:errorDescription]
+          spinUntilTrue:isKeyboardInvisible
+          error:error];
 }
 
 @end
