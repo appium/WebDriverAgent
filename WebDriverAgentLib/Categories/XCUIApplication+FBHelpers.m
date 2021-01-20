@@ -12,6 +12,7 @@
 #import "FBSpringboardApplication.h"
 #import "XCElementSnapshot.h"
 #import "FBElementTypeTransformer.h"
+#import "FBKeyboard.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
@@ -251,6 +252,63 @@ static NSString* const FBUnknownBundleId = @"unknown";
   [invocation setArgument:&resourceId atIndex:2]; // 0 and 1 are reserved
   [invocation invokeWithTarget:self];
   return YES;
+}
+
+- (BOOL)fb_dismissKeyboardWithKeyNames:(nullable NSArray<NSString *> *)keyNames
+                                 error:(NSError **)error
+{
+  BOOL (^isKeyboardInvisible)(void) = ^BOOL(void) {
+    return ![FBKeyboard waitUntilVisibleForApplication:self
+                                               timeout:0
+                                                 error:nil];
+  };
+
+  if (isKeyboardInvisible()) {
+    // Short circuit if the keyboard is not visible
+    return YES;
+  }
+
+#if TARGET_OS_TV
+  if ([FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
+                                         timeout:0
+                                           error:nil]) {
+    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
+  }
+#else
+  if (!isKeyboardInvisible()) {
+    if (nil != keyNames && keyNames.count > 0) {
+      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"elementType IN %@ AND label IN %@",
+                                      @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)], keyNames];
+      NSArray<XCUIElement *> *matchedKeys = [[self.keyboard
+                                              descendantsMatchingType:XCUIElementTypeAny]
+                                             matchingPredicate:searchPredicate].allElementsBoundByIndex;
+      if (nil != matchedKeys && matchedKeys.count > 0) {
+        for (XCUIElement *matchedKey in matchedKeys) {
+          if (!matchedKey.exists) {
+            continue;
+          }
+
+          [matchedKey tap];
+          if (isKeyboardInvisible()) {
+            return YES;
+          }
+        }
+      }
+    }
+
+    if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+      @try {
+        [self dismissKeyboard];
+      } @catch (NSException *) {}
+    }
+  }
+#endif
+  NSString *errorDescription = @"Did not know how to dismiss the keyboard. Try to dismiss it in the way supported by your application under test.";
+  return [[[[FBRunLoopSpinner new]
+          timeout:3]
+         timeoutErrorMessage:errorDescription]
+        spinUntilTrue:isKeyboardInvisible
+        error:error];
 }
 
 @end

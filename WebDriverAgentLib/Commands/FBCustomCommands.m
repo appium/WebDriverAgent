@@ -99,66 +99,13 @@
 
 + (id<FBResponsePayload>)handleDismissKeyboardCommand:(FBRouteRequest *)request
 {
-  BOOL (^isKeyboardInvisible)(void) = ^BOOL(void) {
-    return ![FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
-                                               timeout:0
-                                                 error:nil];
-  };
-
-  if (isKeyboardInvisible()) {
-    // Short circuit if the keyboard is not visible
-    return FBResponseWithOK();
-  }
-
-#if TARGET_OS_TV
-  if ([FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
-                                         timeout:0
-                                           error:nil]) {
-    [[XCUIRemote sharedRemote] pressButton: XCUIRemoteButtonMenu];
-  }
-#else
-  [request.session.activeApplication dismissKeyboard];
-  if (!isKeyboardInvisible()) {
-    NSArray* keyNames = request.arguments[@"keyNames"];
-    if (nil != keyNames && keyNames.count > 0) {
-      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"label IN %@", keyNames];
-      NSArray<XCUIElement *> *matchedKeys = [[request.session.activeApplication.keyboard
-                                              descendantsMatchingType:XCUIElementTypeKey]
-                                             matchingPredicate:searchPredicate].allElementsBoundByIndex;
-      if (nil != matchedKeys && matchedKeys.count > 0) {
-        for (XCUIElement *matchedKey in matchedKeys) {
-          if (!matchedKey.exists) {
-            continue;
-          }
-
-          [matchedKey tap];
-          if (isKeyboardInvisible()) {
-            return FBResponseWithOK();
-          }
-        }
-      }
-    }
-
-    if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-      // Try to tap the last keyboard button, which is the HIDE_KEYOBOARD one on iPad
-      NSArray<XCUIElement *> *allKeyboardKeys = request.session.activeApplication.keyboard.keys.allElementsBoundByIndex;
-      if (nil != allKeyboardKeys && allKeyboardKeys.count > 0) {
-        [allKeyboardKeys[allKeyboardKeys.count - 1] tap];
-      }
-    }
-  }
-#endif
   NSError *error;
-  NSString *errorDescription = @"Did not know how to dismiss the keyboard. Try to dismiss it in the way supported by your application under test.";
-  BOOL isKeyboardInvisibleAfterTimeout = [[[[FBRunLoopSpinner new]
-                                            timeout:3]
-                                           timeoutErrorMessage:errorDescription]
-                                          spinUntilTrue:isKeyboardInvisible
-                                          error:&error];
-  return isKeyboardInvisibleAfterTimeout
+  BOOL isDismissed = [request.session.activeApplication fb_dismissKeyboardWithKeyNames:request.arguments[@"keyNames"]
+                                                                                 error:&error];
+  return isDismissed
     ? FBResponseWithOK()
-    : FBResponseWithStatus([FBCommandStatus elementNotVisibleErrorWithMessage:error.description
-                                                                    traceback:nil]);
+    : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                      traceback:nil]);
 }
 
 + (id<FBResponsePayload>)handlePingCommand:(FBRouteRequest *)request

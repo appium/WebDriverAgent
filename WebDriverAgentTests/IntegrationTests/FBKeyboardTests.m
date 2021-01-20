@@ -12,6 +12,7 @@
 #import "FBIntegrationTestCase.h"
 #import "FBKeyboard.h"
 #import "FBRunLoopSpinner.h"
+#import "XCUIApplication+FBHelpers.h"
 
 @interface FBKeyboardTests : FBIntegrationTestCase
 @end
@@ -36,6 +37,20 @@
   XCTAssertTrue([FBKeyboard typeText:text error:&error]);
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.value, text);
+}
+
+- (void)testKeyboardDismissal
+{
+  XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
+  [textField tap];
+  NSError *error;
+  if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+    XCTAssertTrue([self.testedApplication fb_dismissKeyboardWithKeyNames:nil error:&error]);
+    XCTAssertNil(error);
+  } else {
+    XCTAssertFalse([self.testedApplication fb_dismissKeyboardWithKeyNames:@[@"return"] error:&error]);
+    XCTAssertNotNil(error);
+  }
 }
 
 - (void)testKeyboardPresenceVerification

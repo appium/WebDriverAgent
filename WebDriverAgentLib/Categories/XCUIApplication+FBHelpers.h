@@ -115,6 +115,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSInteger)fb_testmanagerdVersion;
 
+/**
+ Tries to dismiss the on-screen keyboard
+
+ @param keyNames Optional list of possible keyboard key labels to tap
+ in order to dismiss the keyboard.
+ @param error The resulting error object if the method fails to dismiss the keyboard
+ @returns YES if the keyboard dismissal was successful or NO otherwise
+ */
+- (BOOL)fb_dismissKeyboardWithKeyNames:(nullable NSArray<NSString *> *)keyNames
+                                 error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
