@@ -1344,7 +1344,6 @@
 		EEE376401D59F81400ED88DD /* XCUIElement+FBUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBUtilities.m"; sourceTree = "<group>"; };
 		EEE376471D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBWebDriverAttributes.h"; sourceTree = "<group>"; };
 		EEE376481D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBWebDriverAttributes.m"; sourceTree = "<group>"; };
-		EEE4C66A1CDFA21F00A386A2 /* bootstrap.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bootstrap.sh; sourceTree = "<group>"; };
 		EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IOSSettings.xcconfig; sourceTree = "<group>"; };
 		EEE9B4701CD02B88009D2030 /* FBRunLoopSpinner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRunLoopSpinner.h; sourceTree = "<group>"; };
 		EEE9B4711CD02B88009D2030 /* FBRunLoopSpinner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRunLoopSpinner.m; sourceTree = "<group>"; };
@@ -1927,7 +1926,6 @@
 		EE9AB8021CAEE182008C271F /* Scripts */ = {
 			isa = PBXGroup;
 			children = (
-				EEE4C66A1CDFA21F00A386A2 /* bootstrap.sh */,
 				EE9AB8031CAEE182008C271F /* build.sh */,
 			);
 			path = Scripts;

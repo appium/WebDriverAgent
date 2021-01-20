@@ -15,10 +15,7 @@ WebDriverAgent is a [WebDriver server](https://w3c.github.io/webdriver/webdriver
 
 ## Getting Started On This Repository
 
-To get the project set up just run bootstrap script:
-```
-./Scripts/bootstrap.sh
-```
+You need to have Node.js installed for this project.
 
 After it is finished you can simply open `WebDriverAgent.xcodeproj` and start `WebDriverAgentRunner` test
 and start sending [requests](https://github.com/facebook/WebDriverAgent/wiki/Queries).

@@ -96,7 +96,6 @@ function fastlane_test() {
   fi
 }
 
-./Scripts/bootstrap.sh -dn
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;
