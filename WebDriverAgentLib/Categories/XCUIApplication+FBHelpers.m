@@ -272,7 +272,10 @@ static NSString* const FBUnknownBundleId = @"unknown";
   [[XCUIRemote sharedRemote] pressButton:XCUIRemoteButtonMenu];
 #else
   NSArray<XCUIElement *> *(^findMatchingKeys)(NSPredicate *) = ^NSArray<XCUIElement *> *(NSPredicate * predicate) {
-    return [[self.keyboard descendantsMatchingType:XCUIElementTypeAny]
+    NSPredicate *keysPredicate = [NSPredicate predicateWithFormat:@"elementType == %@", @(XCUIElementTypeKey)];
+    XCUIElementQuery *parentView = [[self.keyboard descendantsMatchingType:XCUIElementTypeOther]
+                                    containingPredicate:keysPredicate];
+    return [[parentView childrenMatchingType:XCUIElementTypeAny]
             matchingPredicate:predicate].allElementsBoundByIndex;
   };
 
@@ -286,7 +289,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
           continue;
         }
 
-        [matchedKey tap];
+        [matchedKey fb_tapWithError:nil];
         if (isKeyboardInvisible()) {
           return YES;
         }
@@ -299,7 +302,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
                                     @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)]];
     NSArray *matchedKeys = findMatchingKeys(searchPredicate);
     if (matchedKeys.count > 0) {
-      [matchedKeys[matchedKeys.count - 1] tap];
+      [matchedKeys[matchedKeys.count - 1] fb_tapWithError:nil];
     }
   }
 #endif
