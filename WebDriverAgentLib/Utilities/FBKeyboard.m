@@ -53,7 +53,7 @@
 
 + (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app timeout:(NSTimeInterval)timeout error:(NSError **)error
 {
-  BOOL (^keyboardIsVisible)(void) = ^BOOL(void) {
+  BOOL (^isKeyboardVisible)(void) = ^BOOL(void) {
     if (!app.keyboard.exists) {
       return NO;
     }
@@ -64,7 +64,7 @@
   };
   NSString* errMessage = @"The on-screen keyboard must be present to send keys";
   if (timeout <= 0) {
-    if (!keyboardIsVisible()) {
+    if (!isKeyboardVisible()) {
       return [[[FBErrorBuilder builder] withDescription:errMessage] buildError:error];
     }
     return YES;
@@ -73,7 +73,7 @@
     [[[[FBRunLoopSpinner new]
        timeout:timeout]
       timeoutErrorMessage:errMessage]
-     spinUntilTrue:keyboardIsVisible
+     spinUntilTrue:isKeyboardVisible
      error:error];
 }
 
