@@ -271,13 +271,16 @@ static NSString* const FBUnknownBundleId = @"unknown";
 #if TARGET_OS_TV
   [[XCUIRemote sharedRemote] pressButton:XCUIRemoteButtonMenu];
 #else
+  NSArray<XCUIElement *> *(^findMatchingKeys)(NSPredicate *) = ^NSArray<XCUIElement *> *(NSPredicate * predicate) {
+    return [[self.keyboard descendantsMatchingType:XCUIElementTypeAny]
+            matchingPredicate:predicate].allElementsBoundByIndex;
+  };
+
   if (nil != keyNames && keyNames.count > 0) {
     NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"elementType IN %@ AND label IN %@",
                                     @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)], keyNames];
-    NSArray<XCUIElement *> *matchedKeys = [[self.keyboard
-                                            descendantsMatchingType:XCUIElementTypeAny]
-                                           matchingPredicate:searchPredicate].allElementsBoundByIndex;
-    if (nil != matchedKeys && matchedKeys.count > 0) {
+    NSArray *matchedKeys = findMatchingKeys(searchPredicate);
+    if (matchedKeys.count > 0) {
       for (XCUIElement *matchedKey in matchedKeys) {
         if (!matchedKey.exists) {
           continue;
@@ -292,9 +295,12 @@ static NSString* const FBUnknownBundleId = @"unknown";
   }
   
   if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-    @try {
-      [self dismissKeyboard];
-    } @catch (NSException *) {}
+    NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"elementType IN %@",
+                                    @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)]];
+    NSArray *matchedKeys = findMatchingKeys(searchPredicate);
+    if (matchedKeys.count > 0) {
+      [matchedKeys[matchedKeys.count - 1] tap];
+    }
   }
 #endif
   NSString *errorDescription = @"Did not know how to dismiss the keyboard. Try to dismiss it in the way supported by your application under test.";

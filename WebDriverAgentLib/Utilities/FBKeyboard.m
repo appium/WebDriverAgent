@@ -58,7 +58,8 @@
       return NO;
     }
 
-    XCUIElement *firstKey = app.keyboard.keys.firstMatch;
+    NSPredicate *keySearchPredicate = [NSPredicate predicateWithFormat:@"label.length > 0"];
+    XCUIElement *firstKey = [app.keyboard.keys matchingPredicate:keySearchPredicate].firstMatch;
     return firstKey.exists && firstKey.hittable;
   };
   NSString* errMessage = @"The on-screen keyboard must be present to send keys";
