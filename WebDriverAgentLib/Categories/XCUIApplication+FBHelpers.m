@@ -280,8 +280,14 @@ static NSString* const FBUnknownBundleId = @"unknown";
   };
 
   if (nil != keyNames && keyNames.count > 0) {
-    NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"elementType IN %@ AND label IN %@",
-                                    @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)], keyNames];
+    NSPredicate *searchPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
+      if (snapshot.elementType != XCUIElementTypeKey && snapshot.elementType != XCUIElementTypeButton) {
+        return NO;
+      }
+
+      return (nil != snapshot.identifier && [keyNames containsObject:snapshot.identifier])
+        || (nil != snapshot.label && [keyNames containsObject:snapshot.label]);
+    }];
     NSArray *matchedKeys = findMatchingKeys(searchPredicate);
     if (matchedKeys.count > 0) {
       for (XCUIElement *matchedKey in matchedKeys) {
