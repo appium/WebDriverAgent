@@ -123,9 +123,9 @@
     }
   }
 
-  if (requirements[@"defaultAlertAction"]) {
+  if (requirements[DEFAULT_ALERT_ACTION]) {
     [FBSession initWithApplication:app
-                defaultAlertAction:(id)requirements[@"defaultAlertAction"]];
+                defaultAlertAction:(id)requirements[DEFAULT_ALERT_ACTION]];
   } else {
     [FBSession initWithApplication:app];
   }
@@ -250,6 +250,7 @@
       INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
       ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
+      DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
 #if !TARGET_OS_TV
       SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
@@ -334,6 +335,9 @@
   }
   if (nil != [settings objectForKey:ANIMATION_COOL_OFF_TIMEOUT]) {
     [FBConfiguration setAnimationCoolOffTimeout:[[settings objectForKey:ANIMATION_COOL_OFF_TIMEOUT] doubleValue]];
+  }
+  if ([[settings objectForKey:DEFAULT_ALERT_ACTION] isKindOfClass:NSString.class]) {
+    request.session.defaultAlertAction = [settings[DEFAULT_ALERT_ACTION] lowercaseString];
   }
 
 #if !TARGET_OS_TV

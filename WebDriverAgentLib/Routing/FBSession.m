@@ -36,7 +36,6 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 @property (nonatomic) NSDictionary<NSString *, FBApplication *> *applications;
 @property (nonatomic, strong, readwrite) FBApplication *testedApplication;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
-@property (nonatomic, nullable) NSString *defaultAlertAction;
 @end
 
 @interface FBSession (FBAlertsMonitorDelegate)
@@ -49,7 +48,7 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 
 - (void)didDetectAlert:(FBAlert *)alert
 {
-  if (nil == self.defaultAlertAction) {
+  if (nil == self.defaultAlertAction || 0 == self.defaultAlertAction.length) {
     return;
   }
 

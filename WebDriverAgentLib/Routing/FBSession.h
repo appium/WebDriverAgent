@@ -28,7 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element cache related to that session */
 @property (nonatomic, strong, readonly) FBElementCache *elementCache;
 
+/*! The identifier of the active application */
 @property (nonatomic, copy) NSString *defaultActiveApplication;
+
+/*! The action to apply to unexpected alerts. Either "accept"/"dismiss" or nil/empty string (by default) to do nothing */
+@property (nonatomic, nullable) NSString *defaultAlertAction;
 
 + (nullable instancetype)activeSession;
 
