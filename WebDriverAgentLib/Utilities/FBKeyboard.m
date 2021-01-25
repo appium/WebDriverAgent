@@ -58,8 +58,12 @@
       return NO;
     }
 
-    NSPredicate *keySearchPredicate = [NSPredicate predicateWithFormat:@"label.length > 0"];
-    XCUIElement *firstKey = [app.keyboard.keys matchingPredicate:keySearchPredicate].firstMatch;
+    NSPredicate *keySearchPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot,
+                                                                            NSDictionary *bindings) {
+      return snapshot.label.length > 0;
+    }];
+    XCUIElement *firstKey = [[app.keyboard descendantsMatchingType:XCUIElementTypeKey]
+                             matchingPredicate:keySearchPredicate].allElementsBoundByIndex.firstObject;
     return firstKey.exists
       && (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0") ? firstKey.hittable : firstKey.fb_isVisible);
   };
