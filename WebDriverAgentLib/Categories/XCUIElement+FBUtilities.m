@@ -187,15 +187,18 @@
 
 - (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
 {
+  if (timeout < 0 || (timeout - DBL_EPSILON < 0 && timeout + DBL_EPSILON > 0)) {
+    return;
+  }
+
   NSTimeInterval previousTimeout = FBConfiguration.waitForIdleTimeout;
   BOOL previousQuiescence = self.application.fb_shouldWaitForQuiescence;
-
   FBConfiguration.waitForIdleTimeout = timeout;
   if (!previousQuiescence) {
     self.application.fb_shouldWaitForQuiescence = YES;
   }
-  [[[self.application applicationImpl] currentProcess] waitForQuiescenceIncludingAnimationsIdle:YES];
-
+  [[[self.application applicationImpl] currentProcess]
+   waitForQuiescenceIncludingAnimationsIdle:YES];
   if (previousQuiescence != self.application.fb_shouldWaitForQuiescence) {
     self.application.fb_shouldWaitForQuiescence = previousQuiescence;
   }
