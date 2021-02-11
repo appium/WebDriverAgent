@@ -11,6 +11,7 @@
 
 #import "FBIntegrationTestCase.h"
 
+#import "FBApplication.h"
 #import "FBElementCache.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"

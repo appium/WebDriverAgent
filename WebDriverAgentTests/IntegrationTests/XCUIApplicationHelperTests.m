@@ -13,7 +13,6 @@
 #import "FBIntegrationTestCase.h"
 #import "FBElement.h"
 #import "FBTestMacros.h"
-#import "FBSpringboardApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 
@@ -31,8 +30,8 @@
 - (void)testQueringSpringboard
 {
   [self goToSpringBoardFirstPage];
-  XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Safari"].exists);
-  XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Calendar"].exists);
+  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
+  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].exists);
 }
 
 - (void)testApplicationTree
@@ -54,10 +53,11 @@
 
 - (void)testActiveApplication
 {
+  FBApplication *systemApp = FBApplication.fb_systemApplication;
   XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
-  XCTAssertEqualObjects([FBApplication fb_activeApplication].bundleID, SPRINGBOARD_BUNDLE_ID);
-  XCTAssertTrue([FBApplication fb_activeApplicationWithDefaultBundleId:SPRINGBOARD_BUNDLE_ID].icons[@"Safari"].fb_isVisible);
+  XCTAssertEqualObjects([FBApplication fb_activeApplication].bundleID, systemApp.bundleID);
+  XCTAssertTrue(systemApp.icons[@"Safari"].fb_isVisible);
 }
 
 - (void)testActiveElement

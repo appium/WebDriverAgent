@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId;
 
 /**
- Constructor used to get the system application
+ Constructor used to get the system application (e.g. Springboard on iOS)
  */
 + (instancetype)fb_systemApplication;
 
@@ -35,6 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
  Retrieves the list of all currently active applications
  */
 + (NSArray<FBApplication *> *)fb_activeApplications;
+
+/**
+ Switch to system app (called Springboard on iOS)
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
++ (BOOL)fb_switchToSystemApplicationWithError:(NSError **)error;
 
 @end
 

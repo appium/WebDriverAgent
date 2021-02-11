@@ -168,4 +168,28 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   }
 }
 
++ (BOOL)fb_switchToSystemApplicationWithError:(NSError **)error
+{
+  FBApplication *systemApp = self.fb_systemApplication;
+  @try {
+    if ([systemApp fb_state] < 2) {
+      [systemApp launch];
+    } else {
+      [systemApp fb_activate];
+    }
+  } @catch (NSException *e) {
+    return [[[FBErrorBuilder alloc]
+             withDescription:nil == e ? @"Cannot open the home screen" : e.reason]
+            buildError:error];
+  }
+  return [[[[FBRunLoopSpinner new]
+            timeout:5]
+           timeoutErrorMessage:@"Timeout waiting until the home screen is visible"]
+          spinUntilTrue:^BOOL{
+    FBApplication *activeApp = self.fb_activeApplication;
+    return nil != activeApp && [activeApp.bundleID isEqualToString:systemApp.bundleID];
+  }
+          error:error];
+}
+
 @end

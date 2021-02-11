@@ -14,7 +14,6 @@
 #include <notify.h>
 #import <objc/runtime.h>
 
-#import "FBSpringboardApplication.h"
 #import "FBErrorBuilder.h"
 #import "FBImageUtils.h"
 #import "FBMacros.h"
@@ -55,7 +54,7 @@ static bool fb_isLocked;
 
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error
 {
-  return [FBSpringboardApplication.fb_springboard fb_switchToWithError:error];
+  return [FBApplication fb_switchToSystemApplicationWithError:error];
 }
 
 - (BOOL)fb_lockScreen:(NSError **)error

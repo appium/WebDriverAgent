@@ -12,7 +12,6 @@
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
-#import "FBSpringboardApplication.h"
 #import "FBLogger.h"
 #import "FBXCodeCompatibility.h"
 #import "XCElementSnapshot+FBHelpers.h"
@@ -256,9 +255,9 @@
   if (nil == self.element) {
     self.element = self.application.fb_alertElement;
     if (nil == self.element) {
-      FBApplication *springboardApp = [FBSpringboardApplication fb_springboard];
+      FBApplication *systemApp = FBApplication.fb_systemApplication;
       for (FBApplication *activeApp in FBApplication.fb_activeApplications) {
-        if (springboardApp.processID == activeApp.processID) {
+        if (systemApp.processID == activeApp.processID) {
           self.element = activeApp.fb_alertElement;
           break;
         }

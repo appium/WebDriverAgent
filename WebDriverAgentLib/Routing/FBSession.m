@@ -18,7 +18,6 @@
 #import "FBElementCache.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
-#import "FBSpringboardApplication.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement.h"
 #import "XCUIApplication+FBQuiescence.h"

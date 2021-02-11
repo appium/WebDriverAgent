@@ -9,7 +9,6 @@
 
 #import "XCUIApplication+FBHelpers.h"
 
-#import "FBSpringboardApplication.h"
 #import "XCElementSnapshot.h"
 #import "FBElementTypeTransformer.h"
 #import "FBKeyboard.h"

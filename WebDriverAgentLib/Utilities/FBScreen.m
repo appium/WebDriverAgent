@@ -8,7 +8,7 @@
  */
 
 #import "FBScreen.h"
-#import "FBSpringboardApplication.h"
+#import "FBApplication.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIScreen.h"
@@ -27,7 +27,7 @@
 
   // Since iOS 13 the status bar is no longer part of the application, it’s part of the SpringBoard
   if (@available(iOS 13.0, *)) {
-    app = [FBSpringboardApplication fb_springboard];
+    app = FBApplication.fb_systemApplication;
     expectVisibleBar = NO;
   }
 

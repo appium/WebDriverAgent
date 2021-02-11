@@ -13,7 +13,6 @@
 #import "FBApplication.h"
 #import "FBMacros.h"
 #import "FBSession.h"
-#import "FBSpringboardApplication.h"
 #import "FBXCodeCompatibility.h"
 #import "FBTestMacros.h"
 #import "FBUnattachedAppLauncher.h"
@@ -56,13 +55,14 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
 
 - (void)testSettingsAppCanBeReopenedInScopeOfTheCurrentSession
 {
+  FBApplication *systemApp = FBApplication.fb_systemApplication;
   [self.session launchApplicationWithBundleId:SETTINGS_BUNDLE_ID
                       shouldWaitForQuiescence:nil
                                     arguments:nil
                                   environment:nil];
   FBAssertWaitTillBecomesTrue([SETTINGS_BUNDLE_ID isEqualToString:self.session.activeApplication.bundleID]);
   XCTAssertTrue([self.session terminateApplicationWithBundleId:SETTINGS_BUNDLE_ID]);
-  FBAssertWaitTillBecomesTrue([SPRINGBOARD_BUNDLE_ID isEqualToString:self.session.activeApplication.bundleID]);
+  FBAssertWaitTillBecomesTrue([systemApp.bundleID isEqualToString:self.session.activeApplication.bundleID]);
   [self.session launchApplicationWithBundleId:SETTINGS_BUNDLE_ID
                       shouldWaitForQuiescence:nil
                                     arguments:nil
@@ -84,9 +84,10 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
 
 - (void)testMainAppCanBeRestartedInScopeOfTheCurrentSession
 {
+  FBApplication *systemApp = FBApplication.fb_systemApplication;
   FBApplication *testedApp = FBApplication.fb_activeApplication;
   XCTAssertTrue([self.session terminateApplicationWithBundleId:testedApp.bundleID]);
-  XCTAssertEqualObjects(SPRINGBOARD_BUNDLE_ID, self.session.activeApplication.bundleID);
+  XCTAssertEqualObjects(systemApp.bundleID, self.session.activeApplication.bundleID);
   [self.session launchApplicationWithBundleId:testedApp.bundleID
                       shouldWaitForQuiescence:nil
                                     arguments:nil
