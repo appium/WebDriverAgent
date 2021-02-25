@@ -241,9 +241,9 @@
     }
   }
 #endif
-  NSData *imageData = [FBScreenshot screenshotWithQuality:FBConfiguration.screenshotQuality
-                                                     rect:elementRect
-                                                    error:error];
+  NSData *imageData = [FBScreenshot takeWithQuality:FBConfiguration.screenshotQuality
+                                               rect:elementRect
+                                              error:error];
 #if !TARGET_OS_TV
   if (nil == imageData) {
     return nil;

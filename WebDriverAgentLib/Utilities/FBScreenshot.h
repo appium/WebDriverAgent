@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)screenshotWithQuality:(NSUInteger)quality
-                                     error:(NSError **)error;
++ (nullable NSData *)takeWithQuality:(NSUInteger)quality
+                               error:(NSError **)error;
 
 /**
  Returns screenshot
@@ -36,9 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)screenshotWithQuality:(NSUInteger)quality
-                                      rect:(CGRect)rect
-                                     error:(NSError **)error;
++ (nullable NSData *)takeWithQuality:(NSUInteger)quality
+                                rect:(CGRect)rect
+                               error:(NSError **)error;
 
 /**
  Returns screenshot
@@ -49,10 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
  @param uti kUTType... constant, which defines the type of the returned screenshot image
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)screenshotWithScreenID:(unsigned int)screenID
-                                    quality:(CGFloat)quality
-                                       rect:(CGRect)rect
-                                        uti:(NSString *)uti;
++ (nullable NSData *)takeWithScreenID:(unsigned int)screenID
+                              quality:(CGFloat)quality
+                                 rect:(CGRect)rect
+                                  uti:(NSString *)uti;
 
 @end
 

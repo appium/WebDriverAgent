@@ -98,7 +98,7 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  NSData* screenshotData = [FBScreenshot screenshotWithQuality:FBConfiguration.screenshotQuality error:error];
+  NSData* screenshotData = [FBScreenshot takeWithQuality:FBConfiguration.screenshotQuality error:error];
 #if TARGET_OS_TV
   return FBAdjustScreenshotOrientationForApplication(screenshotData);
 #else

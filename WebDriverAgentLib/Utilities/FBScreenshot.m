@@ -38,9 +38,10 @@ static NSLock *screenshotLock;
   return result;
 }
 
-+ (NSData *)screenshotWithQuality:(NSUInteger)quality
-                             rect:(CGRect)rect
-                            error:(NSError **)error {
++ (NSData *)takeWithQuality:(NSUInteger)quality
+                       rect:(CGRect)rect
+                      error:(NSError **)error
+{
   if ([self.class isNewScreenshotAPISupported]) {
     [screenshotLock lock];
     @try {
@@ -58,8 +59,8 @@ static NSLock *screenshotLock;
   return nil;
 }
 
-+ (NSData *)screenshotWithQuality:(NSUInteger)quality
-                            error:(NSError **)error
++ (NSData *)takeWithQuality:(NSUInteger)quality
+                      error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
     [screenshotLock lock];
@@ -90,10 +91,10 @@ static NSLock *screenshotLock;
   return screenshotData;
 }
 
-+ (NSData *)screenshotWithScreenID:(unsigned int)screenID
-                           quality:(CGFloat)quality
-                              rect:(CGRect)rect
-                               uti:(NSString *)uti
++ (NSData *)takeWithScreenID:(unsigned int)screenID
+                     quality:(CGFloat)quality
+                        rect:(CGRect)rect
+                         uti:(NSString *)uti
 {
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;

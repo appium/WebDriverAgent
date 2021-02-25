@@ -94,10 +94,10 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   // If scaling is applied we perform another JPEG compression after scaling
   // To get the desired compressionQuality we need to do a lossless compression here
   CGFloat screenshotCompressionQuality = usesScaling ? FBMaxCompressionQuality : compressionQuality;
-  NSData *screenshotData = [FBScreenshot screenshotWithScreenID:self.mainScreenID
-                                                        quality:screenshotCompressionQuality
-                                                           rect:CGRectNull
-                                                            uti:(__bridge id)kUTTypeJPEG];
+  NSData *screenshotData = [FBScreenshot takeWithScreenID:self.mainScreenID
+                                                  quality:screenshotCompressionQuality
+                                                     rect:CGRectNull
+                                                      uti:(__bridge id)kUTTypeJPEG];
   if (nil == screenshotData) {
     [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
     return;
