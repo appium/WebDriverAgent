@@ -19,22 +19,20 @@
 #import "FBMathUtils.h"
 #import "FBRunLoopSpinner.h"
 #import "FBSettings.h"
+#import "FBScreenshot.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
-#import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIApplicationImpl.h"
 #import "XCUIApplicationProcess.h"
 #import "XCTElementSetTransformer-Protocol.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
 #import "XCUIElementQuery+FBHelpers.h"
-#import "XCUIScreen.h"
 #import "XCUIElement+FBUID.h"
 
 #define DEFAULT_AX_TIMEOUT 60.
@@ -243,9 +241,9 @@
     }
   }
 #endif
-  NSData *imageData = [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
-                                                                 rect:elementRect
-                                                                error:error];
+  NSData *imageData = [FBScreenshot screenshotWithQuality:FBConfiguration.screenshotQuality
+                                                     rect:elementRect
+                                                    error:error];
 #if !TARGET_OS_TV
   if (nil == imageData) {
     return nil;
