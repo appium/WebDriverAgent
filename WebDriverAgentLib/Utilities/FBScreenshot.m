@@ -22,7 +22,7 @@ static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
 static NSLock *screenshotLock;
 
 NSString *formatTimeInterval(NSTimeInterval interval) {
-  NSUInteger milliseconds = (NSInteger)(interval * 1000);
+  NSUInteger milliseconds = (NSUInteger)(interval * 1000);
   return [NSString stringWithFormat:@"%ld ms", milliseconds];
 }
 
