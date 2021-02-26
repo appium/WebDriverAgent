@@ -22,10 +22,8 @@ static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
 static NSLock *screenshotLock;
 
 NSString *formatTimeInterval(NSTimeInterval interval) {
-  NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
-  formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-  formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
-  return [formatter stringFromTimeInterval:interval];
+  NSUInteger milliseconds = (NSInteger)(interval * 1000);
+  return [NSString stringWithFormat:@"%ld ms", milliseconds];
 }
 
 @implementation FBScreenshot
