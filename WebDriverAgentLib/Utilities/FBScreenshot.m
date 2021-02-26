@@ -21,6 +21,13 @@ static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
 
 static NSLock *screenshotLock;
 
+NSString *formatTimeInterval(NSTimeInterval interval) {
+  NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
+  formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+  formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+  return [formatter stringFromTimeInterval:interval];
+}
+
 @implementation FBScreenshot
 
 + (void)load
@@ -79,14 +86,22 @@ static NSLock *screenshotLock;
   [screenshotLock lock];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_requestScreenshotWithReply:^(NSData *data, NSError *screenshotError) {
-    screenshotData = data;
-    innerError = screenshotError;
+    if (nil == screenshotError) {
+      screenshotData = data;
+    } else {
+      innerError = screenshotError;
+    }
     dispatch_semaphore_signal(sem);
   }];
   if (nil != innerError && error) {
     *error = innerError;
   }
-  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
+  int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+    [[[FBErrorBuilder builder]
+      withDescription:[NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)]]
+     buildError:error];
+  };
   [screenshotLock unlock];
   return screenshotData;
 }
@@ -112,7 +127,10 @@ static NSLock *screenshotLock;
     }
     dispatch_semaphore_signal(sem);
   }];
-  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
+  int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+    [FBLogger logFmt:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
+  };
   [screenshotLock unlock];
   return screenshotData;
 }
