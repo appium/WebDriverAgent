@@ -19,19 +19,12 @@
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
 
-static NSLock *screenshotLock;
-
 NSString *formatTimeInterval(NSTimeInterval interval) {
   NSUInteger milliseconds = (NSUInteger)(interval * 1000);
   return [NSString stringWithFormat:@"%ld ms", milliseconds];
 }
 
 @implementation FBScreenshot
-
-+ (void)load
-{
-  screenshotLock = [NSLock new];
-}
 
 + (BOOL)isNewScreenshotAPISupported
 {
@@ -48,14 +41,9 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                       error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
-    [screenshotLock lock];
-    @try {
-      return [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
-                                                        rect:rect
-                                                       error:error];
-    } @finally {
-      [screenshotLock unlock];
-    }
+    return [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
+                                                      rect:rect
+                                                     error:error];
   }
 
   [[[FBErrorBuilder builder]
@@ -68,20 +56,14 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                       error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
-    [screenshotLock lock];
-    @try {
-      return [XCUIScreen.mainScreen screenshotDataForQuality:quality
-                                                        rect:CGRectNull
-                                                       error:error];
-    } @finally {
-      [screenshotLock unlock];
-    }
+    return [XCUIScreen.mainScreen screenshotDataForQuality:quality
+                                                      rect:CGRectNull
+                                                     error:error];
   }
 
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;
   __block NSError *innerError = nil;
-  [screenshotLock lock];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_requestScreenshotWithReply:^(NSData *data, NSError *screenshotError) {
     if (nil == screenshotError) {
@@ -100,7 +82,6 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
       withDescription:[NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)]]
      buildError:error];
   };
-  [screenshotLock unlock];
   return screenshotData;
 }
 
@@ -111,7 +92,6 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
 {
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;
-  [screenshotLock lock];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_requestScreenshotOfScreenWithID:screenID
                                      withRect:CGRectNull
@@ -129,7 +109,6 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
     [FBLogger logFmt:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
   };
-  [screenshotLock unlock];
   return screenshotData;
 }
 
