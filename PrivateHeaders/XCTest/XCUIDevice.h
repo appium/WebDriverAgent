@@ -11,6 +11,8 @@
 // Since Xcode 10.2
 @property (readonly) id accessibilityInterface; // implements XCUIAccessibilityInterface
 @property (readonly) id eventSynthesizer; // implements XCUIEventSynthesizing
+@property(readonly) id screenDataSource; // @synthesize screenDataSource=_screenDataSource;
+
 
 - (void)pressLockButton;
 - (void)holdHomeButtonForDuration:(double)arg1;

@@ -9,15 +9,21 @@
 
 #import "FBScreenshot.h"
 
+#import <MobileCoreServices/MobileCoreServices.h>
+
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCUIDevice.h"
 #import "XCUIScreen.h"
+#import "XCUIScreenDataSource-Protocol.h"
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
+static const CGFloat HIGH_QUALITY = 0.8;
+static const CGFloat LOW_QUALITY = 0.2;
 
 NSString *formatTimeInterval(NSTimeInterval interval) {
   NSUInteger milliseconds = (NSUInteger)(interval * 1000);
@@ -36,14 +42,41 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return result;
 }
 
++ (CGFloat)compressionQualityWithQuality:(NSUInteger)quality
+{
+  switch (quality) {
+    case 1:
+      return HIGH_QUALITY;
+    case 2:
+      return LOW_QUALITY;
+    default:
+      return 1.0;
+  }
+}
+
++ (NSString *)imageUtiWithQuality:(NSUInteger)quality
+{
+  switch (quality) {
+    case 1:
+    case 2:
+      return (__bridge id)kUTTypeJPEG;
+    default:
+      return (__bridge id)kUTTypePNG;
+  }
+}
+
 + (NSData *)takeWithQuality:(NSUInteger)quality
                        rect:(CGRect)rect
                       error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
-    return [XCUIScreen.mainScreen screenshotDataForQuality:FBConfiguration.screenshotQuality
-                                                      rect:rect
-                                                     error:error];
+    XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+    return [self.class takeWithScreenID:mainScreen.displayID
+                                  scale:mainScreen.scale
+                     compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
+                                   rect:rect
+                                    uti:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
+                                  error:error];
   }
 
   [[[FBErrorBuilder builder]
@@ -56,9 +89,13 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                       error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
-    return [XCUIScreen.mainScreen screenshotDataForQuality:quality
-                                                      rect:CGRectNull
-                                                     error:error];
+    XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+    return [self.class takeWithScreenID:mainScreen.displayID
+                                  scale:mainScreen.scale
+                     compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
+                                   rect:CGRectNull
+                                    uti:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
+                                  error:error];
   }
 
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
@@ -86,28 +123,83 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
 }
 
 + (NSData *)takeWithScreenID:(unsigned int)screenID
-                     quality:(CGFloat)quality
+                       scale:(CGFloat)scale
+          compressionQuality:(CGFloat)compressionQuality
                         rect:(CGRect)rect
                          uti:(NSString *)uti
+                       error:(NSError **)error
 {
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;
+  __block NSError *innerError = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [proxy _XCT_requestScreenshotOfScreenWithID:screenID
-                                     withRect:CGRectNull
-                                          uti:uti
-                           compressionQuality:quality
-                                    withReply:^(NSData *data, NSError *error) {
-    if (nil != error) {
-      [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [error description]];
+  [XCUIDevice.sharedDevice.screenDataSource requestScreenshotOfScreenWithID:screenID
+                                                                   withRect:rect
+   // it looks like this API ignores `scale` value and always applies the actual
+   // device's screen scale factor, which is OK for us
+                                                                      scale:scale
+                                                                  formatUTI:uti
+                                                         compressionQuality:compressionQuality
+                                                                  withReply:^(NSData *data, NSError *err) {
+    if (nil != err) {
+      [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [err description]];
+      innerError = err;
     } else {
       screenshotData = data;
     }
     dispatch_semaphore_signal(sem);
   }];
+  if (nil != error && innerError) {
+    *error = innerError;
+  }
   int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
-    [FBLogger logFmt:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
+    NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
+    if (nil == error) {
+      [FBLogger log:timeoutMsg];
+    } else {
+      [[[FBErrorBuilder builder]
+        withDescription:timeoutMsg]
+       buildError:error];
+    }
+  };
+  return screenshotData;
+}
+
++ (NSData *)takeWithScreenID:(unsigned int)screenID
+                     quality:(CGFloat)quality
+                         uti:(NSString *)uti
+                       error:(NSError **)error
+{
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  __block NSData *screenshotData = nil;
+  __block NSError *innerError = nil;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [proxy _XCT_requestScreenshotOfScreenWithID:screenID
+                                     withRect:CGRectNull
+                                          uti:uti
+                           compressionQuality:quality
+                                    withReply:^(NSData *data, NSError *err) {
+    if (nil != err) {
+      [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [err description]];
+      innerError = err;
+    } else {
+      screenshotData = data;
+    }
+    dispatch_semaphore_signal(sem);
+  }];
+  if (nil != error && innerError) {
+    *error = innerError;
+  }
+  int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+    NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
+    if (nil == error) {
+      [FBLogger log:timeoutMsg];
+    } else {
+      [[[FBErrorBuilder builder]
+        withDescription:timeoutMsg]
+       buildError:error];
+    }
   };
   return screenshotData;
 }

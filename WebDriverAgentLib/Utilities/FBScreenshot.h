@@ -45,14 +45,14 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param screenID The screen identifier to take the screenshot from
  @param quality Normalized screenshot quality value in range 0..1, where 1 is the best quality
- @param rect The bounding rectange for the screenshot. CGRectNull could be used to take a screenshot of the full screen
  @param uti kUTType... constant, which defines the type of the returned screenshot image
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
 + (nullable NSData *)takeWithScreenID:(unsigned int)screenID
                               quality:(CGFloat)quality
-                                 rect:(CGRect)rect
-                                  uti:(NSString *)uti;
+                                  uti:(NSString *)uti
+                                error:(NSError **)error;
 
 @end
 

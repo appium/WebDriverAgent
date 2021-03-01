@@ -314,6 +314,8 @@
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
 		7119097C2152580600BA3C7E /* XCUIScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 7119097B2152580600BA3C7E /* XCUIScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7119E1EC1E891F8600D0B125 /* FBPickerWheelSelectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */; };
+		711CD03425ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */; };
+		711CD03525ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */; };
 		71241D781FAE31F100B9559F /* FBAppiumActionsSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 71241D771FAE31F100B9559F /* FBAppiumActionsSynthesizer.m */; };
 		71241D7B1FAE3D2500B9559F /* FBTouchActionCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 71241D791FAE3D2500B9559F /* FBTouchActionCommands.h */; };
 		71241D7C1FAE3D2500B9559F /* FBTouchActionCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = 71241D7A1FAE3D2500B9559F /* FBTouchActionCommands.m */; };
@@ -930,6 +932,7 @@
 		711084431DA3AA7500F913D6 /* FBXPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPath.m; sourceTree = "<group>"; };
 		7119097B2152580600BA3C7E /* XCUIScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCUIScreen.h; sourceTree = "<group>"; };
 		7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPickerWheelSelectTests.m; sourceTree = "<group>"; };
+		711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIScreenDataSource-Protocol.h"; sourceTree = "<group>"; };
 		71241D771FAE31F100B9559F /* FBAppiumActionsSynthesizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBAppiumActionsSynthesizer.m; sourceTree = "<group>"; };
 		71241D791FAE3D2500B9559F /* FBTouchActionCommands.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBTouchActionCommands.h; sourceTree = "<group>"; };
 		71241D7A1FAE3D2500B9559F /* FBTouchActionCommands.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTouchActionCommands.m; sourceTree = "<group>"; };
@@ -2191,6 +2194,7 @@
 				EE35AD071E3B77D600A02D78 /* XCUIRecorderUtilities.h */,
 				1BA7DD8C206D694B007C7C26 /* XCTElementSetTransformer-Protocol.h */,
 				7119097B2152580600BA3C7E /* XCUIScreen.h */,
+				711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */,
 			);
 			path = XCTest;
 			sourceTree = "<group>";
@@ -2425,6 +2429,7 @@
 				641EE6DA2240C5CA00173FCB /* FBXCTestCaseImplementationFailureHoldingProxy.h in Headers */,
 				718226CB2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */,
 				641EE6DB2240C5CA00173FCB /* FBPasteboard.h in Headers */,
+				711CD03525ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */,
 				641EE6DC2240C5CA00173FCB /* FBAppiumActionsSynthesizer.h in Headers */,
 				641EE6DD2240C5CA00173FCB /* FBDebugLogDelegateDecorator.h in Headers */,
 				641EE6DE2240C5CA00173FCB /* XCUIDevice+FBHealthCheck.h in Headers */,
@@ -2547,6 +2552,7 @@
 				E444DCAE24913C220060D7EB /* HTTPResponseProxy.h in Headers */,
 				EE35AD751E3B77D600A02D78 /* XCUIRecorderNodeFinder.h in Headers */,
 				1357E296233D05240054BDB8 /* XCUIHitPointResult.h in Headers */,
+				711CD03425ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */,
 				EE158AAE1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.h in Headers */,
 				EE35AD781E3B77D600A02D78 /* XCUIRecorderUtilities.h in Headers */,
 				EE35AD421E3B77D600A02D78 /* XCTestCaseRun.h in Headers */,

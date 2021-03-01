@@ -96,8 +96,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   CGFloat screenshotCompressionQuality = usesScaling ? FBMaxCompressionQuality : compressionQuality;
   NSData *screenshotData = [FBScreenshot takeWithScreenID:self.mainScreenID
                                                   quality:screenshotCompressionQuality
-                                                     rect:CGRectNull
-                                                      uti:(__bridge id)kUTTypeJPEG];
+                                                      uti:(__bridge id)kUTTypeJPEG
+                                                    error:nil];
   if (nil == screenshotData) {
     [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
     return;
