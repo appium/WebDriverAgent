@@ -21,7 +21,8 @@
 #import "XCUIScreen.h"
 #import "XCUIScreenDataSource-Protocol.h"
 
-static const NSTimeInterval SCREENSHOT_TIMEOUT = 2.;
+static const NSTimeInterval SCREENSHOT_TIMEOUT = 20.;
+static const NSTimeInterval FRAME_TIMEOUT = 1.;
 static const CGFloat HIGH_QUALITY = 0.8;
 static const CGFloat LOW_QUALITY = 0.2;
 
@@ -190,7 +191,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if (nil != error && innerError) {
     *error = innerError;
   }
-  int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
+  int64_t timeoutNs = (int64_t)(FRAME_TIMEOUT * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
     NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
     if (nil == error) {
