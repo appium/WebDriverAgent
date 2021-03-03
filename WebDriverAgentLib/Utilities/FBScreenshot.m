@@ -21,7 +21,7 @@
 #import "XCUIScreen.h"
 #import "XCUIScreenDataSource-Protocol.h"
 
-static const NSTimeInterval SCREENSHOT_TIMEOUT = .5;
+static const NSTimeInterval SCREENSHOT_TIMEOUT = 2.;
 static const CGFloat HIGH_QUALITY = 0.8;
 static const CGFloat LOW_QUALITY = 0.2;
 
