@@ -24,7 +24,7 @@
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 20.;
 static const NSTimeInterval FRAME_TIMEOUT = 1.;
 static const CGFloat HIGH_QUALITY = 0.8;
-static const CGFloat LOW_QUALITY = 0.2;
+static const CGFloat LOW_QUALITY = 0.25;
 
 NSString *formatTimeInterval(NSTimeInterval interval) {
   NSUInteger milliseconds = (NSUInteger)(interval * 1000);
