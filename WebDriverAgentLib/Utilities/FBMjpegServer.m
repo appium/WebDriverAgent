@@ -95,7 +95,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   // To get the desired compressionQuality we need to do a lossless compression here
   CGFloat screenshotCompressionQuality = usesScaling ? FBMaxCompressionQuality : compressionQuality;
   NSData *screenshotData = [FBScreenshot takeWithScreenID:self.mainScreenID
-                                                  quality:screenshotCompressionQuality
+                                       compressionQuality:screenshotCompressionQuality
                                                       uti:(__bridge id)kUTTypeJPEG
                                                     error:nil];
   if (nil == screenshotData) {

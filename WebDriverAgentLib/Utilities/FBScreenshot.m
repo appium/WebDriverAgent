@@ -166,7 +166,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
 }
 
 + (NSData *)takeWithScreenID:(unsigned int)screenID
-                     quality:(CGFloat)quality
+          compressionQuality:(CGFloat)compressionQuality
                          uti:(NSString *)uti
                        error:(NSError **)error
 {
@@ -177,7 +177,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   [proxy _XCT_requestScreenshotOfScreenWithID:screenID
                                      withRect:CGRectNull
                                           uti:uti
-                           compressionQuality:quality
+                           compressionQuality:compressionQuality
                                     withReply:^(NSData *data, NSError *err) {
     if (nil != err) {
       [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [err description]];
