@@ -9,6 +9,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <mach/mach_time.h>
+
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBElement.h"
@@ -40,15 +42,16 @@
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 
-- (void)disabled_testDeactivateApplication
+- (void)testDeactivateApplication
 {
-  // This test randomly causes:
-  // Failure fetching attributes for element <XCAccessibilityElement: 0x6080008407b0> Device element: Error Domain=XCTDaemonErrorDomain Code=13 "Value for attribute 5017 is an error." UserInfo={NSLocalizedDescription=Value for attribute 5017 is an error.}
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_deactivateWithDuration:1 error:&error]);
+  uint64_t timeStarted = mach_absolute_time();
+  NSTimeInterval backgroundDuration = 5.0;
+  XCTAssertTrue([self.testedApplication fb_deactivateWithDuration:backgroundDuration error:&error]);
+  NSTimeInterval timeElapsed = (mach_absolute_time() - timeStarted) / NSEC_PER_SEC;
   XCTAssertNil(error);
+  XCTAssertEqualWithAccuracy(timeElapsed, backgroundDuration, 3.0);
   XCTAssertTrue(self.testedApplication.buttons[@"Alerts"].exists);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
 }
 
 - (void)testActiveApplication
