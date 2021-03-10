@@ -185,7 +185,7 @@
 
 - (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
 {
-  if (timeout < 0 || (timeout - DBL_EPSILON < 0 && timeout + DBL_EPSILON > 0)) {
+  if (timeout < DBL_EPSILON) {
     return;
   }
 

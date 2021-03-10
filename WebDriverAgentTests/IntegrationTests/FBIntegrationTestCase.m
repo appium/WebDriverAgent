@@ -37,13 +37,13 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
 
 - (void)setUp
 {
+  // Enable it to get extended XCTest logs printed into the console
+  // [FBConfiguration enableXcTestDebugLogs];
   [super setUp];
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration disableAttributeKeyPathAnalysis];
   [FBConfiguration configureDefaultKeyboardPreferences];
   [FBConfiguration disableScreenshots];
-  // Enable it to get extended XCTest logs
-  // ((XCTestConfiguration *)XCTestConfiguration.activeTestConfiguration).emitOSLogs = YES;
   self.continueAfterFailure = NO;
   self.springboard = FBApplication.fb_systemApplication;
   self.testedApplication = [XCUIApplication new];

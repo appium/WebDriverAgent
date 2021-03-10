@@ -9,13 +9,14 @@
 
 #import "FBConfiguration.h"
 
+#include <dlfcn.h>
 #import <UIKit/UIKit.h>
 
 #include "TargetConditionals.h"
 #import "FBXCodeCompatibility.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
-#include <dlfcn.h>
+#import "XCTestConfiguration.h"
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
@@ -70,6 +71,12 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (void)disableRemoteQueryEvaluation
 {
   [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"XCTDisableRemoteQueryEvaluation"];
+}
+
++ (void)enableXcTestDebugLogs
+{
+  ((XCTestConfiguration *)XCTestConfiguration.activeTestConfiguration).emitOSLogs = YES;
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"XCTEmitOSLogs"];
 }
 
 + (void)disableAttributeKeyPathAnalysis

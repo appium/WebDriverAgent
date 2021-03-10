@@ -37,6 +37,9 @@ extern NSString *const FBSnapshotMaxDepthKey;
 /*! Disables remote query evaluation making Xcode 9.x tests behave same as Xcode 8.x test */
 + (void)disableRemoteQueryEvaluation;
 
+/*! Enables the extended XCTest debug logging. Useful for developemnt purposes */
++ (void)enableXcTestDebugLogs;
+
 /*! Disables attribute key path analysis, which will cause XCTest on Xcode 9.x to ignore some elements */
 + (void)disableAttributeKeyPathAnalysis;
 
