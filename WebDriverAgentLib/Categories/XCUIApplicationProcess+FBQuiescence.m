@@ -23,7 +23,7 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
   if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling",
      bundleId];
-    return;;
+    return;
   }
 
   NSTimeInterval desiredTimeout = FBConfiguration.waitForIdleTimeout;
