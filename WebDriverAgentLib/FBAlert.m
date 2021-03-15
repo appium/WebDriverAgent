@@ -192,7 +192,8 @@
       // allow while using app button
       acceptButton = buttons[1];
     } else {
-      acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+      acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert ||
+                      [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
         ? buttons.lastObject
         : buttons.firstObject;
     }
