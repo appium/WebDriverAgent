@@ -183,9 +183,19 @@
   if (nil == acceptButton) {
     NSArray<XCUIElement *> *buttons = [self.alertElement.fb_query
                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-    acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
-      ? buttons.lastObject
-      : buttons.firstObject;
+    NSArray<XCUIElement *> *mapElements = [self.alertElement.fb_query
+                                       descendantsMatchingType:XCUIElementTypeMap].allElementsBoundByIndex;
+    if (mapElements.count > 0 &&
+        alertSnapshot.elementType == XCUIElementTypeAlert &&
+        buttons.count == 4) {
+      // this is a location permission alert for iOS 14
+      // allow while using app button
+      acceptButton = buttons[1];
+    } else {
+      acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+        ? buttons.lastObject
+        : buttons.firstObject;
+    }
   }
   return nil == acceptButton
     ? [[[FBErrorBuilder builder]
