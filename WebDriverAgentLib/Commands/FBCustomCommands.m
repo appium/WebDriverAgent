@@ -328,7 +328,7 @@
   }
   NSNumber *timeout = request.arguments[@"timeout"] ?: @60;
   NSString *type = request.arguments[@"type"] ?: @"plain";
-  
+
   XCTWaiterResult result;
   if ([type isEqualToString:@"plain"]) {
     result = [FBNotificationsHelper waitForNotificationWithName:name timeout:timeout.doubleValue];
@@ -339,7 +339,8 @@
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
   }
   if (result != XCTWaiterResultCompleted) {
-    NSString *message = [NSString stringWithFormat:@"Did not receive any '%@' notification within %@s", name, timeout];
+    NSString *message = [NSString stringWithFormat:@"Did not receive any expected %@ notifications within %@s",
+                         name, timeout];
     return FBResponseWithStatus([FBCommandStatus timeoutErrorWithMessage:message traceback:nil]);
   }
   return FBResponseWithOK();
