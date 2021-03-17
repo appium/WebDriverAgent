@@ -42,8 +42,8 @@
     commandStatus = [FBCommandStatus staleElementReferenceErrorWithMessage:exception.reason
                                                                  traceback:traceback];
   } else if ([exception.name isEqualToString:FBTimeoutException]) {
-      commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
-                                                     traceback:traceback];
+    commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
+                                                   traceback:traceback];
   } else {
     commandStatus = [FBCommandStatus unknownErrorWithMessage:exception.reason
                                                    traceback:traceback];

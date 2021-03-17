@@ -15,6 +15,7 @@
 #import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBKeyboard.h"
+#import "FBNotificationsHelper.h"
 #import "FBPasteboard.h"
 #import "FBResponsePayload.h"
 #import "FBRoute.h"
@@ -55,6 +56,7 @@
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
+    [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
@@ -305,7 +307,7 @@
   [locationManager startUpdatingLocation];
 
   CLAuthorizationStatus authStatus = [locationManager respondsToSelector:@selector(authorizationStatus)]
-    ? (CLAuthorizationStatus) [locationManager performSelector:@selector(authorizationStatus)]
+    ? (CLAuthorizationStatus) [[locationManager performSelector:@selector(authorizationStatus)] integerValue]
     : [CLLocationManager authorizationStatus];
 
   return FBResponseWithObject(@{
@@ -315,6 +317,32 @@
     @"altitude": @(locationManager.location.altitude),
   });
 #endif
+}
+
++ (id<FBResponsePayload>)handleExpectNotification:(FBRouteRequest *)request
+{
+  NSString *name = request.arguments[@"name"];
+  if (nil == name) {
+    NSString *message = @"Notification name argument must be provided";
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
+  }
+  NSNumber *timeout = request.arguments[@"timeout"] ?: @60;
+  NSString *type = request.arguments[@"type"] ?: @"plain";
+  
+  XCTWaiterResult result;
+  if ([type isEqualToString:@"plain"]) {
+    result = [FBNotificationsHelper waitForNotificationWithName:name timeout:timeout.doubleValue];
+  } else if ([type isEqualToString:@"darwin"]) {
+    result = [FBNotificationsHelper waitForDarwinNotificationWithName:name timeout:timeout.doubleValue];
+  } else {
+    NSString *message = [NSString stringWithFormat:@"Notification type could only be 'plain' or 'darwin'. Got '%@' instead", type];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
+  }
+  if (result != XCTWaiterResultCompleted) {
+    NSString *message = [NSString stringWithFormat:@"Did not receive any '%@' notification within %@s", name, timeout];
+    return FBResponseWithStatus([FBCommandStatus timeoutErrorWithMessage:message traceback:nil]);
+  }
+  return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleGetDeviceInfo:(FBRouteRequest *)request
