@@ -1079,10 +1079,9 @@ enum GCDAsyncSocketConfig
 
 + (nullable instancetype)socketFromConnectedSocketFD:(int)socketFD delegate:(nullable id<GCDAsyncSocketDelegate>)aDelegate delegateQueue:(nullable dispatch_queue_t)dq socketQueue:(nullable dispatch_queue_t)sq error:(NSError* __autoreleasing *)error
 {
-  __block BOOL errorOccured = NO;
-  
   GCDAsyncSocket *socket = [[[self class] alloc] initWithDelegate:aDelegate delegateQueue:dq socketQueue:sq];
-  
+
+  __block NSError *innerError = nil;
   dispatch_sync(socket->socketQueue, ^{ @autoreleasepool {
     struct sockaddr addr;
     socklen_t addr_size = sizeof(struct sockaddr);
@@ -1095,9 +1094,9 @@ enum GCDAsyncSocketConfig
       
       NSDictionary *userInfo = @{NSLocalizedDescriptionKey : errMsg};
 
-      errorOccured = YES;
-      if (error)
-        *error = [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketOtherError userInfo:userInfo];
+      innerError = [NSError errorWithDomain:GCDAsyncSocketErrorDomain
+                                       code:GCDAsyncSocketOtherError
+                                   userInfo:userInfo];
       return;
     }
     
@@ -1117,17 +1116,20 @@ enum GCDAsyncSocketConfig
       
       NSDictionary *userInfo = @{NSLocalizedDescriptionKey : errMsg};
       
-      errorOccured = YES;
-      if (error)
-        *error = [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketOtherError userInfo:userInfo];
+      innerError = [NSError errorWithDomain:GCDAsyncSocketErrorDomain
+                                       code:GCDAsyncSocketOtherError
+                                   userInfo:userInfo];
       return;
     }
-    
+
     socket->flags = kSocketStarted;
     [socket didConnect:socket->stateIndex];
   }});
-  
-  return errorOccured? nil: socket;
+
+  if (nil != innerError && nil != error) {
+    *error = innerError;
+  }
+  return nil == innerError ? socket : nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
