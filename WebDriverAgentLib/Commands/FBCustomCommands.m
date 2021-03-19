@@ -306,11 +306,9 @@
   [locationManager setPausesLocationUpdatesAutomatically:NO];
   [locationManager startUpdatingLocation];
 
-
   CLAuthorizationStatus authStatus;
   if ([locationManager respondsToSelector:@selector(authorizationStatus)]) {
-    // To fix warning
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature: [[locationManager class]
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[locationManager class]
       instanceMethodSignatureForSelector:@selector(authorizationStatus)]];
     [invocation setSelector:@selector(authorizationStatus)];
     [invocation setTarget:locationManager];
