@@ -310,13 +310,14 @@
   CLAuthorizationStatus authStatus;
   if ([locationManager respondsToSelector:@selector(authorizationStatus)]) {
     // To fix warning
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[locationManager class] instanceMethodSignatureForSelector:@selector(authorizationStatus)]];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature: [[locationManager class]
+      instanceMethodSignatureForSelector:@selector(authorizationStatus)]];
     [invocation setSelector:@selector(authorizationStatus)];
     [invocation setTarget:locationManager];
     [invocation invoke];
-    NSInteger status = 0;
+    CLAuthorizationStatus status;
     [invocation getReturnValue:&status];
-    authStatus = (CLAuthorizationStatus) status;
+    authStatus = status;
   } else {
     authStatus = [CLLocationManager authorizationStatus];
   }
