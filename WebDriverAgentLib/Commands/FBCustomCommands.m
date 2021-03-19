@@ -315,9 +315,7 @@
     [invocation setSelector:@selector(authorizationStatus)];
     [invocation setTarget:locationManager];
     [invocation invoke];
-    CLAuthorizationStatus status;
-    [invocation getReturnValue:&status];
-    authStatus = status;
+    [invocation getReturnValue:&authStatus];
   } else {
     authStatus = [CLLocationManager authorizationStatus];
   }
