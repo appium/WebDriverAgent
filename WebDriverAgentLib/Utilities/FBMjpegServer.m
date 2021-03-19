@@ -21,6 +21,7 @@
 #import "XCUIScreen.h"
 
 static const NSUInteger MAX_FPS = 60;
+static const NSTimeInterval FRAME_TIMEOUT = 1.;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
@@ -94,17 +95,21 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   // If scaling is applied we perform another JPEG compression after scaling
   // To get the desired compressionQuality we need to do a lossless compression here
   CGFloat screenshotCompressionQuality = usesScaling ? FBMaxCompressionQuality : compressionQuality;
-  NSData *screenshotData = [FBScreenshot takeWithScreenID:self.mainScreenID
-                                       compressionQuality:screenshotCompressionQuality
-                                                      uti:(__bridge id)kUTTypeJPEG
-                                                    error:nil];
+  NSError *error;
+  NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
+                                                           compressionQuality:screenshotCompressionQuality
+                                                                          uti:(__bridge id)kUTTypeJPEG
+                                                                      timeout:FRAME_TIMEOUT
+                                                                        error:&error];
   if (nil == screenshotData) {
+    [FBLogger logFmt:@"%@", error.description];
     [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
     return;
   }
 
   if (usesScaling) {
     [self.imageScaler submitImage:screenshotData
+                              uti:(__bridge id)kUTTypeJPEG
                     scalingFactor:scalingFactor
                compressionQuality:compressionQuality
                 completionHandler:^(NSData * _Nonnull scaled) {

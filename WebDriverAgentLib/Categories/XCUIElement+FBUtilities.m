@@ -241,17 +241,9 @@
     }
   }
 #endif
-  NSData *imageData = [FBScreenshot takeWithQuality:FBConfiguration.screenshotQuality
-                                               rect:elementRect
-                                              error:error];
-#if !TARGET_OS_TV
-  if (nil == imageData) {
-    return nil;
-  }
-  return FBAdjustScreenshotOrientationForApplication(imageData, orientation);
-#else
-  return imageData;
-#endif
+  return [FBScreenshot takeWithQuality:FBConfiguration.screenshotQuality
+                                  rect:elementRect
+                                 error:error];
 }
 
 @end

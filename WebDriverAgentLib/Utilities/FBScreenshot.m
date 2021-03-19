@@ -13,16 +13,14 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
+#import "FBImageIOScaler.h"
 #import "FBLogger.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
-#import "XCUIDevice.h"
 #import "XCUIScreen.h"
-#import "XCUIScreenDataSource-Protocol.h"
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 20.;
-static const NSTimeInterval FRAME_TIMEOUT = 1.;
 static const CGFloat HIGH_QUALITY = 0.8;
 static const CGFloat LOW_QUALITY = 0.25;
 
@@ -76,7 +74,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                   scale:mainScreen.scale
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:rect
-                                    uti:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
+                              sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
                                   error:error];
   }
 
@@ -95,7 +93,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                   scale:mainScreen.scale
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:CGRectNull
-                                    uti:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
+                              sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
                                   error:error];
   }
 
@@ -127,49 +125,30 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                        scale:(CGFloat)scale
           compressionQuality:(CGFloat)compressionQuality
                         rect:(CGRect)rect
-                         uti:(NSString *)uti
+                   sourceUTI:(NSString *)uti
                        error:(NSError **)error
 {
-  __block NSData *screenshotData = nil;
-  __block NSError *innerError = nil;
-  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [XCUIDevice.sharedDevice.screenDataSource requestScreenshotOfScreenWithID:screenID
-                                                                   withRect:rect
-   // it looks like this API ignores `scale` value and always applies the actual
-   // device's screen scale factor, which is OK for us
-                                                                      scale:scale
-                                                                  formatUTI:uti
+  NSData *screenshotData = [self.class takeInOriginalResolutionWithScreenID:screenID
                                                          compressionQuality:compressionQuality
-                                                                  withReply:^(NSData *data, NSError *err) {
-    if (nil != err) {
-      [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [err description]];
-      innerError = err;
-    } else {
-      screenshotData = data;
-    }
-    dispatch_semaphore_signal(sem);
-  }];
-  if (nil != error && innerError) {
-    *error = innerError;
+                                                                        uti:uti
+                                                                    timeout:SCREENSHOT_TIMEOUT
+                                                                      error:error];
+  if (nil == screenshotData) {
+    return nil;
   }
-  int64_t timeoutNs = (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC);
-  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
-    NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
-    if (nil == error) {
-      [FBLogger log:timeoutMsg];
-    } else {
-      [[[FBErrorBuilder builder]
-        withDescription:timeoutMsg]
-       buildError:error];
-    }
-  };
-  return screenshotData;
+  return [[[FBImageIOScaler alloc] init] scaledImageWithImage:screenshotData
+                                                          uti:(__bridge id)kUTTypePNG
+                                                         rect:rect
+                                                scalingFactor:1.0 / scale
+                                           compressionQuality:FBMaxCompressionQuality
+                                                        error:error];
 }
 
-+ (NSData *)takeWithScreenID:(unsigned int)screenID
-          compressionQuality:(CGFloat)compressionQuality
-                         uti:(NSString *)uti
-                       error:(NSError **)error
++ (NSData *)takeInOriginalResolutionWithScreenID:(unsigned int)screenID
+                              compressionQuality:(CGFloat)compressionQuality
+                                             uti:(NSString *)uti
+                                         timeout:(NSTimeInterval)timeout
+                                           error:(NSError **)error
 {
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;
@@ -181,7 +160,6 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                            compressionQuality:compressionQuality
                                     withReply:^(NSData *data, NSError *err) {
     if (nil != err) {
-      [FBLogger logFmt:@"Got an error while taking a screenshot: %@", [err description]];
       innerError = err;
     } else {
       screenshotData = data;
@@ -191,7 +169,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if (nil != error && innerError) {
     *error = innerError;
   }
-  int64_t timeoutNs = (int64_t)(FRAME_TIMEOUT * NSEC_PER_SEC);
+  int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
     NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
     if (nil == error) {

@@ -17,11 +17,4 @@ BOOL FBIsPngImage(NSData *imageData);
 /*! Converts the given image data to a PNG representation if necessary */
 NSData *_Nullable FBToPngData(NSData *imageData);
 
-#if TARGET_OS_TV
-NSData *_Nullable FBAdjustScreenshotOrientationForApplication(NSData *screenshotData);
-#else
-/*! Fixes the screenshot orientation if necessary to match current screen orientation */
-NSData *_Nullable FBAdjustScreenshotOrientationForApplication(NSData *screenshotData, UIInterfaceOrientation orientation);
-#endif
-
 NS_ASSUME_NONNULL_END

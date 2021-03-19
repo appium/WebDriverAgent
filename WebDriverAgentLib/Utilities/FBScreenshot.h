@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
                                error:(NSError **)error;
 
 /**
- Retrieves scaled screenshot of the particular screen rectange
+ Retrieves scaled screenshot of the particular screen rectangle
 
  @param quality The number in range 0-2, where 2 (JPG) is the lowest and 0 (PNG) is the highest quality.
  @param rect The bounding rectange for the screenshot. CGRectNull could be used to take a screenshot of the full screen
@@ -46,13 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
  @param screenID The screen identifier to take the screenshot from
  @param compressionQuality Normalized screenshot quality value in range 0..1, where 1 is the best quality
  @param uti kUTType... constant, which defines the type of the returned screenshot image
+ @param timeout how much time to allow for the screenshot to be taken
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)takeWithScreenID:(unsigned int)screenID
-                   compressionQuality:(CGFloat)compressionQuality
-                                  uti:(NSString *)uti
-                                error:(NSError **)error;
++ (nullable NSData *)takeInOriginalResolutionWithScreenID:(unsigned int)screenID
+                                       compressionQuality:(CGFloat)compressionQuality
+                                                      uti:(NSString *)uti
+                                                  timeout:(NSTimeInterval)timeout
+                                                    error:(NSError **)error;
 
 @end
 

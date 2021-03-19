@@ -15,6 +15,8 @@
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice.h"
+#import "XCUIDevice+FBRotation.h"
 
 @interface XCUIDeviceHelperTests : FBIntegrationTestCase
 @end
