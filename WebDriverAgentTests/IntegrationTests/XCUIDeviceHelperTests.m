@@ -15,6 +15,7 @@
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBRotation.h"
 
 @interface XCUIDeviceHelperTests : FBIntegrationTestCase
 @end
@@ -37,6 +38,19 @@
   XCTAssertNotNil([UIImage imageWithData:screenshotData]);
   XCTAssertNil(error);
   XCTAssertTrue(FBIsPngImage(screenshotData));
+}
+
+- (void)testLandscapeScreenshot
+{
+  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeLeft];
+  NSError *error = nil;
+  NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
+  XCTAssertNotNil(screenshotData);
+  XCTAssertTrue(FBIsPngImage(screenshotData));
+  XCTAssertNil(error);
+  UIImage *image = [UIImage imageWithData:screenshotData];
+  XCTAssertNotNil(image);
+  XCTAssertTrue(image.size.width > image.size.height);
 }
 
 - (void)testWifiAddress
