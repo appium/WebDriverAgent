@@ -132,9 +132,9 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
     orientation = UIImageOrientationDown;
   } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
-    orientation = UIImageOrientationLeft;
-  } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
     orientation = UIImageOrientationRight;
+  } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
+    orientation = UIImageOrientationLeft;
   }
 #endif
   uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
