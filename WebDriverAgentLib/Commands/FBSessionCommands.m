@@ -98,8 +98,7 @@
     [FBConfiguration setShouldUseSingletonTestManager:[requirements[@"shouldUseSingletonTestManager"] boolValue]];
   }
   if (requirements[@"disableAutomaticScreenshots"]) {
-    BOOL disable = [requirements[@"disableAutomaticScreenshots"] boolValue];
-    if (disable) {
+    if ([requirements[@"disableAutomaticScreenshots"] boolValue]) {
       [FBConfiguration disableScreenshots];
     } else {
       [FBConfiguration enableScreenshots];
