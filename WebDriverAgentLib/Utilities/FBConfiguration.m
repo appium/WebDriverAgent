@@ -89,6 +89,25 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"DisableScreenshots"];
 }
 
++ (void)enableScreenshots
+{
+  [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"DisableScreenshots"];
+}
+
++ (void)disableScreenshotsUnlessEnvironment
+{
+  BOOL disable = YES;
+  NSString * envSetting = NSProcessInfo.processInfo.environment[@"DISABLE_SCREENSHOTS"];
+  if (envSetting && [envSetting isEqualToString:@"NO"]) {
+    disable = NO;
+  }
+  if (disable) {
+    [self disableScreenshots];
+  } else {
+    [self enableScreenshots];
+  }
+}
+
 + (NSRange)bindingPortRange
 {
   // 'WebDriverAgent --port 8080' can be passed via the arguments to the process

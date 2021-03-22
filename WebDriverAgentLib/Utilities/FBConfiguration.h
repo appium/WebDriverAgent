@@ -43,8 +43,14 @@ extern NSString *const FBSnapshotMaxDepthKey;
 /*! Disables attribute key path analysis, which will cause XCTest on Xcode 9.x to ignore some elements */
 + (void)disableAttributeKeyPathAnalysis;
 
-/*! Disables XCTest from automated screenshots taking */
+/*! Disables XCTest automated screenshots taking */
 + (void)disableScreenshots;
+
+/*! Enables XCTest automated screenshots taking */
++ (void)enableScreenshots;
+
+/*! Disables XCTest automated screenshots taking, unless DISABLE_SCREENSHOTS env variable is set to NO */
++ (void)disableScreenshotsUnlessEnvironment;
 
 /* The maximum typing frequency for all typing activities */
 + (void)setMaxTypingFrequency:(NSUInteger)value;
