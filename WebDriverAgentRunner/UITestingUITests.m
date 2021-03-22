@@ -25,7 +25,11 @@
   [FBDebugLogDelegateDecorator decorateXCTestLogger];
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration configureDefaultKeyboardPreferences];
-  [FBConfiguration disableScreenshotsUnlessEnvironment];
+  if (NSProcessInfo.processInfo.environment[@"ENABLE_AUTOMATIC_SCREENSHOTS"]) {
+    [FBConfiguration enableScreenshots];
+  } else {
+    [FBConfiguration disableScreenshots];
+  }
   [super setUp];
 }
 
