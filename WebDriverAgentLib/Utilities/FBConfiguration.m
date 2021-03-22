@@ -96,15 +96,10 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 
 + (void)disableScreenshotsUnlessEnvironment
 {
-  BOOL disable = YES;
-  NSString * envSetting = NSProcessInfo.processInfo.environment[@"DISABLE_SCREENSHOTS"];
-  if (envSetting && [envSetting isEqualToString:@"NO"]) {
-    disable = NO;
-  }
-  if (disable) {
-    [self disableScreenshots];
-  } else {
+  if (NSProcessInfo.processInfo.environment[@"ENABLE_AUTOMATIC_SCREENSHOTS"]) {
     [self enableScreenshots];
+  } else {
+    [self disableScreenshots];
   }
 }
 
