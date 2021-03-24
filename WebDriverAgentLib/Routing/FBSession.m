@@ -131,7 +131,7 @@ static FBSession *_activeSession = nil;
     self.alertsMonitor = nil;
   }
 
-  if (self.testedApplicationBundleId) {
+  if (self.testedApplicationBundleId && [FBConfiguration shouldTerminateApp]) {
     [[self.applications objectForKey:self.testedApplicationBundleId] terminate];
   }
   _activeSession = nil;

@@ -104,6 +104,9 @@
       [FBConfiguration enableScreenshots];
     }
   }
+  if (requirements[@"shouldTerminateApp"]) {
+    [FBConfiguration setShouldTerminateApp:[requirements[@"shouldTerminateApp"] boolValue]];
+  }
   NSNumber *delay = requirements[@"eventloopIdleDelaySec"];
   if ([delay doubleValue] > 0.0) {
     [XCUIApplicationProcessDelay setEventLoopHasIdledDelay:[delay doubleValue]];

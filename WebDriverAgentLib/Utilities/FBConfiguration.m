@@ -31,6 +31,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldUseCompactResponses = YES;
+static BOOL FBShouldTerminateApp = YES;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
@@ -156,6 +157,16 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (BOOL)shouldUseCompactResponses
 {
   return FBShouldUseCompactResponses;
+}
+
++ (void)setShouldTerminateApp:(BOOL)value
+{
+  FBShouldTerminateApp = value;
+}
+
++ (BOOL)shouldTerminateApp
+{
+  return FBShouldTerminateApp;
 }
 
 + (void)setElementResponseAttributes:(NSString *)value

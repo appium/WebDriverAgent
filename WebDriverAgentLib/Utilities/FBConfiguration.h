@@ -30,6 +30,10 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setShouldUseCompactResponses:(BOOL)value;
 + (BOOL)shouldUseCompactResponses;
 
+/*! If set to YES (which is the default), the app will be terminated at the end of the session, if a bundleId was specified */
++ (void)setShouldTerminateApp:(BOOL)value;
++ (BOOL)shouldTerminateApp;
+
 /*! If shouldUseCompactResponses == NO, is the comma-separated list of fields to return with each element. Defaults to "type,label". */
 + (void)setElementResponseAttributes:(NSString *)value;
 + (NSString *)elementResponseAttributes;
