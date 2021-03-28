@@ -21,6 +21,7 @@
 #import "XCUIScreen.h"
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 20.;
+static const CGFloat SCREENSHOT_SCALE = 1.0;  // Screenshot API should keep the scale
 static const CGFloat HIGH_QUALITY = 0.8;
 static const CGFloat LOW_QUALITY = 0.25;
 
@@ -71,7 +72,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:1.0 // Screenshot API should keep the scale
+                                  scale:SCREENSHOT_SCALE
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:rect
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
@@ -90,7 +91,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:1.0 // Screenshot API should keep the scale
+                                  scale:SCREENSHOT_SCALE
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:CGRectNull
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
