@@ -71,10 +71,18 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
 {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+
+    // Note to fit to the old spec
+    CGRect newRect = rect;
+    newRect.origin.x = rect.origin.x * mainScreen.scale;
+    newRect.origin.y = rect.origin.y * mainScreen.scale;
+    newRect.size.height = rect.size.height * mainScreen.scale;
+    newRect.size.width = rect.size.width * mainScreen.scale;
+
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:mainScreen.scale  // TODO: Should fix element screenshot
+                                  scale:SCREENSHOT_SCALE
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
-                                   rect:rect
+                                   rect:newRect
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
                                   error:error];
   }
