@@ -71,7 +71,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:mainScreen.scale
+                                  scale:1.0 // Screenshot API should keep the scale
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:rect
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
@@ -90,7 +90,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:mainScreen.scale
+                                  scale:1.0 // Screenshot API should keep the scale
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:CGRectNull
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
