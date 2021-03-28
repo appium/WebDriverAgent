@@ -72,7 +72,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     return [self.class takeWithScreenID:mainScreen.displayID
-                                  scale:SCREENSHOT_SCALE
+                                  scale:mainScreen.scale  // TODO: Should fix element screenshot
                      compressionQuality:[self.class compressionQualityWithQuality:FBConfiguration.screenshotQuality]
                                    rect:rect
                               sourceUTI:[self.class imageUtiWithQuality:FBConfiguration.screenshotQuality]
