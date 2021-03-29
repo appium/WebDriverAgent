@@ -122,9 +122,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                     error:(NSError **)error
 {
   UIImage *uiImage = [UIImage imageWithData:image];
-  CGSize size = uiImage.size;
-  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
-  UIGraphicsBeginImageContext(scaledSize);
   UIImageOrientation orientation = uiImage.imageOrientation;
 #if !TARGET_OS_TV
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortrait) {
@@ -140,7 +137,14 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
                                 scale:uiImage.scale
                           orientation:orientation];
-  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+
+  if (fabs(1.0 - scalingFactor) > FLT_EPSILON) {
+    CGSize size = uiImage.size;
+    CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
+    UIGraphicsBeginImageContext(scaledSize);
+    [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+  }
+
   UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
