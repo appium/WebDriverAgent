@@ -41,6 +41,8 @@
   XCTAssertTrue(FBIsPngImage(screenshotData));
 
   UIImage *screenshot = [UIImage imageWithData:screenshotData];
+  XCTAssertNotNil(screenshot);
+
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
   XCTAssertEqual(screenshotExact.size.height * mainScreen.scale, screenshot.size.height);
@@ -55,6 +57,7 @@
   XCTAssertNotNil(screenshotData);
   XCTAssertTrue(FBIsPngImage(screenshotData));
   XCTAssertNil(error);
+
   UIImage *screenshot = [UIImage imageWithData:screenshotData];
   XCTAssertNotNil(screenshot);
   XCTAssertTrue(screenshot.size.width > screenshot.size.height);
