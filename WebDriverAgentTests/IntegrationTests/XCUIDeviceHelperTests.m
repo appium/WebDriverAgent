@@ -45,8 +45,8 @@
 
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
-  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale, screenshot.size.height, .0);
-  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale, screenshot.size.width, .0);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale, screenshot.size.height, FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale, screenshot.size.width, FLT_EPSILON);
 }
 
 - (void)testLandscapeScreenshot
@@ -64,8 +64,8 @@
 
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
-  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale, screenshot.size.height, .0);
-  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale, screenshot.size.width, .0);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale, screenshot.size.height, FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale, screenshot.size.width, FLT_EPSILON);
 }
 
 - (void)testWifiAddress
