@@ -65,9 +65,9 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   }
 }
 
-+ (NSData *)takeWithQuality:(NSUInteger)quality
-                       rect:(CGRect)rect
-                      error:(NSError **)error
++ (NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
+                                           rect:(CGRect)rect
+                                          error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
@@ -85,8 +85,8 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return nil;
 }
 
-+ (NSData *)takeWithQuality:(NSUInteger)quality
-                      error:(NSError **)error
++ (NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
+                                          error:(NSError **)error
 {
   if ([self.class isNewScreenshotAPISupported]) {
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;

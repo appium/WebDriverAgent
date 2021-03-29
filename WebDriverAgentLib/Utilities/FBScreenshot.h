@@ -19,26 +19,27 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isNewScreenshotAPISupported;
 
 /**
- Retrieves scaled screenshot of the whole screen
+ Retrieves non-scaled screenshot of the whole screen
 
  @param quality The number in range 0-2, where 2 (JPG) is the lowest and 0 (PNG) is the highest quality.
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)takeWithQuality:(NSUInteger)quality
-                               error:(NSError **)error;
++ (nullable NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
+                                                   error:(NSError **)error;
 
 /**
- Retrieves scaled screenshot of the particular screen rectangle
+ Retrieves non-scaled screenshot of the particular screen rectangle
 
  @param quality The number in range 0-2, where 2 (JPG) is the lowest and 0 (PNG) is the highest quality.
- @param rect The bounding rectange for the screenshot. CGRectNull could be used to take a screenshot of the full screen
+ @param rect The bounding rectange for the screenshot. The value should be non-scaled one.
+             CGRectNull could be used to take a screenshot of the full screen.
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)takeWithQuality:(NSUInteger)quality
-                                rect:(CGRect)rect
-                               error:(NSError **)error;
++ (nullable NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
+                                                    rect:(CGRect)rect
+                                                   error:(NSError **)error;
 
 /**
  Retrieves non-scaled screenshot of the whole screen

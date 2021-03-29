@@ -248,9 +248,9 @@
   elementRect = CGRectMake(elementRect.origin.x * mainScreen.scale, elementRect.origin.y * mainScreen.scale,
                            elementRect.size.width * mainScreen.scale, elementRect.size.height * mainScreen.scale);
 
-  return [FBScreenshot takeWithQuality:FBConfiguration.screenshotQuality
-                                  rect:elementRect
-                                 error:error];
+  return [FBScreenshot takeInOriginalResolutionWithQuality:FBConfiguration.screenshotQuality
+                                                      rect:elementRect
+                                                     error:error];
 }
 
 @end
