@@ -34,6 +34,7 @@
 
 - (void)testScreenshot
 {
+  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
   NSError *error = nil;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   XCTAssertNotNil(screenshotData);
