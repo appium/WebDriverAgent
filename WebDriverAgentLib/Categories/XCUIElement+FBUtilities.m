@@ -243,7 +243,7 @@
   }
 #endif
 
-  // adjust element rect for the screen scale
+  // adjust element rect for the actual screen scale
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   elementRect = CGRectMake(elementRect.origin.x * mainScreen.scale, elementRect.origin.y * mainScreen.scale,
                            elementRect.size.width * mainScreen.scale, elementRect.size.height * mainScreen.scale);
