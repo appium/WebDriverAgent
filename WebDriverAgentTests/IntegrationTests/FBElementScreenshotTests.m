@@ -52,8 +52,12 @@
 
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   UIImage *buttonScreenshot = button.screenshot.image;
-  XCTAssertEqualWithAccuracy(buttonScreenshot.size.height * mainScreen.scale, image.size.height, FLT_EPSILON);
-  XCTAssertEqualWithAccuracy(buttonScreenshot.size.width * mainScreen.scale, image.size.width, FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(buttonScreenshot.size.height * mainScreen.scale,
+                             image.size.height,
+                             FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(buttonScreenshot.size.width * mainScreen.scale,
+                             image.size.width,
+                             FLT_EPSILON);
 }
 
 @end
