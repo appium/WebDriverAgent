@@ -98,7 +98,8 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  return [FBScreenshot takeInOriginalResolutionWithQuality:FBConfiguration.screenshotQuality error:error];
+  return [FBScreenshot takeInOriginalResolutionWithQuality:FBConfiguration.screenshotQuality
+                                                     error:error];
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch
