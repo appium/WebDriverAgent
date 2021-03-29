@@ -16,6 +16,7 @@
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIDevice+FBRotation.h"
+#import "XCUIScreen.h"
 
 @interface XCUIDeviceHelperTests : FBIntegrationTestCase
 @end
@@ -35,9 +36,15 @@
 {
   NSError *error = nil;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
-  XCTAssertNotNil([UIImage imageWithData:screenshotData]);
+  XCTAssertNotNil(screenshotData);
   XCTAssertNil(error);
   XCTAssertTrue(FBIsPngImage(screenshotData));
+
+  UIImage *screenshot = [UIImage imageWithData:screenshotData];
+  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
+  XCTAssertEqual(screenshotExact.size.height * mainScreen.scale, screenshot.size.height);
+  XCTAssertEqual(screenshotExact.size.width * mainScreen.scale, screenshot.size.width);
 }
 
 - (void)testLandscapeScreenshot
@@ -48,9 +55,14 @@
   XCTAssertNotNil(screenshotData);
   XCTAssertTrue(FBIsPngImage(screenshotData));
   XCTAssertNil(error);
-  UIImage *image = [UIImage imageWithData:screenshotData];
-  XCTAssertNotNil(image);
-  XCTAssertTrue(image.size.width > image.size.height);
+  UIImage *screenshot = [UIImage imageWithData:screenshotData];
+  XCTAssertNotNil(screenshot);
+  XCTAssertTrue(screenshot.size.width > screenshot.size.height);
+
+  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
+  XCTAssertEqual(screenshotExact.size.height * mainScreen.scale, screenshot.size.height);
+  XCTAssertEqual(screenshotExact.size.width * mainScreen.scale, screenshot.size.width);
 }
 
 - (void)testWifiAddress
