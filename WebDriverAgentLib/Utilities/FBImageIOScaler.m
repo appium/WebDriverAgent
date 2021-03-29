@@ -123,7 +123,17 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 {
   UIImage *uiImage = [UIImage imageWithData:image];
   UIImageOrientation orientation = uiImage.imageOrientation;
+
   CGSize originalSize = uiImage.size;
+  Boolean shouldScale = fabs(1.0 - scalingFactor) > FLT_EPSILON;
+
+  CGSize scaledSize;
+  if (shouldScale) {
+    scaledSize = CGSizeMake(originalSize.width * scalingFactor, originalSize.height * scalingFactor);
+  } else {
+    scaledSize = originalSize;
+  }
+  UIGraphicsBeginImageContext(scaledSize);
 #if !TARGET_OS_TV
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortrait) {
     orientation = UIImageOrientationUp;
@@ -138,17 +148,10 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
                                 scale:uiImage.scale
                           orientation:orientation];
-
-  UIImage *resultImage;
-  CGSize scaledSize;
-  if (fabs(1.0 - scalingFactor) > FLT_EPSILON) {
-    scaledSize = CGSizeMake(originalSize.width * scalingFactor, originalSize.height * scalingFactor);
-  } else {
-    scaledSize = originalSize;
+  if (shouldScale) {
+    [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
   }
-  UIGraphicsBeginImageContext(scaledSize);
-  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-  resultImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
   if (!CGRectIsNull(rect)) {
