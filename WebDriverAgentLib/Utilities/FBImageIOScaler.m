@@ -122,14 +122,8 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                     error:(NSError **)error
 {
   UIImage *uiImage = [UIImage imageWithData:image];
-  CGSize originalSize = uiImage.size;
-  BOOL shouldScale = fabs(1.0 - scalingFactor) > FLT_EPSILON;
-  CGSize scaledSize;
-  if (shouldScale) {
-    scaledSize = CGSizeMake(originalSize.width * scalingFactor, originalSize.height * scalingFactor);
-  } else {
-    scaledSize = originalSize;
-  }
+  CGSize size = uiImage.size;
+  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
   UIGraphicsBeginImageContext(scaledSize);
   UIImageOrientation orientation = uiImage.imageOrientation;
 #if !TARGET_OS_TV
@@ -146,7 +140,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
                                 scale:uiImage.scale
                           orientation:orientation];
-  if (shouldScale) {
+  if (fabs(1.0 - scalingFactor) > FLT_EPSILON) {
     [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
   }
   UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
