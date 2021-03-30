@@ -140,9 +140,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
                                 scale:uiImage.scale
                           orientation:orientation];
-  if (fabs(1.0 - scalingFactor) > FLT_EPSILON) {
-    [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-  }
+  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
   UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
