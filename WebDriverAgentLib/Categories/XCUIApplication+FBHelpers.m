@@ -128,6 +128,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
   info[@"frame"] = NSStringFromCGRect(snapshot.wdFrame);
   info[@"isEnabled"] = [@([snapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([snapshot isWDVisible]) stringValue];
+  info[@"isAccessible"] = [@([snapshot isWDAccessible]) stringValue];
 #if TARGET_OS_TV
   info[@"isFocused"] = [@([snapshot isWDFocused]) stringValue];
 #endif
