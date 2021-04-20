@@ -130,4 +130,16 @@
   XCTAssertNil(error);
 }
 
+- (void)testLongPressHomeButton
+{
+  NSError *error;
+  // kHIDPage_Consumer = 0x0C
+  // kHIDUsage_Csmr_Menu = 0x40
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_performIOHIDEventWithPage:0x0C
+                                                                usage:0x40
+                                                             duration:1.0
+                                                                error:&error]);
+  XCTAssertNil(error);
+}
+
 @end

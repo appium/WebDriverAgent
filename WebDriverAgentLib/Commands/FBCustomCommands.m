@@ -56,6 +56,7 @@
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
+    [[FBRoute POST:@"/wda/performIoHidEvent"] respondWithTarget:self action:@selector(handlePeformIOHIDEvent:)],
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
@@ -253,6 +254,22 @@
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_activateSiriVoiceRecognitionWithText:(id)request.arguments[@"text"] error:&error]) {
     return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithOK();
+}
+
++ (id <FBResponsePayload>)handlePeformIOHIDEvent:(FBRouteRequest *)request
+{
+  NSNumber *page = request.arguments[@"page"];
+  NSNumber *usage = request.arguments[@"usage"];
+  NSNumber *duration = request.arguments[@"duration"];
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_performIOHIDEventWithPage:page.unsignedIntValue
+                                                       usage:usage.unsignedIntValue
+                                                    duration:duration.doubleValue
+                                                       error:&error]) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
   }
   return FBResponseWithOK();
 }

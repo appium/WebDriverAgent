@@ -12,11 +12,12 @@
 @property (readonly) id accessibilityInterface; // implements XCUIAccessibilityInterface
 @property (readonly) id eventSynthesizer; // implements XCUIEventSynthesizing
 @property(readonly) id screenDataSource; // @synthesize screenDataSource=_screenDataSource;
-
+- (_Bool)performDeviceEvent:(id)arg1 error:(id *)arg2;
 
 - (void)pressLockButton;
 - (void)holdHomeButtonForDuration:(double)arg1;
 - (void)_silentPressButton:(long long)arg1;
+// Removed in Xcode 10.2
 - (void)_dispatchEventWithPage:(unsigned int)arg1 usage:(unsigned int)arg2 duration:(double)arg3;
 
 @end
