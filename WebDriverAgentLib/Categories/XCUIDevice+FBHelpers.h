@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_activateSiriVoiceRecognitionWithText:(NSString *)text error:(NSError **)error;
 
 /**
- Eumlated triggering of the given low-level IOHID device event. The constants for possible events are defined
+ Emulated triggering of the given low-level IOHID device event. The constants for possible events are defined
  in https://unix.superglobalmegacorp.com/xnu/newsrc/iokit/IOKit/hidsystem/IOHIDUsageTables.h.html
  Popular constants:
  - kHIDPage_Consumer = 0x0C
@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
  - kHIDUsage_Csmr_Snapshot  = 0x65 (Power + Home)
 
  @param page The event page identifier
- @param usage The event usage indentifier (usages are defined per-page)
+ @param usage The event usage identifier (usages are defined per-page)
  @param duration The event duration in float seconds (XCTest uses 0.005 for a single press event)
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES the event has successfully been triggered
