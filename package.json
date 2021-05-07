@@ -87,6 +87,7 @@
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
     "XCTWebDriverAgentLib",
-    "WebDriverAgentRunner-Runner.app.zip"
+    "WebDriverAgentRunner-Runner.app.zip",
+    "ci-jobs/scripts/build-webdriveragent.js"
   ]
 }
