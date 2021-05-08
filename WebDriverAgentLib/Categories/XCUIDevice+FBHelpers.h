@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param duration Duration in seconds. This argument works only on tvOS. On iOS, this value will be ignored.
  @return YES if the button has been pressed
  */
-- (BOOL)fb_pressButton:(NSString *)buttonName forDuration:(NSTimeInterval)duration error:(NSError **)error;
+- (BOOL)fb_pressButton:(NSString *)buttonName forDuration:(NSNumber *)duration error:(NSError **)error;
 
 
 /**

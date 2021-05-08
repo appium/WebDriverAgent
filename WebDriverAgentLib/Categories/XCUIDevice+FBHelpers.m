@@ -191,7 +191,7 @@ static bool fb_isLocked;
 }
 
 - (BOOL)fb_pressButton:(NSString *)buttonName
-           forDuration:(NSTimeInterval)duration
+           forDuration:(NSNumber *)duration
                  error:(NSError **)error
 {
 #if !TARGET_OS_TV
@@ -254,11 +254,13 @@ static bool fb_isLocked;
             buildError:error];
   }
 
-  (duration < 0)
-    // https://developer.apple.com/documentation/xctest/xcuiremote/1627476-pressbutton
-    ? [[XCUIRemote sharedRemote] pressButton:remoteButton]
+  if (duration) {
     // https://developer.apple.com/documentation/xctest/xcuiremote/1627475-pressbutton
-    : [[XCUIRemote sharedRemote] pressButton:remoteButton forDuration:duration];
+    [[XCUIRemote sharedRemote] pressButton:remoteButton forDuration:duration.doubleValue];
+  } else {
+    // https://developer.apple.com/documentation/xctest/xcuiremote/1627476-pressbutton
+    [[XCUIRemote sharedRemote] pressButton:remoteButton];
+  }
 
   return YES;
 #endif
