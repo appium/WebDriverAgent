@@ -244,7 +244,7 @@
 {
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_pressButton:(id)request.arguments[@"name"]
-                                   forDuration:(id)request.arguments[@"duration"]
+                                   forDuration:(NSNumber *)request.arguments[@"duration"]
                                          error:&error]) {
     return FBResponseWithUnknownError(error);
   }
