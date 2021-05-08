@@ -119,14 +119,16 @@
 - (void)testPressingUnsupportedButton
 {
   NSError *error;
-  XCTAssertFalse([XCUIDevice.sharedDevice fb_pressButton:@"volumeUpp" forDuration:nil error:&error]);
+  NSNumber *duration;
+  XCTAssertFalse([XCUIDevice.sharedDevice fb_pressButton:@"volumeUpp" forDuration:duration error:&error]);
   XCTAssertNotNil(error);
 }
 
 - (void)testPressingSupportedButton
 {
   NSError *error;
-  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home" forDuration:nil error:&error]);
+  NSNumber *duration;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home" forDuration:duration error:&error]);
   XCTAssertNil(error);
 }
 
