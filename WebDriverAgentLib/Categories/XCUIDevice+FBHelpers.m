@@ -191,7 +191,7 @@ static bool fb_isLocked;
 }
 
 - (BOOL)fb_pressButton:(NSString *)buttonName
-           forDuration:(NSNumber *)duration
+           forDuration:(nullable NSNumber *)duration
                  error:(NSError **)error
 {
 #if !TARGET_OS_TV
