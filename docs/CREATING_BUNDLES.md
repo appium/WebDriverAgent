@@ -10,6 +10,6 @@ The bundle can be run manually as well, but the GitHub release will not be creat
 
 Building a WebDriverAgent bundle locally is useful if Azure pipelines doesn't build one of the Xcode bundles that we want.
 
-* Run `node ./ci-jobs/scripts/build-webdriveragent.js` 
+* Run `node ./Scripts/build-webdriveragent.js` 
 * This will build a single bundle to `prebuilt-agents`
 * The bundle will be built using the Xcode version installed locally

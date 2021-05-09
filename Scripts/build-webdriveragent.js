@@ -6,7 +6,7 @@ const { exec } = require('teen_process');
 const xcode = require('appium-xcode');
 
 const log = new logger.getLogger('WDABuild');
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = path.resolve(__dirname, '..');
 
 async function buildWebDriverAgent (xcodeVersion) {
   // Get Xcode version
