@@ -78,7 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
  Presses the corresponding hardware button on the device with duration.
 
  @param buttonName One of the supported button names: volumeUp (real devices only), volumeDown (real device only), home
- @param duration Duration in seconds. This argument works only on tvOS. On iOS, this value will be ignored.
+ @param duration Duration in seconds or nil.
+                This argument works only on tvOS. When this argument is nil on tvOS,
+                https://developer.apple.com/documentation/xctest/xcuiremote/1627476-pressbutton will be called.
+                Others are https://developer.apple.com/documentation/xctest/xcuiremote/1627475-pressbutton.
+                A single tap when this argument is `nil` is equal to when the duration is 0.005 seconds in XCTest.
+                On iOS, this value will be ignored. It always calls https://developer.apple.com/documentation/xctest/xcuidevice/1619052-pressbutton
  @return YES if the button has been pressed
  */
 - (BOOL)fb_pressButton:(NSString *)buttonName forDuration:(nullable NSNumber *)duration error:(NSError **)error;
