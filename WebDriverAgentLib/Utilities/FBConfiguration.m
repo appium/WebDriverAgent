@@ -257,7 +257,12 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   // This can avoid 'Keyboard is not present' error which can happen
   // when send_keys are called by client
   [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
-  [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
+
+  if ([(NSObject *)[UIKeyboardImpl sharedInstance]
+       respondsToSelector:@selector(setSoftwareKeyboardShownByTouch:)]) {
+    // Xcode 13 no longer has this method
+    [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
+  }
 #endif
 
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
