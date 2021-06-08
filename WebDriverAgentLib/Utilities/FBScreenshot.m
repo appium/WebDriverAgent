@@ -210,7 +210,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   static dispatch_once_t shouldUseSRApi;
   static BOOL result;
   dispatch_once(&shouldUseSRApi, ^{
-    result = ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
+    if ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
 #if TARGET_OS_SIMULATOR
       result = YES;
 #else
