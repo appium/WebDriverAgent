@@ -155,33 +155,125 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   __block NSData *screenshotData = nil;
   __block NSError *innerError = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [proxy _XCT_requestScreenshotOfScreenWithID:screenID
-                                     withRect:CGRectNull
-                                          uti:uti
-                           compressionQuality:compressionQuality
-                                    withReply:^(NSData *data, NSError *err) {
-    if (nil != err) {
-      innerError = err;
-    } else {
-      screenshotData = data;
+  if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
+    id screnshotRequest = [self.class screenshotRequestWithScreenID:screenID
+                                                               rect:CGRectNull
+                                                                uti:uti
+                                                 compressionQuality:compressionQuality
+                                                              error:error];
+    if (nil == screnshotRequest) {
+      return nil;
     }
-    dispatch_semaphore_signal(sem);
-  }];
-  if (nil != error && innerError) {
-    *error = innerError;
+    [proxy _XCT_requestScreenshot:screnshotRequest
+                        withReply:^(id image, NSError *err) {
+      if (nil != err) {
+        innerError = err;
+      } else {
+        screenshotData = [image data];
+      }
+      dispatch_semaphore_signal(sem);
+    }];
+  } else {
+    [proxy _XCT_requestScreenshotOfScreenWithID:screenID
+                                       withRect:CGRectNull
+                                            uti:uti
+                             compressionQuality:compressionQuality
+                                      withReply:^(NSData *data, NSError *err) {
+      if (nil != err) {
+        innerError = err;
+      } else {
+        screenshotData = data;
+      }
+      dispatch_semaphore_signal(sem);
+    }];
   }
   int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
     NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot take a screenshot within %@ timeout", formatTimeInterval(SCREENSHOT_TIMEOUT)];
     if (nil == error) {
       [FBLogger log:timeoutMsg];
-    } else {
+    } else if (nil == innerError) {
       [[[FBErrorBuilder builder]
         withDescription:timeoutMsg]
        buildError:error];
     }
   };
+  if (nil != error && nil != innerError) {
+    *error = innerError;
+  }
   return screenshotData;
+}
+
++ (nullable id)imageEncodingWithUniformTypeIdentifier:(NSString *)uti
+                                   compressionQuality:(CGFloat)compressionQuality
+                                                error:(NSError **)error
+{
+  // TODO: Use native accessors after we drop the support of Xcode 12.4 and below
+  Class imageEncodingClass = NSClassFromString(@"XCTImageEncoding");
+  if (nil == imageEncodingClass) {
+    [[[FBErrorBuilder builder]
+      withDescription:@"Cannot find XCTImageEncoding class"]
+     buildError:error];
+    return nil;
+  }
+  id imageEncodingAllocated = [imageEncodingClass alloc];
+  SEL imageEncodingConstructorSelector = NSSelectorFromString(@"initWithUniformTypeIdentifier:compressionQuality:");
+  if (![imageEncodingAllocated respondsToSelector:imageEncodingConstructorSelector]) {
+    [[[FBErrorBuilder builder]
+      withDescription:@"'initWithUniformTypeIdentifier:compressionQuality:' contructor is not found on XCTImageEncoding class"]
+     buildError:error];
+    return nil;
+  }
+  NSMethodSignature *imageEncodingContructorSignature = [imageEncodingAllocated methodSignatureForSelector:imageEncodingConstructorSelector];
+  NSInvocation *imageEncodingInitInvocation = [NSInvocation invocationWithMethodSignature:imageEncodingContructorSignature];
+  [imageEncodingInitInvocation setSelector:imageEncodingConstructorSelector];
+  [imageEncodingInitInvocation setArgument:&uti atIndex:2];
+  [imageEncodingInitInvocation setArgument:&compressionQuality atIndex:3];
+  [imageEncodingInitInvocation invokeWithTarget:imageEncodingAllocated];
+  id __unsafe_unretained imageEncoding;
+  [imageEncodingInitInvocation getReturnValue:&imageEncoding];
+  return imageEncoding;
+}
+
++ (nullable id)screenshotRequestWithScreenID:(unsigned int)screenID
+                                        rect:(struct CGRect)rect
+                                         uti:(NSString *)uti
+                          compressionQuality:(CGFloat)compressionQuality
+                                       error:(NSError **)error
+{
+  // TODO: Use native accessors after we drop the support of Xcode 12.4 and below
+  id imageEncoding = [self.class imageEncodingWithUniformTypeIdentifier:uti
+                                                     compressionQuality:compressionQuality
+                                                                  error:error];
+  if (nil == imageEncoding) {
+    return nil;
+  }
+
+  Class screenshotRequestClass = NSClassFromString(@"XCTScreenshotRequest");
+  if (nil == screenshotRequestClass) {
+    [[[FBErrorBuilder builder]
+      withDescription:@"Cannot find XCTScreenshotRequest class"]
+     buildError:error];
+    return nil;
+  }
+  id screenshotRequestAllocated = [screenshotRequestClass alloc];
+  SEL screenshotRequestConstructorSelector = NSSelectorFromString(@"initWithScreenID:rect:encoding:");
+  if (![screenshotRequestAllocated respondsToSelector:screenshotRequestConstructorSelector]) {
+    [[[FBErrorBuilder builder]
+      withDescription:@"'initWithScreenID:rect:encoding:' contructor is not found on XCTScreenshotRequest class"]
+     buildError:error];
+    return nil;
+  }
+  NSMethodSignature *screenshotRequestContructorSignature = [screenshotRequestAllocated methodSignatureForSelector:screenshotRequestConstructorSelector];
+  NSInvocation *screenshotRequestInitInvocation = [NSInvocation invocationWithMethodSignature:screenshotRequestContructorSignature];
+  [screenshotRequestInitInvocation setSelector:screenshotRequestConstructorSelector];
+  [screenshotRequestInitInvocation setArgument:&screenID atIndex:2];
+  [screenshotRequestInitInvocation setArgument:&rect atIndex:3];
+  [screenshotRequestInitInvocation setArgument:&imageEncoding atIndex:4];
+  [screenshotRequestInitInvocation invokeWithTarget:screenshotRequestAllocated];
+  id __unsafe_unretained screenshotRequest;
+  [screenshotRequestInitInvocation getReturnValue:&screenshotRequest];
+  return screenshotRequest;
 }
 
 @end
