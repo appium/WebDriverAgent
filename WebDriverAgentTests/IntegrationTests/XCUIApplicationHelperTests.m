@@ -17,6 +17,7 @@
 #import "FBTestMacros.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "FBXCodeCompatibility.h"
 
 @interface XCUIApplicationHelperTests : FBIntegrationTestCase
 @end
@@ -90,7 +91,7 @@
 
 - (void)testTestmanagerdVersion
 {
-  XCTAssertGreaterThan([XCUIApplication fb_testmanagerdVersion], 0);
+  XCTAssertGreaterThan(FBTestmanagerdVersion(), 0);
 }
 
 @end

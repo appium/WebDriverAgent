@@ -222,22 +222,6 @@ static NSString* const FBUnknownBundleId = @"unknown";
 }
 #endif
 
-+ (NSInteger)fb_testmanagerdVersion
-{
-  static dispatch_once_t getTestmanagerdVersion;
-  static NSInteger testmanagerdVersion;
-  dispatch_once(&getTestmanagerdVersion, ^{
-    id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [proxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
-      testmanagerdVersion = (NSInteger) code;
-      dispatch_semaphore_signal(sem);
-    }];
-    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)));
-  });
-  return testmanagerdVersion;
-}
-
 - (BOOL)fb_resetAuthorizationStatusForResource:(long long)resourceId error:(NSError **)error
 {
   SEL selector = NSSelectorFromString(@"resetAuthorizationStatusForResource:");

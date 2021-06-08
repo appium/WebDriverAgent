@@ -15,6 +15,7 @@
 #import "FBErrorBuilder.h"
 #import "FBImageIOScaler.h"
 #import "FBLogger.h"
+#import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
@@ -155,7 +156,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   __block NSData *screenshotData = nil;
   __block NSError *innerError = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
+  if ([self.class shouldUseScreenshotRequestApiForProxy:(NSObject *)proxy]) {
     id screnshotRequest = [self.class screenshotRequestWithScreenID:screenID
                                                                rect:CGRectNull
                                                                 uti:uti
@@ -202,6 +203,24 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
     *error = innerError;
   }
   return screenshotData;
+}
+
++ (BOOL)shouldUseScreenshotRequestApiForProxy:(NSObject *)proxy
+{
+  static dispatch_once_t shouldUseSRApi;
+  static BOOL result;
+  dispatch_once(&shouldUseSRApi, ^{
+    result = ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
+#if TARGET_OS_SIMULATOR
+      result = YES;
+#else
+      result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0");
+#endif
+    } else {
+      result = NO;
+    }
+  });
+  return result;
 }
 
 + (nullable id)imageEncodingWithUniformTypeIdentifier:(NSString *)uti

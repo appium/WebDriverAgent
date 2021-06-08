@@ -214,7 +214,7 @@
           @"name" : [[UIDevice currentDevice] systemName],
           @"version" : [[UIDevice currentDevice] systemVersion],
           @"sdkVersion": FBSDKVersion() ?: @"unknown",
-          @"testmanagerdVersion": @([XCUIApplication fb_testmanagerdVersion]),
+          @"testmanagerdVersion": @(FBTestmanagerdVersion()),
         },
       @"ios" :
         @{
