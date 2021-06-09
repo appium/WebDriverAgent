@@ -39,21 +39,20 @@
 {
   NSAssert(nil != object, @"LRUCache cannot store nil objects");
 
-  LRUCacheNode *node = self.store[key];
-  if (nil == node) {
-    node = [LRUCacheNode nodeWithValue:object key:key];
-    self.store[key] = node;
+  LRUCacheNode *previousNode = self.store[key];
+  LRUCacheNode *newNode = [LRUCacheNode nodeWithValue:object key:key];
+  self.store[key] = newNode;
+  if (nil == previousNode) {
     ++self.size;
-
-    if (nil == self.tailNode) {
-      self.tailNode = node;
-    }
-    if (nil == self.headNode) {
-      self.headNode = node;
-    }
+  }
+  if (previousNode == self.tailNode) {
+    self.tailNode = newNode;
+  }
+  if (previousNode == self.headNode) {
+    self.headNode = newNode;
   }
 
-  [self bumpNode:node];
+  [self bumpNode:newNode];
   [self alignSize];
 }
 
