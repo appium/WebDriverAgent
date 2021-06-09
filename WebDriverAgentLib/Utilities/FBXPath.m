@@ -136,7 +136,9 @@ static NSString *const topNodeIndexPath = @"top";
   xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);
-  return [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
+  NSString *result = [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
+  xmlFree(xmlbuff);
+  return result;
 }
 
 + (NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root forQuery:(NSString *)xpathQuery
@@ -183,7 +185,7 @@ static NSString *const topNodeIndexPath = @"top";
     return @[];
   }
   NSMutableArray *matchingSnapshots = [NSMutableArray array];
-  const xmlChar *indexPathKeyName = [self xmlCharPtrForInput:[kXMLIndexPathKey cStringUsingEncoding:NSUTF8StringEncoding]];
+  const xmlChar *indexPathKeyName = (xmlChar *)[kXMLIndexPathKey UTF8String];
   for (NSInteger i = 0; i < nodeSet->nodeNr; i++) {
     xmlNodePtr currentNode = nodeSet->nodeTab[i];
     xmlChar *attrValue = xmlGetProp(currentNode, indexPathKeyName);
@@ -195,6 +197,7 @@ static NSString *const topNodeIndexPath = @"top";
     if (element) {
       [matchingSnapshots addObject:element];
     }
+    xmlFree(attrValue);
   }
   return matchingSnapshots.copy;
 }
@@ -263,37 +266,6 @@ static NSString *const topNodeIndexPath = @"top";
   return 0;
 }
 
-+ (xmlChar *)xmlCharPtrForInput:(const char *)input
-{
-  if (0 == input) {
-    return NULL;
-  }
-
-  xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler(_UTF8Encoding);
-  if (!handler) {
-    [FBLogger log:@"Failed to invoke libxml2>xmlFindCharEncodingHandler"];
-    return NULL;
-  }
-
-  int size = (int) strlen(input) + 1;
-  int outputSize = size * 2 - 1;
-  xmlChar *output = (unsigned char *) xmlMalloc((size_t) outputSize);
-
-  if (0 != output) {
-    int temp = size - 1;
-    int ret = handler->input(output, &outputSize, (const xmlChar *) input, &temp);
-    if ((ret < 0) || (temp - size + 1)) {
-      xmlFree(output);
-      output = 0;
-    } else {
-      output = (unsigned char *) xmlRealloc(output, outputSize + 1);
-      output[outputSize] = 0;
-    }
-  }
-
-  return output;
-}
-
 + (xmlXPathObjectPtr)evaluate:(NSString *)xpathQuery document:(xmlDocPtr)doc
 {
   xmlXPathContextPtr xpathCtx = xmlXPathNewContext(doc);
@@ -303,7 +275,7 @@ static NSString *const topNodeIndexPath = @"top";
   }
   xpathCtx->node = doc->children;
 
-  xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression([self xmlCharPtrForInput:[xpathQuery cStringUsingEncoding:NSUTF8StringEncoding]], xpathCtx);
+  xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression((const xmlChar *)[xpathQuery UTF8String], xpathCtx);
   if (NULL == xpathObj) {
     xmlXPathFreeContext(xpathCtx);
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathEvalExpression for XPath query \"%@\"", xpathQuery];
@@ -315,12 +287,7 @@ static NSString *const topNodeIndexPath = @"top";
 
 + (xmlChar *)safeXmlStringWithString:(NSString *)str
 {
-  if (nil == str) {
-    return NULL;
-  }
-
-  NSString *safeString = [str fb_xmlSafeStringWithReplacement:@""];
-  return [self.class xmlCharPtrForInput:[safeString cStringUsingEncoding:NSUTF8StringEncoding]];
+  return nil == str ? NULL : (xmlChar *)[[str fb_xmlSafeStringWithReplacement:@""] UTF8String];
 }
 
 + (int)recordElementAttributes:(xmlTextWriterPtr)writer forElement:(XCElementSnapshot *)element indexPath:(nullable NSString *)indexPath includedAttributes:(nullable NSSet<Class> *)includedAttributes
@@ -374,7 +341,7 @@ static NSString *const topNodeIndexPath = @"top";
     [elementStore setObject:currentSnapshot forKey:topNodeIndexPath];
   }
 
-  int rc = xmlTextWriterStartElement(writer, [self xmlCharPtrForInput:[currentSnapshot.wdType cStringUsingEncoding:NSUTF8StringEncoding]]);
+  int rc = xmlTextWriterStartElement(writer, (xmlChar *)[currentSnapshot.wdType UTF8String]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", currentSnapshot.wdType, rc];
     return rc;

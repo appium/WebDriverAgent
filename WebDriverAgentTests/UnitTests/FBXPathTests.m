@@ -42,7 +42,9 @@
   XCTAssertEqual(rc, 0);
   XCTAssertEqual(1, [elementStore count]);
 
-  return [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
+  NSString *result = [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
+  xmlFree(xmlbuff);
+  return result;
 }
 
 - (void)testDefaultXPathPresentation
