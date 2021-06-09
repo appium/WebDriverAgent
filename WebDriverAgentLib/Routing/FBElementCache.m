@@ -19,11 +19,14 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBUID.h"
+#import "XCUIElementQuery.h"
 
 const int ELEMENT_CACHE_SIZE = 1024;
 
 @interface FBElementCache ()
-@property (atomic, strong) YYMemoryCache *elementCache;
+@property (nonatomic, strong) YYMemoryCache *elementCache;
+@property (nonatomic, strong) NSPointerArray *cachedElements;
+@property (nonatomic) BOOL didElementsReset;
 @end
 
 @implementation FBElementCache
@@ -36,6 +39,8 @@ const int ELEMENT_CACHE_SIZE = 1024;
   }
   _elementCache = [[YYMemoryCache alloc] init];
   _elementCache.countLimit = ELEMENT_CACHE_SIZE;
+  _cachedElements = [NSPointerArray weakObjectsPointerArray];
+  _didElementsReset = NO;
   return self;
 }
 
@@ -46,6 +51,8 @@ const int ELEMENT_CACHE_SIZE = 1024;
     return nil;
   }
   [self.elementCache setObject:element forKey:uuid];
+  [self.cachedElements addPointer:(__bridge void *)element];
+  self.didElementsReset = NO;
   return uuid;
 }
 
@@ -63,6 +70,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
 
+  [self resetElements];
   XCUIElement *element = [self.elementCache objectForKey:uuid];
   // This will throw FBStaleElementException exception if the element is stale
   // or resolve the element and set lastSnapshot property
@@ -84,6 +92,32 @@ const int ELEMENT_CACHE_SIZE = 1024;
 - (BOOL)hasElementWithUUID:(NSString *)uuid
 {
   return nil == uuid ? NO : [self.elementCache containsObjectForKey:(NSString *)uuid];
+}
+
+- (void)resetElements
+{
+  if (self.didElementsReset) {
+    return;
+  }
+
+  // forces the pointer array to do compaction
+  // https://stackoverflow.com/questions/31322290/nspointerarray-weird-compaction/40274426
+  [self.cachedElements addPointer:nil];
+  [self.cachedElements compact];
+  for (NSUInteger idx = 0; idx < self.cachedElements.count; ++idx) {
+    void *pElement = [self.cachedElements pointerAtIndex:idx];
+    if (nil == pElement) {
+      continue;
+    }
+
+    XCUIElement *element = (__bridge XCUIElement *)pElement;
+    element.lastSnapshot = nil;
+    if (nil != element.query) {
+      element.query.rootElementSnapshot = nil;
+    }
+    element.fb_isResolvedFromCache = @(NO);
+  }
+  self.didElementsReset = YES;
 }
 
 @end

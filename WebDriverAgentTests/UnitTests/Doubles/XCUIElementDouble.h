@@ -16,6 +16,7 @@
 @interface XCUIElementDouble : NSObject<FBElement>
 @property (nonatomic, strong, nonnull) XCUIApplication *application;
 @property (nonatomic, readwrite, assign) CGRect frame;
+@property (nonatomic, readwrite, nullable) id lastSnapshot;
 @property (nonatomic, assign) BOOL fb_isObstructedByAlert;
 @property (nonatomic, readonly, nonnull) NSString *fb_cacheId;
 @property (nonatomic, nullable) NSNumber *fb_isResolvedFromCache;
