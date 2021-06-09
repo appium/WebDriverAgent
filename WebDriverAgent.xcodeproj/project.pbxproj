@@ -337,6 +337,14 @@
 		7140974B1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 714097491FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.h */; };
 		7140974C1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */; };
 		7140974E1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7140974D1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m */; };
+		71414ED42670A1EE003A8C5D /* LRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 71414ED02670A1ED003A8C5D /* LRUCache.h */; };
+		71414ED52670A1EE003A8C5D /* LRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 71414ED02670A1ED003A8C5D /* LRUCache.h */; };
+		71414ED62670A1EE003A8C5D /* LRUCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 71414ED12670A1ED003A8C5D /* LRUCacheNode.h */; };
+		71414ED72670A1EE003A8C5D /* LRUCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 71414ED12670A1ED003A8C5D /* LRUCacheNode.h */; };
+		71414ED82670A1EE003A8C5D /* LRUCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 71414ED22670A1ED003A8C5D /* LRUCache.m */; };
+		71414ED92670A1EE003A8C5D /* LRUCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 71414ED22670A1ED003A8C5D /* LRUCache.m */; };
+		71414EDA2670A1EE003A8C5D /* LRUCacheNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 71414ED32670A1ED003A8C5D /* LRUCacheNode.m */; };
+		71414EDB2670A1EE003A8C5D /* LRUCacheNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 71414ED32670A1ED003A8C5D /* LRUCacheNode.m */; };
 		714801D11FA9D9FA00DC5997 /* FBSDKVersionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 714801D01FA9D9FA00DC5997 /* FBSDKVersionTests.m */; };
 		7150348721A6DAD600A0F4BA /* FBImageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 7150348521A6DAD600A0F4BA /* FBImageUtils.h */; };
 		7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7150348621A6DAD600A0F4BA /* FBImageUtils.m */; };
@@ -390,22 +398,6 @@
 		718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C82587443600661B83 /* GCDAsyncSocket.m */; };
 		718226D02587443700661B83 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C92587443600661B83 /* GCDAsyncUdpSocket.m */; };
 		718226D12587443700661B83 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C92587443600661B83 /* GCDAsyncUdpSocket.m */; };
-		718226EA2587446200661B83 /* YYKVStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E22587446100661B83 /* YYKVStorage.m */; };
-		718226EB2587446200661B83 /* YYKVStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E22587446100661B83 /* YYKVStorage.m */; };
-		718226EC2587446200661B83 /* YYKVStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E32587446100661B83 /* YYKVStorage.h */; };
-		718226ED2587446200661B83 /* YYKVStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E32587446100661B83 /* YYKVStorage.h */; };
-		718226EE2587446200661B83 /* YYCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E42587446100661B83 /* YYCache.m */; };
-		718226EF2587446200661B83 /* YYCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E42587446100661B83 /* YYCache.m */; };
-		718226F02587446200661B83 /* YYDiskCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E52587446100661B83 /* YYDiskCache.h */; };
-		718226F12587446200661B83 /* YYDiskCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E52587446100661B83 /* YYDiskCache.h */; };
-		718226F22587446200661B83 /* YYMemoryCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E62587446100661B83 /* YYMemoryCache.h */; };
-		718226F32587446200661B83 /* YYMemoryCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E62587446100661B83 /* YYMemoryCache.h */; };
-		718226F42587446200661B83 /* YYMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E72587446100661B83 /* YYMemoryCache.m */; };
-		718226F52587446200661B83 /* YYMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E72587446100661B83 /* YYMemoryCache.m */; };
-		718226F62587446200661B83 /* YYDiskCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E82587446100661B83 /* YYDiskCache.m */; };
-		718226F72587446200661B83 /* YYDiskCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226E82587446100661B83 /* YYDiskCache.m */; };
-		718226F82587446200661B83 /* YYCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E92587446200661B83 /* YYCache.h */; };
-		718226F92587446200661B83 /* YYCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 718226E92587446200661B83 /* YYCache.h */; };
 		71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA224913C210060D7EB /* HTTPResponseProxy.h */; };
 		7182270B258744A700661B83 /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA324913C210060D7EB /* Route.h */; };
 		71822714258744A900661B83 /* RouteRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCAA24913C220060D7EB /* RouteRequest.h */; };
@@ -958,6 +950,10 @@
 		714097491FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBW3CActionsSynthesizer.h; sourceTree = "<group>"; };
 		7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBW3CActionsSynthesizer.m; sourceTree = "<group>"; };
 		7140974D1FAE20EE008FB2C5 /* FBBaseActionsSynthesizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBBaseActionsSynthesizer.m; sourceTree = "<group>"; };
+		71414ED02670A1ED003A8C5D /* LRUCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRUCache.h; sourceTree = "<group>"; };
+		71414ED12670A1ED003A8C5D /* LRUCacheNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRUCacheNode.h; sourceTree = "<group>"; };
+		71414ED22670A1ED003A8C5D /* LRUCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRUCache.m; sourceTree = "<group>"; };
+		71414ED32670A1ED003A8C5D /* LRUCacheNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRUCacheNode.m; sourceTree = "<group>"; };
 		714801D01FA9D9FA00DC5997 /* FBSDKVersionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSDKVersionTests.m; sourceTree = "<group>"; };
 		714CA3C61DC23186000F12C9 /* FBXPathIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPathIntegrationTests.m; sourceTree = "<group>"; };
 		7150348521A6DAD600A0F4BA /* FBImageUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBImageUtils.h; sourceTree = "<group>"; };
@@ -993,14 +989,6 @@
 		718226C72587443600661B83 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.h; sourceTree = SOURCE_ROOT; };
 		718226C82587443600661B83 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m; sourceTree = SOURCE_ROOT; };
 		718226C92587443600661B83 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncUdpSocket.m; sourceTree = SOURCE_ROOT; };
-		718226E22587446100661B83 /* YYKVStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYKVStorage.m; path = WebDriverAgentLib/Vendor/YYCache/YYKVStorage.m; sourceTree = SOURCE_ROOT; };
-		718226E32587446100661B83 /* YYKVStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYKVStorage.h; path = WebDriverAgentLib/Vendor/YYCache/YYKVStorage.h; sourceTree = SOURCE_ROOT; };
-		718226E42587446100661B83 /* YYCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYCache.m; sourceTree = SOURCE_ROOT; };
-		718226E52587446100661B83 /* YYDiskCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYDiskCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYDiskCache.h; sourceTree = SOURCE_ROOT; };
-		718226E62587446100661B83 /* YYMemoryCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYMemoryCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYMemoryCache.h; sourceTree = SOURCE_ROOT; };
-		718226E72587446100661B83 /* YYMemoryCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYMemoryCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYMemoryCache.m; sourceTree = SOURCE_ROOT; };
-		718226E82587446100661B83 /* YYDiskCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YYDiskCache.m; path = WebDriverAgentLib/Vendor/YYCache/YYDiskCache.m; sourceTree = SOURCE_ROOT; };
-		718226E92587446200661B83 /* YYCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YYCache.h; path = WebDriverAgentLib/Vendor/YYCache/YYCache.h; sourceTree = SOURCE_ROOT; };
 		718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBProtocolHelpersTests.m; sourceTree = "<group>"; };
 		71930C4020662E1F00D3AFEC /* FBPasteboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBPasteboard.h; sourceTree = "<group>"; };
 		71930C4120662E1F00D3AFEC /* FBPasteboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBPasteboard.m; sourceTree = "<group>"; };
@@ -1506,6 +1494,17 @@
 			path = Doubles;
 			sourceTree = "<group>";
 		};
+		71414ECF2670A1ED003A8C5D /* LRUCache */ = {
+			isa = PBXGroup;
+			children = (
+				71414ED02670A1ED003A8C5D /* LRUCache.h */,
+				71414ED12670A1ED003A8C5D /* LRUCacheNode.h */,
+				71414ED22670A1ED003A8C5D /* LRUCache.m */,
+				71414ED32670A1ED003A8C5D /* LRUCacheNode.m */,
+			);
+			path = LRUCache;
+			sourceTree = "<group>";
+		};
 		716C9340224D5358004B8542 /* tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1526,21 +1525,6 @@
 				716C9345224D540C004B8542 /* libxml2.tbd */,
 			);
 			name = iOS;
-			sourceTree = "<group>";
-		};
-		7182261925873B7800661B83 /* YYCache */ = {
-			isa = PBXGroup;
-			children = (
-				718226E92587446200661B83 /* YYCache.h */,
-				718226E42587446100661B83 /* YYCache.m */,
-				718226E52587446100661B83 /* YYDiskCache.h */,
-				718226E82587446100661B83 /* YYDiskCache.m */,
-				718226E32587446100661B83 /* YYKVStorage.h */,
-				718226E22587446100661B83 /* YYKVStorage.m */,
-				718226E62587446100661B83 /* YYMemoryCache.h */,
-				718226E72587446100661B83 /* YYMemoryCache.m */,
-			);
-			name = YYCache;
 			sourceTree = "<group>";
 		};
 		7182268F2587432E00661B83 /* CocoaAsyncSocket */ = {
@@ -1642,7 +1626,6 @@
 			isa = PBXGroup;
 			children = (
 				7182268F2587432E00661B83 /* CocoaAsyncSocket */,
-				7182261925873B7800661B83 /* YYCache */,
 				E444DC9E24913C080060D7EB /* RoutingHTTPServer */,
 				E444DC52249131050060D7EB /* CocoaHTTPServer */,
 			);
@@ -1858,6 +1841,7 @@
 		EE9AB78E1CAEDF0C008C271F /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				71414ECF2670A1ED003A8C5D /* LRUCache */,
 				13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */,
 				13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */,
 				719CD8F62126C78F00C7D0C2 /* FBAlertsMonitor.h */,
@@ -2243,7 +2227,6 @@
 				7182270B258744A700661B83 /* Route.h in Headers */,
 				641EE6352240C5CA00173FCB /* XCUIElement+FBUtilities.h in Headers */,
 				641EE6362240C5CA00173FCB /* XCUIElement+FBScrolling.h in Headers */,
-				718226ED2587446200661B83 /* YYKVStorage.h in Headers */,
 				1357E297233D05240054BDB8 /* XCUIHitPointResult.h in Headers */,
 				641EE6372240C5CA00173FCB /* XCSourceCodeTreeNode.h in Headers */,
 				641EE6382240C5CA00173FCB /* XCPointerEventPath.h in Headers */,
@@ -2273,7 +2256,6 @@
 				641EE64C2240C5CA00173FCB /* XCTestMisuseObserver.h in Headers */,
 				641EE64D2240C5CA00173FCB /* XCTRunnerDaemonSession.h in Headers */,
 				64B2650B228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */,
-				718226F12587446200661B83 /* YYDiskCache.h in Headers */,
 				641EE64E2240C5CA00173FCB /* FBApplication.h in Headers */,
 				641EE64F2240C5CA00173FCB /* XCTestExpectationWaiter.h in Headers */,
 				641EE6502240C5CA00173FCB /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2296,7 +2278,6 @@
 				641EE6612240C5CA00173FCB /* XCUIElement+FBTap.h in Headers */,
 				641EE6622240C5CA00173FCB /* FBResponsePayload.h in Headers */,
 				641EE6632240C5CA00173FCB /* FBUnknownCommands.h in Headers */,
-				718226F92587446200661B83 /* YYCache.h in Headers */,
 				641EE7062240CDCF00173FCB /* XCUIElement+FBTVFocuse.h in Headers */,
 				71822738258744B800661B83 /* HTTPConnection.h in Headers */,
 				641EE6642240C5CA00173FCB /* NSPredicate+FBFormat.h in Headers */,
@@ -2304,6 +2285,7 @@
 				641EE6662240C5CA00173FCB /* XCTestCase.h in Headers */,
 				641EE6672240C5CA00173FCB /* XCSymbolicatorHolder.h in Headers */,
 				641EE6682240C5CA00173FCB /* XCUIApplicationImpl.h in Headers */,
+				71414ED72670A1EE003A8C5D /* LRUCacheNode.h in Headers */,
 				641EE6692240C5CA00173FCB /* UIPanGestureRecognizer-RecordingAdditions.h in Headers */,
 				13815F702328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */,
 				641EE66A2240C5CA00173FCB /* NSExpression+FBFormat.h in Headers */,
@@ -2418,11 +2400,11 @@
 				641EE6C92240C5CA00173FCB /* XCUIDevice+FBRotation.h in Headers */,
 				641EE6CA2240C5CA00173FCB /* XCEventGenerator.h in Headers */,
 				719DCF162601EAFB000E765F /* FBNotificationsHelper.h in Headers */,
+				71414ED52670A1EE003A8C5D /* LRUCache.h in Headers */,
 				641EE6CB2240C5CA00173FCB /* FBConfiguration.h in Headers */,
 				641EE6CC2240C5CA00173FCB /* XCTestSuiteRun.h in Headers */,
 				641EE6CD2240C5CA00173FCB /* XCUIElementAsynchronousHandlerWrapper.h in Headers */,
 				641EE6CE2240C5CA00173FCB /* XCTestLog.h in Headers */,
-				718226F32587446200661B83 /* YYMemoryCache.h in Headers */,
 				C845206222D5E79400EA68CB /* FBUnattachedAppLauncher.h in Headers */,
 				641EE6CF2240C5CA00173FCB /* UITapGestureRecognizer-RecordingAdditions.h in Headers */,
 				641EE6D02240C5CA00173FCB /* XCDebugLogDelegate-Protocol.h in Headers */,
@@ -2502,9 +2484,9 @@
 				EE35AD3C1E3B77D600A02D78 /* XCTAsyncActivity.h in Headers */,
 				EE35AD501E3B77D600A02D78 /* XCTestMisuseObserver.h in Headers */,
 				EE35AD601E3B77D600A02D78 /* XCTRunnerDaemonSession.h in Headers */,
+				71414ED62670A1EE003A8C5D /* LRUCacheNode.h in Headers */,
 				64B2650A228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */,
 				EE158AF51CBD456F00A3E3F0 /* FBApplication.h in Headers */,
-				718226F22587446200661B83 /* YYMemoryCache.h in Headers */,
 				71B155DF23080CA600646AFB /* FBProtocolHelpers.h in Headers */,
 				EE35AD4B1E3B77D600A02D78 /* XCTestExpectationWaiter.h in Headers */,
 				EE35AD1E1E3B77D600A02D78 /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
@@ -2518,17 +2500,16 @@
 				EE158AE61CBD456F00A3E3F0 /* FBWebServer.h in Headers */,
 				EE158AC61CBD456F00A3E3F0 /* FBScreenshotCommands.h in Headers */,
 				EE35AD0A1E3B77D600A02D78 /* _XCKVOExpectationImplementation.h in Headers */,
-				718226F02587446200661B83 /* YYDiskCache.h in Headers */,
 				EE0D1F611EBCDCF7006A3123 /* NSString+FBVisualLength.h in Headers */,
 				EE35AD7B1E3B80C000A02D78 /* FBXCTestDaemonsProxy.h in Headers */,
 				EE35AD721E3B77D600A02D78 /* XCUIElementHitPointCoordinate.h in Headers */,
-				718226F82587446200661B83 /* YYCache.h in Headers */,
 				EE35AD3F1E3B77D600A02D78 /* XCTDarwinNotificationExpectation.h in Headers */,
 				EE35AD5F1E3B77D600A02D78 /* XCTRunnerAutomationSession.h in Headers */,
 				71C9EAAC25E8415A00470CD8 /* FBScreenshot.h in Headers */,
 				EEC9EED620064FAA00BC0D5B /* XCUICoordinate+FBFix.h in Headers */,
 				EE35AD371E3B77D600A02D78 /* XCSourceCodeTreeNodeEnumerator.h in Headers */,
 				EE158AB01CBD456F00A3E3F0 /* XCUIElement+FBIsVisible.h in Headers */,
+				71414ED42670A1EE003A8C5D /* LRUCache.h in Headers */,
 				EE158AB41CBD456F00A3E3F0 /* XCUIElement+FBTap.h in Headers */,
 				EE158ADC1CBD456F00A3E3F0 /* FBResponsePayload.h in Headers */,
 				13815F6F2328D20400CDAB61 /* FBActiveAppDetectionPoint.h in Headers */,
@@ -2542,7 +2523,6 @@
 				EE35AD201E3B77D600A02D78 /* UIPanGestureRecognizer-RecordingAdditions.h in Headers */,
 				71555A3D1DEC460A007D4A8B /* NSExpression+FBFormat.h in Headers */,
 				EE35AD0C1E3B77D600A02D78 /* _XCTestCaseImplementation.h in Headers */,
-				718226EC2587446200661B83 /* YYKVStorage.h in Headers */,
 				EE35AD211E3B77D600A02D78 /* UIPinchGestureRecognizer-RecordingAdditions.h in Headers */,
 				EE35AD4F1E3B77D600A02D78 /* XCTestManager_TestsInterface-Protocol.h in Headers */,
 				719CD8FC2126C88B00C7D0C2 /* XCUIApplication+FBAlert.h in Headers */,
@@ -3065,8 +3045,8 @@
 				E444DCCE24917A5E0060D7EB /* HTTPServer.m in Sources */,
 				E444DCD024917A5E0060D7EB /* HTTPDataResponse.m in Sources */,
 				E444DCD224917A5E0060D7EB /* HTTPErrorResponse.m in Sources */,
+				71414ED92670A1EE003A8C5D /* LRUCache.m in Sources */,
 				E444DCD424917A5E0060D7EB /* DDNumber.m in Sources */,
-				718226EB2587446200661B83 /* YYKVStorage.m in Sources */,
 				E444DCD624917A5E0060D7EB /* DDRange.m in Sources */,
 				641EE5D72240C5CA00173FCB /* FBScreenshotCommands.m in Sources */,
 				641EE5D82240C5CA00173FCB /* FBPredicate.m in Sources */,
@@ -3104,7 +3084,6 @@
 				718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */,
 				641EE5F32240C5CA00173FCB /* XCAccessibilityElement+FBComparison.m in Sources */,
 				641EE5F42240C5CA00173FCB /* XCUIDevice+FBRotation.m in Sources */,
-				718226EF2587446200661B83 /* YYCache.m in Sources */,
 				13815F722328D20400CDAB61 /* FBActiveAppDetectionPoint.m in Sources */,
 				71D475C52538F5A8008D9401 /* XCUIApplicationProcess+FBQuiescence.m in Sources */,
 				641EE5F52240C5CA00173FCB /* XCUIElement+FBUID.m in Sources */,
@@ -3118,10 +3097,8 @@
 				641EE5FE2240C5CA00173FCB /* XCUIElement+FBWebDriverAttributes.m in Sources */,
 				641EE5FF2240C5CA00173FCB /* XCUIElement+FBForceTouch.m in Sources */,
 				641EE6002240C5CA00173FCB /* FBTouchActionCommands.m in Sources */,
-				718226F52587446200661B83 /* YYMemoryCache.m in Sources */,
 				719DCF182601EAFB000E765F /* FBNotificationsHelper.m in Sources */,
 				641EE6012240C5CA00173FCB /* FBImageIOScaler.m in Sources */,
-				718226F72587446200661B83 /* YYDiskCache.m in Sources */,
 				641EE6022240C5CA00173FCB /* FBTouchIDCommands.m in Sources */,
 				641EE6032240C5CA00173FCB /* FBDebugCommands.m in Sources */,
 				641EE6042240C5CA00173FCB /* NSString+FBXMLSafeString.m in Sources */,
@@ -3142,6 +3119,7 @@
 				641EE6122240C5CA00173FCB /* FBFindElementCommands.m in Sources */,
 				641EE6132240C5CA00173FCB /* FBDebugLogDelegateDecorator.m in Sources */,
 				641EE6142240C5CA00173FCB /* FBAlertViewCommands.m in Sources */,
+				71414EDB2670A1EE003A8C5D /* LRUCacheNode.m in Sources */,
 				641EE6152240C5CA00173FCB /* XCUIElement+FBScrolling.m in Sources */,
 				641EE6162240C5CA00173FCB /* FBSessionCommands.m in Sources */,
 				641EE6182240C5CA00173FCB /* XCElementSnapshot+FBHitPoint.m in Sources */,
@@ -3192,8 +3170,6 @@
 				641EE70E2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,
 				71BD20741F86116100B36EC2 /* XCUIApplication+FBTouchAction.m in Sources */,
 				EE158AE71CBD456F00A3E3F0 /* FBWebServer.m in Sources */,
-				718226EA2587446200661B83 /* YYKVStorage.m in Sources */,
-				718226EE2587446200661B83 /* YYCache.m in Sources */,
 				715557D4211DBCE700613B26 /* FBTCPSocket.m in Sources */,
 				EE3A18631CDE618F00DE4205 /* FBErrorBuilder.m in Sources */,
 				71A7EAF61E20516B001DA4F2 /* XCUIElement+FBClassChain.m in Sources */,
@@ -3202,7 +3178,6 @@
 				EE3A18671CDE734B00DE4205 /* FBKeyboard.m in Sources */,
 				719DCF172601EAFB000E765F /* FBNotificationsHelper.m in Sources */,
 				E444DCAC24913C220060D7EB /* Route.m in Sources */,
-				718226F62587446200661B83 /* YYDiskCache.m in Sources */,
 				713C6DD01DDC772A00285B92 /* FBElementUtils.m in Sources */,
 				7140974C1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m in Sources */,
 				EE6A893B1D0B38640083E92B /* FBFailureProofTestCase.m in Sources */,
@@ -3254,7 +3229,6 @@
 				AD6C26991CF2481700F8B5FF /* XCUIDevice+FBHelpers.m in Sources */,
 				EE6B64FE1D0F86EF00E85F5D /* XCTestPrivateSymbols.m in Sources */,
 				AD76723E1D6B7CC000610457 /* XCUIElement+FBTyping.m in Sources */,
-				718226F42587446200661B83 /* YYMemoryCache.m in Sources */,
 				EE158AAF1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.m in Sources */,
 				7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */,
 				E444DCAB24913C220060D7EB /* HTTPResponseProxy.m in Sources */,
@@ -3266,6 +3240,7 @@
 				EE158AC11CBD456F00A3E3F0 /* FBFindElementCommands.m in Sources */,
 				EE7E271D1D06C69F001BEC7B /* FBDebugLogDelegateDecorator.m in Sources */,
 				71C8E55325399A6B008572C1 /* XCUIApplication+FBQuiescence.m in Sources */,
+				71414EDA2670A1EE003A8C5D /* LRUCacheNode.m in Sources */,
 				EE158AB91CBD456F00A3E3F0 /* FBAlertViewCommands.m in Sources */,
 				71F3E7D625417FF400E0C22B /* FBSettings.m in Sources */,
 				EE158AB31CBD456F00A3E3F0 /* XCUIElement+FBScrolling.m in Sources */,
@@ -3274,6 +3249,7 @@
 				EE006EB11EBA1AA9006900A4 /* XCElementSnapshot+FBHitPoint.m in Sources */,
 				EE9B76A71CF7A43900275851 /* FBConfiguration.m in Sources */,
 				E444DC9C249131D40060D7EB /* HTTPServer.m in Sources */,
+				71414ED82670A1EE003A8C5D /* LRUCache.m in Sources */,
 				E444DC67249131890060D7EB /* HTTPDataResponse.m in Sources */,
 				EE158AD31CBD456F00A3E3F0 /* FBElementCache.m in Sources */,
 				71930C4320662E1F00D3AFEC /* FBPasteboard.m in Sources */,

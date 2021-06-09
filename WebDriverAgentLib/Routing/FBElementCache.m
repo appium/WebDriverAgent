@@ -9,7 +9,7 @@
 
 #import "FBElementCache.h"
 
-#import "YYCache.h"
+#import "LRUCache.h"
 #import "FBAlert.h"
 #import "FBExceptions.h"
 #import "FBXCodeCompatibility.h"
@@ -24,9 +24,8 @@
 const int ELEMENT_CACHE_SIZE = 1024;
 
 @interface FBElementCache ()
-@property (nonatomic, strong) YYMemoryCache *elementCache;
-@property (nonatomic, strong) NSPointerArray *cachedElements;
-@property (nonatomic) BOOL didElementsReset;
+@property (nonatomic, strong) LRUCache *elementCache;
+@property (nonatomic) BOOL elementsNeedReset;
 @end
 
 @implementation FBElementCache
@@ -37,10 +36,8 @@ const int ELEMENT_CACHE_SIZE = 1024;
   if (!self) {
     return nil;
   }
-  _elementCache = [[YYMemoryCache alloc] init];
-  _elementCache.countLimit = ELEMENT_CACHE_SIZE;
-  _cachedElements = [NSPointerArray weakObjectsPointerArray];
-  _didElementsReset = NO;
+  _elementCache = [[LRUCache alloc] initWithCapacity:ELEMENT_CACHE_SIZE];
+  _elementsNeedReset = YES;
   return self;
 }
 
@@ -51,8 +48,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
     return nil;
   }
   [self.elementCache setObject:element forKey:uuid];
-  [self.cachedElements addPointer:(__bridge void *)element];
-  self.didElementsReset = NO;
+  self.elementsNeedReset = YES;
   return uuid;
 }
 
@@ -72,6 +68,10 @@ const int ELEMENT_CACHE_SIZE = 1024;
 
   [self resetElements];
   XCUIElement *element = [self.elementCache objectForKey:uuid];
+  if (nil == element) {
+    NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present or it has expired from the internal cache. Try to find it again", uuid];
+    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
+  }
   // This will throw FBStaleElementException exception if the element is stale
   // or resolve the element and set lastSnapshot property
   if (nil == additionalAttributes) {
@@ -81,43 +81,29 @@ const int ELEMENT_CACHE_SIZE = 1024;
     [attributes addObjectsFromArray:additionalAttributes];
     [element fb_snapshotWithAttributes:attributes.copy maxDepth:maxDepth];
   }
-  if (nil == element) {
-    NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present or it has expired from the internal cache. Try to find it again", uuid];
-    @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
-  }
   element.fb_isResolvedFromCache = @(YES);
   return element;
 }
 
 - (BOOL)hasElementWithUUID:(NSString *)uuid
 {
-  return nil == uuid ? NO : [self.elementCache containsObjectForKey:(NSString *)uuid];
+  return nil == uuid ? NO : (nil != [self.elementCache objectForKey:(NSString *)uuid]);
 }
 
 - (void)resetElements
 {
-  if (self.didElementsReset) {
+  if (!self.elementsNeedReset) {
     return;
   }
 
-  // forces the pointer array to do compaction
-  // https://stackoverflow.com/questions/31322290/nspointerarray-weird-compaction/40274426
-  [self.cachedElements addPointer:nil];
-  [self.cachedElements compact];
-  for (NSUInteger idx = 0; idx < self.cachedElements.count; ++idx) {
-    void *pElement = [self.cachedElements pointerAtIndex:idx];
-    if (nil == pElement) {
-      continue;
-    }
-
-    XCUIElement *element = (__bridge XCUIElement *)pElement;
+  for (XCUIElement *element in self.elementCache.allObjects) {
     element.lastSnapshot = nil;
     if (nil != element.query) {
       element.query.rootElementSnapshot = nil;
     }
     element.fb_isResolvedFromCache = @(NO);
   }
-  self.didElementsReset = YES;
+  self.elementsNeedReset = NO;
 }
 
 @end
