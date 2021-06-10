@@ -39,7 +39,6 @@ Follow [this doc](docs/CREATING_BUNDLES.md)
 WebDriverAgent depends on the following third-party frameworks:
 - [CocoaHTTPServer](https://github.com/robbiehanson/CocoaHTTPServer)
 - [RoutingHTTPServer](https://github.com/mattstevens/RoutingHTTPServer)
-- [YYCache](https://github.com/ibireme/YYCache)
 
 These projects haven't been maintained in a while. That's why the source code of these
 projects has been integrated directly in the WebDriverAgent source tree.
