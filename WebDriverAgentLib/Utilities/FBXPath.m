@@ -285,9 +285,9 @@ static NSString *const topNodeIndexPath = @"top";
   return xpathObj;
 }
 
-+ (xmlChar *)safeXmlStringWithString:(NSString *)str
++ (nullable NSString *)safeXmlStringWithString:(NSString *)str
 {
-  return nil == str ? NULL : (xmlChar *)[[str fb_xmlSafeStringWithReplacement:@""] UTF8String];
+  return [str fb_xmlSafeStringWithReplacement:@""];
 }
 
 + (int)recordElementAttributes:(xmlTextWriterPtr)writer forElement:(XCElementSnapshot *)element indexPath:(nullable NSString *)indexPath includedAttributes:(nullable NSSet<Class> *)includedAttributes
@@ -414,7 +414,9 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
     // Skip the attribute if the value equals to nil
     return 0;
   }
-  int rc = xmlTextWriterWriteAttribute(writer, [FBXPath safeXmlStringWithString:[self name]], [FBXPath safeXmlStringWithString:value]);
+  int rc = xmlTextWriterWriteAttribute(writer,
+                                       (xmlChar *)[[FBXPath safeXmlStringWithString:[self name]] UTF8String],
+                                       (xmlChar *)[[FBXPath safeXmlStringWithString:value] UTF8String]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterWriteAttribute(%@='%@'). Error code: %d", [self name], value, rc];
   }
@@ -639,7 +641,9 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
     // Skip the attribute if the value equals to nil
     return 0;
   }
-  int rc = xmlTextWriterWriteAttribute(writer, [FBXPath safeXmlStringWithString:[self name]], [FBXPath safeXmlStringWithString:value]);
+  int rc = xmlTextWriterWriteAttribute(writer,
+                                       (xmlChar *)[[FBXPath safeXmlStringWithString:[self name]] UTF8String],
+                                       (xmlChar *)[[FBXPath safeXmlStringWithString:value] UTF8String]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterWriteAttribute(%@='%@'). Error code: %d", [self name], value, rc];
   }
