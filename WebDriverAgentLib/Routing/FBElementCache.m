@@ -47,7 +47,9 @@ const int ELEMENT_CACHE_SIZE = 1024;
   if (nil == uuid) {
     return nil;
   }
-  [self.elementCache setObject:element forKey:uuid];
+  @synchronized (self.elementCache) {
+    [self.elementCache setObject:element forKey:uuid];
+  }
   self.elementsNeedReset = YES;
   return uuid;
 }
@@ -66,8 +68,11 @@ const int ELEMENT_CACHE_SIZE = 1024;
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
   }
 
-  [self resetElements];
-  XCUIElement *element = [self.elementCache objectForKey:uuid];
+  XCUIElement *element;
+  @synchronized (self.elementCache) {
+    [self resetElements];
+    element = [self.elementCache objectForKey:uuid];
+  }
   if (nil == element) {
     NSString *reason = [NSString stringWithFormat:@"The element identified by \"%@\" is either not present or it has expired from the internal cache. Try to find it again", uuid];
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
@@ -87,7 +92,12 @@ const int ELEMENT_CACHE_SIZE = 1024;
 
 - (BOOL)hasElementWithUUID:(NSString *)uuid
 {
-  return nil == uuid ? NO : (nil != [self.elementCache objectForKey:(NSString *)uuid]);
+  if (nil == uuid) {
+    return NO;
+  }
+  @synchronized (self.elementCache) {
+    return nil != [self.elementCache objectForKey:(NSString *)uuid];
+  }
 }
 
 - (void)resetElements
