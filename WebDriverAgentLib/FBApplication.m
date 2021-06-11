@@ -32,6 +32,8 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 @implementation FBApplication
 
+static FBApplication *_systemApplication = nil;
+
 + (instancetype)fb_activeApplication
 {
   return [self fb_activeApplicationWithDefaultBundleId:nil];
@@ -129,8 +131,11 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 + (instancetype)fb_systemApplication
 {
-  return [self fb_applicationWithPID:
-   [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
+  int currentSystemAppPid = [FBXCAXClientProxy.sharedClient systemApplication].processIdentifier;
+  if (nil == _systemApplication || currentSystemAppPid != _systemApplication.processID) {
+    _systemApplication = [self fb_applicationWithPID:currentSystemAppPid];
+  }
+  return _systemApplication;
 }
 
 + (instancetype)appWithPID:(pid_t)processID

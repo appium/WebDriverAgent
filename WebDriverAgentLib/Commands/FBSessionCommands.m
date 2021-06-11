@@ -10,6 +10,7 @@
 #import "FBSessionCommands.h"
 
 #import "FBApplication.h"
+#import "FBCapabilities.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBProtocolHelpers.h"
@@ -74,68 +75,76 @@
 
 + (id<FBResponsePayload>)handleCreateSession:(FBRouteRequest *)request
 {
-  NSDictionary<NSString *, id> *requirements;
+  NSDictionary<NSString *, id> *capabilities;
   NSError *error;
   if (![request.arguments[@"capabilities"] isKindOfClass:NSDictionary.class]) {
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:@"'capabilities' is mandatory to create a new session"
                                                               traceback:nil]);
   }
-  if (nil == (requirements = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error))) {
+  if (nil == (capabilities = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error))) {
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
   }
-  [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[requirements[@"shouldUseTestManagerForVisibilityDetection"] boolValue]];
-  if (requirements[USE_COMPACT_RESPONSES]) {
-    [FBConfiguration setShouldUseCompactResponses:[requirements[USE_COMPACT_RESPONSES] boolValue]];
+  [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[capabilities[FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION] boolValue]];
+  if (capabilities[USE_COMPACT_RESPONSES]) {
+    [FBConfiguration setShouldUseCompactResponses:[capabilities[USE_COMPACT_RESPONSES] boolValue]];
   }
-  NSString *elementResponseAttributes = requirements[ELEMENT_RESPONSE_ATTRIBUTES];
+  NSString *elementResponseAttributes = capabilities[ELEMENT_RESPONSE_ATTRIBUTES];
   if (elementResponseAttributes) {
     [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
   }
-  if (requirements[@"maxTypingFrequency"]) {
-    [FBConfiguration setMaxTypingFrequency:[requirements[@"maxTypingFrequency"] unsignedIntegerValue]];
+  if (capabilities[FB_CAP_MAX_TYPING_FREQUNCY]) {
+    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUNCY] unsignedIntegerValue]];
   }
-  if (requirements[@"shouldUseSingletonTestManager"]) {
-    [FBConfiguration setShouldUseSingletonTestManager:[requirements[@"shouldUseSingletonTestManager"] boolValue]];
+  if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
+    [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];
   }
-  if (requirements[@"disableAutomaticScreenshots"]) {
-    if ([requirements[@"disableAutomaticScreenshots"] boolValue]) {
+  if (capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS]) {
+    if ([capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS] boolValue]) {
       [FBConfiguration disableScreenshots];
     } else {
       [FBConfiguration enableScreenshots];
     }
   }
-  if (requirements[@"shouldTerminateApp"]) {
-    [FBConfiguration setShouldTerminateApp:[requirements[@"shouldTerminateApp"] boolValue]];
+  if (capabilities[FB_CAP_SHOULD_TERMINATE_APP]) {
+    [FBConfiguration setShouldTerminateApp:[capabilities[FB_CAP_SHOULD_TERMINATE_APP] boolValue]];
   }
-  NSNumber *delay = requirements[@"eventloopIdleDelaySec"];
+  NSNumber *delay = capabilities[FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC];
   if ([delay doubleValue] > 0.0) {
     [XCUIApplicationProcessDelay setEventLoopHasIdledDelay:[delay doubleValue]];
   } else {
     [XCUIApplicationProcessDelay disableEventLoopDelay];
   }
 
-  if (nil != requirements[WAIT_FOR_IDLE_TIMEOUT]) {
-    FBConfiguration.waitForIdleTimeout = [requirements[WAIT_FOR_IDLE_TIMEOUT] doubleValue];
+  if (nil != capabilities[WAIT_FOR_IDLE_TIMEOUT]) {
+    FBConfiguration.waitForIdleTimeout = [capabilities[WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
 
-  NSString *bundleID = requirements[@"bundleId"];
+  NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   FBApplication *app = nil;
   if (bundleID != nil) {
-    app = [[FBApplication alloc] initPrivateWithPath:requirements[@"app"]
-                                            bundleID:bundleID];
-    app.fb_shouldWaitForQuiescence = nil == requirements[@"shouldWaitForQuiescence"]
-                                             || [requirements[@"shouldWaitForQuiescence"] boolValue];
-    app.launchArguments = (NSArray<NSString *> *)requirements[@"arguments"] ?: @[];
-    app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)requirements[@"environment"] ?: @{};
-    [app launch];
-    if (app.processID == 0) {
-      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:[NSString stringWithFormat:@"Failed to launch %@ application", bundleID] traceback:nil]);
+    app = [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleID];
+    BOOL shouldRestartApp = YES;
+    if (nil != capabilities[FB_CAP_FORCE_APP_LAUNCH]) {
+      shouldRestartApp = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
+    }
+    BOOL isAppRunning = [app running];
+    if (!isAppRunning || (isAppRunning && shouldRestartApp)) {
+      app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
+        || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
+      app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
+      app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
+      [app launch];
+      if (![app running]) {
+        NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
+        return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
+                                                                  traceback:nil]);
+      }
     }
   }
 
-  if (requirements[DEFAULT_ALERT_ACTION]) {
+  if (capabilities[DEFAULT_ALERT_ACTION]) {
     [FBSession initWithApplication:app
-                defaultAlertAction:(id)requirements[DEFAULT_ALERT_ACTION]];
+                defaultAlertAction:(id)capabilities[DEFAULT_ALERT_ACTION]];
   } else {
     [FBSession initWithApplication:app];
   }
