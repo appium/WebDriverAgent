@@ -75,6 +75,10 @@
 
 + (id<FBResponsePayload>)handleCreateSession:(FBRouteRequest *)request
 {
+  if (nil != FBSession.activeSession) {
+    [FBSession.activeSession kill];
+  }
+
   NSDictionary<NSString *, id> *capabilities;
   NSError *error;
   if (![request.arguments[@"capabilities"] isKindOfClass:NSDictionary.class]) {
@@ -122,13 +126,14 @@
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   FBApplication *app = nil;
   if (bundleID != nil) {
-    app = [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleID];
-    BOOL shouldRestartApp = YES;
+    app = [[FBApplication alloc] initWithBundleIdentifier:bundleID];
+    BOOL forceAppLaunch = YES;
     if (nil != capabilities[FB_CAP_FORCE_APP_LAUNCH]) {
-      shouldRestartApp = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
+      forceAppLaunch = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
     }
-    BOOL isAppRunning = [app running];
-    if (!isAppRunning || (isAppRunning && shouldRestartApp)) {
+    NSUInteger appState = [app fb_state];
+    BOOL isAppRunning = appState >= 2;
+    if (!isAppRunning || (isAppRunning && forceAppLaunch)) {
       app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
         || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
       app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
@@ -139,6 +144,8 @@
         return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
                                                                   traceback:nil]);
       }
+    } else if (appState < 4 && !forceAppLaunch) {
+      [app fb_activate];
     }
   }
 

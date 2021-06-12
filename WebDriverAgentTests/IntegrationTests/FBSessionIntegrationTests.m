@@ -27,7 +27,6 @@
 
 
 static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
-static NSString *const INTEGRATION_APP_BUNDLE_ID = @"com.facebook.wda.integrationApp";
 
 @implementation FBSessionIntegrationTests
 
@@ -35,7 +34,14 @@ static NSString *const INTEGRATION_APP_BUNDLE_ID = @"com.facebook.wda.integratio
 {
   [super setUp];
   [self launchApplication];
-  self.session = [FBSession initWithApplication:FBApplication.fb_activeApplication];
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:self.testedApplication.bundleID];
+  self.session = [FBSession initWithApplication:app];
+}
+
+- (void)tearDown
+{
+  [self.session kill];
+  [super tearDown];
 }
 
 - (void)testSettingsAppCanBeOpenedInScopeOfTheCurrentSession
@@ -54,7 +60,7 @@ static NSString *const INTEGRATION_APP_BUNDLE_ID = @"com.facebook.wda.integratio
 
 - (void)testSettingsAppCanBeReopenedInScopeOfTheCurrentSession
 {
-  FBApplication *systemApp = FBApplication.fb_systemApplication;
+  FBApplication *systemApp = self.springboard;
   [self.session launchApplicationWithBundleId:SETTINGS_BUNDLE_ID
                       shouldWaitForQuiescence:nil
                                     arguments:nil
@@ -83,9 +89,9 @@ static NSString *const INTEGRATION_APP_BUNDLE_ID = @"com.facebook.wda.integratio
 
 - (void)testMainAppCanBeRestartedInScopeOfTheCurrentSession
 {
-  FBApplication *systemApp = FBApplication.fb_systemApplication;
-  FBApplication *testedApp = FBApplication.fb_activeApplication;
-  XCTAssertTrue([self.session terminateApplicationWithBundleId:testedApp.bundleID]);
+  FBApplication *systemApp = self.springboard;
+  FBApplication *testedApp = [[FBApplication alloc] initWithBundleIdentifier:self.testedApplication.bundleID];
+  [self.session terminateApplicationWithBundleId:testedApp.bundleID];
   FBAssertWaitTillBecomesTrue([self.session.activeApplication.bundleID isEqualToString:systemApp.bundleID]);
   [self.session launchApplicationWithBundleId:testedApp.bundleID
                       shouldWaitForQuiescence:nil

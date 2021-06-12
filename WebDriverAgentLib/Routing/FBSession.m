@@ -103,7 +103,7 @@ static FBSession *_activeSession = nil;
   session.identifier = [[NSUUID UUID] UUIDString];
   session.defaultActiveApplication = FBDefaultApplicationAuto;
   session.testedApplicationBundleId = nil;
-  session.isTestedApplicationExpectedToRun = nil != application;
+  session.isTestedApplicationExpectedToRun = nil != application && application.running;
   if (application) {
     session.testedApplicationBundleId = application.bundleID;
     session.shouldAppsWaitForQuiescence = application.fb_shouldWaitForQuiescence;
@@ -127,19 +127,27 @@ static FBSession *_activeSession = nil;
 
 - (void)kill
 {
+  if (nil == _activeSession) {
+    return;
+  }
+
   if (nil != self.alertsMonitor) {
     [self.alertsMonitor disable];
     self.alertsMonitor = nil;
   }
 
-  if (self.testedApplicationBundleId && [FBConfiguration shouldTerminateApp]) {
-    FBApplication *app = [[FBApplication alloc] initPrivateWithPath:nil
-                                                           bundleID:self.testedApplicationBundleId];
-    if ([app running]
-        && ![self.testedApplicationBundleId isEqualToString:FBApplication.fb_systemApplication.bundleID]) {
-      [app fb_terminate];
+  if (self.testedApplicationBundleId && [FBConfiguration shouldTerminateApp]
+      && ![self.testedApplicationBundleId isEqualToString:FBApplication.fb_systemApplication.bundleID]) {
+    FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:self.testedApplicationBundleId];
+    if ([app running]) {
+      @try {
+        [app terminate];
+      } @catch (NSException *e) {
+        [FBLogger logFmt:@"%@", e.description];
+      }
     }
   }
+
   _activeSession = nil;
 }
 
@@ -153,7 +161,7 @@ static FBSession *_activeSession = nil;
   if (self.testedApplicationBundleId && self.isTestedApplicationExpectedToRun) {
     testedApplication = nil != application.bundleID && [application.bundleID isEqualToString:self.testedApplicationBundleId]
       ? application
-      : [[FBApplication alloc] initPrivateWithPath:nil bundleID:self.testedApplicationBundleId];
+      : [[FBApplication alloc] initWithBundleIdentifier:self.testedApplicationBundleId];
   }
   if (testedApplication && !testedApplication.running) {
     NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplicationBundleId];
@@ -170,12 +178,11 @@ static FBSession *_activeSession = nil;
                                        arguments:(nullable NSArray<NSString *> *)arguments
                                      environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
-  FBApplication *app = [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleIdentifier];
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
   if (app.fb_state < 2) {
     if (nil == shouldWaitForQuiescence) {
       // Iherit the quiescence check setting from the main app under test by default
-      app.fb_shouldWaitForQuiescence = nil != FBSession.activeSession.testedApplicationBundleId
-        && FBSession.activeSession.shouldAppsWaitForQuiescence;
+      app.fb_shouldWaitForQuiescence = nil != self.testedApplicationBundleId && self.shouldAppsWaitForQuiescence;
     } else {
       app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
     }
@@ -185,26 +192,26 @@ static FBSession *_activeSession = nil;
   } else {
     [app fb_activate];
   }
-  if (nil != FBSession.activeSession.testedApplicationBundleId
-      && [bundleIdentifier isEqualToString:(NSString *)FBSession.activeSession.testedApplicationBundleId]) {
-    FBSession.activeSession.isTestedApplicationExpectedToRun = YES;
+  if (nil != self.testedApplicationBundleId
+      && [bundleIdentifier isEqualToString:(NSString *)self.testedApplicationBundleId]) {
+    self.isTestedApplicationExpectedToRun = YES;
   }
   return app;
 }
 
 - (FBApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
-  FBApplication *app = [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleIdentifier];
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
   [app fb_activate];
   return app;
 }
 
 - (BOOL)terminateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
-  FBApplication *app = [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleIdentifier];
-  if (nil != FBSession.activeSession.testedApplicationBundleId
-      && [bundleIdentifier isEqualToString:(NSString *)FBSession.activeSession.testedApplicationBundleId]) {
-    FBSession.activeSession.isTestedApplicationExpectedToRun = NO;
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
+  if (nil != self.testedApplicationBundleId
+      && [bundleIdentifier isEqualToString:(NSString *)self.testedApplicationBundleId]) {
+    self.isTestedApplicationExpectedToRun = NO;
   }
   if (app.fb_state >= 2) {
     [app terminate];
@@ -215,7 +222,7 @@ static FBSession *_activeSession = nil;
 
 - (NSUInteger)applicationStateWithBundleId:(NSString *)bundleIdentifier
 {
-  return [[FBApplication alloc] initPrivateWithPath:nil bundleID:bundleIdentifier].fb_state;
+  return [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier].fb_state;
 }
 
 @end
