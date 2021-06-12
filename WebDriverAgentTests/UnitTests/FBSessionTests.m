@@ -11,10 +11,12 @@
 
 #import "FBApplicationDouble.h"
 #import "FBSession.h"
+#import "FBConfiguration.h"
 
 @interface FBSessionTests : XCTestCase
 @property (nonatomic, strong) FBSession *session;
 @property (nonatomic, strong) FBApplication *testedApplication;
+@property (nonatomic) BOOL shouldTerminateAppValue;
 @end
 
 @implementation FBSessionTests
@@ -23,7 +25,16 @@
 {
   [super setUp];
   self.testedApplication = (id)FBApplicationDouble.new;
+  self.shouldTerminateAppValue = FBConfiguration.shouldTerminateApp;
+  [FBConfiguration setShouldTerminateApp:NO];
   self.session = [FBSession initWithApplication:self.testedApplication];
+}
+
+- (void)tearDown
+{
+  [self.session kill];
+  [FBConfiguration setShouldTerminateApp:self.shouldTerminateAppValue];
+  [super tearDown];
 }
 
 - (void)testSessionFetching
@@ -51,7 +62,6 @@
 - (void)testActiveSessionIsNilAfterKilling
 {
   [self.session kill];
-  XCTAssertTrue(((FBApplicationDouble *)self.testedApplication).didTerminate);
   XCTAssertNil([FBSession activeSession]);
 }
 
