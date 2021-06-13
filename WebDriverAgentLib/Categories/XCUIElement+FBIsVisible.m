@@ -57,8 +57,11 @@
   if (nil == cache) {
     return isVisible;
   }
-
   NSMutableDictionary<NSString *, NSNumber *> *destination = [cache objectForKey:@(self.generation)];
+  if (nil == destination) {
+    return isVisible;
+  }
+
   NSNumber *visibleObj = [NSNumber numberWithBool:isVisible];
   [destination setObject:visibleObj forKey:[NSString stringWithFormat:@"%p", (void *)self]];
   if (isVisible && nil != ancestors) {
