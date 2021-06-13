@@ -19,6 +19,7 @@
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBUID.h"
 #import "XCTestPrivateSymbols.h"
 
 @implementation XCUIElement (FBIsVisible)
@@ -32,6 +33,11 @@
 @end
 
 @implementation XCElementSnapshot (FBIsVisible)
+
+- (NSString *)fb_uniqId
+{
+  return self.fb_uid ?: [NSString stringWithFormat:@"%p", (void *)self];
+}
 
 - (nullable NSNumber *)fb_cachedVisibilityValue
 {
@@ -47,7 +53,7 @@
     [cache setObject:[NSMutableDictionary dictionary] forKey:@(self.generation)];
     return nil;
   }
-  return [result objectForKey:[NSString stringWithFormat:@"%p", (void *)self]];
+  return [result objectForKey:self.fb_uniqId];
 }
 
 - (BOOL)fb_cacheVisibilityWithValue:(BOOL)isVisible
@@ -63,11 +69,11 @@
   }
 
   NSNumber *visibleObj = [NSNumber numberWithBool:isVisible];
-  [destination setObject:visibleObj forKey:[NSString stringWithFormat:@"%p", (void *)self]];
+  [destination setObject:visibleObj forKey:self.fb_uniqId];
   if (isVisible && nil != ancestors) {
     // if an element is visible then all its ancestors must be visible as well
     for (XCElementSnapshot *ancestor in ancestors) {
-      NSString *ancestorId = [NSString stringWithFormat:@"%p", (void *)ancestor];
+      NSString *ancestorId = ancestor.fb_uniqId;
       if (nil == [destination objectForKey:ancestorId]) {
         [destination setObject:visibleObj forKey:ancestorId];
       }
