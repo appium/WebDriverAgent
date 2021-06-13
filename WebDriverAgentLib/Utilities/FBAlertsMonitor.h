@@ -26,10 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBAlertsMonitor : NSObject
 
-/*! The delegate which decides on what to do whwn an alert is detected  */
+/*! The delegate which decides on what to do when an alert is detected  */
 @property (nonatomic, nullable, weak) id<FBAlertsMonitorDelegate> delegate;
-/*! The active appication instance. It is updated by the session instance when necessary */
-@property (nonatomic, nullable) XCUIApplication *application;
 
 /**
  Creates an instance of alerts monitor.

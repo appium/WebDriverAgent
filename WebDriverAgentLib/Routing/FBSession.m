@@ -121,7 +121,6 @@ static FBSession *_activeSession = nil;
   FBSession *session = [self.class initWithApplication:application];
   session.alertsMonitor = [[FBAlertsMonitor alloc] init];
   session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
-  session.alertsMonitor.application = application;
   session.defaultAlertAction = [defaultAlertAction lowercaseString];
   [session.alertsMonitor enable];
   return session;
@@ -168,9 +167,6 @@ static FBSession *_activeSession = nil;
   if (testedApplication && !testedApplication.running) {
     NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplicationBundleId];
     [[NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil] raise];
-  }
-  if (nil != self.alertsMonitor) {
-    self.alertsMonitor.application = application;
   }
   return application;
 }
