@@ -35,6 +35,7 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 @property (nonatomic) BOOL isTestedApplicationExpectedToRun;
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
+@property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
 @end
 
 @interface FBSession (FBAlertsMonitorDelegate)
@@ -100,6 +101,7 @@ static FBSession *_activeSession = nil;
   FBSession *session = [FBSession new];
   session.alertsMonitor = nil;
   session.defaultAlertAction = nil;
+  session.elementsVisibilityCache = [NSMutableDictionary dictionary];
   session.identifier = [[NSUUID UUID] UUIDString];
   session.defaultActiveApplication = FBDefaultApplicationAuto;
   session.testedApplicationBundleId = nil;

@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 /*! The action to apply to unexpected alerts. Either "accept"/"dismiss" or nil/empty string (by default) to do nothing */
 @property (nonatomic, nullable) NSString *defaultAlertAction;
 
+@property (nonatomic, readonly) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
+
 + (nullable instancetype)activeSession;
 
 /**

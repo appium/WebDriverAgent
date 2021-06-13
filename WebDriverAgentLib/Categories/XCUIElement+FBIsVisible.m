@@ -13,6 +13,7 @@
 #import "FBElementUtils.h"
 #import "FBMathUtils.h"
 #import "FBActiveAppDetectionPoint.h"
+#import "FBSession.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement+FBComparison.h"
 #import "XCElementSnapshot+FBHelpers.h"
@@ -32,29 +33,32 @@
 
 @implementation XCElementSnapshot (FBIsVisible)
 
-static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_generationsCache;
-
-+ (void)load
-{
-  fb_generationsCache = [NSMutableDictionary dictionary];
-}
-
 - (nullable NSNumber *)fb_cachedVisibilityValue
 {
-  NSNumber* generationObj = [NSNumber numberWithUnsignedLongLong:self.generation];
-  NSDictionary<NSString *, NSNumber *> *result = [fb_generationsCache objectForKey:generationObj];
+  NSMutableDictionary *cache = FBSession.activeSession.elementsVisibilityCache;
+  if (nil == cache) {
+    return nil;
+  }
+
+  NSDictionary<NSString *, NSNumber *> *result = [cache objectForKey:@(self.generation)];
   if (nil == result) {
     // There is no need to keep the cached data for the previous generations
-    [fb_generationsCache removeAllObjects];
-    [fb_generationsCache setObject:[NSMutableDictionary dictionary] forKey:generationObj];
+    [cache removeAllObjects];
+    [cache setObject:[NSMutableDictionary dictionary] forKey:@(self.generation)];
     return nil;
   }
   return [result objectForKey:[NSString stringWithFormat:@"%p", (void *)self]];
 }
 
-- (BOOL)fb_cacheVisibilityWithValue:(BOOL)isVisible forAncestors:(nullable NSArray<XCElementSnapshot *> *)ancestors
+- (BOOL)fb_cacheVisibilityWithValue:(BOOL)isVisible
+                       forAncestors:(nullable NSArray<XCElementSnapshot *> *)ancestors
 {
-  NSMutableDictionary<NSString *, NSNumber *> *destination = [fb_generationsCache objectForKey:@(self.generation)];
+  NSMutableDictionary *cache = FBSession.activeSession.elementsVisibilityCache;
+  if (nil == cache) {
+    return isVisible;
+  }
+
+  NSMutableDictionary<NSString *, NSNumber *> *destination = [cache objectForKey:@(self.generation)];
   NSNumber *visibleObj = [NSNumber numberWithBool:isVisible];
   [destination setObject:visibleObj forKey:[NSString stringWithFormat:@"%p", (void *)self]];
   if (isVisible && nil != ancestors) {
@@ -69,7 +73,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return isVisible;
 }
 
-- (CGRect)fb_frameInContainer:(XCElementSnapshot *)container hierarchyIntersection:(nullable NSValue *)intersectionRectange
+- (CGRect)fb_frameInContainer:(XCElementSnapshot *)container
+        hierarchyIntersection:(nullable NSValue *)intersectionRectange
 {
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;
