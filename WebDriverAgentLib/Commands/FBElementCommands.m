@@ -38,6 +38,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBTVFocuse.h"
+#import "XCUIElement+FBResolve.h"
 #import "FBElementTypeTransformer.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
@@ -258,8 +259,8 @@
   XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
   if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
-    NSString *focusedUUID = [elementCache storeElement:focusedElement
-                                    usingNativeCaching:request.session.useNativeCaching];
+    BOOL useNativeCachingStrategy = request.session.useNativeCachingStrategy;
+    NSString *focusedUUID = [elementCache storeElement:(useNativeCachingStrategy ? focusedElement : focusedElement.fb_stableInstance)];
     if (focusedUUID && [focusedUUID isEqualToString:(id)request.parameters[@"uuid"]]) {
       isFocused = YES;
     }
