@@ -20,3 +20,4 @@ NSString* const FB_CAP_FORCE_APP_LAUNCH = @"forceAppLaunch";
 NSString* const FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE = @"shouldWaitForQuiescence";
 NSString* const FB_CAP_ARGUMENTS = @"arguments";
 NSString* const FB_CAP_ENVIRNOMENT = @"environment";
+NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY = @"useNativeCachingStrategy";

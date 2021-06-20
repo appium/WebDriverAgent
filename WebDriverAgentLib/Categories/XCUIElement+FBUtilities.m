@@ -35,6 +35,7 @@
 #import "XCUIElementQuery+FBHelpers.h"
 #import "XCUIElement+FBUID.h"
 #import "XCUIScreen.h"
+#import "XCUIElement+FBResolve.h"
 
 #define DEFAULT_AX_TIMEOUT 60.
 
@@ -113,7 +114,7 @@
   if (nil == snapshotWithAttributes) {
     [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
      attributeNames, snapshot.fb_description, axTimeout];
-    [FBLogger logFmt:@"This timeout could be customized via '%@' setting", CUSTOM_SNAPSHOT_TIMEOUT];
+    [FBLogger logFmt:@"This timeout could be customized via '%@' setting", FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT];
     [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
     [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
     snapshotWithAttributes = self.lastSnapshot;
@@ -159,6 +160,7 @@
   query = [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), sortedIds]];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
+    result.fb_isResolvedNatively = @NO;
     return result ? @[result] : @[];
   }
   // Rely here on the fact, that XPath always returns query results in the same
@@ -176,7 +178,11 @@
   //    }
   //    return NSOrderedSame;
   //  }];
-  return query.fb_allMatches;
+  NSArray<XCUIElement *> *result = query.fb_allMatches;
+  for (XCUIElement *el in result) {
+    el.fb_isResolvedNatively = @NO;
+  }
+  return result;
 }
 
 - (void)fb_waitUntilStable

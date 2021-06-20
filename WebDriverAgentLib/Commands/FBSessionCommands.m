@@ -89,10 +89,10 @@
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
   }
   [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[capabilities[FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION] boolValue]];
-  if (capabilities[USE_COMPACT_RESPONSES]) {
-    [FBConfiguration setShouldUseCompactResponses:[capabilities[USE_COMPACT_RESPONSES] boolValue]];
+  if (capabilities[FB_SETTING_USE_COMPACT_RESPONSES]) {
+    [FBConfiguration setShouldUseCompactResponses:[capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
   }
-  NSString *elementResponseAttributes = capabilities[ELEMENT_RESPONSE_ATTRIBUTES];
+  NSString *elementResponseAttributes = capabilities[FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES];
   if (elementResponseAttributes) {
     [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
   }
@@ -119,8 +119,8 @@
     [XCUIApplicationProcessDelay disableEventLoopDelay];
   }
 
-  if (nil != capabilities[WAIT_FOR_IDLE_TIMEOUT]) {
-    FBConfiguration.waitForIdleTimeout = [capabilities[WAIT_FOR_IDLE_TIMEOUT] doubleValue];
+  if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
+    FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
 
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
@@ -149,11 +149,15 @@
     }
   }
 
-  if (capabilities[DEFAULT_ALERT_ACTION]) {
+  if (capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]) {
     [FBSession initWithApplication:app
-                defaultAlertAction:(id)capabilities[DEFAULT_ALERT_ACTION]];
+                defaultAlertAction:(id)capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]];
   } else {
     [FBSession initWithApplication:app];
+  }
+
+  if (nil != capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY]) {
+    FBSession.activeSession.useNativeCachingStrategy = [capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY] boolValue];
   }
 
   return FBResponseWithObject(FBSessionCommands.sessionInformation);
@@ -256,29 +260,29 @@
 {
   return FBResponseWithObject(
     @{
-      USE_COMPACT_RESPONSES: @([FBConfiguration shouldUseCompactResponses]),
-      ELEMENT_RESPONSE_ATTRIBUTES: [FBConfiguration elementResponseAttributes],
-      MJPEG_SERVER_SCREENSHOT_QUALITY: @([FBConfiguration mjpegServerScreenshotQuality]),
-      MJPEG_SERVER_FRAMERATE: @([FBConfiguration mjpegServerFramerate]),
-      MJPEG_SCALING_FACTOR: @([FBConfiguration mjpegScalingFactor]),
-      SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
-      KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
-      KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
-      CUSTOM_SNAPSHOT_TIMEOUT: @([FBConfiguration customSnapshotTimeout]),
-      SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
-      USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
-      WAIT_FOR_IDLE_TIMEOUT: @([FBConfiguration waitForIdleTimeout]),
-      ANIMATION_COOL_OFF_TIMEOUT: @([FBConfiguration animationCoolOffTimeout]),
-      BOUND_ELEMENTS_BY_INDEX: @([FBConfiguration boundElementsByIndex]),
-      REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
-      DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
-      ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
-      INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
-      ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
-      DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
-      DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
+      FB_SETTING_USE_COMPACT_RESPONSES: @([FBConfiguration shouldUseCompactResponses]),
+      FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES: [FBConfiguration elementResponseAttributes],
+      FB_SETTING_MJPEG_SERVER_SCREENSHOT_QUALITY: @([FBConfiguration mjpegServerScreenshotQuality]),
+      FB_SETTING_MJPEG_SERVER_FRAMERATE: @([FBConfiguration mjpegServerFramerate]),
+      FB_SETTING_MJPEG_SCALING_FACTOR: @([FBConfiguration mjpegScalingFactor]),
+      FB_SETTING_SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
+      FB_SETTING_KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
+      FB_SETTING_KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
+      FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT: @([FBConfiguration customSnapshotTimeout]),
+      FB_SETTING_SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
+      FB_SETTING_USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
+      FB_SETTING_WAIT_FOR_IDLE_TIMEOUT: @([FBConfiguration waitForIdleTimeout]),
+      FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT: @([FBConfiguration animationCoolOffTimeout]),
+      FB_SETTING_BOUND_ELEMENTS_BY_INDEX: @([FBConfiguration boundElementsByIndex]),
+      FB_SETTING_REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
+      FB_SETTING_DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
+      FB_SETTING_ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
+      FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
+      FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
+      FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
+      FB_SETTING_DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
 #if !TARGET_OS_TV
-      SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
+      FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
     }
   );
@@ -290,86 +294,86 @@
 {
   NSDictionary* settings = request.arguments[@"settings"];
 
-  if (nil != [settings objectForKey:USE_COMPACT_RESPONSES]) {
-    [FBConfiguration setShouldUseCompactResponses:[[settings objectForKey:USE_COMPACT_RESPONSES] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_USE_COMPACT_RESPONSES]) {
+    [FBConfiguration setShouldUseCompactResponses:[[settings objectForKey:FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
   }
-  if (nil != [settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]) {
-    [FBConfiguration setElementResponseAttributes:(NSString *)[settings objectForKey:ELEMENT_RESPONSE_ATTRIBUTES]];
+  if (nil != [settings objectForKey:FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES]) {
+    [FBConfiguration setElementResponseAttributes:(NSString *)[settings objectForKey:FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES]];
   }
-  if (nil != [settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY]) {
-    [FBConfiguration setMjpegServerScreenshotQuality:[[settings objectForKey:MJPEG_SERVER_SCREENSHOT_QUALITY] unsignedIntegerValue]];
+  if (nil != [settings objectForKey:FB_SETTING_MJPEG_SERVER_SCREENSHOT_QUALITY]) {
+    [FBConfiguration setMjpegServerScreenshotQuality:[[settings objectForKey:FB_SETTING_MJPEG_SERVER_SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if (nil != [settings objectForKey:MJPEG_SERVER_FRAMERATE]) {
-    [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
+  if (nil != [settings objectForKey:FB_SETTING_MJPEG_SERVER_FRAMERATE]) {
+    [FBConfiguration setMjpegServerFramerate:[[settings objectForKey:FB_SETTING_MJPEG_SERVER_FRAMERATE] unsignedIntegerValue]];
   }
-  if (nil != [settings objectForKey:SCREENSHOT_QUALITY]) {
-    [FBConfiguration setScreenshotQuality:[[settings objectForKey:SCREENSHOT_QUALITY] unsignedIntegerValue]];
+  if (nil != [settings objectForKey:FB_SETTING_SCREENSHOT_QUALITY]) {
+    [FBConfiguration setScreenshotQuality:[[settings objectForKey:FB_SETTING_SCREENSHOT_QUALITY] unsignedIntegerValue]];
   }
-  if (nil != [settings objectForKey:MJPEG_SCALING_FACTOR]) {
-    [FBConfiguration setMjpegScalingFactor:[[settings objectForKey:MJPEG_SCALING_FACTOR] unsignedIntegerValue]];
+  if (nil != [settings objectForKey:FB_SETTING_MJPEG_SCALING_FACTOR]) {
+    [FBConfiguration setMjpegScalingFactor:[[settings objectForKey:FB_SETTING_MJPEG_SCALING_FACTOR] unsignedIntegerValue]];
   }
-  if (nil != [settings objectForKey:KEYBOARD_AUTOCORRECTION]) {
-    [FBConfiguration setKeyboardAutocorrection:[[settings objectForKey:KEYBOARD_AUTOCORRECTION] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_KEYBOARD_AUTOCORRECTION]) {
+    [FBConfiguration setKeyboardAutocorrection:[[settings objectForKey:FB_SETTING_KEYBOARD_AUTOCORRECTION] boolValue]];
   }
-  if (nil != [settings objectForKey:KEYBOARD_PREDICTION]) {
-    [FBConfiguration setKeyboardPrediction:[[settings objectForKey:KEYBOARD_PREDICTION] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION]) {
+    [FBConfiguration setKeyboardPrediction:[[settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION] boolValue]];
   }
   // SNAPSHOT_TIMEOUT setting is deprecated. Please use CUSTOM_SNAPSHOT_TIMEOUT instead
-  if (nil != [settings objectForKey:SNAPSHOT_TIMEOUT]) {
-    [FBConfiguration setCustomSnapshotTimeout:[[settings objectForKey:SNAPSHOT_TIMEOUT] doubleValue]];
+  if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_TIMEOUT]) {
+    [FBConfiguration setCustomSnapshotTimeout:[[settings objectForKey:FB_SETTING_SNAPSHOT_TIMEOUT] doubleValue]];
   }
-  if (nil != [settings objectForKey:CUSTOM_SNAPSHOT_TIMEOUT]) {
-    [FBConfiguration setCustomSnapshotTimeout:[[settings objectForKey:CUSTOM_SNAPSHOT_TIMEOUT] doubleValue]];
+  if (nil != [settings objectForKey:FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT]) {
+    [FBConfiguration setCustomSnapshotTimeout:[[settings objectForKey:FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT] doubleValue]];
   }
-  if (nil != [settings objectForKey:SNAPSHOT_MAX_DEPTH]) {
-    [FBConfiguration setSnapshotMaxDepth:[[settings objectForKey:SNAPSHOT_MAX_DEPTH] intValue]];
+  if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_MAX_DEPTH]) {
+    [FBConfiguration setSnapshotMaxDepth:[[settings objectForKey:FB_SETTING_SNAPSHOT_MAX_DEPTH] intValue]];
   }
-  if (nil != [settings objectForKey:USE_FIRST_MATCH]) {
-    [FBConfiguration setUseFirstMatch:[[settings objectForKey:USE_FIRST_MATCH] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_USE_FIRST_MATCH]) {
+    [FBConfiguration setUseFirstMatch:[[settings objectForKey:FB_SETTING_USE_FIRST_MATCH] boolValue]];
   }
-  if (nil != [settings objectForKey:BOUND_ELEMENTS_BY_INDEX]) {
-    [FBConfiguration setBoundElementsByIndex:[[settings objectForKey:BOUND_ELEMENTS_BY_INDEX] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_BOUND_ELEMENTS_BY_INDEX]) {
+    [FBConfiguration setBoundElementsByIndex:[[settings objectForKey:FB_SETTING_BOUND_ELEMENTS_BY_INDEX] boolValue]];
   }
-  if (nil != [settings objectForKey:REDUCE_MOTION]) {
-    [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:REDUCE_MOTION] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_REDUCE_MOTION]) {
+    [FBConfiguration setReduceMotionEnabled:[[settings objectForKey:FB_SETTING_REDUCE_MOTION] boolValue]];
   }
-  if (nil != [settings objectForKey:DEFAULT_ACTIVE_APPLICATION]) {
-    request.session.defaultActiveApplication = (NSString *)[settings objectForKey:DEFAULT_ACTIVE_APPLICATION];
+  if (nil != [settings objectForKey:FB_SETTING_DEFAULT_ACTIVE_APPLICATION]) {
+    request.session.defaultActiveApplication = (NSString *)[settings objectForKey:FB_SETTING_DEFAULT_ACTIVE_APPLICATION];
   }
-  if (nil != [settings objectForKey:ACTIVE_APP_DETECTION_POINT]) {
+  if (nil != [settings objectForKey:FB_SETTING_ACTIVE_APP_DETECTION_POINT]) {
     NSError *error;
-    if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:ACTIVE_APP_DETECTION_POINT]
+    if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:FB_SETTING_ACTIVE_APP_DETECTION_POINT]
                                                                       error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }
   }
-  if (nil != [settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS]) {
+  if (nil != [settings objectForKey:FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS]) {
     if ([XCUIElement fb_supportsNonModalElementsInclusion]) {
-      [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
+      [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
     } else {
-      [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", INCLUDE_NON_MODAL_ELEMENTS];
+      [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS];
     }
   }
-  if (nil != [settings objectForKey:ACCEPT_ALERT_BUTTON_SELECTOR]) {
-    [FBConfiguration setAcceptAlertButtonSelector:(NSString *)[settings objectForKey:ACCEPT_ALERT_BUTTON_SELECTOR]];
+  if (nil != [settings objectForKey:FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR]) {
+    [FBConfiguration setAcceptAlertButtonSelector:(NSString *)[settings objectForKey:FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR]];
   }
-  if (nil != [settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]) {
-    [FBConfiguration setDismissAlertButtonSelector:(NSString *)[settings objectForKey:DISMISS_ALERT_BUTTON_SELECTOR]];
+  if (nil != [settings objectForKey:FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR]) {
+    [FBConfiguration setDismissAlertButtonSelector:(NSString *)[settings objectForKey:FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR]];
   }
-  if (nil != [settings objectForKey:WAIT_FOR_IDLE_TIMEOUT]) {
-    [FBConfiguration setWaitForIdleTimeout:[[settings objectForKey:WAIT_FOR_IDLE_TIMEOUT] doubleValue]];
+  if (nil != [settings objectForKey:FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
+    [FBConfiguration setWaitForIdleTimeout:[[settings objectForKey:FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue]];
   }
-  if (nil != [settings objectForKey:ANIMATION_COOL_OFF_TIMEOUT]) {
-    [FBConfiguration setAnimationCoolOffTimeout:[[settings objectForKey:ANIMATION_COOL_OFF_TIMEOUT] doubleValue]];
+  if (nil != [settings objectForKey:FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT]) {
+    [FBConfiguration setAnimationCoolOffTimeout:[[settings objectForKey:FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT] doubleValue]];
   }
-  if ([[settings objectForKey:DEFAULT_ALERT_ACTION] isKindOfClass:NSString.class]) {
-    request.session.defaultAlertAction = [settings[DEFAULT_ALERT_ACTION] lowercaseString];
+  if ([[settings objectForKey:FB_SETTING_DEFAULT_ALERT_ACTION] isKindOfClass:NSString.class]) {
+    request.session.defaultAlertAction = [settings[FB_SETTING_DEFAULT_ALERT_ACTION] lowercaseString];
   }
 
 #if !TARGET_OS_TV
-  if (nil != [settings objectForKey:SCREENSHOT_ORIENTATION]) {
+  if (nil != [settings objectForKey:FB_SETTING_SCREENSHOT_ORIENTATION]) {
     NSError *error;
-    if (![FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:SCREENSHOT_ORIENTATION]
+    if (![FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:FB_SETTING_SCREENSHOT_ORIENTATION]
                                              error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
     }

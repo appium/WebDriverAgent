@@ -20,3 +20,4 @@ extern NSString* const FB_CAP_FORCE_APP_LAUNCH;
 extern NSString* const FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE;
 extern NSString* const FB_CAP_ARGUMENTS;
 extern NSString* const FB_CAP_ENVIRNOMENT;
+extern NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY;

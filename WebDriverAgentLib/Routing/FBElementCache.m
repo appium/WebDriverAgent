@@ -19,6 +19,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBUID.h"
+#import "XCUIElement+FBResolve.h"
 #import "XCUIElementQuery.h"
 
 const int ELEMENT_CACHE_SIZE = 1024;

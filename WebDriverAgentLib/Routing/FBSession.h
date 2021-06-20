@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! The action to apply to unexpected alerts. Either "accept"/"dismiss" or nil/empty string (by default) to do nothing */
 @property (nonatomic, nullable) NSString *defaultAlertAction;
 
+/*! Whether to use the native caching strategy for elements or the custom one: https://discuss.appium.io/t/elements-state-coming-from-xpath-vs-ios-predicate-string/34016 */
+@property (nonatomic) BOOL useNativeCachingStrategy;
+
 /*! Keeps cached visibility values for the current snapshots tree */
 @property (nonatomic, readonly) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
 

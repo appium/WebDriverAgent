@@ -258,7 +258,8 @@
   XCUIElement *focusedElement = request.session.activeApplication.fb_focusedElement;
   if (focusedElement != nil) {
     FBElementCache *elementCache = request.session.elementCache;
-    NSString *focusedUUID = [elementCache storeElement:focusedElement];
+    NSString *focusedUUID = [elementCache storeElement:focusedElement
+                                    usingNativeCaching:request.session.useNativeCaching];
     if (focusedUUID && [focusedUUID isEqualToString:(id)request.parameters[@"uuid"]]) {
       isFocused = YES;
     }

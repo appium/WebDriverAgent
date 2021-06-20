@@ -18,6 +18,7 @@
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBClassChain.h"
+#import "XCUIElement+FBResolve.h"
 #import "FBXPath.h"
 #import "FBXCodeCompatibility.h"
 
@@ -84,6 +85,16 @@
   XCTAssertEqual(matchingSnapshots.count, 1);
   XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeButton);
   XCTAssertEqualObjects(matchingSnapshots.lastObject.label, @"Alerts");
+}
+
+- (void)testStableInstance
+{
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingIdentifier:@"Alerts" shouldReturnAfterFirstMatch:YES];
+  XCTAssertEqual(matchingSnapshots.count, 1);
+  for (XCUIElement *el in @[matchingSnapshots.lastObject, matchingSnapshots.lastObject.fb_stableInstance]) {
+    XCTAssertEqual(el.elementType, XCUIElementTypeButton);
+    XCTAssertEqualObjects(el.label, @"Alerts");
+  }
 }
 
 - (void)testSingleDescendantWithMissingIdentifier

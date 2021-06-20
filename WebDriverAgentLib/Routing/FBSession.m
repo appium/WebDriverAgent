@@ -99,6 +99,7 @@ static FBSession *_activeSession = nil;
 + (instancetype)initWithApplication:(FBApplication *)application
 {
   FBSession *session = [FBSession new];
+  session.useNativeCachingStrategy = YES;
   session.alertsMonitor = nil;
   session.defaultAlertAction = nil;
   session.elementsVisibilityCache = [NSMutableDictionary dictionary];
