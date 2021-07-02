@@ -41,8 +41,22 @@ async function fetchPrebuiltWebDriverAgentAssets () {
 
   log.info(`Downloading assets to: ${webdriveragentsDir}`);
   const agentsDownloading = [];
+
+  const xcodeVersion = process.env.XCODE_VERSION;
   for (const asset of releases.assets) {
     const url = asset.browser_download_url;
+    if (xcodeVersion) {
+      let hasMatch = false;
+      for (const version of xcodeVersion.split(',')) {
+        if (url.match(new RegExp(`${version}.zip$`))) {
+          hasMatch = true;
+          break;
+        }
+      }
+      if (!hasMatch) {
+        continue;
+      }
+    }
     log.info(`Downloading: ${url}`);
     try {
       const nameOfAgent = _.last(url.split('/'));
