@@ -34,10 +34,10 @@
     [invocation invokeWithTarget:self];
   } else {
     SEL selector = NSSelectorFromString([NSString stringWithFormat:@"swipe%@", direction.lowercaseString.capitalizedString]);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [self performSelector:selector];
-#pragma clang diagnostic pop
+    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    [invocation setSelector:selector];
+    [invocation invokeWithTarget:self];
   }
 }
 

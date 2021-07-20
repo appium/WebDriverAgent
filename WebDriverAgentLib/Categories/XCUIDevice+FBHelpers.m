@@ -176,12 +176,13 @@ static bool fb_isLocked;
              withDescription:@"Siri service is not available on the device under test"]
             buildError:error];
   }
+  SEL selector = NSSelectorFromString(@"activateWithVoiceRecognitionText:");
+  NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setArgument:&text atIndex:2];
   @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [siriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
-                      withObject:text];
-#pragma clang diagnostic pop
+    [invocation invokeWithTarget:siriService];
     return YES;
   } @catch (NSException *e) {
     return [[[FBErrorBuilder builder]

@@ -102,14 +102,19 @@
   [self handleMethod:@"DELETE" withPath:path block:block];
 }
 
-- (void)handleMethod:(NSString *)method withPath:(NSString *)path block:(RequestHandler)block {
+- (void)handleMethod:(NSString *)method
+            withPath:(NSString *)path
+               block:(RequestHandler)block {
   Route *route = [self routeWithPath:path];
   route.handler = block;
   
   [self addRoute:route forMethod:method];
 }
 
-- (void)handleMethod:(NSString *)method withPath:(NSString *)path target:(id)target selector:(SEL)selector {
+- (void)handleMethod:(NSString *)method
+            withPath:(NSString *)path
+              target:(id)target
+            selector:(SEL)selector {
   Route *route = [self routeWithPath:path];
   route.target = target;
   route.selector = selector;
@@ -187,18 +192,28 @@
   return ([routes objectForKey:method] != nil);
 }
 
-- (void)handleRoute:(Route *)route withRequest:(RouteRequest *)request response:(RouteResponse *)response {
+- (void)handleRoute:(Route *)route
+        withRequest:(RouteRequest *)request
+           response:(RouteResponse *)response {
   if (route.handler) {
     route.handler(request, response);
   } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [route.target performSelector:route.selector withObject:request withObject:response];
-#pragma clang diagnostic pop
+    id target = route.target;
+    SEL selector = route.selector;
+    NSMethodSignature *signature = [target methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    [invocation setSelector:selector];
+    [invocation setArgument:&request atIndex:2];
+    [invocation setArgument:&response atIndex:3];
+    [invocation invokeWithTarget:target];
   }
 }
 
-- (RouteResponse *)routeMethod:(NSString *)method withPath:(NSString *)path parameters:(NSDictionary *)params request:(HTTPMessage *)httpMessage connection:(HTTPConnection *)connection {
+- (RouteResponse *)routeMethod:(NSString *)method
+                      withPath:(NSString *)path
+                    parameters:(NSDictionary *)params
+                       request:(HTTPMessage *)httpMessage
+                    connection:(HTTPConnection *)connection {
   NSMutableArray *methodRoutes = [routes objectForKey:method];
   if (methodRoutes == nil)
     return nil;
