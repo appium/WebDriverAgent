@@ -177,7 +177,7 @@ static bool fb_isLocked;
             buildError:error];
   }
   SEL selector = NSSelectorFromString(@"activateWithVoiceRecognitionText:");
-  NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+  NSMethodSignature *signature = [siriService methodSignatureForSelector:selector];
   NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
   [invocation setSelector:selector];
   [invocation setArgument:&text atIndex:2];
