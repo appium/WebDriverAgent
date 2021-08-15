@@ -50,7 +50,6 @@ NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 static NSTimeInterval FBWaitForIdleTimeout = 10.;
 static NSTimeInterval FBAnimationCoolOffTimeout = 2.;
-static BOOL FBHasForceTurnOnSoftwareKeyboard = NO;
 
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
@@ -302,16 +301,8 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
     // Xcode 13 no longer has this method
     [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
   }
-
-  FBHasForceTurnOnSoftwareKeyboard = YES;
 #endif
 }
-
-+ (BOOL)hasForceTurnOnSoftwareKeyboard
-{
-  return FBHasForceTurnOnSoftwareKeyboard;
-}
-
 
 + (FBConfigurationKeyboardPreference)keyboardAutocorrection
 {

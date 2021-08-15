@@ -125,14 +125,9 @@ extern NSString *const FBSnapshotMaxDepthKey;
 
 
 /**
- * Turn on softwar keyboard.
+ * Turn on softwar keyboard forcefully.
  */
 + (void)forceTurnOnSoftwareKeyboard;
-
-/**
- * @return Whether the forceTurnOnSoftwareKeyboard is enabled
- */
-+ (BOOL)hasForceTurnOnSoftwareKeyboard;
 
 /**
 Defines keyboard preference enabled status
