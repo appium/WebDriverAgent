@@ -288,7 +288,7 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   dlclose(handle);
 }
 
-+ (void)forceTurnOnSoftwareKeyboard
++ (void)forceTurnOnSoftwareKeyboardSimulator
 {
 #if TARGET_OS_SIMULATOR
   // Force toggle software keyboard on.
