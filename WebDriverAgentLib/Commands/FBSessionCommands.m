@@ -123,7 +123,8 @@
     FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
 
-  if (nil == capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] || [capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
+  if (nil == capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] ||
+      [capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
     [FBConfiguration forceTurnOnSoftwareKeyboard];
   }
 

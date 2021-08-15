@@ -125,7 +125,7 @@ extern NSString *const FBSnapshotMaxDepthKey;
 
 
 /**
- * Turn on softwar keyboard for simulator
+ * Turn on softwar keyboard.
  */
 + (void)forceTurnOnSoftwareKeyboard;
 
