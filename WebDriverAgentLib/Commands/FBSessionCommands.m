@@ -323,8 +323,9 @@
   if (nil != [settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION]) {
     [FBConfiguration setKeyboardPrediction:[[settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION] boolValue]];
   }
-  if (nil != [settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD]) {
-    [FBConfiguration setKeyboardPrediction:[[settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] &&
+      [[settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
+    [FBConfiguration forceTurnOnSoftwareKeyboard];
   }
   // SNAPSHOT_TIMEOUT setting is deprecated. Please use CUSTOM_SNAPSHOT_TIMEOUT instead
   if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_TIMEOUT]) {
