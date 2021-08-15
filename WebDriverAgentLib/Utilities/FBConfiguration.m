@@ -50,6 +50,7 @@ NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
 static NSMutableDictionary *FBSnapshotRequestParameters;
 static NSTimeInterval FBWaitForIdleTimeout = 10.;
 static NSTimeInterval FBAnimationCoolOffTimeout = 2.;
+static BOOL FBHasForceTurnOnSoftwareKeyboard = NO;
 
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
@@ -252,19 +253,6 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 // Works for Simulator and Real devices
 + (void)configureDefaultKeyboardPreferences
 {
-#if TARGET_OS_SIMULATOR
-  // Force toggle software keyboard on.
-  // This can avoid 'Keyboard is not present' error which can happen
-  // when send_keys are called by client
-  [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
-
-  if ([(NSObject *)[UIKeyboardImpl sharedInstance]
-       respondsToSelector:@selector(setSoftwareKeyboardShownByTouch:)]) {
-    // Xcode 13 no longer has this method
-    [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
-  }
-#endif
-
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
 
   Class controllerClass = NSClassFromString(controllerClassName);
@@ -300,6 +288,30 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 
   dlclose(handle);
 }
+
++ (void)forceTurnOnSoftwareKeyboard
+{
+#if TARGET_OS_SIMULATOR
+  // Force toggle software keyboard on.
+  // This can avoid 'Keyboard is not present' error which can happen
+  // when send_keys are called by client
+  [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
+
+  if ([(NSObject *)[UIKeyboardImpl sharedInstance]
+       respondsToSelector:@selector(setSoftwareKeyboardShownByTouch:)]) {
+    // Xcode 13 no longer has this method
+    [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
+  }
+
+  FBHasForceTurnOnSoftwareKeyboard = YES;
+#endif
+}
+
++ (BOOL)hasForceTurnOnSoftwareKeyboard
+{
+  return FBHasForceTurnOnSoftwareKeyboard;
+}
+
 
 + (FBConfigurationKeyboardPreference)keyboardAutocorrection
 {
