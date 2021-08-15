@@ -123,8 +123,8 @@
     FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
 
-  if (nil == capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] ||
-      [capabilities[FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
+  if (nil == capabilities[FB_CAP_FORCE_TURN_ON_SOFTWARE_KEYBOARD] ||
+      [capabilities[FB_CAP_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
     [FBConfiguration forceTurnOnSoftwareKeyboard];
   }
 
@@ -273,7 +273,6 @@
       FB_SETTING_SCREENSHOT_QUALITY: @([FBConfiguration screenshotQuality]),
       FB_SETTING_KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
       FB_SETTING_KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
-      FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD: @([FBConfiguration hasForceTurnOnSoftwareKeyboard]),
       FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT: @([FBConfiguration customSnapshotTimeout]),
       FB_SETTING_SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
       FB_SETTING_USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
@@ -323,10 +322,6 @@
   }
   if (nil != [settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION]) {
     [FBConfiguration setKeyboardPrediction:[[settings objectForKey:FB_SETTING_KEYBOARD_PREDICTION] boolValue]];
-  }
-  if (nil != [settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] &&
-      [[settings objectForKey:FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD] boolValue]) {
-    [FBConfiguration forceTurnOnSoftwareKeyboard];
   }
   // SNAPSHOT_TIMEOUT setting is deprecated. Please use CUSTOM_SNAPSHOT_TIMEOUT instead
   if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_TIMEOUT]) {

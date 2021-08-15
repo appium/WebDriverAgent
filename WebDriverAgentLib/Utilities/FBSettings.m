@@ -17,7 +17,6 @@ NSString* const FB_SETTING_MJPEG_SCALING_FACTOR = @"mjpegScalingFactor";
 NSString* const FB_SETTING_SCREENSHOT_QUALITY = @"screenshotQuality";
 NSString* const FB_SETTING_KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
 NSString* const FB_SETTING_KEYBOARD_PREDICTION = @"keyboardPrediction";
-NSString* const FB_SETTING_FORCE_TURN_ON_SOFTWARE_KEYBOARD = @"forceTurnOnSoftwareKeyboard";
 NSString* const FB_SETTING_SNAPSHOT_TIMEOUT = @"snapshotTimeout";
 NSString* const FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT = @"customSnapshotTimeout";
 NSString* const FB_SETTING_SNAPSHOT_MAX_DEPTH = @"snapshotMaxDepth";
