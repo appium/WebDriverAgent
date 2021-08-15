@@ -123,9 +123,9 @@
     FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
 
-  if (nil == capabilities[FB_CAP_FORCE_TURN_ON_SOFTWARE_KEYBOARD_SIMULATOR] ||
-      [capabilities[FB_CAP_FORCE_TURN_ON_SOFTWARE_KEYBOARD_SIMULATOR] boolValue]) {
-    [FBConfiguration forceTurnOnSoftwareKeyboardSimulator];
+  if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
+      [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
+    [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
   }
 
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];

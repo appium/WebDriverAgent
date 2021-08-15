@@ -21,4 +21,4 @@ NSString* const FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE = @"shouldWaitForQuiescence";
 NSString* const FB_CAP_ARGUMENTS = @"arguments";
 NSString* const FB_CAP_ENVIRNOMENT = @"environment";
 NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY = @"useNativeCachingStrategy";
-NSString* const FB_CAP_FORCE_TURN_ON_SOFTWARE_KEYBOARD_SIMULATOR = @"forceTurnOnSoftwareKeyboardSimulator";
+NSString* const FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE = @"forceSimulatorSoftwareKeyboardPresence";
