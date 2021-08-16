@@ -25,7 +25,7 @@ jobs:
       displayName: Install Ruby dependencies
     - script: mkdir -p Resources/WebDriverAgent.bundle
       displayName: Make Resources Folder
-    - script: node ./Scripts/build-webdriveragents.js
+    - script: node ./Scripts/build-webdriveragent.js
       displayName: Build WebDriverAgents
     - script: ls ./bundles
       displayName: List WDA Bundles
