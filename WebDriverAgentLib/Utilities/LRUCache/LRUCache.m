@@ -79,6 +79,8 @@
   if (node == self.tailNode) {
     self.tailNode = previousNode;
   }
+  node.prev = nil;
+  node.next = self.headNode;
   self.headNode = node;
   return node;
 }
@@ -115,6 +117,7 @@
     previousHead.prev = newNode;
     newNode.next = previousHead;
   }
+  newNode.prev = nil;
   self.headNode = newNode;
   if (nil == self.tailNode) {
     self.tailNode = newNode;
