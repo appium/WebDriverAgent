@@ -41,6 +41,7 @@
   XCTAssertTrue([cache.allObjects containsObject:@"foo0"]);
   XCTAssertFalse([cache.allObjects containsObject:@"foo2"]);
   [cache setObject:@"foo4" forKey:@"bar4"];
+  XCTAssertEqual(cache.allObjects.count, 2);
   XCTAssertTrue([cache.allObjects containsObject:@"foo4"]);
   XCTAssertTrue([cache.allObjects containsObject:@"foo0"]);
   XCTAssertFalse([cache.allObjects containsObject:@"foo"]);
