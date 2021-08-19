@@ -21,7 +21,6 @@
 @property (nonatomic) NSMutableDictionary *store;
 @property (nonatomic, nullable) LRUCacheNode *headNode;
 @property (nonatomic, nullable) LRUCacheNode *tailNode;
-@property (nonatomic) NSUInteger size;
 @end
 
 @implementation LRUCache
@@ -37,33 +36,25 @@
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key
 {
-  NSAssert(nil != object, @"LRUCache cannot store nil objects");
+  NSAssert(nil != object && nil != key, @"LRUCache cannot store nil objects");
 
   LRUCacheNode *previousNode = self.store[key];
-  LRUCacheNode *newNode = [LRUCacheNode nodeWithValue:object key:key];
-  self.store[key] = newNode;
-  if (nil == previousNode) {
-    ++self.size;
-  }
-  if (previousNode == self.tailNode) {
-    self.tailNode = newNode;
-  }
-  if (previousNode == self.headNode) {
-    self.headNode = newNode;
+  if (nil != previousNode) {
+    [self removeNode:previousNode];
   }
 
-  [self bumpNode:newNode];
-  [self alignSize];
+  LRUCacheNode *newNode = [LRUCacheNode nodeWithValue:object key:key];
+  self.store[key] = newNode;
+  [self putNodeToHead:newNode];
+  if (nil == previousNode) {
+    [self alignSize];
+  }
 }
 
 - (id)objectForKey:(id<NSCopying>)key
 {
   LRUCacheNode *node = self.store[key];
-  if (nil != node) {
-    [self bumpNode:node];
-  }
-
-  return node.value;
+  return [self moveNodeToHead:node].value;
 }
 
 - (NSArray *)allObjects
@@ -71,34 +62,72 @@
   return (NSArray *)[self.store.allValues valueForKeyPath:@"value"];
 }
 
-- (void)bumpNode:(LRUCacheNode *)node
+- (nullable LRUCacheNode *)moveNodeToHead:(nullable LRUCacheNode *)node
 {
-  if (node == self.headNode) {
+  if (nil == node || node == self.headNode) {
+    return node;
+  }
+
+  LRUCacheNode *previousNode = node.prev;
+  if (nil != previousNode) {
+    previousNode.next = node.next;
+  }
+  LRUCacheNode *nextNode = node.next;
+  if (nil != nextNode) {
+    nextNode.prev = node.prev;
+  }
+  if (node == self.tailNode) {
+    self.tailNode = previousNode;
+  }
+  self.headNode = node;
+  return node;
+}
+
+- (void)removeNode:(nullable LRUCacheNode *)node
+{
+  if (nil == node) {
     return;
   }
 
+  if (nil != node.next) {
+    node.next.prev = node.prev;
+  }
+  if (node == self.headNode) {
+    self.headNode = node.next;
+  }
+  if (nil != node.prev) {
+    node.prev.next = node.next;
+  }
   if (node == self.tailNode) {
-    self.tailNode = self.tailNode.prev;
+    self.tailNode = node.prev;
+  }
+  [self.store removeObjectForKey:(id)node.key];
+}
+
+- (void)putNodeToHead:(LRUCacheNode *)node
+{
+  if (nil == node || node == self.headNode) {
+    return;
   }
 
-  self.headNode.prev.next = node.next;
-
-  LRUCacheNode *prevHead = self.headNode;
-  self.headNode = node;
-  self.headNode.next = prevHead;
+  LRUCacheNode *previousHead = self.headNode;
+  if (nil == previousHead) {
+    self.headNode = node;
+  } else {
+    previousHead.prev = node;
+    node.next = previousHead;
+    self.headNode = node;
+  }
+  if (nil == self.tailNode) {
+    self.tailNode = node;
+  }
 }
 
 - (void)alignSize
 {
-  if (self.size <= self.capacity) {
-    return;
+  if (self.store.count > self.capacity && nil != self.tailNode) {
+    [self removeNode:self.tailNode];
   }
-
-  LRUCacheNode *nextTail = self.tailNode.prev;
-  [self.store removeObjectForKey:(id)self.tailNode.key];
-  self.tailNode = nextTail;
-  self.tailNode.next = nil;
-  --self.size;
 }
 
 @end
