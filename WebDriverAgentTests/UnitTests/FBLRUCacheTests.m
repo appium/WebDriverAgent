@@ -55,6 +55,7 @@
   NSUInteger count = 100;
   for (NSUInteger i = 0; i <= count; ++i) {
     [cache setObject:@(i) forKey:@(i)];
+    XCTAssertNotNil([cache objectForKey:@(i)]);
   }
   XCTAssertEqualObjects(@[@(count)], cache.allObjects);
 }
