@@ -45,7 +45,7 @@
 
   LRUCacheNode *newNode = [LRUCacheNode nodeWithValue:object key:key];
   self.store[key] = newNode;
-  [self putNodeToHead:newNode];
+  [self addNodeToHead:newNode];
   if (nil == previousNode) {
     [self alignSize];
   }
@@ -104,22 +104,20 @@
   [self.store removeObjectForKey:(id)node.key];
 }
 
-- (void)putNodeToHead:(LRUCacheNode *)node
+- (void)addNodeToHead:(LRUCacheNode *)newNode
 {
-  if (nil == node || node == self.headNode) {
+  if (nil == newNode || newNode == self.headNode) {
     return;
   }
 
   LRUCacheNode *previousHead = self.headNode;
-  if (nil == previousHead) {
-    self.headNode = node;
-  } else {
-    previousHead.prev = node;
-    node.next = previousHead;
-    self.headNode = node;
+  if (nil != previousHead) {
+    previousHead.prev = newNode;
+    newNode.next = previousHead;
   }
+  self.headNode = newNode;
   if (nil == self.tailNode) {
-    self.tailNode = node;
+    self.tailNode = newNode;
   }
 }
 
