@@ -80,10 +80,11 @@
     self.tailNode = previousNode;
   }
   node.prev = nil;
-  node.next = self.headNode;
+  LRUCacheNode *previousHead = self.headNode;
+  node.next = previousHead;
   self.headNode = node;
   if (nil == self.tailNode) {
-    self.tailNode = self.headNode;
+    self.tailNode = previousHead ?: node;
   }
   return node;
 }
@@ -123,7 +124,7 @@
   newNode.prev = nil;
   self.headNode = newNode;
   if (nil == self.tailNode) {
-    self.tailNode = self.headNode;
+    self.tailNode = previousHead ?: newNode;
   }
 }
 
