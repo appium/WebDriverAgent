@@ -118,8 +118,8 @@
   LRUCacheNode *previousHead = self.headNode;
   if (nil != previousHead) {
     previousHead.prev = node;
-    node.next = previousHead;
   }
+  node.next = previousHead;
   node.prev = nil;
   self.headNode = node;
   if (nil == self.tailNode) {
