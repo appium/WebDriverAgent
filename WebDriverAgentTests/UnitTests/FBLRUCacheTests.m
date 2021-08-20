@@ -16,6 +16,11 @@
 
 @implementation FBLRUCacheTests
 
+- (void)assertArray:(NSArray *)array1 equalsTo:(NSArray *)array2
+{
+  XCTAssertEqualObjects(array1, array2);
+}
+
 - (void)testRecentlyInsertedObjectReplacesTheOldestOne
 {
   LRUCache *cache = [[LRUCache alloc] initWithCapacity:1];
@@ -30,23 +35,54 @@
   LRUCache *cache = [[LRUCache alloc] initWithCapacity:2];
   [cache setObject:@"foo" forKey:@"bar"];
   [cache setObject:@"foo2" forKey:@"bar2"];
+  [self assertArray:@[@"foo2", @"foo"] equalsTo:cache.allObjects];
   XCTAssertNotNil([cache objectForKey:@"bar"]);
+  [self assertArray:@[@"foo", @"foo2"] equalsTo:cache.allObjects];
   [cache setObject:@"foo3" forKey:@"bar3"];
-  XCTAssertTrue([cache.allObjects containsObject:@"foo"]);
-  XCTAssertTrue([cache.allObjects containsObject:@"foo3"]);
-  XCTAssertFalse([cache.allObjects containsObject:@"foo2"]);
+  [self assertArray:@[@"foo3", @"foo"] equalsTo:cache.allObjects];
   [cache setObject:@"foo0" forKey:@"bar"];
-  XCTAssertFalse([cache.allObjects containsObject:@"foo"]);
-  XCTAssertTrue([cache.allObjects containsObject:@"foo3"]);
-  XCTAssertTrue([cache.allObjects containsObject:@"foo0"]);
-  XCTAssertFalse([cache.allObjects containsObject:@"foo2"]);
+  [self assertArray:@[@"foo0", @"foo3"] equalsTo:cache.allObjects];
   [cache setObject:@"foo4" forKey:@"bar4"];
-  XCTAssertEqual(cache.allObjects.count, 2);
-  XCTAssertTrue([cache.allObjects containsObject:@"foo4"]);
-  XCTAssertTrue([cache.allObjects containsObject:@"foo0"]);
-  XCTAssertFalse([cache.allObjects containsObject:@"foo"]);
-  XCTAssertFalse([cache.allObjects containsObject:@"foo2"]);
-  XCTAssertFalse([cache.allObjects containsObject:@"foo3"]);
+  [self assertArray:@[@"foo4", @"foo0"] equalsTo:cache.allObjects];
+}
+
+- (void)testBumpFromHead
+{
+  LRUCache *cache = [[LRUCache alloc] initWithCapacity:3];
+  [cache setObject:@"foo" forKey:@"bar"];
+  [cache setObject:@"foo2" forKey:@"bar2"];
+  [cache setObject:@"foo3" forKey:@"bar3"];
+  XCTAssertNotNil([cache objectForKey:@"bar3"]);
+  [self assertArray:@[@"foo3", @"foo2", @"foo"] equalsTo:cache.allObjects];
+  [cache setObject:@"foo4" forKey:@"bar4"];
+  [cache setObject:@"foo5" forKey:@"bar5"];
+  [self assertArray:@[@"foo5", @"foo4", @"foo3"] equalsTo:cache.allObjects];
+}
+
+- (void)testBumpFromMiddle
+{
+  LRUCache *cache = [[LRUCache alloc] initWithCapacity:3];
+  [cache setObject:@"foo" forKey:@"bar"];
+  [cache setObject:@"foo2" forKey:@"bar2"];
+  [cache setObject:@"foo3" forKey:@"bar3"];
+  XCTAssertNotNil([cache objectForKey:@"bar2"]);
+  [self assertArray:@[@"foo2", @"foo3", @"foo"] equalsTo:cache.allObjects];
+  [cache setObject:@"foo4" forKey:@"bar4"];
+  [cache setObject:@"foo5" forKey:@"bar5"];
+  [self assertArray:@[@"foo5", @"foo4", @"foo2"] equalsTo:cache.allObjects];
+}
+
+- (void)testBumpFromTail
+{
+  LRUCache *cache = [[LRUCache alloc] initWithCapacity:3];
+  [cache setObject:@"foo" forKey:@"bar"];
+  [cache setObject:@"foo2" forKey:@"bar2"];
+  [cache setObject:@"foo3" forKey:@"bar3"];
+  XCTAssertNotNil([cache objectForKey:@"bar3"]);
+  [self assertArray:@[@"foo3", @"foo2", @"foo"] equalsTo:cache.allObjects];
+  [cache setObject:@"foo4" forKey:@"bar4"];
+  [cache setObject:@"foo5" forKey:@"bar5"];
+  [self assertArray:@[@"foo5", @"foo4", @"foo3"] equalsTo:cache.allObjects];
 }
 
 - (void)testInsertionLoop

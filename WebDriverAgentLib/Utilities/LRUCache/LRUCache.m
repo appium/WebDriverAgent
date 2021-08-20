@@ -59,7 +59,13 @@
 
 - (NSArray *)allObjects
 {
-  return (NSArray *)[self.store.allValues valueForKeyPath:@"value"];
+  NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:self.store.count];
+  LRUCacheNode *node = self.headNode;
+  while (node != nil) {
+    [result addObject:node.value];
+    node = node.next;
+  }
+  return result.copy;
 }
 
 - (nullable LRUCacheNode *)moveNodeToHead:(nullable LRUCacheNode *)node
@@ -82,6 +88,7 @@
   node.prev = nil;
   LRUCacheNode *previousHead = self.headNode;
   node.next = previousHead;
+  previousHead.prev = node;
   self.headNode = node;
   if (nil == self.tailNode) {
     self.tailNode = previousHead ?: node;

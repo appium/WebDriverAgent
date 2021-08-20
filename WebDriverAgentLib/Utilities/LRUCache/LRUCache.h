@@ -48,9 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id)objectForKey:(id<NSCopying>)key;
 
 /**
- Retrieves all values from the cache. No bump is performed
+ Retrieves all values from the cache ORDERED by recent bump. No bump is performed
 
- @return Array of all cache values
+ @return Array of all cache values ordred by recent usage (oldest items are at the tail)
  */
 - (NSArray *)allObjects;
 
