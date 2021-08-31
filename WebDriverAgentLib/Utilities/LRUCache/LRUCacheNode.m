@@ -48,12 +48,4 @@
   return [NSString stringWithFormat:@"%@ %@", self.value, self.next];
 }
 
-- (void)setNext:(LRUCacheNode *)next
-{
-  if (_next != next) {
-    _next = next;
-    next.prev = self;
-  }
-}
-
 @end
