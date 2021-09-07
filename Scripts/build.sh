@@ -69,20 +69,19 @@ function xcbuild() {
         output_command=xcpretty
     fi
 
-    XC_BUILD_ARGS="xcodebuild"
-    XC_BUILD_ARGS+=" -project \"WebDriverAgent.xcodeproj\""
-    XC_BUILD_ARGS+=" -scheme \"$XC_TARGET\""
-    XC_BUILD_ARGS+=" -sdk \"$XC_SDK\""
-    XC_BUILD_ARGS+=" $XC_ACTION"
+    XC_BUILD_ARGS=(-project "WebDriverAgent.xcodeproj")
+    XC_BUILD_ARGS+=(-scheme "$XC_TARGET")
+    XC_BUILD_ARGS+=(-sdk "$XC_SDK")
+    XC_BUILD_ARGS+=($XC_ACTION)
     if [[ -n "$XC_DESTINATION" ]]; then
-      XC_BUILD_ARGS+=" -destination \"${XC_DESTINATION}\""
+      XC_BUILD_ARGS+=(-destination "${XC_DESTINATION}")
     fi
     if [[ -n "$DERIVED_DATA_PATH" ]]; then
-      XC_BUILD_ARGS+=" -derivedDataPath ${DERIVED_DATA_PATH}"
+      XC_BUILD_ARGS+=(-derivedDataPath ${DERIVED_DATA_PATH})
     fi
-    XC_BUILD_ARGS+=" $XC_MACROS $EXTRA_XC_ARGS"
+    XC_BUILD_ARGS+=($XC_MACROS $EXTRA_XC_ARGS)
 
-    eval $XC_BUILD_ARGS | $output_command && exit ${PIPESTATUS[0]}
+    xcodebuild "${XC_BUILD_ARGS[@]}" | $output_command && exit ${PIPESTATUS[0]}
 
 }
 
