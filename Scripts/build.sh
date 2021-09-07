@@ -77,8 +77,8 @@ function xcbuild() {
     if [[ -n "$XC_DESTINATION" ]]; then
       XC_BUILD_ARGS+=" -destination \"${XC_DESTINATION}\""
     fi
-    if [[ -n "$XC_DERIVED_DATA_PATH" ]]; then
-      XC_BUILD_ARGS+=" -derivedDataPath ${XC_DERIVED_DATA_PATH}"
+    if [[ -n "$DERIVED_DATA_PATH" ]]; then
+      XC_BUILD_ARGS+=" -derivedDataPath ${DERIVED_DATA_PATH}"
     fi
     XC_BUILD_ARGS+=" $XC_MACROS $EXTRA_XC_ARGS"
 
