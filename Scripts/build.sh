@@ -69,7 +69,7 @@ function xcbuild() {
         output_command=xcpretty
     fi
 
-    XC_BUILD_ARGS=""
+    XC_BUILD_ARGS="-version"
     if [[ -n "$XC_DESTINATION" ]]; then
       XC_BUILD_ARGS+=" -destination ${XC_DESTINATION}"
     fi
