@@ -69,7 +69,7 @@ function xcbuild() {
         output_command=xcpretty
     fi
 
-    XC_EXTRA_ARGS=''
+    XC_EXTRA_ARGS=""
     if [[ -n "$XC_DESTINATION" ]]; then
       XC_EXTRA_ARGS+=" -destination \"$XC_DESTINATION\""
     fi
