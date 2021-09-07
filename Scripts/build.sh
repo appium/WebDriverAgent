@@ -71,10 +71,10 @@ function xcbuild() {
 
     XC_EXTRA_ARGS=""
     if [[ -n "$XC_DESTINATION" ]]; then
-      XC_EXTRA_ARGS+=" -destination \"$XC_DESTINATION\""
+      XC_EXTRA_ARGS+=" -destination ${XC_DESTINATION}"
     fi
     if [[ -n "$XC_DERIVED_DATA_PATH" ]]; then
-      XC_EXTRA_ARGS+=" -derivedDataPath $XC_DERIVED_DATA_PATH"
+      XC_EXTRA_ARGS+=" -derivedDataPath ${XC_DERIVED_DATA_PATH}"
     fi
 
     xcodebuild \
