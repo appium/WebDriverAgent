@@ -107,7 +107,7 @@ inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL 
       } else if ([field isEqualToString:@"text"]) {
         dictionary[field] = FBFirstNonEmptyValue(snapshot.wdValue, snapshot.wdLabel) ?: [NSNull null];
       } else if ([field isEqualToString:@"rect"]) {
-        dictionary[field] = FBwdRectNoInf(snapshot.wdRect);
+        dictionary[field] = snapshot.wdRect;
       } else if ([field isEqualToString:@"enabled"]) {
         dictionary[field] = @(snapshot.wdEnabled);
       } else if ([field isEqualToString:@"displayed"]) {
