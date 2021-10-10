@@ -46,7 +46,7 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   [self.session terminateApplicationWithBundleId:SAFARI_BUNDLE_ID];
 }
 
-- (void)testCanHandleSafariInputPrompt
+- (void)disabled_testCanHandleSafariInputPrompt
 {
   XCUIElement *urlInput = [[self.safariApp descendantsMatchingType:XCUIElementTypeTextField] matchingIdentifier:@"URL"].firstMatch;
   if (!urlInput.exists) {
