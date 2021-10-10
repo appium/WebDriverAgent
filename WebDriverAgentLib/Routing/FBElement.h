@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FBElement <NSObject>
 
-/*! Element's frame in normalized (rounded dimensions without Infinity values) CGRect format*/
+/*! Element's frame in normalized (rounded dimensions without Infinity values) CGRect format */
 @property (nonatomic, readonly, assign) CGRect wdFrame;
 
 /*! Element's wsFrame in NSDictionary format */
