@@ -51,7 +51,8 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   XCUIElement *urlInput = [[self.safariApp
                             descendantsMatchingType:XCUIElementTypeTextField]
                            matchingPredicate:[
-                             NSPredicate predicateWithFormat:@"label == 'Address' or label == 'URL'"]].firstMatch;
+                             NSPredicate predicateWithFormat:@"label == 'Address' or label == 'URL'"
+                           ]].firstMatch;
   if (!urlInput.exists) {
     [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingPredicate:[
       NSPredicate predicateWithFormat:@"label == 'Address' or label == 'URL'"]].firstMatch tap];
