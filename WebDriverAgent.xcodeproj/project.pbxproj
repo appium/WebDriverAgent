@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2930,7 +2930,7 @@
 				};
 			};
 			buildConfigurationList = 91F9DAE41B99DBC2001349B2 /* Build configuration list for PBXProject "WebDriverAgent" */;
-			compatibilityVersion = "Xcode 10.0";
+			compatibilityVersion = "Xcode 11.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (

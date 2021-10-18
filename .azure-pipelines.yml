@@ -1,14 +1,14 @@
 # https://github.com/actions/virtual-environments/tree/main/images/macos
 variables:
-  MIN_VM_IMAGE: macOS-10.14
-  MIN_XCODE_VERSION: 10.2
+  MIN_VM_IMAGE: macOS-10.15
+  MIN_XCODE_VERSION: 11.2.1
   # Xcode 10.0 did not have Apple TV
-  MIN_TV_XCODE_VERSION: 10.2
-  MIN_TV_PLATFORM_VERSION: 12.2
-  MIN_TV_DEVICE_NAME: Apple TV
-  MIN_PLATFORM_VERSION: 12.2
-  MIN_IPHONE_DEVICE_NAME: iPhone X
-  MIN_IPAD_DEVICE_NAME: iPad Air 2
+  MIN_TV_XCODE_VERSION: 11.2.1
+  MIN_TV_PLATFORM_VERSION: 13.2
+  MIN_TV_DEVICE_NAME: Apple TV 4K
+  MIN_PLATFORM_VERSION: 13.2.2
+  MIN_IPHONE_DEVICE_NAME: iPhone 11
+  MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch)
   MAX_VM_IMAGE: macOS-11
   MAX_XCODE_VERSION: 13.0
   MAX_PLATFORM_VERSION: 15.0
@@ -289,6 +289,7 @@ stages:
     parameters:
       name: tvOS_Unit_Test_Min_Xcode
       action: tv_unit_test
+      dest: tv
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
