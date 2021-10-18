@@ -30,7 +30,7 @@
   [self goToSpringBoardFirstPage];
 
   // Check Icons on first screen
-  XCTAssertTrue(self.springboard.icons[@"Calendar"].fb_isVisible);
+  XCTAssertTrue(self.springboard.icons[@"Calendar"].firstMatch.fb_isVisible);
   XCTAssertTrue(self.springboard.icons[@"Reminders"].fb_isVisible);
 
   // Check Icons on second screen screen

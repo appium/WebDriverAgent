@@ -93,7 +93,7 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
   FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
   [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
   [self.testedApplication fb_waitUntilStable];
-  FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].fb_isVisible);
+  FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.fb_isVisible);
 }
 
 - (void)goToSpringBoardExtras
