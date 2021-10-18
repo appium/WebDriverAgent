@@ -289,6 +289,7 @@ stages:
     parameters:
       name: tvOS_Unit_Test_Min_Xcode
       action: tv_unit_test
+      dest: tv
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
