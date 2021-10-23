@@ -112,7 +112,7 @@ describe('utils', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000);
       wdaPort.WebDriverAgentRunner
         .EnvironmentVariables.USE_PORT
-        .should.equal(8000);
+        .should.equal('8000');
     });
 
     it('should return tvos format', function () {
