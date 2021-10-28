@@ -92,6 +92,8 @@
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
+    [[FBRoute POST:@"/wda/keyA"] respondWithTarget:self action:@selector(handleKey:)],
+    [[FBRoute POST:@"/wda/keyAT"] respondWithTarget:self action:@selector(handleKeyViaTemp:)],
     [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
@@ -491,16 +493,44 @@
 {
   NSString *textToType = [request.arguments[@"value"] componentsJoinedByString:@""];
   NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: [FBConfiguration maxTypingFrequency];
-  if (![FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
-                                          timeout:1
-                                            error:nil]) {
-    [FBLogger log:@"The on-screen keyboard seems to not exist. Continuing with typing anyway"];
-  }
+//  if (![FBKeyboard waitUntilVisibleForApplication:request.session.activeApplication
+//                                          timeout:1
+//                                            error:nil]) {
+//    [FBLogger log:@"The on-screen keyboard seems to not exist. Continuing with typing anyway"];
+//  }
   NSError *error;
   if (![FBKeyboard typeText:textToType frequency:frequency error:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
                                                                            traceback:nil]);
   }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleKey:(FBRouteRequest *)request
+{
+  XCUIApplication *application = request.session.activeApplication;
+  
+  NSString *keyToType = request.arguments[@"key"];
+  
+  [application typeText: keyToType];
+  //FBElementCache *elementCache = request.session.elementCache;
+  //XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  //[element typeKey:keyToType modifierFlags:XCUIKeyModifierShift];
+  
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleKeyViaTemp:(FBRouteRequest *)request
+{
+  XCUIApplication *application = request.session.tempApplication;
+  
+  NSString *keyToType = request.arguments[@"key"];
+  
+  [application typeText: keyToType];
+  //FBElementCache *elementCache = request.session.elementCache;
+  //XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  //[element typeKey:keyToType modifierFlags:XCUIKeyModifierShift];
+  
   return FBResponseWithOK();
 }
 

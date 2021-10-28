@@ -30,6 +30,7 @@
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
 #import "FBUnattachedAppLauncher.h"
+#import "sys/utsname.h"
 
 @implementation FBCustomCommands
 
@@ -56,7 +57,14 @@
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
+    [[FBRoute POST:@"/wda/pressButton"].withoutSession respondWithTarget:self action:@selector(handlePressButtonCommand:)],
     [[FBRoute POST:@"/wda/performIoHidEvent"] respondWithTarget:self action:@selector(handlePeformIOHIDEvent:)],
+    [[FBRoute POST:@"/wda/performIoHidEvent"].withoutSession respondWithTarget:self action:@selector(handlePeformIOHIDEvent:)],
+    [[FBRoute POST:@"/wda/tap"] respondWithTarget:self action:@selector(handleDeviceTap:)],
+    [[FBRoute POST:@"/wda/tap"].withoutSession respondWithTarget:self action:@selector(handleDeviceTap:)],
+    [[FBRoute POST:@"/wda/swipe"] respondWithTarget:self action:@selector(handleDeviceSwipe:)],
+    [[FBRoute POST:@"/wda/swipe"].withoutSession respondWithTarget:self action:@selector(handleDeviceSwipe:)],
+    //[[FBRoute POST:@"/wda/key"].withoutSession respondWithTarget:self action:@selector(handleKeyEvent:)],
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
@@ -245,7 +253,7 @@
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_pressButton:(id)request.arguments[@"name"]
                                    forDuration:(NSNumber *)request.arguments[@"duration"]
-                                         error:&error]) {
+                                         error:&error]) {    
     return FBResponseWithUnknownError(error);
   }
   return FBResponseWithOK();
@@ -260,10 +268,52 @@
   return FBResponseWithOK();
 }
 
++ (id <FBResponsePayload>)handleDeviceTap:(FBRouteRequest *)request
+{
+  CGFloat x = [request.arguments[@"x"] doubleValue];
+  CGFloat y = [request.arguments[@"y"] doubleValue];
+  CGFloat duration = [request.arguments[@"duration"] doubleValue];
+  [XCUIDevice.sharedDevice
+    fb_synthTapWithX:x
+    y:y duration:duration];
+    
+  return FBResponseWithOK();
+}
+
++ (id <FBResponsePayload>)handleDeviceSwipe:(FBRouteRequest *)request
+{
+  CGFloat x1 = [request.arguments[@"x1"] doubleValue];
+  CGFloat y1 = [request.arguments[@"y1"] doubleValue];
+  CGFloat x2 = [request.arguments[@"x2"] doubleValue];
+  CGFloat y2 = [request.arguments[@"y2"] doubleValue];
+  CGFloat delay = [request.arguments[@"delay"] doubleValue];
+  [XCUIDevice.sharedDevice
+    fb_synthSwipe:x1
+    y1:y1 x2:x2 y2:y2 delay:delay];
+    
+  return FBResponseWithOK();
+}
+
+// The following is disabled as it was attempting to use key events within
+// mouse events to enter "capital" characters. It doesn't work. Failed attempt.
+// Leaving it here as I may re-enable in the future if I manage to get it to work.
+/*+ (id <FBResponsePayload>)handleKeyEvent:(FBRouteRequest *)request
+{
+  NSString *key = request.arguments[@"key"];
+  //CGFloat y = [request.arguments[@"y"] doubleValue];
+  
+  [XCUIDevice.sharedDevice
+    fb_synthKeyEvent:key
+    modifierFlags:XCUIKeyModifierShift];
+    
+  return FBResponseWithOK();
+}*/
+
 + (id <FBResponsePayload>)handlePeformIOHIDEvent:(FBRouteRequest *)request
 {
   NSNumber *page = request.arguments[@"page"];
   NSNumber *usage = request.arguments[@"usage"];
+  NSNumber *value = request.arguments[@"value"];
   NSNumber *duration = request.arguments[@"duration"];
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_performIOHIDEventWithPage:page.unsignedIntValue
@@ -384,7 +434,7 @@
     @"currentLocale": currentLocale,
     @"timeZone": self.timeZone,
     @"name": UIDevice.currentDevice.name,
-    @"model": UIDevice.currentDevice.model,
+   @"model": UIDevice.currentDevice.model,
     @"uuid": [UIDevice.currentDevice.identifierForVendor UUIDString] ?: @"unknown",
     // https://developer.apple.com/documentation/uikit/uiuserinterfaceidiom?language=objc
     @"userInterfaceIdiom": @(UIDevice.currentDevice.userInterfaceIdiom),

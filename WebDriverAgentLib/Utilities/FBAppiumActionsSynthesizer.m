@@ -438,20 +438,21 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
       [result addObject:touchItem];
       continue;
     }
-    id origin = FBExtractElement(options);
-    XCUIElement *element;
-    if ([origin isKindOfClass:XCUIElement.class]) {
-      element = origin;
-    } else if ([origin isKindOfClass:NSString.class]) {
-      element = [self.elementCache elementForUUID:(NSString *)origin];
-    } else {
-      [result addObject:touchItem];
-      continue;
-    }
-    NSMutableDictionary<NSString *, id> *processedItem = touchItem.mutableCopy;
-    [processedItem setObject:FBInsertElement(FBCleanupElements(options), element)
-                      forKey:FB_OPTIONS_KEY];
-    [result addObject:processedItem.copy];
+//    id origin = FBExtractElement(options);
+//    XCUIElement *element;
+//    if ([origin isKindOfClass:XCUIElement.class]) {
+//      element = origin;
+//    } else if ([origin isKindOfClass:NSString.class]) {
+//      element = [self.elementCache elementForUUID:(NSString *)origin];
+//    } else {
+//      [result addObject:touchItem];
+//      continue;
+//    }
+    [result addObject:touchItem];
+//    NSMutableDictionary<NSString *, id> *processedItem = touchItem.mutableCopy;
+//    [processedItem setObject:FBInsertElement(FBCleanupElements(options), element)
+//                      forKey:FB_OPTIONS_KEY];
+//    [result addObject:processedItem.copy];
   }
   return [[result reverseObjectEnumerator] allObjects];
 }
@@ -497,7 +498,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
     
     FBAppiumGestureItem *gestureItem = nil;
     if ([gestureItemClass hasAbsolutePositioning]) {
-      gestureItem = [[gestureItemClass alloc] initWithActionItem:actionItem application:self.application atPosition:nil offset:chain.durationOffset error:error];
+      gestureItem = [[gestureItemClass alloc] initWithActionItem:actionItem application:nil atPosition:nil offset:chain.durationOffset error:error];
       isAbsoluteTouchPositionSet = YES;
     } else {
       if (!isAbsoluteTouchPositionSet) {
@@ -508,7 +509,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
         return nil;
       }
       FBAppiumGestureItem *lastItem = [chain.items lastObject];
-      gestureItem = [[gestureItemClass alloc] initWithActionItem:actionItem application:self.application atPosition:[NSValue valueWithCGPoint:lastItem.atPosition] offset:chain.durationOffset error:error];
+      gestureItem = [[gestureItemClass alloc] initWithActionItem:actionItem application:nil atPosition:[NSValue valueWithCGPoint:lastItem.atPosition] offset:chain.durationOffset error:error];
     }
     if (nil == gestureItem) {
       return nil;

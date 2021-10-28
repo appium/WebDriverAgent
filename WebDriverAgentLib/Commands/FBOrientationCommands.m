@@ -174,7 +174,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
       FBWDOrientationValues.portrait : FBWDOrientationValues.portrait,
       FBWDOrientationValues.portraitUpsideDown : FBWDOrientationValues.portrait,
       FBWDOrientationValues.landscapeLeft : FBWDOrientationValues.landscapeLeft,
-      FBWDOrientationValues.landscapeRight : FBWDOrientationValues.landscapeLeft,
+      FBWDOrientationValues.landscapeRight : FBWDOrientationValues.landscapeRight,
       };
   });
   return orientationMap;

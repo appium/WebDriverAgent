@@ -64,7 +64,7 @@
                                             error:error]) {
     return NO;
   }
-  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+//  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   return YES;
 }
 

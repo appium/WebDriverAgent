@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Application tested during that session */
 @property (nonatomic, strong, readonly) FBApplication *activeApplication;
 
+@property (nonatomic) FBApplication *tempApplication;
+
 /*! Session's identifier */
 @property (nonatomic, copy, readonly) NSString *identifier;
 

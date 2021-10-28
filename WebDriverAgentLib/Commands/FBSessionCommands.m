@@ -54,11 +54,19 @@
     // Settings endpoints
     [[FBRoute GET:@"/appium/settings"] respondWithTarget:self action:@selector(handleGetSettings:)],
     [[FBRoute POST:@"/appium/settings"] respondWithTarget:self action:@selector(handleSetSettings:)],
+    [[FBRoute GET:@"/updateApplication"] respondWithTarget:self action:@selector(updateApplication:)],
   ];
 }
 
 
 #pragma mark - Commands
+
+
++ (id<FBResponsePayload>)updateApplication:(FBRouteRequest *)request
+{
+  request.session.tempApplication = request.session.activeApplication;
+  return FBResponseWithOK();
+}
 
 + (id<FBResponsePayload>)handleOpenURL:(FBRouteRequest *)request
 {
