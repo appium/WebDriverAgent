@@ -30,5 +30,12 @@
     app = FBApplication.fb_systemApplication;
     expectVisibleBar = NO;
   }
+
+  XCUIElement *mainStatusBar = app.statusBars.fb_firstMatch;
+  if (!mainStatusBar || (expectVisibleBar && !mainStatusBar.fb_isVisible)) {
+    return CGSizeZero;
+  }
+  return mainStatusBar.frame.size;
+  
 }
 @end
