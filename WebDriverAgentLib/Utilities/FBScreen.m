@@ -30,9 +30,5 @@
     app = FBApplication.fb_systemApplication;
     expectVisibleBar = NO;
   }
-
-Chrome Remote Desktop
-
 }
-
 @end
