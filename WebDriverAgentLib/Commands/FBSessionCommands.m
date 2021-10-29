@@ -420,7 +420,8 @@
   @{
     @"device": ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) ? @"ipad" : @"iphone",
     @"sdkVersion": [[UIDevice currentDevice] systemVersion],
-    @"browserName": application.label ?: [NSNull null],
+    // @"browserName": application.label ?: [NSNull null],
+     @"browserName":  [NSNull null],
     @"CFBundleIdentifier": application.bundleID ?: [NSNull null],
   };
 }

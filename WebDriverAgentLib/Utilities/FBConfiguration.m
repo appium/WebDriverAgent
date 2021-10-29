@@ -39,7 +39,7 @@ static NSUInteger FBMjpegServerFramerate = 10;
 static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSTimeInterval FBCustomSnapshotTimeout = 15.;
-static BOOL FBShouldUseFirstMatch = NO;
+static BOOL FBShouldUseFirstMatch = YES;
 static BOOL FBShouldBoundElementsByIndex = NO;
 // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
 // (it always errors with kxIllegalArgument error)

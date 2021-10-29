@@ -56,6 +56,7 @@
   return
   @[
     [[FBRoute GET:@"/window/size"] respondWithTarget:self action:@selector(handleGetWindowSize:)],
+    [[FBRoute GET:@"/window/size"].withoutSession respondWithTarget:self action:@selector(handleGetWindowSizeWithNoSession:)],
     [[FBRoute GET:@"/element/:uuid/enabled"] respondWithTarget:self action:@selector(handleGetEnabled:)],
     [[FBRoute GET:@"/element/:uuid/rect"] respondWithTarget:self action:@selector(handleGetRect:)],
     [[FBRoute GET:@"/element/:uuid/attribute/:name"] respondWithTarget:self action:@selector(handleGetAttribute:)],
@@ -547,6 +548,15 @@
     @"height": @(screenSize.height),
   });
 }
+
++ (id<FBResponsePayload>)handleGetWindowSizeWithNoSession:(FBRouteRequest *)request
+  {
+    CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    return FBResponseWithObject(@{
+      @"width": @(screenSize.width),
+      @"height": @(screenSize.height),
+    });
+  }
 
 + (id<FBResponsePayload>)handleElementScreenshot:(FBRouteRequest *)request
 {
