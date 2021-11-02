@@ -17,6 +17,7 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
 #import "XCTestConfiguration.h"
+#import "XCUIApplication+FBUIInterruptions.h"
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
@@ -72,6 +73,11 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (void)disableRemoteQueryEvaluation
 {
   [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"XCTDisableRemoteQueryEvaluation"];
+}
+
++ (void)disableApplicationUIInterruptionsHandling
+{
+  [XCUIApplication fb_disableUIInterruptionsHandling];
 }
 
 + (void)enableXcTestDebugLogs

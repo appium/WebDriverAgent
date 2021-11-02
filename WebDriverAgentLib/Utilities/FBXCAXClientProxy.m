@@ -13,9 +13,10 @@
 
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBMacros.h"
+#import "FBReflectionUtils.h"
 #import "XCAXClient_iOS.h"
 #import "XCUIDevice.h"
-#import "FBMacros.h"
 
 static id FBAXClient = nil;
 
@@ -31,51 +32,13 @@ static id FBAXClient = nil;
   return FBConfiguration.snapshotRequestParameters;
 }
 
-- (NSArray *)fb_interruptingUIElementsAffectingSnapshot:(XCElementSnapshot *)arg1
-                                 checkForHandledElement:(XCAccessibilityElement *)arg2
-                                 containsHandledElement:(_Bool *)arg3
-{
-  return @[];
-}
-
-+ (void)fb_replaceMethodWithSelector:(SEL)originalSelector
-                byMethodWithSelector:(SEL)swizzledSelector
-{
-  Class class = [self class];
-
-  Method originalMethod = class_getInstanceMethod(class, originalSelector);
-  Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-
-  BOOL didAddMethod =
-  class_addMethod(class,
-                  originalSelector,
-                  method_getImplementation(swizzledMethod),
-                  method_getTypeEncoding(swizzledMethod));
-
-  if (didAddMethod) {
-    class_replaceMethod(class,
-                        swizzledSelector,
-                        method_getImplementation(originalMethod),
-                        method_getTypeEncoding(originalMethod));
-  } else {
-    method_exchangeImplementations(originalMethod, swizzledMethod);
-  }
-}
-
 + (void)load
 {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     SEL originalParametersSelector = @selector(defaultParameters);
     SEL swizzledParametersSelector = @selector(fb_getParametersForElementSnapshot);
-    [self fb_replaceMethodWithSelector:originalParametersSelector
-                  byMethodWithSelector:swizzledParametersSelector];
-
-    // A workaround for https://github.com/appium/appium/issues/16025
-    SEL originalInterruptingUIElementsSelector = @selector(interruptingUIElementsAffectingSnapshot:checkForHandledElement:containsHandledElement:);
-    SEL swizzledInterruptingUIElementsSelector = @selector(fb_interruptingUIElementsAffectingSnapshot:checkForHandledElement:containsHandledElement:);
-    [self fb_replaceMethodWithSelector:originalInterruptingUIElementsSelector
-                  byMethodWithSelector:swizzledInterruptingUIElementsSelector];
+    FBReplaceMethod([self class], originalParametersSelector, swizzledParametersSelector);
   });
 }
 
