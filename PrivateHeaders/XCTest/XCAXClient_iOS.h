@@ -58,6 +58,7 @@
 - (id)snapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
 // Since Xcode 11
 - (id)requestSnapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
+- (NSArray *)interruptingUIElementsAffectingSnapshot:(XCElementSnapshot *)arg1 checkForHandledElement:(XCAccessibilityElement *)arg2 containsHandledElement:(_Bool *)arg3;
 
 - (id)init;
 

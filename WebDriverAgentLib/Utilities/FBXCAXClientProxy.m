@@ -31,32 +31,51 @@ static id FBAXClient = nil;
   return FBConfiguration.snapshotRequestParameters;
 }
 
+- (NSArray *)fb_interruptingUIElementsAffectingSnapshot:(XCElementSnapshot *)arg1
+                                 checkForHandledElement:(XCAccessibilityElement *)arg2
+                                 containsHandledElement:(_Bool *)arg3
+{
+  return @[];
+}
+
++ (void)fb_replaceMethodWithSelector:(SEL)originalSelector
+                byMethodWithSelector:(SEL)swizzledSelector
+{
+  Class class = [self class];
+
+  Method originalMethod = class_getInstanceMethod(class, originalSelector);
+  Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+
+  BOOL didAddMethod =
+  class_addMethod(class,
+                  originalSelector,
+                  method_getImplementation(swizzledMethod),
+                  method_getTypeEncoding(swizzledMethod));
+
+  if (didAddMethod) {
+    class_replaceMethod(class,
+                        swizzledSelector,
+                        method_getImplementation(originalMethod),
+                        method_getTypeEncoding(originalMethod));
+  } else {
+    method_exchangeImplementations(originalMethod, swizzledMethod);
+  }
+}
+
 + (void)load
 {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-      Class class = [self class];
+    SEL originalParametersSelector = @selector(defaultParameters);
+    SEL swizzledParametersSelector = @selector(fb_getParametersForElementSnapshot);
+    [self fb_replaceMethodWithSelector:originalParametersSelector
+                  byMethodWithSelector:swizzledParametersSelector];
 
-      SEL originalSelector = @selector(defaultParameters);
-      SEL swizzledSelector = @selector(fb_getParametersForElementSnapshot);
-
-      Method originalMethod = class_getInstanceMethod(class, originalSelector);
-      Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-
-      BOOL didAddMethod =
-          class_addMethod(class,
-              originalSelector,
-              method_getImplementation(swizzledMethod),
-              method_getTypeEncoding(swizzledMethod));
-
-      if (didAddMethod) {
-          class_replaceMethod(class,
-              swizzledSelector,
-              method_getImplementation(originalMethod),
-              method_getTypeEncoding(originalMethod));
-      } else {
-          method_exchangeImplementations(originalMethod, swizzledMethod);
-      }
+    // A workaround for https://github.com/appium/appium/issues/16025
+    SEL originalInterruptingUIElementsSelector = @selector(interruptingUIElementsAffectingSnapshot:checkForHandledElement:containsHandledElement:);
+    SEL swizzledInterruptingUIElementsSelector = @selector(fb_interruptingUIElementsAffectingSnapshot:checkForHandledElement:containsHandledElement:);
+    [self fb_replaceMethodWithSelector:originalInterruptingUIElementsSelector
+                  byMethodWithSelector:swizzledInterruptingUIElementsSelector];
   });
 }
 
