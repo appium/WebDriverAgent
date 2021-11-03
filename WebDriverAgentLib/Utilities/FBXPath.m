@@ -442,7 +442,8 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
     // Skip the attribute if the value equals to nil
     return 0;
   }
-  xmlChar *xmlValue = [self xmlCharPtrForInput:[value cStringUsingEncoding:NSUTF8StringEncoding]];
+  xmlChar *xmlValue = [self xmlCharPtrForInput:[[FBXPath safeXmlStringWithString:value]
+                                                cStringUsingEncoding:NSUTF8StringEncoding]];
   if (0 == xmlValue) {
     // Skip if we cannot convert the value to a XML string
     return 0;
