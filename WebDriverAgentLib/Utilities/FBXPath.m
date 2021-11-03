@@ -407,34 +407,6 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
   @throw [NSException exceptionWithName:FBAbstractMethodInvocationException reason:errMsg userInfo:nil];
 }
 
-+ (xmlChar *)xmlCharPtrForInput:(const char *)input
-{
-  if (input == 0) return 0;
-
-  static dispatch_once_t onceToken;
-  static xmlCharEncodingHandlerPtr handler;
-  dispatch_once(&onceToken, ^{
-    handler = xmlFindCharEncodingHandler("UTF-8");
-  });
-  if (!handler) return 0;
-
-  int size = (int) strlen(input) + 1;
-  int outputSize = size * 2 - 1;
-  xmlChar *output = (unsigned char *) xmlMalloc((size_t) outputSize);
-  if (output != 0) {
-    int temp = size - 1;
-    int ret = handler->input(output, &outputSize, (const xmlChar *) input, &temp);
-    if ((ret < 0) || (temp - size + 1)) {
-      xmlFree(output);
-      output = 0;
-    } else {
-      output = (unsigned char *) xmlRealloc(output, outputSize + 1);
-      output[outputSize] = 0;  //null terminating out
-    }
-  }
-  return output;
-}
-
 + (int)recordWithWriter:(xmlTextWriterPtr)writer forElement:(id<FBElement>)element
 {
   NSString *value = [self valueForElement:element];
@@ -442,16 +414,9 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
     // Skip the attribute if the value equals to nil
     return 0;
   }
-  xmlChar *xmlValue = [self xmlCharPtrForInput:[[FBXPath safeXmlStringWithString:value]
-                                                cStringUsingEncoding:NSUTF8StringEncoding]];
-  if (0 == xmlValue) {
-    // Skip if we cannot convert the value to a XML string
-    return 0;
-  }
   int rc = xmlTextWriterWriteAttribute(writer,
                                        (xmlChar *)[[FBXPath safeXmlStringWithString:[self name]] UTF8String],
-                                       xmlValue);
-  xmlFree(xmlValue);
+                                       (xmlChar *)[[FBXPath safeXmlStringWithString:value] UTF8String]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterWriteAttribute(%@='%@'). Error code: %d", [self name], value, rc];
   }
