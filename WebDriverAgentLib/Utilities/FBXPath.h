@@ -27,6 +27,8 @@
 #pragma clang diagnostic pop
 #endif
 
+@class FBXMLGenerationOptions;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FBXPath : NSObject
@@ -47,12 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
  representation, which is used for XPath search
  
  @param root the root element
- @param excludedAttributes the list of attribute names to exclude from the resulting document.
- Passing nil means all the available attributes should be included
+ @param options Optional values that affect the resulting XML creation process
  @return valid XML document as string or nil in case of failure
  */
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
-                            excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes;
+                                        options:(nullable FBXMLGenerationOptions *)options;
 
 @end
 

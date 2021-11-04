@@ -28,18 +28,24 @@
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int buffersize;
   xmlChar *xmlbuff;
-  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)element
-                                              writer:writer
-                                        elementStore:elementStore
-                                               query:query
-                                 excludingAttributes:excludedAttributes];
-  if (0 == rc) {
+  int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
+  if (rc >= 0) {
+    rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)element
+                                                writer:writer
+                                          elementStore:elementStore
+                                                 query:query
+                                   excludingAttributes:excludedAttributes];
+    if (rc >= 0) {
+      rc = xmlTextWriterEndDocument(writer);
+    }
+  }
+  if (rc >= 0) {
     xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
   }
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);
   
-  XCTAssertEqual(rc, 0);
+  XCTAssertTrue(rc >= 0);
   XCTAssertEqual(1, [elementStore count]);
 
   NSString *result = [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
@@ -100,15 +106,21 @@
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   XCUIElementDouble *root = [XCUIElementDouble new];
   NSString *query = [NSString stringWithFormat:@"//%@", root.wdType];
-  int rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)root
-                                              writer:writer
-                                        elementStore:elementStore
-                                               query:query
-                                 excludingAttributes:nil];
+  int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
+  if (rc >= 0) {
+    rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)root
+                                            writer:writer
+                                      elementStore:elementStore
+                                             query:query
+                               excludingAttributes:nil];
+    if (rc >= 0) {
+      rc = xmlTextWriterEndDocument(writer);
+    }
+  }
   if (rc < 0) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
-    XCTAssertEqual(rc, 0);
+    XCTFail(@"Unable to create the source XML document");
   }
 
   xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc];

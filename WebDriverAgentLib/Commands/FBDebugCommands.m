@@ -12,6 +12,7 @@
 #import "FBApplication.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
+#import "FBXMLGenerationOptions.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBUtilities.h"
 #import "FBXPath.h"
@@ -43,14 +44,16 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
   // This method might be called without session
   FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *sourceType = request.parameters[@"format"] ?: SOURCE_FORMAT_XML;
+  NSString *sourceScope = request.parameters[@"scope"];
   id result;
   if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_XML] == NSOrderedSame) {
     NSArray<NSString *> *excludedAttributes = nil == request.parameters[@"excluded_attributes"]
       ? nil
       : [request.parameters[@"excluded_attributes"] componentsSeparatedByString:@","];
-    result = nil == excludedAttributes
-      ? application.fb_xmlRepresentation
-      : [application fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes];
+    result = [application fb_xmlRepresentationWithOptions:
+        [[[FBXMLGenerationOptions new]
+          withExcludedAttributes:excludedAttributes]
+         withScope:sourceScope]];
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_JSON] == NSOrderedSame) {
     result = application.fb_tree;
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_DESCRIPTION] == NSOrderedSame) {
