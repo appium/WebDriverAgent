@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "3.14.0",
+  "version": "3.16.0",
   "description": "Package bundling WebDriverAgent",
   "main": "build/index.js",
   "scripts": {
@@ -54,7 +54,7 @@
     "ios-uicatalog": "^3.5.0",
     "mocha": "^9.0.0",
     "pre-commit": "^1.2.2",
-    "sinon": "^11.0.0",
+    "sinon": "^12.0.0",
     "wd": "^1.11.4"
   },
   "dependencies": {

@@ -29,6 +29,7 @@
   dispatch_once(&onceToken, ^{
     [self launchApplication];
     [self goToAlertsPage];
+    [FBConfiguration disableApplicationUIInterruptionsHandling];
   });
   [self clearAlert];
 }

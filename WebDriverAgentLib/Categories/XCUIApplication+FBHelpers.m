@@ -20,6 +20,7 @@
 #import "FBXPath.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "FBXCAXClientProxy.h"
+#import "FBXMLGenerationOptions.h"
 #import "XCAccessibilityElement.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
@@ -180,15 +181,12 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSString *)fb_xmlRepresentation
 {
-  return [FBXPath xmlStringWithRootElement:self excludingAttributes:nil];
+  return [self fb_xmlRepresentationWithOptions:nil];
 }
 
-- (NSString *)fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes
+- (NSString *)fb_xmlRepresentationWithOptions:(FBXMLGenerationOptions *)options
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-  return [FBXPath xmlStringWithRootElement:self excludingAttributes:excludedAttributes];
-#pragma clang diagnostic pop
+  return [FBXPath xmlStringWithRootElement:self options:options];
 }
 
 - (NSString *)fb_descriptionRepresentation

@@ -13,9 +13,10 @@
 
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBMacros.h"
+#import "FBReflectionUtils.h"
 #import "XCAXClient_iOS.h"
 #import "XCUIDevice.h"
-#import "FBMacros.h"
 
 static id FBAXClient = nil;
 
@@ -35,28 +36,9 @@ static id FBAXClient = nil;
 {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-      Class class = [self class];
-
-      SEL originalSelector = @selector(defaultParameters);
-      SEL swizzledSelector = @selector(fb_getParametersForElementSnapshot);
-
-      Method originalMethod = class_getInstanceMethod(class, originalSelector);
-      Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-
-      BOOL didAddMethod =
-          class_addMethod(class,
-              originalSelector,
-              method_getImplementation(swizzledMethod),
-              method_getTypeEncoding(swizzledMethod));
-
-      if (didAddMethod) {
-          class_replaceMethod(class,
-              swizzledSelector,
-              method_getImplementation(originalMethod),
-              method_getTypeEncoding(originalMethod));
-      } else {
-          method_exchangeImplementations(originalMethod, swizzledMethod);
-      }
+    SEL originalParametersSelector = @selector(defaultParameters);
+    SEL swizzledParametersSelector = @selector(fb_getParametersForElementSnapshot);
+    FBReplaceMethod([self class], originalParametersSelector, swizzledParametersSelector);
   });
 }
 
