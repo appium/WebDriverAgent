@@ -27,9 +27,17 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     [self launchApplication];
-    [self goToScrollPageWithCells:YES];
-    self.scrollView = [[self.testedApplication.query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"scrollView"].element;
   });
+  [self goToScrollPageWithCells:YES];
+  self.scrollView = [[self.testedApplication.query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"scrollView"].element;
+}
+
+- (void)tearDown
+{
+  // Move to top page once to reset the scroll place
+  // since iOS 15 seems cannot handle cell visibility well when the view keps the view
+  [[[[self.testedApplication.query descendantsMatchingType:XCUIElementTypeStaticText] matchingIdentifier:@"Back"] element] tap];
+  [[[[self.testedApplication.query descendantsMatchingType:XCUIElementTypeStaticText] matchingIdentifier:@"Back"] element] tap];
 }
 
 - (void)testSwipeUp
