@@ -19,10 +19,10 @@
 
 - (BOOL)fb_tapWithError:(NSError **)error
 {
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
-    [self tap];
-    return YES;
-  }
+//  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
+//    [self tap];
+//    return YES;
+//  }
 
   NSArray<NSDictionary<NSString *, id> *> *tapGesture =
   @[
