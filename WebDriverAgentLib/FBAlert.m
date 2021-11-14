@@ -221,7 +221,7 @@
   }
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [self.alertElement.fb_query
-                                       descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
+                                       descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
     dismissButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
       ? buttons.firstObject
       : buttons.lastObject;
