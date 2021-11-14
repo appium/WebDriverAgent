@@ -22,14 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_tapWithError:(NSError **)error;
 
 /**
- Waits for element to become stable (not move) and performs sync tap on element with its coordinate.
-
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
-*/
-- (BOOL)fb_tapCoordinateWithError:(NSError **)error;
-
-/**
  Waits for element to become stable (not move) and performs sync tap on element
 
  @param relativeCoordinate hit point coordinate relative to the current element position

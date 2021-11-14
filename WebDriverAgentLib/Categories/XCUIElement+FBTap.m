@@ -24,11 +24,6 @@
     return YES;
   }
 
-  return [self fb_tapCoordinateWithError:error];
-}
-
-- (BOOL)fb_tapCoordinateWithError:(NSError **)error
-{
   NSArray<NSDictionary<NSString *, id> *> *tapGesture =
   @[
     @{@"action": @"tap",
