@@ -19,11 +19,16 @@
 
 - (BOOL)fb_tapWithError:(NSError **)error
 {
-//  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
-//    [self tap];
-//    return YES;
-//  }
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
+    [self tap];
+    return YES;
+  }
 
+  return [self fb_tapCoordinateWithError:error];
+}
+
+- (BOOL)fb_tapCoordinateWithError:(NSError **)error
+{
   NSArray<NSDictionary<NSString *, id> *> *tapGesture =
   @[
     @{@"action": @"tap",

@@ -191,7 +191,7 @@
     ? [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find accept button for alert: %@", self.alertElement]
      buildError:error]
-    : [acceptButton fb_tapWithError:error];
+    : [acceptButton fb_tapCoordinateWithError:error];
 }
 
 - (BOOL)dismissWithError:(NSError **)error
@@ -221,16 +221,17 @@
   }
   if (nil == dismissButton) {
     NSArray<XCUIElement *> *buttons = [self.alertElement.fb_query
-                                       descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+                                       descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByAccessibilityElement;
     dismissButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
       ? buttons.firstObject
       : buttons.lastObject;
   }
+
   return nil == dismissButton
     ? [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find dismiss button for alert: %@", self.alertElement]
      buildError:error]
-    : [dismissButton fb_tapWithError:error];
+    : [dismissButton fb_tapCoordinateWithError:error];
 }
 
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error
