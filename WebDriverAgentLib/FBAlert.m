@@ -191,7 +191,7 @@
     ? [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find accept button for alert: %@", self.alertElement]
      buildError:error]
-    : [acceptButton fb_tapCoordinateWithError:error];
+    : [acceptButton fb_tapWithError:error];
 }
 
 - (BOOL)dismissWithError:(NSError **)error
@@ -231,7 +231,7 @@
     ? [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find dismiss button for alert: %@", self.alertElement]
      buildError:error]
-    : [dismissButton fb_tapCoordinateWithError:error];
+    : [dismissButton fb_tapWithError:error];
 }
 
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error
