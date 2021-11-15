@@ -17,27 +17,38 @@
 
 @interface FBElementSwipingTests : FBIntegrationTestCase
 @property (nonatomic, strong) XCUIElement *scrollView;
+- (void)openScrollView;
 @end
 
 @implementation FBElementSwipingTests
 
-- (void)setUp
+- (void)openScrollView
 {
-  [super setUp];
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self launchApplication];
-  });
+  [self launchApplication];
   [self goToScrollPageWithCells:YES];
   self.scrollView = [[self.testedApplication.query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:@"scrollView"].element;
 }
 
+- (void)setUp
+{
+  [super setUp];
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    [self openScrollView];
+  } else {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      [self openScrollView];
+    });
+  }
+}
+
 - (void)tearDown
 {
-  // Move to top page once to reset the scroll place
-  // since iOS 15 seems cannot handle cell visibility well when the view keps the view
-  [[[[self.testedApplication.query descendantsMatchingType:XCUIElementTypeStaticText] matchingIdentifier:@"Back"] element] tap];
-  [[[[self.testedApplication.query descendantsMatchingType:XCUIElementTypeStaticText] matchingIdentifier:@"Back"] element] tap];
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // Move to top page once to reset the scroll place
+    // since iOS 15 seems cannot handle cell visibility well when the view keps the view
+    [self.testedApplication terminate];
+  }
 }
 
 - (void)testSwipeUp
