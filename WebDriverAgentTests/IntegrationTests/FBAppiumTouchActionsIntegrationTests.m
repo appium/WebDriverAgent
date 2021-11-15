@@ -209,7 +209,8 @@
 - (void)testPress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    XCTSkip(@"does not work on 15");
+    // "does not work on 15". Skip for now.
+    return;
   }
 
   NSArray<NSDictionary<NSString *, id> *> *gesture =
@@ -276,7 +277,8 @@
 - (void)testForcePress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    XCTSkip(@"does not work on iOS 15 for now");
+    // "does not work on 15". Skip for now.
+    return;
   }
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
