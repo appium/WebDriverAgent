@@ -51,6 +51,9 @@
   XCTAssertTrue(image.size.width > image.size.height);
 
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  // The 'button.screenshot.image' had a white image while 'image' had
+  // expected FBShowAlertButtonName area image.
+  // It seems native XCTest element screenshot has an issue on iPad.
   UIImage *buttonScreenshot = button.screenshot.image;
   XCTAssertEqualWithAccuracy(buttonScreenshot.size.height * mainScreen.scale,
                              image.size.height,
