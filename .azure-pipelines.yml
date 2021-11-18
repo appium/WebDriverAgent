@@ -303,12 +303,9 @@ stages:
 
   - job: Node_Integration_Tests
     variables:
-      # XCODE_VERSION: $(MAX_XCODE_VERSION)
-      # DEVICE_NAME: $(MAX_IPHONE_DEVICE_NAME)
-      # PLATFORM_VERSION: $(MAX_PLATFORM_VERSION)
-      XCODE_VERSION: 11.7
-      DEVICE_NAME: iPhone 11 Pro Max
-      PLATFORM_VERSION: 13.7
+      XCODE_VERSION: $(MAX_XCODE_VERSION)
+      DEVICE_NAME: $(MAX_IPHONE_DEVICE_NAME)
+      PLATFORM_VERSION: $(MAX_PLATFORM_VERSION)
     steps:
     - template: azure-templates/node_setup_steps.yml
     - script: npm install
