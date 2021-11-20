@@ -315,26 +315,6 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeLeft];
 }
 
-- (void)testLongPressWithCombinedPause
-{
-  NSArray<NSDictionary<NSString *, id> *> *gesture =
-  @[@{
-      @"type": @"pointer",
-      @"id": @"finger1",
-      @"parameters": @{@"pointerType": @"touch"},
-      @"actions": @[
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.testedApplication.buttons[FBShowAlertButtonName], @"x": @5, @"y": @5},
-          @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @200},
-          @{@"type": @"pause", @"duration": @200},
-          @{@"type": @"pause", @"duration": @100},
-          @{@"type": @"pointerUp"},
-          ],
-      },
-    ];
-  [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeRight];
-}
-
 - (void)testLongPress
 {
   UIDeviceOrientation orientation = UIDeviceOrientationLandscapeLeft;
