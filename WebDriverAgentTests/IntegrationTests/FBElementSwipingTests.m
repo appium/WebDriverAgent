@@ -74,3 +74,49 @@
 }
 
 @end
+
+@interface FBElementSwipingApplicationTests : FBIntegrationTestCase
+@property (nonatomic, strong) XCUIElement *scrollView;
+- (void)openScrollView;
+@end
+
+@implementation FBElementSwipingApplicationTests
+
+- (void)openScrollView
+{
+  [self launchApplication];
+  [self goToScrollPageWithCells:YES];
+}
+
+- (void)setUp
+{
+  [super setUp];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self openScrollView];
+  });
+}
+
+- (void)testSwipeUp
+{
+  [self.testedApplication fb_swipeWithDirection:@"up" velocity:nil];
+  FBAssertInvisibleCell(@"0");
+}
+
+- (void)testSwipeDown
+{
+  [self.testedApplication fb_swipeWithDirection:@"up" velocity:nil];
+  FBAssertInvisibleCell(@"0");
+  [self.testedApplication fb_swipeWithDirection:@"down" velocity:nil];
+  FBAssertVisibleCell(@"0");
+}
+
+- (void)testSwipeDownWithVelocity
+{
+  [self.testedApplication fb_swipeWithDirection:@"up" velocity:@2500];
+  FBAssertInvisibleCell(@"0");
+  [self.testedApplication fb_swipeWithDirection:@"down" velocity:@2500];
+  FBAssertVisibleCell(@"0");
+}
+
+@end
