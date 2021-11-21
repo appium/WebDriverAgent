@@ -49,6 +49,7 @@
     [[FBRoute GET:@"/wda/locked"].withoutSession respondWithTarget:self action:@selector(handleIsLocked:)],
     [[FBRoute GET:@"/wda/locked"] respondWithTarget:self action:@selector(handleIsLocked:)],
     [[FBRoute GET:@"/wda/screen"] respondWithTarget:self action:@selector(handleGetScreen:)],
+    [[FBRoute GET:@"/wda/screen"].withoutSession respondWithTarget:self action:@selector(handleGetScreenWithoutSession:)],
     [[FBRoute GET:@"/wda/activeAppInfo"] respondWithTarget:self action:@selector(handleActiveAppInfo:)],
     [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)],
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs
@@ -135,6 +136,22 @@
                         @"height": @(statusBarSize.height),
                         },
     @"scale": @([FBScreen scale]),
+    });
+}
+
+
++ (id<FBResponsePayload>)handleGetScreenWithoutSession:(FBRouteRequest *)request
+{
+  // FBSession *session = request.session;
+  // CGSize statusBarSize = [FBScreen statusBarSizeForApplication:session.activeApplication];
+  CGSize screenSize = [[UIScreen mainScreen] bounds].size;
+  CGFloat scale = [[UIScreen mainScreen] scale];
+  return FBResponseWithObject(
+  @{
+    @"statusBarSize": @{@"width": @(screenSize.width),
+                        @"height": @(screenSize.height),
+                        },
+    @"scale": @(scale),
     });
 }
 
