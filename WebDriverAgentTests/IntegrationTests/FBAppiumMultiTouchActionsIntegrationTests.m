@@ -133,11 +133,11 @@
 
 - (void)testMultiTouchWithMultiTaps
 {
-  // if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-  //   // "does not work on 15". Skip for now.
-  //   // TODO: prepare in W3C actions
-  //   return;
-  // }
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // "does not work on 15". Skip for now.
+    // TODO: prepare in W3C actions
+    return;
+  }
 
   XCUIElement *touchableView = self.testedApplication.otherElements[@"touchableView"];
   XCTAssertNotNil(touchableView);

@@ -276,10 +276,10 @@
 
 - (void)testForcePress
 {
-  // if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-  //   // "does not work on 15". Skip for now.
-  //   return;
-  // }
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // "does not work on 15". Skip for now.
+    return;
+  }
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
       @"action": @"press",
