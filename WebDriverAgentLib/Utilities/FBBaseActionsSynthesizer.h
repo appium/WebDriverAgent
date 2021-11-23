@@ -15,6 +15,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if !TARGET_OS_TV
+
+/**
+ Xcode SDKs 11 to 13.1 (including) have known bug that makes xctest to not properly handle event coordinates
+ for non-portrait orientations.
+ 
+ @returns YES if the current platform has the above issue.
+ */
+BOOL FBShouldWorkaroundCoordinatesTranslationBug(void);
+
 @interface FBBaseActionItem : NSObject
 
 /*! Raw JSON representation of the corresponding action item */

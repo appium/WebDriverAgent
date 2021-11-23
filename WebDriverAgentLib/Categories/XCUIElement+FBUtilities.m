@@ -210,6 +210,37 @@
   FBConfiguration.waitForIdleTimeout = previousTimeout;
 }
 
+- (CGRect)fb_fixedElementRectWithSnapshot:(XCElementSnapshot *)snapshot
+{
+  CGRect elementRect = snapshot.frame;
+#if !TARGET_OS_TV
+  UIInterfaceOrientation orientation = self.application.interfaceOrientation;
+  if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
+    // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
+    NSArray<XCElementSnapshot *> *ancestors = snapshot.fb_ancestors;
+    XCElementSnapshot *parentWindow = nil;
+    if (1 == ancestors.count) {
+      parentWindow = snapshot;
+    } else if (ancestors.count > 1) {
+      parentWindow = [ancestors objectAtIndex:ancestors.count - 2];
+    }
+    if (nil != parentWindow) {
+      CGRect appFrame = ancestors.lastObject.frame;
+      CGRect parentWindowFrame = parentWindow.frame;
+      if (CGRectEqualToRect(appFrame, parentWindowFrame)
+          || (appFrame.size.width > appFrame.size.height && parentWindowFrame.size.width > parentWindowFrame.size.height)
+          || (appFrame.size.width < appFrame.size.height && parentWindowFrame.size.width < parentWindowFrame.size.height)) {
+        CGPoint fixedOrigin = orientation == UIInterfaceOrientationLandscapeLeft
+          ? CGPointMake(appFrame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x)
+          : CGPointMake(elementRect.origin.y, appFrame.size.width - elementRect.origin.x - elementRect.size.width);
+        elementRect = CGRectMake(fixedOrigin.x, fixedOrigin.y, elementRect.size.height, elementRect.size.width);
+      }
+    }
+  }
+#endif
+  return elementRect;
+}
+
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
   XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
@@ -222,33 +253,7 @@
     return nil;
   }
 
-  CGRect elementRect = selfSnapshot.frame;
-#if !TARGET_OS_TV
-  UIInterfaceOrientation orientation = self.application.interfaceOrientation;
-  if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
-    // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
-    NSArray<XCElementSnapshot *> *ancestors = selfSnapshot.fb_ancestors;
-    XCElementSnapshot *parentWindow = nil;
-    if (1 == ancestors.count) {
-      parentWindow = selfSnapshot;
-    } else if (ancestors.count > 1) {
-      parentWindow = [ancestors objectAtIndex:ancestors.count - 2];
-    }
-    if (nil != parentWindow) {
-      CGRect appFrame = ancestors.lastObject.frame;
-      CGRect parentWindowFrame = parentWindow.frame;
-      if (CGRectEqualToRect(appFrame, parentWindowFrame)
-          || (appFrame.size.width > appFrame.size.height && parentWindowFrame.size.width > parentWindowFrame.size.height)
-          || (appFrame.size.width < appFrame.size.height && parentWindowFrame.size.width < parentWindowFrame.size.height)) {
-          CGPoint fixedOrigin = orientation == UIInterfaceOrientationLandscapeLeft ?
-          CGPointMake(appFrame.size.height - elementRect.origin.y - elementRect.size.height, elementRect.origin.x) :
-        CGPointMake(elementRect.origin.y, appFrame.size.width - elementRect.origin.x - elementRect.size.width);
-        elementRect = CGRectMake(fixedOrigin.x, fixedOrigin.y, elementRect.size.height, elementRect.size.width);
-      }
-    }
-  }
-#endif
-
+  CGRect elementRect = [self fb_fixedElementRectWithSnapshot:selfSnapshot];
   // adjust element rect for the actual screen scale
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
   elementRect = CGRectMake(elementRect.origin.x * mainScreen.scale, elementRect.origin.y * mainScreen.scale,
