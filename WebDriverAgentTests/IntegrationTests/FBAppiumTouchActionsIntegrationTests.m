@@ -57,12 +57,12 @@
 - (void)testErroneousGestures
 {
   XCUIElement *dstButton = self.testedApplication.buttons[FBShowAlertButtonName];
-  
+
   NSArray<NSArray<NSDictionary<NSString *, id> *> *> *invalidGestures =
   @[
     // Empty chain
     @[],
-    
+
     // Chain element without 'action' key
     @[@{
         @"options": @{
@@ -70,7 +70,7 @@
             }
         },
       ],
-    
+
     // Empty chain because of cancel
     @[@{
         @"action": @"moveTo",
@@ -82,7 +82,7 @@
         @"action": @"cancel"
         },
       ],
-    
+
     // Chain with unknown action
     @[@{
         @"action": @"tapP",
@@ -91,7 +91,7 @@
             }
         },
       ],
-    
+
     // Wait without preceeding coordinate
     @[@{
         @"action": @"wait"
@@ -141,7 +141,7 @@
             }
         },
       ],
-    
+
     // longPress with negative duration
     @[@{
         @"action": @"longPress",
@@ -152,9 +152,9 @@
             }
         },
       ],
-    
+
   ];
-  
+
   for (NSArray<NSDictionary<NSString *, id> *> *invalidGesture in invalidGestures) {
     NSError *error;
     XCTAssertFalse([self.testedApplication fb_performAppiumTouchActions:invalidGesture elementCache:nil error:&error]);
@@ -208,10 +208,10 @@
 
 - (void)testPress
 {
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "does not work on 15". Skip for now.
-    return;
-  }
+  // if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+  //   // "does not work on 15". Skip for now.
+  //   return;
+  // }
 
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
@@ -276,10 +276,10 @@
 
 - (void)testForcePress
 {
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "does not work on 15". Skip for now.
-    return;
-  }
+  // if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+  //   // "does not work on 15". Skip for now.
+  //   return;
+  // }
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
       @"action": @"press",
