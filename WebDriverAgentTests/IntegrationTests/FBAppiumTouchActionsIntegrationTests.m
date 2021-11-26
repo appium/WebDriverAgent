@@ -195,7 +195,7 @@
 - (void)testDoubleTap
 {
   if ([UIDevice.currentDevice.systemName  isEqual: @"iPadOS"] && SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "tap the element" does not work on iPadOS simulator after change the location in iOS 15
+    // "tap the element" does not work on iPadOS simulator after change the rotation in iOS 15
     // while selecting the element worked. (I confirmed with getting an element screenshot that
     // the FBShowAlertButtonName was actually selected after changing the orientation.)
     return;
