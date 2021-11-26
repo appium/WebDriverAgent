@@ -55,7 +55,7 @@
 - (void)testForceTap
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "does not work on 15". Skip for now.
+    // Does not work on iOS 15.
     return;
   }
 

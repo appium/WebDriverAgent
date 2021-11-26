@@ -216,7 +216,9 @@
 - (void)testPress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "does not work on 15". Skip for now.
+    // Does not work on iOS 15.0.
+    // The same action tap the FBShowAlertButtonName after rotating the screen
+    // worked with W3C actions. `.click` action did not work.
     return;
   }
 
@@ -284,7 +286,7 @@
 - (void)testForcePress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // "does not work on 15". Skip for now.
+    // Does not work on iOS 15.
     return;
   }
   NSArray<NSDictionary<NSString *, id> *> *gesture =
