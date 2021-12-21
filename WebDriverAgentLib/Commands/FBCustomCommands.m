@@ -160,46 +160,10 @@
   return FBResponseWithObject(@{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
-    @"name": app.identifier,
-    @"processArguments": [self processArguments:app],
+    @"name": app.identifier
   });
 }
 
-/**
- * Returns current active app and its arguments of active session
- *
- * @return The dictionary of current active bundleId and its process/environment argumens
- *
- * @example
- *
- *     [self currentActiveApplication]
- *     //=> {
- *     //       "processArguments" : {
- *     //       "env" : {
- *     //           "HAPPY" : "testing"
- *     //       },
- *     //       "args" : [
- *     //           "happy",
- *     //           "tseting"
- *     //       ]
- *     //   }
- *
- *     [self currentActiveApplication]
- *     //=> {}
- */
-+ (NSDictionary *)processArguments:(XCUIApplication *)app
-{
-  // Can be nil if no active activation is defined by XCTest
-  if (app == nil) {
-    return @{};
-  }
-
-  return
-  @{
-    @"args": app.launchArguments,
-    @"env": app.launchEnvironment
-  };
-}
 
 #if !TARGET_OS_TV
 + (id<FBResponsePayload>)handleSetPasteboard:(FBRouteRequest *)request
