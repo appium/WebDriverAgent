@@ -7,7 +7,7 @@ import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
 import { SubProcess } from 'teen_process';
 import { PLATFORM_VERSION, DEVICE_NAME } from './desired';
 import { retryInterval } from 'asyncbox';
-import { WebDriverAgent } from '../..';
+import { WebDriverAgent } from '../../lib/webdriveragent';
 import axios from 'axios';
 
 

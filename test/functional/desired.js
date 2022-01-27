@@ -2,7 +2,7 @@ import _ from 'lodash';
 import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
-import { system, util } from 'appium-support';
+import { system, util } from '@appium/support';
 
 
 // translate integer environment variable to a boolean 0=false, !0=true
