@@ -1,9 +1,9 @@
 # https://github.com/actions/virtual-environments/tree/main/images/macos
 variables:
   MIN_VM_IMAGE: macOS-10.15
-  MIN_XCODE_VERSION: 11.2.1
+  MIN_XCODE_VERSION: 12.1
   # Xcode 10.0 did not have Apple TV
-  MIN_TV_XCODE_VERSION: 11.2.1
+  MIN_TV_XCODE_VERSION: 12.1
   MIN_TV_PLATFORM_VERSION: 13.2
   MIN_TV_DEVICE_NAME: Apple TV 4K
   MIN_PLATFORM_VERSION: 13.2.2
