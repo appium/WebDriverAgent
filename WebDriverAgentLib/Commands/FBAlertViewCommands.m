@@ -38,8 +38,8 @@
 
 + (id<FBResponsePayload>)handleAlertGetTextCommand:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
-  NSString *alertText = [FBAlert alertWithApplication:session.activeApplication].text;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  NSString *alertText = [FBAlert alertWithApplication:application].text;
   if (!alertText) {
     return FBResponseWithStatus([FBCommandStatus noAlertOpenErrorWithMessage:nil
                                                                    traceback:nil]);
@@ -73,9 +73,9 @@
 
 + (id<FBResponsePayload>)handleAlertAcceptCommand:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *name = request.arguments[@"name"];
-  FBAlert *alert = [FBAlert alertWithApplication:session.activeApplication];
+  FBAlert *alert = [FBAlert alertWithApplication:application];
   NSError *error;
 
   if (!alert.isPresent) {
@@ -96,9 +96,9 @@
 
 + (id<FBResponsePayload>)handleAlertDismissCommand:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *name = request.arguments[@"name"];
-  FBAlert *alert = [FBAlert alertWithApplication:session.activeApplication];
+  FBAlert *alert = [FBAlert alertWithApplication:application];
   NSError *error;
     
   if (!alert.isPresent) {

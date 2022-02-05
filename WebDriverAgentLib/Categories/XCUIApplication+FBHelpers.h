@@ -11,6 +11,7 @@
 
 @class XCElementSnapshot;
 @class XCAccessibilityElement;
+@class FBXMLGenerationOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,18 +46,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)fb_accessibilityTree;
 
 /**
- Return application elements tree in form of xml string
+ Return application elements tree in a form of xml string
+ with default options.
+
+ @return nil if there was a failure while retriveing the page source.
  */
 - (nullable NSString *)fb_xmlRepresentation;
 
 /**
- Return application elements tree in form of xml string exluding the given attribute names.
+ Return application elements tree in a form of xml string
 
- @param excludedAttributes the list of XML attribute names to be excluded from the resulting document.
- Invalid attribute names are silently skipped
- @returns The XML representation of the current element as a string
+ @param options Optional values that affect the resulting XML generation process.
+ @return nil if there was a failure while retriveing the page source.
  */
-- (NSString *)fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes;
+- (nullable NSString *)fb_xmlRepresentationWithOptions:(nullable FBXMLGenerationOptions *)options;
 
 /**
  Return application elements tree in form of internal XCTest debugDescription string

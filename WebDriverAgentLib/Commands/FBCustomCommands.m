@@ -380,7 +380,8 @@
   // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
   NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
 
-  return FBResponseWithObject(@{
+  NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:
+  @{
     @"currentLocale": currentLocale,
     @"timeZone": self.timeZone,
     @"name": UIDevice.currentDevice.name,
@@ -394,7 +395,14 @@
 #else
     @"isSimulator": @(NO),
 #endif
-  });
+  }];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+    // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstate
+    deviceInfo[@"thermalState"] = @(NSProcessInfo.processInfo.thermalState);
+  }
+
+  return FBResponseWithObject(deviceInfo);
 }
 
 /**
