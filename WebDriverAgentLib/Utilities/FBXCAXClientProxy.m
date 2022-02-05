@@ -52,11 +52,7 @@ static id FBAXClient = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     instance = [[self alloc] init];
-    if ([XCAXClient_iOS.class respondsToSelector:@selector(sharedClient)]) {
-      FBAXClient = [XCAXClient_iOS sharedClient];
-    } else {
-      FBAXClient = [XCUIDevice.sharedDevice accessibilityInterface];
-    }
+    FBAXClient = [XCUIDevice.sharedDevice accessibilityInterface];
   });
   return instance;
 }
@@ -81,18 +77,13 @@ static id FBAXClient = nil;
     [parameters addEntriesFromDictionary:self.defaultParameters];
     parameters[FBSnapshotMaxDepthKey] = maxDepth;
   }
-  if ([FBAXClient respondsToSelector:@selector(requestSnapshotForElement:attributes:parameters:error:)]) {
-    id result = [FBAXClient requestSnapshotForElement:element
-                                           attributes:attributes
-                                           parameters:[parameters copy]
-                                                error:error];
-    XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
-    return nil == snapshot ? result : snapshot;
-  }
-  return [FBAXClient snapshotForElement:element
-                             attributes:attributes
-                             parameters:[parameters copy]
-                                  error:error];
+
+  id result = [FBAXClient requestSnapshotForElement:element
+                                         attributes:attributes
+                                         parameters:[parameters copy]
+                                              error:error];
+  XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
+  return nil == snapshot ? result : snapshot;
 }
 
 - (NSArray<XCAccessibilityElement *> *)activeApplications

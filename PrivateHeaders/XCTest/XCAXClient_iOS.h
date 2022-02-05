@@ -19,9 +19,6 @@
 }
 @property double AXTimeout;
 
-// Removed since Xcode10.2
-+ (id)sharedClient;
-
 // Added since Xcode 10.2
 @property(readonly) id applicationProcessTracker;
 
@@ -54,8 +51,6 @@
 - (BOOL)loadAccessibility:(id *)arg1;
 - (BOOL)_registerForAXNotification:(int)arg1 error:(id *)arg2;
 - (BOOL)_loadAccessibility:(id *)arg1;
-// Before Xcode 11
-- (id)snapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
 // Since Xcode 11
 - (id)requestSnapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
 
