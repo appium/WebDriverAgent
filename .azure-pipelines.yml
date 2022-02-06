@@ -17,7 +17,7 @@ variables:
   MAX_TV_DEVICE_NAME: Apple TV 4K
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
   DEFAULT_NODE_VERSION: "12.x"
-  DEFAULT_RUBY_VERSION: "2.7"
+  DEFAULT_RUBY_VERSION: "3.1"
 
 
 pool:
