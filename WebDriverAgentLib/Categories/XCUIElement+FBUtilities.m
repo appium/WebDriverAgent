@@ -45,13 +45,7 @@
 {
   NSError *error = nil;
   self.fb_isResolvedFromCache = @(NO);
-  if (self.query.fb_isUniqueSnapshotSupported) {
-    self.lastSnapshot = [self.fb_query fb_uniqueSnapshotWithError:&error];
-  } else {
-    self.lastSnapshot = nil;
-    // TODO: Remove this branch after Xcode10 support is dropped
-    [self fb_resolveWithError:&error];
-  }
+  self.lastSnapshot = [self.fb_query fb_uniqueSnapshotWithError:&error];
   if (nil == self.lastSnapshot) {
     NSString *hintText = @"Make sure the application UI has the expected state";
     if (nil != error

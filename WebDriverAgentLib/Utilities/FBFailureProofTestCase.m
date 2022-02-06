@@ -23,16 +23,9 @@
 {
   [super setUp];
   self.continueAfterFailure = YES;
-  if ([self respondsToSelector:@selector(internalImplementation)]) {
-    // The `internalImplementation` API has been removed since Xcode 11.4
-    self.internalImplementation =
-      (_XCTestCaseImplementation *)[FBXCTestCaseImplementationFailureHoldingProxy
-                                    proxyWithXCTestCaseImplementation:self.internalImplementation];
-  } else {
-    // https://github.com/appium/appium/issues/13949
-    self.shouldSetShouldHaltWhenReceivesControl = NO;
-    self.shouldHaltWhenReceivesControl = NO;
-  }
+  // https://github.com/appium/appium/issues/13949
+  self.shouldSetShouldHaltWhenReceivesControl = NO;
+  self.shouldHaltWhenReceivesControl = NO;
 }
 
 - (void)recordFailureWithDescription:(NSString *)description

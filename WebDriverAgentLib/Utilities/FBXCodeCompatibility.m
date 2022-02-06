@@ -105,16 +105,6 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (BOOL)fb_isUniqueSnapshotSupported
-{
-  static dispatch_once_t onceToken;
-  static BOOL isUniqueMatchingSnapshotAvailable;
-  dispatch_once(&onceToken, ^{
-    isUniqueMatchingSnapshotAvailable = [self respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)];
-  });
-  return isUniqueMatchingSnapshotAvailable;
-}
-
 - (XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error
 {
   return [self uniqueMatchingSnapshotWithError:error];
@@ -139,19 +129,6 @@ static dispatch_once_t onceAppWithPIDToken;
 
 
 @implementation XCUIElement (FBCompatibility)
-
-- (BOOL)fb_resolveWithError:(NSError **)error
-{
-  @try {
-    [self resolveOrRaiseTestFailure];
-    return YES;
-  } @catch (NSException *e) {
-    if (nil != e.reason) {
-      return [[FBErrorBuilder.builder withDescription:(NSString *)e.reason] buildError:error];
-    }
-  }
-  return [[FBErrorBuilder.builder withDescription:@"Cannot find a matching method to resolve elements. Please contact Appium developers"] buildError:error];
-}
 
 + (BOOL)fb_supportsNonModalElementsInclusion
 {

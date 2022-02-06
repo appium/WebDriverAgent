@@ -93,11 +93,6 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  */
 - (nullable XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error;
 
-/**
- @returns YES if the element supports unique snapshots retrieval
- */
-- (BOOL)fb_isUniqueSnapshotSupported;
-
 @end
 
 
