@@ -28,14 +28,6 @@
   self.shouldHaltWhenReceivesControl = NO;
 }
 
-- (void)recordFailureWithDescription:(NSString *)description
-                              inFile:(NSString *)filePath
-                              atLine:(NSUInteger)lineNumber
-                            expected:(BOOL)expected
-{
-  [self _enqueueFailureWithDescription:description inFile:filePath atLine:lineNumber expected:expected];
-}
-
 /**
  Private XCTestCase method used to block and tunnel failure messages
  */

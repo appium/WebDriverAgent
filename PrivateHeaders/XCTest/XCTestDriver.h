@@ -27,7 +27,7 @@
 @property(readonly) XCTestConfiguration *testConfiguration; // @synthesize testConfiguration=_testConfiguration;
 
 // Removed since Xcode 12.0
-+ (instancetype)sharedTestDriver;
+//+ (instancetype)sharedTestDriver;
 
 - (void)runTestConfiguration:(id)arg1 completionHandler:(CDUnknownBlockType)arg2;
 - (void)runTestSuite:(id)arg1 completionHandler:(CDUnknownBlockType)arg2;
@@ -39,6 +39,6 @@
 - (id)initWithTestConfiguration:(id)arg1;
 
 // Removed with iOS 10.3
-@property(readonly) id <XCTestManager_ManagerInterface> managerProxy;
+//@property(readonly) id <XCTestManager_ManagerInterface> managerProxy;
 
 @end

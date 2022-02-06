@@ -109,28 +109,12 @@ static NSString *const OBJC_PROP_ATTRIBS_SEPARATOR = @",";
   return attributeNamesMapping.copy;
 }
 
-static BOOL FBShouldUsePayloadForUIDExtraction = YES;
-static dispatch_once_t oncePayloadToken;
 + (NSString *)uidWithAccessibilityElement:(XCAccessibilityElement *)element
 {
-  dispatch_once(&oncePayloadToken, ^{
-    FBShouldUsePayloadForUIDExtraction = [element respondsToSelector:@selector(payload)];
-  });
-  unsigned long long elementId;
-  if (FBShouldUsePayloadForUIDExtraction) {
-    elementId = [[element.payload objectForKey:@"uid.elementID"] longLongValue];
-  } else {
-    elementId = [[element valueForKey:@"_elementID"] longLongValue];
-  }
-  int processId = element.processIdentifier;
-  if (elementId < 1 || processId < 1) {
-    return nil;
-  }
-  uint8_t b[16] = {0};
-  memcpy(b, &elementId, sizeof(long long));
-  memcpy(b + sizeof(long long), &processId, sizeof(int));
-  NSUUID *uuidValue = [[NSUUID alloc] initWithUUIDBytes:b];
-  return uuidValue.UUIDString;
+  // Probably this returns always nil? since no "XCAccessibilityElement" in XCTest header duump.
+  // Some dumpls has reference, so they could be only private.
+  // Let me return always nil...
+  return nil;
 }
 
 @end
