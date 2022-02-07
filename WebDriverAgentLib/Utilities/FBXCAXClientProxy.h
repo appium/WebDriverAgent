@@ -41,8 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
                             attributes:(NSArray *)attributes;
 
-- (BOOL)hasProcessTracker;
-
 - (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid;
 
 @end

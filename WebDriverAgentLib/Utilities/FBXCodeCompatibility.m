@@ -47,22 +47,14 @@ static dispatch_once_t onceRootElementToken;
 
 NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethodNotSupportedException";
 
-static BOOL FBShouldUseOldAppWithPIDSelector = NO;
-static dispatch_once_t onceAppWithPIDToken;
 @implementation XCUIApplication (FBCompatibility)
 
 + (instancetype)fb_applicationWithPID:(pid_t)processID
 {
-  dispatch_once(&onceAppWithPIDToken, ^{
-    FBShouldUseOldAppWithPIDSelector = [XCUIApplication respondsToSelector:@selector(appWithPID:)];
-  });
   if (0 == processID) {
     return nil;
   }
 
-  if (FBShouldUseOldAppWithPIDSelector) {
-    return [self appWithPID:processID];
-  }
   return [self applicationWithPID:processID];
 }
 

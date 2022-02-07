@@ -31,8 +31,6 @@
 - (id)initForTouchAtPoint:(CGPoint)arg1 offset:(double)arg2;
 // Since Xcode 10.2
 - (void)typeKey:(id)arg1 modifiers:(unsigned long long)arg2 atOffset:(double)arg3;
-// Since Xcode 10.2
-- (void)typeText:(id)arg1 atOffset:(double)arg2 typingSpeed:(unsigned long long)arg3;
 // Since Xcode 12.beta5
 - (void)typeText:(id)arg1 atOffset:(double)arg2 typingSpeed:(unsigned long long)arg3 shouldRedact:(_Bool)arg4;
 // Since Xcode 10.2
