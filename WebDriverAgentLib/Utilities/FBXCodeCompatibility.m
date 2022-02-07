@@ -49,20 +49,12 @@ NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethod
 
 @implementation XCUIApplication (FBCompatibility)
 
-static BOOL FBShouldUseOldAppWithPIDSelector = NO;
-static dispatch_once_t onceAppWithPIDToken;
 + (instancetype)fb_applicationWithPID:(pid_t)processID
 {
-  dispatch_once(&onceAppWithPIDToken, ^{
-    FBShouldUseOldAppWithPIDSelector = [XCUIApplication respondsToSelector:@selector(appWithPID:)];
-  });
   if (0 == processID) {
     return nil;
   }
 
-  if (FBShouldUseOldAppWithPIDSelector) {
-    return [self appWithPID:processID];
-  }
   return [self applicationWithPID:processID];
 }
 

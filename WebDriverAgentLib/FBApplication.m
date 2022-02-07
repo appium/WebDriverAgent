@@ -133,14 +133,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
    [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
-+ (instancetype)appWithPID:(pid_t)processID
-{
-  if ([NSProcessInfo processInfo].processIdentifier == processID) {
-    return nil;
-  }
-  return [super appWithPID:processID];
-}
-
 + (instancetype)applicationWithPID:(pid_t)processID
 {
   if ([NSProcessInfo processInfo].processIdentifier == processID) {
