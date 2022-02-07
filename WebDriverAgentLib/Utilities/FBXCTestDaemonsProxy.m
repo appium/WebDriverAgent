@@ -82,9 +82,15 @@ static dispatch_once_t onceTestRunnerDaemonClass;
       XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
         errorHandler(invokeError);
       };
-      [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
-        handlerBlock(record, invokeError);
-      }];
+      if ([XCUIDevice.sharedDevice respondsToSelector:@selector(eventSynthesizer)]) {
+        [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
+          handlerBlock(record, invokeError);
+        }];
+      } else {
+        [[FBXCTRunnerDaemonSessionClass sharedSession] synthesizeEvent:record completion:^(NSError *invokeError){
+          handlerBlock(record, invokeError);
+        }];
+      }
     }
   }];
   return didSucceed;
