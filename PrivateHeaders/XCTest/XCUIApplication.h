@@ -38,6 +38,9 @@
 @property(nonatomic) pid_t processID; // @synthesize processID=_processID;
 @property(readonly) XCAccessibilityElement *accessibilityElement;
 
+/*! DO NOT USE DIRECTLY! Please use fb_applicationWithPID instead */
++ (instancetype)appWithPID:(pid_t)processID;
+/*! DO NOT USE DIRECTLY! Please use fb_applicationWithPID instead */
 + (instancetype)applicationWithPID:(pid_t)processID;
 /*! DO NOT USE DIRECTLY! Please use fb_activate instead */
 - (void)activate;
