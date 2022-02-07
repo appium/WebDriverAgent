@@ -19,8 +19,6 @@
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
-static BOOL FBShouldUseOldElementRootSelector = NO;
-static dispatch_once_t onceRootElementToken;
 @implementation XCElementSnapshot (FBCompatibility)
 
 + (id)fb_axAttributesForElementSnapshotKeyPathsIOS:(id)arg1
