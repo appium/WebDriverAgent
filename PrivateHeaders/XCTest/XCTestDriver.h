@@ -26,9 +26,6 @@
 @property(retain) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
 @property(readonly) XCTestConfiguration *testConfiguration; // @synthesize testConfiguration=_testConfiguration;
 
-// Removed since Xcode 12.0
-//+ (instancetype)sharedTestDriver;
-
 - (void)runTestConfiguration:(id)arg1 completionHandler:(CDUnknownBlockType)arg2;
 - (void)runTestSuite:(id)arg1 completionHandler:(CDUnknownBlockType)arg2;
 - (void)reportStallOnMainThreadInTestCase:(id)arg1 method:(id)arg2 file:(id)arg3 line:(unsigned long long)arg4;
@@ -37,8 +34,5 @@
 - (int)_connectedSocketForIDESession:(id *)arg1;
 - (void)logDebugMessage:(id)arg1;
 - (id)initWithTestConfiguration:(id)arg1;
-
-// Removed with iOS 10.3
-//@property(readonly) id <XCTestManager_ManagerInterface> managerProxy;
 
 @end
