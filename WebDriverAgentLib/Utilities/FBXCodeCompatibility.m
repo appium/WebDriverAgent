@@ -23,17 +23,6 @@ static BOOL FBShouldUseOldElementRootSelector = NO;
 static dispatch_once_t onceRootElementToken;
 @implementation XCElementSnapshot (FBCompatibility)
 
-- (XCElementSnapshot *)fb_rootElement
-{
-  dispatch_once(&onceRootElementToken, ^{
-    FBShouldUseOldElementRootSelector = [self respondsToSelector:@selector(_rootElement)];
-  });
-  if (FBShouldUseOldElementRootSelector) {
-    return [self _rootElement];
-  }
-  return [self rootElement];
-}
-
 + (id)fb_axAttributesForElementSnapshotKeyPathsIOS:(id)arg1
 {
   return [self.class axAttributesForElementSnapshotKeyPaths:arg1 isMacOS:NO];
@@ -44,9 +33,7 @@ static dispatch_once_t onceRootElementToken;
   static SEL attributesForElementSnapshotKeyPathsSelector = nil;
   static dispatch_once_t attributesForElementSnapshotKeyPathsSelectorToken;
   dispatch_once(&attributesForElementSnapshotKeyPathsSelectorToken, ^{
-    if ([self.class respondsToSelector:@selector(snapshotAttributesForElementSnapshotKeyPaths:)]) {
-      attributesForElementSnapshotKeyPathsSelector = @selector(snapshotAttributesForElementSnapshotKeyPaths:);
-    } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
+    if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(axAttributesForElementSnapshotKeyPaths:);
     } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:isMacOS:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(fb_axAttributesForElementSnapshotKeyPathsIOS:);
