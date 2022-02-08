@@ -86,6 +86,11 @@ function xcbuild() {
 }
 
 function fastlane_test() {
+  if [[ ! $(which fastlan) ]] ; then
+    echo "Please install fastlane with gem install fastlane or bundle install"
+    exit 1
+  fi
+
   if [[ -n "$XC_DESTINATION" ]]; then
     SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" fastlane test
   else
