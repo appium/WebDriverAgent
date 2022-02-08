@@ -86,7 +86,7 @@ function xcbuild() {
 }
 
 function fastlane_test() {
-  if [[ ! $(which fastlan) ]] ; then
+  if [[ ! $(which fastlane) ]] ; then
     echo "Please install fastlane with gem install fastlane or bundle install"
     exit 1
   fi
