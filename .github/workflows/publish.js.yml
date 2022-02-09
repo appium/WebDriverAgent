@@ -19,9 +19,6 @@ jobs:
     - run: npm install
     # Basic smoke tests
     - run: npm test
-      env:
-        PLATFORM_VERSION: 13.6
-        DEVICE_NAME: iPhone Simulator
     - run: rm -rf package-lock.json
     - run: npm prune --production
     - run: npm shrinkwrap
