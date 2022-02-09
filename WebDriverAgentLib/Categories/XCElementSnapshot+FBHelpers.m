@@ -22,6 +22,15 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
 
 @implementation XCElementSnapshot (FBHelpers)
 
+- (NSString *)fb_description
+{
+  NSString *result = [NSString stringWithFormat:@"%@", self.wdType];
+  if (nil != self.wdName) {
+    result = [NSString stringWithFormat:@"%@ (%@)", result, self.wdName];
+  }
+  return result;
+}
+
 - (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
 {
   return [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
@@ -58,7 +67,9 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   return result[attribute];
 }
 
-inline static BOOL valuesAreEqual(id value1, id value2);
+inline static BOOL areValuesEqual(id value1, id value2);
+
+inline static BOOL areValuesEqualOrBlank(id value1, id value2);
 
 inline static BOOL isNilOrEmpty(id value);
 
@@ -70,12 +81,14 @@ inline static BOOL isNilOrEmpty(id value);
     return [self.wdUID isEqualToString:(snapshot.wdUID ?: @"")];
   }
   
+  // Sometimes value and placeholderValue of a correct match from different snapshots are not the same (one is nil and one is a blank string)
+  // Therefore taking it into account when comparing
   return self.elementType == snapshot.elementType &&
-    valuesAreEqual(self.identifier, snapshot.identifier) &&
-    valuesAreEqual(self.title, snapshot.title) &&
-    valuesAreEqual(self.label, snapshot.label) &&
-    valuesAreEqual(self.value, snapshot.value) &&
-    valuesAreEqual(self.placeholderValue, snapshot.placeholderValue);
+    areValuesEqual(self.identifier, snapshot.identifier) &&
+    areValuesEqual(self.title, snapshot.title) &&
+    areValuesEqual(self.label, snapshot.label) &&
+    areValuesEqualOrBlank(self.value, snapshot.value) &&
+    areValuesEqualOrBlank(self.placeholderValue, snapshot.placeholderValue);
 }
 
 - (NSArray<XCElementSnapshot *> *)fb_descendantsCellSnapshots
@@ -119,6 +132,30 @@ inline static BOOL isNilOrEmpty(id value);
     }
     return targetCellSnapshot;
 }
+
+- (CGRect)fb_visibleFrameWithFallback
+{
+  CGRect thisVisibleFrame = [self visibleFrame];
+  if (!CGRectIsEmpty(thisVisibleFrame)) {
+    return thisVisibleFrame;
+  }
+  
+  NSDictionary *visibleFrameDict = (NSDictionary*)[self fb_attributeValue:@"XC_kAXXCAttributeVisibleFrame"];
+  if (visibleFrameDict == nil) {
+    return thisVisibleFrame;
+  }
+  
+  id x = [visibleFrameDict objectForKey:@"X"];
+  id y = [visibleFrameDict objectForKey:@"Y"];
+  id height = [visibleFrameDict objectForKey:@"Height"];
+  id width = [visibleFrameDict objectForKey:@"Width"];
+  if (x != nil && y != nil && height != nil && width != nil) {
+    return CGRectMake([x doubleValue], [y doubleValue], [width doubleValue], [height doubleValue]);
+  }
+  
+  return thisVisibleFrame;
+}
+
 @end
 
 inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types)
@@ -131,9 +168,14 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   return NO;
 }
 
-inline static BOOL valuesAreEqual(id value1, id value2)
+inline static BOOL areValuesEqual(id value1, id value2)
 {
   return value1 == value2 || [value1 isEqual:value2];
+}
+
+inline static BOOL areValuesEqualOrBlank(id value1, id value2)
+{
+  return areValuesEqual(value1, value2) || (isNilOrEmpty(value1) && isNilOrEmpty(value2));
 }
 
 inline static BOOL isNilOrEmpty(id value)

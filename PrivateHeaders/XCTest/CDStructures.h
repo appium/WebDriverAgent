@@ -23,3 +23,6 @@ typedef struct {
     unsigned short _field2;
     unsigned short _field3[1];
 } CDStruct_27a325c0;
+
+int _XCTSetApplicationStateTimeout(double timeout);
+double _XCTApplicationStateTimeout(void);

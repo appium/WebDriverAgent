@@ -11,7 +11,6 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
-#import "FBExceptionHandler.h"
 #import "FBLogger.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
@@ -20,20 +19,7 @@
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
-static BOOL FBShouldUseOldElementRootSelector = NO;
-static dispatch_once_t onceRootElementToken;
 @implementation XCElementSnapshot (FBCompatibility)
-
-- (XCElementSnapshot *)fb_rootElement
-{
-  dispatch_once(&onceRootElementToken, ^{
-    FBShouldUseOldElementRootSelector = [self respondsToSelector:@selector(_rootElement)];
-  });
-  if (FBShouldUseOldElementRootSelector) {
-    return [self _rootElement];
-  }
-  return [self rootElement];
-}
 
 + (id)fb_axAttributesForElementSnapshotKeyPathsIOS:(id)arg1
 {
@@ -45,9 +31,7 @@ static dispatch_once_t onceRootElementToken;
   static SEL attributesForElementSnapshotKeyPathsSelector = nil;
   static dispatch_once_t attributesForElementSnapshotKeyPathsSelectorToken;
   dispatch_once(&attributesForElementSnapshotKeyPathsSelectorToken, ^{
-    if ([self.class respondsToSelector:@selector(snapshotAttributesForElementSnapshotKeyPaths:)]) {
-      attributesForElementSnapshotKeyPathsSelector = @selector(snapshotAttributesForElementSnapshotKeyPaths:);
-    } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
+    if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(axAttributesForElementSnapshotKeyPaths:);
     } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:isMacOS:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(fb_axAttributesForElementSnapshotKeyPathsIOS:);
@@ -61,22 +45,14 @@ static dispatch_once_t onceRootElementToken;
 
 NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethodNotSupportedException";
 
-static BOOL FBShouldUseOldAppWithPIDSelector = NO;
-static dispatch_once_t onceAppWithPIDToken;
 @implementation XCUIApplication (FBCompatibility)
 
 + (instancetype)fb_applicationWithPID:(pid_t)processID
 {
-  dispatch_once(&onceAppWithPIDToken, ^{
-    FBShouldUseOldAppWithPIDSelector = [XCUIApplication respondsToSelector:@selector(appWithPID:)];
-  });
   if (0 == processID) {
     return nil;
   }
 
-  if (FBShouldUseOldAppWithPIDSelector) {
-    return [self appWithPID:processID];
-  }
   return [self applicationWithPID:processID];
 }
 
@@ -106,22 +82,9 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (XCElementSnapshot *)fb_cachedSnapshot
+- (XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error
 {
-  static dispatch_once_t onceToken;
-  static BOOL isUniqueMatchingSnapshotAvailable;
-  dispatch_once(&onceToken, ^{
-    isUniqueMatchingSnapshotAvailable = [self respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)];
-  });
-  if (!isUniqueMatchingSnapshotAvailable) {
-    return nil;
-  }
-  NSError *error;
-  XCElementSnapshot *result = [self uniqueMatchingSnapshotWithError:&error];
-  if (nil == result && nil != error) {
-    [FBLogger logFmt:@"%@", error.description];
-  }
-  return result;
+  return [self uniqueMatchingSnapshotWithError:error];
 }
 
 - (XCUIElement *)fb_firstMatch
@@ -139,39 +102,10 @@ static dispatch_once_t onceAppWithPIDToken;
     : self.allElementsBoundByAccessibilityElement;
 }
 
-- (XCElementSnapshot *)fb_elementSnapshotForDebugDescription
-{
-  if ([self respondsToSelector:@selector(elementSnapshotForDebugDescription)]) {
-    return [self elementSnapshotForDebugDescription];
-  }
-  if ([self respondsToSelector:@selector(elementSnapshotForDebugDescriptionWithNoMatchesMessage:)]) {
-    return [self elementSnapshotForDebugDescriptionWithNoMatchesMessage:nil];
-  }
-  @throw [[FBErrorBuilder.builder withDescription:@"Cannot retrieve element snapshots for debug description. Please contact Appium developers"] build];
-  return nil;
-}
-
 @end
 
 
 @implementation XCUIElement (FBCompatibility)
-
-- (void)fb_nativeResolve
-{
-  if ([self respondsToSelector:@selector(resolve)]) {
-    [self resolve];
-    return;
-  }
-  if ([self respondsToSelector:@selector(resolveOrRaiseTestFailure)]) {
-    @try {
-      [self resolveOrRaiseTestFailure];
-    } @catch (NSException *e) {
-      [FBLogger logFmt:@"Failure while resolving '%@': %@", self.description, e.reason];
-    }
-    return;
-  }
-  @throw [[FBErrorBuilder.builder withDescription:@"Cannot resolve elements. Please contact Appium developers"] build];
-}
 
 + (BOOL)fb_supportsNonModalElementsInclusion
 {
@@ -190,16 +124,6 @@ static dispatch_once_t onceAppWithPIDToken;
     : self.query;
 }
 
-+ (BOOL)fb_isSdk11SnapshotApiSupported
-{
-  static dispatch_once_t newSnapshotIsSupported;
-  static BOOL result;
-  dispatch_once(&newSnapshotIsSupported, ^{
-    result = [(id)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestSnapshotForElement:attributes:parameters:reply:)];
-  });
-  return result;
-}
-
 @end
 
 @implementation XCPointerEvent (FBXcodeCompatibility)
@@ -215,3 +139,19 @@ static dispatch_once_t onceAppWithPIDToken;
 }
 
 @end
+
+NSInteger FBTestmanagerdVersion(void)
+{
+  static dispatch_once_t getTestmanagerdVersion;
+  static NSInteger testmanagerdVersion;
+  dispatch_once(&getTestmanagerdVersion, ^{
+    id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    [proxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
+      testmanagerdVersion = (NSInteger) code;
+      dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)));
+  });
+  return testmanagerdVersion;
+}

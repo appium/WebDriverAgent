@@ -11,6 +11,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBApplication.h"
+#import "FBTestMacros.h"
 #import "FBMacros.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
@@ -45,25 +46,31 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   [self.session terminateApplicationWithBundleId:SAFARI_BUNDLE_ID];
 }
 
-- (void)testCanHandleSafariInputPrompt
+- (void)disabled_testCanHandleSafariInputPrompt
 {
-  XCUIElement *urlInput = [[self.safariApp descendantsMatchingType:XCUIElementTypeTextField] matchingIdentifier:@"URL"].firstMatch;
+  XCUIElement *urlInput = [[self.safariApp
+                            descendantsMatchingType:XCUIElementTypeTextField]
+                           matchingPredicate:[
+                             NSPredicate predicateWithFormat:@"label == 'Address' or label == 'URL'"
+                           ]].firstMatch;
   if (!urlInput.exists) {
-    [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingIdentifier:@"URL"].firstMatch tap];
+    [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingPredicate:[
+      NSPredicate predicateWithFormat:@"label == 'Address' or label == 'URL'"]].firstMatch tap];
   }
-  XCTAssertTrue([urlInput fb_clearTextWithError:nil]);
-  XCTAssertTrue([urlInput fb_typeText:@"https://www.seleniumeasy.com/test/javascript-alert-box-demo.html" error:nil]);
+  XCTAssertTrue([urlInput fb_typeText:@"https://www.w3schools.com/js/tryit.asp?filename=tryjs_alert"
+                          shouldClear:YES
+                                error:nil]);
   [[[self.safariApp descendantsMatchingType:XCUIElementTypeButton] matchingIdentifier:@"Go"].firstMatch tap];
   XCUIElement *clickMeButton = [[self.safariApp descendantsMatchingType:XCUIElementTypeButton]
-                                matchingPredicate:[NSPredicate predicateWithFormat:@"label == 'Click for Prompt Box'"]].firstMatch;
+                                matchingPredicate:[NSPredicate predicateWithFormat:@"label == 'Try it'"]].firstMatch;
   XCTAssertTrue([clickMeButton waitForExistenceWithTimeout:15.0]);
   [clickMeButton tap];
   FBAlert *alert = [FBAlert alertWithApplication:self.safariApp];
-  XCTAssertEqualObjects(alert.text, @"Please enter your name");
+  FBAssertWaitTillBecomesTrue([alert.text isEqualToString:@"I am an alert box!"]);
   NSArray *buttonLabels = alert.buttonLabels;
-  XCTAssertEqualObjects(buttonLabels.firstObject, @"Cancel");
-  XCTAssertEqualObjects(buttonLabels.lastObject, @"OK");
-  XCTAssertTrue([alert typeText:@"yolo" error:nil]);
+  XCTAssertEqualObjects(buttonLabels.firstObject, @"Close");
+  XCTAssertNotNil([self.safariApp fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeButton[@label='Close']"
+                                       shouldReturnAfterFirstMatch:YES].firstObject);
   XCTAssertTrue([alert acceptWithError:nil]);
 }
 

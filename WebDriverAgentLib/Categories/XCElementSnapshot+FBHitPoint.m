@@ -11,6 +11,7 @@
 
 #import "FBLogger.h"
 #import "XCUIHitPointResult.h"
+#import "XCElementSnapshot+FBHelpers.h"
 
 @implementation XCElementSnapshot (FBHitPoint)
 
@@ -19,7 +20,7 @@
   NSError *error;
   XCUIHitPointResult *result = [self hitPoint:&error];
   if (nil != error) {
-    [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.debugDescription, error.description];
+    [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.fb_description, error.localizedDescription];
     return nil;
   }
   return [NSValue valueWithCGPoint:result.hitPoint];

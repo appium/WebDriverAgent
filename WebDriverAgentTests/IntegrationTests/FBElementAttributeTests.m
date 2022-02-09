@@ -91,6 +91,16 @@
   XCTAssertEqualObjects(element.wdValue, @"Label");
 }
 
+- (void)testIndexAttributes
+{
+  XCUIElement *element = self.testedApplication.buttons[@"Button"];
+  XCTAssertTrue(element.exists);
+  XCTAssertEqual(element.wdIndex, 2);
+  XCUIElement *element2 = self.testedApplication;
+  XCTAssertTrue(element2.exists);
+  XCTAssertEqual(element2.wdIndex, 0);
+}
+
 - (void)testTextFieldAttributes
 {
   XCUIElement *element = self.testedApplication.textFields[@"Value"];

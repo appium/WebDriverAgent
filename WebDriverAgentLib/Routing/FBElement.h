@@ -17,10 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FBElement <NSObject>
 
-/*! Element's frame in CGRect format */
+/*! Element's frame in normalized (rounded dimensions without Infinity values) CGRect format */
 @property (nonatomic, readonly, assign) CGRect wdFrame;
 
-/*! Element's frame in NSDictionary format */
+/*! Element's wsFrame in NSDictionary format */
 @property (nonatomic, readonly, copy) NSDictionary *wdRect;
 
 /*! Element's name */
@@ -57,6 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Whether element is focused */
 @property (nonatomic, readonly, getter = isWDFocused) BOOL wdFocused;
 #endif
+
+/*! Element's index relatively to its parent. Starts from zero */
+@property (nonatomic, readonly) NSUInteger wdIndex;
 
 /**
  Returns value of given property specified in WebDriver Spec

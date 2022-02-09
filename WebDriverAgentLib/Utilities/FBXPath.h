@@ -27,16 +27,9 @@
 #pragma clang diagnostic pop
 #endif
 
-NS_ASSUME_NONNULL_BEGIN
+@class FBXMLGenerationOptions;
 
-/**
- The exception happends if the provided XPath expession cannot be compiled because of a syntax error
- */
-extern NSString *const FBInvalidXPathException;
-/**
- The exception happends if any internal error is triggered during XPath matching procedure
- */
-extern NSString *const FBXPathQueryEvaluationException;
+NS_ASSUME_NONNULL_BEGIN
 
 @interface FBXPath : NSObject
 
@@ -56,12 +49,11 @@ extern NSString *const FBXPathQueryEvaluationException;
  representation, which is used for XPath search
  
  @param root the root element
- @param excludedAttributes the list of attribute names to exclude from the resulting document.
- Passing nil means all the available attributes should be included
+ @param options Optional values that affect the resulting XML creation process
  @return valid XML document as string or nil in case of failure
  */
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
-                            excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes;
+                                        options:(nullable FBXMLGenerationOptions *)options;
 
 @end
 

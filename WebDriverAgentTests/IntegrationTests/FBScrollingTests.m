@@ -19,9 +19,6 @@
 #import "XCUIElement+FBClassChain.h"
 #import "FBXCodeCompatibility.h"
 
-#define FBCellElementWithLabel(label) ([self.testedApplication descendantsMatchingType:XCUIElementTypeAny][label])
-#define FBAssertVisibleCell(label) FBAssertWaitTillBecomesTrue(FBCellElementWithLabel(label).fb_isVisible)
-#define FBAssertInvisibleCell(label) FBAssertWaitTillBecomesTrue(!FBCellElementWithLabel(label).fb_isVisible)
 
 @interface FBScrollingTests : FBIntegrationTestCase
 @property (nonatomic, strong) XCUIElement *scrollView;

@@ -35,9 +35,6 @@
 
 - (unsigned long long)traits;
 - (void)resolveHandleUIInterruption:(BOOL)arg1;
-// !!! deprecated since Xcode 11.0
-// Do not call directly
-- (void)resolve;
 - (BOOL)waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;
@@ -59,5 +56,11 @@
 - (void)resolveOrRaiseTestFailure;
 // Available since Xcode 10.0
 - (id)screenshot;
+
+// Since Xcode 11.4
+- (void)swipeRightWithVelocity:(double)arg1;
+- (void)swipeLeftWithVelocity:(double)arg1;
+- (void)swipeDownWithVelocity:(double)arg1;
+- (void)swipeUpWithVelocity:(double)arg1;
 
 @end

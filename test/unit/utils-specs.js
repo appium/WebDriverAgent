@@ -2,8 +2,8 @@ import { getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName } f
 import { PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS } from '../../lib/constants';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { withMocks } from 'appium-test-support';
-import { fs } from 'appium-support';
+import { withMocks } from '@appium/test-support';
+import { fs } from '@appium/support';
 import path from 'path';
 import { fail } from 'assert';
 
@@ -112,7 +112,7 @@ describe('utils', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000);
       wdaPort.WebDriverAgentRunner
         .EnvironmentVariables.USE_PORT
-        .should.equal(8000);
+        .should.equal('8000');
     });
 
     it('should return tvos format', function () {

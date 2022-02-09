@@ -18,7 +18,8 @@
 
 - (BOOL)fb_isAccessibilityElement
 {
-  return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.fb_lastSnapshot).fb_isAccessibilityElement;
+  return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
+                                maxDepth:@1].fb_isAccessibilityElement;
 }
 
 @end

@@ -8,14 +8,16 @@
  */
 
 #import "FBXCTestDaemonsProxy.h"
+
+#import <objc/runtime.h>
+
+#import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "XCTestDriver.h"
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIApplication.h"
 #import "XCUIDevice.h"
-#import "FBConfiguration.h"
-#import "FBLogger.h"
-#import <objc/runtime.h>
 
 @implementation FBXCTestDaemonsProxy
 
@@ -48,12 +50,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (id<XCTestManager_ManagerInterface>)retrieveTestRunnerProxy
 {
-  if ([XCTestDriver respondsToSelector:@selector(sharedTestDriver)] &&
-      [[XCTestDriver sharedTestDriver] respondsToSelector:@selector(managerProxy)]) {
-    return [XCTestDriver sharedTestDriver].managerProxy;
-  } else {
-    return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;
-  }
+  return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;
 }
 
 #if !TARGET_OS_TV
@@ -85,35 +82,12 @@ static dispatch_once_t onceTestRunnerDaemonClass;
       XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
         errorHandler(invokeError);
       };
-      if ([XCUIDevice.sharedDevice respondsToSelector:@selector(eventSynthesizer)]) {
-        [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
-          handlerBlock(record, invokeError);
-        }];
-      } else {
-        [[FBXCTRunnerDaemonSessionClass sharedSession] synthesizeEvent:record completion:^(NSError *invokeError){
-          handlerBlock(record, invokeError);
-        }];
-      }
+      [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
+        handlerBlock(record, invokeError);
+      }];
     }
   }];
   return didSucceed;
-}
-
-+ (void)tryToSetAxTimeout:(double)timeout forProxy:(id<XCTestManager_ManagerInterface>)proxy withHandler:(void (^)(int res))handler {
-  if ([self canSetAXTimeout:proxy]) {
-    [proxy _XCT_setAXTimeout:timeout
-                       reply:handler];
-    return;
-  }
-  handler(0);
-}
-
-+ (BOOL)canSetAXTimeout:(id<XCTestManager_ManagerInterface>)proxy {
-  if (![object_getClass(proxy) conformsToProtocol:@protocol(NSObject)]) {
-    return NO;
-  }
-  id<NSObject> obj = (id<NSObject>)proxy;
-  return [obj respondsToSelector:@selector(_XCT_setAXTimeout:reply:)];
 }
 
 @end

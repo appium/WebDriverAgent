@@ -7,10 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "FBExceptionHandler.h"
 #import "FBClassChainQueryParser.h"
 #import "FBErrorBuilder.h"
 #import "FBElementTypeTransformer.h"
+#import "FBExceptions.h"
 #import "FBPredicate.h"
 #import "NSPredicate+FBFormat.h"
 

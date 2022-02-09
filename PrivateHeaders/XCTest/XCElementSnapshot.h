@@ -8,7 +8,7 @@
 
 #import <XCTest/XCUIElementAttributes.h>
 
-@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCUIApplication;
+@class NSArray, NSDictionary, NSString, NSArray, XCAccessibilityElement, XCUIApplication;
 
 @interface XCElementSnapshot : NSObject <XCUIElementAttributes, NSSecureCoding>
 {
@@ -89,19 +89,14 @@
 - (struct CGPoint)_transformPoint:(struct CGPoint)arg1 windowContextID:(id)arg2 windowDisplayID:(id)arg3;
 - (id)hitTest:(struct CGPoint)arg1;
 
-/*! DO NOT USE DIRECTLY! Please use fb_rootElement instead */
-- (XCElementSnapshot *)_rootElement;
-/*! DO NOT USE DIRECTLY! Please use fb_rootElement instead */
-- (XCElementSnapshot *)rootElement;
-
 // Available since Xcode 10
 - (id)hitPoint:(NSError **)error;
 
-// Available only in Xcode 9.0
-+ (id)snapshotAttributesForElementSnapshotKeyPaths:(id)arg1;
 // Available since Xcode 10.0-beta4 on
 + (id)axAttributesForElementSnapshotKeyPaths:(id)arg1;
 // Since Xcode 10.2
 + (id)axAttributesForElementSnapshotKeyPaths:(id)arg1 isMacOS:(_Bool)arg2;
+// Since Xcode 10.0
++ (NSArray<NSString *> *)sanitizedElementSnapshotHierarchyAttributesForAttributes:(NSArray<NSString *> *)arg1 isMacOS:(_Bool)arg2;
 
 @end

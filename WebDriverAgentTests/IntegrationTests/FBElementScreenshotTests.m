@@ -12,6 +12,7 @@
 #import "FBIntegrationTestCase.h"
 #import "XCUIDevice+FBRotation.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIScreen.h"
 
 @interface FBElementScreenshotTests : FBIntegrationTestCase
 @end
@@ -48,6 +49,19 @@
   UIImage *image = [UIImage imageWithData:screenshotData];
   XCTAssertNotNil(image);
   XCTAssertTrue(image.size.width > image.size.height);
+
+  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  // Note about iPadOS 15.0 environment.
+  // The 'button.screenshot.image' (by XCTest) had a white image while 'image' had
+  // expected FBShowAlertButtonName area image by WebDriverAgent.
+  // It seems the native XCTest element screenshot has an issue on iPadOS.
+  UIImage *buttonScreenshot = button.screenshot.image;
+  XCTAssertEqualWithAccuracy(buttonScreenshot.size.height * mainScreen.scale,
+                             image.size.height,
+                             FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(buttonScreenshot.size.width * mainScreen.scale,
+                             image.size.width,
+                             FLT_EPSILON);
 }
 
 @end

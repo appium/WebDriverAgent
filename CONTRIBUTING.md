@@ -30,22 +30,6 @@ outlined on that page and do not file a public issue.
 * 2 spaces for indentation rather than tabs
 * 80 character line length
 
-## Update Carthage Dependencies
-
-1. Add a new version tag to the target repository
-    - e.g. https://github.com/appium/RoutingHTTPServer/releases
-    - Please ask developers who have a permission to add the tag on the target repository
-      - The appium or appium forked repositories are Appium team members
-2. Bump the version in `Cartfile.resolved`
-    - Please make sure the version will be downloaded and built by `carthage bootstrap` command like below
-        ```
-        $ carthage bootstrap # in appium/WebDriverAgent directory
-        *** Checking out RoutingHTTPServer at "v1.2.0"
-        *** Checking out CocoaAsyncSocket at "7.6.3"
-        *** Checking out YYCache at "1.1.0"
-        ```
-3. Create a PR to appium/WebDriverAgent repository to apply the update
-
 ## License
 By contributing to WebDriverAgent, you agree that your contributions will be licensed
 under its [BSD license](LICENSE).

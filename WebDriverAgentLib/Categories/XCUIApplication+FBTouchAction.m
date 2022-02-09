@@ -12,12 +12,14 @@
 
 #import "FBAppiumActionsSynthesizer.h"
 #import "FBBaseActionsSynthesizer.h"
-#import "FBExceptionHandler.h"
+#import "FBConfiguration.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBW3CActionsSynthesizer.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCEventGenerator.h"
+#import "XCUIElement+FBUtilities.h"
 
 #if !TARGET_OS_TV
 
@@ -26,14 +28,22 @@
 + (BOOL)handleEventSynthesWithError:(NSError *)error
 {
   if ([error.localizedDescription containsString:@"not visible"]) {
-    [[NSException exceptionWithName:FBElementNotVisibleException reason:error.localizedDescription userInfo:error.userInfo] raise];
+    [[NSException exceptionWithName:FBElementNotVisibleException
+                             reason:error.localizedDescription
+                           userInfo:error.userInfo] raise];
   }
   return NO;
 }
 
-- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType actions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performActionsWithSynthesizerType:(Class)synthesizerType
+                                     actions:(NSArray *)actions
+                                elementCache:(FBElementCache *)elementCache
+                                       error:(NSError **)error
 {
-  FBBaseActionsSynthesizer *synthesizer = [[synthesizerType alloc] initWithActions:actions forApplication:self elementCache:elementCache error:error];
+  FBBaseActionsSynthesizer *synthesizer = [[synthesizerType alloc] initWithActions:actions
+                                                                    forApplication:self
+                                                                      elementCache:elementCache
+                                                                             error:error];
   if (nil == synthesizer) {
     return NO;
   }
@@ -44,14 +54,32 @@
   return [self fb_synthesizeEvent:eventRecord error:error];
 }
 
-- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions
+                        elementCache:(FBElementCache *)elementCache
+                               error:(NSError **)error
 {
-  return [self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
+  if (![self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class
+                                          actions:actions
+                                     elementCache:elementCache
+                                            error:error]) {
+    return NO;
+  }
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  return YES;
 }
 
-- (BOOL)fb_performW3CActions:(NSArray *)actions elementCache:(FBElementCache *)elementCache error:(NSError **)error
+- (BOOL)fb_performW3CActions:(NSArray *)actions
+                elementCache:(FBElementCache *)elementCache
+                       error:(NSError **)error
 {
-  return [self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class actions:actions elementCache:elementCache error:error];
+  if (![self fb_performActionsWithSynthesizerType:FBW3CActionsSynthesizer.class
+                                          actions:actions
+                                     elementCache:elementCache
+                                            error:error]) {
+    return NO;
+  }
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  return YES;
 }
 
 - (BOOL)fb_synthesizeEvent:(XCSynthesizedEventRecord *)event error:(NSError *__autoreleasing*)error

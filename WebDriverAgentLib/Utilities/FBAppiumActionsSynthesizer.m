@@ -302,7 +302,21 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  return @[];
+  if (nil != eventPath) {
+    if (0 == currentItemIndex) {
+      return @[];
+    }
+    FBBaseGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
+    if (![preceedingItem isKindOfClass:FBReleaseItem.class] && currentItemIndex < allItems.count - 1) {
+      return @[];
+    }
+  }
+  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
+  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
+  if (currentItemIndex == allItems.count - 1) {
+    [result liftUpAtOffset:currentOffset];
+  }
+  return @[result];
 }
 
 - (double)durationWithOptions:(nullable NSDictionary<NSString *, id> *)options
@@ -424,13 +438,13 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
       [result addObject:touchItem];
       continue;
     }
-    NSString *uuid = FBExtractElement(options);
-    if (nil == uuid || nil == self.elementCache) {
-      [result addObject:touchItem];
-      continue;
-    }
-    XCUIElement *element = [self.elementCache elementForUUID:uuid];
-    if (nil == element) {
+    id origin = FBExtractElement(options);
+    XCUIElement *element;
+    if ([origin isKindOfClass:XCUIElement.class]) {
+      element = origin;
+    } else if ([origin isKindOfClass:NSString.class]) {
+      element = [self.elementCache elementForUUID:(NSString *)origin];
+    } else {
       [result addObject:touchItem];
       continue;
     }

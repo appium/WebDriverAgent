@@ -11,6 +11,7 @@
 
 #import "FBAlert.h"
 #import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 
 
 @interface RouteResponseDouble : NSObject

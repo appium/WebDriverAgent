@@ -11,6 +11,8 @@
 
 #import "FBElementCache.h"
 #import "XCUIElementDouble.h"
+#import "XCUIElement+FBCaching.h"
+#import "XCUIElement+FBUtilities.h"
 
 @interface FBElementCacheTests : XCTestCase
 @property (nonatomic, strong) FBElementCache *cache;
@@ -41,19 +43,15 @@
   XCUIElement *element = (XCUIElement *)XCUIElementDouble.new;
   NSString *uuid = [self.cache storeElement:element];
   XCTAssertNotNil(uuid, @"Stored index should be higher than 0");
-  XCTAssertEqual(element, [self.cache elementForUUID:uuid]);
+  XCTAssertFalse(element.fb_isResolvedFromCache.boolValue);
+  XCUIElement *cachedElement = [self.cache elementForUUID:uuid];
+  XCTAssertEqual(element, cachedElement);
+  XCTAssertTrue(element.fb_isResolvedFromCache.boolValue);
 }
 
 - (void)testFetchingBadIndex
 {
-  XCTAssertNil([self.cache elementForUUID:@"random"]);
-}
-
-- (void)testResolvingFetchedElement
-{
-  NSString *uuid = [self.cache storeElement:(XCUIElement *)XCUIElementDouble.new];
-  XCUIElementDouble *element = (XCUIElementDouble *)[self.cache elementForUUID:uuid];
-  XCTAssertTrue(element.didResolve);
+  XCTAssertThrows([self.cache elementForUUID:@"random"]);
 }
 
 - (void)testLinearCacheExpulsion
@@ -77,7 +75,7 @@
   }
   
   for(int i = 0; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i++) {
-    XCTAssertNil([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE; i < ELEMENT_COUNT; i++) {
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
@@ -119,7 +117,7 @@
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i++) {
-    XCTAssertNil([self.cache elementForUUID:elementIds[i]]);
+    XCTAssertThrows([self.cache elementForUUID:elementIds[i]]);
   }
   for(int i = ELEMENT_COUNT - ELEMENT_CACHE_SIZE + ACCESSED_ELEMENT_COUNT; i < ELEMENT_COUNT; i++) {
     XCTAssertEqual(elements[i], [self.cache elementForUUID:elementIds[i]]);

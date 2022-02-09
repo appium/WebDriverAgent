@@ -10,6 +10,22 @@
 #import <WebDriverAgentLib/WebDriverAgentLib.h>
 #import "XCPointerEvent.h"
 
+/**
+ The version of testmanagerd process which is running on the device.
+
+ Potentially, we can handle processes based on this version instead of iOS versions,
+ iOS 10.1 -> 6
+ iOS 11.0.1 -> 18
+ iOS 11.4 -> 22
+ iOS 12.1, 12.4 -> 26
+ iOS 13.0, 13.4.1 -> 28
+
+ tvOS 13.3 -> 28
+
+ @return The version of testmanagerd
+ */
+NSInteger FBTestmanagerdVersion(void);
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -17,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
  so that WDA can be build with different Xcode versions.
  */
 @interface XCElementSnapshot (FBCompatibility)
-
-- (nullable XCElementSnapshot *)fb_rootElement;
 
 + (nullable SEL)fb_attributesForElementSnapshotKeyPathsSelector;
 
@@ -70,18 +84,12 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 @property(readonly) NSArray<XCUIElement *> *fb_allMatches;
 
 /**
- Since Xcode11 XCTest got a feature that caches intermediate query snapshots
+ Returns single unique matching snapshot for the given query
 
- @returns The cached snapshot or nil if the feature is either not available or there's no cached snapshot
+ @param error The error instance if there was a failure while retrieveing the snapshot
+ @returns The cached unqiue snapshot or nil if the element is stale
  */
-- (nullable XCElementSnapshot *)fb_cachedSnapshot;
-
-/**
- Retrieves the snapshot for the given element
-
- @returns The resolved snapshot
- */
-- (XCElementSnapshot *)fb_elementSnapshotForDebugDescription;
+- (nullable XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error;
 
 @end
 
@@ -96,12 +104,6 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 @interface XCUIElement (FBCompatibility)
 
 /**
- Enforces snapshot resolution of the destination element
- TODO: Deprecate and remove this helper after Xcode10 support is dropped
- */
-- (void)fb_nativeResolve;
-
-/**
  Determines whether current iOS SDK supports non modal elements inlusion into snapshots
 
  @return Either YES or NO
@@ -114,13 +116,6 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  @return Element query property extended with non modal elements depending on the actual configuration
  */
 - (XCUIElementQuery *)fb_query;
-
-/**
- Determines whether Xcode 11 snapshots API is supported
-
- @return Eiter YES or NO
- */
-+ (BOOL)fb_isSdk11SnapshotApiSupported;
 
 @end
 

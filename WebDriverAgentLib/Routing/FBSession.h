@@ -14,9 +14,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*! Exception used to notify about application crash */
-extern NSString *const FBApplicationCrashedException;
-
 /**
  Class that represents testing session
  */
@@ -31,7 +28,17 @@ extern NSString *const FBApplicationCrashedException;
 /*! Element cache related to that session */
 @property (nonatomic, strong, readonly) FBElementCache *elementCache;
 
+/*! The identifier of the active application */
 @property (nonatomic, copy) NSString *defaultActiveApplication;
+
+/*! The action to apply to unexpected alerts. Either "accept"/"dismiss" or nil/empty string (by default) to do nothing */
+@property (nonatomic, nullable) NSString *defaultAlertAction;
+
+/*! Whether to use the native caching strategy for elements or the custom one: https://discuss.appium.io/t/elements-state-coming-from-xpath-vs-ios-predicate-string/34016 */
+@property (nonatomic) BOOL useNativeCachingStrategy;
+
+/*! Keeps cached visibility values for the current snapshots tree */
+@property (nonatomic, readonly) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
 
 + (nullable instancetype)activeSession;
 

@@ -12,6 +12,7 @@
 #import <objc/runtime.h>
 
 #import "FBElementTypeTransformer.h"
+#import "FBLogger.h"
 #import "FBMacros.h"
 #import "XCUIElement+FBAccessibility.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -21,27 +22,30 @@
 #import "FBElementUtils.h"
 #import "XCTestPrivateSymbols.h"
 
+#define BROKEN_RECT CGRectMake(-1, -1, 0, 0)
+
 @implementation XCUIElement (WebDriverAttributesForwarding)
 
 - (XCElementSnapshot *)fb_snapshotForAttributeName:(NSString *)name
 {
-  if (!self.exists) {
-    return [XCElementSnapshot new];
-  }
-
   // These attrbiutes are special, because we can only retrieve them from
   // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
-  // That is why fb_snapshotWithAllAttributes method must be used instead of the default fb_lastSnapshot
+  // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
-    return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                                  maxDepth:@1];
   }
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] ||
-      [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-    return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]] ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]) {
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
+                                  maxDepth:@1];
+  }
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
+                                  maxDepth:nil];
   }
   
-  return (self.fb_cachedSnapshot ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  return self.fb_takeSnapshot;
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name
@@ -127,7 +131,14 @@
 
 - (CGRect)wdFrame
 {
-  return CGRectIntegral(self.frame);
+  CGRect frame = self.frame;
+  // It is mandatory to replace all Infinity values with numbers to avoid JSON parsing
+  // exceptions like https://github.com/facebook/WebDriverAgent/issues/639#issuecomment-314421206
+  // caused by broken element dimensions returned by XCTest
+  return (isinf(frame.size.width) || isinf(frame.size.height)
+          || isinf(frame.origin.x) || isinf(frame.origin.y))
+    ? CGRectIntegral(BROKEN_RECT)
+    : CGRectIntegral(frame);
 }
 
 - (BOOL)isWDVisible
@@ -192,6 +203,19 @@
 - (BOOL)isWDSelected
 {
   return self.isSelected;
+}
+
+- (NSUInteger)wdIndex
+{
+  if (nil != self.parent) {
+    for (NSUInteger index = 0; index < self.parent.children.count; ++index) {
+      if ([self.parent.children objectAtIndex:index] == self) {
+        return index;
+      }
+    }
+  }
+
+  return 0;
 }
 
 - (NSDictionary *)wdRect

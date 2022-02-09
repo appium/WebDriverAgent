@@ -16,6 +16,7 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCElementSnapshot.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCPointerEventPath.h"
@@ -85,7 +86,9 @@
   } else {
     // The offset relative to the element is defined
 
-    XCElementSnapshot *snapshot = element.fb_cachedSnapshot ?: element.fb_lastSnapshot;
+    XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
+      ? element.lastSnapshot
+      : element.fb_takeSnapshot;
     if (nil == positionOffset) {
       NSValue *hitPointValue = snapshot.fb_hitPoint;
       if (nil != hitPointValue) {

@@ -9,13 +9,15 @@
 
 #import <XCTest/XCTest.h>
 
+#import <mach/mach_time.h>
+
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBElement.h"
 #import "FBTestMacros.h"
-#import "FBSpringboardApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "FBXCodeCompatibility.h"
 
 @interface XCUIApplicationHelperTests : FBIntegrationTestCase
 @end
@@ -31,8 +33,8 @@
 - (void)testQueringSpringboard
 {
   [self goToSpringBoardFirstPage];
-  XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Safari"].exists);
-  XCTAssertTrue([FBSpringboardApplication fb_springboard].icons[@"Calendar"].exists);
+  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
+  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.exists);
 }
 
 - (void)testApplicationTree
@@ -41,23 +43,25 @@
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 
-- (void)disabled_testDeactivateApplication
+- (void)testDeactivateApplication
 {
-  // This test randomly causes:
-  // Failure fetching attributes for element <XCAccessibilityElement: 0x6080008407b0> Device element: Error Domain=XCTDaemonErrorDomain Code=13 "Value for attribute 5017 is an error." UserInfo={NSLocalizedDescription=Value for attribute 5017 is an error.}
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_deactivateWithDuration:1 error:&error]);
+  uint64_t timeStarted = mach_absolute_time();
+  NSTimeInterval backgroundDuration = 5.0;
+  XCTAssertTrue([self.testedApplication fb_deactivateWithDuration:backgroundDuration error:&error]);
+  NSTimeInterval timeElapsed = (mach_absolute_time() - timeStarted) / NSEC_PER_SEC;
   XCTAssertNil(error);
+  XCTAssertEqualWithAccuracy(timeElapsed, backgroundDuration, 3.0);
   XCTAssertTrue(self.testedApplication.buttons[@"Alerts"].exists);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.buttons[@"Alerts"].fb_isVisible);
 }
 
 - (void)testActiveApplication
 {
+  FBApplication *systemApp = FBApplication.fb_systemApplication;
   XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
-  XCTAssertEqualObjects([FBApplication fb_activeApplication].bundleID, SPRINGBOARD_BUNDLE_ID);
-  XCTAssertTrue([FBApplication fb_activeApplicationWithDefaultBundleId:SPRINGBOARD_BUNDLE_ID].icons[@"Safari"].fb_isVisible);
+  XCTAssertEqualObjects([FBApplication fb_activeApplication].bundleID, systemApp.bundleID);
+  XCTAssertTrue(systemApp.icons[@"Safari"].fb_isVisible);
 }
 
 - (void)testActiveElement
@@ -87,7 +91,7 @@
 
 - (void)testTestmanagerdVersion
 {
-  XCTAssertGreaterThan([XCUIApplication fb_testmanagerdVersion], 0);
+  XCTAssertGreaterThan(FBTestmanagerdVersion(), 0);
 }
 
 @end

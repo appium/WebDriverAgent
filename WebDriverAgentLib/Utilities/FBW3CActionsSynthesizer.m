@@ -21,6 +21,7 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement.h"
@@ -161,11 +162,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  XCElementSnapshot *snapshot = element.fb_cachedSnapshot ?: element.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
+    ? element.lastSnapshot
+    : element.fb_takeSnapshot;
   CGRect frame = snapshot.frame;
   if (CGRectIsEmpty(frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", snapshot.fb_description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
@@ -296,7 +299,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   if (nil == eventPath) {
     return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)]];
   }
-  [eventPath moveToPoint:self.atPosition atOffset:FBMillisToSeconds(self.offset)];
+  [eventPath moveToPoint:self.atPosition atOffset:FBMillisToSeconds(self.offset + self.duration)];
   return @[];
 }
 
@@ -314,7 +317,21 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  return @[];
+  if (nil != eventPath) {
+    if (0 == currentItemIndex) {
+      return @[];
+    }
+    FBBaseGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
+    if (![preceedingItem isKindOfClass:FBPointerUpItem.class] && currentItemIndex < allItems.count - 1) {
+      return @[];
+    }
+  }
+  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
+  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
+  if (currentItemIndex == allItems.count - 1) {
+    [result liftUpAtOffset:currentOffset];
+  }
+  return @[result];
 }
 
 @end
@@ -502,22 +519,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   // TODO: The current approach throws zero division error on execution
   // NSUInteger modifiers = [self collectModifersWithItems:allItems currentItemIndex:currentItemIndex];
   // [resultPath setModifiers:modifiers mergeWithCurrentModifierFlags:NO atOffset:0];
-  if ([resultPath respondsToSelector:@selector(typeText:atOffset:typingSpeed:)]) {
-    [resultPath typeText:text
-                atOffset:offset
-             typingSpeed:FBConfiguration.maxTypingFrequency];
-  } else if ([resultPath respondsToSelector:@selector(typeText:atOffset:typingSpeed:shouldRedact:)]) {
-    [resultPath typeText:text
-                atOffset:offset
-             typingSpeed:FBConfiguration.maxTypingFrequency
-            shouldRedact:YES];
-  } else {
-    NSString *description = @"typeText: selector signature has been unexpectedly changed in the current XCTest SDK. Consider switching to the most recent WDA version";
-    if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:description] build];
-    }
-    return nil;
-  }
+  [resultPath typeText:text
+              atOffset:offset
+           typingSpeed:FBConfiguration.maxTypingFrequency
+          shouldRedact:YES];
   return @[resultPath];
 }
 
@@ -704,8 +709,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
         origin = element;
       }
     }
-    XCUIElement *instance = [self.elementCache elementForUUID:origin];
-    if (nil == instance) {
+
+    XCUIElement *instance;
+    if ([origin isKindOfClass:XCUIElement.class]) {
+      instance = origin;
+    } else if ([origin isKindOfClass:NSString.class]) {
+      instance = [self.elementCache elementForUUID:(NSString *)origin];
+    } else {
       [result addObject:actionItem];
       continue;
     }

@@ -14,22 +14,17 @@
 #include <notify.h>
 #import <objc/runtime.h>
 
-#import "FBSpringboardApplication.h"
 #import "FBErrorBuilder.h"
 #import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
+#import "FBScreenshot.h"
 #import "FBXCodeCompatibility.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
-#import "FBXCTestDaemonsProxy.h"
-#import <MobileCoreServices/MobileCoreServices.h>
-
 #import "XCUIDevice.h"
-#import "XCUIScreen.h"
+#import "XCDeviceEvent.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
-static const NSTimeInterval SCREENSHOT_TIMEOUT = 2;
 
 @implementation XCUIDevice (FBHelpers)
 
@@ -55,7 +50,7 @@ static bool fb_isLocked;
 
 - (BOOL)fb_goToHomescreenWithError:(NSError **)error
 {
-  return [FBSpringboardApplication.fb_springboard fb_switchToWithError:error];
+  return [FBApplication fb_switchToSystemApplicationWithError:error];
 }
 
 - (BOOL)fb_lockScreen:(NSError **)error
@@ -104,30 +99,8 @@ static bool fb_isLocked;
 
 - (NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error
 {
-  NSData* screenshotData = [self fb_rawScreenshotWithQuality:FBConfiguration.screenshotQuality error:error];
-#if TARGET_OS_TV
-  return FBAdjustScreenshotOrientationForApplication(screenshotData);
-#else
-  return FBAdjustScreenshotOrientationForApplication(screenshotData, FBApplication.fb_activeApplication.interfaceOrientation);
-#endif
-}
-
-- (NSData *)fb_rawScreenshotWithQuality:(NSUInteger)quality error: (NSError*__autoreleasing*) error
-{
-  if ([XCUIDevice fb_isNewScreenshotAPISupported]) {
-    return [XCUIScreen.mainScreen screenshotDataForQuality:quality rect:CGRectNull error:error];
-  } else {
-    id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-    __block NSData *screenshotData = nil;
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [proxy _XCT_requestScreenshotWithReply:^(NSData *data, NSError *screenshotError) {
-      screenshotData = data;
-      *error = screenshotError;
-      dispatch_semaphore_signal(sem);
-    }];
-    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SCREENSHOT_TIMEOUT * NSEC_PER_SEC)));
-    return screenshotData;
-  }
+  return [FBScreenshot takeInOriginalResolutionWithQuality:FBConfiguration.screenshotQuality
+                                                     error:error];
 }
 
 - (BOOL)fb_fingerTouchShouldMatch:(BOOL)shouldMatch
@@ -139,16 +112,6 @@ static bool fb_isLocked;
     name = "com.apple.BiometricKit_Sim.fingerTouch.nomatch";
   }
   return notify_post(name) == NOTIFY_STATUS_OK;
-}
-
-+ (BOOL)fb_isNewScreenshotAPISupported
-{
-  static dispatch_once_t newScreenshotAPISupported;
-  static BOOL result;
-  dispatch_once(&newScreenshotAPISupported, ^{
-    result = [(NSObject *)[FBXCTestDaemonsProxy testRunnerProxy] respondsToSelector:@selector(_XCT_requestScreenshotOfScreenWithID:withRect:uti:compressionQuality:withReply:)];
-  });
-  return result;
 }
 
 - (NSString *)fb_wifiIPAddress
@@ -213,12 +176,13 @@ static bool fb_isLocked;
              withDescription:@"Siri service is not available on the device under test"]
             buildError:error];
   }
+  SEL selector = NSSelectorFromString(@"activateWithVoiceRecognitionText:");
+  NSMethodSignature *signature = [siriService methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setArgument:&text atIndex:2];
   @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [siriService performSelector:NSSelectorFromString(@"activateWithVoiceRecognitionText:")
-                      withObject:text];
-#pragma clang diagnostic pop
+    [invocation invokeWithTarget:siriService];
     return YES;
   } @catch (NSException *e) {
     return [[[FBErrorBuilder builder]
@@ -227,9 +191,13 @@ static bool fb_isLocked;
   }
 }
 
-#if TARGET_OS_TV
-- (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
+- (BOOL)fb_pressButton:(NSString *)buttonName
+           forDuration:(nullable NSNumber *)duration
+                 error:(NSError **)error
 {
+#if !TARGET_OS_TV
+  return [self fb_pressButton:buttonName error:error];
+#else
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
   NSInteger remoteButton = -1; // no remote button
   if ([buttonName.lowercaseString isEqualToString:@"home"]) {
@@ -286,12 +254,22 @@ static bool fb_isLocked;
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
             buildError:error];
   }
-  [[XCUIRemote sharedRemote] pressButton:remoteButton];
-  return YES;
-}
-#else
 
-- (BOOL)fb_pressButton:(NSString *)buttonName error:(NSError **)error
+  if (duration) {
+    // https://developer.apple.com/documentation/xctest/xcuiremote/1627475-pressbutton
+    [[XCUIRemote sharedRemote] pressButton:remoteButton forDuration:duration.doubleValue];
+  } else {
+    // https://developer.apple.com/documentation/xctest/xcuiremote/1627476-pressbutton
+    [[XCUIRemote sharedRemote] pressButton:remoteButton];
+  }
+
+  return YES;
+#endif
+}
+
+#if !TARGET_OS_TV
+- (BOOL)fb_pressButton:(NSString *)buttonName
+                 error:(NSError **)error
 {
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
   XCUIDeviceButton dstButton = 0;
@@ -319,5 +297,16 @@ static bool fb_isLocked;
   return YES;
 }
 #endif
+
+- (BOOL)fb_performIOHIDEventWithPage:(unsigned int)page
+                               usage:(unsigned int)usage
+                            duration:(NSTimeInterval)duration
+                               error:(NSError **)error
+{
+  XCDeviceEvent *event = [XCDeviceEvent deviceEventWithPage:page
+                                                      usage:usage
+                                                   duration:duration];
+  return [self performDeviceEvent:event error:error];
+}
 
 @end

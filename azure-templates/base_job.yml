@@ -11,6 +11,7 @@ parameters:
     xcodeVersion: ''
     tvVersion: ''
     vmImage: ''
+    extraXcArgs: ''
 
 
 jobs:
@@ -29,6 +30,7 @@ jobs:
       IOS_VERSION: ${{ parameters.iosVersion }}
       XCODE_VERSION: ${{ parameters.xcodeVersion }}
       TV_VERSION: ${{ parameters.tvVersion }}
+      EXTRA_XC_ARGS: ${{ parameters.extraXcArgs }}
     steps:
     - template: bootstrap_steps.yml
     - script: ./Scripts/build.sh

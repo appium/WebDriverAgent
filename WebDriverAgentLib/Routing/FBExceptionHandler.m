@@ -11,19 +11,8 @@
 
 #import "RouteResponse.h"
 
-#import "FBAlert.h"
 #import "FBResponsePayload.h"
-#import "FBSession.h"
-#import "XCUIElement+FBClassChain.h"
-#import "FBXPath.h"
-
-
-NSString *const FBInvalidArgumentException = @"FBInvalidArgumentException";
-NSString *const FBSessionDoesNotExistException = @"FBSessionDoesNotExistException";
-NSString *const FBApplicationDeadlockDetectedException = @"FBApplicationDeadlockDetectedException";
-NSString *const FBElementAttributeUnknownException = @"FBElementAttributeUnknownException";
-NSString *const FBElementNotVisibleException = @"FBElementNotVisibleException";
-NSString *const FBTimeoutException = @"FBTimeoutException";
+#import "FBExceptions.h"
 
 @implementation FBExceptionHandler
 
@@ -49,9 +38,12 @@ NSString *const FBTimeoutException = @"FBTimeoutException";
   } else if ([exception.name isEqualToString:FBElementNotVisibleException]) {
     commandStatus = [FBCommandStatus elementNotVisibleErrorWithMessage:exception.reason
                                                              traceback:traceback];
+  } else if ([exception.name isEqualToString:FBStaleElementException]) {
+    commandStatus = [FBCommandStatus staleElementReferenceErrorWithMessage:exception.reason
+                                                                 traceback:traceback];
   } else if ([exception.name isEqualToString:FBTimeoutException]) {
-      commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
-                                                     traceback:traceback];
+    commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
+                                                   traceback:traceback];
   } else {
     commandStatus = [FBCommandStatus unknownErrorWithMessage:exception.reason
                                                    traceback:traceback];

@@ -10,7 +10,7 @@
 #import "FBAlertsMonitor.h"
 
 #import "FBAlert.h"
-#import "XCUIApplication.h"
+#import "FBApplication.h"
 #import "XCUIApplication+FBAlert.h"
 
 static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
@@ -26,7 +26,6 @@ static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
 - (instancetype)init
 {
   if ((self = [super init])) {
-    _application = nil;
     _isMonitoring = NO;
     _delegate = nil;
   }
@@ -49,18 +48,12 @@ static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (nil == self.application || !self.application.running) {
-      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delta), dispatch_get_main_queue(), ^{
-        [self scheduleNextTick];
-      });
-      return;
-    }
-
-    id<FBAlertsMonitorDelegate> handler = self.delegate;
-    if (nil != handler) {
-      XCUIElement *alertElement = [self.application fb_alertElement];
+    NSArray<FBApplication *> *activeApps = FBApplication.fb_activeApplications;
+    for (FBApplication *activeApp in activeApps) {
+      XCUIElement *alertElement = activeApp.fb_alertElement;
       if (nil != alertElement) {
-        [handler didDetectAlert:[FBAlert alertWithElement:alertElement]];
+        [self.delegate didDetectAlert:[FBAlert alertWithElement:alertElement]];
+        break;
       }
     }
 

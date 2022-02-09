@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTest/XCUIElementTypes.h"
 
+#import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 #import "FBElement.h"
@@ -40,7 +41,7 @@
   [allElements addObjectsFromArray:windows];
   
   NSMutableArray<XCElementSnapshot *> *buttonSnapshots = [NSMutableArray array];
-  [buttonSnapshots addObject:[buttons.firstObject fb_lastSnapshot]];
+  [buttonSnapshots addObject:[buttons.firstObject fb_takeSnapshot]];
   
   NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots selfUID:nil onlyChildren:NO];
   XCTAssertEqual(1, result.count);

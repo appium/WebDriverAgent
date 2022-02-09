@@ -12,7 +12,6 @@
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBMacros.h"
-#import "FBSpringboardApplication.h"
 #import "FBTestMacros.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -31,7 +30,9 @@
   [self goToSpringBoardFirstPage];
 
   // Check Icons on first screen
-  XCTAssertTrue(self.springboard.icons[@"Calendar"].fb_isVisible);
+  // Note: Calender app exits 2 (an app icon + a widget) exist on the home screen
+  // on iOS 15+. The firstMatch is for it.
+  XCTAssertTrue(self.springboard.icons[@"Calendar"].firstMatch.fb_isVisible);
   XCTAssertTrue(self.springboard.icons[@"Reminders"].fb_isVisible);
 
   // Check Icons on second screen screen

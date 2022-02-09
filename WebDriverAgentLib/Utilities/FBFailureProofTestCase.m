@@ -9,7 +9,7 @@
 
 #import "FBFailureProofTestCase.h"
 
-#import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBXCTestCaseImplementationFailureHoldingProxy.h"
 
@@ -23,18 +23,15 @@
 {
   [super setUp];
   self.continueAfterFailure = YES;
-  if ([self respondsToSelector:@selector(internalImplementation)]) {
-    // The `internalImplementation` API has been removed since Xcode 11.4
-    self.internalImplementation =
-      (_XCTestCaseImplementation *)[FBXCTestCaseImplementationFailureHoldingProxy
-                                    proxyWithXCTestCaseImplementation:self.internalImplementation];
-  } else {
-    // https://github.com/appium/appium/issues/13949
-    self.shouldSetShouldHaltWhenReceivesControl = NO;
-    self.shouldHaltWhenReceivesControl = NO;
-  }
+  // https://github.com/appium/appium/issues/13949
+  self.shouldSetShouldHaltWhenReceivesControl = NO;
+  self.shouldHaltWhenReceivesControl = NO;
 }
 
+
+/**
+ Override 'recordFailureWithDescription' to not stop by failures.
+ */
 - (void)recordFailureWithDescription:(NSString *)description
                               inFile:(NSString *)filePath
                               atLine:(NSUInteger)lineNumber

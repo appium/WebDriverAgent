@@ -10,13 +10,13 @@
 #import "XCUIElement+FBScrolling.h"
 
 #import "FBErrorBuilder.h"
-#import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBPredicate.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBTouchAction.h"
+#import "XCUIElement+FBCaching.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot.h"
 #import "XCUIApplication.h"
@@ -30,7 +30,6 @@
 const CGFloat FBFuzzyPointThreshold = 20.f; //Smallest determined value that is not interpreted as touch
 const CGFloat FBScrollToVisibleNormalizedDistance = .5f;
 const CGFloat FBTouchEventDelay = 1.f;
-const NSTimeInterval FBAnimationCoolOffTimeout = 2.0;
 const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
@@ -50,25 +49,33 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
   [snapshot fb_scrollUpByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollDownByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
   [snapshot fb_scrollDownByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollLeftByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
   [snapshot fb_scrollLeftByNormalizedDistance:distance inApplication:self.application];
 }
 
 - (void)fb_scrollRightByNormalizedDistance:(CGFloat)distance
 {
-  XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_lastSnapshot;
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
   [snapshot fb_scrollRightByNormalizedDistance:distance inApplication:self.application];
 }
 
@@ -86,7 +93,8 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance scrollDirection:(FBXCUIElementScrollDirection)scrollDirection error:(NSError **)error
 {
-  if (self.fb_isVisible) {
+  XCElementSnapshot *prescrollSnapshot = [self fb_takeSnapshot];
+  if (prescrollSnapshot.isWDVisible) {
     return YES;
   }
 
@@ -101,13 +109,6 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     ];
   });
 
-  XCElementSnapshot *prescrollSnapshot = self.fb_cachedSnapshot;
-  BOOL hasCachedSnapshot = YES;
-  if (nil == prescrollSnapshot) {
-    [self fb_nativeResolve];
-    prescrollSnapshot = self.fb_lastSnapshot;
-    hasCachedSnapshot = NO;
-  }
   __block NSArray<XCElementSnapshot *> *cellSnapshots, *visibleCellSnapshots;
   XCElementSnapshot *scrollView = [prescrollSnapshot fb_parentMatchingOneOfTypes:acceptedParents
       filter:^(XCElementSnapshot *snapshot) {
@@ -172,9 +173,8 @@ const CGFloat FBScrollTouchProportion = 0.75f;
         [scrollView fb_scrollRightByNormalizedDistance:normalizedScrollDistance inApplication:self.application];
     }
     scrollCount++;
-    if (!hasCachedSnapshot) {
-      [self fb_nativeResolve];
-    }
+    // Wait for scroll animation
+    [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   }
 
   if (scrollCount >= maxScrollCount) {
@@ -184,10 +184,14 @@ const CGFloat FBScrollTouchProportion = 0.75f;
      buildError:error];
   }
 
-  // Cell is now visible, but it might be only partialy visible, scrolling till whole frame is visible
-  targetCellSnapshot = [(self.fb_cachedSnapshot ?: self.fb_lastSnapshot) fb_parentCellSnapshot];
-  CGVector scrollVector = CGVectorMake(targetCellSnapshot.visibleFrame.size.width - targetCellSnapshot.frame.size.width,
-                                       targetCellSnapshot.visibleFrame.size.height - targetCellSnapshot.frame.size.height
+  // Cell is now visible, but it might be only partialy visible, scrolling till whole frame is visible.
+  // Sometimes, attempting to grab the parent snapshot of the target cell after scrolling is complete causes a stale element reference exception.
+  // Trying fb_cachedSnapshot first
+  targetCellSnapshot = [([self fb_cachedSnapshot] ?: [self fb_takeSnapshot]) fb_parentCellSnapshot];
+  CGRect visibleFrame = targetCellSnapshot.fb_visibleFrameWithFallback;
+  
+  CGVector scrollVector = CGVectorMake(visibleFrame.size.width - targetCellSnapshot.frame.size.width,
+                                       visibleFrame.size.height - targetCellSnapshot.frame.size.height
                                        );
   if (![scrollView fb_scrollByVector:scrollVector inApplication:self.application error:error]) {
     return NO;
@@ -197,14 +201,14 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 - (BOOL)fb_isEquivalentElementSnapshotVisible:(XCElementSnapshot *)snapshot
 {
-  if (self.fb_isVisible) {
+  if (snapshot.isWDVisible) {
     return YES;
   }
 
-  XCElementSnapshot *appSnapshot = self.application.fb_cachedSnapshot ?: self.application.fb_lastSnapshot;
+  XCElementSnapshot *appSnapshot = [self.application fb_takeSnapshot];
   for (XCElementSnapshot *elementSnapshot in appSnapshot._allDescendants.copy) {
     // We are comparing pre-scroll snapshot so frames are irrelevant.
-    if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.fb_isVisible) {
+    if ([snapshot fb_framelessFuzzyMatchesElement:elementSnapshot] && elementSnapshot.isWDVisible) {
       return YES;
     }
   }
@@ -319,13 +323,13 @@ const CGFloat FBScrollTouchProportion = 0.75f;
       @"action": @"release"
     }
   ];
-  BOOL result = [application fb_performAppiumTouchActions:gesture
-                                             elementCache:nil
-                                                    error:error];
-  if (result) {
-    [application fb_waitUntilSnapshotIsStableWithTimeout:FBAnimationCoolOffTimeout];
+  if (![application fb_performAppiumTouchActions:gesture
+                                    elementCache:nil
+                                           error:error]) {
+    return NO;
   }
-  return result;
+
+  return YES;
 }
 
 @end

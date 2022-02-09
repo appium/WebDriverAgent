@@ -9,7 +9,6 @@
 
 #import "FBApplication.h"
 
-#import "FBApplicationProcessProxy.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
@@ -24,13 +23,11 @@
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 #import "FBXCAXClientProxy.h"
-#import "XCUIApplicationProcessQuiescence.h"
 
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 @interface FBApplication ()
-@property (nonatomic, assign) BOOL fb_isObservingAppImplCurrentProcess;
 @end
 
 @implementation FBApplication
@@ -38,6 +35,21 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 + (instancetype)fb_activeApplication
 {
   return [self fb_activeApplicationWithDefaultBundleId:nil];
+}
+
++ (NSArray<FBApplication *> *)fb_activeApplications
+{
+  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  NSMutableArray<FBApplication *> *result = [NSMutableArray array];
+  if (activeApplicationElements.count > 0) {
+    for (XCAccessibilityElement *applicationElement in activeApplicationElements) {
+      FBApplication *app = [FBApplication fb_applicationWithPID:applicationElement.processIdentifier];
+      if (nil != app) {
+        [result addObject:app];
+      }
+    }
+  }
+  return result.count > 0 ? result.copy : @[self.class.fb_systemApplication];
 }
 
 + (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId
@@ -121,43 +133,17 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
    [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
-+ (instancetype)appWithPID:(pid_t)processID
-{
-  if ([NSProcessInfo processInfo].processIdentifier == processID) {
-    return nil;
-  }
-  FBApplication *application = [self fb_registeredApplicationWithProcessID:processID];
-  if (application) {
-    return application;
-  }
-  application = [super appWithPID:processID];
-  [FBApplication fb_registerApplication:application withProcessID:processID];
-  return application;
-}
-
 + (instancetype)applicationWithPID:(pid_t)processID
 {
   if ([NSProcessInfo processInfo].processIdentifier == processID) {
     return nil;
   }
-  FBApplication *application = [self fb_registeredApplicationWithProcessID:processID];
-  if (application) {
-    return application;
-  }
-  if ([FBXCAXClientProxy.sharedClient hasProcessTracker]) {
-    application = (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
-  } else {
-    application = [super applicationWithPID:processID];
-  }
-  [FBApplication fb_registerApplication:application withProcessID:processID];
-  return application;
+  return (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
 }
 
 - (void)launch
 {
-  [XCUIApplicationProcessQuiescence setQuiescenceCheck:self.fb_shouldWaitForQuiescence];
   [super launch];
-  [FBApplication fb_registerApplication:self withProcessID:self.processID];
   if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
     [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
   }
@@ -165,70 +151,34 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 - (void)terminate
 {
-  if (self.fb_isObservingAppImplCurrentProcess) {
-    [self.fb_appImpl removeObserver:self forKeyPath:FBStringify(XCUIApplicationImpl, currentProcess)];
-  }
   [super terminate];
   if (![self waitForState:XCUIApplicationStateNotRunning timeout:APP_STATE_CHANGE_TIMEOUT]) {
     [FBLogger logFmt:@"The active application is still '%@' after %.2f seconds timeout", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
   }
 }
 
-
-#pragma mark - Quiescence
-
-- (void)_waitForQuiescence
++ (BOOL)fb_switchToSystemApplicationWithError:(NSError **)error
 {
-  if (!self.fb_shouldWaitForQuiescence) {
-    return;
+  FBApplication *systemApp = self.fb_systemApplication;
+  @try {
+    if ([systemApp fb_state] < 2) {
+      [systemApp launch];
+    } else {
+      [systemApp fb_activate];
+    }
+  } @catch (NSException *e) {
+    return [[[FBErrorBuilder alloc]
+             withDescription:nil == e ? @"Cannot open the home screen" : e.reason]
+            buildError:error];
   }
-  [super _waitForQuiescence];
-}
-
-- (XCUIApplicationImpl *)fb_appImpl
-{
-  if (![self respondsToSelector:@selector(applicationImpl)]) {
-    return nil;
+  return [[[[FBRunLoopSpinner new]
+            timeout:5]
+           timeoutErrorMessage:@"Timeout waiting until the home screen is visible"]
+          spinUntilTrue:^BOOL{
+    FBApplication *activeApp = self.fb_activeApplication;
+    return nil != activeApp && [activeApp.bundleID isEqualToString:systemApp.bundleID];
   }
-  XCUIApplicationImpl *appImpl = [self applicationImpl];
-  if (![appImpl respondsToSelector:@selector(currentProcess)]) {
-    return nil;
-  }
-  return appImpl;
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
-{
-  if (![keyPath isEqualToString:FBStringify(XCUIApplicationImpl, currentProcess)]) {
-    return;
-  }
-  if ([change[NSKeyValueChangeKindKey] unsignedIntegerValue] != NSKeyValueChangeSetting) {
-    return;
-  }
-  XCUIApplicationProcess *applicationProcess = change[NSKeyValueChangeNewKey];
-  if (!applicationProcess || [applicationProcess isProxy] || ![applicationProcess isMemberOfClass:XCUIApplicationProcess.class]) {
-    return;
-  }
-  [object setValue:[FBApplicationProcessProxy proxyWithApplicationProcess:applicationProcess] forKey:keyPath];
-}
-
-
-#pragma mark - Process registration
-
-static NSMutableDictionary *FBPidToApplicationMapping;
-
-+ (instancetype)fb_registeredApplicationWithProcessID:(pid_t)processID
-{
-  return FBPidToApplicationMapping[@(processID)];
-}
-
-+ (void)fb_registerApplication:(XCUIApplication *)application withProcessID:(pid_t)processID
-{
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    FBPidToApplicationMapping = [NSMutableDictionary dictionary];
-  });
-  FBPidToApplicationMapping[@(application.processID)] = application;
+          error:error];
 }
 
 @end

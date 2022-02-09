@@ -13,53 +13,67 @@
 #import "FBElementUtils.h"
 #import "FBMathUtils.h"
 #import "FBActiveAppDetectionPoint.h"
+#import "FBSession.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAccessibilityElement+FBComparison.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCElementSnapshot+FBHitPoint.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBUID.h"
 #import "XCTestPrivateSymbols.h"
 
 @implementation XCUIElement (FBIsVisible)
 
 - (BOOL)fb_isVisible
 {
-  return ([self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]] ?: self.fb_lastSnapshot).fb_isVisible;
+  return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                                maxDepth:@1].fb_isVisible;
 }
 
 @end
 
 @implementation XCElementSnapshot (FBIsVisible)
 
-static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *fb_generationsCache;
-
-+ (void)load
+- (NSString *)fb_uniqId
 {
-  fb_generationsCache = [NSMutableDictionary dictionary];
+  return self.fb_uid ?: [NSString stringWithFormat:@"%p", (void *)self];
 }
 
 - (nullable NSNumber *)fb_cachedVisibilityValue
 {
-  NSNumber* generationObj = [NSNumber numberWithUnsignedLongLong:self.generation];
-  NSDictionary<NSString *, NSNumber *> *result = [fb_generationsCache objectForKey:generationObj];
-  if (nil == result) {
-    // There is no need to keep the cached data for the previous generations
-    [fb_generationsCache removeAllObjects];
-    [fb_generationsCache setObject:[NSMutableDictionary dictionary] forKey:generationObj];
+  NSMutableDictionary *cache = FBSession.activeSession.elementsVisibilityCache;
+  if (nil == cache) {
     return nil;
   }
-  return [result objectForKey:[NSString stringWithFormat:@"%p", (void *)self]];
+
+  NSDictionary<NSString *, NSNumber *> *result = [cache objectForKey:@(self.generation)];
+  if (nil == result) {
+    // There is no need to keep the cached data for the previous generations
+    [cache removeAllObjects];
+    [cache setObject:[NSMutableDictionary dictionary] forKey:@(self.generation)];
+    return nil;
+  }
+  return [result objectForKey:self.fb_uniqId];
 }
 
-- (BOOL)fb_cacheVisibilityWithValue:(BOOL)isVisible forAncestors:(nullable NSArray<XCElementSnapshot *> *)ancestors
+- (BOOL)fb_cacheVisibilityWithValue:(BOOL)isVisible
+                       forAncestors:(nullable NSArray<XCElementSnapshot *> *)ancestors
 {
-  NSMutableDictionary<NSString *, NSNumber *> *destination = [fb_generationsCache objectForKey:@(self.generation)];
+  NSMutableDictionary *cache = FBSession.activeSession.elementsVisibilityCache;
+  if (nil == cache) {
+    return isVisible;
+  }
+  NSMutableDictionary<NSString *, NSNumber *> *destination = [cache objectForKey:@(self.generation)];
+  if (nil == destination) {
+    return isVisible;
+  }
+
   NSNumber *visibleObj = [NSNumber numberWithBool:isVisible];
-  [destination setObject:visibleObj forKey:[NSString stringWithFormat:@"%p", (void *)self]];
+  [destination setObject:visibleObj forKey:self.fb_uniqId];
   if (isVisible && nil != ancestors) {
     // if an element is visible then all its ancestors must be visible as well
     for (XCElementSnapshot *ancestor in ancestors) {
-      NSString *ancestorId = [NSString stringWithFormat:@"%p", (void *)ancestor];
+      NSString *ancestorId = ancestor.fb_uniqId;
       if (nil == [destination objectForKey:ancestorId]) {
         [destination setObject:visibleObj forKey:ancestorId];
       }
@@ -68,7 +82,8 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber 
   return isVisible;
 }
 
-- (CGRect)fb_frameInContainer:(XCElementSnapshot *)container hierarchyIntersection:(nullable NSValue *)intersectionRectange
+- (CGRect)fb_frameInContainer:(XCElementSnapshot *)container
+        hierarchyIntersection:(nullable NSValue *)intersectionRectange
 {
   CGRect currentRectangle = nil == intersectionRectange ? self.frame : [intersectionRectange CGRectValue];
   XCElementSnapshot *parent = self.parent;

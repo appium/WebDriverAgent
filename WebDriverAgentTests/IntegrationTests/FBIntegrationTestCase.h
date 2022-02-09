@@ -9,18 +9,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBSpringboardApplication.h"
+#import "FBApplication.h"
 
 extern NSString *const FBShowAlertButtonName;
 extern NSString *const FBShowSheetAlertButtonName;
 extern NSString *const FBShowAlertForceTouchButtonName;
+extern NSString *const FBTouchesCountLabelIdentifier;
+extern NSString *const FBTapsCountLabelIdentifier;
 
 /**
  XCTestCase helper class used for integration tests
  */
 @interface FBIntegrationTestCase : XCTestCase
 @property (nonatomic, strong, readonly) XCUIApplication *testedApplication;
-@property (nonatomic, strong, readonly) FBSpringboardApplication *springboard;
+@property (nonatomic, strong, readonly) FBApplication *springboard;
 
 /**
  Launches application and resets side effects of testing like orientation etc.
@@ -36,6 +38,11 @@ extern NSString *const FBShowAlertForceTouchButtonName;
  Navigates integration app to alerts page
  */
 - (void)goToAlertsPage;
+
+/**
+ Navigates integration app to touch page
+ */
+- (void)goToTouchPage;
 
 /**
  Navigates to SpringBoard first page

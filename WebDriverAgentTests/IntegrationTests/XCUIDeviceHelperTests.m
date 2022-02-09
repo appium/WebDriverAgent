@@ -15,6 +15,8 @@
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBRotation.h"
+#import "XCUIScreen.h"
 
 @interface XCUIDeviceHelperTests : FBIntegrationTestCase
 @end
@@ -32,11 +34,47 @@
 
 - (void)testScreenshot
 {
+  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
   NSError *error = nil;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
-  XCTAssertNotNil([UIImage imageWithData:screenshotData]);
+  XCTAssertNotNil(screenshotData);
   XCTAssertNil(error);
   XCTAssertTrue(FBIsPngImage(screenshotData));
+
+  UIImage *screenshot = [UIImage imageWithData:screenshotData];
+  XCTAssertNotNil(screenshot);
+
+  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
+  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale,
+                             screenshot.size.height,
+                             FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale,
+                             screenshot.size.width,
+                             FLT_EPSILON);
+}
+
+- (void)testLandscapeScreenshot
+{
+  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeLeft];
+  NSError *error = nil;
+  NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
+  XCTAssertNotNil(screenshotData);
+  XCTAssertTrue(FBIsPngImage(screenshotData));
+  XCTAssertNil(error);
+
+  UIImage *screenshot = [UIImage imageWithData:screenshotData];
+  XCTAssertNotNil(screenshot);
+  XCTAssertTrue(screenshot.size.width > screenshot.size.height);
+
+  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+  UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
+  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale,
+                             screenshot.size.height,
+                             FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale,
+                             screenshot.size.width,
+                             FLT_EPSILON);
 }
 
 - (void)testWifiAddress
@@ -81,14 +119,40 @@
 - (void)testPressingUnsupportedButton
 {
   NSError *error;
-  XCTAssertFalse([XCUIDevice.sharedDevice fb_pressButton:@"volumeUpp" error:&error]);
+  NSNumber *duration = nil;
+  XCTAssertFalse([XCUIDevice.sharedDevice fb_pressButton:@"volumeUpp"
+                                             forDuration:duration
+                                                   error:&error]);
   XCTAssertNotNil(error);
 }
 
 - (void)testPressingSupportedButton
 {
   NSError *error;
-  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home" error:&error]);
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home"
+                                            forDuration:nil
+                                                  error:&error]);
+  XCTAssertNil(error);
+}
+
+- (void)testPressingSupportedButtonNumber
+{
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_pressButton:@"home"
+                                            forDuration:[NSNumber numberWithDouble:1.0]
+                                                  error:&error]);
+  XCTAssertNil(error);
+}
+
+- (void)testLongPressHomeButton
+{
+  NSError *error;
+  // kHIDPage_Consumer = 0x0C
+  // kHIDUsage_Csmr_Menu = 0x40
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_performIOHIDEventWithPage:0x0C
+                                                                usage:0x40
+                                                             duration:1.0
+                                                                error:&error]);
   XCTAssertNil(error);
 }
 

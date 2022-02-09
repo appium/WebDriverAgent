@@ -34,11 +34,6 @@ xcuserdata
 # AppCode
 .idea/
 
-# Carthage
-Carthage/Build
-Carthage/Checkouts
-Carthage/Cartfile.resolved
-
 # Modules map recreated on each build
 Modules/module.modulemap
 
@@ -54,3 +49,4 @@ webdriveragent-*.tar.gz
 uncompressed/
 prebuilt-agents/
 WebDriverAgentRunner-Runner.app.zip
+WebDriverAgentRunner-Runner.app/

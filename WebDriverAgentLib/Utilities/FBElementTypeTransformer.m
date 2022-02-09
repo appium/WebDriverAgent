@@ -9,7 +9,7 @@
 
 #import "FBElementTypeTransformer.h"
 
-#import "FBExceptionHandler.h"
+#import "FBExceptions.h"
 
 @implementation FBElementTypeTransformer
 

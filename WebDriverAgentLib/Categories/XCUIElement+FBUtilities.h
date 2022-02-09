@@ -16,58 +16,59 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCUIElement (FBUtilities)
 
 /**
- Waits for receiver's frame to become stable with the default timeout
-
- @return Whether the frame is stable
- */
-- (BOOL)fb_waitUntilFrameIsStable;
-
-/**
  Gets the most recent snapshot of the current element. The element will be
- automatically resolved if the snapshot is not available yet
+ automatically resolved if the snapshot is not available yet.
+ Calls to this method mutate the `lastSnapshot` instance property..
+ Calls to this method reset the `fb_isResolvedFromCache` property value to `NO`.
 
  @return The recent snapshot of the element
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (XCElementSnapshot *)fb_lastSnapshot;
+- (XCElementSnapshot *)fb_takeSnapshot;
 
 /**
- Gets the cached snapshot of the current element. nil
- is returned if either no cached element snapshot could be retrived
- or if the feature is not supported.
+ Extracts the cached element snapshot from its query.
+ No requests to the accessiblity framework is made.
+ It is only safe to use this call right after element lookup query
+ has been executed.
 
-@return The cached snapshot of the element
-*/
+ @return Either the cached snapshot or nil
+ */
 - (nullable XCElementSnapshot *)fb_cachedSnapshot;
 
 /**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes
  needed for creating the page source of this element. No additional calls to the accessibility layer
  are required.
+ Calls to this method mutate the `lastSnapshot` instance property.
+ Calls to this method reset the `fb_isResolvedFromCache` property value to `NO`.
+
+ @param maxDepth The maximum depth of the snapshot. nil value means to use the default depth.
+ with custom attributes cannot be resolved
  
- @return The recent snapshot of the element with the attributes resolved
+ @return The recent snapshot of the element with all attributes resolved or a snapshot with default
+ attributes resolved if there was a failure while resolving additional attributes
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributes;
+- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesAndMaxDepth:(nullable NSNumber *)maxDepth;
 
 /**
  Gets the most recent snapshot of the current element with given attributes resolved.
  No additional calls to the accessibility layer are required.
+ Calls to this method mutate the `lastSnapshot` instance property.
+ Calls to this method reset the `fb_isResolvedFromCache` property value to `NO`.
 
  @param attributeNames The list of attribute names to resolve. Must be one of
- FB_...Name values exported by XCTestPrivateSymbols.h module
- @return The recent snapshot of the element with the attributes resolved
-*/
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames;
+ FB_...Name values exported by XCTestPrivateSymbols.h module.
+ `nil` value means that only the default attributes must be extracted
+ @param maxDepth The maximum depth of the snapshot. nil value means to use the default depth.
 
-/**
- Gets the most recent snapshot of the current element from the query snapshot that found the element.
- fb_lastSnapshot actually resolves the query for that element, which then creates a new complete
- snapshot from the device, and filters it down to the element. This is slow. This method on the other
- hand finds the root query, obtains the rootSnapshot tree from that query, then applies the element's
- query to each snapshot object to find it's corresponding snapshot.
- 
- @return The recent snapshot of the element
- */
-- (XCElementSnapshot *)fb_lastSnapshotFromQuery;
+ @return The recent snapshot of the element with the given attributes resolved or a snapshot with default
+ attributes resolved if there was a failure while resolving additional attributes
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
+*/
+- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames
+                                                 maxDepth:(nullable NSNumber *)maxDepth;
 
 /**
  Filters elements by matching them to snapshots from the corresponding array
@@ -87,18 +88,15 @@ NS_ASSUME_NONNULL_BEGIN
  Waits until element snapshot is stable to avoid "Error copying attributes -25202 error".
  This error usually happens for testmanagerd if there is an active UI animation in progress and
  causes 15-seconds delay while getting hitpoint value of element's snapshot.
-
- @return YES if wait succeeded ortherwise NO if there is still some active animation in progress
 */
-- (BOOL)fb_waitUntilSnapshotIsStable;
+- (void)fb_waitUntilStable;
 
 /**
  Waits for receiver's snapshot to become stable with the given timeout
 
  @param timeout The max time to wait util the snapshot is stable
- @return Whether the snapshot is stiable after the timeout
 */
-- (BOOL)fb_waitUntilSnapshotIsStableWithTimeout:(NSTimeInterval)timeout;
+- (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout;
 
 /**
  Returns screenshot of the particular element

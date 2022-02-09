@@ -1,6 +1,6 @@
 parameters:
-  vmImage: 'macOS-10.14'
-  name: macOS_10_14
+  vmImage: 'macOS-10.15'
+  name: macOS_10_15
   excludeXcode: $(excludeXcode)
 jobs:
   - job: ${{ parameters.name }}
@@ -25,7 +25,7 @@ jobs:
       displayName: Install Ruby dependencies
     - script: mkdir -p Resources/WebDriverAgent.bundle
       displayName: Make Resources Folder
-    - script: node ./ci-jobs/scripts/build-webdriveragents.js
+    - script: node ./Scripts/build-webdriveragent.js
       displayName: Build WebDriverAgents
     - script: ls ./bundles
       displayName: List WDA Bundles
