@@ -292,11 +292,7 @@
     NSString *errMsg = @"The 'resource' argument must be set to a valid resource identifier (numeric value). See https://developer.apple.com/documentation/xctest/xcuiprotectedresource?language=objc";
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg traceback:nil]);
   }
-  NSError *error;
-  if (![request.session.activeApplication fb_resetAuthorizationStatusForResource:resource.longLongValue
-                                                                           error:&error]) {
-    return FBResponseWithUnknownError(error);
-  }
+  [request.session.activeApplication resetAuthorizationStatusForResource:(XCUIProtectedResource)resource.longLongValue];
   return FBResponseWithOK();
 }
 

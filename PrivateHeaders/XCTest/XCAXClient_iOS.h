@@ -27,8 +27,6 @@
 - (BOOL)performAction:(int)arg1 onElement:(id)arg2 value:(id)arg3 error:(id *)arg4;
 - (id)parameterizedAttributeForElement:(id)arg1 attribute:(id)arg2 parameter:(id)arg3;
 - (BOOL)setAttribute:(id)arg1 value:(id)arg2 element:(id)arg3 outError:(id *)arg4;
-// Removed in Xcode 10.2
-- (id)attributesForElement:(id)arg1 attributes:(id)arg2;
 // since Xcode10
 - (id)attributesForElement:(id)arg1 attributes:(id)arg2 error:(id *)arg3;
 - (id)attributesForElementSnapshot:(id)arg1 attributeList:(id)arg2;

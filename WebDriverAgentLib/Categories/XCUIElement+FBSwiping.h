@@ -16,8 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Performs swipe gesture on the element
  *
  * @param direction Swipe direction. The following values are supported: up, down, left and right
- * @param velocity Swipe speed in pixels per second. This parameter is only supported since Xcode 11.4
- * nil value means that the default velocity is going to be used.
+ * @param velocity Swipe speed in pixels per second
  */
 - (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity;
 

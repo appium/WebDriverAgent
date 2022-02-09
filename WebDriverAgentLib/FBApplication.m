@@ -133,23 +133,12 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
    [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
-+ (instancetype)appWithPID:(pid_t)processID
-{
-  if ([NSProcessInfo processInfo].processIdentifier == processID) {
-    return nil;
-  }
-  return [super appWithPID:processID];
-}
-
 + (instancetype)applicationWithPID:(pid_t)processID
 {
   if ([NSProcessInfo processInfo].processIdentifier == processID) {
     return nil;
   }
-  if ([FBXCAXClientProxy.sharedClient hasProcessTracker]) {
-    return (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
-  }
-  return [super applicationWithPID:processID];
+  return (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
 }
 
 - (void)launch

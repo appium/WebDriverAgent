@@ -19,20 +19,7 @@
 
 static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
-static BOOL FBShouldUseOldElementRootSelector = NO;
-static dispatch_once_t onceRootElementToken;
 @implementation XCElementSnapshot (FBCompatibility)
-
-- (XCElementSnapshot *)fb_rootElement
-{
-  dispatch_once(&onceRootElementToken, ^{
-    FBShouldUseOldElementRootSelector = [self respondsToSelector:@selector(_rootElement)];
-  });
-  if (FBShouldUseOldElementRootSelector) {
-    return [self _rootElement];
-  }
-  return [self rootElement];
-}
 
 + (id)fb_axAttributesForElementSnapshotKeyPathsIOS:(id)arg1
 {
@@ -44,9 +31,7 @@ static dispatch_once_t onceRootElementToken;
   static SEL attributesForElementSnapshotKeyPathsSelector = nil;
   static dispatch_once_t attributesForElementSnapshotKeyPathsSelectorToken;
   dispatch_once(&attributesForElementSnapshotKeyPathsSelectorToken, ^{
-    if ([self.class respondsToSelector:@selector(snapshotAttributesForElementSnapshotKeyPaths:)]) {
-      attributesForElementSnapshotKeyPathsSelector = @selector(snapshotAttributesForElementSnapshotKeyPaths:);
-    } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
+    if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(axAttributesForElementSnapshotKeyPaths:);
     } else if ([self.class respondsToSelector:@selector(axAttributesForElementSnapshotKeyPaths:isMacOS:)]) {
       attributesForElementSnapshotKeyPathsSelector = @selector(fb_axAttributesForElementSnapshotKeyPathsIOS:);
@@ -60,22 +45,14 @@ static dispatch_once_t onceRootElementToken;
 
 NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethodNotSupportedException";
 
-static BOOL FBShouldUseOldAppWithPIDSelector = NO;
-static dispatch_once_t onceAppWithPIDToken;
 @implementation XCUIApplication (FBCompatibility)
 
 + (instancetype)fb_applicationWithPID:(pid_t)processID
 {
-  dispatch_once(&onceAppWithPIDToken, ^{
-    FBShouldUseOldAppWithPIDSelector = [XCUIApplication respondsToSelector:@selector(appWithPID:)];
-  });
   if (0 == processID) {
     return nil;
   }
 
-  if (FBShouldUseOldAppWithPIDSelector) {
-    return [self appWithPID:processID];
-  }
   return [self applicationWithPID:processID];
 }
 
@@ -105,16 +82,6 @@ static dispatch_once_t onceAppWithPIDToken;
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (BOOL)fb_isUniqueSnapshotSupported
-{
-  static dispatch_once_t onceToken;
-  static BOOL isUniqueMatchingSnapshotAvailable;
-  dispatch_once(&onceToken, ^{
-    isUniqueMatchingSnapshotAvailable = [self respondsToSelector:@selector(uniqueMatchingSnapshotWithError:)];
-  });
-  return isUniqueMatchingSnapshotAvailable;
-}
-
 - (XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error
 {
   return [self uniqueMatchingSnapshotWithError:error];
@@ -139,19 +106,6 @@ static dispatch_once_t onceAppWithPIDToken;
 
 
 @implementation XCUIElement (FBCompatibility)
-
-- (BOOL)fb_resolveWithError:(NSError **)error
-{
-  @try {
-    [self resolveOrRaiseTestFailure];
-    return YES;
-  } @catch (NSException *e) {
-    if (nil != e.reason) {
-      return [[FBErrorBuilder.builder withDescription:(NSString *)e.reason] buildError:error];
-    }
-  }
-  return [[FBErrorBuilder.builder withDescription:@"Cannot find a matching method to resolve elements. Please contact Appium developers"] buildError:error];
-}
 
 + (BOOL)fb_supportsNonModalElementsInclusion
 {
