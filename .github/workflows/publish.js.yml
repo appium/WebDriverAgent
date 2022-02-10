@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm install --production
+    - run: npm install
     # Basic smoke tests
     - run: npm test
     - run: rm -rf package-lock.json
