@@ -46,6 +46,7 @@
     "@appium/gulp-plugins": "^6.0.0",
     "@appium/eslint-config-appium": "^5.0.0",
     "@appium/test-support": "^1.0.0",
+    "@semantic-release/git": "^9.0.0",
     "appium-xcode": "^4.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
@@ -54,6 +55,7 @@
     "ios-uicatalog": "^3.5.0",
     "mocha": "^9.0.0",
     "pre-commit": "^1.2.2",
+    "semantic-release": "^19.0.2",
     "sinon": "^13.0.0"
   },
   "dependencies": {

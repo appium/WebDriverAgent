@@ -4,6 +4,7 @@
 name: Node.js CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
 
@@ -16,13 +17,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm install
+    - run: npm install --production
     # Basic smoke tests
     - run: npm test
     - run: rm -rf package-lock.json
     - run: npm prune --production
     - run: npm shrinkwrap
-    - run: npm install semantic-release gulp --no-save
     - run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
