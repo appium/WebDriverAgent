@@ -173,7 +173,7 @@
 - (void)waitForExpectationsWithTimeout:(double)arg1 handler:(CDUnknownBlockType)arg2;
 - (id)_expectationForDistributedNotification:(id)arg1 object:(id)arg2 handler:(CDUnknownBlockType)arg3;
 - (id)_expectationForDarwinNotification:(id)arg1;
-- (void)recordFailureWithDescription:(id)arg1 inFile:(id)arg2 atLine:(unsigned long long)arg3 expected:(_Bool)arg4;
+- (void)recordFailureWithDescription:(NSString *)arg1 inFile:(NSString *)arg2 atLine:(NSUInteger)arg3 expected:(BOOL)arg4;
 - (void)_interruptOrMarkForLaterInterruption;
 - (_Bool)_caughtUnhandledDeveloperExceptionPermittingControlFlowInterruptions:(_Bool)arg1 caughtInterruptionException:(_Bool *)arg2 whileExecutingBlock:(CDUnknownBlockType)arg3;
 - (_Bool)_caughtUnhandledDeveloperExceptionPermittingControlFlowInterruptions:(_Bool)arg1 whileExecutingBlock:(CDUnknownBlockType)arg2;

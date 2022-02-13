@@ -53,5 +53,7 @@
 - (void)_XCT_requestSocketForSessionIdentifier:(NSUUID *)arg1 reply:(void (^)(NSFileHandle *))arg2;
 - (void)_XCT_exchangeCapabilities:(XCTCapabilities *)arg1 reply:(void (^)(XCTCapabilities *))arg2;
 - (void)_XCT_exchangeProtocolVersion:(unsigned long long)arg1 reply:(void (^)(unsigned long long))arg2;
-@end
 
+// Available since Xcode 12.5. Required (!!!) to use since Xcode 13
+- (void)_XCT_requestScreenshot:(/*XCTScreenshotRequest * */id)arg1 withReply:(void (^)(/*XCTImage * */id, NSError *))arg2;
+@end

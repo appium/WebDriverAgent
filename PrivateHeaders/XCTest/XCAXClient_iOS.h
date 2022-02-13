@@ -45,7 +45,7 @@
 - (id)valuesForPrivilegedAttributes:(id)arg1 forElement:(id)arg2 error:(id *)arg3;
 @property(readonly) _Bool providesValuesForPrivilegedAttributes;
 - (id)attributesForElement:(id)arg1 attributes:(id)arg2 error:(id *)arg3;
-- (id)requestSnapshotForElement:(id)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(id *)arg4;
+- (id)requestSnapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
 - (id)defaultParameters;
 - (void)notifyWhenViewControllerViewDidDisappearReply:(CDUnknownBlockType)arg1;
 - (id)viewDidAppearExpectationForElement:(id)arg1 viewControllerName:(id)arg2;
