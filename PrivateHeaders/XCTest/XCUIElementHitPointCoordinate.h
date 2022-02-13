@@ -5,9 +5,6 @@
 //
 
 #import <XCTest/XCUICoordinate.h>
-#import <TargetConditionals.h>
-
-#if !TARGET_OS_IPHONE
 
 @interface XCUIElementHitPointCoordinate : XCUICoordinate
 {
@@ -21,4 +18,3 @@
 
 @end
 
-#endif

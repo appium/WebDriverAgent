@@ -16,15 +16,18 @@
     NSNotificationCenter *_notificationCenter;
     CDUnknownBlockType _handler;
     NSObject<OS_dispatch_queue> *_queue;
-    BOOL _hasCleanedUp;
+    _Bool _hasCleanedUp;
 }
+
 @property(readonly) NSNotificationCenter *notificationCenter; // @synthesize notificationCenter=_notificationCenter;
 @property(readonly, copy) NSString *notificationName; // @synthesize notificationName=_notificationName;
 @property(readonly) id observedObject; // @synthesize observedObject=_observedObject;
-@property(copy) CDUnknownBlockType handler;
-
+- (void).cxx_destruct;
 - (void)cleanup;
 - (void)_observeExpectedNotification:(id)arg1;
+@property(copy) CDUnknownBlockType handler;
 - (id)initWithName:(id)arg1 object:(id)arg2 notificationCenter:(id)arg3 expectation:(id)arg4;
+- (void)dealloc;
 
 @end
+

@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
 @class NSString;
 
 @interface XCSymbolicationRecord : NSObject
@@ -13,17 +15,17 @@
     NSString *_symbolName;
     NSString *_symbolOwner;
 }
-@property(copy) NSString *symbolOwner; // @synthesize symbolOwner=_symbolOwner;
-@property(copy) NSString *symbolName; // @synthesize symbolName=_symbolName;
-@property(copy) NSString *filePath; // @synthesize filePath=_filePath;
-@property unsigned long long lineNumber; // @synthesize lineNumber=_lineNumber;
 
-+ (id)symbolicationRecordFromRemoteServiceForAddress:(unsigned long long)arg1;
-+ (id)symbolicationRecordForTask:(unsigned int)arg1 address:(unsigned long long)arg2;
 + (id)symbolicationRecordForAddress:(unsigned long long)arg1;
-+ (void)_setCurrentProcessIsRemoteService;
-+ (id)_symbolicationRecordForSymbolicator:(struct _CSTypeRef)arg1 address:(unsigned long long)arg2;
++ (struct _CSTypeRef)symbolicator;
 + (id)failureRecord;
-+ (BOOL)softLinkCoreSymbolication;
+- (void).cxx_destruct;
+@property(readonly, copy) NSString *symbolOwner; // @synthesize symbolOwner=_symbolOwner;
+@property(readonly, copy) NSString *symbolName; // @synthesize symbolName=_symbolName;
+@property(readonly, copy) NSString *filePath; // @synthesize filePath=_filePath;
+@property(readonly) unsigned long long lineNumber; // @synthesize lineNumber=_lineNumber;
+- (id)description;
+- (id)initWithFilePath:(id)arg1 lineNumber:(unsigned long long)arg2 symbolName:(id)arg3 symbolOwner:(id)arg4;
 
 @end
+

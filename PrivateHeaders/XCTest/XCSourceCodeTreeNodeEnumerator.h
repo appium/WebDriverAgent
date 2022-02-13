@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
 @class NSMutableArray;
 
 @interface XCSourceCodeTreeNodeEnumerator : NSObject
@@ -11,6 +13,8 @@
     NSMutableArray *_remainingNodes;
 }
 
+- (void).cxx_destruct;
+@property(retain, nonatomic) NSMutableArray *remainingNodes; // @synthesize remainingNodes=_remainingNodes;
 - (id)nextObject;
 - (id)initWithNode:(id)arg1;
 

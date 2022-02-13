@@ -6,9 +6,10 @@
 
 #import "NSObject.h"
 
-@class NSNumber, NSString;
+@class NSNumber, NSString, XCTApplicationStateSnapshot;
 
 @protocol XCTUIApplicationMonitor <NSObject>
+- (void)updatedApplicationStateSnapshot:(XCTApplicationStateSnapshot *)arg1;
 - (void)applicationWithBundleID:(NSString *)arg1 didUpdatePID:(int)arg2 state:(unsigned long long)arg3;
 - (void)processWithToken:(NSNumber *)arg1 exitedWithStatus:(int)arg2;
 - (void)stopTrackingProcessWithToken:(NSNumber *)arg1;

@@ -4,6 +4,10 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
+#import "NSCopying.h"
+
 @class NSSet, NSString;
 
 @interface XCKeyMappingPath : NSObject <NSCopying>
@@ -15,22 +19,25 @@
     unsigned long long _length;
     NSString *_producedString;
 }
+
++ (id)pathWithKeyState:(unsigned long long)arg1 next:(id)arg2 inputs:(id)arg3 output:(id)arg4;
++ (id)emptyPath;
 @property(readonly, copy) NSString *producedString; // @synthesize producedString=_producedString;
 @property(readonly) unsigned long long length; // @synthesize length=_length;
 @property(readonly, copy) NSString *output; // @synthesize output=_output;
 @property(readonly, copy) NSSet *inputs; // @synthesize inputs=_inputs;
 @property(readonly, copy) XCKeyMappingPath *next; // @synthesize next=_next;
 @property(readonly) unsigned long long keyState; // @synthesize keyState=_keyState;
-@property(readonly, getter=isEmpty) BOOL empty;
-@property(readonly, getter=isComplete) BOOL complete;
-
-+ (id)pathWithKeyState:(unsigned long long)arg1 next:(id)arg2 inputs:(id)arg3 output:(id)arg4;
-+ (id)emptyPath;
-
+- (void).cxx_destruct;
+- (id)copyWithZone:(struct _NSZone *)arg1;
+- (_Bool)isEqual:(id)arg1;
+- (unsigned long long)hash;
 - (id)inputSequenceWithRequiredFlags:(unsigned long long)arg1 excludedFlags:(unsigned long long)arg2;
 - (id)inputWithRequiredFlags:(unsigned long long)arg1 excludedFlags:(unsigned long long)arg2;
-
+@property(readonly, getter=isEmpty) _Bool empty;
+@property(readonly, getter=isComplete) _Bool complete;
 - (id)initWithKeyState:(unsigned long long)arg1 next:(id)arg2 inputs:(id)arg3 output:(id)arg4;
 - (id)init;
 
 @end
+

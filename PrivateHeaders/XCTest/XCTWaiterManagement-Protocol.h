@@ -7,7 +7,7 @@
 #import "NSObject.h"
 
 @protocol XCTWaiterManagement <NSObject>
-@property(readonly, getter=isInProgress) BOOL inProgress;
+@property(readonly, getter=isInProgress) _Bool inProgress;
 - (void)interruptForWaiter:(id <XCTWaiterManagement>)arg1;
 @end
 

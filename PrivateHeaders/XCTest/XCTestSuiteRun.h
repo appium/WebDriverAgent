@@ -10,19 +10,22 @@
 
 @interface XCTestSuiteRun : XCTestRun
 {
-    NSMutableArray *_testRuns;
+    NSMutableArray *_mutableTestRuns;
 }
-@property(readonly, copy) NSArray *testRuns;
 
-- (void)recordFailureWithDescription:(id)arg1 inFile:(id)arg2 atLine:(unsigned long long)arg3 expected:(BOOL)arg4;
+- (void).cxx_destruct;
+@property(readonly) NSMutableArray *mutableTestRuns; // @synthesize mutableTestRuns=_mutableTestRuns;
+- (void)_handleIssue:(id)arg1;
 - (double)testDuration;
 - (unsigned long long)unexpectedExceptionCount;
 - (unsigned long long)failureCount;
+- (unsigned long long)skipCount;
 - (unsigned long long)executionCount;
 - (void)addTestRun:(id)arg1;
+@property(readonly, copy) NSArray *testRuns;
 - (void)stop;
 - (void)start;
-
 - (id)initWithTest:(id)arg1;
 
 @end
+

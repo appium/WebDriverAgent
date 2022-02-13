@@ -4,17 +4,18 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreGraphics/CoreGraphics.h>
+#import "NSObject.h"
 
 @interface XCUIHitPointResult : NSObject
 {
-    BOOL _hittable;
-    CGPoint _hitPoint;
+    _Bool _hittable;
+    struct CGPoint _hitPoint;
 }
 
-@property(readonly, getter=isHittable) BOOL hittable; // @synthesize hittable=_hittable;
+@property(readonly, getter=isHittable) _Bool hittable; // @synthesize hittable=_hittable;
 @property(readonly) struct CGPoint hitPoint; // @synthesize hitPoint=_hitPoint;
-- (id)initWithHitPoint:(struct CGPoint)arg1 hittable:(BOOL)arg2;
+- (id)description;
+- (id)initWithHitPoint:(struct CGPoint)arg1 hittable:(_Bool)arg2;
 
 @end
+

@@ -4,7 +4,7 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-
+#import "NSObject.h"
 
 @class NSCharacterSet, NSData, NSDictionary, NSIndexSet, NSSet;
 
@@ -52,14 +52,15 @@
     NSIndexSet *_keyStatesWithTerminator;
     NSCharacterSet *_validKeyStates;
     NSCharacterSet *_validSequenceIDs;
-    BOOL _canEmitSequenceIDAndKeyState;
+    _Bool _canEmitSequenceIDAndKeyState;
     NSDictionary *_inexactSequencesNFC;
     unsigned long long _longestInexactSequence;
     NSDictionary *_stringsForIntendedStrings;
 }
-@property(readonly, getter=isPrimary) BOOL primary;
-@property(readonly) BOOL canEmitSequenceIDAndKeyState; // @synthesize canEmitSequenceIDAndKeyState=_canEmitSequenceIDAndKeyState;
 
+@property(readonly) _Bool canEmitSequenceIDAndKeyState; // @synthesize canEmitSequenceIDAndKeyState=_canEmitSequenceIDAndKeyState;
+- (void).cxx_destruct;
+- (id)description;
 - (id)stringForIntendedString:(id)arg1;
 - (id)stringForInputs:(id)arg1;
 - (id)stringForInput:(id)arg1;
@@ -67,7 +68,7 @@
 - (void)addCachedPaths:(id)arg1 endingString:(id)arg2 range:(struct _NSRange)arg3;
 - (id)cachedPathsEndingString:(id)arg1 range:(struct _NSRange)arg2;
 - (void)_pathsForSequenceID:(unsigned short)arg1 range:(id)arg2 nextPath:(id)arg3 results:(id)arg4;
-- (BOOL)_pathsForSystemKeyEndingString:(id)arg1 range:(struct _NSRange)arg2 nextPath:(id)arg3 results:(id)arg4;
+- (_Bool)_pathsForSystemKeyEndingString:(id)arg1 range:(struct _NSRange)arg2 nextPath:(id)arg3 results:(id)arg4;
 - (id)pathsEndingString:(id)arg1 range:(id)arg2 nextPath:(id)arg3;
 - (id)_pathByTerminatingKeyState:(unsigned short)arg1 next:(id)arg2 output:(id)arg3 sequenceID:(unsigned short)arg4;
 - (id)pathsForSequenceID:(unsigned short)arg1 nextPath:(id)arg2;
@@ -81,13 +82,14 @@
 - (id)inputsForText:(id)arg1;
 - (id)inputsToSetModifierFlags:(unsigned long long)arg1 currentFlags:(unsigned long long)arg2;
 - (id)inputForKey:(id)arg1 modifierFlags:(unsigned long long)arg2;
-- (BOOL)canEmitKeyState:(unsigned short)arg1;
-- (BOOL)canEmitSequenceIDAsOutputID:(unsigned short)arg1;
-- (BOOL)canEmitSequenceID:(unsigned short)arg1;
-- (BOOL)canEmitOutputID:(unsigned short)arg1;
+- (_Bool)canEmitKeyState:(unsigned short)arg1;
+- (_Bool)canEmitSequenceIDAsOutputID:(unsigned short)arg1;
+- (_Bool)canEmitSequenceID:(unsigned short)arg1;
+- (_Bool)canEmitOutputID:(unsigned short)arg1;
 - (unsigned long long)uniqueKeyboardType:(unsigned long long)arg1;
-- (BOOL)supportsKeyboardType:(unsigned long long)arg1;
-
+- (_Bool)supportsKeyboardType:(unsigned long long)arg1;
+@property(readonly, getter=isPrimary) _Bool primary;
+- (void)dealloc;
 - (void)_initIntendedStrings;
 - (void)_initInexactSequences;
 - (void)_initValidity;
@@ -99,3 +101,4 @@
 - (id)init;
 
 @end
+

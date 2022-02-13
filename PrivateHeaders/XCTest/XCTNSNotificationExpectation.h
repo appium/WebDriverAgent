@@ -6,22 +6,30 @@
 
 #import <XCTest/XCTestExpectation.h>
 
-@class NSNotificationCenter, NSString, _XCTNSNotificationExpectationImplementation;
+@class NSNotificationCenter, NSObject<OS_dispatch_queue>, NSString;
 
 @interface XCTNSNotificationExpectation : XCTestExpectation
 {
-    id _internal;
+    _Bool _hasCleanedUp;
+    CDUnknownBlockType _handler;
+    NSString *_notificationName;
+    id _observedObject;
+    NSNotificationCenter *_notificationCenter;
+    NSObject<OS_dispatch_queue> *_queue;
 }
-@property(retain) _XCTNSNotificationExpectationImplementation *internal; // @synthesize internal=_internal;
-@property(copy) CDUnknownBlockType handler;
-@property(readonly) NSNotificationCenter *notificationCenter;
-@property(readonly, copy) NSString *notificationName;
-@property(readonly) id observedObject;
 
+- (void).cxx_destruct;
+@property _Bool hasCleanedUp; // @synthesize hasCleanedUp=_hasCleanedUp;
+@property(readonly) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
+@property(readonly) NSNotificationCenter *notificationCenter; // @synthesize notificationCenter=_notificationCenter;
+@property(readonly) id observedObject; // @synthesize observedObject=_observedObject;
+@property(readonly, copy) NSString *notificationName; // @synthesize notificationName=_notificationName;
 - (void)cleanup;
-- (void)fulfill;
+- (void)_observeExpectedNotification:(id)arg1;
+@property(copy) CDUnknownBlockType handler; // @synthesize handler=_handler;
 - (id)initWithName:(id)arg1;
 - (id)initWithName:(id)arg1 object:(id)arg2;
 - (id)initWithName:(id)arg1 object:(id)arg2 notificationCenter:(id)arg3;
 
 @end
+

@@ -4,67 +4,187 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <WebDriverAgentLib/CDStructures.h>
-#import <XCTest/XCUIElementQuery.h>
-#import "XCTElementSetTransformer-Protocol.h"
+#import "NSObject.h"
 
-@class NSArray, NSOrderedSet, NSString, XCUIApplication, XCUIElement;
+#import "XCTElementSnapshotProvider.h"
+#import "XCUIElementTypeQueryProvider.h"
+#import "XCUIElementTypeQueryProvider_Private.h"
 
-@interface XCUIElementQuery ()
+@class NSArray, NSOrderedSet, NSSet, NSString, XCElementSnapshot, XCUIApplication, XCUIElement;
+
+@interface XCUIElementQuery : NSObject <XCTElementSnapshotProvider, XCUIElementTypeQueryProvider_Private, XCUIElementTypeQueryProvider>
 {
-    BOOL _changesScope;
-    NSString *_queryDescription;
+    _Bool _changesScope;
+    _Bool _stopsOnFirstMatch;
+    _Bool _modalViewPruningDisabled;
     XCUIElementQuery *_inputQuery;
-    CDUnknownBlockType _filter;
-    unsigned long long _expressedType;
+    NSSet *_expressedTypes;
     NSArray *_expressedIdentifiers;
     NSOrderedSet *_lastInput;
     NSOrderedSet *_lastOutput;
     XCElementSnapshot *_rootElementSnapshot;
-    // Added since Xcode 11.0 (beta)
-    BOOL _modalViewPruningDisabled;
+    NSString *_queryDescription;
+    id <XCTElementSetTransformer> _transformer;
 }
 
+- (void).cxx_destruct;
+@property(retain) id <XCTElementSetTransformer> transformer; // @synthesize transformer=_transformer;
+@property(readonly, copy) NSString *queryDescription; // @synthesize queryDescription=_queryDescription;
+@property(retain) XCElementSnapshot *rootElementSnapshot; // @synthesize rootElementSnapshot=_rootElementSnapshot;
+@property _Bool modalViewPruningDisabled; // @synthesize modalViewPruningDisabled=_modalViewPruningDisabled;
 @property(copy) NSOrderedSet *lastOutput; // @synthesize lastOutput=_lastOutput;
 @property(copy) NSOrderedSet *lastInput; // @synthesize lastInput=_lastInput;
 @property(copy) NSArray *expressedIdentifiers; // @synthesize expressedIdentifiers=_expressedIdentifiers;
-@property unsigned long long expressedType; // @synthesize expressedType=_expressedType;
-@property BOOL changesScope; // @synthesize changesScope=_changesScope;
-@property(readonly, copy) CDUnknownBlockType filter; // @synthesize filter=_filter;
-// Added since Xcode 11.0 (beta)
-@property BOOL modalViewPruningDisabled; // @synthesize modalViewPruningDisabled=_modalViewPruningDisabled;
+@property(copy) NSSet *expressedTypes; // @synthesize expressedTypes=_expressedTypes;
+@property _Bool stopsOnFirstMatch; // @synthesize stopsOnFirstMatch=_stopsOnFirstMatch;
+@property _Bool changesScope; // @synthesize changesScope=_changesScope;
 @property(readonly) XCUIElementQuery *inputQuery; // @synthesize inputQuery=_inputQuery;
-@property(readonly, copy) NSString *queryDescription; // @synthesize queryDescription=_queryDescription;
-@property(readonly, copy) NSString *elementDescription;
-@property(readonly) XCUIApplication *application;
-@property(retain) XCElementSnapshot *rootElementSnapshot; // @synthesize rootElementSnapshot=_rootElementSnapshot;
-@property(retain) NSObject<XCTElementSetTransformer> *transformer; // @synthesize transformer = _transformer;
-
-// Added since Xcode 11.0 (beta)
+@property(readonly, copy) XCUIElementQuery *statusItems;
+@property(readonly, copy) XCUIElementQuery *otherElements;
+@property(readonly, copy) XCUIElementQuery *handles;
+@property(readonly, copy) XCUIElementQuery *layoutItems;
+@property(readonly, copy) XCUIElementQuery *layoutAreas;
+@property(readonly, copy) XCUIElementQuery *cells;
+@property(readonly, copy) XCUIElementQuery *levelIndicators;
+@property(readonly, copy) XCUIElementQuery *grids;
+@property(readonly, copy) XCUIElementQuery *rulerMarkers;
+@property(readonly, copy) XCUIElementQuery *rulers;
+@property(readonly, copy) XCUIElementQuery *dockItems;
+@property(readonly, copy) XCUIElementQuery *mattes;
+@property(readonly, copy) XCUIElementQuery *helpTags;
+@property(readonly, copy) XCUIElementQuery *colorWells;
+@property(readonly, copy) XCUIElementQuery *relevanceIndicators;
+@property(readonly, copy) XCUIElementQuery *splitters;
+@property(readonly, copy) XCUIElementQuery *splitGroups;
+@property(readonly, copy) XCUIElementQuery *valueIndicators;
+@property(readonly, copy) XCUIElementQuery *ratingIndicators;
+@property(readonly, copy) XCUIElementQuery *timelines;
+@property(readonly, copy) XCUIElementQuery *decrementArrows;
+@property(readonly, copy) XCUIElementQuery *incrementArrows;
+@property(readonly, copy) XCUIElementQuery *steppers;
+@property(readonly, copy) XCUIElementQuery *webViews;
+@property(readonly, copy) XCUIElementQuery *maps;
+@property(readonly, copy) XCUIElementQuery *menuBarItems;
+@property(readonly, copy) XCUIElementQuery *menuBars;
+@property(readonly, copy) XCUIElementQuery *menuItems;
+@property(readonly, copy) XCUIElementQuery *menus;
+@property(readonly, copy) XCUIElementQuery *textViews;
+@property(readonly, copy) XCUIElementQuery *datePickers;
+@property(readonly, copy) XCUIElementQuery *secureTextFields;
+@property(readonly, copy) XCUIElementQuery *textFields;
+@property(readonly, copy) XCUIElementQuery *staticTexts;
+@property(readonly, copy) XCUIElementQuery *scrollBars;
+@property(readonly, copy) XCUIElementQuery *scrollViews;
+@property(readonly, copy) XCUIElementQuery *searchFields;
+@property(readonly, copy) XCUIElementQuery *icons;
+@property(readonly, copy) XCUIElementQuery *images;
+@property(readonly, copy) XCUIElementQuery *links;
+@property(readonly, copy) XCUIElementQuery *toggles;
+@property(readonly, copy) XCUIElementQuery *switches;
+@property(readonly, copy) XCUIElementQuery *pickerWheels;
+@property(readonly, copy) XCUIElementQuery *pickers;
+@property(readonly, copy) XCUIElementQuery *segmentedControls;
+@property(readonly, copy) XCUIElementQuery *activityIndicators;
+@property(readonly, copy) XCUIElementQuery *progressIndicators;
+@property(readonly, copy) XCUIElementQuery *pageIndicators;
+@property(readonly, copy) XCUIElementQuery *sliders;
+@property(readonly, copy) XCUIElementQuery *collectionViews;
+@property(readonly, copy) XCUIElementQuery *browsers;
+@property(readonly, copy) XCUIElementQuery *disclosedChildRows;
+@property(readonly, copy) XCUIElementQuery *outlineRows;
+@property(readonly, copy) XCUIElementQuery *outlines;
+@property(readonly, copy) XCUIElementQuery *tableColumns;
+@property(readonly, copy) XCUIElementQuery *tableRows;
+@property(readonly, copy) XCUIElementQuery *tables;
+@property(readonly, copy) XCUIElementQuery *statusBars;
+@property(readonly, copy) XCUIElementQuery *toolbars;
+@property(readonly, copy) XCUIElementQuery *tabGroups;
+@property(readonly, copy) XCUIElementQuery *tabBars;
+@property(readonly, copy) XCUIElementQuery *tabs;
+@property(readonly, copy) XCUIElementQuery *navigationBars;
+@property(readonly, copy) XCUIElementQuery *keys;
+@property(readonly, copy) XCUIElementQuery *keyboards;
+@property(readonly, copy) XCUIElementQuery *popovers;
+@property(readonly, copy) XCUIElementQuery *toolbarButtons;
+@property(readonly, copy) XCUIElementQuery *menuButtons;
+@property(readonly, copy) XCUIElementQuery *comboBoxes;
+@property(readonly, copy) XCUIElementQuery *popUpButtons;
+@property(readonly, copy) XCUIElementQuery *disclosureTriangles;
+@property(readonly, copy) XCUIElementQuery *checkBoxes;
+@property(readonly, copy) XCUIElementQuery *radioGroups;
+@property(readonly, copy) XCUIElementQuery *radioButtons;
+@property(readonly, copy) XCUIElementQuery *buttons;
+@property(readonly, copy) XCUIElementQuery *dialogs;
+@property(readonly, copy) XCUIElementQuery *bannerNotifications;
+@property(readonly, copy) XCUIElementQuery *alerts;
+@property(readonly, copy) XCUIElementQuery *drawers;
+@property(readonly, copy) XCUIElementQuery *sheets;
+@property(readonly, copy) XCUIElementQuery *windows;
+@property(readonly, copy) XCUIElementQuery *groups;
+@property(readonly, copy) XCUIElementQuery *touchBars;
+- (id)snapshotForElement:(id)arg1 attributes:(id)arg2 parameters:(id)arg3 timeoutControls:(id)arg4 error:(id *)arg5;
+- (_Bool)_resolveRemoteElements:(id)arg1 inSnapshot:(id)arg2 query:(id)arg3 runtimeIssues:(id *)arg4 error:(id *)arg5;
+- (id)elementSnapshotForDebugDescriptionWithNoMatchesMessage:(id *)arg1;
+- (id)_matchingSnapshotsForLocallyEvaluatedQuery:(id)arg1 error:(id *)arg2;
+- (id)_matchingSnapshotsForRemotelyEvaluatedQuery:(id)arg1 error:(id *)arg2;
+- (id)_executeWithError:(id *)arg1;
+- (id)allMatchingSnapshotsWithError:(id *)arg1;
+- (id)uniqueMatchingSnapshotWithError:(id *)arg1;
+@property(readonly) id <XCTElementSnapshotAttributeDataSource> elementSnapshotAttributeDataSource;
+- (id)backingQueryWithError:(id *)arg1;
 @property(readonly, copy) XCUIElementQuery *excludingNonModalElements;
-// Added since Xcode 11.0 (GM)
 @property(readonly, copy) XCUIElementQuery *includingNonModalElements;
-
-- (id)matchingSnapshotsWithError:(id *)arg1;
-- (id)matchingSnapshotsHandleUIInterruption:(BOOL)arg1 withError:(id *)arg2;
+@property(readonly, copy) NSArray *allElementsBoundByIndex;
+@property(readonly, copy) NSArray *allElementsBoundByAccessibilityElement;
 - (id)_elementMatchingAccessibilityElementOfSnapshot:(id)arg1;
+- (id)_descendantMatchingAccessibilityElement:(id)arg1;
+- (id)objectForKeyedSubscript:(id)arg1;
+- (id)elementMatchingType:(unsigned long long)arg1 identifier:(id)arg2;
+@property(readonly) XCUIElement *firstMatch;
+- (id)elementWithPlaceholderValue:(id)arg1;
+- (id)elementWithValue:(id)arg1;
+- (id)elementWithIdentifier:(id)arg1;
+- (id)elementWithLabel:(id)arg1;
+- (id)elementWithTitle:(id)arg1;
+- (id)elementMatchingPredicate:(id)arg1;
+- (id)elementBoundByIndex:(unsigned long long)arg1;
+- (id)elementAtIndex:(unsigned long long)arg1;
+@property(readonly) XCUIElement *element;
+- (id)containingType:(unsigned long long)arg1 identifier:(id)arg2;
+- (id)containingPredicate:(id)arg1;
 - (id)_containingPredicate:(id)arg1 queryDescription:(id)arg2;
+- (id)matchingIdentifier:(id)arg1;
+- (id)matchingType:(unsigned long long)arg1 identifier:(id)arg2;
+- (id)matchingPredicate:(id)arg1;
 - (id)_predicateWithType:(unsigned long long)arg1 identifier:(id)arg2;
 - (id)_queryWithPredicate:(id)arg1;
+- (id)_queryWithPredicate:(id)arg1 description:(id)arg2;
 - (id)sorted:(CDUnknownBlockType)arg1;
 - (id)descending:(unsigned long long)arg1;
 - (id)ascending:(unsigned long long)arg1;
 - (id)filter:(CDUnknownBlockType)arg1;
-- (id)_debugInfoWithIndent:(id *)arg1;
+- (id)_childrenMatchingTypes:(id)arg1;
+- (id)childrenMatchingType:(unsigned long long)arg1;
+- (id)_descendantsMatchingTypes:(id)arg1;
+- (id)_descendantsMatchingPredicate:(id)arg1;
+- (id)descendantsMatchingType:(unsigned long long)arg1;
+- (id)debugDescriptionWithSnapshot:(id)arg1;
+@property(readonly, copy) NSString *debugDescription;
+- (id)_debugDescriptionWithIndent:(id *)arg1 rootElementSnapshot:(id)arg2;
+@property(readonly, copy) NSString *elementDescription;
 - (id)_derivedExpressedIdentifiers;
-- (unsigned long long)_derivedExpressedType;
-- (id)initWithInputQuery:(id)arg1 queryDescription:(id)arg2 filter:(CDUnknownBlockType)arg3;
+- (id)_derivedExpressedTypes;
+@property(readonly, copy) NSSet *allExpressedTypes;
+@property(readonly) XCUIApplication *application;
+- (id)device;
+@property(readonly) unsigned long long count;
+- (id)initWithInputQuery:(id)arg1 queryDescription:(id)arg2 transformer:(id)arg3;
+- (id)init;
 
-// Added since Xcode 11.0
-- (XCElementSnapshot *)elementSnapshotForDebugDescriptionWithNoMatchesMessage:(id *)arg1;
-// Added since Xcode 11.0
-- (XCElementSnapshot*)uniqueMatchingSnapshotWithError:(NSError **)arg1;
-/*! DO NOT USE DIRECTLY! Please use fb_firstMatch instead */
-- (XCUIElement *)firstMatch;
+// Remaining properties
+@property(readonly, copy) NSString *description;
+@property(readonly) unsigned long long hash;
+@property(readonly) Class superclass;
 
 @end
+

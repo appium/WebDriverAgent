@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
 @class NSArray, NSMutableArray, NSSet, XCElementSnapshot, XCUIRecorderNodeFinderMatch;
 
 @interface XCUIRecorderNodeFinder : NSObject
@@ -11,14 +13,14 @@
     unsigned long long _state;
     NSSet *_descendantsWithTargetElementType;
     NSArray *_childrenWithTargetElementType;
-    BOOL _allowDirectChildrenMatches;
-    BOOL _shouldAttemptToUseIdentifier;
-    BOOL _shouldAttemptToUsePlaceholderValue;
-    BOOL _shouldAttemptToUseLabel;
-    BOOL _shouldAttemptToUseTitle;
-    BOOL _shouldAttemptToUseTruncatedValueString;
-    BOOL _allowElementQueries;
-    BOOL _excludeUnlessNecessary;
+    _Bool _allowDirectChildrenMatches;
+    _Bool _shouldAttemptToUseIdentifier;
+    _Bool _shouldAttemptToUsePlaceholderValue;
+    _Bool _shouldAttemptToUseLabel;
+    _Bool _shouldAttemptToUseTitle;
+    _Bool _shouldAttemptToUseTruncatedValueString;
+    _Bool _allowElementQueries;
+    _Bool _excludeUnlessNecessary;
     NSMutableArray *_mutableFoundNodeMatches;
     NSMutableArray *_unprocessedContainsMatches;
     XCUIRecorderNodeFinderMatch *_ancestorNodeFinderMatch;
@@ -32,8 +34,9 @@
 + (id)_nodeFindersForSnapshots:(id)arg1 ancestorMatch:(id)arg2 ancestorIndex:(unsigned long long)arg3 stopCombinatorialExpansionIndexes:(id)arg4 excludeUnlessNecessaryElementTypes:(id)arg5 language:(unsigned long long)arg6 platform:(unsigned long long)arg7;
 + (id)_excludeUnlessNecessaryElementTypesForPlatform:(unsigned long long)arg1;
 + (id)_stopCombinatorialExpansionElementTypesForPlatform:(unsigned long long)arg1;
-@property BOOL excludeUnlessNecessary; // @synthesize excludeUnlessNecessary=_excludeUnlessNecessary;
-@property BOOL allowElementQueries; // @synthesize allowElementQueries=_allowElementQueries;
+- (void).cxx_destruct;
+@property _Bool excludeUnlessNecessary; // @synthesize excludeUnlessNecessary=_excludeUnlessNecessary;
+@property _Bool allowElementQueries; // @synthesize allowElementQueries=_allowElementQueries;
 @property unsigned long long platform; // @synthesize platform=_platform;
 @property unsigned long long language; // @synthesize language=_language;
 @property(retain) XCElementSnapshot *targetSnapshot; // @synthesize targetSnapshot=_targetSnapshot;
@@ -60,6 +63,8 @@
 - (id)_stringConstantForString:(id)arg1;
 - (void)removeFromAncestorNodeFinderMatch;
 - (void)invalidate;
-- (id)initWithTargetSnapshot:(id)arg1 targetSnapshotIndex:(unsigned long long)arg2 ancestorMatch:(id)arg3 allowElementQueries:(BOOL)arg4 excludeUnlessNecessary:(BOOL)arg5 language:(unsigned long long)arg6 platform:(unsigned long long)arg7;
+- (id)initWithTargetSnapshot:(id)arg1 targetSnapshotIndex:(unsigned long long)arg2 ancestorMatch:(id)arg3 allowElementQueries:(_Bool)arg4 excludeUnlessNecessary:(_Bool)arg5 language:(unsigned long long)arg6 platform:(unsigned long long)arg7;
+- (id)description;
 
 @end
+

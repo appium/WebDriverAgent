@@ -4,33 +4,43 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <TargetConditionals.h>
-#import <XCTest/XCUICoordinate.h>
+#import "NSObject.h"
+
+#import "NSCopying.h"
 
 @class XCUIElement;
 
-#if !TARGET_OS_TV
-@interface XCUICoordinate ()
+@interface XCUICoordinate : NSObject <NSCopying>
 {
     XCUIElement *_element;
     XCUICoordinate *_coordinate;
-    CGVector _normalizedOffset;
-    CGVector _pointsOffset;
+    struct CGVector _normalizedOffset;
+    struct CGVector _pointsOffset;
 }
 
-@property(readonly) CGVector pointsOffset; // @synthesize pointsOffset=_pointsOffset;
-@property(readonly) CGVector normalizedOffset; // @synthesize normalizedOffset=_normalizedOffset;
+- (void).cxx_destruct;
+@property(readonly) struct CGVector pointsOffset; // @synthesize pointsOffset=_pointsOffset;
+@property(readonly) struct CGVector normalizedOffset; // @synthesize normalizedOffset=_normalizedOffset;
 @property(readonly) XCUICoordinate *coordinate; // @synthesize coordinate=_coordinate;
 @property(readonly) XCUIElement *element; // @synthesize element=_element;
-
-- (id)initWithCoordinate:(id)arg1 pointsOffset:(CGVector)arg2;
-- (id)initWithElement:(id)arg1 normalizedOffset:(CGVector)arg2;
+@property(readonly) struct CGPoint screenPoint;
+- (struct CGPoint)_untransformedScreenPoint;
+- (id)device;
+@property(readonly) XCUIElement *referencedElement;
+- (id)coordinateWithOffset:(struct CGVector)arg1;
+- (id)description;
+- (id)copyWithZone:(struct _NSZone *)arg1;
+- (id)initWithCoordinate:(id)arg1 pointsOffset:(struct CGVector)arg2;
+- (id)initWithElement:(id)arg1 normalizedOffset:(struct CGVector)arg2;
 - (id)init;
-
+- (void)pressForDuration:(double)arg1 thenDragToCoordinate:(id)arg2 withVelocity:(double)arg3 thenHoldForDuration:(double)arg4;
 - (void)pressForDuration:(double)arg1 thenDragToCoordinate:(id)arg2;
 - (void)pressForDuration:(double)arg1;
 - (void)doubleTap;
 - (void)tap;
+- (void)_pressWithPressure:(double)arg1 pressDuration:(double)arg2 holdDuration:(double)arg3 releaseDuration:(double)arg4 activityTitle:(id)arg5;
+- (void)pressWithPressure:(double)arg1 duration:(double)arg2;
+- (void)forcePress;
 
 @end
-#endif
+

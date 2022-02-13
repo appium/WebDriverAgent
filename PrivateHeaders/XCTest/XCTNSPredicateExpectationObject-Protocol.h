@@ -11,5 +11,6 @@
 @protocol XCTNSPredicateExpectationObject <NSObject>
 
 @optional
-- (BOOL)evaluatePredicateForExpectation:(XCTNSPredicateExpectation *)arg1 debugMessage:(id *)arg2;
+- (_Bool)evaluatePredicateForExpectation:(XCTNSPredicateExpectation *)arg1 debugMessage:(id *)arg2;
 @end
+

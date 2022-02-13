@@ -4,6 +4,10 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
+#import "NSCopying.h"
+
 @class NSArray, NSMutableArray, NSMutableDictionary, NSString, XCKeyboardKeyMap;
 
 @interface XCKeyboardInputSolver : NSObject <NSCopying>
@@ -13,7 +17,7 @@
     unsigned long long _requiredFlags;
     unsigned long long _excludedFlags;
     unsigned long long _currentFlags;
-    BOOL _includeModifierKeys;
+    _Bool _includeModifierKeys;
     struct _NSRange _unsolvedRange;
     NSMutableArray *_solvedInputs;
     NSMutableDictionary *_solvingPaths;
@@ -21,21 +25,23 @@
 
 @property(readonly) NSArray *solvedInputs; // @synthesize solvedInputs=_solvedInputs;
 @property(readonly) struct _NSRange unsolvedRange; // @synthesize unsolvedRange=_unsolvedRange;
-@property BOOL includeModifierKeys; // @synthesize includeModifierKeys=_includeModifierKeys;
+@property _Bool includeModifierKeys; // @synthesize includeModifierKeys=_includeModifierKeys;
 @property unsigned long long currentFlags; // @synthesize currentFlags=_currentFlags;
 @property unsigned long long excludedFlags; // @synthesize excludedFlags=_excludedFlags;
 @property unsigned long long requiredFlags; // @synthesize requiredFlags=_requiredFlags;
 @property(readonly, copy) NSString *string; // @synthesize string=_string;
 @property(readonly) XCKeyboardKeyMap *keyMap; // @synthesize keyMap=_keyMap;
-@property(readonly, getter=isComplete) BOOL complete;
-
+- (void).cxx_destruct;
 - (id)_solve;
 - (id)solve;
 - (void)solveWithSolutionRange:(struct _NSRange)arg1 results:(id)arg2;
 - (id)extractCompletePathsWithSolutionRange:(struct _NSRange)arg1;
 - (unsigned long long)advancePaths;
 - (void)advancePath:(id)arg1 range:(id)arg2;
+@property(readonly, getter=isComplete) _Bool complete;
+- (id)copyWithZone:(struct _NSZone *)arg1;
 - (id)initWithKeyMap:(id)arg1 string:(id)arg2;
 - (id)init;
 
 @end
+

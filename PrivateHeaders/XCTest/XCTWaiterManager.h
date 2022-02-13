@@ -14,15 +14,17 @@
     NSThread *_thread;
     NSObject<OS_dispatch_queue> *_queue;
 }
+
++ (id)threadLocalManager;
+- (void).cxx_destruct;
 @property(readonly) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
 @property NSThread *thread; // @synthesize thread=_thread;
 @property(retain) NSMutableArray *waiterStack; // @synthesize waiterStack=_waiterStack;
-
-+ (id)threadLocalManager;
-
 - (void)waiterDidFinishWaiting:(id)arg1;
 - (void)waiterTimedOutWhileWaiting:(id)arg1;
 - (void)waiterWillBeginWaiting:(id)arg1;
 - (id)init;
+- (void)dealloc;
 
 @end
+

@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
 @class NSString, NSUUID;
 
 @interface XCUIElementAsynchronousHandlerWrapper : NSObject
@@ -12,8 +14,11 @@
     NSString *_handlerDescription;
     NSUUID *_identifier;
 }
+
 @property(copy) NSUUID *identifier; // @synthesize identifier=_identifier;
 @property(copy) NSString *handlerDescription; // @synthesize handlerDescription=_handlerDescription;
 @property(copy) CDUnknownBlockType handler; // @synthesize handler=_handler;
+- (void).cxx_destruct;
 
 @end
+

@@ -4,9 +4,11 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSData, NSString;
+@class NSData, NSString, XCAccessibilityElement;
 
 @protocol XCTestManager_TestsInterface
+- (void)_XCT_receivedAccessibilityNotification:(int)arg1 fromElement:(XCAccessibilityElement *)arg2 payload:(NSData *)arg3;
 - (void)_XCT_receivedAccessibilityNotification:(int)arg1 withPayload:(NSData *)arg2;
 - (void)_XCT_applicationWithBundleID:(NSString *)arg1 didUpdatePID:(int)arg2 andState:(unsigned long long)arg3;
 @end
+

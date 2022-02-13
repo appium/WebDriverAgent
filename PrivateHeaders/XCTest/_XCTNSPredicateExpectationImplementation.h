@@ -6,7 +6,7 @@
 
 #import "NSObject.h"
 
-@class NSObject<OS_dispatch_queue>, NSPredicate, NSString, NSTimer, XCTNSPredicateExpectation;
+@class NSObject<OS_dispatch_queue>, NSPredicate, NSRunLoop, NSString, NSTimer, XCTNSPredicateExpectation;
 
 @interface _XCTNSPredicateExpectationImplementation : NSObject
 {
@@ -14,16 +14,28 @@
     id <XCTNSPredicateExpectationObject> _object;
     NSPredicate *_predicate;
     CDUnknownBlockType _handler;
+    NSRunLoop *_timerRunLoop;
     NSTimer *_timer;
+    double _pollingInterval;
+    NSString *_debugDescription;
     NSObject<OS_dispatch_queue> *_queue;
-    BOOL _hasCleanedUp;
+    _Bool _hasCleanedUp;
+    _Bool _isEvaluating;
 }
+
+@property double pollingInterval; // @synthesize pollingInterval=_pollingInterval;
+@property(copy) NSString *debugDescription; // @synthesize debugDescription=_debugDescription;
 @property(readonly, copy) NSPredicate *predicate; // @synthesize predicate=_predicate;
 @property(readonly) id <XCTNSPredicateExpectationObject> object; // @synthesize object=_object;
-@property(copy) CDUnknownBlockType handler;
-
+- (void).cxx_destruct;
 - (void)cleanup;
+- (_Bool)_shouldFulfillForExpectation:(id)arg1 object:(id)arg2 handler:(CDUnknownBlockType)arg3;
 - (void)_considerFulfilling;
+@property(copy) CDUnknownBlockType handler;
+- (void)_scheduleTimer;
+- (void)startPolling;
 - (id)initWithPredicate:(id)arg1 object:(id)arg2 expectation:(id)arg3;
+- (void)dealloc;
 
 @end
+

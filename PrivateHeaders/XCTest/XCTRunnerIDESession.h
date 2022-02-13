@@ -6,48 +6,60 @@
 
 #import "NSObject.h"
 
+#import "XCDebugLogDelegate.h"
 #import "XCTTestRunSessionDelegate.h"
 #import "XCTestDriverInterface.h"
-#import "XCTestObservation.h"
+#import "XCUIXcodeApplicationManaging.h"
+#import "_XCTestObservationInternal.h"
 
-@class DTXConnection, NSObject<OS_dispatch_queue>, NSString, XCTestRun;
+@class DTXConnection, NSObject<OS_dispatch_queue>, NSString, XCTCapabilities, XCTFuture, XCTPromise, XCTestRun;
 
-@interface XCTRunnerIDESession : NSObject <XCTestObservation, XCTestDriverInterface, XCTTestRunSessionDelegate>
+@interface XCTRunnerIDESession : NSObject <_XCTestObservationInternal, XCTestDriverInterface, XCTTestRunSessionDelegate, XCUIXcodeApplicationManaging, XCDebugLogDelegate>
 {
+    XCTCapabilities *_IDECapabilities;
+    XCTFuture *_readyForTestingFuture;
+    XCTFuture *_testConfigurationFuture;
+    id <XCTRunnerIDESessionDelegate> _delegate;
+    id <XCUIApplicationMonitor> _applicationMonitor;
     NSObject<OS_dispatch_queue> *_queue;
     DTXConnection *_IDEConnection;
     id <XCTestManager_IDEInterface><NSObject> _IDEProxy;
-    long long _IDEProtocolVersion;
-    id <XCTUIApplicationMonitor> _applicationMonitor;
+    XCTPromise *_readyForTestingPromise;
     XCTestRun *_currentTestRun;
     CDUnknownBlockType _readinessReply;
 }
-@property(copy) CDUnknownBlockType readinessReply; // @synthesize readinessReply=_readinessReply;
-@property(retain) id <XCTestManager_IDEInterface><NSObject> IDEProxy; // @synthesize IDEProxy=_IDEProxy;
-@property(retain) DTXConnection *IDEConnection; // @synthesize IDEConnection=_IDEConnection;
-@property __weak id <XCTUIApplicationMonitor> applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
-@property(retain) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
-@property(readonly) BOOL reportsCrashes;
-@property long long IDEProtocolVersion; // @synthesize IDEProtocolVersion=_IDEProtocolVersion;
 
-+ (int)connectedSocketForLocalPath:(id)arg1 error:(id *)arg2;
++ (id)IDECapabilitiesForLegacyProtocolVersion:(unsigned long long)arg1;
++ (id)exportedCapabilities;
++ (void)daemonMediatedSessionForSessionIdentifier:(id)arg1 daemonSession:(id)arg2 delegate:(id)arg3 completion:(CDUnknownBlockType)arg4;
++ (double)IDEConnectionTimeout;
 + (void)setSharedSession:(id)arg1;
 + (id)sharedSession;
 + (id)sharedSessionQueue;
-
+- (void).cxx_destruct;
+@property(copy) CDUnknownBlockType readinessReply; // @synthesize readinessReply=_readinessReply;
+@property(retain) XCTestRun *currentTestRun; // @synthesize currentTestRun=_currentTestRun;
+@property(retain) XCTPromise *readyForTestingPromise; // @synthesize readyForTestingPromise=_readyForTestingPromise;
+@property(retain) id <XCTestManager_IDEInterface><NSObject> IDEProxy; // @synthesize IDEProxy=_IDEProxy;
+@property(retain) DTXConnection *IDEConnection; // @synthesize IDEConnection=_IDEConnection;
+@property(readonly) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
+@property __weak id <XCUIApplicationMonitor> applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
+@property __weak id <XCTRunnerIDESessionDelegate> delegate; // @synthesize delegate=_delegate;
 - (void)testBundleDidFinish:(id)arg1;
-- (void)_testCase:(id)arg1 didFinishActivity:(id)arg2;
-- (void)_testCase:(id)arg1 willStartActivity:(id)arg2;
+- (void)_context:(id)arg1 didFinishActivity:(id)arg2;
+- (void)_context:(id)arg1 willStartActivity:(id)arg2;
 - (void)_testCase:(id)arg1 didMeasureValues:(id)arg2 forPerformanceMetricID:(id)arg3 name:(id)arg4 unitsOfMeasurement:(id)arg5 baselineName:(id)arg6 baselineAverage:(id)arg7 maxPercentRegression:(id)arg8 maxPercentRelativeStandardDeviation:(id)arg9 maxRegression:(id)arg10 maxStandardDeviation:(id)arg11 file:(id)arg12 line:(unsigned long long)arg13;
-- (void)testCase:(id)arg1 didFailWithDescription:(id)arg2 inFile:(id)arg3 atLine:(unsigned long long)arg4;
+- (void)testCase:(id)arg1 didRecordIssue:(id)arg2;
 - (void)testCaseDidFinish:(id)arg1;
+- (void)testCase:(id)arg1 wasSkippedWithDescription:(id)arg2 inFile:(id)arg3 atLine:(unsigned long long)arg4;
 - (void)testCaseWillStart:(id)arg1;
 - (void)testSuiteDidFinish:(id)arg1;
-- (void)testSuite:(id)arg1 didFailWithDescription:(id)arg2 inFile:(id)arg3 atLine:(unsigned long long)arg4;
+- (void)testSuite:(id)arg1 didRecordIssue:(id)arg2;
 - (void)testSuiteWillStart:(id)arg1;
 - (void)testBundleWillStart:(id)arg1;
 - (id)_IDE_processWithToken:(id)arg1 exitedWithStatus:(id)arg2;
 - (id)_IDE_stopTrackingProcessWithToken:(id)arg1;
+- (void)reportSelfDiagnosisIssue:(id)arg1 description:(id)arg2;
 - (void)terminateProcessWithToken:(id)arg1 completion:(CDUnknownBlockType)arg2;
 - (void)requestLaunchProgressForProcessWithToken:(id)arg1 completion:(CDUnknownBlockType)arg2;
 - (void)launchProcessWithPath:(id)arg1 bundleID:(id)arg2 arguments:(id)arg3 environmentVariables:(id)arg4 completion:(CDUnknownBlockType)arg5;
@@ -58,8 +70,26 @@
 - (void)testRunSession:(id)arg1 initializationForUITestingDidFailWithError:(id)arg2;
 - (void)testRunSessionDidBeginInitializingForUITesting:(id)arg1;
 - (void)testRunSessionDidBeginExecutingTestPlan:(id)arg1;
+- (id)_IDE_shutdown;
+- (id)_IDE_executeTestIdentifiers:(id)arg1 skippingTestIdentifiers:(id)arg2;
+- (id)_IDE_fetchDiscoveredTestClasses;
 - (id)_IDE_startExecutingTestPlanWithProtocolVersion:(id)arg1;
-- (void)requestReadinessForTesting:(CDUnknownBlockType)arg1;
-- (id)initWithConnectedSocket:(int)arg1;
+- (void)reportTestWithIdentifier:(id)arg1 didExceedExecutionTimeAllowance:(double)arg2;
+- (void)reportBootstrappingFailure:(id)arg1 completion:(CDUnknownBlockType)arg2;
+@property(readonly) XCTFuture *readyForTestingFuture; // @synthesize readyForTestingFuture=_readyForTestingFuture;
+- (id)_queue_makeReadyForTestingFuture;
+@property(readonly) XCTFuture *testConfigurationFuture; // @synthesize testConfigurationFuture=_testConfigurationFuture;
+- (id)_queue_testConfigurationFuture;
+- (id)_queue_makeTestConfigurationFuture;
+- (void)patchUpRelativePathsInTestConfiguration:(id)arg1;
+@property(retain) XCTCapabilities *IDECapabilities; // @synthesize IDECapabilities=_IDECapabilities;
+- (id)initWithTransport:(id)arg1 delegate:(id)arg2;
+
+// Remaining properties
+@property(readonly, copy) NSString *debugDescription;
+@property(readonly, copy) NSString *description;
+@property(readonly) unsigned long long hash;
+@property(readonly) Class superclass;
 
 @end
+

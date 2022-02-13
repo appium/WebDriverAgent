@@ -4,63 +4,104 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSSet, NSString, NSURL, NSUUID;
+#import "NSObject.h"
 
-@interface XCTestConfiguration : NSObject <NSSecureCoding>
+#import "NSCopying.h"
+#import "NSSecureCoding.h"
+
+@class NSArray, NSDictionary, NSNumber, NSSet, NSString, NSURL, NSUUID, XCTAggregateSuiteRunStatistics, XCTCapabilities;
+
+@interface XCTestConfiguration : NSObject <NSSecureCoding, NSCopying>
 {
-    NSURL *_testBundleURL;
-    NSString *_testBundleRelativePath;
+    _Bool _reportResultsToIDE;
+    _Bool _testsDrivenByIDE;
+    _Bool _disablePerformanceMetrics;
+    _Bool _treatMissingBaselinesAsFailures;
+    _Bool _reportActivities;
+    _Bool _testsMustRunOnMainThread;
+    _Bool _initializeForUITesting;
+    _Bool _gatherLocalizableStringsData;
+    _Bool _emitOSLogs;
+    _Bool _testTimeoutsEnabled;
     NSString *_absolutePath;
-    NSSet *_testsToSkip;
+    NSString *_testBundleRelativePath;
+    NSURL *_testBundleURL;
     NSSet *_testsToRun;
-    BOOL _reportResultsToIDE;
+    NSSet *_testsToSkip;
     NSUUID *_sessionIdentifier;
-    NSString *_pathToXcodeReportingSocket;
-    BOOL _disablePerformanceMetrics;
-    BOOL _treatMissingBaselinesAsFailures;
     NSURL *_baselineFileURL;
     NSString *_baselineFileRelativePath;
     NSString *_targetApplicationPath;
     NSString *_targetApplicationBundleID;
+    NSDictionary *_testApplicationDependencies;
+    NSDictionary *_testApplicationUserOverrides;
     NSString *_productModuleName;
-    BOOL _reportActivities;
-    BOOL _testsMustRunOnMainThread;
-    BOOL _initializeForUITesting;
-    NSArray *_targetApplicationArguments;
+    NSNumber *_traceCollectionEnabled;
+    NSDictionary *_performanceTestConfiguration;
     NSDictionary *_targetApplicationEnvironment;
-    NSDictionary *_aggregateStatisticsBeforeCrash;
+    NSArray *_targetApplicationArguments;
+    XCTAggregateSuiteRunStatistics *_aggregateStatisticsBeforeCrash;
     NSString *_automationFrameworkPath;
-    BOOL _emitOSLogs;
+    long long _systemAttachmentLifetime;
+    long long _userAttachmentLifetime;
+    long long _testExecutionOrdering;
+    NSNumber *_randomExecutionOrderingSeed;
+    NSNumber *_defaultTestExecutionTimeAllowance;
+    NSNumber *_maximumTestExecutionTimeAllowance;
+    XCTCapabilities *_IDECapabilities;
 }
-@property BOOL emitOSLogs; // @synthesize emitOSLogs=_emitOSLogs;
+
++ (id)configurationWithContentsOfFile:(id)arg1;
++ (id)activeTestConfiguration;
++ (void)setActiveTestConfiguration:(id)arg1;
++ (_Bool)supportsSecureCoding;
+- (void).cxx_destruct;
+@property(retain) XCTCapabilities *IDECapabilities; // @synthesize IDECapabilities=_IDECapabilities;
+@property(copy, nonatomic) NSNumber *maximumTestExecutionTimeAllowance; // @synthesize maximumTestExecutionTimeAllowance=_maximumTestExecutionTimeAllowance;
+@property(copy, nonatomic) NSNumber *defaultTestExecutionTimeAllowance; // @synthesize defaultTestExecutionTimeAllowance=_defaultTestExecutionTimeAllowance;
+@property _Bool testTimeoutsEnabled; // @synthesize testTimeoutsEnabled=_testTimeoutsEnabled;
+@property(retain) NSNumber *randomExecutionOrderingSeed; // @synthesize randomExecutionOrderingSeed=_randomExecutionOrderingSeed;
+@property long long testExecutionOrdering; // @synthesize testExecutionOrdering=_testExecutionOrdering;
+@property long long userAttachmentLifetime; // @synthesize userAttachmentLifetime=_userAttachmentLifetime;
+@property long long systemAttachmentLifetime; // @synthesize systemAttachmentLifetime=_systemAttachmentLifetime;
+@property _Bool emitOSLogs; // @synthesize emitOSLogs=_emitOSLogs;
 @property(copy) NSString *automationFrameworkPath; // @synthesize automationFrameworkPath=_automationFrameworkPath;
-@property(copy) NSDictionary *aggregateStatisticsBeforeCrash; // @synthesize aggregateStatisticsBeforeCrash=_aggregateStatisticsBeforeCrash;
+@property(copy) XCTAggregateSuiteRunStatistics *aggregateStatisticsBeforeCrash; // @synthesize aggregateStatisticsBeforeCrash=_aggregateStatisticsBeforeCrash;
 @property(copy) NSArray *targetApplicationArguments; // @synthesize targetApplicationArguments=_targetApplicationArguments;
 @property(copy) NSDictionary *targetApplicationEnvironment; // @synthesize targetApplicationEnvironment=_targetApplicationEnvironment;
-@property BOOL initializeForUITesting; // @synthesize initializeForUITesting=_initializeForUITesting;
-@property BOOL testsMustRunOnMainThread; // @synthesize testsMustRunOnMainThread=_testsMustRunOnMainThread;
-@property BOOL reportActivities; // @synthesize reportActivities=_reportActivities;
+@property _Bool gatherLocalizableStringsData; // @synthesize gatherLocalizableStringsData=_gatherLocalizableStringsData;
+@property(copy) NSDictionary *performanceTestConfiguration; // @synthesize performanceTestConfiguration=_performanceTestConfiguration;
+@property(copy) NSNumber *traceCollectionEnabled; // @synthesize traceCollectionEnabled=_traceCollectionEnabled;
+@property _Bool initializeForUITesting; // @synthesize initializeForUITesting=_initializeForUITesting;
+@property _Bool testsMustRunOnMainThread; // @synthesize testsMustRunOnMainThread=_testsMustRunOnMainThread;
+@property _Bool reportActivities; // @synthesize reportActivities=_reportActivities;
 @property(copy) NSString *productModuleName; // @synthesize productModuleName=_productModuleName;
+@property(copy) NSDictionary *testApplicationUserOverrides; // @synthesize testApplicationUserOverrides=_testApplicationUserOverrides;
+@property(copy) NSDictionary *testApplicationDependencies; // @synthesize testApplicationDependencies=_testApplicationDependencies;
 @property(copy) NSString *targetApplicationBundleID; // @synthesize targetApplicationBundleID=_targetApplicationBundleID;
 @property(copy) NSString *targetApplicationPath; // @synthesize targetApplicationPath=_targetApplicationPath;
-@property BOOL treatMissingBaselinesAsFailures; // @synthesize treatMissingBaselinesAsFailures=_treatMissingBaselinesAsFailures;
-@property BOOL disablePerformanceMetrics; // @synthesize disablePerformanceMetrics=_disablePerformanceMetrics;
-@property BOOL reportResultsToIDE; // @synthesize reportResultsToIDE=_reportResultsToIDE;
-@property(copy, nonatomic) NSURL *baselineFileURL; // @synthesize baselineFileURL=_baselineFileURL;
+@property _Bool treatMissingBaselinesAsFailures; // @synthesize treatMissingBaselinesAsFailures=_treatMissingBaselinesAsFailures;
+@property _Bool disablePerformanceMetrics; // @synthesize disablePerformanceMetrics=_disablePerformanceMetrics;
+@property _Bool testsDrivenByIDE; // @synthesize testsDrivenByIDE=_testsDrivenByIDE;
+@property _Bool reportResultsToIDE; // @synthesize reportResultsToIDE=_reportResultsToIDE;
 @property(copy) NSString *baselineFileRelativePath; // @synthesize baselineFileRelativePath=_baselineFileRelativePath;
-@property(copy) NSString *pathToXcodeReportingSocket; // @synthesize pathToXcodeReportingSocket=_pathToXcodeReportingSocket;
+@property(copy, nonatomic) NSURL *baselineFileURL; // @synthesize baselineFileURL=_baselineFileURL;
 @property(copy) NSUUID *sessionIdentifier; // @synthesize sessionIdentifier=_sessionIdentifier;
 @property(copy) NSSet *testsToSkip; // @synthesize testsToSkip=_testsToSkip;
 @property(copy) NSSet *testsToRun; // @synthesize testsToRun=_testsToRun;
 @property(copy, nonatomic) NSURL *testBundleURL; // @synthesize testBundleURL=_testBundleURL;
 @property(copy) NSString *testBundleRelativePath; // @synthesize testBundleRelativePath=_testBundleRelativePath;
 @property(copy) NSString *absolutePath; // @synthesize absolutePath=_absolutePath;
-
-+ (id)configurationWithContentsOfFile:(id)arg1;
-+ (id)activeTestConfiguration;
-+ (void)setActiveTestConfiguration:(id)arg1;
-
-- (BOOL)writeToFile:(id)arg1;
+- (void)clearXcodeReportingConfiguration;
+@property(readonly) long long testMode;
+- (_Bool)isEqual:(id)arg1;
+- (unsigned long long)hash;
+- (id)description;
+- (_Bool)writeToFile:(id)arg1;
+- (id)copyWithZone:(struct _NSZone *)arg1;
+- (void)encodeWithCoder:(id)arg1;
+- (id)initWithCoder:(id)arg1;
 - (id)init;
 
 @end
+

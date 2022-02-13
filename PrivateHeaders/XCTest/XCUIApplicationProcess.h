@@ -4,80 +4,104 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <Foundation/Foundation.h>
+#import "NSObject.h"
 
-#import <WebDriverAgentLib/CDStructures.h>
+#import "XCTElementSnapshotAttributeDataSource.h"
+#import "XCUIIssueDiagnosticsProviding.h"
 
-@class XCAXClient_iOS;
-@class XCAccessibilityElement;
-@class XCApplicationMonitor;
-@class XCUIApplicationImpl;
-@class XCElementSnapshot;
-@protocol XCTestManager_IDEInterface;
-@protocol XCTRunnerAutomationSession;
+@class NSObject<OS_dispatch_queue>, NSString, XCAccessibilityElement, XCElementSnapshot, XCTFuture;
 
-@interface XCUIApplicationProcess : NSObject
+@interface XCUIApplicationProcess : NSObject <XCTElementSnapshotAttributeDataSource, XCUIIssueDiagnosticsProviding>
 {
     NSObject<OS_dispatch_queue> *_queue;
-    BOOL _accessibilityActive;
+    _Bool _accessibilityActive;
     unsigned long long _applicationState;
     int _processID;
     id _token;
     int _exitCode;
-    BOOL _eventLoopHasIdled;
-    BOOL _hasReceivedEventLoopHasIdled;
-    BOOL _animationsHaveFinished;
-    BOOL _hasReceivedAnimationsHaveFinished;
-    BOOL _hasExitCode;
-    BOOL _hasCrashReport;
-    NSString *_bundleID;
-    XCUIApplicationImpl *_applicationImplementation;
+    _Bool _eventLoopHasIdled;
+    _Bool _animationsHaveFinished;
+    _Bool _hasExitCode;
+    _Bool _hasCrashReport;
+    unsigned long long _alertCount;
     id <XCTRunnerAutomationSession> _automationSession;
+    XCTFuture *_automationSessionFuture;
+    NSString *_path;
+    NSString *_bundleID;
     XCElementSnapshot *_lastSnapshot;
-    XCApplicationMonitor *_applicationMonitor;
-    XCAXClient_iOS *_AXClient_iOS;
+    id <XCUIDevice> _device;
+    id <XCUIApplicationProcessDelegate> _delegate;
 }
 
-+ (BOOL)automaticallyNotifiesObserversForKey:(id)arg1;
-@property XCAXClient_iOS *AXClient_iOS; // @synthesize AXClient_iOS=_AXClient_iOS;
-// Since Xcode 10
++ (id)keyPathsForValuesAffectingIsQuiescent;
++ (_Bool)automaticallyNotifiesObserversForKey:(id)arg1;
++ (id)keyPathsForValuesAffectingIsProcessIDValid;
++ (id)keyPathsForValuesAffectingForeground;
++ (id)keyPathsForValuesAffectingBackground;
++ (id)keyPathsForValuesAffectingSuspended;
++ (id)keyPathsForValuesAffectingRunning;
++ (id)keyPathsForValuesAffectingIsApplicationStateKnown;
+- (void).cxx_destruct;
+@property(readonly) id <XCUIApplicationProcessDelegate> delegate; // @synthesize delegate=_delegate;
+@property(readonly) id <XCUIDevice> device; // @synthesize device=_device;
 @property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
-@property XCApplicationMonitor *applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
-@property(retain) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
-@property BOOL hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;
-@property BOOL hasExitCode; // @synthesize hasExitCode=_hasExitCode;
-@property BOOL hasReceivedAnimationsHaveFinished;
-@property BOOL animationsHaveFinished;
-@property BOOL hasReceivedEventLoopHasIdled;
-@property BOOL eventLoopHasIdled;
+@property _Bool hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;
+@property _Bool hasExitCode; // @synthesize hasExitCode=_hasExitCode;
+@property(readonly, copy, nonatomic) NSString *bundleID; // @synthesize bundleID=_bundleID;
+@property(readonly, copy, nonatomic) NSString *path; // @synthesize path=_path;
+- (id)diagnosticAttachmentsForError:(id)arg1;
+- (_Bool)isMacCatalystForPID:(int)arg1;
+@property(readonly) _Bool hasBannerNotificationIsStickyAttribute;
+@property(readonly) _Bool usePointTransformationsForFrameConversions;
+@property(readonly) _Bool supportsHostedViewCoordinateTransformations;
+- (id)parameterizedAttribute:(id)arg1 forElement:(id)arg2 parameter:(id)arg3 error:(id *)arg4;
+- (id)valuesForPrivilegedAttributes:(id)arg1 forElement:(id)arg2 error:(id *)arg3;
+@property(readonly) _Bool providesValuesForPrivilegedAttributes;
+- (id)attributesForElement:(id)arg1 attributes:(id)arg2 error:(id *)arg3;
+@property(readonly) _Bool allowsRemoteAccess;
+- (id)_underlyingDataSourceForElement:(id)arg1;
+- (_Bool)terminate:(id *)arg1;
+- (_Bool)waitForViewControllerViewDidDisappearWithTimeout:(double)arg1 error:(id *)arg2;
+- (void)acquireBackgroundAssertion;
+@property(readonly) XCTFuture *automationSessionFuture; // @synthesize automationSessionFuture=_automationSessionFuture;
+- (id)_queue_automationSessionFuture;
+- (void)waitForAutomationSession;
+@property(retain, nonatomic) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
+- (_Bool)isQuiescent;
+- (void)_initiateQuiescenceChecksIncludingAnimationsIdle:(_Bool)arg1;
+- (void)waitForQuiescenceIncludingAnimationsIdle:(_Bool)arg1;
+- (id)_makeQuiescenceExpectation;
+- (void)_notifyWhenAnimationsAreIdle:(CDUnknownBlockType)arg1;
+- (_Bool)_supportsAnimationsIdleNotifications;
+- (void)_notifyWhenMainRunLoopIsIdle:(CDUnknownBlockType)arg1;
+- (void)resetAlertCount;
+- (void)incrementAlertCount;
+@property(readonly) unsigned long long alertCount; // @synthesize alertCount=_alertCount;
+@property _Bool animationsHaveFinished;
+@property _Bool eventLoopHasIdled;
 @property int exitCode;
 @property(retain) id token;
 @property(nonatomic) int processID;
-// Since Xcode 10.2
-@property(readonly, copy, nonatomic) NSString *bundleID; // @synthesize bundleID=_bundleID;
-@property(readonly) BOOL running;
-@property XCUIApplicationImpl *applicationImplementation; // @synthesize applicationImplementation=_applicationImplementation;
+@property(readonly, getter=isProcessIDValid) _Bool processIDValid;
+@property(readonly) _Bool foreground;
+@property(readonly) _Bool background;
+@property(readonly) _Bool suspended;
+@property(readonly) _Bool running;
+- (_Bool)isApplicationStateKnown;
+- (void)_awaitKnownApplicationState;
 @property(nonatomic) unsigned long long applicationState;
-@property(nonatomic) BOOL accessibilityActive;
+@property(nonatomic) _Bool accessibilityActive;
 @property(readonly, copy) XCAccessibilityElement *accessibilityElement;
-
-- (id)init;
-- (id)initWithApplicationMonitor:(id)arg1 AXInterface:(id)arg2;
-
-- (void)terminate;
-- (void)waitForViewControllerViewDidDisappearWithTimeout:(double)arg1;
-- (void)waitForAutomationSession;
-- (void)waitForQuiescenceIncludingAnimationsIdle:(BOOL)arg1;
-
-- (id)shortDescription;
+@property(readonly, copy) NSString *shortDescription;
 - (id)_queue_description;
+@property(readonly, copy) NSString *description;
+- (id)initWithBundleID:(id)arg1 device:(id)arg2 delegate:(id)arg3;
+- (id)initWithPath:(id)arg1 bundleID:(id)arg2 device:(id)arg3 delegate:(id)arg4;
 
-// Gone with iOS 10.3
-- (void)waitForQuiescence;
-
-// Since Xcode 10.2
-- (void)_notifyWhenAnimationsAreIdle:(void (^)(id, void *))arg1;
-- (_Bool)_supportsAnimationsIdleNotifications;
-- (void)_notifyWhenMainRunLoopIsIdle:(void (^)(id, void *))arg1;
+// Remaining properties
+@property(readonly, copy) NSString *debugDescription;
+@property(readonly) unsigned long long hash;
+@property(readonly) Class superclass;
 
 @end
+

@@ -4,58 +4,98 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <XCTest/XCUIApplication.h>
+#import <XCTest/XCUIElement.h>
 
-@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCApplicationQuery, XCUIApplicationImpl;
+@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCApplicationQuery, XCUIApplicationImpl, XCUIApplicationOpenRequest;
 
-@interface XCUIApplication ()
+@interface XCUIApplication : XCUIElement
 {
-    BOOL _ancillary;
-    BOOL _doesNotHandleUIInterruptions;
-    BOOL _idleAnimationWaitEnabled;
+    _Bool _ancillary;
+    _Bool _prefersPlatformLauncher;
+    _Bool _doesNotHandleUIInterruptions;
+    _Bool _allowBackgroundInteraction;
+    _Bool _idleAnimationWaitEnabled;
+    unsigned int _currentInteractionOptions;
+    XCUIApplicationOpenRequest *_lastLaunchRequest;
     XCUIElement *_keyboard;
     NSArray *_launchArguments;
     NSDictionary *_launchEnvironment;
-    XCUIApplicationImpl *_applicationImpl;
     XCApplicationQuery *_applicationQuery;
     unsigned long long _generation;
+    XCUIApplicationImpl *_applicationImpl;
 }
+
++ (id)keyPathsForValuesAffectingForeground;
++ (id)keyPathsForValuesAffectingBackground;
++ (id)keyPathsForValuesAffectingSuspended;
++ (id)keyPathsForValuesAffectingRunning;
++ (id)keyPathsForValuesAffectingState;
++ (id)keyPathsForValuesAffectingIsApplicationStateKnown;
++ (id)new;
+- (void).cxx_destruct;
+@property(getter=isIdleAnimationWaitEnabled) _Bool idleAnimationWaitEnabled; // @synthesize idleAnimationWaitEnabled=_idleAnimationWaitEnabled;
+@property _Bool allowBackgroundInteraction; // @synthesize allowBackgroundInteraction=_allowBackgroundInteraction;
+@property(nonatomic) _Bool doesNotHandleUIInterruptions; // @synthesize doesNotHandleUIInterruptions=_doesNotHandleUIInterruptions;
+@property _Bool prefersPlatformLauncher; // @synthesize prefersPlatformLauncher=_prefersPlatformLauncher;
+@property(readonly) XCUIApplicationImpl *applicationImpl; // @synthesize applicationImpl=_applicationImpl;
+@property _Bool ancillary; // @synthesize ancillary=_ancillary;
+@property unsigned int currentInteractionOptions; // @synthesize currentInteractionOptions=_currentInteractionOptions;
 @property unsigned long long generation; // @synthesize generation=_generation;
 @property(retain) XCApplicationQuery *applicationQuery; // @synthesize applicationQuery=_applicationQuery;
-@property(retain) XCUIApplicationImpl *applicationImpl; // @synthesize applicationQuery=_applicationQuery;
-@property(readonly, copy) NSString *bundleID; // @synthesize bundleID=_bundleID;
-@property(readonly, copy) NSString *path; // @synthesize path=_path;
-@property BOOL ancillary; // @synthesize ancillary=_ancillary;
-@property(readonly) XCUIElement *keyboard; // @synthesize keyboard=_keyboard;
-
-@property(getter=isIdleAnimationWaitEnabled) BOOL idleAnimationWaitEnabled; // @synthesize idleAnimationWaitEnabled=_idleAnimationWaitEnabled;
-@property(nonatomic) BOOL doesNotHandleUIInterruptions; // @synthesize doesNotHandleUIInterruptions=_doesNotHandleUIInterruptions;
-@property(readonly) BOOL fauxCollectionViewCellsEnabled;
-#if !TARGET_OS_TV
-@property(readonly, nonatomic) UIInterfaceOrientation interfaceOrientation; //TODO tvos
-#endif
-@property(readonly, nonatomic) BOOL running;
-@property(nonatomic) pid_t processID; // @synthesize processID=_processID;
-@property(readonly) XCAccessibilityElement *accessibilityElement;
-
-+ (instancetype)applicationWithPID:(pid_t)processID;
-/*! DO NOT USE DIRECTLY! Please use fb_activate instead */
-- (void)activate;
-
+@property(copy, nonatomic) NSDictionary *launchEnvironment; // @synthesize launchEnvironment=_launchEnvironment;
+@property(copy, nonatomic) NSArray *launchArguments; // @synthesize launchArguments=_launchArguments;
+@property(retain) XCUIApplicationOpenRequest *lastLaunchRequest; // @synthesize lastLaunchRequest=_lastLaunchRequest;
+- (id)diagnosticAttachmentsForError:(id)arg1;
 - (void)dismissKeyboard;
-- (BOOL)setFauxCollectionViewCellsEnabled:(BOOL)arg1 error:(id *)arg2;
-- (void)_waitForViewControllerViewDidDisappearWithTimeout:(double)arg1;
+@property(readonly) XCUIElement *keyboard; // @synthesize keyboard=_keyboard;
+- (_Bool)setFauxCollectionViewCellsEnabled:(_Bool)arg1 error:(id *)arg2;
+@property(readonly) _Bool fauxCollectionViewCellsEnabled;
+- (id)viewDidAppearExpectationForViewControllerWithName:(id)arg1;
+- (_Bool)_waitForViewControllerViewDidDisappearWithTimeout:(double)arg1 error:(id *)arg2;
+@property(readonly, nonatomic) long long interfaceOrientation;
 - (void)_waitForQuiescence;
+@property(readonly) _Bool hasAutomationSession;
+@property(readonly) _Bool backgroundInteractionAllowed;
+@property(readonly) _Bool shouldSkipPostEventQuiescence;
+@property(readonly) _Bool shouldSkipPreEventQuiescence;
+- (void)_performWithInteractionOptions:(unsigned int)arg1 block:(CDUnknownBlockType)arg2;
 - (void)terminate;
-- (void)_launchUsingXcode:(BOOL)arg1;
+- (void)resetAuthorizationStatusForResource:(long long)arg1;
+- (void)activate;
+- (void)_launchUsingXcode:(_Bool)arg1;
 - (void)launch;
+- (id)_combinedLaunchEnvironment;
+- (id)_combinedLaunchArguments;
+- (_Bool)waitForState:(unsigned long long)arg1 timeout:(double)arg2;
+@property(readonly) _Bool foreground;
+@property(readonly) _Bool background;
+@property(readonly) _Bool suspended;
+@property(readonly) _Bool running;
+@property(nonatomic) int processID;
+@property(nonatomic) unsigned long long state;
+- (_Bool)isApplicationStateKnown;
+- (void)resetAlertCount;
+@property(readonly) _Bool shouldBeCheckedForInterruptingElements;
+- (_Bool)exists;
+- (id)currentProcess;
 - (id)application;
+@property(readonly) id <XCTRunnerAutomationSession> automationSession;
 - (id)description;
-- (id)lastSnapshot;
-- (XCUIElementQuery *)query;
+- (id)query;
 - (void)clearQuery;
-- (void)resolveHandleUIInterruption:(BOOL)arg1;
+- (_Bool)resolveOrRaiseTestFailure:(_Bool)arg1 error:(id *)arg2;
+@property(readonly) XCAccessibilityElement *accessibilityElement;
+- (unsigned long long)elementType;
+@property(readonly) id <XCUIDevice> device;
+@property(readonly) NSString *bundleID;
+@property(readonly) NSString *path;
+- (void)commonInitWithApplicationSpecifier:(id)arg1 device:(id)arg2;
 - (id)initPrivateWithPath:(id)arg1 bundleID:(id)arg2;
+- (id)initWithApplicationSpecifier:(id)arg1 device:(id)arg2;
+- (id)initWithBundleIdentifier:(id)arg1 device:(id)arg2;
+- (id)initWithBundleIdentifier:(id)arg1;
 - (id)init;
+- (id)initWithElementQuery:(id)arg1;
 
 @end
+

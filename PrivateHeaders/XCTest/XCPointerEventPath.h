@@ -4,40 +4,58 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
+#import "NSSecureCoding.h"
+
 @class NSArray, NSMutableArray;
 
 @interface XCPointerEventPath : NSObject <NSSecureCoding>
 {
     NSMutableArray *_pointerEvents;
-    BOOL _immutable;
+    _Bool _immutable;
     unsigned long long _pathType;
     unsigned long long _index;
+    unsigned long long _deviceID;
+    struct CGPoint _initialMouseLocation;
 }
-@property BOOL immutable; // @synthesize immutable=_immutable;
-@property unsigned long long index; // @synthesize index=_index;
-@property(readonly) unsigned long long pathType; // @synthesize pathType=_pathType;
-@property(readonly) NSArray *pointerEvents;
 
++ (_Bool)supportsSecureCoding;
+- (void).cxx_destruct;
+@property _Bool immutable; // @synthesize immutable=_immutable;
+@property unsigned long long deviceID; // @synthesize deviceID=_deviceID;
+@property unsigned long long index; // @synthesize index=_index;
+@property(readonly) struct CGPoint initialMouseLocation; // @synthesize initialMouseLocation=_initialMouseLocation;
+@property(readonly) unsigned long long pathType; // @synthesize pathType=_pathType;
+- (id)description;
 - (id)firstEventAfterOffset:(double)arg1;
 - (id)lastEventBeforeOffset:(double)arg1;
 - (void)_addPointerEvent:(id)arg1;
-- (void)releaseButton:(unsigned long long)arg1 atOffset:(double)arg2;
-- (void)pressButton:(unsigned long long)arg1 atOffset:(double)arg2;
+- (void)setModifiers:(unsigned long long)arg1 mergeWithCurrentModifierFlags:(_Bool)arg2 atOffset:(double)arg3;
+- (void)typeKey:(id)arg1 modifiers:(unsigned long long)arg2 atOffset:(double)arg3;
+- (void)typeText:(id)arg1 atOffset:(double)arg2 typingSpeed:(unsigned long long)arg3 shouldRedact:(_Bool)arg4;
+- (void)scrollAtPoint:(struct CGPoint)arg1 byLines:(long long)arg2 atOffset:(double)arg3;
+- (void)scrollWithDeltaVector:(struct CGVector)arg1 atOffset:(double)arg2 duration:(double)arg3;
+- (void)releaseButton:(unsigned long long)arg1 atOffset:(double)arg2 clickCount:(unsigned long long)arg3;
+- (void)dragWithButton:(unsigned long long)arg1 toPoint:(struct CGPoint)arg2 atOffset:(double)arg3 duration:(double)arg4;
+- (void)pressButton:(unsigned long long)arg1 atOffset:(double)arg2 clickCount:(unsigned long long)arg3;
 - (void)liftUpAtOffset:(double)arg1;
+- (void)moveMouseToPoint:(struct CGPoint)arg1 atOffset:(double)arg2 duration:(double)arg3;
 - (void)moveToPoint:(struct CGPoint)arg1 atOffset:(double)arg2;
+- (void)pressDownWithPressure:(double)arg1 stage:(unsigned long long)arg2 phase:(unsigned long long)arg3 atOffset:(double)arg4;
 - (void)pressDownWithPressure:(double)arg1 atOffset:(double)arg2;
 - (void)pressDownAtOffset:(double)arg1;
-- (id)initForMouseAtPoint:(struct CGPoint)arg1 offset:(double)arg2;
-- (id)initForTouchAtPoint:(CGPoint)arg1 offset:(double)arg2;
-// Since Xcode 10.2
-- (void)typeKey:(id)arg1 modifiers:(unsigned long long)arg2 atOffset:(double)arg3;
-// Since Xcode 12.beta5
-- (void)typeText:(id)arg1 atOffset:(double)arg2 typingSpeed:(unsigned long long)arg3 shouldRedact:(_Bool)arg4;
-// Since Xcode 10.2
+@property(readonly) NSArray *pointerEvents;
+- (_Bool)isEqual:(id)arg1;
+- (unsigned long long)hash;
+- (void)encodeWithCoder:(id)arg1;
+- (id)initWithCoder:(id)arg1;
+- (id)initForTouchBarAtPoint:(struct CGPoint)arg1 offset:(double)arg2;
 - (id)initForTextInput;
-// Since Xcode 10.2
-- (void)setModifiers:(unsigned long long)arg1 mergeWithCurrentModifierFlags:(_Bool)arg2 atOffset:(double)arg3;
-
-- (id)init;
+- (id)initForMouseEventsWithDeviceID:(unsigned long long)arg1 atLocation:(struct CGPoint)arg2;
+- (id)initForMouseEventsAtLocation:(struct CGPoint)arg1;
+- (id)initForMouseEvents;
+- (id)initForTouchAtPoint:(struct CGPoint)arg1 offset:(double)arg2;
 
 @end
+

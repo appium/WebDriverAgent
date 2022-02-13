@@ -13,7 +13,6 @@
     id <XCTWaiterDelegate> _delegate;
     XCTWaiterManager *_manager;
     NSArray *_waitCallStackReturnAddresses;
-    NSObject<OS_dispatch_queue> *_queue;
     NSObject<OS_dispatch_queue> *_delegateQueue;
     NSArray *_expectations;
     NSMutableArray *_fulfilledExpectations;
@@ -21,21 +20,23 @@
     long long _state;
     double _timeout;
     long long _result;
-    BOOL _enforceOrderOfFulfillment;
+    _Bool _enforceOrderOfFulfillment;
 }
-@property BOOL enforceOrderOfFulfillment; // @synthesize enforceOrderOfFulfillment=_enforceOrderOfFulfillment;
+
+@property _Bool enforceOrderOfFulfillment; // @synthesize enforceOrderOfFulfillment=_enforceOrderOfFulfillment;
 @property long long result; // @synthesize result=_result;
 @property long long state; // @synthesize state=_state;
 @property(readonly, nonatomic) NSMutableArray *fulfilledExpectations; // @synthesize fulfilledExpectations=_fulfilledExpectations;
 @property(copy, nonatomic) NSArray *expectations; // @synthesize expectations=_expectations;
 @property(readonly, nonatomic) NSObject<OS_dispatch_queue> *delegateQueue; // @synthesize delegateQueue=_delegateQueue;
-@property(readonly, nonatomic) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
 @property XCTWaiterManager *manager; // @synthesize manager=_manager;
 @property id <XCTWaiterDelegate> delegate; // @synthesize delegate=_delegate;
 @property double timeout; // @synthesize timeout=_timeout;
 @property struct __CFRunLoop *waitingRunLoop; // @synthesize waitingRunLoop=_waitingRunLoop;
 @property(copy) NSArray *waitCallStackReturnAddresses; // @synthesize waitCallStackReturnAddresses=_waitCallStackReturnAddresses;
-
+- (void).cxx_destruct;
+- (void)dealloc;
 - (id)init;
 
 @end
+

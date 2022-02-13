@@ -4,54 +4,83 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import <WebDriverAgentLib/CDStructures.h>
-#import <CoreGraphics/CoreGraphics.h>
+#import "NSObject.h"
 
-@class NSMutableDictionary;
-@class XCAccessibilityElement;
-@class XCElementSnapshot;
+#import "XCUIAccessibilityInterface.h"
 
-@interface XCAXClient_iOS : NSObject
+@class NSMutableDictionary, NSObject<OS_dispatch_queue>, NSString, XCAccessibilityElement;
+
+@interface XCAXClient_iOS : NSObject <XCUIAccessibilityInterface>
 {
+    id <XCUIApplicationProcessTracker> _applicationProcessTracker;
+    id <XCUIRemoteAccessibilityInterface> _remoteAccessibilityInterface;
+    id <XCUIDevice> _device;
+    NSObject<OS_dispatch_queue> *_queue;
     NSMutableDictionary *_userTestingNotificationHandlers;
-    NSMutableDictionary *_cacheAccessibilityLoadedValuesForPIDs;
-    unsigned long long *_alertNotificationCounter;
+    NSMutableDictionary *_oneShotUserTestingNotificationHandlers;
+    NSMutableDictionary *_cachedAccessibilityLoadedValuesForPIDs;
 }
+
+- (void).cxx_destruct;
+@property(readonly) NSMutableDictionary *cachedAccessibilityLoadedValuesForPIDs; // @synthesize cachedAccessibilityLoadedValuesForPIDs=_cachedAccessibilityLoadedValuesForPIDs;
+@property(readonly) NSMutableDictionary *oneShotUserTestingNotificationHandlers; // @synthesize oneShotUserTestingNotificationHandlers=_oneShotUserTestingNotificationHandlers;
+@property(readonly) NSMutableDictionary *userTestingNotificationHandlers; // @synthesize userTestingNotificationHandlers=_userTestingNotificationHandlers;
+@property(retain) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
+@property(readonly) __weak id <XCUIDevice> device; // @synthesize device=_device;
+@property(readonly) id <XCUIRemoteAccessibilityInterface> remoteAccessibilityInterface; // @synthesize remoteAccessibilityInterface=_remoteAccessibilityInterface;
+@property(readonly) id <XCUIApplicationProcessTracker> applicationProcessTracker; // @synthesize applicationProcessTracker=_applicationProcessTracker;
+- (id)accessibilityElementForElementAtPoint:(struct CGPoint)arg1 error:(id *)arg2;
+- (void)performWhenMenuOpens:(id)arg1 block:(CDUnknownBlockType)arg2;
+- (void)removeObserver:(id)arg1 forAXNotification:(id)arg2;
+- (id)addObserverForAXNotification:(id)arg1 handler:(CDUnknownBlockType)arg2;
+- (void)unregisterForAXNotificationsForApplicationWithPID:(int)arg1;
+- (void)registerForAXNotificationsForApplicationWithPID:(int)arg1 timeout:(double)arg2 completion:(CDUnknownBlockType)arg3;
 @property double AXTimeout;
-
-// Added since Xcode 10.2
-@property(readonly) id applicationProcessTracker;
-
-- (BOOL)_setAXTimeout:(double)arg1 error:(NSError **)arg2;
-- (NSData *)screenshotData;
-- (BOOL)performAction:(int)arg1 onElement:(id)arg2 value:(id)arg3 error:(id *)arg4;
-- (id)parameterizedAttributeForElement:(id)arg1 attribute:(id)arg2 parameter:(id)arg3;
-- (BOOL)setAttribute:(id)arg1 value:(id)arg2 element:(id)arg3 outError:(id *)arg4;
-// since Xcode10
+- (_Bool)_setAXTimeout:(double)arg1 error:(id *)arg2;
+- (id)localizableStringsDataForActiveApplications;
+- (_Bool)performAction:(id)arg1 onElement:(id)arg2 value:(id)arg3 error:(id *)arg4;
+- (id)parameterizedAttribute:(id)arg1 forElement:(id)arg2 parameter:(id)arg3 error:(id *)arg4;
+- (_Bool)setAttribute:(id)arg1 value:(id)arg2 element:(id)arg3 outError:(id *)arg4;
+@property(readonly) _Bool allowsRemoteAccess;
+- (id)valuesForPrivilegedAttributes:(id)arg1 forElement:(id)arg2 error:(id *)arg3;
+@property(readonly) _Bool providesValuesForPrivilegedAttributes;
 - (id)attributesForElement:(id)arg1 attributes:(id)arg2 error:(id *)arg3;
-- (id)attributesForElementSnapshot:(id)arg1 attributeList:(id)arg2;
-- (id)snapshotForApplication:(id)arg1 attributeList:(id)arg2 parameters:(id)arg3;
+- (id)requestSnapshotForElement:(id)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(id *)arg4;
 - (id)defaultParameters;
-- (id)defaultAttributes;
 - (void)notifyWhenViewControllerViewDidDisappearReply:(CDUnknownBlockType)arg1;
-- (void)notifyWhenViewControllerViewDidAppearReply:(CDUnknownBlockType)arg1;
+- (id)viewDidAppearExpectationForElement:(id)arg1 viewControllerName:(id)arg2;
 - (void)notifyWhenNoAnimationsAreActiveForApplication:(id)arg1 reply:(CDUnknownBlockType)arg2;
+@property(readonly) _Bool supportsAnimationsInactiveNotifications;
 - (void)notifyWhenEventLoopIsIdleForApplication:(id)arg1 reply:(CDUnknownBlockType)arg2;
-- (id)interruptingUIElementAffectingSnapshot:(id)arg1;
-- (void)handleAccessibilityNotification:(int)arg1 withPayload:(id)arg2;
+- (id)_snapshotsForInterruptingElementsPresentedByApplication:(id)arg1;
+- (id)_hittableElementsInSnapshots:(id)arg1;
+- (id)_activeForegroundApplicationsWithPotentiallyInterruptingUI;
+- (id)interruptingUIElementsAffectingSnapshot:(id)arg1 checkForHandledElement:(id)arg2 containsHandledElement:(_Bool *)arg3;
+- (_Bool)isMacCatalystForPID:(int)arg1;
+@property(readonly) _Bool hasBannerNotificationIsStickyAttribute;
+@property(readonly) _Bool usePointTransformationsForFrameConversions;
+@property(readonly) _Bool supportsHostedViewCoordinateTransformations;
+@property(readonly) _Bool axNotificationsIncludeElement;
+- (void)handleAccessibilityNotification:(int)arg1 fromElement:(id)arg2 payload:(id)arg3;
 - (void)notifyOnNextOccurrenceOfUserTestingEvent:(id)arg1 handler:(CDUnknownBlockType)arg2;
-- (void)handleUserTestingNotification:(id)arg1;
-- (id)elementAtPoint:(CGPoint)arg1 error:(id *)arg2;
-- (BOOL)cachedAccessibilityLoadedValueForPID:(int)arg1;
-- (NSArray<XCAccessibilityElement *> *)activeApplications;
-- (id)systemApplication;
-- (BOOL)enableFauxCollectionViewCells:(id *)arg1;
-- (BOOL)loadAccessibility:(id *)arg1;
-- (BOOL)_registerForAXNotification:(int)arg1 error:(id *)arg2;
-- (BOOL)_loadAccessibility:(id *)arg1;
-// Since Xcode 11
-- (id)requestSnapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
+- (void)_removeUserTestNotificationHandlerForToken:(id)arg1;
+- (id)_addUserTestNotificationHandler:(CDUnknownBlockType)arg1;
+- (void)_handleUserTestingNotificationFromElement:(id)arg1 withPayload:(id)arg2;
+- (id)hitTestElement:(id)arg1 withPoint:(struct CGPoint)arg2 error:(id *)arg3;
+- (_Bool)cachedAccessibilityLoadedValueForPID:(int)arg1;
+- (id)activeApplications;
+@property(readonly, nonatomic) XCAccessibilityElement *systemApplication;
+- (_Bool)enableFauxCollectionViewCells:(id *)arg1;
+- (_Bool)loadAccessibility:(id *)arg1;
+- (_Bool)_registerForAXNotification:(int)arg1 error:(id *)arg2;
+- (_Bool)_loadAccessibility:(id *)arg1;
+- (id)initWithApplicationProcessTracker:(id)arg1 remoteAccessibilityInterface:(id)arg2 device:(id)arg3;
 
-- (id)init;
+// Remaining properties
+@property(readonly, copy) NSString *debugDescription;
+@property(readonly, copy) NSString *description;
+@property(readonly) unsigned long long hash;
+@property(readonly) Class superclass;
 
 @end
+

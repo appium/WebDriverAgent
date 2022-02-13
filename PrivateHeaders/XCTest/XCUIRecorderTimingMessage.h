@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+#import "NSObject.h"
+
 @class NSString;
 
 @interface XCUIRecorderTimingMessage : NSObject
@@ -11,10 +13,12 @@
     double _start;
     NSString *_message;
 }
-@property(copy) NSString *message; // @synthesize message=_message;
-@property double start; // @synthesize start=_start;
 
 + (id)descriptionForTimingMessages:(id)arg1;
 + (id)messageWithString:(id)arg1;
+- (void).cxx_destruct;
+@property(copy) NSString *message; // @synthesize message=_message;
+@property double start; // @synthesize start=_start;
 
 @end
+

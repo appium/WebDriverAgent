@@ -10,7 +10,7 @@
 {
 }
 
-- (long long)wait:(double)arg1 forExpectations:(id)arg2 enforceOrder:(BOOL)arg3;
+- (long long)wait:(double)arg1 forExpectations:(id)arg2 enforceOrder:(_Bool)arg3;
 - (long long)wait:(double)arg1 forExpectations:(id)arg2;
 
 @end

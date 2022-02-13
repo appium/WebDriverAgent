@@ -15,13 +15,16 @@
     int _notifyToken;
     CDUnknownBlockType _handler;
     NSObject<OS_dispatch_queue> *_queue;
-    BOOL _hasCleanedUp;
+    _Bool _hasCleanedUp;
 }
-@property(readonly, copy) NSString *notificationName; // @synthesize notificationName=_notificationName;
-@property(copy) CDUnknownBlockType handler;
 
+@property(readonly, copy) NSString *notificationName; // @synthesize notificationName=_notificationName;
+- (void).cxx_destruct;
 - (void)cleanup;
 - (void)_handleNotification;
+@property(copy) CDUnknownBlockType handler;
 - (id)initWithNotificationName:(id)arg1 expectation:(id)arg2;
+- (void)dealloc;
 
 @end
+

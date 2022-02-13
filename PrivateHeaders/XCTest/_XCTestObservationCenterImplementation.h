@@ -4,16 +4,20 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSMutableSet;
+#import "NSObject.h"
+
+@class NSMutableArray;
 
 @interface _XCTestObservationCenterImplementation : NSObject
 {
     NSMutableArray *_observers;
-    BOOL _suspended;
+    _Bool _suspended;
 }
 
-@property BOOL suspended; // @synthesize suspended=_suspended;
+@property _Bool suspended; // @synthesize suspended=_suspended;
 @property(retain) NSMutableArray *observers; // @synthesize observers=_observers;
+- (void).cxx_destruct;
 - (id)init;
 
 @end
+

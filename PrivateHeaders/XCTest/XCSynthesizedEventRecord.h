@@ -4,28 +4,35 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSArray, NSMutableArray, NSString, XCPointerEventPath;
+#import "NSObject.h"
+
+#import "NSSecureCoding.h"
+
+@class NSArray, NSMutableArray, NSString;
 
 @interface XCSynthesizedEventRecord : NSObject <NSSecureCoding>
 {
     NSMutableArray *_eventPaths;
     NSString *_name;
-#if !TARGET_OS_TV
-    UIInterfaceOrientation _interfaceOrientation;
-#endif
+    long long _interfaceOrientation;
 }
-#if !TARGET_OS_TV
-@property(readonly) UIInterfaceOrientation interfaceOrientation; // @synthesize interfaceOrientation=_interfaceOrientation;
-#endif
-@property(readonly, copy) NSString *name; // @synthesize name=_name;
-@property(readonly) double maximumOffset;
-@property(readonly) NSArray *eventPaths;
 
-- (void)addPointerEventPath:(XCPointerEventPath *)arg1;
-#if !TARGET_OS_TV
-- (id)initWithName:(NSString *)arg1 interfaceOrientation:(UIInterfaceOrientation)arg2;
-#endif
-- (id)init;
-- (BOOL)synthesizeWithError:(NSError **)arg1;
++ (_Bool)supportsSecureCoding;
+- (void).cxx_destruct;
+@property(readonly) long long interfaceOrientation; // @synthesize interfaceOrientation=_interfaceOrientation;
+@property(readonly, copy) NSString *name; // @synthesize name=_name;
+- (id)description;
+@property(readonly) double maximumOffset;
+- (void)addPointerEventPath:(id)arg1;
+@property(readonly) NSArray *eventPaths;
+- (_Bool)isEqual:(id)arg1;
+- (unsigned long long)hash;
+- (void)encodeWithCoder:(id)arg1;
+- (id)initWithCoder:(id)arg1;
+- (id)initWithName:(id)arg1;
+- (void)unsetInterfaceOrientation;
+- (id)initWithName:(id)arg1 interfaceOrientation:(long long)arg2;
+- (_Bool)synthesizeWithError:(id *)arg1;
 
 @end
+
