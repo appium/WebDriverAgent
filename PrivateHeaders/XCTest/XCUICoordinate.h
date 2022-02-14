@@ -6,7 +6,7 @@
 
 @class XCUIElement;
 
-@interface XCUICoordinate : NSObject <NSCopying>
+@interface XCUICoordinate ()
 {
     XCUIElement *_element;
     XCUICoordinate *_coordinate;
@@ -14,16 +14,16 @@
     struct CGVector _pointsOffset;
 }
 
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property(readonly) struct CGVector pointsOffset; // @synthesize pointsOffset=_pointsOffset;
 @property(readonly) struct CGVector normalizedOffset; // @synthesize normalizedOffset=_normalizedOffset;
 @property(readonly) XCUICoordinate *coordinate; // @synthesize coordinate=_coordinate;
 @property(readonly) XCUIElement *element; // @synthesize element=_element;
-@property(readonly) struct CGPoint screenPoint;
+@property struct CGPoint screenPoint;
 - (struct CGPoint)_untransformedScreenPoint;
 - (id)device;
-@property(readonly) XCUIElement *referencedElement;
-- (id)coordinateWithOffset:(struct CGVector)arg1;
+@property XCUIElement *referencedElement;
+//- (id)coordinateWithOffset:(struct CGVector)arg1;
 - (id)description;
 - (id)copyWithZone:(struct _NSZone *)arg1;
 - (id)initWithCoordinate:(id)arg1 pointsOffset:(struct CGVector)arg2;

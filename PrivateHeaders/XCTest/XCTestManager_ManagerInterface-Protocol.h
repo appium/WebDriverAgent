@@ -4,7 +4,9 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "XCTestManager_ProtectedResources.h"
+#import "XCTestManager_ProtectedResources-Protocol.h"
+
+@class XCUIElementSnapshotRequestResult, XCTSerializedTransportWrapper;
 
 @class NSArray, NSDictionary, NSNumber, NSString, NSURL, NSUUID, XCAccessibilityElement, XCDeviceEvent, XCSynthesizedEventRecord, XCTCapabilities, XCTSpindumpRequestSpecification;
 

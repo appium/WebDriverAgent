@@ -15,7 +15,7 @@
     XCTCapabilities *_remoteInterfaceCapabilities;
 }
 
-+ (id)legacyCapabilitiesForOSVersion:(CDStruct_2ec95fd7)arg1 platform:(unsigned long long)arg2 error:(id *)arg3;
++ (id)legacyCapabilitiesForOSVersion:(CDStruct_27a325c0)arg1 platform:(unsigned long long)arg2 error:(id *)arg3;
 + (id)exportedCapabilities;
 + (void)requestSessionWithEndpoint:(id)arg1 pid:(int)arg2 completion:(CDUnknownBlockType)arg3;
 - (void).cxx_destruct;

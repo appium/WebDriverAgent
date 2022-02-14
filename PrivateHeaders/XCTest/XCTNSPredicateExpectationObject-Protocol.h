@@ -6,7 +6,7 @@
 
 @class XCTNSPredicateExpectation;
 
-@protocol XCTNSPredicateExpectationObject <NSObject>
+@protocol XCTNSPredicateExpectationObject
 
 @optional
 - (_Bool)evaluatePredicateForExpectation:(XCTNSPredicateExpectation *)arg1 debugMessage:(id *)arg2;

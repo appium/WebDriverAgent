@@ -4,10 +4,10 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSArray, NSDictionary, NSString, XCUIApplicationSpecifier;
+@class NSArray, NSDictionary, NSString, XCUIApplicationSpecifier, XCUIApplicationPlatformServicesProviderDelegate;
 
 @protocol XCUIPlatformApplicationServicesProviding <NSObject>
-@property __weak id <XCUIApplicationPlatformServicesProviderDelegate> platformApplicationServicesProviderDelegate;
+@property __weak XCUIApplicationPlatformServicesProviderDelegate *platformApplicationServicesProviderDelegate;
 - (void)requestApplicationSpecifierForPID:(int)arg1 reply:(void (^)(XCUIApplicationSpecifier *, NSError *))arg2;
 - (void)terminateApplicationWithBundleID:(NSString *)arg1 pid:(int)arg2 completion:(void (^)(_Bool, NSError *))arg3;
 - (void)launchApplicationWithPath:(NSString *)arg1 bundleID:(NSString *)arg2 arguments:(NSArray *)arg3 environment:(NSDictionary *)arg4 completion:(void (^)(_Bool, NSError *))arg5;

@@ -4,7 +4,10 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "XCUIApplicationProcessDelegate.h"
+#import "XCUIApplicationProcessDelegate-Protocol.h"
+
+@class XCUIDevice;
+@class XCUIIssueDiagnosticsProviding;
 
 @class NSString, XCAccessibilityElement, XCUIApplicationProcess;
 
@@ -16,7 +19,7 @@
     NSString *_path;
     NSString *_bundleID;
     XCUIApplicationProcess *_currentProcess;
-    id <XCUIDevice> _device;
+    XCUIDevice *_device;
 }
 
 + (id)keyPathsForValuesAffectingActivated;
@@ -26,11 +29,11 @@
 + (id)keyPathsForValuesAffectingRunning;
 + (id)keyPathsForValuesAffectingState;
 + (id)keyPathsForValuesAffectingHasCurrentProcess;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property _Bool previousOnDemandAutomationSessionRequestFailed; // @synthesize previousOnDemandAutomationSessionRequestFailed=_previousOnDemandAutomationSessionRequestFailed;
 @property _Bool hasValidAlertCount; // @synthesize hasValidAlertCount=_hasValidAlertCount;
 @property _Bool codeCoverageEnabled; // @synthesize codeCoverageEnabled=_codeCoverageEnabled;
-@property(readonly) id <XCUIDevice> device; // @synthesize device=_device;
+@property(readonly) XCUIDevice *device; // @synthesize device=_device;
 @property(retain, nonatomic) XCUIApplicationProcess *currentProcess; // @synthesize currentProcess=_currentProcess;
 @property(readonly, copy) NSString *bundleID; // @synthesize bundleID=_bundleID;
 @property(readonly, copy) NSString *path; // @synthesize path=_path;
@@ -63,7 +66,7 @@
 - (_Bool)waitForState:(unsigned long long)arg1 timeout:(double)arg2;
 @property(nonatomic) unsigned long long state;
 @property(nonatomic) int processID;
-@property(readonly) id <XCUIIssueDiagnosticsProviding> diagnosticsProvider;
+@property(readonly) XCUIIssueDiagnosticsProviding *diagnosticsProvider;
 @property(readonly) XCAccessibilityElement *accessibilityElement;
 - (_Bool)hasCurrentProcess;
 @property(readonly, copy) NSString *description;

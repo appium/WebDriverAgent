@@ -6,9 +6,12 @@
 
 #import <XCTest/XCUIElement.h>
 
-@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCApplicationQuery, XCUIApplicationImpl, XCUIApplicationOpenRequest;
+@class XCUIDevice;
+@class XCUIApplicationOpenRequest;
 
-@interface XCUIApplication : XCUIElement
+@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCApplicationQuery, XCUIApplicationImpl, XCTRunnerAutomationSession;
+
+@interface XCUIApplication ()
 {
     _Bool _ancillary;
     _Bool _prefersPlatformLauncher;
@@ -32,7 +35,8 @@
 + (id)keyPathsForValuesAffectingState;
 + (id)keyPathsForValuesAffectingIsApplicationStateKnown;
 + (id)new;
-- (void).cxx_destruct;
+// FIXME
+// - (void).cxx_destruct;
 @property(getter=isIdleAnimationWaitEnabled) _Bool idleAnimationWaitEnabled; // @synthesize idleAnimationWaitEnabled=_idleAnimationWaitEnabled;
 @property _Bool allowBackgroundInteraction; // @synthesize allowBackgroundInteraction=_allowBackgroundInteraction;
 @property(nonatomic) _Bool doesNotHandleUIInterruptions; // @synthesize doesNotHandleUIInterruptions=_doesNotHandleUIInterruptions;
@@ -42,8 +46,10 @@
 @property unsigned int currentInteractionOptions; // @synthesize currentInteractionOptions=_currentInteractionOptions;
 @property unsigned long long generation; // @synthesize generation=_generation;
 @property(retain) XCApplicationQuery *applicationQuery; // @synthesize applicationQuery=_applicationQuery;
-@property(copy, nonatomic) NSDictionary *launchEnvironment; // @synthesize launchEnvironment=_launchEnvironment;
-@property(copy, nonatomic) NSArray *launchArguments; // @synthesize launchArguments=_launchArguments;
+// FIXME
+//@property(copy, nonatomic) NSDictionary *launchEnvironment; // @synthesize launchEnvironment=_launchEnvironment;
+// FIXME
+//@property(copy, nonatomic) NSArray *launchArguments; // @synthesize launchArguments=_launchArguments;
 @property(retain) XCUIApplicationOpenRequest *lastLaunchRequest; // @synthesize lastLaunchRequest=_lastLaunchRequest;
 - (id)diagnosticAttachmentsForError:(id)arg1;
 - (void)dismissKeyboard;
@@ -58,44 +64,51 @@
 @property(readonly) _Bool backgroundInteractionAllowed;
 @property(readonly) _Bool shouldSkipPostEventQuiescence;
 @property(readonly) _Bool shouldSkipPreEventQuiescence;
-- (void)_performWithInteractionOptions:(unsigned int)arg1 block:(CDUnknownBlockType)arg2;
+//Note: - (void)_performWithInteractionOptions:(unsigned int)arg1 block:(CDUnknownBlockType)arg2;
+- (void)_performWithInteractionOptions:(unsigned int)arg1 block:(id)arg2;
 - (void)terminate;
-- (void)resetAuthorizationStatusForResource:(long long)arg1;
+// Duplication error
+//- (void)resetAuthorizationStatusForResource:(long long)arg1;
 - (void)activate;
 - (void)_launchUsingXcode:(_Bool)arg1;
 - (void)launch;
 - (id)_combinedLaunchEnvironment;
 - (id)_combinedLaunchArguments;
-- (_Bool)waitForState:(unsigned long long)arg1 timeout:(double)arg2;
+// Duplication error
+//- (_Bool)waitForState:(unsigned long long)arg1 timeout:(double)arg2;
 @property(readonly) _Bool foreground;
 @property(readonly) _Bool background;
 @property(readonly) _Bool suspended;
 @property(readonly) _Bool running;
 @property(nonatomic) int processID;
-@property(nonatomic) unsigned long long state;
+// FIXME
+//@property(nonatomic) unsigned long long state;
 - (_Bool)isApplicationStateKnown;
 - (void)resetAlertCount;
 @property(readonly) _Bool shouldBeCheckedForInterruptingElements;
 - (_Bool)exists;
 - (id)currentProcess;
 - (id)application;
-@property(readonly) id <XCTRunnerAutomationSession> automationSession;
+@property(readonly) XCTRunnerAutomationSession *automationSession;
 - (id)description;
 - (id)query;
 - (void)clearQuery;
 - (_Bool)resolveOrRaiseTestFailure:(_Bool)arg1 error:(id *)arg2;
 @property(readonly) XCAccessibilityElement *accessibilityElement;
 - (unsigned long long)elementType;
-@property(readonly) id <XCUIDevice> device;
+@property(readonly) XCUIDevice *device;
 @property(readonly) NSString *bundleID;
 @property(readonly) NSString *path;
 - (void)commonInitWithApplicationSpecifier:(id)arg1 device:(id)arg2;
 - (id)initPrivateWithPath:(id)arg1 bundleID:(id)arg2;
 - (id)initWithApplicationSpecifier:(id)arg1 device:(id)arg2;
 - (id)initWithBundleIdentifier:(id)arg1 device:(id)arg2;
-- (id)initWithBundleIdentifier:(id)arg1;
+// Duplication error
+//- (id)initWithBundleIdentifier:(id)arg1;
 - (id)init;
 - (id)initWithElementQuery:(id)arg1;
 
+// FIXME: probably need to remove?
++ (instancetype)applicationWithPID:(pid_t)processID;
 @end
 

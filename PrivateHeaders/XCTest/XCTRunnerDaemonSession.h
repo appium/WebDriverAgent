@@ -4,24 +4,27 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "XCTestManager_TestsInterface.h"
-#import "XCUIApplicationAutomationSessionProviding.h"
-#import "XCUIDeviceEventAndStateInterface.h"
-#import "XCUIEventSynthesizing.h"
-#import "XCUIPlatformApplicationServicesProviding.h"
-#import "XCUIRemoteAccessibilityInterface.h"
-#import "XCUIRemoteSiriInterface.h"
-#import "XCUIResetAuthorizationStatusOfProtectedResourcesInterface.h"
+#import "XCTestManager_TestsInterface-Protocol.h"
+#import "XCUIApplicationAutomationSessionProviding-Protocol.h"
+#import "XCUIDeviceEventAndStateInterface-Protocol.h"
+#import "XCUIEventSynthesizing-Protocol.h"
+#import "XCUIPlatformApplicationServicesProviding-Protocol.h"
+#import "XCUIRemoteAccessibilityInterface-Protocol.h"
+#import "XCUIRemoteSiriInterface-Protocol.h"
+#import "XCUIResetAuthorizationStatusOfProtectedResourcesInterface-Protocol.h"
 
-@class NSMutableDictionary, NSObject<OS_dispatch_queue>, NSString, NSXPCConnection, XCTCapabilities;
+@class XCTestManager_ManagerInterface, XCUIApplicationPlatformServicesProviderDelegate, XCUIAXNotificationHandling;
+@class XCUIAXNotificationHandling;
+
+@class NSMutableDictionary, NSString, NSXPCConnection, XCTCapabilities;
 
 @interface XCTRunnerDaemonSession : NSObject <XCUIRemoteSiriInterface, XCUIDeviceEventAndStateInterface, XCUIPlatformApplicationServicesProviding, XCUIApplicationAutomationSessionProviding, XCUIResetAuthorizationStatusOfProtectedResourcesInterface, XCTestManager_TestsInterface, XCUIRemoteAccessibilityInterface, XCUIEventSynthesizing>
 {
     double _implicitEventConfirmationIntervalForCurrentContext;
     NSXPCConnection *_connection;
     XCTCapabilities *_remoteInterfaceCapabilities;
-    id <XCUIApplicationPlatformServicesProviderDelegate> _platformApplicationServicesProviderDelegate;
-    id <XCUIAXNotificationHandling> _axNotificationHandler;
+    XCUIApplicationPlatformServicesProviderDelegate *_platformApplicationServicesProviderDelegate;
+    XCUIAXNotificationHandling *_axNotificationHandler;
     NSObject<OS_dispatch_queue> *_queue;
     NSMutableDictionary *_invalidationHandlers;
 }
@@ -36,11 +39,11 @@
 + (id)sharedSession;
 + (id)sharedSessionPromiseAndImplicitlyInitiateSession:(_Bool)arg1;
 + (id)automationSessionBlacklist;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property(retain) NSMutableDictionary *invalidationHandlers; // @synthesize invalidationHandlers=_invalidationHandlers;
 @property(readonly) NSObject<OS_dispatch_queue> *queue; // @synthesize queue=_queue;
-@property __weak id <XCUIAXNotificationHandling> axNotificationHandler; // @synthesize axNotificationHandler=_axNotificationHandler;
-@property __weak id <XCUIApplicationPlatformServicesProviderDelegate> platformApplicationServicesProviderDelegate; // @synthesize platformApplicationServicesProviderDelegate=_platformApplicationServicesProviderDelegate;
+@property __weak XCUIAXNotificationHandling *axNotificationHandler; // @synthesize axNotificationHandler=_axNotificationHandler;
+@property __weak XCUIApplicationPlatformServicesProviderDelegate *platformApplicationServicesProviderDelegate; // @synthesize platformApplicationServicesProviderDelegate=_platformApplicationServicesProviderDelegate;
 @property(readonly) XCTCapabilities *remoteInterfaceCapabilities; // @synthesize remoteInterfaceCapabilities=_remoteInterfaceCapabilities;
 @property(readonly) NSXPCConnection *connection; // @synthesize connection=_connection;
 - (void)requestDTServiceHubConnectionWithReply:(CDUnknownBlockType)arg1;
@@ -73,7 +76,7 @@
 @property(readonly) _Bool usePointTransformationsForFrameConversions;
 @property(readonly) _Bool useLegacyEventCoordinateTransformationPath;
 - (_Bool)requestPressureEventsSupportedOrError:(id *)arg1;
-@property(readonly) id <XCTestManager_ManagerInterface> daemonProxy;
+@property(readonly) XCTestManager_ManagerInterface *daemonProxy;
 - (void)unregisterInvalidationHandlerWithToken:(id)arg1;
 - (id)registerInvalidationHandler:(CDUnknownBlockType)arg1;
 - (void)_reportInvalidation;

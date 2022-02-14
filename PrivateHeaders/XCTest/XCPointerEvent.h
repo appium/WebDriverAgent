@@ -47,7 +47,7 @@
 + (id)eventWithType:(unsigned long long)arg1 buttonType:(unsigned long long)arg2 coordinate:(struct CGPoint)arg3 offset:(double)arg4 duration:(double)arg5 clickCount:(unsigned long long)arg6;
 + (id)eventWithType:(unsigned long long)arg1 buttonType:(unsigned long long)arg2 coordinate:(struct CGPoint)arg3 offset:(double)arg4 clickCount:(unsigned long long)arg5;
 + (_Bool)supportsSecureCoding;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property unsigned long long deviceID; // @synthesize deviceID=_deviceID;
 @property unsigned long long gesturePhase; // @synthesize gesturePhase=_gesturePhase;
 @property unsigned long long keyPhase; // @synthesize keyPhase=_keyPhase;

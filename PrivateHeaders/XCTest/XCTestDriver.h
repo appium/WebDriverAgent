@@ -4,7 +4,7 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "XCTRunnerIDESessionDelegate.h"
+#import "XCTRunnerIDESessionDelegate-Protocol.h"
 
 @class NSBundle, NSString, NSURL, NSUUID, XCTFuture, XCTPromise, XCTRunnerIDESession, XCTestConfiguration;
 
@@ -25,7 +25,7 @@
 + (_Bool)environmentSpecifiesTestConfiguration;
 + (_Bool)shouldSkipInitialBundleLoadBeforeXCTestMain;
 + (id)testBundleURLFromEnvironment;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property(retain) XCTPromise *testRunSessionPromise; // @synthesize testRunSessionPromise=_testRunSessionPromise;
 @property(retain) XCTFuture *testRunSessionFuture; // @synthesize testRunSessionFuture=_testRunSessionFuture;
 @property(retain) id testBundlePrincipalClassInstance; // @synthesize testBundlePrincipalClassInstance=_testBundlePrincipalClassInstance;

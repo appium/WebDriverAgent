@@ -4,10 +4,12 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "XCTElementSnapshotAttributeDataSource.h"
-#import "XCUIIssueDiagnosticsProviding.h"
+#import "XCTElementSnapshotAttributeDataSource-Protocol.h"
+#import "XCUIIssueDiagnosticsProviding-Protocol.h"
 
-@class NSObject<OS_dispatch_queue>, NSString, XCAccessibilityElement, XCElementSnapshot, XCTFuture;
+@class XCTRunnerAutomationSession, XCUIApplicationProcessDelegate, XCUIDevice;
+
+@class NSString, XCAccessibilityElement, XCElementSnapshot, XCTFuture;
 
 @interface XCUIApplicationProcess : NSObject <XCTElementSnapshotAttributeDataSource, XCUIIssueDiagnosticsProviding>
 {
@@ -22,13 +24,13 @@
     _Bool _hasExitCode;
     _Bool _hasCrashReport;
     unsigned long long _alertCount;
-    id <XCTRunnerAutomationSession> _automationSession;
+    XCTRunnerAutomationSession *_automationSession;
     XCTFuture *_automationSessionFuture;
     NSString *_path;
     NSString *_bundleID;
     XCElementSnapshot *_lastSnapshot;
-    id <XCUIDevice> _device;
-    id <XCUIApplicationProcessDelegate> _delegate;
+    XCUIDevice *_device;
+    XCUIApplicationProcessDelegate *_delegate;
 }
 
 + (id)keyPathsForValuesAffectingIsQuiescent;
@@ -39,9 +41,9 @@
 + (id)keyPathsForValuesAffectingSuspended;
 + (id)keyPathsForValuesAffectingRunning;
 + (id)keyPathsForValuesAffectingIsApplicationStateKnown;
-- (void).cxx_destruct;
-@property(readonly) id <XCUIApplicationProcessDelegate> delegate; // @synthesize delegate=_delegate;
-@property(readonly) id <XCUIDevice> device; // @synthesize device=_device;
+//- (void).cxx_destruct;
+@property(readonly) XCUIApplicationProcessDelegate *delegate; // @synthesize delegate=_delegate;
+@property(readonly) XCUIDevice *device; // @synthesize device=_device;
 @property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 @property _Bool hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;
 @property _Bool hasExitCode; // @synthesize hasExitCode=_hasExitCode;
@@ -64,14 +66,14 @@
 @property(readonly) XCTFuture *automationSessionFuture; // @synthesize automationSessionFuture=_automationSessionFuture;
 - (id)_queue_automationSessionFuture;
 - (void)waitForAutomationSession;
-@property(retain, nonatomic) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
+@property(retain, nonatomic) XCTRunnerAutomationSession *automationSession; // @synthesize automationSession=_automationSession;
 - (_Bool)isQuiescent;
 - (void)_initiateQuiescenceChecksIncludingAnimationsIdle:(_Bool)arg1;
 - (void)waitForQuiescenceIncludingAnimationsIdle:(_Bool)arg1;
 - (id)_makeQuiescenceExpectation;
-- (void)_notifyWhenAnimationsAreIdle:(CDUnknownBlockType)arg1;
+- (void)_notifyWhenAnimationsAreIdle:(id)arg1;
 - (_Bool)_supportsAnimationsIdleNotifications;
-- (void)_notifyWhenMainRunLoopIsIdle:(CDUnknownBlockType)arg1;
+- (void)_notifyWhenMainRunLoopIsIdle:(id)arg1;
 - (void)resetAlertCount;
 - (void)incrementAlertCount;
 @property(readonly) unsigned long long alertCount; // @synthesize alertCount=_alertCount;

@@ -12,7 +12,6 @@
 #import "FBXCodeCompatibility.h"
 #import "XCUIElementQuery.h"
 
-
 @implementation XCUIElementQuery (FBHelpers)
 
 - (nullable XCElementSnapshot *)fb_cachedSnapshot

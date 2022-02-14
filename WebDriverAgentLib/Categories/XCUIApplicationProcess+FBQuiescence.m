@@ -26,15 +26,15 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
     return;
   }
 
-  NSTimeInterval desiredTimeout = FBConfiguration.waitForIdleTimeout;
-  NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
-  _XCTSetApplicationStateTimeout(desiredTimeout);
-  [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
-   @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
+//  NSTimeInterval desiredTimeout = FBConfiguration.waitForIdleTimeout;
+//  NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
+//  _XCTSetApplicationStateTimeout(desiredTimeout);
+//  [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
+//   @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
   @try {
     original_waitForQuiescenceIncludingAnimationsIdle(self, _cmd, includingAnimations);
   } @finally {
-    _XCTSetApplicationStateTimeout(previousTimeout);
+//    _XCTSetApplicationStateTimeout(previousTimeout);
   }
 }
 

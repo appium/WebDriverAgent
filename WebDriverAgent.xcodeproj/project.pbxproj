@@ -1002,6 +1002,10 @@
 		725C9D5A27BA387000393F2C /* Test_XCTestObservation.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9AF127BA386D00393F2C /* Test_XCTestObservation.h */; };
 		725C9D5B27BA387000393F2C /* XCUIRemoteSiriInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9AF227BA386D00393F2C /* XCUIRemoteSiriInterface-Protocol.h */; };
 		725C9D5C27BA387000393F2C /* XCUIRemoteSiriInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9AF227BA386D00393F2C /* XCUIRemoteSiriInterface-Protocol.h */; };
+		725C9D5E27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9D5D27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h */; };
+		725C9D5F27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9D5D27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h */; };
+		725C9D6127BA4CE900393F2C /* XCDeviceEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9D6027BA4CE900393F2C /* XCDeviceEvent.h */; };
+		725C9D6227BA4CE900393F2C /* XCDeviceEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 725C9D6027BA4CE900393F2C /* XCDeviceEvent.h */; };
 		AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = EE158A991CBD452B00A3E3F0 /* WebDriverAgentLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD6C26941CF2379700F8B5FF /* FBAlert.h in Headers */ = {isa = PBXBuildFile; fileRef = AD6C26921CF2379700F8B5FF /* FBAlert.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AD6C26951CF2379700F8B5FF /* FBAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = AD6C26931CF2379700F8B5FF /* FBAlert.m */; };
@@ -1772,6 +1776,8 @@
 		725C9AF027BA386D00393F2C /* UIPanGestureRecognizer-RecordingAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIPanGestureRecognizer-RecordingAdditions.h"; sourceTree = "<group>"; };
 		725C9AF127BA386D00393F2C /* Test_XCTestObservation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Test_XCTestObservation.h; sourceTree = "<group>"; };
 		725C9AF227BA386D00393F2C /* XCUIRemoteSiriInterface-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIRemoteSiriInterface-Protocol.h"; sourceTree = "<group>"; };
+		725C9D5D27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTElementSetTransformer-Protocol.h"; sourceTree = "<group>"; };
+		725C9D6027BA4CE900393F2C /* XCDeviceEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCDeviceEvent.h; sourceTree = "<group>"; };
 		AD42DD2A1CF121E600806E5D /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		AD6C26921CF2379700F8B5FF /* FBAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBAlert.h; path = WebDriverAgentLib/FBAlert.h; sourceTree = SOURCE_ROOT; };
 		AD6C26931CF2379700F8B5FF /* FBAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = FBAlert.m; path = WebDriverAgentLib/FBAlert.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -2725,6 +2731,7 @@
 			children = (
 				725C9AD227BA386900393F2C /* __ARCLiteKeyedSubscripting__-Protocol.h */,
 				725C9A3D27BA385700393F2C /* _XCInternalTestRun.h */,
+				725C9D6027BA4CE900393F2C /* XCDeviceEvent.h */,
 				725C99EB27BA384D00393F2C /* _XCKVOExpectationImplementation.h */,
 				725C9A4827BA385800393F2C /* _XCTAttachmentImplementation.h */,
 				725C9A3927BA385600393F2C /* _XCTCompoundExpectationImplementation.h */,
@@ -2750,6 +2757,7 @@
 				725C9AB827BA386600393F2C /* CustomObserver.h */,
 				725C9A3627BA385600393F2C /* DTXProxyChannel-XCTestAdditions.h */,
 				725C9A8A27BA386000393F2C /* MXMInstrumental-Protocol.h */,
+				725C9D5D27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h */,
 				725C9ABD27BA386700393F2C /* NSArray-XCTestAdditions.h */,
 				725C9A1927BA385300393F2C /* NSBundle-XCTestAdditions.h */,
 				725C9AB727BA386600393F2C /* NSCoding-Protocol.h */,
@@ -3158,6 +3166,7 @@
 				725C9B9427BA386E00393F2C /* XCAXClient_iOS.h in Headers */,
 				725C9BC427BA386E00393F2C /* XCTPromise.h in Headers */,
 				641EE64E2240C5CA00173FCB /* FBApplication.h in Headers */,
+				725C9D6227BA4CE900393F2C /* XCDeviceEvent.h in Headers */,
 				725C9BE427BA386E00393F2C /* DTXProxyChannel-XCTestAdditions.h in Headers */,
 				725C9D1027BA387000393F2C /* XCUIDiscreteEventInterpolationStepper.h in Headers */,
 				725C9C4A27BA386F00393F2C /* XCTAggregateSuiteRunStatisticsRecord.h in Headers */,
@@ -3331,6 +3340,7 @@
 				725C9B2C27BA386D00393F2C /* XCTASDebugLogDelegate-Protocol.h in Headers */,
 				71822741258744BB00661B83 /* HTTPLogging.h in Headers */,
 				725C9CF627BA387000393F2C /* NSCopying-Protocol.h in Headers */,
+				725C9D5F27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h in Headers */,
 				725C9D0A27BA387000393F2C /* UIGestureRecognizer-RecordingAdditions.h in Headers */,
 				641EE6AB2240C5CA00173FCB /* FBAlertViewCommands.h in Headers */,
 				725C9B1227BA386D00393F2C /* XCUIDefaultIssueHandler.h in Headers */,
@@ -3541,6 +3551,7 @@
 				725C9B0D27BA386D00393F2C /* XCTDefaultDebugLogHandler.h in Headers */,
 				725C9B4F27BA386E00393F2C /* XCKeyboardInputSolver.h in Headers */,
 				71F5BE4F252F14EB00EE9EBA /* FBExceptions.h in Headers */,
+				725C9D5E27BA477F00393F2C /* XCTElementSetTransformer-Protocol.h in Headers */,
 				725C9B8727BA386E00393F2C /* XCTestManager_IDEInterface-Protocol.h in Headers */,
 				725C9C9B27BA386F00393F2C /* NSString-XCTAdditions.h in Headers */,
 				648C10AB22AAAD9C00B81B9A /* UIKeyboardImpl.h in Headers */,
@@ -3697,6 +3708,7 @@
 				725C9C4327BA386F00393F2C /* XCTMeasurement.h in Headers */,
 				725C9C3127BA386F00393F2C /* XCTestManager_ProtectedResources-Protocol.h in Headers */,
 				EE158ADE1CBD456F00A3E3F0 /* FBRoute.h in Headers */,
+				725C9D6127BA4CE900393F2C /* XCDeviceEvent.h in Headers */,
 				E444DC81249131B10060D7EB /* DDRange.h in Headers */,
 				725C9C6327BA386F00393F2C /* XCUIEventIterating-Protocol.h in Headers */,
 				725C9B1127BA386D00393F2C /* XCUIDefaultIssueHandler.h in Headers */,

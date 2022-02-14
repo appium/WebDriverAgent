@@ -14,6 +14,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class XCPointerEventPath;
+
 #if !TARGET_OS_TV
 @interface FBBaseActionItem : NSObject
 

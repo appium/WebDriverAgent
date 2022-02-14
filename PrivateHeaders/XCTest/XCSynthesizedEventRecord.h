@@ -14,7 +14,7 @@
 }
 
 + (_Bool)supportsSecureCoding;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 @property(readonly) long long interfaceOrientation; // @synthesize interfaceOrientation=_interfaceOrientation;
 @property(readonly, copy) NSString *name; // @synthesize name=_name;
 - (id)description;

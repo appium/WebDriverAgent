@@ -4,33 +4,38 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+@class XCUIAccessibilityInterface, XCUIApplicationMonitor, XCUIEventSynthesizing, XCUIApplicationManaging;
+@class XCUIDeviceEventAndStateInterface, XCUIApplicationAutomationSessionProviding, XCUIScreenDataSource;
+@class XCUIResetAuthorizationStatusOfProtectedResourcesInterface, XCUIDeviceDiagnostics, XCUIInterruptionMonitoring;
+@class XCUIXcodeApplicationManaging;
+
 @class NSString, XCUIRemote, XCUISiriService;
 
-@interface XCUIDevice : NSObject
+@interface XCUIDevice ()
 {
     _Bool _isLocal;
     _Bool _isSimulatorDevice;
     long long _platform;
-    id <XCUIAccessibilityInterface> _accessibilityInterface;
-    id <XCUIApplicationMonitor> _applicationMonitor;
-    id <XCUIEventSynthesizing> _eventSynthesizer;
-    id <XCUIApplicationManaging> _platformApplicationManager;
-    id <XCUIXcodeApplicationManaging> _xcodeApplicationManager;
-    id <XCUIDeviceEventAndStateInterface> _deviceEventAndStateInterface;
-    id <XCUIApplicationAutomationSessionProviding> _applicationAutomationSessionProvider;
+    XCUIAccessibilityInterface *_accessibilityInterface;
+    XCUIApplicationMonitor *_applicationMonitor;
+    XCUIEventSynthesizing *_eventSynthesizer;
+    XCUIApplicationManaging *_platformApplicationManager;
+    XCUIXcodeApplicationManaging *_xcodeApplicationManager;
+    XCUIDeviceEventAndStateInterface *_deviceEventAndStateInterface;
+    XCUIApplicationAutomationSessionProviding *_applicationAutomationSessionProvider;
     XCUISiriService *_siriService;
-    id <XCUIScreenDataSource> _screenDataSource;
+    XCUIScreenDataSource *_screenDataSource;
     NSString *_uniqueIdentifier;
     XCUIRemote *_remote;
-    id <XCUIInterruptionMonitoring> _interruptionMonitor;
-    id <XCUIResetAuthorizationStatusOfProtectedResourcesInterface> _resetAuthorizationStatusInterface;
-    id <XCUIDeviceDiagnostics> _diagnosticsProvider;
+    XCUIInterruptionMonitoring *_interruptionMonitor;
+    XCUIResetAuthorizationStatusOfProtectedResourcesInterface *_resetAuthorizationStatusInterface;
+    XCUIDeviceDiagnostics *_diagnosticsProvider;
 }
 
-+ (id)sharedDevice;
+//+ (id)sharedDevice;
 + (void)setLocalDevice:(id)arg1;
 + (id)localDevice;
-- (void).cxx_destruct;
+//- (void).cxx_destruct;
 - (id)diagnosticsProvider;
 - (id)resetAuthorizationStatusInterface;
 - (id)interruptionMonitor;
@@ -52,10 +57,10 @@
 - (void)rotateDigitalCrown:(double)arg1 velocity:(double)arg2;
 - (void)pressLockButton;
 - (void)holdHomeButtonForDuration:(double)arg1;
-- (void)pressButton:(long long)arg1;
+//- (void)pressButton:(long long)arg1;
 - (void)_silentPressButton:(long long)arg1;
 - (void)_setOrientation:(long long)arg1;
-@property(nonatomic) long long orientation;
+//@property(nonatomic) long long orientation;
 - (id)init;
 - (id)description;
 - (_Bool)isEqual:(id)arg1;
@@ -66,7 +71,7 @@
 - (id)screens;
 - (id)mainScreenOrError:(id *)arg1;
 - (id)screensOrError:(id *)arg1;
-@property(readonly) XCUISiriService *siriService; // @synthesize siriService=_siriService;
+//@property(readonly) XCUISiriService *siriService; // @synthesize siriService=_siriService;
 - (_Bool)supportsPressureInteraction;
 - (_Bool)performDeviceEvent:(id)arg1 error:(id *)arg2;
 - (_Bool)configuredForUITesting;
