@@ -4,9 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-#import "UILongPressGestureRecognizer.h"
+#import <UIKit/UILongPressGestureRecognizer.h>
 
 @interface UILongPressGestureRecognizer (RecordingAdditions)
 - (id)_automationName;
 @end
-

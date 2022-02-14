@@ -8,59 +8,18 @@
 
 typedef void (^CDUnknownBlockType)(void); // return type and parameters are unknown
 
-#pragma mark Named Structures
-
-struct CGPoint {
-    double x;
-    double y;
-};
-
-struct CGRect {
-    struct CGPoint origin;
-    struct CGSize size;
-};
-
-struct CGSize {
-    double width;
-    double height;
-};
-
-struct CGVector {
-    double dx;
-    double dy;
-};
-
-struct _CSTypeRef {
-    unsigned long long _opaque_1;
-    unsigned long long _opaque_2;
-};
-
-struct _NSRange {
-    unsigned long long _field1;
-    unsigned long long _field2;
-};
-
-struct time_value {
-    int seconds;
-    int microseconds;
-};
-
-#pragma mark Typedef'd Structures
+typedef struct {
+    unsigned int _field1;
+    unsigned int _field2;
+    unsigned int _field3;
+    unsigned int _field4;
+    unsigned int _field5;
+    unsigned int _field6;
+    unsigned int _field7;
+} CDStruct_a561fd19;
 
 typedef struct {
-    CDUnknownFunctionPointerType symbolicatorCreateWithTask;
-    CDUnknownFunctionPointerType symbolicatorGetSymbolOwnerWithAddressAtTime;
-    CDUnknownFunctionPointerType symbolOwnerGetName;
-    CDUnknownFunctionPointerType symbolOwnerGetSymbolWithAddress;
-    CDUnknownFunctionPointerType symbolOwnerGetSourceInfoWithAddress;
-    CDUnknownFunctionPointerType symbolGetName;
-    CDUnknownFunctionPointerType sourceInfoGetPath;
-    CDUnknownFunctionPointerType sourceInfoGetLineNumber;
-} CDStruct_7da0dd4a;
-
-typedef struct {
-    long long _field1;
-    long long _field2;
-    long long _field3;
-} CDStruct_2ec95fd7;
-
+    unsigned short _field1;
+    unsigned short _field2;
+    unsigned short _field3[1];
+} CDStruct_27a325c0;
