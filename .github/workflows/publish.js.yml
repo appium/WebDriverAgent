@@ -17,10 +17,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm install --production
-      name: Install prod dependencies
-    - run: rm -rf package-lock.json
-    - run: npm shrinkwrap
     - run: npm install --no-package-lock
       name: Install dev dependencies
     - run: npm test
@@ -30,4 +26,3 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       name: Release
-
