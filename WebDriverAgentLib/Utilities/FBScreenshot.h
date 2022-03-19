@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return Device screenshot as PNG- or JPG-encoded data or nil in case of failure
  */
-+ (nullable NSData *)takeInOriginalResolutionWithScreenID:(unsigned int)screenID
++ (nullable NSData *)takeInOriginalResolutionWithScreenID:(long long)screenID
                                        compressionQuality:(CGFloat)compressionQuality
                                                       uti:(NSString *)uti
                                                   timeout:(NSTimeInterval)timeout

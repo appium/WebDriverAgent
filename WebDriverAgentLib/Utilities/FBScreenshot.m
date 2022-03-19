@@ -123,7 +123,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return screenshotData;
 }
 
-+ (NSData *)takeWithScreenID:(unsigned int)screenID
++ (NSData *)takeWithScreenID:(long long)screenID
                        scale:(CGFloat)scale
           compressionQuality:(CGFloat)compressionQuality
                         rect:(CGRect)rect
@@ -146,7 +146,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                                         error:error];
 }
 
-+ (NSData *)takeInOriginalResolutionWithScreenID:(unsigned int)screenID
++ (NSData *)takeInOriginalResolutionWithScreenID:(long long)screenID
                               compressionQuality:(CGFloat)compressionQuality
                                              uti:(NSString *)uti
                                          timeout:(NSTimeInterval)timeout
