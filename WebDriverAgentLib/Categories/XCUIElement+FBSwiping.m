@@ -18,11 +18,7 @@
 {
   double velocityValue = .0;
   if (nil != velocity) {
-    if ([self respondsToSelector:@selector(swipeUpWithVelocity:)]) {
-      velocityValue = [velocity doubleValue];
-    } else {
-      [FBLogger log:@"Custom velocity values are only supported since Xcode SDK 11.4. The default velocity will be used instead"];
-    }
+    velocityValue = [velocity doubleValue];
   }
 
   if (velocityValue > 0) {

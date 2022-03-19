@@ -35,7 +35,9 @@
   if (!mainStatusBar || (expectVisibleBar && !mainStatusBar.fb_isVisible)) {
     return CGSizeZero;
   }
-  return mainStatusBar.frame.size;
+  CGSize result = mainStatusBar.frame.size;
+  // Workaround for https://github.com/appium/appium/issues/15961
+  return CGSizeMake(MAX(result.width, result.height), MIN(result.width, result.height));
 }
 
 @end

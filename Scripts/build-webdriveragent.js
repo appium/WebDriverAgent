@@ -1,7 +1,7 @@
 const path = require('path');
 const os = require('os');
 const { asyncify } = require('asyncbox');
-const { logger, fs, mkdirp, zip } = require('appium-support');
+const { logger, fs, mkdirp, zip } = require('@appium/support');
 const { exec } = require('teen_process');
 const xcode = require('appium-xcode');
 

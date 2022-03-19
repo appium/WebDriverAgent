@@ -43,6 +43,7 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration disableAttributeKeyPathAnalysis];
   [FBConfiguration configureDefaultKeyboardPreferences];
+  [FBConfiguration disableApplicationUIInterruptionsHandling];
   [FBConfiguration disableScreenshots];
   self.continueAfterFailure = NO;
   self.springboard = FBApplication.fb_systemApplication;
@@ -93,7 +94,7 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
   FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
   [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
   [self.testedApplication fb_waitUntilStable];
-  FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].fb_isVisible);
+  FBAssertWaitTillBecomesTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.fb_isVisible);
 }
 
 - (void)goToSpringBoardExtras

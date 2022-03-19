@@ -314,7 +314,7 @@
 
 - (void)testClassChainWithDescendantPredicate
 {
-  NSArray<XCUIElement *> *simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/*/*[2]" shouldReturnAfterFirstMatch:NO];
+  NSArray<XCUIElement *> *simpleQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/*/*[1]" shouldReturnAfterFirstMatch:NO];
   NSArray<XCUIElement *> *predicateQueryMatches = [self.testedApplication fb_descendantsMatchingClassChain:@"XCUIElementTypeWindow/*/*[$type == 'XCUIElementTypeButton' AND label BEGINSWITH 'A'$]" shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(simpleQueryMatches.count, predicateQueryMatches.count);
   XCTAssertEqual([simpleQueryMatches firstObject].elementType, [predicateQueryMatches firstObject].elementType);

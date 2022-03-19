@@ -52,11 +52,7 @@ static id FBAXClient = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     instance = [[self alloc] init];
-    if ([XCAXClient_iOS.class respondsToSelector:@selector(sharedClient)]) {
-      FBAXClient = [XCAXClient_iOS sharedClient];
-    } else {
-      FBAXClient = [XCUIDevice.sharedDevice accessibilityInterface];
-    }
+    FBAXClient = [XCUIDevice.sharedDevice accessibilityInterface];
   });
   return instance;
 }
@@ -81,18 +77,13 @@ static id FBAXClient = nil;
     [parameters addEntriesFromDictionary:self.defaultParameters];
     parameters[FBSnapshotMaxDepthKey] = maxDepth;
   }
-  if ([FBAXClient respondsToSelector:@selector(requestSnapshotForElement:attributes:parameters:error:)]) {
-    id result = [FBAXClient requestSnapshotForElement:element
-                                           attributes:attributes
-                                           parameters:[parameters copy]
-                                                error:error];
-    XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
-    return nil == snapshot ? result : snapshot;
-  }
-  return [FBAXClient snapshotForElement:element
-                             attributes:attributes
-                             parameters:[parameters copy]
-                                  error:error];
+
+  id result = [FBAXClient requestSnapshotForElement:element
+                                         attributes:attributes
+                                         parameters:[parameters copy]
+                                              error:error];
+  XCElementSnapshot *snapshot = [result valueForKey:@"_rootElementSnapshot"];
+  return nil == snapshot ? result : snapshot;
 }
 
 - (NSArray<XCAccessibilityElement *> *)activeApplications
@@ -119,27 +110,14 @@ static id FBAXClient = nil;
 - (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
                             attributes:(NSArray *)attributes
 {
-  if ([FBAXClient respondsToSelector:@selector(attributesForElement:attributes:error:)]) {
-    NSError *error = nil;
-    NSDictionary* result = [FBAXClient attributesForElement:element
-                                                 attributes:attributes
-                                                      error:&error];
-    if (error) {
-      [FBLogger logFmt:@"Cannot retrieve element attribute(s) %@. Original error: %@", attributes, error.description];
-    }
-    return result;
+  NSError *error = nil;
+  NSDictionary* result = [FBAXClient attributesForElement:element
+                                               attributes:attributes
+                                                    error:&error];
+  if (error) {
+    [FBLogger logFmt:@"Cannot retrieve element attribute(s) %@. Original error: %@", attributes, error.description];
   }
-  return [FBAXClient attributesForElement:element attributes:attributes];
-}
-
-- (BOOL)hasProcessTracker
-{
-  static BOOL hasTracker;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    hasTracker = [FBAXClient respondsToSelector:@selector(applicationProcessTracker)];
-  });
-  return hasTracker;
+  return result;
 }
 
 - (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid

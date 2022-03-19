@@ -4,6 +4,8 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
+// FIXME: Probably we can remove here. instead, probably we should follow only XCElementSnapshot
+
 @class NSString;
 
 @interface XCAccessibilityElement : NSObject <NSCopying, NSSecureCoding>

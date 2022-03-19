@@ -34,7 +34,7 @@
 {
   [self goToSpringBoardFirstPage];
   XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
-  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].exists);
+  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.exists);
 }
 
 - (void)testApplicationTree
