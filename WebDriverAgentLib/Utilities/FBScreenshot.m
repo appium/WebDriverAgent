@@ -254,7 +254,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return imageEncoding;
 }
 
-+ (nullable id)screenshotRequestWithScreenID:(unsigned int)screenID
++ (nullable id)screenshotRequestWithScreenID:(unsigned long)screenID
                                         rect:(struct CGRect)rect
                                          uti:(NSString *)uti
                           compressionQuality:(CGFloat)compressionQuality
