@@ -11,6 +11,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
+  FBUIInterfaceAppearanceUnspecified,
+  FBUIInterfaceAppearanceLight,
+  FBUIInterfaceAppearanceDark
+};
+
 @interface XCUIDevice (FBHelpers)
 
 /**
@@ -119,6 +125,15 @@ NS_ASSUME_NONNULL_BEGIN
                                usage:(unsigned int)usage
                             duration:(NSTimeInterval)duration
                                error:(NSError **)error;
+
+/**
+ Allows to set device appearance
+
+ @param appearance The desired appearance value
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the appearance has been successfully set
+ */
+- (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error;
 
 @end
 

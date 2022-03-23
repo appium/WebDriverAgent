@@ -63,6 +63,7 @@
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
+    [[FBRoute POST:@"/wda/device/appearance"].withoutSession respondWithTarget:self action:@selector(handleSetDeviceAppearance:)],
     [[FBRoute GET:@"/wda/device/location"] respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute GET:@"/wda/device/location"].withoutSession respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
@@ -365,6 +366,25 @@
     NSString *message = [NSString stringWithFormat:@"Did not receive any expected %@ notifications within %@s",
                          name, timeout];
     return FBResponseWithStatus([FBCommandStatus timeoutErrorWithMessage:message traceback:nil]);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleSetDeviceAppearance:(FBRouteRequest *)request
+{
+  NSString *name = [request.arguments[@"name"] lowercaseString];
+  if (nil == name || !([name isEqualToString:@"light"] || [name isEqualToString:@"dark"])) {
+    NSString *message = @"The appearance name must be either 'light' or 'dark'";
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
+  }
+
+  FBUIInterfaceAppearance appearance = [name isEqualToString:@"light"]
+    ? FBUIInterfaceAppearanceLight
+    : FBUIInterfaceAppearanceDark;
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_setAppearance:appearance error:&error]) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
   }
   return FBResponseWithOK();
 }
