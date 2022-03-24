@@ -135,6 +135,14 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
  */
 - (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error;
 
+/**
+ Get current appearance prefefence.
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return 0 (automatic), 1 (light) or 2 (dark)
+ */
+- (long long)fb_getAppearance:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

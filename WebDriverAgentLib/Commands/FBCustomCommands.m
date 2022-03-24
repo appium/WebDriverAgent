@@ -426,6 +426,24 @@
  */
 + (NSString *)userInterfaceStyle
 {
+#if !TARGET_OS_SIMULATOR
+  // This way is reliable on a real device.
+  NSError *error;
+  long long appearance = [XCUIDevice.sharedDevice fb_getAppearance:&error];
+  if (error == nil) {
+    switch (appearance) {
+      case 0: // UIUserInterfaceStyleUnspecified
+        return @"automatic";
+      case 1: // UIUserInterfaceStyleLight
+        return @"light";
+      case 2: // UIUserInterfaceStyleDark
+        return @"dark";
+      default:
+        return @"unknown";
+    }
+  }
+#endif
+
   static id userInterfaceStyle = nil;
   static dispatch_once_t styleOnceToken;
   dispatch_once(&styleOnceToken, ^{
