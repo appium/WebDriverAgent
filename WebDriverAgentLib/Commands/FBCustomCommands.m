@@ -426,16 +426,17 @@
  */
 + (NSString *)userInterfaceStyle
 {
-#if !TARGET_OS_SIMULATOR
-  // For a real device.
-  // Simmulators returned wrong appearance value before.
-  NSNumber *appearance = [XCUIDevice.sharedDevice fb_getAppearance];
-  if (appearance != nil) {
-    return [self getAppearanceName:appearance];
-  }
-#endif
 
-  // For simulator, and as a fallback for a real device.
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // Only iOS 15+ simulators/devices return correct data while
+    // the api itself works in iOS 13 and 14 that has style preference.
+    NSNumber *appearance = [XCUIDevice.sharedDevice fb_getAppearance];
+    if (appearance != nil) {
+      return [self getAppearanceName:appearance];
+
+    }
+  }
+
   static id userInterfaceStyle = nil;
   static dispatch_once_t styleOnceToken;
   dispatch_once(&styleOnceToken, ^{
@@ -454,7 +455,7 @@
   return [self getAppearanceName:userInterfaceStyle];
 }
 
-+ (NSString *)getAppearanceName:(id)appearance
++ (NSString *)getAppearanceName:(NSNumber *)appearance
 {
   switch ([appearance longLongValue]) {
     case FBUIInterfaceAppearanceUnspecified:

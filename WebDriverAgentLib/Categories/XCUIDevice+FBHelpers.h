@@ -140,7 +140,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 
  @return 0 (automatic), 1 (light) or 2 (dark), or nil
  */
-- (NSNumber *)fb_getAppearance;
+- (nullable NSNumber *)fb_getAppearance;
 
 @end
 
