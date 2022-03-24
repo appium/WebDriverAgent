@@ -427,23 +427,15 @@
 + (NSString *)userInterfaceStyle
 {
 #if !TARGET_OS_SIMULATOR
-  // This way is reliable on a real device.
-  NSError *error;
-  long long appearance = [XCUIDevice.sharedDevice fb_getAppearance:&error];
-  if (error == nil) {
-    switch (appearance) {
-      case 0: // UIUserInterfaceStyleUnspecified
-        return @"automatic";
-      case 1: // UIUserInterfaceStyleLight
-        return @"light";
-      case 2: // UIUserInterfaceStyleDark
-        return @"dark";
-      default:
-        return @"unknown";
-    }
+  // For a real device.
+  // Simmulators returned wrong appearance value before.
+  NSNumber *appearance = [XCUIDevice.sharedDevice fb_getAppearance];
+  if (appearance != nil) {
+    return [self getAppearanceName:appearance];
   }
 #endif
 
+  // For simulator, and as a fallback for a real device.
   static id userInterfaceStyle = nil;
   static dispatch_once_t styleOnceToken;
   dispatch_once(&styleOnceToken, ^{
@@ -459,10 +451,17 @@
     return @"unsupported";
   }
 
-  switch ([userInterfaceStyle integerValue]) {
-    case 1: // UIUserInterfaceStyleLight
+  return [self getAppearanceName:userInterfaceStyle];
+}
+
++ (NSString *)getAppearanceName:(id)appearance
+{
+  switch ([appearance longLongValue]) {
+    case FBUIInterfaceAppearanceUnspecified:
+      return @"automatic";
+    case FBUIInterfaceAppearanceLight:
       return @"light";
-    case 2: // UIUserInterfaceStyleDark
+    case FBUIInterfaceAppearanceDark:
       return @"dark";
     default:
       return @"unknown";

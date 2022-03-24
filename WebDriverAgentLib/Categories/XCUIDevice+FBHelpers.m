@@ -326,14 +326,12 @@ static bool fb_isLocked;
           buildError:error];
 }
 
-- (long long)fb_getAppearance:(NSError **)error
+- (NSNumber *)fb_getAppearance
 {
   if ([self respondsToSelector:@selector(appearanceMode)]) {
-    return [self appearanceMode];
+    return [NSNumber numberWithLongLong:[self appearanceMode]];
   }
-  return [[[FBErrorBuilder builder]
-           withDescriptionFormat:@"Current Xcode SDK does not support getting appearance value"]
-          buildError:error];
+  return nil;
 }
 
 @end
