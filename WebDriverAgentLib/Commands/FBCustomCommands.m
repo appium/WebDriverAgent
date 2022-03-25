@@ -433,7 +433,6 @@
     NSNumber *appearance = [XCUIDevice.sharedDevice fb_getAppearance];
     if (appearance != nil) {
       return [self getAppearanceName:appearance];
-
     }
   }
 
