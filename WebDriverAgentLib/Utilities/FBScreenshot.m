@@ -212,7 +212,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   dispatch_once(&shouldUseSRApi, ^{
     if ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
 #if TARGET_OS_SIMULATOR
-      result = YES;
+      result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.5");
 #else
       result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0");
 #endif
