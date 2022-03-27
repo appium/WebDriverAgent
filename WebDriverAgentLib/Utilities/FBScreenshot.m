@@ -212,6 +212,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   dispatch_once(&shouldUseSRApi, ^{
     if ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
 #if TARGET_OS_SIMULATOR
+      // Required to support simulators running iOS 14.4 and below with Xcode 12.5 and above due to unsupported API on the simulator side.
       result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.5");
 #else
       result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0");
