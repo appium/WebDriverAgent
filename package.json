@@ -59,7 +59,7 @@
     "sinon": "^13.0.0"
   },
   "dependencies": {
-    "@appium/base-driver": "^8.0.0",
+    "@appium/base-driver": "^8.3.0",
     "@appium/support": "^2.55.3",
     "@babel/runtime": "^7.0.0",
     "appium-ios-simulator": "^4.0.0",
