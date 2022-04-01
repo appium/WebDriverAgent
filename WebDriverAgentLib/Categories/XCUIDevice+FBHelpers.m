@@ -386,6 +386,8 @@ static bool fb_isLocked;
     completion:(id)^(BOOL result, NSError *invokeError) {} ];
 
   return YES;
+
+}
 - (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error
 {
   SEL selector = NSSelectorFromString(@"setAppearanceMode:");
