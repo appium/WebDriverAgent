@@ -72,6 +72,7 @@
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
+    [[FBRoute POST:@"/wda/device/appearance"].withoutSession respondWithTarget:self action:@selector(handleSetDeviceAppearance:)],
     [[FBRoute GET:@"/wda/device/location"] respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute GET:@"/wda/device/location"].withoutSession respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
@@ -359,11 +360,7 @@
     NSString *errMsg = @"The 'resource' argument must be set to a valid resource identifier (numeric value). See https://developer.apple.com/documentation/xctest/xcuiprotectedresource?language=objc";
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg traceback:nil]);
   }
-  NSError *error;
-  if (![request.session.activeApplication fb_resetAuthorizationStatusForResource:resource.longLongValue
-                                                                           error:&error]) {
-    return FBResponseWithUnknownError(error);
-  }
+  [request.session.activeApplication resetAuthorizationStatusForResource:(XCUIProtectedResource)resource.longLongValue];
   return FBResponseWithOK();
 }
 
@@ -440,6 +437,25 @@
   return FBResponseWithOK();
 }
 
++ (id<FBResponsePayload>)handleSetDeviceAppearance:(FBRouteRequest *)request
+{
+  NSString *name = [request.arguments[@"name"] lowercaseString];
+  if (nil == name || !([name isEqualToString:@"light"] || [name isEqualToString:@"dark"])) {
+    NSString *message = @"The appearance name must be either 'light' or 'dark'";
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message traceback:nil]);
+  }
+
+  FBUIInterfaceAppearance appearance = [name isEqualToString:@"light"]
+    ? FBUIInterfaceAppearanceLight
+    : FBUIInterfaceAppearanceDark;
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_setAppearance:appearance error:&error]) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithOK();
+}
+
 + (id<FBResponsePayload>)handleGetDeviceInfo:(FBRouteRequest *)request
 {
   // Returns locale like ja_EN and zh-Hant_US. The format depends on OS
@@ -447,7 +463,8 @@
   // https://developer.apple.com/documentation/foundation/nslocale/1414388-autoupdatingcurrentlocale
   NSString *currentLocale = [[NSLocale autoupdatingCurrentLocale] localeIdentifier];
 
-  return FBResponseWithObject(@{
+  NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:
+  @{
     @"currentLocale": currentLocale,
     @"timeZone": self.timeZone,
     @"name": UIDevice.currentDevice.name,
@@ -461,7 +478,14 @@
 #else
     @"isSimulator": @(NO),
 #endif
-  });
+  }];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+    // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstate
+    deviceInfo[@"thermalState"] = @(NSProcessInfo.processInfo.thermalState);
+  }
+
+  return FBResponseWithObject(deviceInfo);
 }
 
 /**
@@ -469,6 +493,16 @@
  */
 + (NSString *)userInterfaceStyle
 {
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // Only iOS 15+ simulators/devices return correct data while
+    // the api itself works in iOS 13 and 14 that has style preference.
+    NSNumber *appearance = [XCUIDevice.sharedDevice fb_getAppearance];
+    if (appearance != nil) {
+      return [self getAppearanceName:appearance];
+    }
+  }
+
   static id userInterfaceStyle = nil;
   static dispatch_once_t styleOnceToken;
   dispatch_once(&styleOnceToken, ^{
@@ -484,10 +518,17 @@
     return @"unsupported";
   }
 
-  switch ([userInterfaceStyle integerValue]) {
-    case 1: // UIUserInterfaceStyleLight
+  return [self getAppearanceName:userInterfaceStyle];
+}
+
++ (NSString *)getAppearanceName:(NSNumber *)appearance
+{
+  switch ([appearance longLongValue]) {
+    case FBUIInterfaceAppearanceUnspecified:
+      return @"automatic";
+    case FBUIInterfaceAppearanceLight:
       return @"light";
-    case 2: // UIUserInterfaceStyleDark
+    case FBUIInterfaceAppearanceDark:
       return @"dark";
     default:
       return @"unknown";

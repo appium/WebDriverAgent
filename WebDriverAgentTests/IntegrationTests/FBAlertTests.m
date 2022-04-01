@@ -29,6 +29,7 @@
   dispatch_once(&onceToken, ^{
     [self launchApplication];
     [self goToAlertsPage];
+    [FBConfiguration disableApplicationUIInterruptionsHandling];
   });
   [self clearAlert];
 }
@@ -163,6 +164,11 @@
   FBAssertWaitTillBecomesTrue(alert.isPresent);
 
   XCTAssertTrue([alert.text containsString:@"Would Like to Access Your Photos"]);
+  // iOS 15 has different UI flow
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+    [self.testedApplication.buttons[@"Cancel"] tap];
+  }
 }
 
 - (void)testGPSAccessAlert

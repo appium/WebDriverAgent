@@ -386,6 +386,28 @@ static bool fb_isLocked;
     completion:(id)^(BOOL result, NSError *invokeError) {} ];
 
   return YES;
+- (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error
+{
+  SEL selector = NSSelectorFromString(@"setAppearanceMode:");
+  if (nil != selector && [self respondsToSelector:selector]) {
+    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    [invocation setSelector:selector];
+    [invocation setTarget:self];
+    [invocation setArgument:&appearance atIndex:2];
+    [invocation invoke];
+    return YES;
+  }
+  return [[[FBErrorBuilder builder]
+           withDescriptionFormat:@"Current Xcode SDK does not support appearance changing"]
+          buildError:error];
+}
+
+- (NSNumber *)fb_getAppearance
+{
+  return [self respondsToSelector:@selector(appearanceMode)]
+  ? [NSNumber numberWithLongLong:[self appearanceMode]]
+  : nil;
 }
 
 @end

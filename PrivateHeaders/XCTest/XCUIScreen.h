@@ -7,10 +7,10 @@
 @interface XCUIScreen()
 {
   _Bool _isMainScreen;
-  int _displayID;
+  long long _displayID;
 }
 @property(readonly) _Bool isMainScreen; // @synthesize isMainScreen=_isMainScreen;
-@property(readonly) int displayID; // @synthesize displayID=_displayID;
+@property(readonly) long long displayID; // @synthesize displayID=_displayID;
 
 - (id)_clippedScreenshotData:(id)arg1 quality:(long long)arg2 rect:(struct CGRect)arg3 scale:(double)arg4;
 - (id)_screenshotDataForQuality:(long long)arg1 rect:(struct CGRect)arg2 error:(id *)arg3;
@@ -20,7 +20,8 @@
 - (id)screenshot;
 - (id)_imageFromData:(id)arg1;
 - (double)scale;
-- (id)initWithDisplayID:(int)arg1 isMainScreen:(_Bool)arg2;
+
+- (id)initWithDisplayID:(long long)arg1 isMainScreen:(_Bool)arg2 device:(id)arg3 screenDataSource:(id)arg4;
 
 @end
 

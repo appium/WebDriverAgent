@@ -33,7 +33,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 @property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *listeningClients;
 @property (nonatomic, readonly) mach_timebase_info_data_t timebaseInfo;
 @property (nonatomic, readonly) FBImageIOScaler *imageScaler;
-@property (nonatomic, readonly) unsigned int mainScreenID;
+@property (nonatomic, readonly) long long mainScreenID;
 
 @end
 

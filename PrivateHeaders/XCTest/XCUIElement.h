@@ -35,11 +35,6 @@
 
 - (unsigned long long)traits;
 - (void)resolveHandleUIInterruption:(BOOL)arg1;
-// !!! These both methods are deprecated since Xcode 11.0
-// before 10.2
-- (void)resolve;
-// XCode 10.2 .. Xcode 11.0
-- (_Bool)resolve:(id *)arg1;
 - (BOOL)waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;

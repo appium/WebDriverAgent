@@ -9,6 +9,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FBMacros.h"
 #import "FBIntegrationTestCase.h"
 #import "FBKeyboard.h"
 #import "FBRunLoopSpinner.h"
@@ -31,6 +32,15 @@
   NSString *text = @"Happy typing";
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
   [textField tap];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // A workaround until find out to clear tutorial on iOS 15
+    XCUIElement *textField = self.testedApplication.staticTexts[@"Continue"];
+    if (textField.hittable) {
+      [textField tap];
+    }
+  }
+
   NSError *error;
   XCTAssertTrue([FBKeyboard waitUntilVisibleForApplication:self.testedApplication timeout:1 error:&error]);
   XCTAssertNil(error);
@@ -43,6 +53,15 @@
 {
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
   [textField tap];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
+    // A workaround until find out to clear tutorial on iOS 15
+    XCUIElement *textField = self.testedApplication.staticTexts[@"Continue"];
+    if (textField.hittable) {
+      [textField tap];
+    }
+  }
+
   NSError *error;
   XCTAssertTrue([FBKeyboard waitUntilVisibleForApplication:self.testedApplication timeout:1 error:&error]);
   XCTAssertNil(error);

@@ -17,6 +17,7 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
 #import "XCTestConfiguration.h"
+#import "XCUIApplication+FBUIInterruptions.h"
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
@@ -74,6 +75,11 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 + (void)disableRemoteQueryEvaluation
 {
   [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"XCTDisableRemoteQueryEvaluation"];
+}
+
++ (void)disableApplicationUIInterruptionsHandling
+{
+  [XCUIApplication fb_disableUIInterruptionsHandling];
 }
 
 + (void)enableXcTestDebugLogs
@@ -254,19 +260,6 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
 // Works for Simulator and Real devices
 + (void)configureDefaultKeyboardPreferences
 {
-#if TARGET_OS_SIMULATOR
-  // Force toggle software keyboard on.
-  // This can avoid 'Keyboard is not present' error which can happen
-  // when send_keys are called by client
-  [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
-  
-    if ([(NSObject *)[UIKeyboardImpl sharedInstance]
-       respondsToSelector:@selector(setSoftwareKeyboardShownByTouch:)]) {
-    // Xcode 13 no longer has this method
-    [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
-  }
-#endif
-
   void *handle = dlopen(controllerPrefBundlePath, RTLD_LAZY);
 
   Class controllerClass = NSClassFromString(controllerClassName);
@@ -301,6 +294,22 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   }
 
   dlclose(handle);
+}
+
++ (void)forceSimulatorSoftwareKeyboardPresence
+{
+#if TARGET_OS_SIMULATOR
+  // Force toggle software keyboard on.
+  // This can avoid 'Keyboard is not present' error which can happen
+  // when send_keys are called by client
+  [[UIKeyboardImpl sharedInstance] setAutomaticMinimizationEnabled:NO];
+
+  if ([(NSObject *)[UIKeyboardImpl sharedInstance]
+       respondsToSelector:@selector(setSoftwareKeyboardShownByTouch:)]) {
+    // Xcode 13 no longer has this method
+    [[UIKeyboardImpl sharedInstance] setSoftwareKeyboardShownByTouch:YES];
+  }
+#endif
 }
 
 + (FBConfigurationKeyboardPreference)keyboardAutocorrection

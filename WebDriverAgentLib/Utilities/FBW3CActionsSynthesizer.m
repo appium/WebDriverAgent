@@ -317,21 +317,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (nil != eventPath) {
-    if (0 == currentItemIndex) {
-      return @[];
-    }
-    FBBaseGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
-    if (![preceedingItem isKindOfClass:FBPointerUpItem.class] && currentItemIndex < allItems.count - 1) {
-      return @[];
-    }
-  }
-  NSTimeInterval currentOffset = FBMillisToSeconds(self.offset + self.duration);
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:currentOffset];
-  if (currentItemIndex == allItems.count - 1) {
-    [result liftUpAtOffset:currentOffset];
-  }
-  return @[result];
+  return @[];
 }
 
 @end
@@ -519,22 +505,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   // TODO: The current approach throws zero division error on execution
   // NSUInteger modifiers = [self collectModifersWithItems:allItems currentItemIndex:currentItemIndex];
   // [resultPath setModifiers:modifiers mergeWithCurrentModifierFlags:NO atOffset:0];
-  if ([resultPath respondsToSelector:@selector(typeText:atOffset:typingSpeed:)]) {
-    [resultPath typeText:text
-                atOffset:offset
-             typingSpeed:FBConfiguration.maxTypingFrequency];
-  } else if ([resultPath respondsToSelector:@selector(typeText:atOffset:typingSpeed:shouldRedact:)]) {
-    [resultPath typeText:text
-                atOffset:offset
-             typingSpeed:FBConfiguration.maxTypingFrequency
-            shouldRedact:YES];
-  } else {
-    NSString *description = @"typeText: selector signature has been unexpectedly changed in the current XCTest SDK. Consider switching to the most recent WDA version";
-    if (error) {
-      *error = [[FBErrorBuilder.builder withDescription:description] build];
-    }
-    return nil;
-  }
+  [resultPath typeText:text
+              atOffset:offset
+           typingSpeed:FBConfiguration.maxTypingFrequency
+          shouldRedact:YES];
   return @[resultPath];
 }
 

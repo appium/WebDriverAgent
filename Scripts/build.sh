@@ -68,31 +68,33 @@ function xcbuild() {
     if [ $(which xcpretty) ] ; then
         output_command=xcpretty
     fi
+
+    XC_BUILD_ARGS=(-project "WebDriverAgent.xcodeproj")
+    XC_BUILD_ARGS+=(-scheme "$XC_TARGET")
+    XC_BUILD_ARGS+=(-sdk "$XC_SDK")
+    XC_BUILD_ARGS+=($XC_ACTION)
     if [[ -n "$XC_DESTINATION" ]]; then
-      xcodebuild \
-        -project "WebDriverAgent.xcodeproj" \
-        -scheme "$XC_TARGET" \
-        -sdk "$XC_SDK" \
-        -destination "$XC_DESTINATION" \
-        $XC_ACTION \
-        $XC_MACROS $EXTRA_XC_ARGS \
-      | $output_command && exit ${PIPESTATUS[0]}
-    else
-      xcodebuild \
-        -project "WebDriverAgent.xcodeproj" \
-        -scheme "$XC_TARGET" \
-        -sdk "$XC_SDK" \
-        $XC_ACTION \
-        $XC_MACROS $EXTRA_XC_ARGS \
-      | $output_command && exit ${PIPESTATUS[0]}
+      XC_BUILD_ARGS+=(-destination "${XC_DESTINATION}")
     fi
+    if [[ -n "$DERIVED_DATA_PATH" ]]; then
+      XC_BUILD_ARGS+=(-derivedDataPath ${DERIVED_DATA_PATH})
+    fi
+    XC_BUILD_ARGS+=($XC_MACROS $EXTRA_XC_ARGS)
+
+    xcodebuild "${XC_BUILD_ARGS[@]}" | $output_command && exit ${PIPESTATUS[0]}
+
 }
 
 function fastlane_test() {
+  if ! command -v fastlane $> /dev/null ; then
+    echo "Please install fastlane with 'gem install fastlane' or 'bundle install'"
+    exit 1
+  fi
+
   if [[ -n "$XC_DESTINATION" ]]; then
-    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
+    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" fastlane test
   else
-    SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test
+    SDK="$XC_SDK" SCHEME="$1" fastlane test
   fi
 }
 

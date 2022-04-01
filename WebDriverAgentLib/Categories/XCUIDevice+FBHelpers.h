@@ -11,6 +11,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
+  FBUIInterfaceAppearanceUnspecified,
+  FBUIInterfaceAppearanceLight,
+  FBUIInterfaceAppearanceDark
+};
+
 @interface XCUIDevice (FBHelpers)
 
 /**
@@ -128,6 +134,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)fb_synthKeyEvent:(id) keyId
   modifierFlags:(unsigned long long) modifierFlags;
+/**
+ Allows to set device appearance
+
+ @param appearance The desired appearance value
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the appearance has been successfully set
+ */
+- (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error;
+
+/**
+ Get current appearance prefefence.
+
+ @return 0 (automatic), 1 (light) or 2 (dark), or nil
+ */
+- (nullable NSNumber *)fb_getAppearance;
 
 @end
 

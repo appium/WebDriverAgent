@@ -226,6 +226,7 @@
       ? buttons.firstObject
       : buttons.lastObject;
   }
+
   return nil == dismissButton
     ? [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find dismiss button for alert: %@", self.alertElement]

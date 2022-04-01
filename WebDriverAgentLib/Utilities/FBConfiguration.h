@@ -119,10 +119,20 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (BOOL)verboseLoggingEnabled;
 
 /**
+ Disables automatic handling of XCTest UI interruptions.
+ */
++ (void)disableApplicationUIInterruptionsHandling;
+
+/**
  * Configure keyboards preference to make test running stable
  */
 + (void)configureDefaultKeyboardPreferences;
 
+
+/**
+ * Turn on softwar keyboard forcefully for simulator.
+ */
++ (void)forceSimulatorSoftwareKeyboardPresence;
 
 /**
 Defines keyboard preference enabled status

@@ -20,6 +20,7 @@
 #import "FBXPath.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "FBXCAXClientProxy.h"
+#import "FBXMLGenerationOptions.h"
 #import "XCAccessibilityElement.h"
 #import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
@@ -121,10 +122,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
   info[@"name"] = FBValueOrNull(snapshot.wdName);
   info[@"value"] = FBValueOrNull(snapshot.wdValue);
   info[@"label"] = FBValueOrNull(snapshot.wdLabel);
-  // It is mandatory to replace all Infinity values with zeroes to avoid JSON parsing
-  // exceptions like https://github.com/facebook/WebDriverAgent/issues/639#issuecomment-314421206
-  // caused by broken element dimensions returned by XCTest
-  info[@"rect"] = FBwdRectNoInf(snapshot.wdRect);
+  info[@"rect"] = snapshot.wdRect;
   info[@"frame"] = NSStringFromCGRect(snapshot.wdFrame);
   info[@"isEnabled"] = [@([snapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([snapshot isWDVisible]) stringValue];
@@ -183,15 +181,12 @@ static NSString* const FBUnknownBundleId = @"unknown";
 
 - (NSString *)fb_xmlRepresentation
 {
-  return [FBXPath xmlStringWithRootElement:self excludingAttributes:nil];
+  return [self fb_xmlRepresentationWithOptions:nil];
 }
 
-- (NSString *)fb_xmlRepresentationWithoutAttributes:(NSArray<NSString *> *)excludedAttributes
+- (NSString *)fb_xmlRepresentationWithOptions:(FBXMLGenerationOptions *)options
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-  return [FBXPath xmlStringWithRootElement:self excludingAttributes:excludedAttributes];
-#pragma clang diagnostic pop
+  return [FBXPath xmlStringWithRootElement:self options:options];
 }
 
 - (NSString *)fb_descriptionRepresentation
@@ -221,22 +216,6 @@ static NSString* const FBUnknownBundleId = @"unknown";
           fb_firstMatch];
 }
 #endif
-
-- (BOOL)fb_resetAuthorizationStatusForResource:(long long)resourceId error:(NSError **)error
-{
-  SEL selector = NSSelectorFromString(@"resetAuthorizationStatusForResource:");
-  if (![self respondsToSelector:selector]) {
-    return [[[FBErrorBuilder builder]
-             withDescription:@"'resetAuthorizationStatusForResource' API is only supported for Xcode SDK 11.4 and later"]
-            buildError:error];
-  }
-  NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-  [invocation setSelector:selector];
-  [invocation setArgument:&resourceId atIndex:2]; // 0 and 1 are reserved
-  [invocation invokeWithTarget:self];
-  return YES;
-}
 
 - (BOOL)fb_dismissKeyboardWithKeyNames:(nullable NSArray<NSString *> *)keyNames
                                  error:(NSError **)error

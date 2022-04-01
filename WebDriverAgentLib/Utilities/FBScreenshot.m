@@ -123,7 +123,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return screenshotData;
 }
 
-+ (NSData *)takeWithScreenID:(unsigned int)screenID
++ (NSData *)takeWithScreenID:(long long)screenID
                        scale:(CGFloat)scale
           compressionQuality:(CGFloat)compressionQuality
                         rect:(CGRect)rect
@@ -146,7 +146,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                                         error:error];
 }
 
-+ (NSData *)takeInOriginalResolutionWithScreenID:(unsigned int)screenID
++ (NSData *)takeInOriginalResolutionWithScreenID:(long long)screenID
                               compressionQuality:(CGFloat)compressionQuality
                                              uti:(NSString *)uti
                                          timeout:(NSTimeInterval)timeout
@@ -212,7 +212,8 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   dispatch_once(&shouldUseSRApi, ^{
     if ([proxy respondsToSelector:@selector(_XCT_requestScreenshot:withReply:)]) {
 #if TARGET_OS_SIMULATOR
-      result = YES;
+      // Required to support simulators running iOS 14.4 and below with Xcode 12.5 and above due to unsupported API on the simulator side.
+      result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.5");
 #else
       result = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0");
 #endif
@@ -254,7 +255,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   return imageEncoding;
 }
 
-+ (nullable id)screenshotRequestWithScreenID:(unsigned int)screenID
++ (nullable id)screenshotRequestWithScreenID:(long long)screenID
                                         rect:(struct CGRect)rect
                                          uti:(NSString *)uti
                           compressionQuality:(CGFloat)compressionQuality

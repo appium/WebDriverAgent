@@ -9,7 +9,7 @@ import { asyncify } from 'asyncbox';
 const { checkForDependencies, bundleWDASim } = dependencies;
 const { NoSessionProxy } = proxies;
 const { WebDriverAgent } = driver;
-const { WDA_BUNDLE_ID, BOOTSTRAP_PATH, WDA_BASE_URL, WDA_RUNNER_BUNDLE_ID, PROJECT_FILE } = constants;
+const { BOOTSTRAP_PATH, WDA_BASE_URL, WDA_RUNNER_BUNDLE_ID, PROJECT_FILE } = constants;
 const { resetTestProcesses } = utils;
 
 
@@ -23,7 +23,7 @@ export {
   NoSessionProxy,
   checkForDependencies, bundleWDASim,
   resetTestProcesses,
-  BOOTSTRAP_PATH, WDA_BUNDLE_ID,
+  BOOTSTRAP_PATH,
   WDA_RUNNER_BUNDLE_ID, PROJECT_FILE,
   WDA_BASE_URL,
 };
