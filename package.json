@@ -44,7 +44,7 @@
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
     "@appium/gulp-plugins": "^6.0.0",
-    "@appium/eslint-config-appium": "^5.0.0",
+    "@appium/eslint-config-appium": "^6.0.0",
     "@appium/test-support": "^1.0.0",
     "@semantic-release/git": "^10.0.1",
     "appium-xcode": "^4.0.0",
