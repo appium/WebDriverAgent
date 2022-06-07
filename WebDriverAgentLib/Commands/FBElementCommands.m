@@ -84,6 +84,8 @@
     [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self action:@selector(handleTapWithNumberOfTaps:)],
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
+    [[FBRoute POST:@"/wda/element/:uuid/forcePress"] respondWithTarget:self action:@selector(handleForcePress:)],
+    [[FBRoute POST:@"/wda/element/:uuid/pressWithDuration"] respondWithTarget:self action:@selector(handlePressWithDuration:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
     [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
@@ -301,6 +303,31 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   [element twoFingerTap];
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleForcePress:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  [element forcePress];
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handlePressWithDuration:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  if (nil == request.arguments[@"pressure"] || nil == request.arguments[@"duration"]) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both 'pressure' and 'duration' arguments must be provided"
+                                                                       traceback:nil]);
+  }
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  if (![element respondsToSelector:@selector(pressWithPressure:duration:)]) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"The current XCode SDK does not support pressWithPressure:duration: API"
+                                                                            traceback:nil]);
+  }
+  [element pressWithPressure:[request.arguments[@"pressure"] doubleValue]
+                    duration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
 
