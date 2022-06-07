@@ -31,6 +31,8 @@
 - (void)pressForDuration:(double)arg1;
 - (void)doubleTap;
 - (void)tap;
+- (void)pressWithPressure:(double)arg1 duration:(double)arg2;
+- (void)forcePress;
 
 @end
 #endif
