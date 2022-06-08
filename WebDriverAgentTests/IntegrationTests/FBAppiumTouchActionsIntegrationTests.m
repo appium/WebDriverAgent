@@ -214,6 +214,7 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeLeft];
 }
 
+// Note: UIDeviceOrientationLandscapeRight is not so good in iOS 16?
 - (void)testPress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
@@ -284,6 +285,7 @@
   [self verifyGesture:gesture orientation:orientation];
 }
 
+// Failed to press in iOS 16
 - (void)testForcePress
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {

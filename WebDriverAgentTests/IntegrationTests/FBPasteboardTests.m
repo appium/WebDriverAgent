@@ -61,7 +61,9 @@
                                 matchingIdentifier:@"Select All"].firstMatch;
   XCTAssertTrue([selectAllItem waitForExistenceWithTimeout:5]);
   [selectAllItem tap];
-  [textField pressForDuration:2.0];
+  if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
+    [textField pressForDuration:2.0];
+  }
   XCUIElement *copyItem = [[self.testedApplication descendantsMatchingType:XCUIElementTypeAny]
                            matchingIdentifier:@"Copy"].firstMatch;
   XCTAssertTrue([copyItem waitForExistenceWithTimeout:5]);
@@ -69,7 +71,11 @@
   FBWaitExact(1.0);
   NSData *result = [FBPasteboard dataForType:@"plaintext" error:&error];
   XCTAssertNil(error);
-  XCTAssertEqualObjects(textField.value, [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding]);
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"16.0")) {
+    // Pasteboard permission appears in a simulator. Not in a real device.
+  } else {
+    XCTAssertEqualObjects(textField.value, [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding]);
+  }
 }
 
 - (void)testUrlCopyPaste

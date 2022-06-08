@@ -52,6 +52,7 @@
   [super tearDown];
 }
 
+// Failed in iOS 16
 - (void)testForceTap
 {
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
