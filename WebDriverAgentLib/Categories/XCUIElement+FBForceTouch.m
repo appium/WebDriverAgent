@@ -22,7 +22,7 @@
 {
   if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"Force press is supported on this device."]
+             withDescriptionFormat:@"Force press is not supported on this device."]
             buildError:error];
   }
   if (nil == relativeCoordinate) {
