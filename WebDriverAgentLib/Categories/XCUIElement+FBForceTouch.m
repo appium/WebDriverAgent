@@ -10,7 +10,6 @@
 #import "XCUIElement+FBForceTouch.h"
 
 #import "FBErrorBuilder.h"
-#import "XCUIApplication+FBTouchAction.h"
 #import "XCUIDevice.h"
 #import "XCUICoordinate.h"
 
