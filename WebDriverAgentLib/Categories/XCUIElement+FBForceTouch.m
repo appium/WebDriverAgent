@@ -22,10 +22,17 @@
 {
   if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"Force press is not supported on this device."]
+             withDescriptionFormat:@"Force press is not supported on this device"]
             buildError:error];
   }
+
   if (nil == relativeCoordinate) {
+    if (nil == pressure || nil == duration) {
+      [self forcePress];
+    } else {
+      [self pressWithPressure:[pressure doubleValue] duration:[duration doubleValue]];
+    }
+  } else {
     CGSize size = self.frame.size;
     CGVector offset = CGVectorMake(size.width > 0 ? relativeCoordinate.CGPointValue.x / size.width : 0,
                                    size.height > 0 ? relativeCoordinate.CGPointValue.y / size.height : 0);
@@ -34,12 +41,6 @@
       [hitPoint forcePress];
     } else {
       [hitPoint pressWithPressure:[pressure doubleValue] duration:[duration doubleValue]];
-    }
-  } else {
-    if (nil == pressure || nil == duration) {
-      [self forcePress];
-    } else {
-      [self pressWithPressure:[pressure doubleValue] duration:[duration doubleValue]];
     }
   }
   return YES;
