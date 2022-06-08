@@ -9,56 +9,41 @@
 
 #import "XCUIElement+FBForceTouch.h"
 
+#import "FBErrorBuilder.h"
 #import "XCUIApplication+FBTouchAction.h"
+#import "XCUIDevice.h"
+#import "XCUICoordinate.h"
 
 @implementation XCUIElement (FBForceTouch)
 
-- (BOOL)fb_forceTouchWithPressure:(double)pressure duration:(double)duration error:(NSError **)error
+- (BOOL)fb_forceTouchCoordinate:(NSValue *)relativeCoordinate
+                       pressure:(NSNumber *)pressure
+                       duration:(NSNumber *)duration
+                          error:(NSError **)error
 {
-  NSArray<NSDictionary<NSString *, id> *> *gesture =
-  @[@{
-      @"action": @"press",
-      @"options": @{
-          @"element": self,
-          @"pressure": @(pressure)
-          }
-      },
-    @{
-      @"action": @"wait",
-      @"options": @{
-          @"ms": @(duration * 1000)
-          }
-      },
-    @{
-      @"action": @"release"
-      }
-    ];
-  return [self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
-}
-
-- (BOOL)fb_forceTouchCoordinate:(CGPoint)relativeCoordinate pressure:(double)pressure duration:(double)duration error:(NSError **)error
-{
-  NSArray<NSDictionary<NSString *, id> *> *gesture =
-  @[@{
-      @"action": @"press",
-      @"options": @{
-          @"element": self,
-          @"x": @(relativeCoordinate.x),
-          @"y": @(relativeCoordinate.y),
-          @"pressure": @(pressure)
-          }
-      },
-    @{
-      @"action": @"wait",
-      @"options": @{
-          @"ms": @(duration * 1000)
-          }
-      },
-    @{
-      @"action": @"release"
-      }
-    ];
-  return [self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error];
+  if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"Force press is supported on this device."]
+            buildError:error];
+  }
+  if (nil == relativeCoordinate) {
+    CGSize size = self.frame.size;
+    CGVector offset = CGVectorMake(size.width > 0 ? relativeCoordinate.CGPointValue.x / size.width : 0,
+                                   size.height > 0 ? relativeCoordinate.CGPointValue.y / size.height : 0);
+    XCUICoordinate *hitPoint = [self coordinateWithNormalizedOffset:offset];
+    if (nil == pressure || nil == duration) {
+      [hitPoint forcePress];
+    } else {
+      [hitPoint pressWithPressure:[pressure doubleValue] duration:[duration doubleValue]];
+    }
+  } else {
+    if (nil == pressure || nil == duration) {
+      [self forcePress];
+    } else {
+      [self pressWithPressure:[pressure doubleValue] duration:[duration doubleValue]];
+    }
+  }
+  return YES;
 }
 
 @end

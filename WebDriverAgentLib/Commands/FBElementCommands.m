@@ -84,19 +84,18 @@
     [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self action:@selector(handleTapWithNumberOfTaps:)],
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
-    [[FBRoute POST:@"/wda/element/:uuid/forcePress"] respondWithTarget:self action:@selector(handleForcePress:)],
     [[FBRoute POST:@"/wda/element/:uuid/pressWithDuration"] respondWithTarget:self action:@selector(handlePressWithDuration:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
+    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
     [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
-    [[FBRoute POST:@"/wda/forcePress"] respondWithTarget:self action:@selector(handleForcePressCoordinate:)],
     [[FBRoute POST:@"/wda/pressWithDuration"] respondWithTarget:self action:@selector(handlePressWithDurationCoordinate:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+    [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
-    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
 
@@ -309,26 +308,6 @@
   return FBResponseWithOK();
 }
 
-+ (id<FBResponsePayload>)handleForcePress:(FBRouteRequest *)request
-{
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  [element forcePress];
-  return FBResponseWithOK();
-}
-
-+ (id<FBResponsePayload>)handleForcePressCoordinate:(FBRouteRequest *)request
-{
-  CGPoint dstPoint = CGPointMake(
-    (CGFloat)[request.arguments[@"x"] doubleValue],
-    (CGFloat)[request.arguments[@"y"] doubleValue]
-  );
-  XCUICoordinate *dstCoordinate = [self.class gestureCoordinateWithCoordinate:dstPoint
-                                                                  application:request.session.activeApplication];
-  [dstCoordinate forcePress];
-  return FBResponseWithOK();
-}
-
 + (id<FBResponsePayload>)handlePressWithDuration:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -527,22 +506,29 @@
 
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  double pressure = [request.arguments[@"pressure"] doubleValue];
-  double duration = [request.arguments[@"duration"] doubleValue];
-  NSError *error;
-  if (nil != request.arguments[@"x"] && nil != request.arguments[@"y"]) {
-    CGPoint forceTouchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-    if (![element fb_forceTouchCoordinate:forceTouchPoint pressure:pressure duration:duration error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-    }
+  XCUIElement *element = nil;
+  if (nil == request.parameters[@"uuid"]) {
+    element = [FBApplication fb_activeApplication];
   } else {
-    if (![element fb_forceTouchWithPressure:pressure duration:duration error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-    }
+    FBElementCache *elementCache = request.session.elementCache;
+    element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   }
-  return FBResponseWithOK();
+  NSNumber *pressure = request.arguments[@"pressure"];
+  NSNumber *duration = request.arguments[@"duration"];
+  NSNumber *x = request.arguments[@"x"];
+  NSNumber *y = request.arguments[@"y"];
+  NSValue *hitPoint = (nil == x || nil == y)
+    ? nil
+    : [NSValue valueWithCGPoint:CGPointMake((CGFloat)[x doubleValue], (CGFloat)[y doubleValue])];
+  NSError *error;
+  BOOL didSucceed = [element fb_forceTouchCoordinate:hitPoint
+                                            pressure:pressure
+                                            duration:duration
+                                               error:&error];
+  return didSucceed
+    ? FBResponseWithOK()
+    : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                      traceback:nil]);
 }
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
