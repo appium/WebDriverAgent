@@ -84,14 +84,12 @@
     [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self action:@selector(handleTapWithNumberOfTaps:)],
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
-    [[FBRoute POST:@"/wda/element/:uuid/pressWithDuration"] respondWithTarget:self action:@selector(handlePressWithDuration:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
     [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
     [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
-    [[FBRoute POST:@"/wda/pressWithDuration"] respondWithTarget:self action:@selector(handlePressWithDurationCoordinate:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
     [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
 #endif
@@ -307,36 +305,6 @@
   [element twoFingerTap];
   return FBResponseWithOK();
 }
-
-+ (id<FBResponsePayload>)handlePressWithDuration:(FBRouteRequest *)request
-{
-  FBElementCache *elementCache = request.session.elementCache;
-  if (nil == request.arguments[@"pressure"] || nil == request.arguments[@"duration"]) {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both 'pressure' and 'duration' arguments must be provided"
-                                                                       traceback:nil]);
-  }
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  [element pressWithPressure:[request.arguments[@"pressure"] doubleValue]
-                    duration:[request.arguments[@"duration"] doubleValue]];
-  return FBResponseWithOK();
-}
-
-  + (id<FBResponsePayload>)handlePressWithDurationCoordinate:(FBRouteRequest *)request
-  {
-    if (nil == request.arguments[@"pressure"] || nil == request.arguments[@"duration"]) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both 'pressure' and 'duration' arguments must be provided"
-                                                                         traceback:nil]);
-    }
-    CGPoint dstPoint = CGPointMake(
-      (CGFloat)[request.arguments[@"x"] doubleValue],
-      (CGFloat)[request.arguments[@"y"] doubleValue]
-    );
-    XCUICoordinate *dstCoordinate = [self.class gestureCoordinateWithCoordinate:dstPoint
-                                                                    application:request.session.activeApplication];
-    [dstCoordinate pressWithPressure:[request.arguments[@"pressure"] doubleValue]
-                            duration:[request.arguments[@"duration"] doubleValue]];
-    return FBResponseWithOK();
-  }
 
 + (id<FBResponsePayload>)handleTapWithNumberOfTaps:(FBRouteRequest *)request
 {
