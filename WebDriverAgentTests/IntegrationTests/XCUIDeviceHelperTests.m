@@ -23,13 +23,24 @@
 
 @implementation XCUIDeviceHelperTests
 
+- (void)restorePortraitOrientation
+{
+  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  }
+}
+
 - (void)setUp
 {
   [super setUp];
   [self launchApplication];
-  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
-    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
-  }
+  [self restorePortraitOrientation];
+}
+
+- (void)tearDown
+{
+  [self restorePortraitOrientation];
+  [super tearDown];
 }
 
 - (void)testScreenshot
