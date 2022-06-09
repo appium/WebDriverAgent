@@ -12,6 +12,7 @@
 #import "FBIntegrationTestCase.h"
 
 #import "XCUIElement.h"
+#import "XCUIDevice.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
@@ -309,13 +310,13 @@
       @"id": @"finger1",
       @"parameters": @{@"pointerType": @"touch"},
       @"actions": @[
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.testedApplication.buttons[FBShowAlertButtonName], @"x": @0, @"y": @0},
+          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.testedApplication.buttons[FBShowAlertButtonName]},
           @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @100},
+          @{@"type": @"pause", @"duration": @50},
           @{@"type": @"pointerUp"},
-          @{@"type": @"pause", @"duration": @40},
+          @{@"type": @"pause", @"duration": @200},
           @{@"type": @"pointerDown"},
-          @{@"type": @"pause", @"duration": @100},
+          @{@"type": @"pause", @"duration": @50},
           @{@"type": @"pointerUp"},
           ],
       },
@@ -369,6 +370,32 @@
       },
     ];
   [self verifyGesture:gesture orientation:orientation];
+}
+
+- (void)testForceTap
+{
+  if (![XCUIDevice.sharedDevice supportsPressureInteraction]) {
+    return;
+  }
+
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[@{
+      @"type": @"pointer",
+      @"id": @"finger1",
+      @"parameters": @{@"pointerType": @"touch"},
+      @"actions": @[
+          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.testedApplication.buttons[FBShowAlertButtonName]},
+          @{@"type": @"pointerDown"},
+          @{@"type": @"pause", @"duration": @500},
+          @{@"type": @"pointerDown", @"pressure": @1.0},
+          @{@"type": @"pause", @"duration": @50},
+          @{@"type": @"pointerDown", @"pressure": @1.0},
+          @{@"type": @"pause", @"duration": @50},
+          @{@"type": @"pointerUp"},
+          ],
+      },
+    ];
+  [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeLeft];
 }
 
 @end
