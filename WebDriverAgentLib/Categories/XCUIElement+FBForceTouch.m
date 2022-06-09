@@ -9,6 +9,8 @@
 
 #import "XCUIElement+FBForceTouch.h"
 
+#if !TARGET_OS_TV
+
 #import "FBErrorBuilder.h"
 #import "XCUICoordinate.h"
 #import "XCUIDevice.h"
@@ -47,3 +49,5 @@
 }
 
 @end
+
+#endif

@@ -470,7 +470,6 @@
   [element rotate:rotation withVelocity:velocity];
   return FBResponseWithOK();
 }
-#endif
 
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
@@ -496,8 +495,9 @@
   return didSucceed
     ? FBResponseWithOK()
     : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
-                                                                      traceback:nil]);
+                                                                    traceback:nil]);
 }
+#endif
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {

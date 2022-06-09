@@ -11,6 +11,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if !TARGET_OS_TV
+
 @interface XCUIElement (FBForceTouch)
 
 /**
@@ -31,5 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
                           error:(NSError **)error;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END
