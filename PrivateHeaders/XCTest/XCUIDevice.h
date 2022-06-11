@@ -24,5 +24,7 @@
 - (void)pressLockButton;
 - (void)holdHomeButtonForDuration:(double)arg1;
 - (void)_silentPressButton:(long long)arg1;
+// Since Xcode 11
+- (_Bool)supportsPressureInteraction;
 
 @end

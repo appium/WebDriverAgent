@@ -43,6 +43,8 @@
 - (id)_highestNonWindowAncestorOfElement:(id)arg1 notSharedWithElement:(id)arg2;
 - (id)_pointsInFrame:(CGRect)arg1 numberOfTouches:(unsigned long long)arg2;
 - (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
+// Since 11.3
+- (void)pressWithPressure:(double)arg1 duration:(double)arg2;
 - (void)forcePress;
 - (void)tapWithNumberOfTaps:(unsigned long long)arg1 numberOfTouches:(unsigned long long)arg2;
 - (void)twoFingerTap;

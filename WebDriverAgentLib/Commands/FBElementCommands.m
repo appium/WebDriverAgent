@@ -85,14 +85,15 @@
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
+    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
     [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+    [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
-    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
   ];
 }
 
@@ -291,7 +292,8 @@
 + (id<FBResponsePayload>)handleDoubleTapCoordinate:(FBRouteRequest *)request
 {
   CGPoint doubleTapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *doubleTapCoordinate = [self.class gestureCoordinateWithCoordinate:doubleTapPoint application:request.session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+  XCUICoordinate *doubleTapCoordinate = [self.class gestureCoordinateWithCoordinate:doubleTapPoint
+                                                                        application:request.session.activeApplication];
   [doubleTapCoordinate doubleTap];
   return FBResponseWithOK();
 }
@@ -328,7 +330,8 @@
 + (id<FBResponsePayload>)handleTouchAndHoldCoordinate:(FBRouteRequest *)request
 {
   CGPoint touchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithCoordinate:touchPoint application:request.session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+  XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithCoordinate:touchPoint
+                                                                    application:request.session.activeApplication];
   [pressCoordinate pressForDuration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
@@ -386,8 +389,10 @@
   CGPoint startPoint = CGPointMake((CGFloat)[request.arguments[@"fromX"] doubleValue], (CGFloat)[request.arguments[@"fromY"] doubleValue]);
   CGPoint endPoint = CGPointMake((CGFloat)[request.arguments[@"toX"] doubleValue], (CGFloat)[request.arguments[@"toY"] doubleValue]);
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint application:session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint application:session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
+                                                                  application:session.activeApplication];
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
+                                                                    application:session.activeApplication];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
 }
@@ -401,9 +406,10 @@
   CGPoint startPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"fromX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"fromY"] doubleValue]));
   CGPoint endPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"toX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"toY"] doubleValue]));
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  BOOL shouldApplyOrientationWorkaround = isSDKVersionGreaterThanOrEqualTo(@"10.0") && isSDKVersionLessThan(@"11.0");
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint application:session.activeApplication shouldApplyOrientationWorkaround:shouldApplyOrientationWorkaround];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint application:session.activeApplication shouldApplyOrientationWorkaround:shouldApplyOrientationWorkaround];
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
+                                                                  application:session.activeApplication];
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
+                                                                    application:session.activeApplication];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
 }
@@ -439,8 +445,7 @@
     }
   } else {
     XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint
-                                                                    application:request.session.activeApplication
-                                               shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+                                                                    application:request.session.activeApplication];
     [tapCoordinate tap];
   }
   return FBResponseWithOK();
@@ -465,27 +470,34 @@
   [element rotate:rotation withVelocity:velocity];
   return FBResponseWithOK();
 }
-#endif
 
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  double pressure = [request.arguments[@"pressure"] doubleValue];
-  double duration = [request.arguments[@"duration"] doubleValue];
-  NSError *error;
-  if (nil != request.arguments[@"x"] && nil != request.arguments[@"y"]) {
-    CGPoint forceTouchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-    if (![element fb_forceTouchCoordinate:forceTouchPoint pressure:pressure duration:duration error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-    }
+  XCUIElement *element = nil;
+  if (nil == request.parameters[@"uuid"]) {
+    element = [FBApplication fb_activeApplication];
   } else {
-    if (![element fb_forceTouchWithPressure:pressure duration:duration error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-    }
+    FBElementCache *elementCache = request.session.elementCache;
+    element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   }
-  return FBResponseWithOK();
+  NSNumber *pressure = request.arguments[@"pressure"];
+  NSNumber *duration = request.arguments[@"duration"];
+  NSNumber *x = request.arguments[@"x"];
+  NSNumber *y = request.arguments[@"y"];
+  NSValue *hitPoint = (nil == x || nil == y)
+    ? nil
+    : [NSValue valueWithCGPoint:CGPointMake((CGFloat)[x doubleValue], (CGFloat)[y doubleValue])];
+  NSError *error;
+  BOOL didSucceed = [element fb_forceTouchCoordinate:hitPoint
+                                            pressure:pressure
+                                            duration:duration
+                                               error:&error];
+  return didSucceed
+    ? FBResponseWithOK()
+    : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                    traceback:nil]);
 }
+#endif
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
@@ -574,7 +586,8 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
     return FBResponseWithStatus([FBCommandStatus elementNotVisibleErrorWithMessage:@"Can't scroll to element that does not exist" traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   if (![element fb_scrollToVisibleWithError:&error]) {
-    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                           traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   return FBResponseWithOK();
 }
@@ -584,21 +597,12 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
  @param coordinate absolute screen coordinates
  @param application the instance of current application under test
- @shouldApplyOrientationWorkaround whether to apply orientation workaround. This is to
- handle XCTest bug where it does not translate screen coordinates for elements if
- screen orientation is different from the default one (which is portrait).
- Different iOS version have different behavior, for example iOS 9.3 returns correct
- coordinates for elements in landscape, but iOS 10.0+ returns inverted coordinates as if
- the current screen orientation would be portrait.
  @return translated gesture coordinates ready to be passed to XCUICoordinate methods
  */
-+ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate application:(XCUIApplication *)application shouldApplyOrientationWorkaround:(BOOL)shouldApplyOrientationWorkaround
++ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate
+                                        application:(XCUIApplication *)application
 {
   CGPoint point = coordinate;
-  if (shouldApplyOrientationWorkaround) {
-    point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
-  }
-
   /**
    If SDK >= 11, the tap coordinate based on application is not correct when
    the application orientation is landscape and
@@ -632,10 +636,13 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
  @param element the element in the current application under test
  @return translated gesture coordinates ready to be passed to XCUICoordinate methods
  */
-+ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate element:(XCUIElement *)element
++ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate
+                                            element:(XCUIElement *)element
 {
-  XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element normalizedOffset:CGVectorMake(0, 0)];
-  return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
+  XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element
+                                                         normalizedOffset:CGVectorMake(0, 0)];
+  return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate
+                                       pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
 }
 #endif
 

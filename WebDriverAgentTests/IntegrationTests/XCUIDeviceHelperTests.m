@@ -23,18 +23,28 @@
 
 @implementation XCUIDeviceHelperTests
 
+- (void)restorePortraitOrientation
+{
+  if ([XCUIDevice sharedDevice].orientation != UIDeviceOrientationPortrait) {
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  }
+}
+
 - (void)setUp
 {
   [super setUp];
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self launchApplication];
-  });
+  [self launchApplication];
+  [self restorePortraitOrientation];
+}
+
+- (void)tearDown
+{
+  [self restorePortraitOrientation];
+  [super tearDown];
 }
 
 - (void)testScreenshot
 {
-  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
   NSError *error = nil;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   XCTAssertNotNil(screenshotData);
@@ -56,7 +66,7 @@
 
 - (void)testLandscapeScreenshot
 {
-  [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeLeft];
+  XCTAssertTrue([[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationLandscapeLeft]);
   NSError *error = nil;
   NSData *screenshotData = [[XCUIDevice sharedDevice] fb_screenshotWithError:&error];
   XCTAssertNotNil(screenshotData);
