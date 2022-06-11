@@ -56,7 +56,6 @@
   [super tearDown];
 }
 
-// Failed in iOS 16
 - (void)testForceTap
 {
   if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
