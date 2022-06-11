@@ -294,7 +294,7 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
 }
 
-// Note: UIDeviceOrientationLandscapeLeft did not work in iOS 16 simumlator.
+// TODO: UIDeviceOrientationLandscapeLeft did not work in iOS 16 simumlator.
 // UIDeviceOrientationPortrait was ok.
 - (void)testDoubleTap
 {
@@ -326,7 +326,7 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationLandscapeLeft];
 }
 
-// Note: UIDeviceOrientationLandscapeRight did not work in iOS 16 simumlator.
+// TODO: UIDeviceOrientationLandscapeRight did not work in iOS 16 simumlator.
 // UIDeviceOrientationPortrait was ok.
 - (void)testLongPressWithCombinedPause
 {
