@@ -16,7 +16,7 @@ variables:
   MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
   MAX_TV_DEVICE_NAME: Apple TV 4K
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
-  DEFAULT_NODE_VERSION: "12.x"
+  DEFAULT_NODE_VERSION: "16.x"
 
 
 pool:

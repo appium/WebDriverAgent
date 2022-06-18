@@ -16,7 +16,7 @@ jobs:
       displayName: List Installed Applications
     - task: NodeTool@0
       inputs:
-        versionSpec: '12.x'
+        versionSpec: '16.x'
     - script: npm install
       displayName: Install Node Modules
     - script: mkdir -p Resources/WebDriverAgent.bundle
