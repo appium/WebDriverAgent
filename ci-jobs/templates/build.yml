@@ -17,7 +17,9 @@ jobs:
     - task: NodeTool@0
       inputs:
         versionSpec: '16.x'
-    - script: npm install
+    - script: |
+        npm install -g appium@next
+        npm install
       displayName: Install Node Modules
     - script: mkdir -p Resources/WebDriverAgent.bundle
       displayName: Make Resources Folder
