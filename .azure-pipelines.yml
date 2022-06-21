@@ -48,8 +48,8 @@ stages:
     steps:
     - template: azure-templates/node_setup_steps.yml
     - script: |
-      npm install -g appium@next
-      npm install
+        npm install -g appium@next
+        npm install
     - script: npm run test
 
   # region Build
