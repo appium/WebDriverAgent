@@ -384,6 +384,17 @@
   return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Unsupported scroll type" traceback:nil]);
 }
 
++ (id<FBResponsePayload>)handleScrollTo:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  NSError *error;
+  return [element fb_nativeScrollToVisibleWithError:&error]
+    ? FBResponseWithOK()
+    : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
+                                                                      traceback:nil]);
+}
+
 + (id<FBResponsePayload>)handleDragCoordinate:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
@@ -529,17 +540,6 @@
     @"width": @(screenSize.width),
     @"height": @(screenSize.height),
   });
-}
-
-+ (id<FBResponsePayload>)handleScrollTo:(FBRouteRequest *)request
-{
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  NSError *error;
-  return [element fb_nativeScrollToVisibleWithError:&error]
-    ? FBResponseWithOK()
-    : FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
-                                                                      traceback:nil]);
 }
 
 + (id<FBResponsePayload>)handleElementScreenshot:(FBRouteRequest *)request
