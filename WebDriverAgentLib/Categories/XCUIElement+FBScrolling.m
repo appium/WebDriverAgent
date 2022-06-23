@@ -47,6 +47,15 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 @implementation XCUIElement (FBScrolling)
 
+- (BOOL)fb_nativeScrollToVisibleWithError:(NSError **)error
+{
+  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  return nil != [self _hitPointByAttemptingToScrollToVisibleSnapshot:snapshot
+                                                               error:error];
+}
+
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
 {
   XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue

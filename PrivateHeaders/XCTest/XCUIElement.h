@@ -37,12 +37,12 @@
 - (void)resolveHandleUIInterruption:(BOOL)arg1;
 - (BOOL)waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
+- (id)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1 error:(id *)arg2;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;
 - (void)_swipe:(unsigned long long)arg1;
 - (void)_tapWithNumberOfTaps:(unsigned long long)arg1 numberOfTouches:(unsigned long long)arg2 activityTitle:(id)arg3;
 - (id)_highestNonWindowAncestorOfElement:(id)arg1 notSharedWithElement:(id)arg2;
 - (id)_pointsInFrame:(CGRect)arg1 numberOfTouches:(unsigned long long)arg2;
-- (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
 // Since 11.3
 - (void)pressWithPressure:(double)arg1 duration:(double)arg2;
 - (void)forcePress;

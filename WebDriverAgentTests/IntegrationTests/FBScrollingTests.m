@@ -80,6 +80,16 @@
   FBAssertVisibleCell(cellName);
 }
 
+- (void)testNativeFarScrollToVisible
+{
+  NSString *cellName = @"80";
+  NSError *error;
+  FBAssertInvisibleCell(cellName);
+  XCTAssertTrue([FBCellElementWithLabel(cellName) fb_nativeScrollToVisibleWithError:&error]);
+  XCTAssertNil(error);
+  FBAssertVisibleCell(cellName);
+}
+
 - (void)testAttributeWithNullScrollToVisible
 {
   NSError *error;
