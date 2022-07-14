@@ -134,7 +134,8 @@
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
                        resolveForAdditionalAttributes:additionalAttributes
                                           andMaxDepth:maxDepth];
-  id attributeValue = [element.lastSnapshot fb_valueForWDAttributeName:attributeName];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:element.lastSnapshot];
+  id attributeValue = [wrappedSnapshot fb_valueForWDAttributeName:attributeName];
   return FBResponseWithObject(attributeValue ?: [NSNull null]);
 }
 
