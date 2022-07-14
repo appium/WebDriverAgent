@@ -29,7 +29,7 @@
 
 - (id<FBXCElementSnapshot>)fb_snapshotForAttributeName:(NSString *)name
 {
-  // These attrbiutes are special, because we can only retrieve them from
+  // These attributes are special, because we can only retrieve them from
   // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
   // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
   // call
