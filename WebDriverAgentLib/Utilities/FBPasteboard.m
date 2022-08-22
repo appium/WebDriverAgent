@@ -143,7 +143,7 @@
     }
   } else if ([type.lowercaseString isEqualToString:@"url"]) {
     if (pb.hasURLs) {
-      id result = [self.class pasteboardContentForItem:@"urls"
+      id result = [self.class pasteboardContentForItem:@"URLs"
                                               instance:pb
                                                timeout:ALERT_TIMEOUT_SEC
                                                  error:error
