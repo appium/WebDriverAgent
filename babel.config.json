@@ -1,0 +1,25 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "node": "14"
+                },
+                "shippedProposals": true
+            }
+        ]
+    ],
+    "plugins": [
+        "source-map-support",
+        "@babel/plugin-transform-runtime"
+    ],
+    "comments": false,
+    "sourceMaps": "both",
+    "env": {
+        "test": {
+            "retainLines": true,
+            "comments": true
+        }
+    }
+}
