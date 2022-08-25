@@ -2,7 +2,7 @@
   "name": "appium-webdriveragent",
   "version": "4.8.3",
   "description": "Package bundling WebDriverAgent",
-  "main": "build/index.js",
+  "main": "./build/index.js",
   "scripts": {
     "build": "rm -rf build && babel --out-dir=build/lib lib && babel --out-dir=build index.js",
     "dev": "npm run build -- --watch",
