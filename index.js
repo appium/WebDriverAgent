@@ -8,8 +8,8 @@ import * as utils from './lib/utils';
 const { checkForDependencies, bundleWDASim } = dependencies;
 const { NoSessionProxy } = proxies;
 const { WebDriverAgent } = driver;
-const { BOOTSTRAP_PATH, WDA_BASE_URL, WDA_RUNNER_BUNDLE_ID, PROJECT_FILE } = constants;
-const { resetTestProcesses } = utils;
+const { WDA_BASE_URL, WDA_RUNNER_BUNDLE_ID, PROJECT_FILE } = constants;
+const { resetTestProcesses, BOOTSTRAP_PATH } = utils;
 
 export {
   WebDriverAgent,
