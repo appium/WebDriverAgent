@@ -1,6 +1,6 @@
 parameters:
-  vmImage: 'macOS-10.15'
-  name: macOS_10_15
+  vmImage: 'macOS-11'
+  name: macOS_11
   excludeXcode: $(excludeXcode)
 jobs:
   - job: ${{ parameters.name }}
