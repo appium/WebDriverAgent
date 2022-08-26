@@ -10,10 +10,11 @@ import { retryInterval } from 'asyncbox';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import axios from 'axios';
 
+const MOCHA_TIMEOUT_MS = 60 * 1000 * 4;
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
+const SIM_STARTUP_TIMEOUT_MS = MOCHA_TIMEOUT_MS;
 
-const MOCHA_TIMEOUT = 60 * 1000 * 4;
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -29,13 +30,12 @@ function getStartOpts (device) {
     realDevice: false,
     showXcodeLog: true,
     wdaLaunchTimeout: 60 * 3 * 1000,
-    simulatorStartupTimeout: 60 * 4 * 1000,
   };
 }
 
 
 describe('WebDriverAgent', function () {
-  this.timeout(MOCHA_TIMEOUT);
+  this.timeout(MOCHA_TIMEOUT_MS);
 
   let xcodeVersion;
   before(async function () {
@@ -61,7 +61,7 @@ describe('WebDriverAgent', function () {
     });
 
     after(async function () {
-      this.timeout(MOCHA_TIMEOUT);
+      this.timeout(MOCHA_TIMEOUT_MS);
 
       await shutdownSimulator(device);
 
@@ -72,7 +72,7 @@ describe('WebDriverAgent', function () {
       this.timeout(6 * 60 * 1000);
       beforeEach(async function () {
         await killAllSimulators();
-        await device.run();
+        await device.run({startupTimeout: SIM_STARTUP_TIMEOUT_MS});
       });
       afterEach(async function () {
         try {

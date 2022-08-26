@@ -1,11 +1,10 @@
-# https://github.com/actions/virtual-environments/tree/main/images/macos
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml
 variables:
   MIN_VM_IMAGE: macOS-11
   MIN_XCODE_VERSION: 12.4
-  MIN_TV_XCODE_VERSION: 12.4
+  MIN_PLATFORM_VERSION: 14.4
   MIN_TV_PLATFORM_VERSION: 14.3
   MIN_TV_DEVICE_NAME: Apple TV 4K
-  MIN_PLATFORM_VERSION: 14.4
   MIN_IPHONE_DEVICE_NAME: iPhone 11
   MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
   MAX_VM_IMAGE: macOS-12
@@ -134,7 +133,7 @@ stages:
       dest: tv
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -211,7 +210,7 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -221,7 +220,7 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -294,7 +293,7 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
