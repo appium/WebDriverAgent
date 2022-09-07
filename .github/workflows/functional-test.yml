@@ -22,7 +22,9 @@ jobs:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: "${{ env.XCODE_VERSION }}"
-    - run: npm install
+    - run: |
+        npm install
+        mkdir -p ./Resources/WebDriverAgent.bundle
       name: Install dev dependencies
     - run: npm run e2e-test
       name: Run functional tests
