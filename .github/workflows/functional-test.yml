@@ -10,7 +10,7 @@ jobs:
       _FORCE_LOGS: 1
       XCODE_VERSION: 13.4
       DEVICE_NAME: iPhone 11
-      PLATFORM_VERSION: 15.4
+      PLATFORM_VERSION: 15.5
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
     runs-on: macos-12
     steps:
@@ -18,7 +18,6 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: lts/*
-        check-latest: true
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: "${{ env.XCODE_VERSION }}"
