@@ -42,15 +42,6 @@ parameters:
 stages:
 - stage: Unit_Tests_And_Linters
   jobs:
-  - job: Node_Unit_Tests
-    steps:
-    - template: azure-templates/node_setup_steps.yml
-    - script: |
-        npm install -g appium@next
-        npm install
-        npm run lint
-    - script: npm run test
-
   # region Build
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -300,17 +291,6 @@ stages:
 
 - stage: Integration_Tests
   jobs:
-
-  - job: Node_Integration_Tests
-    variables:
-      XCODE_VERSION: $(MAX_XCODE_VERSION)
-      DEVICE_NAME: $(MAX_IPHONE_DEVICE_NAME)
-      PLATFORM_VERSION: $(MAX_PLATFORM_VERSION)
-    steps:
-    - template: azure-templates/node_setup_steps.yml
-    - script: npm install
-    - template: azure-templates/bootstrap_steps.yml
-    - script: npm run e2e-test
 
   # region Integration Tests Max Xcode
   - ${{ each job in parameters.integrationJobs }}:
