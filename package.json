@@ -73,7 +73,6 @@
     "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "lint-staged": "^13.0.3",
-    "ios-uicatalog": "^3.5.0",
     "mocha": "^10.0.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.7.1",
