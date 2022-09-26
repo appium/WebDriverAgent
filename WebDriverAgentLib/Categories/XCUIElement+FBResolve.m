@@ -41,11 +41,15 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
   XCUIElementQuery *query = [self isKindOfClass:XCUIApplication.class]
     ? self.application.fb_query
     : [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
-  XCElementSnapshot *cachedSnapshot = self.fb_cachedSnapshot;
+  FBXCElementSnapshotWrapper *cachedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:self.fb_cachedSnapshot];
   NSString *uid = nil == cachedSnapshot ? self.fb_uid : cachedSnapshot.fb_uid;
-  return nil == uid
-    ? self
-    : [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K = %@", FBStringify(XCUIElement, wdUID), uid]].fb_firstMatch;
+  if (nil == uid) {
+    return self;
+  }
+  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
+    return [[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid isEqualToString:uid];
+  }];
+  return (XCUIElement *)[query matchingPredicate:predicate].fb_firstMatch;
 }
 
 @end

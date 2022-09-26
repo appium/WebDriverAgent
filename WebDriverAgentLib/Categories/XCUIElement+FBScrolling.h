@@ -61,6 +61,16 @@ typedef NS_ENUM(NSUInteger, FBXCUIElementScrollDirection) {
 - (BOOL)fb_scrollToVisibleWithError:(NSError **)error;
 
 /**
+ Scrolls parent scroll view till the current element is visible.
+ This call is fast as it uses a native XCTest implementation.
+ The element must be hittable.
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_nativeScrollToVisibleWithError:(NSError **)error;
+
+/**
  Scrolls parent scroll view till receiver is visible. Whenever element is invisible it scrolls by normalizedScrollDistance
  in its direction. E.g. if normalizedScrollDistance is equal to 0.5, each step will scroll by half of scroll view's size.
 

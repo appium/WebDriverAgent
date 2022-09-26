@@ -15,7 +15,6 @@
 #include "TargetConditionals.h"
 #import "FBXCodeCompatibility.h"
 #import "XCTestPrivateSymbols.h"
-#import "XCElementSnapshot.h"
 #import "XCTestConfiguration.h"
 #import "XCUIApplication+FBUIInterruptions.h"
 

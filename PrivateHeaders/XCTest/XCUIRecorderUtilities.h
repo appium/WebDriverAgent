@@ -4,18 +4,18 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSMutableString, XCAccessibilityElement;
+@class NSMutableString;
 
 @interface XCUIRecorderUtilities : NSObject
 {
     unsigned long long _language;
     unsigned long long _platform;
     unsigned long long _compareSnapshotsLikePlatform;
-    XCAccessibilityElement *_previousFocusedAccessibilityElement;
+    id/*XCAccessibilityElement*/ _previousFocusedAccessibilityElement;
     NSMutableString *_previousTyping;
 }
 @property(retain) NSMutableString *previousTyping; // @synthesize previousTyping=_previousTyping;
-@property(retain) XCAccessibilityElement *previousFocusedAccessibilityElement; // @synthesize previousFocusedAccessibilityElement=_previousFocusedAccessibilityElement;
+@property(retain) id/*XCAccessibilityElement*/ previousFocusedAccessibilityElement; // @synthesize previousFocusedAccessibilityElement=_previousFocusedAccessibilityElement;
 @property unsigned long long _compareSnapshotsLikePlatform; // @synthesize _compareSnapshotsLikePlatform;
 @property unsigned long long language; // @synthesize language=_language;
 @property unsigned long long platform; // @synthesize platform=_platform;

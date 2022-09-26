@@ -1,6 +1,6 @@
 parameters:
-  vmImage: 'macOS-10.15'
-  name: macOS_10_15
+  vmImage: 'macOS-11'
+  name: macOS_11
   excludeXcode: $(excludeXcode)
 jobs:
   - job: ${{ parameters.name }}
@@ -16,8 +16,10 @@ jobs:
       displayName: List Installed Applications
     - task: NodeTool@0
       inputs:
-        versionSpec: '12.x'
-    - script: npm install
+        versionSpec: '16.x'
+    - script: |
+        npm install -g appium@next
+        npm install
       displayName: Install Node Modules
     - script: mkdir -p Resources/WebDriverAgent.bundle
       displayName: Make Resources Folder

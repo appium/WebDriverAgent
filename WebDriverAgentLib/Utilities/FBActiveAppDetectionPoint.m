@@ -36,13 +36,13 @@
   return instance;
 }
 
-+ (XCAccessibilityElement *)axElementWithPoint:(CGPoint)point
++ (id<FBXCAccessibilityElement>)axElementWithPoint:(CGPoint)point
 {
-  __block XCAccessibilityElement *onScreenElement = nil;
+  __block id<FBXCAccessibilityElement> onScreenElement = nil;
   id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_requestElementAtPoint:point
-                              reply:^(XCAccessibilityElement *element, NSError *error) {
+                              reply:^(id element, NSError *error) {
                                 if (nil == error) {
                                   onScreenElement = element;
                                 } else {
@@ -54,7 +54,7 @@
   return onScreenElement;
 }
 
-- (XCAccessibilityElement *)axElement
+- (id<FBXCAccessibilityElement>)axElement
 {
   return [self.class axElementWithPoint:self.coordinates];
 }

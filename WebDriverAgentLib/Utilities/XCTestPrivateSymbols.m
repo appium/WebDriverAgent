@@ -13,7 +13,6 @@
 
 #import "FBRuntimeUtils.h"
 #import "FBXCodeCompatibility.h"
-#import "XCElementSnapshot.h"
 
 NSNumber *FB_XCAXAIsVisibleAttribute;
 NSString *FB_XCAXAIsVisibleAttributeName = @"XC_kAXXCAttributeIsVisible";
@@ -56,8 +55,15 @@ void *FBRetrieveXCTestSymbol(const char *name)
 
 NSArray<NSString*> *FBStandardAttributeNames(void)
 {
-  return [XCElementSnapshot sanitizedElementSnapshotHierarchyAttributesForAttributes:nil
-                                                                             isMacOS:NO];
+  static NSArray<NSString *> *attributeNames;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    Class xcElementSnapshotClass = NSClassFromString(@"XCElementSnapshot");
+    NSCAssert(nil != xcElementSnapshotClass, @"XCElementSnapshot class must be resolvable", xcElementSnapshotClass);
+    attributeNames = [xcElementSnapshotClass sanitizedElementSnapshotHierarchyAttributesForAttributes:nil
+                                                                                              isMacOS:NO];
+  });
+  return attributeNames;
 }
 
 NSArray<NSString*> *FBCustomAttributeNames(void)

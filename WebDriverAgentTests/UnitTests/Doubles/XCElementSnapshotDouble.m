@@ -1,0 +1,99 @@
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+#import "XCElementSnapshotDouble.h"
+
+#import "FBXCAccessibilityElement.h"
+#import "FBXCElementSnapshot.h"
+
+@implementation XCElementSnapshotDouble
+
+- (id)init
+{
+  self = [super init];
+  self->_value = @"magicValue";
+  return self;
+}
+
+- (NSString *)identifier
+{
+  return @"testName";
+}
+
+- (CGRect)frame
+{
+  return CGRectZero;
+}
+
+- (NSString *)title
+{
+  return @"testTitle";
+}
+
+- (NSString *)label
+{
+  return @"testLabel";
+}
+
+- (XCUIElementType)elementType
+{
+  return XCUIElementTypeOther;
+}
+
+- (BOOL)isEnabled
+{
+  return YES;
+}
+
+- (XCUIUserInterfaceSizeClass)horizontalSizeClass
+{
+  return XCUIUserInterfaceSizeClassUnspecified;
+}
+
+- (XCUIUserInterfaceSizeClass)verticalSizeClass
+{
+  return XCUIUserInterfaceSizeClassUnspecified;
+}
+
+- (NSString *)placeholderValue
+{
+  return @"";
+}
+
+- (BOOL)isSelected
+{
+  return YES;
+}
+
+- (BOOL)hasFocus
+{
+  return YES;
+}
+
+- (NSDictionary *)additionalAttributes
+{
+  return @{};
+}
+
+- (id<FBXCAccessibilityElement>)accessibilityElement
+{
+  return nil;
+}
+
+- (id<FBXCElementSnapshot>)parent
+{
+  return nil;
+}
+
+- (NSArray *)children
+{
+  return @[];
+}
+
+@end

@@ -12,6 +12,8 @@
 #import "FBXPath.h"
 #import "FBXPath-Private.h"
 #import "XCUIElementDouble.h"
+#import "XCElementSnapshotDouble.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 
 @interface FBXPathTests : XCTestCase
 @end
@@ -30,11 +32,11 @@
   xmlChar *xmlbuff;
   int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
   if (rc >= 0) {
-    rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)element
-                                                writer:writer
-                                          elementStore:elementStore
-                                                 query:query
-                                   excludingAttributes:excludedAttributes];
+    rc = [FBXPath xmlRepresentationWithRootElement:element
+                                            writer:writer
+                                      elementStore:elementStore
+                                             query:query
+                               excludingAttributes:excludedAttributes];
     if (rc >= 0) {
       rc = xmlTextWriterEndDocument(writer);
     }
@@ -55,7 +57,8 @@
 
 - (void)testDefaultXPathPresentation
 {
-  XCUIElementDouble *element = [XCUIElementDouble new];
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:nil
                                excludingAttributes:nil];
@@ -66,7 +69,8 @@
 
 - (void)testtXPathPresentationWithSomeAttributesExcluded
 {
-  XCUIElementDouble *element = [XCUIElementDouble new];
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:nil
                                excludingAttributes:@[@"type", @"visible", @"value", @"index"]];
@@ -77,8 +81,9 @@
 
 - (void)testXPathPresentationBasedOnQueryMatchingAllAttributes
 {
-  XCUIElementDouble *element = [XCUIElementDouble new];
-  element.wdValue = @"йоло<>&\"";
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.value = @"йоло<>&\"";
+  id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
                                excludingAttributes:@[@"visible"]];
@@ -89,7 +94,8 @@
 
 - (void)testXPathPresentationBasedOnQueryMatchingSomeAttributes
 {
-  XCUIElementDouble *element = [XCUIElementDouble new];
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@%@ and contains(@%@, 'blabla')]", element.wdType, @"value", @"name"]
                                excludingAttributes:nil];
@@ -104,11 +110,12 @@
 
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
-  XCUIElementDouble *root = [XCUIElementDouble new];
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  id<FBElement> root = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *query = [NSString stringWithFormat:@"//%@", root.wdType];
   int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
   if (rc >= 0) {
-    rc = [FBXPath xmlRepresentationWithRootElement:(XCElementSnapshot *)root
+    rc = [FBXPath xmlRepresentationWithRootElement:root
                                             writer:writer
                                       elementStore:elementStore
                                              query:query
@@ -130,7 +137,8 @@
     XCTAssertNotEqual(NULL, queryResult);
   }
 
-  NSArray *matchingSnapshots = [FBXPath collectMatchingSnapshots:queryResult->nodesetval elementStore:elementStore];
+  NSArray *matchingSnapshots = [FBXPath collectMatchingSnapshots:queryResult->nodesetval
+                                                    elementStore:elementStore];
   xmlXPathFreeObject(queryResult);
   xmlFreeTextWriter(writer);
   xmlFreeDoc(doc);

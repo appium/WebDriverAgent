@@ -13,6 +13,7 @@
 #import "FBTestMacros.h"
 #import "FBXPath.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXMLGenerationOptions.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
@@ -38,64 +39,70 @@
   FBAssertWaitTillBecomesTrue(self.testedView.buttons.count > 0);
 }
 
-- (XCElementSnapshot *)destinationSnapshot
+- (id<FBXCElementSnapshot>)destinationSnapshot
 {
   XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
   FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_takeSnapshot);
 
-  XCElementSnapshot *snapshot = matchingElement.fb_takeSnapshot;
+  id<FBXCElementSnapshot> snapshot = matchingElement.fb_takeSnapshot;
   // Over iOS13, snapshot returns a child.
-  // The purpose of here is return a single element so replace children with nil for testing.
-  snapshot.children = nil;
+  // The purpose of here is return a single element to replace children with an empty array for testing.
+  snapshot.children = @[];
   return snapshot;
 }
 
 - (void)testSingleDescendantXMLRepresentation
 {
-  XCElementSnapshot *snapshot = self.destinationSnapshot;
-  NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot options:nil];
+  id<FBXCElementSnapshot> snapshot = self.destinationSnapshot;
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:wrappedSnapshot
+                                               options:nil];
   XCTAssertNotNil(xmlStr);
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdEnabled ? @"true" : @"false", snapshot.wdVisible ? @"true" : @"false", snapshot.wdAccessible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue], snapshot.wdIndex];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\"/>\n", wrappedSnapshot.wdType, wrappedSnapshot.wdType, wrappedSnapshot.wdName, wrappedSnapshot.wdLabel, wrappedSnapshot.wdEnabled ? @"true" : @"false", wrappedSnapshot.wdVisible ? @"true" : @"false", wrappedSnapshot.wdAccessible ? @"true" : @"false", [wrappedSnapshot.wdRect[@"x"] stringValue], [wrappedSnapshot.wdRect[@"y"] stringValue], [wrappedSnapshot.wdRect[@"width"] stringValue], [wrappedSnapshot.wdRect[@"height"] stringValue], wrappedSnapshot.wdIndex];
   XCTAssertEqualObjects(xmlStr, expectedXml);
 }
 
 - (void)testSingleDescendantXMLRepresentationWithScope
 {
-  XCElementSnapshot *snapshot = self.destinationSnapshot;
+  id<FBXCElementSnapshot> snapshot = self.destinationSnapshot;
   NSString *scope = @"AppiumAUT";
   FBXMLGenerationOptions *options = [[FBXMLGenerationOptions new] withScope:scope];
-  NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot options:options];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:wrappedSnapshot
+                                               options:options];
   XCTAssertNotNil(xmlStr);
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>\n  <%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\"/>\n</%@>\n", scope, snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdEnabled ? @"true" : @"false", snapshot.wdVisible ? @"true" : @"false", snapshot.wdAccessible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue], snapshot.wdIndex, scope];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>\n  <%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\"/>\n</%@>\n", scope, wrappedSnapshot.wdType, wrappedSnapshot.wdType, wrappedSnapshot.wdName, wrappedSnapshot.wdLabel, wrappedSnapshot.wdEnabled ? @"true" : @"false", wrappedSnapshot.wdVisible ? @"true" : @"false", wrappedSnapshot.wdAccessible ? @"true" : @"false", [wrappedSnapshot.wdRect[@"x"] stringValue], [wrappedSnapshot.wdRect[@"y"] stringValue], [wrappedSnapshot.wdRect[@"width"] stringValue], [wrappedSnapshot.wdRect[@"height"] stringValue], wrappedSnapshot.wdIndex, scope];
   XCTAssertEqualObjects(xmlStr, expectedXml);
 }
 
 - (void)testSingleDescendantXMLRepresentationWithoutAttributes
 {
-  XCElementSnapshot *snapshot = self.destinationSnapshot;
+  id<FBXCElementSnapshot> snapshot = self.destinationSnapshot;
   FBXMLGenerationOptions *options = [[FBXMLGenerationOptions new]
                                      withExcludedAttributes:@[@"visible", @"enabled", @"index", @"blabla"]];
-  NSString *xmlStr = [FBXPath xmlStringWithRootElement:snapshot options:options];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:wrappedSnapshot
+                                               options:options];
   XCTAssertNotNil(xmlStr);
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", snapshot.wdType, snapshot.wdType, snapshot.wdName, snapshot.wdLabel, snapshot.wdAccessible ? @"true" : @"false", [snapshot.wdRect[@"x"] stringValue], [snapshot.wdRect[@"y"] stringValue], [snapshot.wdRect[@"width"] stringValue], [snapshot.wdRect[@"height"] stringValue]];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\"/>\n", wrappedSnapshot.wdType, wrappedSnapshot.wdType, wrappedSnapshot.wdName, wrappedSnapshot.wdLabel, wrappedSnapshot.wdAccessible ? @"true" : @"false", [wrappedSnapshot.wdRect[@"x"] stringValue], [wrappedSnapshot.wdRect[@"y"] stringValue], [wrappedSnapshot.wdRect[@"width"] stringValue], [wrappedSnapshot.wdRect[@"height"] stringValue]];
   XCTAssertEqualObjects(xmlStr, expectedXml);
 }
 
 - (void)testFindMatchesInElement
 {
-  NSArray *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@"//XCUIElementTypeButton"];
+  NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@"//XCUIElementTypeButton"];
   XCTAssertEqual([matchingSnapshots count], 5);
-  for (id<FBElement> element in matchingSnapshots) {
-    XCTAssertTrue([element.wdType isEqualToString:@"XCUIElementTypeButton"]);
+  for (id<FBXCElementSnapshot> element in matchingSnapshots) {
+    XCTAssertTrue([[FBXCElementSnapshotWrapper ensureWrapped:element].wdType isEqualToString:@"XCUIElementTypeButton"]);
   }
 }
 
 - (void)testFindMatchesInElementWithDotNotation
 {
-  NSArray *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@".//XCUIElementTypeButton"];
+  NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@".//XCUIElementTypeButton"];
   XCTAssertEqual([matchingSnapshots count], 5);
-  for (id<FBElement> element in matchingSnapshots) {
-    XCTAssertTrue([element.wdType isEqualToString:@"XCUIElementTypeButton"]);
+  for (id<FBXCElementSnapshot> element in matchingSnapshots) {
+    XCTAssertTrue([[FBXCElementSnapshotWrapper ensureWrapped:element].wdType isEqualToString:@"XCUIElementTypeButton"]);
   }
 }
 

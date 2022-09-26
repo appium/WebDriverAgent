@@ -11,13 +11,13 @@
 
 #import "FBXCodeCompatibility.h"
 #import "XCUIElementQuery.h"
-
+#import "FBXCElementSnapshot.h"
 
 @implementation XCUIElementQuery (FBHelpers)
 
-- (nullable XCElementSnapshot *)fb_cachedSnapshot
+- (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot
 {
-  XCElementSnapshot *rootElementSnapshot = self.rootElementSnapshot;
+  id<FBXCElementSnapshot> rootElementSnapshot = self.rootElementSnapshot;
   if (nil == rootElementSnapshot) {
     return nil;
   }

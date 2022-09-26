@@ -9,7 +9,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBPredicate.h"
 #import "NSPredicate+FBFormat.h"
 
 @interface NSPredicateFBFormatTests : XCTestCase
@@ -37,7 +36,7 @@
 
 - (void)testFormattingForComplexExpression
 {
-  NSPredicate *expr = [NSPredicate predicateWithFormat:@"visible == 1 AND type == 'blabla'"];
+  NSPredicate *expr = [NSPredicate predicateWithFormat:@"visible == 1 AND NOT (type == 'blabla' OR NOT (label IN {'3', '4'}))"];
   XCTAssertNotNil([NSPredicate fb_formatSearchPredicate:expr]);
 }
 
@@ -65,10 +64,10 @@
   XCTAssertThrows([NSPredicate fb_formatSearchPredicate:expr]);
 }
 
-- (void)testFormattingFBPredicate
+- (void)testBlockPredicateCreation
 {
-  NSPredicate *predicate = [FBPredicate predicateWithFormat:@"visible == 1"];
-  XCTAssertNotNil([NSPredicate fb_formatSearchPredicate:predicate]);
+  NSPredicate *expr = [NSPredicate predicateWithFormat:@"rect.x == '0'"];
+  XCTAssertNotNil([NSPredicate fb_snapshotBlockPredicateWithPredicate:expr]);
 }
 
 @end

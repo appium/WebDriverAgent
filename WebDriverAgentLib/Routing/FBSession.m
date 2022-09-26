@@ -12,6 +12,7 @@
 
 #import <objc/runtime.h>
 
+#import "FBXCAccessibilityElement.h"
 #import "FBAlertsMonitor.h"
 #import "FBApplication.h"
 #import "FBConfiguration.h"
@@ -19,7 +20,6 @@
 #import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
-#import "XCAccessibilityElement.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
 

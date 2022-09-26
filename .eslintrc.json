@@ -1,0 +1,11 @@
+{
+  "extends": "@appium/eslint-config-appium",
+  "overrides": [
+    {
+      "files": "test/**/*.js",
+      "rules": {
+        "func-names": "off"
+      }
+    }
+  ]
+}

@@ -23,6 +23,10 @@
 
 static Class FBXCTRunnerDaemonSessionClass = nil;
 static dispatch_once_t onceTestRunnerDaemonClass;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-load-method"
+
 + (void)load
 {
   // XCTRunnerDaemonSession class is only available since Xcode 8.3
@@ -30,6 +34,8 @@ static dispatch_once_t onceTestRunnerDaemonClass;
     FBXCTRunnerDaemonSessionClass = objc_lookUpClass("XCTRunnerDaemonSession");
   });
 }
+
+#pragma clang diagnostic pop
 
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy
 {

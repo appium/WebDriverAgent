@@ -8,8 +8,8 @@
  */
 
 #import "FBElementCache.h"
+#import "FBXCElementSnapshot.h"
 #import "XCUIApplication.h"
-#import "XCElementSnapshot.h"
 #import "XCSynthesizedEventRecord.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param snapshot Element's snapshot instance
  @return The fixed hit point coordinates, if there is a need to fix them, or the unchanged hit point value
  */
-- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(XCElementSnapshot *)snapshot;
+- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(id<FBXCElementSnapshot>)snapshot;
 
 /**
  Calculate absolute gesture position on the screen based on provided element and positionOffset values.

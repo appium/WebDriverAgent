@@ -8,8 +8,7 @@
  */
 
 #import <XCTest/XCTest.h>
-
-@class XCElementSnapshot;
+#import "FBXCElementSnapshot.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return Either the cached snapshot or nil
  */
-- (nullable XCElementSnapshot *)fb_cachedSnapshot;
+- (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot;
 
 @end
 

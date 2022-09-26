@@ -86,15 +86,12 @@ function xcbuild() {
 }
 
 function fastlane_test() {
-  if ! command -v fastlane $> /dev/null ; then
-    echo "Please install fastlane with 'gem install fastlane' or 'bundle install'"
-    exit 1
-  fi
+  bundle install
 
   if [[ -n "$XC_DESTINATION" ]]; then
-    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" fastlane test
+    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
   else
-    SDK="$XC_SDK" SCHEME="$1" fastlane test
+    SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test
   fi
 }
 

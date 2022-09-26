@@ -23,7 +23,20 @@ NS_ASSUME_NONNULL_BEGIN
  @return formatted predicate
  @throw FBUnknownPredicateKeyException in case the given property name is not declared in FBElement protocol
  */
-+ (NSPredicate *)fb_formatSearchPredicate:(NSPredicate *)input;
++ (instancetype)fb_formatSearchPredicate:(NSPredicate *)input;
+
+/**
+ Creates a block predicate expression, which properly evalluates the given raw predicate agains
+ xctest hierarchy. Vanilla string predicates don't work on this hierachy because "raw" snapshots
+ don't have any of the custom properties declared in FBElement protocol.
+ `fb_formatSearchPredicate` is called automtically on the original predicate before
+ making it to a block.
+ 
+ @param input predicate object received from user input
+ @return formatted predicate
+ @throw FBUnknownPredicateKeyException in case the given property name is not declared in FBElement protocol
+ */
++ (instancetype)fb_snapshotBlockPredicateWithPredicate:(NSPredicate *)input;
 
 @end
 

@@ -6,15 +6,15 @@
 
 #import <XCTest/XCUIElementQuery.h>
 
-@class XCElementSnapshot, XCUIApplication;
+@class XCUIApplication;
 
 @interface XCApplicationQuery : XCUIElementQuery
 {
     XCUIApplication *_application;
-    XCElementSnapshot *_lastSnapshot;
+    id/*XCElementSnapshot*/ _lastSnapshot;
 }
 
-@property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
+@property(retain) id/*XCElementSnapshot*/ lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 - (id)matchingSnapshotsWithError:(id *)arg1;
 - (id)application;
 - (id)initWithApplication:(id)arg1;

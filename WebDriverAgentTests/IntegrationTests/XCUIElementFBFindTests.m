@@ -15,7 +15,7 @@
 #import "FBTestMacros.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
-#import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBResolve.h"
@@ -182,7 +182,8 @@
 - (void)testDescendantsWithPredicateString
 {
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label = 'Alerts'"];
-  NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingPredicate:predicate shouldReturnAfterFirstMatch:NO];
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingPredicate:predicate
+                                                                   shouldReturnAfterFirstMatch:NO];
   int snapshotsCount = 1;
   if (@available(iOS 13.0, *)) {
     snapshotsCount = 2;
@@ -191,7 +192,8 @@
   XCTAssertEqual(matchingSnapshots.firstObject.elementType, XCUIElementTypeButton);
   XCTAssertEqualObjects(matchingSnapshots.lastObject.label, @"Alerts");
   NSPredicate *selfPredicate = [NSPredicate predicateWithFormat:@"label == 'Alerts'"];
-  NSArray<XCUIElement *> *selfElementsByPredicate = [matchingSnapshots.lastObject fb_descendantsMatchingPredicate:selfPredicate shouldReturnAfterFirstMatch:NO];
+  NSArray<XCUIElement *> *selfElementsByPredicate = [matchingSnapshots.lastObject fb_descendantsMatchingPredicate:selfPredicate
+                                                                                      shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(selfElementsByPredicate.count, 1);
 }
 

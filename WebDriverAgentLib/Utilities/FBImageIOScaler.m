@@ -57,6 +57,8 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   self.nextImage = image;
   [self.nextImageLock unlock];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcompletion-handler"
   dispatch_async(self.scalingQueue, ^{
     [self.nextImageLock lock];
     NSData *next = self.nextImage;
@@ -77,6 +79,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
     completionHandler(scaled);
   });
+#pragma clang diagnostic pop
 }
 
 // This method is more optimized for JPEG scaling

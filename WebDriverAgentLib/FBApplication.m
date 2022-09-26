@@ -9,13 +9,13 @@
 
 #import "FBApplication.h"
 
+#import "FBXCAccessibilityElement.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCAccessibilityElement.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplicationImpl.h"
@@ -39,10 +39,10 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 + (NSArray<FBApplication *> *)fb_activeApplications
 {
-  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  NSArray<id<FBXCAccessibilityElement>> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
   NSMutableArray<FBApplication *> *result = [NSMutableArray array];
   if (activeApplicationElements.count > 0) {
-    for (XCAccessibilityElement *applicationElement in activeApplicationElements) {
+    for (id<FBXCAccessibilityElement> applicationElement in activeApplicationElements) {
       FBApplication *app = [FBApplication fb_applicationWithPID:applicationElement.processIdentifier];
       if (nil != app) {
         [result addObject:app];
@@ -54,9 +54,9 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 + (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId
 {
-  NSArray<XCAccessibilityElement *> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
-  XCAccessibilityElement *activeApplicationElement = nil;
-  XCAccessibilityElement *currentElement = nil;
+  NSArray<id<FBXCAccessibilityElement>> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  id<FBXCAccessibilityElement> activeApplicationElement = nil;
+  id<FBXCAccessibilityElement> currentElement = nil;
   if (nil != bundleId) {
     currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
     if (nil != currentElement) {
@@ -95,7 +95,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
           [FBLogger log:@"Consider changing the 'defaultActiveApplication' setting to the bundle identifier of the desired application under test"];
         }
       } else {
-        for (XCAccessibilityElement *appElement in activeApplicationElements) {
+        for (id<FBXCAccessibilityElement> appElement in activeApplicationElements) {
           if (appElement.processIdentifier == currentElement.processIdentifier) {
             activeApplicationElement = appElement;
             break;
@@ -115,7 +115,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
   if (activeApplicationElements.count > 0) {
     [FBLogger logFmt:@"Getting the most recent active application (out of %@ total items)", @(activeApplicationElements.count)];
-    for (XCAccessibilityElement *appElement in activeApplicationElements) {
+    for (id<FBXCAccessibilityElement> appElement in activeApplicationElements) {
       FBApplication *application = [FBApplication fb_applicationWithPID:appElement.processIdentifier];
       if (nil != application) {
         return application;

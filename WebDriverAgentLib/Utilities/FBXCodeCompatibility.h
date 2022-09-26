@@ -29,16 +29,6 @@ NSInteger FBTestmanagerdVersion(void);
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Set of categories that patches method name differences between Xcode versions,
- so that WDA can be build with different Xcode versions.
- */
-@interface XCElementSnapshot (FBCompatibility)
-
-+ (nullable SEL)fb_attributesForElementSnapshotKeyPathsSelector;
-
-@end
-
-/**
  The exception happends if one tries to call application method,
  which is not supported in the current iOS version
  */

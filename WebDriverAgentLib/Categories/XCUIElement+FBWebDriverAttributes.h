@@ -8,8 +8,8 @@
  */
 
 #import <WebDriverAgentLib/FBElement.h>
-#import <WebDriverAgentLib/XCElementSnapshot.h>
 #import <WebDriverAgentLib/XCUIElement.h>
+#import "FBXCElementSnapshotWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface XCElementSnapshot (WebDriverAttributes) <FBElement>
+@interface FBXCElementSnapshotWrapper (WebDriverAttributes) <FBElement>
 
 @end
 

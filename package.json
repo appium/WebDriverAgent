@@ -1,29 +1,39 @@
 {
   "name": "appium-webdriveragent",
-  "version": "4.4.0",
+  "version": "4.8.5",
   "description": "Package bundling WebDriverAgent",
-  "main": "build/index.js",
+  "main": "./build/index.js",
   "scripts": {
-    "test": "gulp once",
-    "e2e-test": "npm run build && _FORCE_LOGS=1 npx mocha -t 0 -R spec build/test/functional --exit",
-    "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
-    "install:dependencies": "gulp install:dependencies",
-    "build": "gulp transpile",
-    "prepare": "gulp prepublish",
-    "prepublishOnly": "npm run bundle",
-    "lint": "gulp lint",
-    "lint:fix": "gulp eslint --fix",
+    "build": "rm -rf build && babel --out-dir=build/lib lib && babel --out-dir=build index.js",
+    "dev": "npm run build -- --watch",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "precommit-test": "gulp lint",
+    "precommit-lint": "lint-staged",
+    "prepare": "npm run build",
+    "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
+    "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.js\"",
+    "prepublishOnly": "npm run bundle",
     "bundle": "node ./Scripts/build-webdriveragent.js",
-    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda"
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js"
   },
-  "bin": {
-    "appium-wda-bootstrap": "./build/index.js"
+  "engines": {
+    "node": ">=14",
+    "npm": ">=8"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
+  },
+  "prettier": {
+    "bracketSpacing": false,
+    "printWidth": 100,
+    "singleQuote": true
   },
   "pre-commit": [
     "precommit-msg",
-    "precommit-test"
+    "precommit-lint"
   ],
   "repository": {
     "type": "git",
@@ -36,31 +46,43 @@
     "Selenium",
     "WebDriverAgent"
   ],
-  "author": "appium",
+  "author": "Appium Contributors",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/appium/WebDriverAgent/issues"
   },
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
-    "@appium/gulp-plugins": "^6.0.0",
-    "@appium/eslint-config-appium": "^5.0.0",
-    "@appium/test-support": "^1.0.0",
+    "@appium/eslint-config-appium": "^6.0.0",
+    "@appium/test-support": "^2.0.0",
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.10",
+    "@babel/eslint-parser": "^7.18.9",
+    "@babel/plugin-transform-runtime": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "@babel/register": "^7.18.9",
     "@semantic-release/git": "^10.0.1",
-    "appium-xcode": "^4.0.0",
+    "babel-plugin-source-map-support": "^2.2.0",
+    "appium-xcode": "^4.0.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "glob": "^7.1.0",
-    "gulp": "^4.0.2",
-    "ios-uicatalog": "^3.5.0",
-    "mocha": "^9.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.5.0",
+    "glob": "^8.0.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-mocha": "^9.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "lint-staged": "^13.0.3",
+    "mocha": "^10.0.0",
     "pre-commit": "^1.2.2",
+    "prettier": "^2.7.1",
     "semantic-release": "^19.0.2",
-    "sinon": "^13.0.0"
+    "sinon": "^14.0.0"
+  },
+  "peerDependencies": {
+    "appium": "^2.0.0-beta.40"
   },
   "dependencies": {
-    "@appium/base-driver": "^8.3.0",
-    "@appium/support": "^2.55.3",
     "@babel/runtime": "^7.0.0",
     "appium-ios-simulator": "^4.0.0",
     "async-lock": "^1.0.0",
@@ -70,7 +92,7 @@
     "lodash": "^4.17.11",
     "node-simctl": "^7.0.1",
     "source-map-support": "^0.x",
-    "teen_process": "^1.14.1"
+    "teen_process": "^2.0.0"
   },
   "files": [
     "index.js",
@@ -80,8 +102,6 @@
     "Scripts/build.sh",
     "Scripts/fetch-prebuilt-wda.js",
     "Scripts/build-webdriveragent.js",
-    "Cartfile",
-    "Cartfile.resolved",
     "Configurations",
     "PrivateHeaders",
     "WebDriverAgent.xcodeproj",

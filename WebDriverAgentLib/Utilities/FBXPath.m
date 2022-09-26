@@ -13,8 +13,8 @@
 #import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBXMLGenerationOptions.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "NSString+FBXMLSafeString.h"
-#import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
@@ -172,8 +172,8 @@ static NSString *const topNodeIndexPath = @"top";
   return result;
 }
 
-+ (NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root
-                                                forQuery:(NSString *)xpathQuery
++ (NSArray<id<FBXCElementSnapshot>> *)matchesWithRootElement:(id<FBElement>)root
+                                                    forQuery:(NSString *)xpathQuery
 {
   xmlDocPtr doc;
 
@@ -238,7 +238,7 @@ static NSString *const topNodeIndexPath = @"top";
       [FBLogger log:@"Failed to invoke libxml2>xmlGetProp"];
       return nil;
     }
-    XCElementSnapshot *element = [elementStore objectForKey:(id)[NSString stringWithCString:(const char *)attrValue encoding:NSUTF8StringEncoding]];
+    id<FBXCElementSnapshot> element = [elementStore objectForKey:(id)[NSString stringWithCString:(const char *)attrValue encoding:NSUTF8StringEncoding]];
     if (element) {
       [matchingSnapshots addObject:element];
     }
@@ -325,7 +325,7 @@ static NSString *const topNodeIndexPath = @"top";
 }
 
 + (int)recordElementAttributes:(xmlTextWriterPtr)writer
-                    forElement:(XCElementSnapshot *)element
+                    forElement:(id<FBXCElementSnapshot>)element
                      indexPath:(nullable NSString *)indexPath
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
 {
@@ -334,7 +334,8 @@ static NSString *const topNodeIndexPath = @"top";
     if (includedAttributes && ![includedAttributes containsObject:attributeCls]) {
       continue;
     }
-    int rc = [attributeCls recordWithWriter:writer forElement:element];
+    int rc = [attributeCls recordWithWriter:writer
+                                 forElement:[FBXCElementSnapshotWrapper ensureWrapped:element]];
     if (rc < 0) {
       return rc;
     }
@@ -355,8 +356,8 @@ static NSString *const topNodeIndexPath = @"top";
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  XCElementSnapshot *currentSnapshot;
-  NSArray<XCElementSnapshot *> *children;
+  id<FBXCElementSnapshot> currentSnapshot;
+  NSArray<id<FBXCElementSnapshot>> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
     XCUIElement *element = (XCUIElement *)root;
     NSMutableArray<NSString *> *snapshotAttributes = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
@@ -370,7 +371,7 @@ static NSString *const topNodeIndexPath = @"top";
                                                 maxDepth:nil];
     children = currentSnapshot.children;
   } else {
-    currentSnapshot = (XCElementSnapshot *)root;
+    currentSnapshot = (id<FBXCElementSnapshot>)root;
     children = currentSnapshot.children;
   }
 
@@ -378,9 +379,10 @@ static NSString *const topNodeIndexPath = @"top";
     [elementStore setObject:currentSnapshot forKey:topNodeIndexPath];
   }
 
-  int rc = xmlTextWriterStartElement(writer, (xmlChar *)[currentSnapshot.wdType UTF8String]);
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:currentSnapshot];
+  int rc = xmlTextWriterStartElement(writer, (xmlChar *)[wrappedSnapshot.wdType UTF8String]);
   if (rc < 0) {
-    [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", currentSnapshot.wdType, rc];
+    [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", wrappedSnapshot.wdType, rc];
     return rc;
   }
 
@@ -393,12 +395,12 @@ static NSString *const topNodeIndexPath = @"top";
   }
 
   for (NSUInteger i = 0; i < [children count]; i++) {
-    XCElementSnapshot *childSnapshot = [children objectAtIndex:i];
+    id<FBXCElementSnapshot> childSnapshot = [children objectAtIndex:i];
     NSString *newIndexPath = (indexPath != nil) ? [indexPath stringByAppendingFormat:@",%lu", (unsigned long)i] : nil;
     if (elementStore != nil && newIndexPath != nil) {
       [elementStore setObject:childSnapshot forKey:(id)newIndexPath];
     }
-    rc = [self writeXmlWithRootElement:childSnapshot
+    rc = [self writeXmlWithRootElement:[FBXCElementSnapshotWrapper ensureWrapped:childSnapshot]
                              indexPath:newIndexPath
                           elementStore:elementStore
                     includedAttributes:includedAttributes

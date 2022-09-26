@@ -9,7 +9,7 @@
 
 #import <XCTest/XCTest.h>
 #import <WebDriverAgentLib/FBElement.h>
-#import <WebDriverAgentLib/XCElementSnapshot.h>
+#import "FBXCElementSnapshot.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return an array of descendants matching the given xpath query or an empty array if no matches were found
  @throws NSException if there is an unexpected internal error during xml parsing
  */
-+ (NSArray<XCElementSnapshot *> *)matchesWithRootElement:(id<FBElement>)root
-                                                forQuery:(NSString *)xpathQuery;
++ (NSArray<id<FBXCElementSnapshot>> *)matchesWithRootElement:(id<FBElement>)root
+                                                    forQuery:(NSString *)xpathQuery;
 
 /**
  Gets XML representation of XCElementSnapshot with all its descendants. This method generates the same

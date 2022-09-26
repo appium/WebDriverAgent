@@ -8,8 +8,6 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 @class NSMutableDictionary;
-@class XCAccessibilityElement;
-@class XCElementSnapshot;
 
 @interface XCAXClient_iOS : NSObject
 {
@@ -43,14 +41,14 @@
 - (void)handleUserTestingNotification:(id)arg1;
 - (id)elementAtPoint:(CGPoint)arg1 error:(id *)arg2;
 - (BOOL)cachedAccessibilityLoadedValueForPID:(int)arg1;
-- (NSArray<XCAccessibilityElement *> *)activeApplications;
+- (NSArray/*XCAccessibilityElement*/ *)activeApplications;
 - (id)systemApplication;
 - (BOOL)enableFauxCollectionViewCells:(id *)arg1;
 - (BOOL)loadAccessibility:(id *)arg1;
 - (BOOL)_registerForAXNotification:(int)arg1 error:(id *)arg2;
 - (BOOL)_loadAccessibility:(id *)arg1;
 // Since Xcode 11
-- (id)requestSnapshotForElement:(XCAccessibilityElement *)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
+- (id)requestSnapshotForElement:(id/*XCAccessibilityElement*/)arg1 attributes:(id)arg2 parameters:(id)arg3 error:(NSError **)arg4;
 
 - (id)init;
 

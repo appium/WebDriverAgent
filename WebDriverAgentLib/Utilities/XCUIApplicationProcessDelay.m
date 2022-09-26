@@ -21,9 +21,15 @@ static NSLock * lock = nil;
 
 @implementation XCUIApplicationProcessDelay
 
-+ (void)load {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-load-method"
+
++ (void)load
+{
   lock = [[NSLock alloc] init];
 }
+
+#pragma clang diagnostic pop
 
 + (void)setEventLoopHasIdledDelay:(NSTimeInterval)delay
 {

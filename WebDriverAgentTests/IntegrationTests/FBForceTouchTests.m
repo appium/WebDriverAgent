@@ -14,6 +14,7 @@
 #import "FBMacros.h"
 #import "FBElementCache.h"
 #import "FBTestMacros.h"
+#import "XCUIDevice.h"
 #import "XCUIDevice+FBRotation.h"
 #import "XCUIElement+FBForceTouch.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -30,7 +31,10 @@
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   NSError *error;
   XCTAssertTrue(self.testedApplication.alerts.count == 0);
-  [self.testedApplication.buttons[FBShowAlertForceTouchButtonName] fb_forceTouchWithPressure:1.0 duration:1.0 error:&error];
+  [self.testedApplication.buttons[FBShowAlertForceTouchButtonName] fb_forceTouchCoordinate:nil
+                                                                                  pressure:nil
+                                                                                  duration:nil
+                                                                                     error:&error];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
 
@@ -54,21 +58,28 @@
 
 - (void)testForceTap
 {
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // Does not work on iOS 15.
+  if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
     return;
   }
 
   [self verifyForceTapWithOrientation:UIDeviceOrientationPortrait];
 }
 
-- (void)disabled_testForceTapInLandscapeLeft
+- (void)testForceTapInLandscapeLeft
 {
+  if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
+    return;
+  }
+
   [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeLeft];
 }
 
-- (void)disabled_testForceTapInLandscapeRight
+- (void)testForceTapInLandscapeRight
 {
+  if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
+    return;
+  }
+
   [self verifyForceTapWithOrientation:UIDeviceOrientationLandscapeRight];
 }
 

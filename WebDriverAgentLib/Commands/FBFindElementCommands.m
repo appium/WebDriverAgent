@@ -15,7 +15,6 @@
 #import "FBElementCache.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
-#import "FBPredicate.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
 #import "XCTestPrivateSymbols.h"
@@ -84,11 +83,12 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
                        resolveForAdditionalAttributes:@[FB_XCAXAIsVisibleAttributeName]
                                           andMaxDepth:nil];
-  NSArray<XCElementSnapshot *> *visibleCellSnapshots = [element.lastSnapshot descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
-    return snapshot.elementType == XCUIElementTypeCell && snapshot.wdVisible;
+  NSArray<id<FBXCElementSnapshot>> *visibleCellSnapshots = [element.lastSnapshot descendantsByFilteringWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot) {
+    return snapshot.elementType == XCUIElementTypeCell
+      && [FBXCElementSnapshotWrapper ensureWrapped:snapshot].wdVisible;
   }];
   NSArray *cells = [element fb_filterDescendantsWithSnapshots:visibleCellSnapshots
-                                                      selfUID:element.lastSnapshot.wdUID
+                                                      selfUID:[FBXCElementSnapshotWrapper ensureWrapped:element.lastSnapshot].wdUID
                                                  onlyChildren:NO];
   return FBResponseWithCachedElements(cells, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }
@@ -169,8 +169,7 @@ shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
     return [element fb_descendantsMatchingXPathQuery:value
                          shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else if ([usingText isEqualToString:@"predicate string"]) {
-    NSPredicate *predicate = [FBPredicate predicateWithFormat:value];
-    return [element fb_descendantsMatchingPredicate:predicate
+    return [element fb_descendantsMatchingPredicate:[NSPredicate predicateWithFormat:value]
                         shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
   } else if ([usingText isEqualToString:@"name"]
              || [usingText isEqualToString:@"id"]

@@ -7,8 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <WebDriverAgentLib/XCElementSnapshot.h>
-#import <WebDriverAgentLib/XCUIElement.h>
+#import "FBXCElementSnapshotWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface XCElementSnapshot (FBIsVisible)
+@interface FBXCElementSnapshotWrapper (FBIsVisible)
 
 /*! Whether or not the element is visible */
 @property (atomic, readonly) BOOL fb_isVisible;

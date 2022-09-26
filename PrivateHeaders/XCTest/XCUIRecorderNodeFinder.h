@@ -4,7 +4,7 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSArray, NSMutableArray, NSSet, XCElementSnapshot, XCUIRecorderNodeFinderMatch;
+@class NSArray, NSMutableArray, NSSet, XCUIRecorderNodeFinderMatch;
 
 @interface XCUIRecorderNodeFinder : NSObject
 {
@@ -23,7 +23,7 @@
     NSMutableArray *_unprocessedContainsMatches;
     XCUIRecorderNodeFinderMatch *_ancestorNodeFinderMatch;
     unsigned long long _targetSnapshotIndex;
-    XCElementSnapshot *_targetSnapshot;
+    id/*XCElementSnapshot*/ _targetSnapshot;
     unsigned long long _language;
     unsigned long long _platform;
 }
@@ -36,7 +36,7 @@
 @property BOOL allowElementQueries; // @synthesize allowElementQueries=_allowElementQueries;
 @property unsigned long long platform; // @synthesize platform=_platform;
 @property unsigned long long language; // @synthesize language=_language;
-@property(retain) XCElementSnapshot *targetSnapshot; // @synthesize targetSnapshot=_targetSnapshot;
+@property(retain) id/*XCElementSnapshot*/ targetSnapshot; // @synthesize targetSnapshot=_targetSnapshot;
 @property unsigned long long targetSnapshotIndex; // @synthesize targetSnapshotIndex=_targetSnapshotIndex;
 @property(retain) XCUIRecorderNodeFinderMatch *ancestorNodeFinderMatch; // @synthesize ancestorNodeFinderMatch=_ancestorNodeFinderMatch;
 @property(retain) NSMutableArray *unprocessedContainsMatches; // @synthesize unprocessedContainsMatches=_unprocessedContainsMatches;

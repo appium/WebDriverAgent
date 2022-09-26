@@ -20,7 +20,7 @@
     NSArray *_expressedIdentifiers;
     NSOrderedSet *_lastInput;
     NSOrderedSet *_lastOutput;
-    XCElementSnapshot *_rootElementSnapshot;
+    id/*XCElementSnapshot*/ _rootElementSnapshot;
     // Added since Xcode 11.0 (beta)
     BOOL _modalViewPruningDisabled;
 }
@@ -37,7 +37,7 @@
 @property(readonly, copy) NSString *queryDescription; // @synthesize queryDescription=_queryDescription;
 @property(readonly, copy) NSString *elementDescription;
 @property(readonly) XCUIApplication *application;
-@property(retain) XCElementSnapshot *rootElementSnapshot; // @synthesize rootElementSnapshot=_rootElementSnapshot;
+@property(retain) id/*XCElementSnapshot*/ rootElementSnapshot; // @synthesize rootElementSnapshot=_rootElementSnapshot;
 @property(retain) NSObject<XCTElementSetTransformer> *transformer; // @synthesize transformer = _transformer;
 
 // Added since Xcode 11.0 (beta)
@@ -61,9 +61,9 @@
 - (id)initWithInputQuery:(id)arg1 queryDescription:(id)arg2 filter:(CDUnknownBlockType)arg3;
 
 // Added since Xcode 11.0
-- (XCElementSnapshot *)elementSnapshotForDebugDescriptionWithNoMatchesMessage:(id *)arg1;
+- (id/*XCElementSnapshot*/)elementSnapshotForDebugDescriptionWithNoMatchesMessage:(id *)arg1;
 // Added since Xcode 11.0
-- (XCElementSnapshot*)uniqueMatchingSnapshotWithError:(NSError **)arg1;
+- (id/*XCElementSnapshot*/)uniqueMatchingSnapshotWithError:(NSError **)arg1;
 /*! DO NOT USE DIRECTLY! Please use fb_firstMatch instead */
 - (XCUIElement *)firstMatch;
 

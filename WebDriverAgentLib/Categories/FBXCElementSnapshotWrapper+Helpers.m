@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) 2018-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -7,20 +7,23 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 
 #import "FBFindElementCommands.h"
 #import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
+#import "FBXCElementSnapshot.h"
 #import "FBXCAXClientProxy.h"
 #import "XCTestDriver.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+#import "XCUIHitPointResult.h"
 
-inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types);
+inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snapshot,
+                                                   NSArray<NSNumber *> *types);
 
-@implementation XCElementSnapshot (FBHelpers)
+@implementation FBXCElementSnapshotWrapper (Helpers)
 
 - (NSString *)fb_description
 {
@@ -31,29 +34,30 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, 
   return result;
 }
 
-- (NSArray<XCElementSnapshot *> *)fb_descendantsMatchingType:(XCUIElementType)type
+- (NSArray<id<FBXCElementSnapshot>> *)fb_descendantsMatchingType:(XCUIElementType)type
 {
-  return [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
+  return [self descendantsByFilteringWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot) {
     return snapshot.elementType == type;
   }];
 }
 
-- (XCElementSnapshot *)fb_parentMatchingType:(XCUIElementType)type
+- (id<FBXCElementSnapshot>)fb_parentMatchingType:(XCUIElementType)type
 {
   NSArray *acceptedParents = @[@(type)];
   return [self fb_parentMatchingOneOfTypes:acceptedParents];
 }
 
-- (XCElementSnapshot *)fb_parentMatchingOneOfTypes:(NSArray<NSNumber *> *)types
+- (id<FBXCElementSnapshot>)fb_parentMatchingOneOfTypes:(NSArray<NSNumber *> *)types
 {
-  return [self fb_parentMatchingOneOfTypes:types filter:^(XCElementSnapshot *snapshot) {
+  return [self fb_parentMatchingOneOfTypes:types filter:^(id<FBXCElementSnapshot> snapshot) {
     return YES;
   }];
 }
 
-- (XCElementSnapshot *)fb_parentMatchingOneOfTypes:(NSArray<NSNumber *> *)types filter:(BOOL(^)(XCElementSnapshot *snapshot))filter
+- (id<FBXCElementSnapshot>)fb_parentMatchingOneOfTypes:(NSArray<NSNumber *> *)types
+                                              filter:(BOOL(^)(id<FBXCElementSnapshot> snapshot))filter
 {
-  XCElementSnapshot *snapshot = self.parent;
+  id<FBXCElementSnapshot> snapshot = self.parent;
   while (snapshot && !(isSnapshotTypeAmongstGivenTypes(snapshot, types) && filter(snapshot))) {
     snapshot = snapshot.parent;
   }
@@ -73,12 +77,15 @@ inline static BOOL areValuesEqualOrBlank(id value1, id value2);
 
 inline static BOOL isNilOrEmpty(id value);
 
-- (BOOL)fb_framelessFuzzyMatchesElement:(XCElementSnapshot *)snapshot
+- (BOOL)fb_framelessFuzzyMatchesElement:(id<FBXCElementSnapshot>)snapshot
 {
     // Pure payload-based comparison sometimes yield false negatives, therefore relying on it only if all of the identifying properties are blank
-  if (isNilOrEmpty(self.identifier) && isNilOrEmpty(self.title) && isNilOrEmpty(self.label) &&
-      isNilOrEmpty(self.value) && isNilOrEmpty(self.placeholderValue)) {
-    return [self.wdUID isEqualToString:(snapshot.wdUID ?: @"")];
+  if (isNilOrEmpty(self.identifier)
+      && isNilOrEmpty(self.title)
+      && isNilOrEmpty(self.label)
+      && isNilOrEmpty(self.value)
+      && isNilOrEmpty(self.placeholderValue)) {
+    return [self.wdUID isEqualToString:([FBXCElementSnapshotWrapper ensureWrapped:snapshot].wdUID ?: @"")];
   }
   
   // Sometimes value and placeholderValue of a correct match from different snapshots are not the same (one is nil and one is a blank string)
@@ -91,27 +98,27 @@ inline static BOOL isNilOrEmpty(id value);
     areValuesEqualOrBlank(self.placeholderValue, snapshot.placeholderValue);
 }
 
-- (NSArray<XCElementSnapshot *> *)fb_descendantsCellSnapshots
+- (NSArray<id<FBXCElementSnapshot>> *)fb_descendantsCellSnapshots
 {
-  NSArray<XCElementSnapshot *> *cellSnapshots = [self fb_descendantsMatchingType:XCUIElementTypeCell];
-    
+  NSArray<id<FBXCElementSnapshot>> *cellSnapshots = [self fb_descendantsMatchingType:XCUIElementTypeCell];
+  
   if (cellSnapshots.count == 0) {
-      // For the home screen, cells are actually of type XCUIElementTypeIcon
-      cellSnapshots = [self fb_descendantsMatchingType:XCUIElementTypeIcon];
-  }
-   
-  if (cellSnapshots.count == 0) {
-      // In some cases XCTest will not report Cell Views. In that case grab all descendants and try to figure out scroll directon from them.
-      cellSnapshots = self._allDescendants;
+    // For the home screen, cells are actually of type XCUIElementTypeIcon
+    cellSnapshots = [self fb_descendantsMatchingType:XCUIElementTypeIcon];
   }
   
-    return cellSnapshots;
+  if (cellSnapshots.count == 0) {
+    // In some cases XCTest will not report Cell Views. In that case grab all descendants and try to figure out scroll directon from them.
+    cellSnapshots = self._allDescendants;
+  }
+  
+  return cellSnapshots;
 }
 
-- (NSArray<XCElementSnapshot *> *)fb_ancestors
+- (NSArray<id<FBXCElementSnapshot>> *)fb_ancestors
 {
-  NSMutableArray<XCElementSnapshot *> *ancestors = [NSMutableArray array];
-  XCElementSnapshot *parent = self.parent;
+  NSMutableArray<id<FBXCElementSnapshot>> *ancestors = [NSMutableArray array];
+  id<FBXCElementSnapshot> parent = self.parent;
   while (parent) {
     [ancestors addObject:parent];
     parent = parent.parent;
@@ -119,18 +126,18 @@ inline static BOOL isNilOrEmpty(id value);
   return ancestors.copy;
 }
 
-- (XCElementSnapshot *)fb_parentCellSnapshot
+- (id<FBXCElementSnapshot>)fb_parentCellSnapshot
 {
-    XCElementSnapshot *targetCellSnapshot = self;
-    // XCUIElementTypeIcon is the cell type for homescreen icons
-    NSArray<NSNumber *> *acceptableElementTypes = @[
-                                                    @(XCUIElementTypeCell),
-                                                    @(XCUIElementTypeIcon),
-                                                    ];
-    if (self.elementType != XCUIElementTypeCell && self.elementType != XCUIElementTypeIcon) {
-        targetCellSnapshot = [self fb_parentMatchingOneOfTypes:acceptableElementTypes];
-    }
-    return targetCellSnapshot;
+  id<FBXCElementSnapshot> targetCellSnapshot = self.snapshot;
+  // XCUIElementTypeIcon is the cell type for homescreen icons
+  NSArray<NSNumber *> *acceptableElementTypes = @[
+                                                  @(XCUIElementTypeCell),
+                                                  @(XCUIElementTypeIcon),
+                                                  ];
+  if (self.elementType != XCUIElementTypeCell && self.elementType != XCUIElementTypeIcon) {
+      targetCellSnapshot = [self fb_parentMatchingOneOfTypes:acceptableElementTypes];
+  }
+  return targetCellSnapshot;
 }
 
 - (CGRect)fb_visibleFrameWithFallback
@@ -156,9 +163,20 @@ inline static BOOL isNilOrEmpty(id value);
   return thisVisibleFrame;
 }
 
+- (NSValue *)fb_hitPoint
+{
+  NSError *error;
+  XCUIHitPointResult *result = [self hitPoint:&error];
+  if (nil != error) {
+    [FBLogger logFmt:@"Failed to fetch hit point for %@ - %@", self.fb_description, error.localizedDescription];
+    return nil;
+  }
+  return [NSValue valueWithCGPoint:result.hitPoint];
+}
+
 @end
 
-inline static BOOL isSnapshotTypeAmongstGivenTypes(XCElementSnapshot* snapshot, NSArray<NSNumber *> *types)
+inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snapshot, NSArray<NSNumber *> *types)
 {
   for (NSUInteger i = 0; i < types.count; i++) {
    if([@(snapshot.elementType) isEqual: types[i]] || [types[i] isEqual: @(XCUIElementTypeAny)]){

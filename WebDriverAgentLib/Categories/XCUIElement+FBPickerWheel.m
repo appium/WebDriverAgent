@@ -10,6 +10,7 @@
 #import "XCUIElement+FBPickerWheel.h"
 
 #import "FBRunLoopSpinner.h"
+#import "FBXCElementSnapshot.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
@@ -23,7 +24,7 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 
 - (BOOL)fb_scrollWithOffset:(CGFloat)relativeHeightOffset error:(NSError **)error
 {
-  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
   NSString *previousValue = snapshot.value;

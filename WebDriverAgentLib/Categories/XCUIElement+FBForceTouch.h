@@ -11,29 +11,29 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if !TARGET_OS_TV
+
 @interface XCUIElement (FBForceTouch)
 
 /**
- Waits for element to become stable (not move) and performs sync force touch on element
+ Performs force touch on element
  
- @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @param relativeCoordinate hit point coordinate relative to the current element position.
+ nil value means to use the default element hit point
  @param pressure The pressure of the force touch – valid values are [0, touch.maximumPossibleForce]
+ nil value would use the default pressure value
  @param duration The duration of the gesture in float seconds
- @return YES if the operation succeeds, otherwise NO.
- */
-- (BOOL)fb_forceTouchWithPressure:(double)pressure duration:(double)duration error:(NSError **)error;
-
-/**
- Waits for element to become stable (not move) and performs sync force touch on element
- 
- @param relativeCoordinate hit point coordinate relative to the current element position
- @param pressure The pressure of the force touch – valid values are [0, touch.maximumPossibleForce]
- @param duration The duration of the gesture in float seconds
+ nil value would use the default duration value
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
  */
-- (BOOL)fb_forceTouchCoordinate:(CGPoint)relativeCoordinate pressure:(double)pressure duration:(double)duration error:(NSError **)error;
+- (BOOL)fb_forceTouchCoordinate:(nullable NSValue *)relativeCoordinate
+                       pressure:(nullable NSNumber *)pressure
+                       duration:(nullable NSNumber *)duration
+                          error:(NSError **)error;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

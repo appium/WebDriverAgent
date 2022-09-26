@@ -10,7 +10,7 @@
 #import <XCTest/XCTest.h>
 
 @class XCElementSnapshot;
-@class XCAccessibilityElement;
+@protocol FBXCAccessibilityElement;
 @class FBXMLGenerationOptions;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param axElements the list of accessibility elements
  @returns The list of dictionaries. Each dictionary contains `bundleId` and `pid` items
  */
-+ (NSArray<NSDictionary<NSString *, id> *> *)fb_appsInfoWithAxElements:(NSArray<XCAccessibilityElement *> *)axElements;
++ (NSArray<NSDictionary<NSString *, id> *> *)fb_appsInfoWithAxElements:(NSArray<id<FBXCAccessibilityElement>> *)axElements;
 
 /**
  Retrieves the information about the currently active apps

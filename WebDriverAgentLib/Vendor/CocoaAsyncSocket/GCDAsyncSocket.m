@@ -703,8 +703,11 @@ enum GCDAsyncSocketConfig
 	else {
 		maxPreBufferLength = preBufferLength;
 	}
-	
+  
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wvla"
 	uint8_t seq[termLength];
+#pragma clang diagnostic pop
 	const void *termBuf = [term bytes];
 	
 	NSUInteger bufLen = MIN(bytesDone, (termLength - 1));
@@ -7123,7 +7126,10 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	{
 		NSArray *cipherSuites = (NSArray *)value;
 		NSUInteger numberCiphers = [cipherSuites count];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wvla"
 		SSLCipherSuite ciphers[numberCiphers];
+#pragma clang diagnostic pop
 		
 		NSUInteger cipherIndex;
 		for (cipherIndex = 0; cipherIndex < numberCiphers; cipherIndex++)

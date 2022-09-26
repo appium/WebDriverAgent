@@ -9,7 +9,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
-#import "XCElementSnapshot+FBHitpoint.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
 
@@ -23,7 +23,7 @@
   [self launchApplication];
   [self goToAttributesPage];
   XCUIElement *dstBtn = self.testedApplication.buttons[@"not_accessible"];
-  CGPoint hitPoint = dstBtn.fb_takeSnapshot.fb_hitPoint.CGPointValue;
+  CGPoint hitPoint = [FBXCElementSnapshotWrapper ensureWrapped:dstBtn.fb_takeSnapshot].fb_hitPoint.CGPointValue;
   XCTAssertTrue(hitPoint.x > 0 && hitPoint.y > 0);
 }
 

@@ -8,8 +8,9 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "XCElementSnapshot.h"
-#import "XCAccessibilityElement.h"
+#import "FBXCElementSnapshot.h"
+
+@protocol FBXCAccessibilityElement;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,21 +25,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error;
 
-- (nullable XCElementSnapshot *)snapshotForElement:(XCAccessibilityElement *)element
-                                        attributes:(nullable NSArray<NSString *> *)attributes
-                                          maxDepth:(nullable NSNumber *)maxDepth
-                                             error:(NSError **)error;
+- (nullable id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
+                                            attributes:(nullable NSArray<NSString *> *)attributes
+                                              maxDepth:(nullable NSNumber *)maxDepth
+                                                 error:(NSError **)error;
 
-- (NSArray<XCAccessibilityElement *> *)activeApplications;
+- (NSArray<id<FBXCAccessibilityElement>> *)activeApplications;
 
-- (XCAccessibilityElement *)systemApplication;
+- (id<FBXCAccessibilityElement>)systemApplication;
 
 - (NSDictionary *)defaultParameters;
 
 - (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
                                                 reply:(void (^)(void))reply;
 
-- (NSDictionary *)attributesForElement:(XCAccessibilityElement *)element
+- (NSDictionary *)attributesForElement:(id<FBXCAccessibilityElement>)element
                             attributes:(NSArray *)attributes;
 
 - (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid;

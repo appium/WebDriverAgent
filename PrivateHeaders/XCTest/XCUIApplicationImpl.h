@@ -6,7 +6,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NSString, XCAccessibilityElement, XCUIApplicationProcess;
+@class NSString, XCUIApplicationProcess;
 
 @interface XCUIApplicationImpl : NSObject
 {
@@ -20,7 +20,7 @@
 @property(readonly, copy) NSString *path; // @synthesize path=_path;
 @property(nonatomic) unsigned long long state;
 @property(nonatomic) int processID;
-@property(readonly) XCAccessibilityElement *accessibilityElement;
+@property(readonly) id/*XCAccessibilityElement*/ accessibilityElement;
 
 - (instancetype)initWithPath:(id)arg1 bundleID:(id)arg2;
 

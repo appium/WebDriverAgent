@@ -6,7 +6,7 @@
 
 #import <XCTest/XCUIApplication.h>
 
-@class NSArray, NSDictionary, NSString, XCAccessibilityElement, XCApplicationQuery, XCUIApplicationImpl;
+@class NSArray, NSDictionary, NSString, XCApplicationQuery, XCUIApplicationImpl;
 
 @interface XCUIApplication ()
 {
@@ -36,7 +36,7 @@
 #endif
 @property(readonly, nonatomic) BOOL running;
 @property(nonatomic) pid_t processID; // @synthesize processID=_processID;
-@property(readonly) XCAccessibilityElement *accessibilityElement;
+@property(readonly) id/*XCAccessibilityElement*/ accessibilityElement;
 
 + (instancetype)applicationWithPID:(pid_t)processID;
 /*! DO NOT USE DIRECTLY! Please use fb_activate instead */

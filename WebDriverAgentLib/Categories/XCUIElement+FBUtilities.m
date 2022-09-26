@@ -22,6 +22,8 @@
 #import "FBScreenshot.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCElementSnapshot.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIApplicationImpl.h"
@@ -41,7 +43,7 @@
 
 @implementation XCUIElement (FBUtilities)
 
-- (XCElementSnapshot *)fb_takeSnapshot
+- (id<FBXCElementSnapshot>)fb_takeSnapshot
 {
   NSError *error = nil;
   self.fb_isResolvedFromCache = @(NO);
@@ -61,12 +63,12 @@
   return self.lastSnapshot;
 }
 
-- (XCElementSnapshot *)fb_cachedSnapshot
+- (id<FBXCElementSnapshot>)fb_cachedSnapshot
 {
   return [self.query fb_cachedSnapshot];
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesAndMaxDepth:(NSNumber *)maxDepth
+- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAllAttributesAndMaxDepth:(NSNumber *)maxDepth
 {
   NSMutableArray *allNames = [NSMutableArray arrayWithArray:FBStandardAttributeNames()];
   [allNames addObjectsFromArray:FBCustomAttributeNames()];
@@ -74,11 +76,11 @@
                                 maxDepth:maxDepth];
 }
 
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames
-                                                 maxDepth:(NSNumber *)maxDepth
+- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAttributes:(NSArray<NSString *> *)attributeNames
+                                                     maxDepth:(NSNumber *)maxDepth
 {
   NSSet<NSString *> *standardAttributes = [NSSet setWithArray:FBStandardAttributeNames()];
-  XCElementSnapshot *snapshot = self.fb_takeSnapshot;
+  id<FBXCElementSnapshot> snapshot = self.fb_takeSnapshot;
   NSTimeInterval axTimeout = FBConfiguration.customSnapshotTimeout;
   if (nil == attributeNames
       || [[NSSet setWithArray:attributeNames] isSubsetOfSet:standardAttributes]
@@ -87,7 +89,7 @@
     return snapshot;
   }
 
-  XCAccessibilityElement *axElement = snapshot.accessibilityElement;
+  id<FBXCAccessibilityElement> axElement = snapshot.accessibilityElement;
   if (nil == axElement) {
     return nil;
   }
@@ -101,16 +103,17 @@
   }
 
   NSError *error;
-  XCElementSnapshot *snapshotWithAttributes = [FBXCAXClientProxy.sharedClient snapshotForElement:axElement
-                                                                                      attributes:attributeNames
-                                                                                        maxDepth:maxDepth
-                                                                                           error:&error];
+  id<FBXCElementSnapshot> snapshotWithAttributes = [FBXCAXClientProxy.sharedClient snapshotForElement:axElement
+                                                                                           attributes:attributeNames
+                                                                                             maxDepth:maxDepth
+                                                                                                error:&error];
   if (nil == snapshotWithAttributes) {
+    NSString *description = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_description;
     [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
-     attributeNames, snapshot.fb_description, axTimeout];
+     attributeNames, description, axTimeout];
     [FBLogger logFmt:@"This timeout could be customized via '%@' setting", FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT];
     [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
-    [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", snapshot.fb_description];
+    [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", description];
     snapshotWithAttributes = self.lastSnapshot;
   } else {
     self.lastSnapshot = snapshotWithAttributes;
@@ -122,19 +125,22 @@
   return snapshotWithAttributes;
 }
 
-- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots
+- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<id<FBXCElementSnapshot>> *)snapshots
                                                       selfUID:(NSString *)selfUID
                                                  onlyChildren:(BOOL)onlyChildren
 {
   if (0 == snapshots.count) {
     return @[];
   }
-  NSArray<NSString *> *sortedIds = [snapshots valueForKey:FBStringify(XCUIElement, wdUID)];
+  NSMutableArray<NSString *> *sortedIds = [NSMutableArray new];
+  for (id<FBXCElementSnapshot> snapshot in snapshots) {
+    [sortedIds addObject:(NSString *)[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid];
+  }
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
   NSString *uid = selfUID;
   if (nil == uid) {
     uid = self.fb_isResolvedFromCache.boolValue
-      ? self.lastSnapshot.fb_uid
+      ? [FBXCElementSnapshotWrapper ensureWrapped:self.lastSnapshot].fb_uid
       : self.fb_uid;
   }
   if ([sortedIds containsObject:uid]) {
@@ -151,7 +157,10 @@
   XCUIElementQuery *query = onlyChildren
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
-  query = [query matchingPredicate:[NSPredicate predicateWithFormat:@"%K IN %@", FBStringify(XCUIElement, wdUID), sortedIds]];
+  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
+    return [sortedIds containsObject:(NSString *)[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid];
+  }];
+  query = [query matchingPredicate:predicate];
   if (1 == snapshots.count) {
     XCUIElement *result = query.fb_firstMatch;
     result.fb_isResolvedNatively = @NO;
@@ -206,7 +215,7 @@
 
 - (NSData *)fb_screenshotWithError:(NSError **)error
 {
-  XCElementSnapshot *selfSnapshot = self.fb_isResolvedFromCache.boolValue
+  id<FBXCElementSnapshot> selfSnapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
   if (CGRectIsEmpty(selfSnapshot.frame)) {
@@ -221,8 +230,8 @@
   UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     // Workaround XCTest bug when element frame is returned as in portrait mode even if the screenshot is rotated
-    NSArray<XCElementSnapshot *> *ancestors = selfSnapshot.fb_ancestors;
-    XCElementSnapshot *parentWindow = nil;
+    NSArray<id<FBXCElementSnapshot>> *ancestors = [FBXCElementSnapshotWrapper ensureWrapped:selfSnapshot].fb_ancestors;
+    id<FBXCElementSnapshot> parentWindow = nil;
     if (1 == ancestors.count) {
       parentWindow = selfSnapshot;
     } else if (ancestors.count > 1) {

@@ -17,7 +17,6 @@
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
-#import "XCElementSnapshot.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCTestDriver.h"
@@ -58,7 +57,7 @@
       return NO;
     }
 
-    NSPredicate *keySearchPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot,
+    NSPredicate *keySearchPredicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot,
                                                                             NSDictionary *bindings) {
       return snapshot.label.length > 0;
     }];

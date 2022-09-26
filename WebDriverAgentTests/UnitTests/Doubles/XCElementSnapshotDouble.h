@@ -8,20 +8,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "XCAccessibilityElement.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface XCAccessibilityElement (FBComparison)
-
-/**
- Compares two XCAccessibilityElement instances
-
- @param other the other element instance
- @return YES if both elements are equal
- */
-- (BOOL)fb_isEqualToElement:(nullable XCAccessibilityElement *)other;
-
+@interface XCElementSnapshotDouble : NSObject<XCUIElementAttributes>
+@property (readwrite, nullable) id value;
 @end
-
-NS_ASSUME_NONNULL_END

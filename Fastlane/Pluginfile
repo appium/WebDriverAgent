@@ -2,4 +2,4 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-test_center'
+gem 'fastlane-plugin-test_center', '3.15.3'

@@ -8,8 +8,7 @@
  */
 
 #import <XCTest/XCTest.h>
-
-@class XCAccessibilityElement;
+@protocol FBXCAccessibilityElement;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,14 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param point The screen coordinates
  * @returns The retrieved accessbility element or nil if it cannot be detected
  */
-+ (nullable XCAccessibilityElement *)axElementWithPoint:(CGPoint)point;
++ (nullable id<FBXCAccessibilityElement>)axElementWithPoint:(CGPoint)point;
 
 /**
  * Retrieves the accessbility element for the current screen point
  *
  * @returns The retrieved accessbility element or nil if it cannot be detected
  */
-- (nullable XCAccessibilityElement *)axElement;
+- (nullable id<FBXCAccessibilityElement>)axElement;
 
 /**
  * Sets the coordinates for the current screen point

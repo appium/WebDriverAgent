@@ -9,23 +9,20 @@
 
 #import "NSPredicate+FBFormat.h"
 
-#import "FBPredicate.h"
 #import "NSExpression+FBFormat.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 
 @implementation NSPredicate (FBFormat)
 
-+ (instancetype)fb_predicateWithPredicate:(NSPredicate *)original comparisonModifier:(NSPredicate *(^)(NSComparisonPredicate *))comparisonModifier
++ (instancetype)fb_predicateWithPredicate:(NSPredicate *)original
+                       comparisonModifier:(NSPredicate *(^)(NSComparisonPredicate *))comparisonModifier
 {
   if ([original isKindOfClass:NSCompoundPredicate.class]) {
     NSCompoundPredicate *compPred = (NSCompoundPredicate *)original;
     NSMutableArray *predicates = [NSMutableArray array];
     for (NSPredicate *predicate in [compPred subpredicates]) {
-      if ([predicate.predicateFormat.lowercaseString isEqualToString:FBPredicate.forceResolvePredicateString.lowercaseString]) {
-        // Do not translete this predicate
-        [predicates addObject:predicate];
-        continue;
-      }
-      NSPredicate *newPredicate = [self.class fb_predicateWithPredicate:predicate comparisonModifier:comparisonModifier];
+      NSPredicate *newPredicate = [self.class fb_predicateWithPredicate:predicate
+                                                     comparisonModifier:comparisonModifier];
       if (nil != newPredicate) {
         [predicates addObject:newPredicate];
       }
@@ -41,7 +38,8 @@
 
 + (instancetype)fb_formatSearchPredicate:(NSPredicate *)input
 {
-  return [self.class fb_predicateWithPredicate:input comparisonModifier:^NSPredicate *(NSComparisonPredicate *cp) {
+  return [self.class fb_predicateWithPredicate:input
+                            comparisonModifier:^NSPredicate *(NSComparisonPredicate *cp) {
     NSExpression *left = [NSExpression fb_wdExpressionWithExpression:[cp leftExpression]];
     NSExpression *right = [NSExpression fb_wdExpressionWithExpression:[cp rightExpression]];
     return [NSComparisonPredicate predicateWithLeftExpression:left
@@ -51,5 +49,16 @@
                                                       options:cp.options];
   }];
 }
+
++ (instancetype)fb_snapshotBlockPredicateWithPredicate:(NSPredicate *)input
+{
+  NSPredicate *wdPredicate = [self.class fb_formatSearchPredicate:input];
+  return [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject,
+                                               NSDictionary<NSString *,id> * _Nullable bindings) {
+    FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:evaluatedObject];
+    return [wdPredicate evaluateWithObject:wrappedSnapshot];
+  }];
+}
+
 
 @end

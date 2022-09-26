@@ -10,6 +10,7 @@
 #import "XCUIApplication+FBAlert.h"
 
 #import "FBMacros.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUtilities.h"
 
@@ -21,10 +22,10 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 @implementation XCUIApplication (FBAlert)
 
 - (nullable XCUIElement *)fb_alertElementFromSafariWithScrollView:(XCUIElement *)scrollView
-                                                     viewSnapshot:(XCElementSnapshot *)viewSnapshot
+                                                     viewSnapshot:(id<FBXCElementSnapshot>)viewSnapshot
 {
   CGRect appFrame = viewSnapshot.frame;
-  NSPredicate *dstViewMatchPredicate = [NSPredicate predicateWithBlock:^BOOL(XCElementSnapshot *snapshot, NSDictionary *bindings) {
+  NSPredicate *dstViewMatchPredicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
     CGRect curFrame = snapshot.frame;
     if (!CGRectEqualToRect(appFrame, curFrame)
         && curFrame.origin.x > 0 && curFrame.size.width < appFrame.size.width) {
@@ -62,8 +63,8 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   // and conatins at least one text view
   __block NSUInteger buttonsCount = 0;
   __block NSUInteger textViewsCount = 0;
-  XCElementSnapshot *snapshot = candidate.fb_cachedSnapshot ?: candidate.fb_takeSnapshot;
-  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  id<FBXCElementSnapshot> snapshot = candidate.fb_cachedSnapshot ?: candidate.fb_takeSnapshot;
+  [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     XCUIElementType curType = descendant.elementType;
     if (curType == XCUIElementTypeButton) {
       buttonsCount++;
@@ -83,7 +84,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   if (nil == alert) {
     return nil;
   }
-  XCElementSnapshot *alertSnapshot = alert.fb_cachedSnapshot ?: alert.fb_takeSnapshot;
+  id<FBXCElementSnapshot> alertSnapshot = alert.fb_cachedSnapshot ?: alert.fb_takeSnapshot;
 
   if (alertSnapshot.elementType == XCUIElementTypeAlert) {
     return alert;
@@ -96,7 +97,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    XCElementSnapshot *ancestor = alertSnapshot.parent;
+    id<FBXCElementSnapshot> ancestor = alertSnapshot.parent;
     while (nil != ancestor) {
       if (nil != ancestor.identifier && [ancestor.identifier isEqualToString:@"PopoverDismissRegion"]) {
         return nil;
@@ -107,7 +108,7 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   }
 
   if (alertSnapshot.elementType == XCUIElementTypeScrollView) {
-    XCElementSnapshot *app = [alertSnapshot fb_parentMatchingType:XCUIElementTypeApplication];
+    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:alertSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
     if (nil != app && [app.label isEqualToString:FB_SAFARI_APP_NAME]) {
       // Check alert presence in Safari web view
       return [self fb_alertElementFromSafariWithScrollView:alert viewSnapshot:alertSnapshot];

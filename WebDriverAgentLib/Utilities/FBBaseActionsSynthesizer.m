@@ -13,12 +13,11 @@
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
-#import "XCElementSnapshot.h"
 #import "XCUIElement+FBCaching.h"
-#import "XCElementSnapshot+FBHitPoint.h"
-#import "XCElementSnapshot+FBHelpers.h"
 #import "XCPointerEventPath.h"
 #import "XCSynthesizedEventRecord.h"
 #import "XCUIElement+FBUtilities.h"
@@ -42,7 +41,7 @@
 
 @implementation FBBaseGestureItem
 
-- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(XCElementSnapshot *)snapshot
+- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
   UIInterfaceOrientation interfaceOrientation = self.application.interfaceOrientation;
   if (interfaceOrientation == UIInterfaceOrientationPortrait) {
@@ -54,8 +53,8 @@
     // For Xcode11 it is always necessary to adjust the tap point coordinates
     return FBInvertPointForApplication(hitPoint, appFrame.size, interfaceOrientation);
   }
-  NSArray<XCElementSnapshot *> *ancestors = snapshot.fb_ancestors;
-  XCElementSnapshot *parentWindow = ancestors.count > 1 ? [ancestors objectAtIndex:ancestors.count - 2] : nil;
+  NSArray<id<FBXCElementSnapshot>> *ancestors = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_ancestors;
+  id<FBXCElementSnapshot> parentWindow = ancestors.count > 1 ? [ancestors objectAtIndex:ancestors.count - 2] : nil;
   CGRect parentWindowFrame = nil == parentWindow ? snapshot.frame : parentWindow.frame;
   if ((appFrame.size.height > appFrame.size.width && parentWindowFrame.size.height < parentWindowFrame.size.width) ||
       (appFrame.size.height < appFrame.size.width && parentWindowFrame.size.height > parentWindowFrame.size.width)) {
@@ -86,11 +85,11 @@
   } else {
     // The offset relative to the element is defined
 
-    XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
+    id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
       ? element.lastSnapshot
       : element.fb_takeSnapshot;
     if (nil == positionOffset) {
-      NSValue *hitPointValue = snapshot.fb_hitPoint;
+      NSValue *hitPointValue = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_hitPoint;
       if (nil != hitPointValue) {
         // short circuit element hitpoint
         return hitPointValue;

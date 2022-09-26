@@ -13,7 +13,8 @@
 #import "FBErrorBuilder.h"
 #import "FBKeyboard.h"
 #import "NSString+FBVisualLength.h"
-#import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCElementSnapshotWrapper.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
@@ -39,19 +40,19 @@
 @end
 
 
-@interface XCElementSnapshot (FBKeyboardFocus)
+@interface FBXCElementSnapshotWrapper (FBKeyboardFocus)
 
 - (BOOL)fb_hasKeyboardFocus;
 
 @end
 
-@implementation XCElementSnapshot (FBKeyboardFocus)
+@implementation FBXCElementSnapshotWrapper (FBKeyboardFocus)
 
 - (BOOL)fb_hasKeyboardFocus
 {
   // https://developer.apple.com/documentation/xctest/xcuielement/1500968-typetext?language=objc
   // > The element or a descendant must have keyboard focus; otherwise an error is raised.
-  return self.hasKeyboardFocus || [self descendantsByFilteringWithBlock:^BOOL(XCElementSnapshot *snapshot) {
+  return self.hasKeyboardFocus || [self descendantsByFilteringWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot) {
     return snapshot.hasKeyboardFocus;
   }].count > 0;
 }
@@ -61,7 +62,7 @@
 
 @implementation XCUIElement (FBTyping)
 
-- (void)fb_prepareForTextInputWithSnapshot:(XCElementSnapshot *)snapshot
+- (void)fb_prepareForTextInputWithSnapshot:(FBXCElementSnapshotWrapper *)snapshot
 {
   if (snapshot.fb_hasKeyboardFocus) {
     return;
@@ -92,10 +93,10 @@
           frequency:(NSUInteger)frequency
               error:(NSError **)error
 {
-  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
-  [self fb_prepareForTextInputWithSnapshot:snapshot];
+  [self fb_prepareForTextInputWithSnapshot:[FBXCElementSnapshotWrapper ensureWrapped:snapshot]];
   if (shouldClear && ![self fb_clearTextWithSnapshot:self.lastSnapshot
                                shouldPrepareForInput:NO
                                                error:error]) {
@@ -106,15 +107,15 @@
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  XCElementSnapshot *snapshot = self.fb_isResolvedFromCache.boolValue
+  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : self.fb_takeSnapshot;
-  return [self fb_clearTextWithSnapshot:snapshot
+  return [self fb_clearTextWithSnapshot:[FBXCElementSnapshotWrapper ensureWrapped:snapshot]
                   shouldPrepareForInput:YES
                                   error:error];
 }
 
-- (BOOL)fb_clearTextWithSnapshot:(XCElementSnapshot *)snapshot
+- (BOOL)fb_clearTextWithSnapshot:(FBXCElementSnapshotWrapper *)snapshot
            shouldPrepareForInput:(BOOL)shouldPrepareForInput
                            error:(NSError **)error
 {

@@ -11,6 +11,7 @@
 
 #import <objc/runtime.h>
 
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBUID.h"
@@ -46,8 +47,8 @@ static char XCUIELEMENT_CACHE_ID_KEY;
   if ([self isKindOfClass:XCUIApplication.class]) {
     uid = self.fb_uid;
   } else {
-    XCElementSnapshot *snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
-    uid = snapshot.wdUID;
+    id<FBXCElementSnapshot> snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
+    uid = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].wdUID;
   }
 
   objc_setAssociatedObject(self, &XCUIELEMENT_CACHE_ID_KEY, uid, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

@@ -6,17 +6,17 @@
 
 #import <XCTest/XCUIElement.h>
 
-@class NSString, XCElementSnapshot, XCUIApplication, XCUICoordinate, XCUIElementQuery;
+@class NSString, XCUIApplication, XCUICoordinate, XCUIElementQuery;
 
 @interface XCUIElement ()
 {
     BOOL _safeQueryResolutionEnabled;
     XCUIElementQuery *_query;
-    XCElementSnapshot *_lastSnapshot;
+    id/*XCElementSnapshot*/ _lastSnapshot;
 }
 
 @property BOOL safeQueryResolutionEnabled; // @synthesize safeQueryResolutionEnabled=_safeQueryResolutionEnabled;
-@property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
+@property(retain) id/*XCElementSnapshot*/ lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 @property(readonly) XCUIElementQuery *query; // @synthesize query=_query;
 #if !TARGET_OS_TV
 @property(readonly, nonatomic) UIInterfaceOrientation interfaceOrientation;
@@ -37,12 +37,14 @@
 - (void)resolveHandleUIInterruption:(BOOL)arg1;
 - (BOOL)waitForExistenceWithTimeout:(double)arg1;
 - (BOOL)_waitForExistenceWithTimeout:(double)arg1;
+- (id)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1 error:(id *)arg2;
 - (BOOL)evaluatePredicateForExpectation:(id)arg1 debugMessage:(id *)arg2;
 - (void)_swipe:(unsigned long long)arg1;
 - (void)_tapWithNumberOfTaps:(unsigned long long)arg1 numberOfTouches:(unsigned long long)arg2 activityTitle:(id)arg3;
 - (id)_highestNonWindowAncestorOfElement:(id)arg1 notSharedWithElement:(id)arg2;
 - (id)_pointsInFrame:(CGRect)arg1 numberOfTouches:(unsigned long long)arg2;
-- (CGPoint)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)arg1;
+// Since 11.3
+- (void)pressWithPressure:(double)arg1 duration:(double)arg2;
 - (void)forcePress;
 - (void)tapWithNumberOfTaps:(unsigned long long)arg1 numberOfTouches:(unsigned long long)arg2;
 - (void)twoFingerTap;

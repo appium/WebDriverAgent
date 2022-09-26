@@ -11,7 +11,6 @@
 #import "FBErrorBuilder.h"
 #import "FBElementTypeTransformer.h"
 #import "FBExceptions.h"
-#import "FBPredicate.h"
 #import "NSPredicate+FBFormat.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -559,7 +558,7 @@ static NSNumberFormatter *numberFormatter = nil;
         *error = [self.class compilationErrorWithQuery:originalQuery description:description];
         return nil;
       }
-      NSPredicate *value = [NSPredicate fb_formatSearchPredicate:[FBPredicate predicateWithFormat:token.asString]];
+      NSPredicate *value = [NSPredicate fb_snapshotBlockPredicateWithPredicate:[NSPredicate predicateWithFormat:token.asString]];
       if ([token isKindOfClass:FBSelfPredicateToken.class]) {
         [predicates addObject:[[FBSelfPredicateItem alloc] initWithValue:value]];
       } else if ([token isKindOfClass:FBDescendantPredicateToken.class]) {

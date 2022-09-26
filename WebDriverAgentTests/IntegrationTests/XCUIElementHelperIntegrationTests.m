@@ -15,6 +15,7 @@
 #import "FBTestMacros.h"
 #import "FBElement.h"
 #import "FBElementUtils.h"
+#import "FBXCElementSnapshot.h"
 #import "XCUIElement+FBUtilities.h"
 
 @interface XCUIElementHelperIntegrationTests : FBIntegrationTestCase
@@ -40,7 +41,7 @@
   [allElements addObjectsFromArray:buttons];
   [allElements addObjectsFromArray:windows];
   
-  NSMutableArray<XCElementSnapshot *> *buttonSnapshots = [NSMutableArray array];
+  NSMutableArray<id<FBXCElementSnapshot>> *buttonSnapshots = [NSMutableArray array];
   [buttonSnapshots addObject:[buttons.firstObject fb_takeSnapshot]];
   
   NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots selfUID:nil onlyChildren:NO];

@@ -1,22 +1,20 @@
-# https://github.com/actions/virtual-environments/tree/main/images/macos
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml
 variables:
-  MIN_VM_IMAGE: macOS-10.15
-  MIN_XCODE_VERSION: 12.1
-  # Xcode 10.0 did not have Apple TV
-  MIN_TV_XCODE_VERSION: 12.1
-  MIN_TV_PLATFORM_VERSION: 14.0
+  MIN_VM_IMAGE: macOS-11
+  MIN_XCODE_VERSION: 12.4
+  MIN_PLATFORM_VERSION: 14.4
+  MIN_TV_PLATFORM_VERSION: 14.3
   MIN_TV_DEVICE_NAME: Apple TV 4K
-  MIN_PLATFORM_VERSION: 14.1
   MIN_IPHONE_DEVICE_NAME: iPhone 11
   MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
-  MAX_VM_IMAGE: macOS-11
-  MAX_XCODE_VERSION: 13.2
-  MAX_PLATFORM_VERSION: 15.2
-  MAX_PLATFORM_VERSION_TV: 15.2
-  MAX_IPHONE_DEVICE_NAME: iPhone 11 Pro Max
-  MAX_TV_DEVICE_NAME: Apple TV 4K
-  MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
-  DEFAULT_NODE_VERSION: "12.x"
+  MAX_VM_IMAGE: macOS-12
+  MAX_XCODE_VERSION: 13.4
+  MAX_PLATFORM_VERSION: 15.5
+  MAX_PLATFORM_VERSION_TV: 15.4
+  MAX_IPHONE_DEVICE_NAME: iPhone 13
+  MAX_TV_DEVICE_NAME: Apple TV 4K (2nd generation)
+  MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (3rd generation)
+  DEFAULT_NODE_VERSION: "16.x"
 
 
 pool:
@@ -44,12 +42,6 @@ parameters:
 stages:
 - stage: Unit_Tests_And_Linters
   jobs:
-  - job: Node_Unit_Tests
-    steps:
-    - template: azure-templates/node_setup_steps.yml
-    - script: npm install
-    - script: npm run test
-
   # region Build
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -133,7 +125,7 @@ stages:
       dest: tv
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -210,7 +202,7 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
@@ -220,7 +212,7 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
@@ -293,23 +285,12 @@ stages:
       sdk: tv_sim
       tvModel: $(MIN_TV_DEVICE_NAME)
       tvVersion: $(MIN_TV_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_TV_XCODE_VERSION)
+      xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
 
 - stage: Integration_Tests
   jobs:
-
-  - job: Node_Integration_Tests
-    variables:
-      XCODE_VERSION: $(MAX_XCODE_VERSION)
-      DEVICE_NAME: $(MAX_IPHONE_DEVICE_NAME)
-      PLATFORM_VERSION: $(MAX_PLATFORM_VERSION)
-    steps:
-    - template: azure-templates/node_setup_steps.yml
-    - script: npm install
-    - template: azure-templates/bootstrap_steps.yml
-    - script: npm run e2e-test
 
   # region Integration Tests Max Xcode
   - ${{ each job in parameters.integrationJobs }}:

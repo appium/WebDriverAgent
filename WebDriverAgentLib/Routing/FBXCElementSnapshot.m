@@ -7,19 +7,4 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <WebDriverAgentLib/XCElementSnapshot.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface XCElementSnapshot (FBHitPoint)
-
-/**
- Wrapper for Apple's hitpoint, thats resolves few known issues
-
- @return Element's hitpoint if exists nil otherwise
- */
-- (nullable NSValue *)fb_hitPoint;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#import "FBXCElementSnapshot.h"

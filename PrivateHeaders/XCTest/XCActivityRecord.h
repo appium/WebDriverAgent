@@ -4,7 +4,7 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSArray, NSData, NSDate, NSString, NSUUID, XCElementSnapshot, XCSynthesizedEventRecord;
+@class NSArray, NSData, NSDate, NSString, NSUUID, XCSynthesizedEventRecord;
 
 @interface XCActivityRecord : NSObject <NSSecureCoding>
 {
@@ -14,7 +14,7 @@
     NSDate *_finish;
     BOOL _hasSubactivities;
     NSData *_screenImageData;
-    XCElementSnapshot *_snapshot;
+    id/*XCElementSnapshot*/ _snapshot;
     NSArray *_elementsOfInterest;
     XCSynthesizedEventRecord *_synthesizedEvent;
     NSData *_diagnosticReportData;
@@ -25,7 +25,7 @@
 @property(copy) NSData *diagnosticReportData; // @synthesize diagnosticReportData=_diagnosticReportData;
 @property(retain) XCSynthesizedEventRecord *synthesizedEvent; // @synthesize synthesizedEvent=_synthesizedEvent;
 @property(copy) NSArray *elementsOfInterest; // @synthesize elementsOfInterest=_elementsOfInterest;
-@property(retain) XCElementSnapshot *snapshot; // @synthesize snapshot=_snapshot;
+@property(retain) id/*XCElementSnapshot*/ *snapshot; // @synthesize snapshot=_snapshot;
 @property(copy) NSData *screenImageData; // @synthesize screenImageData=_screenImageData;
 @property BOOL hasSubactivities; // @synthesize hasSubactivities=_hasSubactivities;
 @property(copy) NSDate *start; // @synthesize start=_start;

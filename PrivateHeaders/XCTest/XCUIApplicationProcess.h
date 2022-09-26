@@ -9,10 +9,8 @@
 #import <WebDriverAgentLib/CDStructures.h>
 
 @class XCAXClient_iOS;
-@class XCAccessibilityElement;
 @class XCApplicationMonitor;
 @class XCUIApplicationImpl;
-@class XCElementSnapshot;
 @protocol XCTestManager_IDEInterface;
 @protocol XCTRunnerAutomationSession;
 
@@ -33,7 +31,7 @@
     NSString *_bundleID;
     XCUIApplicationImpl *_applicationImplementation;
     id <XCTRunnerAutomationSession> _automationSession;
-    XCElementSnapshot *_lastSnapshot;
+    id/*XCElementSnapshot*/ _lastSnapshot;
     XCApplicationMonitor *_applicationMonitor;
     XCAXClient_iOS *_AXClient_iOS;
 }
@@ -41,7 +39,7 @@
 + (BOOL)automaticallyNotifiesObserversForKey:(id)arg1;
 @property XCAXClient_iOS *AXClient_iOS; // @synthesize AXClient_iOS=_AXClient_iOS;
 // Since Xcode 10
-@property(retain) XCElementSnapshot *lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
+@property(retain) id/*XCElementSnapshot*/ lastSnapshot; // @synthesize lastSnapshot=_lastSnapshot;
 @property XCApplicationMonitor *applicationMonitor; // @synthesize applicationMonitor=_applicationMonitor;
 @property(retain) id <XCTRunnerAutomationSession> automationSession; // @synthesize automationSession=_automationSession;
 @property BOOL hasCrashReport; // @synthesize hasCrashReport=_hasCrashReport;
@@ -59,7 +57,7 @@
 @property XCUIApplicationImpl *applicationImplementation; // @synthesize applicationImplementation=_applicationImplementation;
 @property(nonatomic) unsigned long long applicationState;
 @property(nonatomic) BOOL accessibilityActive;
-@property(readonly, copy) XCAccessibilityElement *accessibilityElement;
+@property(readonly, copy) id/*XCAccessibilityElement*/ accessibilityElement;
 
 - (id)init;
 - (id)initWithApplicationMonitor:(id)arg1 AXInterface:(id)arg2;

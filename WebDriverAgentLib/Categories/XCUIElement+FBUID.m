@@ -15,20 +15,32 @@
 
 @implementation XCUIElement (FBUID)
 
+- (unsigned long long)fb_accessibiltyId
+{
+  return [FBElementUtils idWithAccessibilityElement:([self isKindOfClass:XCUIApplication.class]
+                                                     ? [(XCUIApplication *)self accessibilityElement]
+                                                     : [self fb_takeSnapshot].accessibilityElement)];
+}
+
 - (NSString *)fb_uid
 {
   return [self isKindOfClass:XCUIApplication.class]
     ? [FBElementUtils uidWithAccessibilityElement:[(XCUIApplication *)self accessibilityElement]]
-    : [self fb_takeSnapshot].fb_uid;
+    : [FBXCElementSnapshotWrapper ensureWrapped:[self fb_takeSnapshot]].fb_uid;
 }
 
 @end
 
-@implementation XCElementSnapshot (FBUID)
+@implementation FBXCElementSnapshotWrapper (FBUID)
+
+- (unsigned long long)fb_accessibiltyId
+{
+  return [FBElementUtils idWithAccessibilityElement:self.accessibilityElement];
+}
 
 - (NSString *)fb_uid
 {
-  return [FBElementUtils uidWithAccessibilityElement:self.accessibilityElement];
+  return [FBElementUtils uidWithAccessibilityElement:[self accessibilityElement]];
 }
 
 @end

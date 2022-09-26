@@ -19,8 +19,9 @@
 #import "FBW3CActionsHelpers.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCElementSnapshot+FBHelpers.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIDevice.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
@@ -162,13 +163,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  XCElementSnapshot *snapshot = element.fb_isResolvedFromCache.boolValue
+  id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
     ? element.lastSnapshot
     : element.fb_takeSnapshot;
   CGRect frame = snapshot.frame;
   if (CGRectIsEmpty(frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", snapshot.fb_description];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
@@ -218,12 +219,28 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return @[];
     }
   }
-  XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset)];
-  if (nil != self.pressure && nil != result.pointerEvents.lastObject) {
-    XCPointerEvent *pointerEvent = (XCPointerEvent *)result.pointerEvents.lastObject;
-    pointerEvent.pressure = self.pressure.doubleValue;
+  if (nil == self.pressure) {
+    XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition
+                                                                          offset:FBMillisToSeconds(self.offset)];
+    return @[result];
   }
-  return @[result];
+
+  if (nil == eventPath) {
+    NSString *description = [NSString stringWithFormat:@"'%@' action with pressure must be preceeded with at least one '%@' action without this option", self.class.actionName, self.class.actionName];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
+    }
+    return nil;
+  }
+  if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:@"This device does not support force press interactions"] build];
+    }
+    return nil;
+  }
+  [eventPath pressDownWithPressure:self.pressure.doubleValue
+                          atOffset:FBMillisToSeconds(self.offset)];
+  return @[];
 }
 
 @end

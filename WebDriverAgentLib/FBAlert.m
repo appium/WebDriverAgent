@@ -13,8 +13,8 @@
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
+#import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
-#import "XCElementSnapshot+FBHelpers.h"
 #import "XCUIApplication+FBAlert.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTap.h"
@@ -65,13 +65,14 @@
           buildError:error];
 }
 
-+ (BOOL)isSafariWebAlertWithSnapshot:(XCElementSnapshot *)snapshot
++ (BOOL)isSafariWebAlertWithSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
   if (snapshot.elementType != XCUIElementTypeOther) {
     return NO;
   }
 
-  XCElementSnapshot *application = [snapshot fb_parentMatchingType:XCUIElementTypeApplication];
+  FBXCElementSnapshotWrapper *snapshotWrapper = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  id<FBXCElementSnapshot> application = [snapshotWrapper fb_parentMatchingType:XCUIElementTypeApplication];
   return nil != application && [application.label isEqualToString:FB_SAFARI_APP_NAME];
 }
 
@@ -82,22 +83,24 @@
   }
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  XCElementSnapshot *snapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> snapshot = self.alertElement.lastSnapshot;
   BOOL isSafariAlert = [self.class isSafariWebAlertWithSnapshot:snapshot];
-  [snapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     XCUIElementType elementType = descendant.elementType;
     if (!(elementType == XCUIElementTypeTextView || elementType == XCUIElementTypeStaticText)) {
       return;
     }
-
+    
+    FBXCElementSnapshotWrapper *descendantWrapper = [FBXCElementSnapshotWrapper ensureWrapped:descendant];
     if (elementType == XCUIElementTypeStaticText
-        && nil != [descendant fb_parentMatchingType:XCUIElementTypeButton]) {
+        && nil != [descendantWrapper fb_parentMatchingType:XCUIElementTypeButton]) {
       return;
     }
 
-    NSString *text = descendant.wdLabel ?: descendant.wdValue;
+    NSString *text = descendantWrapper.wdLabel ?: descendantWrapper.wdValue;
     if (isSafariAlert && nil != descendant.parent) {
-      NSString *parentText = descendant.parent.wdLabel ?: descendant.parent.wdValue;
+      FBXCElementSnapshotWrapper *descendantParentWrapper = [FBXCElementSnapshotWrapper ensureWrapped:descendant.parent];
+      NSString *parentText = descendantParentWrapper.wdLabel ?: descendantParentWrapper.wdValue;
       if ([parentText isEqualToString:text]) {
         // Avoid duplicated texts on Safari alerts
         return;
@@ -143,11 +146,11 @@
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  [self.alertElement.lastSnapshot enumerateDescendantsUsingBlock:^(XCElementSnapshot *descendant) {
+  [self.alertElement.lastSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
-    NSString *label = descendant.wdLabel;
+    NSString *label = [FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel;
     if (nil != label) {
       [labels addObject:[NSString stringWithFormat:@"%@", label]];
     }
@@ -161,7 +164,7 @@
     return [self notPresentWithError:error];
   }
 
-  XCElementSnapshot *alertSnapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot;
   XCUIElement *acceptButton = nil;
   if (FBConfiguration.acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
@@ -200,7 +203,7 @@
     return [self notPresentWithError:error];
   }
 
-  XCElementSnapshot *alertSnapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot;
   XCUIElement *dismissButton = nil;
   if (FBConfiguration.dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;

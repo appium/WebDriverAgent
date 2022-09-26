@@ -8,6 +8,7 @@
  */
 
 #import "NSExpression+FBFormat.h"
+
 #import "FBElementUtils.h"
 
 @implementation NSExpression (FBFormat)
@@ -17,14 +18,18 @@
   if ([input expressionType] != NSKeyPathExpressionType) {
     return input;
   }
+  
   NSString *propName = [input keyPath];
   NSUInteger dotPos = [propName rangeOfString:@"."].location;
-  if (NSNotFound != dotPos) {
+  NSString *wdPropName;
+  if (NSNotFound == dotPos) {
+    wdPropName = [FBElementUtils wdAttributeNameForAttributeName:propName];
+  } else {
     NSString *actualPropName = [propName substringToIndex:dotPos];
     NSString *suffix = [propName substringFromIndex:(dotPos + 1)];
-    return [NSExpression expressionForKeyPath:[NSString stringWithFormat:@"%@.%@", [FBElementUtils wdAttributeNameForAttributeName:actualPropName], suffix]];
+    wdPropName = [NSString stringWithFormat:@"%@.%@", [FBElementUtils wdAttributeNameForAttributeName:actualPropName], suffix];
   }
-  return [NSExpression expressionForKeyPath:[FBElementUtils wdAttributeNameForAttributeName:propName]];
+  return [NSExpression expressionForKeyPath:wdPropName];
 }
 
 @end

@@ -8,8 +8,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <WebDriverAgentLib/XCElementSnapshot.h>
 #import <WebDriverAgentLib/FBElement.h>
+#import "FBXCElementSnapshot.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The recent snapshot of the element
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (XCElementSnapshot *)fb_takeSnapshot;
+- (id<FBXCElementSnapshot>)fb_takeSnapshot;
 
 /**
  Extracts the cached element snapshot from its query.
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return Either the cached snapshot or nil
  */
-- (nullable XCElementSnapshot *)fb_cachedSnapshot;
+- (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot;
 
 /**
  Gets the most recent snapshot of the current element and already resolves the accessibility attributes
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  attributes resolved if there was a failure while resolving additional attributes
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (nullable XCElementSnapshot *)fb_snapshotWithAllAttributesAndMaxDepth:(nullable NSNumber *)maxDepth;
+- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAllAttributesAndMaxDepth:(nullable NSNumber *)maxDepth;
 
 /**
  Gets the most recent snapshot of the current element with given attributes resolved.
@@ -67,8 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
  attributes resolved if there was a failure while resolving additional attributes
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
 */
-- (nullable XCElementSnapshot *)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames
-                                                 maxDepth:(nullable NSNumber *)maxDepth;
+- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAttributes:(nullable NSArray<NSString *> *)attributeNames
+                                                      maxDepth:(nullable NSNumber *)maxDepth;
 
 /**
  Filters elements by matching them to snapshots from the corresponding array
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return Array of filtered elements, which have matches in snapshots array
  */
-- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<XCElementSnapshot *> *)snapshots
+- (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<id<FBXCElementSnapshot>> *)snapshots
                                                       selfUID:(nullable NSString *)selfUID
                                                  onlyChildren:(BOOL)onlyChildren;
 

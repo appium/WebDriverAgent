@@ -4,18 +4,18 @@
 //     class-dump is Copyright (C) 1997-1998, 2000-2001, 2004-2013 by Steve Nygard.
 //
 
-@class NSArray, NSDictionary, NSNumber, NSString, XCAccessibilityElement, XCActivityRecord, XCElementSnapshot;
+@class NSArray, NSDictionary, NSNumber, NSString, XCActivityRecord;
 
 @protocol XCTestManager_IDEInterface
 - (id)_XCT_handleCrashReportData:(NSData *)arg1 fromFileWithName:(NSString *)arg2;
-- (id)_XCT_nativeFocusItemDidChangeAtTime:(NSNumber *)arg1 parameterSnapshot:(XCElementSnapshot *)arg2 applicationSnapshot:(XCElementSnapshot *)arg3;
-- (id)_XCT_recordedEventNames:(NSArray *)arg1 timestamp:(NSNumber *)arg2 duration:(NSNumber *)arg3 startLocation:(NSDictionary *)arg4 startElementSnapshot:(XCElementSnapshot *)arg5 startApplicationSnapshot:(XCElementSnapshot *)arg6 endLocation:(NSDictionary *)arg7 endElementSnapshot:(XCElementSnapshot *)arg8 endApplicationSnapshot:(XCElementSnapshot *)arg9;
+- (id)_XCT_nativeFocusItemDidChangeAtTime:(NSNumber *)arg1 parameterSnapshot:(id/*XCElementSnapshot*/)arg2 applicationSnapshot:(id/*XCElementSnapshot*/)arg3;
+- (id)_XCT_recordedEventNames:(NSArray *)arg1 timestamp:(NSNumber *)arg2 duration:(NSNumber *)arg3 startLocation:(NSDictionary *)arg4 startElementSnapshot:(id/*XCElementSnapshot*/)arg5 startApplicationSnapshot:(id/*XCElementSnapshot*/)arg6 endLocation:(NSDictionary *)arg7 endElementSnapshot:(id/*XCElementSnapshot*/)arg8 endApplicationSnapshot:(id/*XCElementSnapshot*/)arg9;
 - (id)_XCT_testCase:(NSString *)arg1 method:(NSString *)arg2 didFinishActivity:(XCActivityRecord *)arg3;
 - (id)_XCT_testCase:(NSString *)arg1 method:(NSString *)arg2 willStartActivity:(XCActivityRecord *)arg3;
 - (id)_XCT_recordedOrientationChange:(NSString *)arg1;
-- (id)_XCT_recordedFirstResponderChangedWithApplicationSnapshot:(XCElementSnapshot *)arg1;
+- (id)_XCT_recordedFirstResponderChangedWithApplicationSnapshot:(id/*XCElementSnapshot*/)arg1;
 - (id)_XCT_exchangeCurrentProtocolVersion:(NSNumber *)arg1 minimumVersion:(NSNumber *)arg2;
-- (id)_XCT_recordedKeyEventsWithApplicationSnapshot:(XCElementSnapshot *)arg1 characters:(NSString *)arg2 charactersIgnoringModifiers:(NSString *)arg3 modifierFlags:(NSNumber *)arg4;
+- (id)_XCT_recordedKeyEventsWithApplicationSnapshot:(id/*XCElementSnapshot*/)arg1 characters:(NSString *)arg2 charactersIgnoringModifiers:(NSString *)arg3 modifierFlags:(NSNumber *)arg4;
 - (id)_XCT_logDebugMessage:(NSString *)arg1;
 - (id)_XCT_logMessage:(NSString *)arg1;
 - (id)_XCT_testMethod:(NSString *)arg1 ofClass:(NSString *)arg2 didMeasureMetric:(NSDictionary *)arg3 file:(NSString *)arg4 line:(NSNumber *)arg5;

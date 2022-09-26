@@ -40,6 +40,9 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
 
 @implementation XCUIApplicationProcess (FBQuiescence)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-load-method"
+
 + (void)load
 {
   Method waitForQuiescenceIncludingAnimationsIdleMethod = class_getInstanceMethod(self.class, @selector(waitForQuiescenceIncludingAnimationsIdle:));
@@ -50,6 +53,8 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:]"];
   }
 }
+
+#pragma clang diagnostic pop
 
 static char XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE;
 
