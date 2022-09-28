@@ -34,5 +34,11 @@
 - (void)pressWithPressure:(double)arg1 duration:(double)arg2;
 - (void)forcePress;
 
+// Since Xcode 12
+- (void)pressForDuration:(double)duration
+    thenDragToCoordinate:(XCUICoordinate *)otherCoordinate
+            withVelocity:(CGFloat)velocity
+     thenHoldForDuration:(double)holdDuration;
+
 @end
 #endif

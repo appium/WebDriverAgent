@@ -85,8 +85,10 @@
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
     [[FBRoute POST:@"/wda/element/:uuid/scrollTo"] respondWithTarget:self action:@selector(handleScrollTo:)],
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
+    [[FBRoute POST:@"/wda/element/:uuid/pressAndDragWithVelocity"] respondWithTarget:self action:@selector(handlePressAndDragWithVelocity:)],
     [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
     [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
+    [[FBRoute POST:@"/wda/pressAndDragWithVelocity"] respondWithTarget:self action:@selector(handlePressAndDragCoordinateWithVelocity:)],
     [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
@@ -335,6 +337,43 @@
   XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithCoordinate:touchPoint
                                                                     application:request.session.activeApplication];
   [pressCoordinate pressForDuration:[request.arguments[@"duration"] doubleValue]];
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handlePressAndDragWithVelocity:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  if (![element respondsToSelector:@selector(pressForDuration:thenDragToElement:withVelocity:thenHoldForDuration:)]) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
+                                                                            traceback:nil]);
+  }
+  [element pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
+          thenDragToElement:[elementCache elementForUUID:(NSString *)request.arguments[@"toElement"]]
+               withVelocity:[request.arguments[@"velocity"] doubleValue]
+        thenHoldForDuration:[request.arguments[@"holdDuration"] doubleValue]];
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handlePressAndDragCoordinateWithVelocity:(FBRouteRequest *)request
+{
+  FBSession *session = request.session;
+  CGPoint startPoint = CGPointMake((CGFloat)[request.arguments[@"fromX"] doubleValue],
+                                   (CGFloat)[request.arguments[@"fromY"] doubleValue]);
+  CGPoint endPoint = CGPointMake((CGFloat)[request.arguments[@"toX"] doubleValue],
+                                 (CGFloat)[request.arguments[@"toY"] doubleValue]);
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
+                                                                  application:session.activeApplication];
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
+                                                                    application:session.activeApplication];
+  if (![startCoordinate respondsToSelector:@selector(pressForDuration:thenDragToCoordinate:withVelocity:thenHoldForDuration:)]) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
+                                                                            traceback:nil]);
+  }
+  [startCoordinate pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
+               thenDragToCoordinate:endCoordinate
+                       withVelocity:[request.arguments[@"velocity"] doubleValue]
+                thenHoldForDuration:[request.arguments[@"holdDuration"] doubleValue]];
   return FBResponseWithOK();
 }
 

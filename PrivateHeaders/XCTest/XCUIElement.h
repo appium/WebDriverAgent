@@ -65,4 +65,10 @@
 - (void)swipeDownWithVelocity:(double)arg1;
 - (void)swipeUpWithVelocity:(double)arg1;
 
+// Since Xcode 12
+- (void)pressForDuration:(double)duration
+       thenDragToElement:(XCUIElement *)otherElement
+            withVelocity:(CGFloat)velocity
+     thenHoldForDuration:(double)holdDuration;
+
 @end
