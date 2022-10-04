@@ -18,6 +18,7 @@
 {
   self = [super init];
   self->_value = @"magicValue";
+  self->_label = @"testLabel";
   return self;
 }
 
@@ -34,11 +35,6 @@
 - (NSString *)title
 {
   return @"testTitle";
-}
-
-- (NSString *)label
-{
-  return @"testLabel";
 }
 
 - (XCUIElementType)elementType

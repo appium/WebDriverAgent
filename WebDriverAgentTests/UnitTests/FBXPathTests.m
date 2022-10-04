@@ -83,12 +83,13 @@
 {
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   snapshot.value = @"йоло<>&\"";
+  snapshot.label = @"a\nb";
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
                                excludingAttributes:@[@"visible"]];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" private_indexPath=\"top\"/>\n",
-                           element.wdType, element.wdType, @"йоло&lt;&gt;&amp;&quot;", element.wdName, element.wdLabel,  element.wdEnabled ? @"true" : @"false", element.wdVisible ? @"true" : @"false", element.wdAccessible ? @"true" : @"false", element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex];
+                           element.wdType, element.wdType, @"йоло&lt;&gt;&amp;&quot;", element.wdName, @"a&#10;b", element.wdEnabled ? @"true" : @"false", element.wdVisible ? @"true" : @"false", element.wdAccessible ? @"true" : @"false", element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex];
   XCTAssertTrue([resultXml isEqualToString:expectedXml]);
 }
 
