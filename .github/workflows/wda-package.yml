@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      XCODE_VERSION: 13.4
+      XCODE_VERSION: 13.2.1
 
     steps:
       - name: Checkout
