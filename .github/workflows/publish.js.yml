@@ -11,6 +11,12 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+
+    env:
+      XCODE_VERSION: 13.2.1
+      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner_RealDevice.zip"
+      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner_RealDevice.zip"
+
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 18.x
@@ -25,8 +31,32 @@ jobs:
       name: Run build
     - run: npm run test
       name: Run test
+    - name: Build iOS
+      run: |
+        xcodebuild clean build-for-testing -project WebDriverAgent.xcodeproj -derivedDataPath appium_wda_ios -scheme WebDriverAgentRunner -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO
+    - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS
+      run: |
+        pushd appium_wda_ios/Build/Products/Debug-iphoneos
+        zip -r "${{ env.ZIP_PKG_NAME_IOS }}" WebDriverAgentRunner-Runner.app
+        popd
+        mv "appium_wda_ios/Build/Products/Debug-iphoneos/${{ env.ZIP_PKG_NAME_IOS }}" ./
+    - name: Build tvOS
+      run: |
+        xcodebuild clean build-for-testing -project WebDriverAgent.xcodeproj -derivedDataPath appium_wda_tvos -scheme WebDriverAgentRunner_tvOS -destination generic/platform=tvOS CODE_SIGNING_ALLOWED=NO
+    - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
+      run: |
+        pushd appium_wda_tvos/Build/Products/Debug-appletvos
+        zip -r "${{ env.ZIP_PKG_NAME_TVOS }}" WebDriverAgentRunner_tvOS-Runner.app
+        popd
+        mv "appium_wda_tvos/Build/Products/Debug-appletvos/${{ env.ZIP_PKG_NAME_TVOS }}" ./
     - run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       name: Release
+    - name: Upload Release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          "${{ env.ZIP_PKG_NAME_IOS }}"
+          "${{ env.ZIP_PKG_NAME_TVOS }}"
