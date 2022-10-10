@@ -20,6 +20,27 @@ jobs:
       - name: Build iOS
         run: |
           xcodebuild clean build-for-testing -project WebDriverAgent.xcodeproj -derivedDataPath appium_wda_ios -scheme WebDriverAgentRunner -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO
+      - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS
+        run: |
+          pushd appium_wda_ios/Build/Products/Debug-iphoneos
+          zip -r "WebDriverAgentRunner-Runner-Xcode${{ env.XCODE_VERSION }}.zip" WebDriverAgentRunner-Runner.app
+          mv "WebDriverAgentRunner-Runner-${{ env.XCODE_VERSION }}.zip" ../../../..
+          popd
       - name: Build tvOS
         run: |
           xcodebuild clean build-for-testing -project WebDriverAgent.xcodeproj -derivedDataPath appium_wda_tvos -scheme WebDriverAgentRunner_tvOS -destination generic/platform=tvOS CODE_SIGNING_ALLOWED=NO
+      - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
+        run: |
+          pushd appium_wda_tvos/Build/Products/Debug-appletvos
+          zip -r "WebDriverAgentRunner_tvOS-Runner-Xcode${{ env.XCODE_VERSION }}.zip" WebDriverAgentRunner_tvOS-Runner.app
+          mv "WebDriverAgentRunner_tvOS-Runner-${{ env.XCODE_VERSION }}.zip" ../../../..
+          popd
+
+      - name: Upload the built generic app package for iOS
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "WebDriverAgentRunner-Runner-${{ env.XCODE_VERSION }}.zip"
+      - name: Upload the built generic app package for tvOS
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "WebDriverAgentRunner_tvOS-Runner-${{ env.XCODE_VERSION }}.zip"
