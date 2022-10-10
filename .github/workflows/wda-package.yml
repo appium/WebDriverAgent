@@ -2,7 +2,6 @@ name: Building WebDriverAgent
 
 on:
   workflow_dispatch:
-  pull_request:  # for testing, will remove this after merging this PR once
 
 jobs:
   build:
