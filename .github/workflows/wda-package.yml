@@ -11,8 +11,8 @@ jobs:
 
     env:
       XCODE_VERSION: 13.2.1
-      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner-Xcode${{ env.XCODE_VERSION }}.zip"
-      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner-Xcode${{ env.XCODE_VERSION }}.zip"
+      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
+      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
 
     steps:
       - name: Checkout
