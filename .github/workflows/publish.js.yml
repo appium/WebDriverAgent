@@ -77,9 +77,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       name: Release
-    - name: Upload Release assets
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          "${{ env.ZIP_PKG_NAME_IOS }}"
-          "${{ env.ZIP_PKG_NAME_TVOS }}"
+
