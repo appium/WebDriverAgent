@@ -55,6 +55,7 @@
   return
   @[
     [[FBRoute GET:@"/window/size"] respondWithTarget:self action:@selector(handleGetWindowSize:)],
+    [[FBRoute GET:@"/window/size"].withoutSession respondWithTarget:self action:@selector(handleGetWindowSize:)],
     [[FBRoute GET:@"/element/:uuid/enabled"] respondWithTarget:self action:@selector(handleGetEnabled:)],
     [[FBRoute GET:@"/element/:uuid/rect"] respondWithTarget:self action:@selector(handleGetRect:)],
     [[FBRoute GET:@"/element/:uuid/attribute/:name"] respondWithTarget:self action:@selector(handleGetAttribute:)],
@@ -532,11 +533,13 @@
 
 + (id<FBResponsePayload>)handleGetWindowSize:(FBRouteRequest *)request
 {
+  XCUIApplication *app = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+
 #if TARGET_OS_TV
-  CGSize screenSize = request.session.activeApplication.frame.size;
+  CGSize screenSize = app.frame.size;
 #else
-  CGRect frame = request.session.activeApplication.wdFrame;
-  CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, request.session.activeApplication.interfaceOrientation);
+  CGRect frame = app.wdFrame;
+  CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);
 #endif
   return FBResponseWithObject(@{
     @"width": @(screenSize.width),
