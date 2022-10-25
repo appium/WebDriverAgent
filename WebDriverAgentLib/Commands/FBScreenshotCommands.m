@@ -34,7 +34,7 @@
   if (nil == screenshotData) {
     return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description traceback:nil]);
   }
-  NSString *screenshot = [screenshotData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+  NSString *screenshot = [screenshotData base64EncodedStringWithOptions:0];
   return FBResponseWithObject(screenshot);
 }
 

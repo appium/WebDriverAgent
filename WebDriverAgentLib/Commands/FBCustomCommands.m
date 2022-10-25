@@ -226,7 +226,7 @@
   if (nil == result) {
     return FBResponseWithUnknownError(error);
   }
-  return FBResponseWithObject([result base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]);
+  return FBResponseWithObject([result base64EncodedStringWithOptions:0]);
 }
 
 + (id<FBResponsePayload>)handleGetBatteryInfo:(FBRouteRequest *)request
