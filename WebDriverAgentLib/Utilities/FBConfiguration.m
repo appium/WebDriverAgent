@@ -30,30 +30,30 @@ static NSString *const axSettingsClassName = @"AXSettings";
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
-static BOOL FBShouldUseCompactResponses = YES;
-static BOOL FBShouldTerminateApp = YES;
-static NSString *FBElementResponseAttributes = @"type,label";
-static NSUInteger FBMaxTypingFrequency = 60;
+NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
+
+static NSUInteger FBMjpegScalingFactor = 100;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
-static NSUInteger FBScreenshotQuality = 1;
-static NSUInteger FBMjpegScalingFactor = 100;
-static NSTimeInterval FBCustomSnapshotTimeout = 15.;
-static BOOL FBShouldUseFirstMatch = NO;
-static BOOL FBShouldBoundElementsByIndex = NO;
-// This is diabled by default because enabling it prevents the accessbility snapshot to be taken
-// (it always errors with kxIllegalArgument error)
-static BOOL FBIncludeNonModalElements = NO;
-static NSString *FBAcceptAlertButtonSelector = @"";
-static NSString *FBDismissAlertButtonSelector = @"";
-NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
-static NSMutableDictionary *FBSnapshotRequestParameters;
-static NSTimeInterval FBWaitForIdleTimeout = 10.;
-static NSTimeInterval FBAnimationCoolOffTimeout = 2.;
 
+// Session-specific settings
+static BOOL FBShouldTerminateApp;
+static NSUInteger FBMaxTypingFrequency;
+static NSUInteger FBScreenshotQuality;
+static NSTimeInterval FBCustomSnapshotTimeout;
+static BOOL FBShouldUseFirstMatch;
+static BOOL FBShouldBoundElementsByIndex;
+static BOOL FBIncludeNonModalElements;
+static NSString *FBAcceptAlertButtonSelector;
+static NSString *FBDismissAlertButtonSelector;
+static NSTimeInterval FBWaitForIdleTimeout;
+static NSTimeInterval FBAnimationCoolOffTimeout;
+static BOOL FBShouldUseCompactResponses;
+static NSString *FBElementResponseAttributes;
 #if !TARGET_OS_TV
-static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUnknown;
+static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
+static NSMutableDictionary *FBSnapshotRequestParameters;
 
 @implementation FBConfiguration
 
@@ -62,9 +62,9 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   FBSnapshotRequestParameters = [NSMutableDictionary dictionaryWithDictionary:@{
     @"maxArrayCount": @INT_MAX,
     @"maxChildren": @INT_MAX,
-    FBSnapshotMaxDepthKey: @50, // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
     @"traverseFromParentsToChildren": @1
   }];
+  [FBConfiguration resetSessionSettings];
 }
 
 #pragma mark Public
@@ -449,6 +449,30 @@ static UIInterfaceOrientation FBScreenshotOrientation = UIInterfaceOrientationUn
   }
 }
 #endif
+
++ (void)resetSessionSettings
+{
+  FBShouldTerminateApp = YES;
+  FBShouldUseCompactResponses = YES;
+  FBElementResponseAttributes = @"type,label";
+  FBMaxTypingFrequency = 60;
+  FBScreenshotQuality = 1;
+  FBCustomSnapshotTimeout = 15.;
+  FBShouldUseFirstMatch = NO;
+  FBShouldBoundElementsByIndex = NO;
+  // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
+  // (it always errors with kxIllegalArgument error)
+  FBIncludeNonModalElements = NO;
+  FBAcceptAlertButtonSelector = @"";
+  FBDismissAlertButtonSelector = @"";
+  FBWaitForIdleTimeout = 10.;
+  FBAnimationCoolOffTimeout = 2.;
+  // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
+  FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] = @50;
+#if !TARGET_OS_TV
+  FBScreenshotOrientation = UIInterfaceOrientationUnknown;
+#endif
+}
 
 #pragma mark Private
 

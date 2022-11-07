@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 
 extern NSString* const FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION;
-extern NSString* const FB_CAP_MAX_TYPING_FREQUNCY;
+extern NSString* const FB_CAP_MAX_TYPING_FREQUENCY;
 extern NSString* const FB_CAP_USE_SINGLETON_TEST_MANAGER;
 extern NSString* const FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS;
 extern NSString* const FB_CAP_SHOULD_TERMINATE_APP;

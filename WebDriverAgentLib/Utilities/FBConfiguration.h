@@ -301,6 +301,11 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 
 #endif
 
+/**
+ Resets all session-specific settings to their default values
+ */
++ (void)resetSessionSettings;
+
 @end
 
 NS_ASSUME_NONNULL_END

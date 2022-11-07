@@ -10,7 +10,7 @@
 #import "FBCapabilities.h"
 
 NSString* const FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION = @"shouldUseTestManagerForVisibilityDetection";
-NSString* const FB_CAP_MAX_TYPING_FREQUNCY = @"maxTypingFrequency";
+NSString* const FB_CAP_MAX_TYPING_FREQUENCY = @"maxTypingFrequency";
 NSString* const FB_CAP_USE_SINGLETON_TEST_MANAGER = @"shouldUseSingletonTestManager";
 NSString* const FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS = @"disableAutomaticScreenshots";
 NSString* const FB_CAP_SHOULD_TERMINATE_APP = @"shouldTerminateApp";
