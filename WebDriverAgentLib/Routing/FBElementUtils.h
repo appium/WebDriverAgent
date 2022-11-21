@@ -64,6 +64,14 @@ extern NSString *const FBUnknownAttributeException;
  */
 + (unsigned long long)idWithAccessibilityElement:(id<FBXCAccessibilityElement>)element;
 
+/**
+ Retrieves the list of required insatnce methods of the given protocol
+
+ @param protocol target protocol reference
+ @return set of selector names
+ */
++ (NSSet<NSString *> *)selectorNamesWithProtocol:(Protocol *)protocol;
+
 @end
 
 NS_ASSUME_NONNULL_END

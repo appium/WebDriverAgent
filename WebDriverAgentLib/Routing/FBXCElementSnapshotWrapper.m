@@ -11,6 +11,8 @@
 
 #import <objc/runtime.h>
 
+#import "FBElementUtils.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-protocol-property-synthesis"
 #pragma clang diagnostic ignored "-Wprotocol"
@@ -35,9 +37,15 @@
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
-  struct objc_method_description descr = protocol_getMethodDescription(@protocol(FBXCElementSnapshot), aSelector, YES, YES);
-  SEL selector = descr.name;
-  return nil == selector ? nil : self.snapshot;
+  static dispatch_once_t onceToken;
+  static NSSet<NSString *> *allNames;
+  dispatch_once(&onceToken, ^{
+    NSMutableSet<NSString *> *names = [NSMutableSet set];
+    [names unionSet:[FBElementUtils selectorNamesWithProtocol:@protocol(FBXCElementSnapshot)]];
+    [names unionSet:[FBElementUtils selectorNamesWithProtocol:@protocol(XCUIElementAttributes)]];
+    allNames = [names copy];
+  });
+  return [allNames containsObject:NSStringFromSelector(aSelector)] ? self.snapshot : nil;
 }
 
 @end

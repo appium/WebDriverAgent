@@ -20,11 +20,26 @@ static NSString *const OBJC_PROP_ATTRIBS_SEPARATOR = @",";
 
 @implementation FBElementUtils
 
++ (NSSet<NSString *> *)selectorNamesWithProtocol:(Protocol *)protocol
+{
+  unsigned int count;
+  struct objc_method_description *methods = protocol_copyMethodDescriptionList(protocol, YES, YES, &count);
+  NSMutableSet<NSString *> *result = [NSMutableSet set];
+  for (unsigned int i = 0; i < count; i++) {
+    SEL sel = methods[i].name;
+    if (nil != sel) {
+      [result addObject:NSStringFromSelector(sel)];
+    }
+  }
+  free(methods);
+  return result;
+}
+
 + (NSString *)wdAttributeNameForAttributeName:(NSString *)name
 {
   NSAssert(name.length > 0, @"Attribute name cannot be empty", nil);
   NSDictionary *attributeNamesMapping = [self.class wdAttributeNamesMapping];
-  NSString *result = [attributeNamesMapping valueForKey:name];
+  NSString *result = attributeNamesMapping[name];
   if (nil == result) {
     NSString *description = [NSString stringWithFormat:@"The attribute '%@' is unknown. Valid attribute names are: %@", name, [attributeNamesMapping.allKeys sortedArrayUsingSelector:@selector(compare:)]];
     @throw [NSException exceptionWithName:FBUnknownAttributeException reason:description userInfo:@{}];

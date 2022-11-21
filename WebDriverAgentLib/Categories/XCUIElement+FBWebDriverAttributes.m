@@ -58,11 +58,15 @@
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
-  struct objc_method_description descr = protocol_getMethodDescription(@protocol(FBElement), aSelector, YES, YES);
-  SEL webDriverAttributesSelector = descr.name;
-  return nil == webDriverAttributesSelector
-    ? nil
-    : [FBXCElementSnapshotWrapper ensureWrapped:[self fb_snapshotForAttributeName:NSStringFromSelector(webDriverAttributesSelector)]];
+  static dispatch_once_t onceToken;
+  static NSSet<NSString *> *fbElementAttributeNames;
+  dispatch_once(&onceToken, ^{
+    fbElementAttributeNames = [FBElementUtils selectorNamesWithProtocol:@protocol(FBElement)];
+  });
+  NSString* attributeName = NSStringFromSelector(aSelector);
+  return [fbElementAttributeNames containsObject:attributeName]
+    ? [FBXCElementSnapshotWrapper ensureWrapped:[self fb_snapshotForAttributeName:attributeName]]
+    : nil;
 }
 
 @end
