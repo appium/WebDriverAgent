@@ -32,7 +32,7 @@ static NSString *const OBJC_PROP_ATTRIBS_SEPARATOR = @",";
     }
   }
   free(methods);
-  return result;
+  return result.copy;
 }
 
 + (NSString *)wdAttributeNameForAttributeName:(NSString *)name
