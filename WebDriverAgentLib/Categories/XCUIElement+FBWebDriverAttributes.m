@@ -9,8 +9,6 @@
 
 #import "XCUIElement+FBWebDriverAttributes.h"
 
-#import <objc/runtime.h>
-
 #import "FBElementTypeTransformer.h"
 #import "FBLogger.h"
 #import "FBMacros.h"

@@ -9,8 +9,6 @@
 
 #import "FBXCElementSnapshotWrapper.h"
 
-#import <objc/runtime.h>
-
 #import "FBElementUtils.h"
 
 #pragma clang diagnostic push
