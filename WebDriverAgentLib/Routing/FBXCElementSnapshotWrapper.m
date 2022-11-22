@@ -33,17 +33,74 @@
     : [[FBXCElementSnapshotWrapper alloc] initWithSnapshot:snapshot];
 }
 
+// Attributes are queried most often,
+// so we prefer them to have direct accessors defined here
+// rather than use message forwarding via forwardingTargetForSelector,
+// which is slow
+
+- (NSString *)identifier
+{
+  return self.snapshot.identifier;
+}
+
+- (CGRect)frame
+{
+  return self.snapshot.frame;
+}
+
+- (id)value
+{
+  return self.snapshot.value;
+}
+
+- (NSString *)title
+{
+  return self.snapshot.title;
+}
+
+- (NSString *)label
+{
+  return self.snapshot.label;
+}
+
+- (XCUIElementType)elementType
+{
+  return self.snapshot.elementType;
+}
+
+- (BOOL)isEnabled
+{
+  return self.snapshot.enabled;
+}
+
+- (XCUIUserInterfaceSizeClass)horizontalSizeClass
+{
+  return self.snapshot.horizontalSizeClass;
+}
+
+- (XCUIUserInterfaceSizeClass)verticalSizeClass
+{
+  return self.snapshot.verticalSizeClass;
+}
+
+- (NSString *)placeholderValue
+{
+  return self.snapshot.placeholderValue;
+}
+
+- (BOOL)isSelected
+{
+  return self.snapshot.selected;
+}
+
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
   static dispatch_once_t onceToken;
-  static NSSet<NSString *> *allNames;
+  static NSSet<NSString *> *names;
   dispatch_once(&onceToken, ^{
-    NSMutableSet<NSString *> *names = [NSMutableSet set];
-    [names unionSet:[FBElementUtils selectorNamesWithProtocol:@protocol(FBXCElementSnapshot)]];
-    [names unionSet:[FBElementUtils selectorNamesWithProtocol:@protocol(XCUIElementAttributes)]];
-    allNames = [names copy];
+    names = [FBElementUtils selectorNamesWithProtocol:@protocol(FBXCElementSnapshot)];
   });
-  return [allNames containsObject:NSStringFromSelector(aSelector)] ? self.snapshot : nil;
+  return [names containsObject:NSStringFromSelector(aSelector)] ? self.snapshot : nil;
 }
 
 @end
