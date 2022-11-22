@@ -35,7 +35,7 @@
 
 // Attributes are queried most often,
 // so we prefer them to have direct accessors defined here
-// rather than use message forwarding via forwardingTargetForSelector,
+// rather than to use message forwarding via forwardingTargetForSelector,
 // which is slow
 
 - (NSString *)identifier
