@@ -3,7 +3,7 @@ import { PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS } from '../../lib/constants';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { withMocks } from '@appium/test-support';
-import { fs } from 'appium/support';
+import { fs } from '@appium/support';
 import path from 'path';
 import { fail } from 'assert';
 

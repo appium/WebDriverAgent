@@ -1,6 +1,6 @@
 const buildWebDriverAgent = require('./build-webdriveragent');
 const { asyncify } = require('asyncbox');
-const { fs, logger } = require('appium/support');
+const { fs, logger } = require('@appium/support');
 const { exec } = require('teen_process');
 const path = require('path');
 

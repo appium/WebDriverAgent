@@ -1,7 +1,7 @@
 const path = require('path');
 const axios = require('axios');
 const { asyncify } = require('asyncbox');
-const { logger, fs, mkdirp, net } = require('appium/support');
+const { logger, fs, mkdirp, net } = require('@appium/support');
 const _ = require('lodash');
 const B = require('bluebird');
 
