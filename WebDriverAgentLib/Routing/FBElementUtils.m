@@ -122,7 +122,7 @@ static NSString *const OBJC_PROP_ATTRIBS_SEPARATOR = @",";
     }
     attributeNamesMapping = resultCache.copy;
   });
-  return attributeNamesMapping.copy;
+  return attributeNamesMapping;
 }
 
 + (NSString *)uidWithAccessibilityElement:(id<FBXCAccessibilityElement>)element

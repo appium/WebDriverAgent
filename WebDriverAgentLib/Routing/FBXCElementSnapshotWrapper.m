@@ -93,6 +93,13 @@
   return self.snapshot.selected;
 }
 
+#if !TARGET_OS_OSX
+- (BOOL)hasFocus
+{
+  return self.snapshot.hasFocus;
+}
+#endif
+
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
   static dispatch_once_t onceToken;
