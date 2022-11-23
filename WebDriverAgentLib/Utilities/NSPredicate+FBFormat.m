@@ -52,6 +52,10 @@
 
 + (instancetype)fb_snapshotBlockPredicateWithPredicate:(NSPredicate *)input
 {
+  if ([NSStringFromClass(input.class) isEqualToString:@"NSBlockPredicate"]) {
+    return input;
+  }
+
   NSPredicate *wdPredicate = [self.class fb_formatSearchPredicate:input];
   return [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject,
                                                NSDictionary<NSString *,id> * _Nullable bindings) {
