@@ -30,6 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Represents unique internal element identifier, which is the same for an element and its snapshot */
 @property (nonatomic, readonly) unsigned long long fb_accessibiltyId;
 
+/**
+ Fetches wdUID attribute value for the given snapshot instance
+
+ @param snapshot snapshot instance
+ @return UID attribute value
+ */
++ (nullable NSString *)wdUIDWithSnapshot:(id<FBXCElementSnapshot>)snapshot;
+
 @end
 
 NS_ASSUME_NONNULL_END

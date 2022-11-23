@@ -100,16 +100,21 @@
     value = [NSString stringWithFormat:@"%@", value];
   }
   return value;
- }
+}
 
-- (NSString *)wdName
++ (NSString *)wdNameWithSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
-  NSString *identifier = self.identifier;
+  NSString *identifier = snapshot.identifier;
   if (nil != identifier && identifier.length != 0) {
     return identifier;
   }
-  NSString *label = self.label;
+  NSString *label = snapshot.label;
   return FBTransferEmptyStringToNil(label);
+}
+
+- (NSString *)wdName
+{
+  return [self.class wdNameWithSnapshot:self.snapshot];
 }
 
 - (NSString *)wdLabel

@@ -20,6 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBXCElementSnapshotWrapper (WebDriverAttributes) <FBElement>
 
+/**
+ Fetches wdName attribute value for the given snapshot instance
+
+ @param snapshot snapshot instance
+ @return wdName attribute value or nil
+ */
++ (nullable NSString *)wdNameWithSnapshot:(id<FBXCElementSnapshot>)snapshot;
+
 @end
 
 NS_ASSUME_NONNULL_END

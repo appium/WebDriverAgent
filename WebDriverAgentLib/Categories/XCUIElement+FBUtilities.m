@@ -134,13 +134,16 @@
   }
   NSMutableArray<NSString *> *sortedIds = [NSMutableArray new];
   for (id<FBXCElementSnapshot> snapshot in snapshots) {
-    [sortedIds addObject:(NSString *)[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid];
+    NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
+    if (nil != uid) {
+      [sortedIds addObject:uid];
+    }
   }
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
   NSString *uid = selfUID;
   if (nil == uid) {
     uid = self.fb_isResolvedFromCache.boolValue
-      ? [FBXCElementSnapshotWrapper ensureWrapped:self.lastSnapshot].fb_uid
+      ? [FBXCElementSnapshotWrapper wdUIDWithSnapshot:self.lastSnapshot]
       : self.fb_uid;
   }
   if ([sortedIds containsObject:uid]) {
@@ -158,7 +161,7 @@
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
   NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    return [sortedIds containsObject:(NSString *)[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid];
+    return [sortedIds containsObject:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] ?: @""];
   }];
   query = [query matchingPredicate:predicate];
   if (1 == snapshots.count) {

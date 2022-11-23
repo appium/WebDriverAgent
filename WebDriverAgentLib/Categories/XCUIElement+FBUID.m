@@ -38,9 +38,14 @@
   return [FBElementUtils idWithAccessibilityElement:self.accessibilityElement];
 }
 
++ (nullable NSString *)wdUIDWithSnapshot:(id<FBXCElementSnapshot>)snapshot
+{
+  return [FBElementUtils uidWithAccessibilityElement:[snapshot accessibilityElement]];
+}
+
 - (NSString *)fb_uid
 {
-  return [FBElementUtils uidWithAccessibilityElement:[self accessibilityElement]];
+  return [self.class wdUIDWithSnapshot:self.snapshot];
 }
 
 @end
