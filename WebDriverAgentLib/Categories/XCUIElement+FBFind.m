@@ -68,9 +68,7 @@
                                                      value:(NSString *)value
                                              partialSearch:(BOOL)partialSearch
 {
-  NSPredicate *searchPredicate = partialSearch
-    ? [NSPredicate predicateWithFormat:@"%K CONTAINS %@", property, value]
-    : [NSPredicate predicateWithFormat:@"%K == %@", property, value];
+  NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:(partialSearch ? @"%K CONTAINS %@" : @"%K == %@"), property, value];
   return [self fb_descendantsMatchingPredicate:searchPredicate shouldReturnAfterFirstMatch:NO];
 }
 
