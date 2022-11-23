@@ -47,7 +47,7 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
     return self;
   }
   NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    return [[FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_uid isEqualToString:uid];
+    return [[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] isEqualToString:uid];
   }];
   return (XCUIElement *)[query matchingPredicate:predicate].fb_firstMatch;
 }
