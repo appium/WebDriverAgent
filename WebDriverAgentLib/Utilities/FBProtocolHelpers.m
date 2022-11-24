@@ -20,12 +20,12 @@ static NSString *const ALWAYS_MATCH_KEY = @"alwaysMatch";
 static NSString *const FIRST_MATCH_KEY = @"firstMatch";
 
 
-NSDictionary *FBInsertElement(NSDictionary *dst, id element)
+NSDictionary<NSString *, id> *FBToElementDict(id element)
 {
-  NSMutableDictionary *result = dst.mutableCopy;
-  result[W3C_ELEMENT_KEY] = element;
-  result[JSONWP_ELEMENT_KEY] = element;
-  return result.copy;
+  return @{
+    W3C_ELEMENT_KEY: element,
+    JSONWP_ELEMENT_KEY: element
+  };
 }
 
 id FBExtractElement(NSDictionary *src)

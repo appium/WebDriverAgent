@@ -38,7 +38,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
     return nil;
   }
   _elementCache = [[LRUCache alloc] initWithCapacity:ELEMENT_CACHE_SIZE];
-  _elementsNeedReset = YES;
+  _elementsNeedReset = NO;
   return self;
 }
 
@@ -50,8 +50,8 @@ const int ELEMENT_CACHE_SIZE = 1024;
   }
   @synchronized (self.elementCache) {
     [self.elementCache setObject:element forKey:uuid];
+    self.elementsNeedReset = YES;
   }
-  self.elementsNeedReset = YES;
   return uuid;
 }
 

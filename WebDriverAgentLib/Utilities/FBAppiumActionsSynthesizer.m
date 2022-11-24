@@ -448,9 +448,10 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
       [result addObject:touchItem];
       continue;
     }
+    NSMutableDictionary *elementDict = FBCleanupElements(options).mutableCopy;
+    [elementDict addEntriesFromDictionary:FBToElementDict(element)];
     NSMutableDictionary<NSString *, id> *processedItem = touchItem.mutableCopy;
-    [processedItem setObject:FBInsertElement(FBCleanupElements(options), element)
-                      forKey:FB_OPTIONS_KEY];
+    processedItem[FB_OPTIONS_KEY] = elementDict.copy;
     [result addObject:processedItem.copy];
   }
   return [[result reverseObjectEnumerator] allObjects];

@@ -12,13 +12,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Inserts element uuid into the response dictionary
+ Prepares an element dictionary, which could be then used in hybrid W3C/JWP responses
 
- @param dst The target dictionary. It is NOT mutated
  @param element Either element identifier or element object itself
- @returns The changed dictionary
+ @returns The resulting dictionary
  */
-NSDictionary *FBInsertElement(NSDictionary *dst, id element);
+NSDictionary<NSString *, id> *FBToElementDict(id element);
 
 /**
  Extracts element uuid from dictionary
