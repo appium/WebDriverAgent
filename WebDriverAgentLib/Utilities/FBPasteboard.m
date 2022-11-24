@@ -94,7 +94,7 @@
     pasteboardContent = result;
     didFinishGetPasteboard = YES;
   });
-  uint64_t timeStarted = mach_absolute_time();
+  uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   while (!didFinishGetPasteboard) {
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:ALERT_CHECK_INTERVAL_SEC]];
     if (didFinishGetPasteboard) {
@@ -106,7 +106,7 @@
       FBAlert *alert = [FBAlert alertWithElement:alertElement];
       [alert acceptWithError:nil];
     }
-    uint64_t timeElapsed = mach_absolute_time() - timeStarted;
+    uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
     if (timeElapsed / NSEC_PER_SEC > timeout) {
       NSString *description = [NSString stringWithFormat:@"Cannot handle pasteboard alert within %@s timeout", @(timeout)];
       if (error) {

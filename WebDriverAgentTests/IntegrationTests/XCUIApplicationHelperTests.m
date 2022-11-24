@@ -46,10 +46,10 @@
 - (void)testDeactivateApplication
 {
   NSError *error;
-  uint64_t timeStarted = mach_absolute_time();
+  uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   NSTimeInterval backgroundDuration = 5.0;
   XCTAssertTrue([self.testedApplication fb_deactivateWithDuration:backgroundDuration error:&error]);
-  NSTimeInterval timeElapsed = (mach_absolute_time() - timeStarted) / NSEC_PER_SEC;
+  NSTimeInterval timeElapsed = (clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted) / NSEC_PER_SEC;
   XCTAssertNil(error);
   XCTAssertEqualWithAccuracy(timeElapsed, backgroundDuration, 3.0);
   XCTAssertTrue(self.testedApplication.buttons[@"Alerts"].exists);

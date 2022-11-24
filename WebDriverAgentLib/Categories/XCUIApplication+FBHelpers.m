@@ -31,7 +31,6 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
 
-const static NSTimeInterval FBMinimumAppSwitchWait = 3.0;
 static NSString* const FBUnknownBundleId = @"unknown";
 
 
@@ -92,7 +91,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
   if(![[XCUIDevice sharedDevice] fb_goToHomescreenWithError:error]) {
     return NO;
   }
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX(duration, FBMinimumAppSwitchWait)]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX(duration, .0)]];
   [self fb_activate];
   return YES;
 }

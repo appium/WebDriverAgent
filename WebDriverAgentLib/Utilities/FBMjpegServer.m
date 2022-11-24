@@ -31,7 +31,6 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 @property (nonatomic, readonly) dispatch_queue_t backgroundQueue;
 @property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *listeningClients;
-@property (nonatomic, readonly) mach_timebase_info_data_t timebaseInfo;
 @property (nonatomic, readonly) FBImageIOScaler *imageScaler;
 @property (nonatomic, readonly) long long mainScreenID;
 
@@ -46,7 +45,6 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     _listeningClients = [NSMutableArray array];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
-    mach_timebase_info(&_timebaseInfo);
     dispatch_async(_backgroundQueue, ^{
       [self streamScreenshot];
     });
@@ -58,8 +56,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 - (void)scheduleNextScreenshotWithInterval:(uint64_t)timerInterval timeStarted:(uint64_t)timeStarted
 {
-  uint64_t timeElapsed = mach_absolute_time() - timeStarted;
-  int64_t nextTickDelta = timerInterval - timeElapsed * self.timebaseInfo.numer / self.timebaseInfo.denom;
+  uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
+  int64_t nextTickDelta = timerInterval - timeElapsed;
   if (nextTickDelta > 0) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, nextTickDelta), self.backgroundQueue, ^{
       [self streamScreenshot];
@@ -81,7 +79,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
   NSUInteger framerate = FBConfiguration.mjpegServerFramerate;
   uint64_t timerInterval = (uint64_t)(1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate) * NSEC_PER_SEC);
-  uint64_t timeStarted = mach_absolute_time();
+  uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   @synchronized (self.listeningClients) {
     if (0 == self.listeningClients.count) {
       [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
