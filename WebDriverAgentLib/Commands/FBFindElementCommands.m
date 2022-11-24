@@ -22,6 +22,7 @@
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBFind.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
@@ -88,7 +89,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
       && [FBXCElementSnapshotWrapper ensureWrapped:snapshot].wdVisible;
   }];
   NSArray *cells = [element fb_filterDescendantsWithSnapshots:visibleCellSnapshots
-                                                      selfUID:[FBXCElementSnapshotWrapper ensureWrapped:element.lastSnapshot].wdUID
+                                                      selfUID:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:element.lastSnapshot]
                                                  onlyChildren:NO];
   return FBResponseWithCachedElements(cells, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }

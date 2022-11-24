@@ -48,7 +48,7 @@ static char XCUIELEMENT_CACHE_ID_KEY;
     uid = self.fb_uid;
   } else {
     id<FBXCElementSnapshot> snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
-    uid = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].wdUID;
+    uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
   }
 
   objc_setAssociatedObject(self, &XCUIELEMENT_CACHE_ID_KEY, uid, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
