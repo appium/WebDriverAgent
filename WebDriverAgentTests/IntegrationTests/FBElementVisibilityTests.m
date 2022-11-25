@@ -72,8 +72,8 @@
   [self launchApplication];
   [self goToScrollPageWithCells:YES];
   for (int i = 0 ; i < 10 ; i++) {
-    FBAssertWaitTillBecomesTrue(self.testedApplication.cells.allElementsBoundByAccessibilityElement[i].fb_isVisible);
-    FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts.allElementsBoundByAccessibilityElement[i].fb_isVisible);
+    FBAssertWaitTillBecomesTrue(self.testedApplication.cells.allElementsBoundByIndex[i].fb_isVisible);
+    FBAssertWaitTillBecomesTrue(self.testedApplication.staticTexts.allElementsBoundByIndex[i].fb_isVisible);
   }
 }
 

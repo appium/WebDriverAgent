@@ -192,7 +192,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
 - (NSString *)fb_descriptionRepresentation
 {
   NSMutableArray<NSString *> *childrenDescriptions = [NSMutableArray array];
-  for (XCUIElement *child in [self.fb_query childrenMatchingType:XCUIElementTypeAny].allElementsBoundByAccessibilityElement) {
+  for (XCUIElement *child in [self.fb_query childrenMatchingType:XCUIElementTypeAny].allElementsBoundByIndex) {
     [childrenDescriptions addObject:child.debugDescription];
   }
   // debugDescription property of XCUIApplication instance shows descendants addresses in memory

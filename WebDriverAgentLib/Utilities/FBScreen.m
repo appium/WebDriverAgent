@@ -31,7 +31,7 @@
     expectVisibleBar = NO;
   }
 
-  XCUIElement *mainStatusBar = app.statusBars.fb_firstMatch;
+  XCUIElement *mainStatusBar = app.statusBars.allElementsBoundByIndex.firstObject;
   if (!mainStatusBar || (expectVisibleBar && !mainStatusBar.fb_isVisible)) {
     return CGSizeZero;
   }

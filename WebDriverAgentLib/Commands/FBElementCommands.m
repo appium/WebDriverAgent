@@ -386,9 +386,11 @@
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
   if (name) {
-    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:name] allElementsBoundByAccessibilityElement] lastObject];
+    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny]
+                                   matchingIdentifier:name] allElementsBoundByIndex] lastObject];
     if (!childElement) {
-      return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' identifier didn't match any elements", name] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' identifier didn't match any elements", name]
+                                                                       traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
     return [self.class handleScrollElementToVisible:childElement withRequest:request];
   }
@@ -413,9 +415,11 @@
   if (predicateString) {
     NSPredicate *formattedPredicate = [NSPredicate fb_snapshotBlockPredicateWithPredicate:[NSPredicate
                                                                                            predicateWithFormat:predicateString]];
-    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny] matchingPredicate:formattedPredicate] allElementsBoundByAccessibilityElement] lastObject];
+    XCUIElement *childElement = [[[[element.fb_query descendantsMatchingType:XCUIElementTypeAny]
+                                   matchingPredicate:formattedPredicate] allElementsBoundByIndex] lastObject];
     if (!childElement) {
-      return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' predicate didn't match any elements", predicateString] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      return FBResponseWithStatus([FBCommandStatus noSuchElementErrorWithMessage:[NSString stringWithFormat:@"'%@' predicate didn't match any elements", predicateString]
+                                                                       traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
     return [self.class handleScrollElementToVisible:childElement withRequest:request];
   }
@@ -675,7 +679,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
    */
   XCUIElement *element = application;
   if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
-    XCUIElement *window = application.windows.fb_firstMatch;
+    XCUIElement *window = application.windows.allElementsBoundByIndex.firstObject;
     if (window) {
       element = window;
       id<FBXCElementSnapshot> snapshot = element.fb_cachedSnapshot ?: element.fb_takeSnapshot;

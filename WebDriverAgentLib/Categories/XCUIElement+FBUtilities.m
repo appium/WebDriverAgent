@@ -165,7 +165,7 @@
   }];
   query = [query matchingPredicate:predicate];
   if (1 == snapshots.count) {
-    XCUIElement *result = query.fb_firstMatch;
+    XCUIElement *result = query.allElementsBoundByIndex.firstObject;
     result.fb_isResolvedNatively = @NO;
     return result ? @[result] : @[];
   }
