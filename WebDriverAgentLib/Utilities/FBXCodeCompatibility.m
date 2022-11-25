@@ -65,10 +65,11 @@ NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethod
 
 - (XCUIElement *)fb_firstMatch
 {
-  XCUIElement* match = FBConfiguration.useFirstMatch
-    ? self.firstMatch
-    : self.fb_allMatches.firstObject;
-  return [match exists] ? match : nil;
+  if (FBConfiguration.useFirstMatch) {
+    XCUIElement* match = self.firstMatch;
+    return [match exists] ? match : nil;
+  }
+  return self.fb_allMatches.firstObject;
 }
 
 - (NSArray<XCUIElement *> *)fb_allMatches
