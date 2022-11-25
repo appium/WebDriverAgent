@@ -132,11 +132,11 @@
   if (0 == snapshots.count) {
     return @[];
   }
-  NSMutableArray<NSString *> *sortedIds = [NSMutableArray new];
+  NSMutableArray<NSString *> *matchedIds = [NSMutableArray new];
   for (id<FBXCElementSnapshot> snapshot in snapshots) {
     NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
     if (nil != uid) {
-      [sortedIds addObject:uid];
+      [matchedIds addObject:uid];
     }
   }
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
@@ -146,11 +146,13 @@
       ? [FBXCElementSnapshotWrapper wdUIDWithSnapshot:self.lastSnapshot]
       : self.fb_uid;
   }
-  if ([sortedIds containsObject:uid]) {
+  if (nil != uid && [matchedIds containsObject:uid]) {
+    XCUIElement *stableSelf = self.fb_stableInstance;
+    stableSelf.fb_isResolvedNatively = @NO;
     if (1 == snapshots.count) {
-      return @[self];
+      return @[stableSelf];
     }
-    [matchedElements addObject:self];
+    [matchedElements addObject:stableSelf];
   }
   XCUIElementType type = XCUIElementTypeAny;
   NSArray<NSNumber *> *uniqueTypes = [snapshots valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", FBStringify(XCUIElement, elementType)]];
@@ -161,34 +163,13 @@
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
   NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    return [sortedIds containsObject:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] ?: @""];
+    return [matchedIds containsObject:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] ?: @""];
   }];
-  query = [query matchingPredicate:predicate];
-  if (1 == snapshots.count) {
-    XCUIElement *result = query.allElementsBoundByIndex.firstObject;
-    result.fb_isResolvedNatively = @NO;
-    return result ? @[result] : @[];
-  }
-  // Rely here on the fact, that XPath always returns query results in the same
-  // order they appear in the document, which means we don't need to resort the resulting
-  // array. Although, if it turns out this is still not the case then we could always
-  // uncomment the sorting procedure below:
-  //  query = [query sorted:(id)^NSComparisonResult(XCElementSnapshot *a, XCElementSnapshot *b) {
-  //    NSUInteger first = [sortedIds indexOfObject:a.wdUID];
-  //    NSUInteger second = [sortedIds indexOfObject:b.wdUID];
-  //    if (first < second) {
-  //      return NSOrderedAscending;
-  //    }
-  //    if (first > second) {
-  //      return NSOrderedDescending;
-  //    }
-  //    return NSOrderedSame;
-  //  }];
-  NSArray<XCUIElement *> *result = query.fb_allMatches;
-  for (XCUIElement *el in result) {
+  [matchedElements addObjectsFromArray:[query matchingPredicate:predicate].allElementsBoundByIndex];
+  for (XCUIElement *el in matchedElements) {
     el.fb_isResolvedNatively = @NO;
   }
-  return result;
+  return matchedElements.copy;
 }
 
 - (void)fb_waitUntilStable
