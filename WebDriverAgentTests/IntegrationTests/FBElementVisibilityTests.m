@@ -36,7 +36,7 @@
   XCTAssertTrue(self.springboard.icons[@"Reminders"].fb_isVisible);
 
   // Check Icons on second screen screen
-  XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].query.fb_firstMatch.fb_isVisible);
+  XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].firstMatch.fb_isVisible);
 }
 
 - (void)testSpringBoardSubfolder
@@ -59,7 +59,7 @@
   XCTAssertFalse(self.springboard.icons[@"Reminders"].fb_isVisible);
   XCTAssertFalse([[[self.springboard descendantsMatchingType:XCUIElementTypeIcon]
                    matchingIdentifier:@"IntegrationApp"]
-                  fb_firstMatch].fb_isVisible);
+                  firstMatch].fb_isVisible);
 }
 
 - (void)testTableViewCells

@@ -41,7 +41,7 @@
 
 - (id<FBXCElementSnapshot>)destinationSnapshot
 {
-  XCUIElement *matchingElement = self.testedView.buttons.fb_firstMatch;
+  XCUIElement *matchingElement = self.testedView.buttons.allElementsBoundByIndex.firstObject;
   FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_takeSnapshot);
 
   id<FBXCElementSnapshot> snapshot = matchingElement.fb_takeSnapshot;

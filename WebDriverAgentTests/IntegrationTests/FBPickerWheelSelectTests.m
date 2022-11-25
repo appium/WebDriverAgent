@@ -33,7 +33,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
 - (void)testSelectNextPickerValue
 {
-  XCUIElement *element = self.testedApplication.pickerWheels.fb_firstMatch;
+  XCUIElement *element = self.testedApplication.pickerWheels.allElementsBoundByIndex.firstObject;
   XCTAssertTrue(element.exists);
   XCTAssertEqualObjects(element.wdType, @"XCUIElementTypePickerWheel");
   NSError *error;

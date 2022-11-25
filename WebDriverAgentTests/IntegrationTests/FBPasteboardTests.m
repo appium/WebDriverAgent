@@ -44,7 +44,7 @@
   if (![pastItemsQuery.firstMatch waitForExistenceWithTimeout:2.0]) {
     XCTFail(@"No matched element named 'Paste'");
   }
-  XCUIElement *pasteItem = pastItemsQuery.fb_firstMatch;
+  XCUIElement *pasteItem = pastItemsQuery.firstMatch;
   XCTAssertNotNil(pasteItem);
   [pasteItem tap];
   FBAssertWaitTillBecomesTrue([textField.value isEqualToString:text]);

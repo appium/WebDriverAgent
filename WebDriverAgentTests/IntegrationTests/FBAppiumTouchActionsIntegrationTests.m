@@ -298,7 +298,7 @@
     [self launchApplication];
     [self goToAttributesPage];
   });
-  self.pickerWheel = self.testedApplication.pickerWheels.fb_firstMatch;
+  self.pickerWheel = self.testedApplication.pickerWheels.allElementsBoundByIndex.firstObject;
 }
 
 - (void)tearDown
