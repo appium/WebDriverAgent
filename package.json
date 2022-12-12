@@ -13,7 +13,6 @@
     "prepare": "npm run build",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
     "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.js\"",
-    "prepublishOnly": "npm run bundle",
     "bundle": "node ./Scripts/build-webdriveragent.js",
     "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js"
   },
@@ -109,7 +108,6 @@
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
     "XCTWebDriverAgentLib",
-    "WebDriverAgentRunner-Runner.app.zip",
     "CHANGELOG.md"
   ]
 }
