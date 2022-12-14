@@ -53,7 +53,7 @@
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
     "@appium/eslint-config-appium": "^6.0.0",
-    "@appium/test-support": "^2.0.0",
+    "@appium/test-support": "^3.0.0",
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.10",
     "@babel/eslint-parser": "^7.18.9",
