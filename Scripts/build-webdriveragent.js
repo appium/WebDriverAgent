@@ -34,7 +34,7 @@ async function buildWebDriverAgent (xcodeVersion) {
     throw e;
   }
 
-  const zipName = `wdaXcode${xcodeVersion}.zip`;
+  const zipName = `WebDriverAgentRunner-Runner-Sim-${xcodeVersion}.zip`;
   log.info(`Creating ${zipName} which includes ${wdaAppBundle}`);
   const appBundleZipPath = path.join(rootDir, zipName);
   await fs.rimraf(appBundleZipPath);
