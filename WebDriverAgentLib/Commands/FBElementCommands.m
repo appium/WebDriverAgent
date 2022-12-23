@@ -94,6 +94,7 @@
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+    [[FBRoute POST:@"/wda/pickerwheel/:uuid/selectvalue"] respondWithTarget:self action:@selector(handleWheelSelect1:)],
     [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
@@ -652,6 +653,45 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   }
   return FBResponseWithOK();
 }
+  + (id<FBResponsePayload>)handleWheelSelect1:(FBRouteRequest *)request
+  {
+    FBElementCache *elementCache = request.session.elementCache;
+    XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+    if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    }
+    NSError *error;
+    NSString* value = request.arguments[@"value"];
+    NSString* startValue = element.wdValue;
+    Boolean flag = false;
+    if(value == nil){
+      return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description
+                                                                               traceback:nil]);
+    }else{
+      CGFloat offset = DEFAULT_OFFSET;
+      NSString* val = @"";
+      if(element.wdValue == value)
+        return FBResponseWithOK();
+      do{
+        [element fb_selectNextOptionWithOffset:offset error:&error];
+        element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+        if([val isEqualToString: element.wdValue]){
+          break;
+        }
+        val = element.wdValue;
+        if([val isEqualToString: value]){
+          flag = true;
+          break;
+        }
+      }while(![val isEqualToString: startValue]);
+      if(flag){
+        return FBResponseWithOK();
+      }else{
+        return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description
+                                                                                 traceback:nil]);
+      }
+    }
+  }
 
 /**
  Returns gesture coordinate for the application based on absolute coordinate
