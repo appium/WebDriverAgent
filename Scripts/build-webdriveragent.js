@@ -1,6 +1,6 @@
 const path = require('path');
 const { asyncify } = require('asyncbox');
-const { logger, fs, zip } = require('@appium/support');
+const { logger, fs } = require('@appium/support');
 const { exec } = require('teen_process');
 const xcode = require('appium-xcode');
 
@@ -39,7 +39,16 @@ async function buildWebDriverAgent (xcodeVersion) {
   const appBundleZipPath = path.join(ROOT_DIR, zipName);
   await fs.rimraf(appBundleZipPath);
   LOG.info(`Created './${zipName}'`);
-  await zip.toArchive(appBundleZipPath, {pattern: '*.app/**', cwd: WDA_BUNDLE_PATH});
+  try {
+    await exec('xattr', ['-cr', WDA_BUNDLE], {cwd: WDA_BUNDLE_PATH});
+    await exec('zip', ['-r', appBundleZipPath, WDA_BUNDLE], {cwd: WDA_BUNDLE_PATH});
+  } catch (e) {
+    LOG.error(`===FAILED TO ZIP ARCHIVE`);
+    LOG.error(e.stdout);
+    LOG.error(e.stderr);
+    LOG.error(e.message);
+    throw e;
+  }
   LOG.info(`Zip bundled at "${appBundleZipPath}"`);
 }
 
