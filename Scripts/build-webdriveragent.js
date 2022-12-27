@@ -18,7 +18,7 @@ async function buildWebDriverAgent (xcodeVersion) {
 
   // Get Xcode version
   xcodeVersion = xcodeVersion || await xcode.getVersion();
-  LOG.info(`Building WebDriverAgent for iOS for Xcode version '${xcodeVersion}'`);
+  LOG.info(`Building WebDriverAgent for iOS using Xcode version '${xcodeVersion}'`);
 
   // Clean and build
   try {
@@ -28,9 +28,7 @@ async function buildWebDriverAgent (xcodeVersion) {
     });
   } catch (e) {
     LOG.error(`===FAILED TO BUILD FOR ${xcodeVersion}`);
-    LOG.error(e.stdout);
     LOG.error(e.stderr);
-    LOG.error(e.message);
     throw e;
   }
 
@@ -41,12 +39,10 @@ async function buildWebDriverAgent (xcodeVersion) {
   LOG.info(`Created './${zipName}'`);
   try {
     await exec('xattr', ['-cr', WDA_BUNDLE], {cwd: WDA_BUNDLE_PATH});
-    await exec('zip', ['-r', appBundleZipPath, WDA_BUNDLE], {cwd: WDA_BUNDLE_PATH});
+    await exec('zip', ['-qr', appBundleZipPath, WDA_BUNDLE], {cwd: WDA_BUNDLE_PATH});
   } catch (e) {
     LOG.error(`===FAILED TO ZIP ARCHIVE`);
-    LOG.error(e.stdout);
     LOG.error(e.stderr);
-    LOG.error(e.message);
     throw e;
   }
   LOG.info(`Zip bundled at "${appBundleZipPath}"`);
