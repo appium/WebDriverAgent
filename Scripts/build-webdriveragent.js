@@ -11,10 +11,12 @@ const WDA_BUNDLE = 'WebDriverAgentRunner-Runner.app';
 const WDA_BUNDLE_PATH = path.join(DERIVED_DATA_PATH, 'Build', 'Products', 'Debug-iphonesimulator');
 
 async function buildWebDriverAgent (xcodeVersion) {
-  LOG.info(`Deleting ${DERIVED_DATA_PATH} if exists`);
-  if (await fs.exists(DERIVED_DATA_PATH)) {
-    await fs.rimraf(DERIVED_DATA_PATH);
-  }
+  LOG.info(`Cleaning ${DERIVED_DATA_PATH} if exists`);
+  try {
+    await exec('xcodebuild', ['clean', '-derivedDataPath', DERIVED_DATA_PATH, '-scheme', 'WebDriverAgentRunner'], {
+      cwd: ROOT_DIR
+    });
+  } catch (ign) {}
 
   // Get Xcode version
   xcodeVersion = xcodeVersion || await xcode.getVersion();
