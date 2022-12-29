@@ -43,7 +43,7 @@ jobs:
           -derivedDataPath $PKG_PATH_IOS \
           -scheme WebDriverAgentRunner \
           -destination generic/platform=iOS \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
     - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS
       run: |
         pushd appium_wda_ios/Build/Products/Debug-iphoneos
@@ -57,7 +57,7 @@ jobs:
           -derivedDataPath $PKG_PATH_TVOS \
           -scheme WebDriverAgentRunner_tvOS \
           -destination generic/platform=tvOS \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
     - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
       run: |
         pushd appium_wda_tvos/Build/Products/Debug-appletvos
