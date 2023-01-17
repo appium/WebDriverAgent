@@ -8,7 +8,7 @@
  */
 
 #import "FBResponseJSONPayload.h"
-
+#import "FBLogger.h"
 #import "RouteResponse.h"
 
 @interface FBResponseJSONPayload ()
@@ -20,6 +20,58 @@
 
 @implementation FBResponseJSONPayload
 
+
+/*
+ * Convenience method to do the check and validation in one.
+ */
++ (NSString*) makeValidUTF8:(NSString*) stringToCheck
+{
+  if (![FBResponseJSONPayload isValidUTF8 :stringToCheck])
+  {
+    return [FBResponseJSONPayload removeInvalidCharsFromString:stringToCheck];
+  }
+  else
+  {
+    return stringToCheck;
+  }
+}
+
+/*
+ * Returns true if the string can be converted to UTF8
+ */
++ (int) isValidUTF8:(NSString*) stringToCheck
+{
+  return ([stringToCheck UTF8String] != nil);
+}
+
+/*
+ * Removes invalid UTF8 chars from the NSString
+ * This method is slow, so only run it on strings that fail the isValidUTF8 check.
+ */
++ (NSString*) removeInvalidCharsFromString:(NSString*) stringToCheck
+{
+  NSMutableString* fixedUp = [NSMutableString stringWithString:@""];
+  for (NSUInteger i = 0; i < [stringToCheck length]; i++)
+  {
+    @autoreleasepool
+    {
+      unichar character = [stringToCheck characterAtIndex:i];
+      NSString* charString = [[NSString alloc] initWithCharacters:&character length:1];
+      if ([charString UTF8String] == nil)
+      {
+        [FBLogger logFmt:@"Invalid UTF-8 sequence encountered at position %lu. Code: %hu (%X). Replacing with \ufffd", (unsigned long) i, character, character];
+        [fixedUp appendString:@"\ufffd"];
+      }
+      else
+      {
+        [fixedUp appendString:charString];
+      }
+    }
+  }
+  [FBLogger logFmt:@"Given JSONPayload was NOT valid utf-8. Orig length %lu, fixed length %lu", (unsigned long)[stringToCheck length], (unsigned long)[fixedUp length]];
+  return fixedUp;
+}
+
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
                     httpStatusCode:(HTTPStatusCode)httpStatusCode
 {
@@ -27,10 +79,18 @@
   if (!dictionary) {
     return nil;
   }
-
+  NSMutableDictionary* newDictionary = [NSMutableDictionary dictionary];
+  for (NSString* key in dictionary){
+    if ([[dictionary objectForKey:key] isKindOfClass:[NSString class]]){
+      [newDictionary setObject:[FBResponseJSONPayload makeValidUTF8:[dictionary objectForKey:key]] forKey:key];
+    }
+    else {
+      [newDictionary setObject:[dictionary objectForKey:key] forKey:key];
+    }
+  }
   self = [super init];
   if (self) {
-    _dictionary = dictionary;
+    _dictionary = newDictionary;
     _httpStatusCode = httpStatusCode;
   }
   return self;
