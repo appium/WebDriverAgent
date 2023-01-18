@@ -50,15 +50,13 @@
   NSMutableString* fixedUp = [NSMutableString stringWithString:@""];
   for (NSUInteger i = 0; i < [stringToCheck length]; i++)
   {
-    {
-      unichar character = [stringToCheck characterAtIndex:i];
-      NSString* charString = [[NSString alloc] initWithCharacters:&character length:1];
-      if ([charString UTF8String] == nil) {
-        [FBLogger logFmt:@"Invalid UTF-8 sequence encountered at position %lu. Code: %hu (%X). Replacing with \ufffd", (unsigned long) i, character, character];
-        [fixedUp appendString:@"\ufffd"];
-      } else {
-        [fixedUp appendString:charString];
-      }
+    unichar character = [stringToCheck characterAtIndex:i];
+    NSString* charString = [[NSString alloc] initWithCharacters:&character length:1];
+    if ([charString UTF8String] == nil) {
+      [FBLogger logFmt:@"Invalid UTF-8 sequence encountered at position %lu. Code: %hu (%X). Replacing with \ufffd", (unsigned long) i, character, character];
+      [fixedUp appendString:@"\ufffd"];
+    } else {
+      [fixedUp appendString:charString];
     }
   }
   [FBLogger logFmt:@"Given JSONPayload was NOT valid utf-8. Orig length %lu, fixed length %lu", (unsigned long)[stringToCheck length], (unsigned long)[fixedUp length]];
