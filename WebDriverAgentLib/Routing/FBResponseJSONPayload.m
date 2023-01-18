@@ -24,22 +24,19 @@
 /*
  * Convenience method to do the check and validation in one.
  */
-+ (NSString*) makeValidUTF8:(NSString*) stringToCheck
++ (NSString*)makeValidUTF8:(NSString*)stringToCheck
 {
   if (![FBResponseJSONPayload isValidUTF8 :stringToCheck])
   {
     return [FBResponseJSONPayload removeInvalidCharsFromString:stringToCheck];
   }
-  else
-  {
-    return stringToCheck;
-  }
+  return stringToCheck;
 }
 
 /*
  * Returns true if the string can be converted to UTF8
  */
-+ (int) isValidUTF8:(NSString*) stringToCheck
++ (int)isValidUTF8:(NSString*)stringToCheck
 {
   return ([stringToCheck UTF8String] != nil);
 }
@@ -48,7 +45,7 @@
  * Removes invalid UTF8 chars from the NSString
  * This method is slow, so only run it on strings that fail the isValidUTF8 check.
  */
-+ (NSString*) removeInvalidCharsFromString:(NSString*) stringToCheck
++ (NSString*)removeInvalidCharsFromString:(NSString*)stringToCheck
 {
   NSMutableString* fixedUp = [NSMutableString stringWithString:@""];
   for (NSUInteger i = 0; i < [stringToCheck length]; i++)
@@ -57,13 +54,10 @@
     {
       unichar character = [stringToCheck characterAtIndex:i];
       NSString* charString = [[NSString alloc] initWithCharacters:&character length:1];
-      if ([charString UTF8String] == nil)
-      {
+      if ([charString UTF8String] == nil) {
         [FBLogger logFmt:@"Invalid UTF-8 sequence encountered at position %lu. Code: %hu (%X). Replacing with \ufffd", (unsigned long) i, character, character];
         [fixedUp appendString:@"\ufffd"];
-      }
-      else
-      {
+      } else {
         [fixedUp appendString:charString];
       }
     }
@@ -81,10 +75,9 @@
   }
   NSMutableDictionary* newDictionary = [NSMutableDictionary dictionary];
   for (NSString* key in dictionary){
-    if ([[dictionary objectForKey:key] isKindOfClass:[NSString class]]){
+    if ([[dictionary objectForKey:key] isKindOfClass:[NSString class]]) {
       [newDictionary setObject:[FBResponseJSONPayload makeValidUTF8:[dictionary objectForKey:key]] forKey:key];
-    }
-    else {
+    } else {
       [newDictionary setObject:[dictionary objectForKey:key] forKey:key];
     }
   }
