@@ -50,7 +50,6 @@
   NSMutableString* fixedUp = [NSMutableString stringWithString:@""];
   for (NSUInteger i = 0; i < [stringToCheck length]; i++)
   {
-    @autoreleasepool
     {
       unichar character = [stringToCheck characterAtIndex:i];
       NSString* charString = [[NSString alloc] initWithCharacters:&character length:1];
