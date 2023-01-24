@@ -9,14 +9,10 @@
 
 #import "FBXCAXClientProxy.h"
 
-#import <objc/runtime.h>
-
 #import "FBXCAccessibilityElement.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
-#import "FBReflectionUtils.h"
-#import "XCAXClient_iOS.h"
 #import "XCAXClient_iOS+FBSnapshotReqParams.h"
 #import "XCUIDevice.h"
 
