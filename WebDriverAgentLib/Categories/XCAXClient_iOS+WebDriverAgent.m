@@ -44,11 +44,6 @@ static id swizzleDefaultParameters(id self, SEL _cmd)
 
 @implementation XCAXClient_iOS (WebDriverAgent)
 
-- (NSDictionary *)fb_initialParametersForElementSnapshot
-{
-  return original_defaultParameters(self, _cmd);
-}
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
 
