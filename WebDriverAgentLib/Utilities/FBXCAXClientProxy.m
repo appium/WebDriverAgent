@@ -45,7 +45,7 @@ static id FBAXClient = nil;
                                         error:(NSError **)error
 {
   // Setting parameters argument to nil enforces `requestSnapshotForElement` to
-  // fetch default values using the swizzled API call above.
+  // fetch default values using the swizzled API call.
   NSMutableDictionary *parameters = nil;
   if (nil != maxDepth) {
     parameters = [NSMutableDictionary new];
