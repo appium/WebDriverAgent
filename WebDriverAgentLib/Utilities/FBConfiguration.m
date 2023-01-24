@@ -14,6 +14,7 @@
 
 #include "TargetConditionals.h"
 #import "FBXCodeCompatibility.h"
+#import "XCAXClient_iOS+WebDriverAgent.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTestConfiguration.h"
 #import "XCUIApplication+FBUIInterruptions.h"
@@ -53,22 +54,11 @@ static NSString *FBElementResponseAttributes;
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
-static NSMutableDictionary *FBSnapshotRequestParameters;
 
 @implementation FBConfiguration
 
 + (void)initialize
 {
-  FBSnapshotRequestParameters = [NSMutableDictionary dictionaryWithDictionary:@{
-    @"maxArrayCount": @INT_MAX,
-    @"maxChildren": @INT_MAX,
-    @"traverseFromParentsToChildren": @1
-  }];
-  // Mimicking XCTest framework behavior (this attribute is added by default unless it is an excludingNonModalElements query)
-  // See https://github.com/appium/WebDriverAgent/pull/523
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
-    FBSnapshotRequestParameters[@"snapshotKeyHonorModalViews"] = @(NO);
-  }
   [FBConfiguration resetSessionSettings];
 }
 
@@ -346,17 +336,12 @@ static NSMutableDictionary *FBSnapshotRequestParameters;
 
 + (void)setSnapshotMaxDepth:(int)maxDepth
 {
-  FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] = @(maxDepth);
+  FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @(maxDepth));
 }
 
 + (int)snapshotMaxDepth
 {
-  return [FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] intValue];
-}
-
-+ (NSDictionary *)snapshotRequestParameters
-{
-  return FBSnapshotRequestParameters;
+  return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey) intValue];
 }
 
 + (void)setUseFirstMatch:(BOOL)enabled
@@ -473,7 +458,7 @@ static NSMutableDictionary *FBSnapshotRequestParameters;
   FBWaitForIdleTimeout = 10.;
   FBAnimationCoolOffTimeout = 2.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
-  FBSnapshotRequestParameters[FBSnapshotMaxDepthKey] = @50;
+  FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
 #endif

@@ -21,35 +21,6 @@
 
 static id FBAXClient = nil;
 
-@implementation XCAXClient_iOS (WebDriverAgent)
-
-/**
- Parameters for traversing elements tree from parents to children while requesting XCElementSnapshot.
-
- @return dictionary with parameters for element's snapshot request
- */
-- (NSDictionary *)fb_getParametersForElementSnapshot
-{
-  return FBConfiguration.snapshotRequestParameters;
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-load-method"
-
-+ (void)load
-{
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    SEL originalParametersSelector = @selector(defaultParameters);
-    SEL swizzledParametersSelector = @selector(fb_getParametersForElementSnapshot);
-    FBReplaceMethod([self class], originalParametersSelector, swizzledParametersSelector);
-  });
-}
-
-#pragma clang diagnostic pop
-
-@end
-
 @implementation FBXCAXClientProxy
 
 + (instancetype)sharedClient
