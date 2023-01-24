@@ -13,6 +13,8 @@
 
 #import "FBReflectionUtils.h"
 
+NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
+
 static id (*original_defaultParameters)(id, SEL);
 static NSMutableDictionary *customRequestParameters;
 

@@ -31,7 +31,6 @@ static NSString *const axSettingsClassName = @"AXSettings";
 
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
-NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
 
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;

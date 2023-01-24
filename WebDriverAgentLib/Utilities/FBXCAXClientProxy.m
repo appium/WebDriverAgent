@@ -10,7 +10,6 @@
 #import "FBXCAXClientProxy.h"
 
 #import "FBXCAccessibilityElement.h"
-#import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "XCAXClient_iOS+FBSnapshotReqParams.h"
