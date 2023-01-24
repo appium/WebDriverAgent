@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "XCAXClient_iOS+WebDriverAgent.h"
+#import "XCAXClient_iOS+FBSnapshotReqParams.h"
 
 #import <objc/runtime.h>
 

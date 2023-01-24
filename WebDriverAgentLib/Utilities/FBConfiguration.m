@@ -14,7 +14,7 @@
 
 #include "TargetConditionals.h"
 #import "FBXCodeCompatibility.h"
-#import "XCAXClient_iOS+WebDriverAgent.h"
+#import "XCAXClient_iOS+FBSnapshotReqParams.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTestConfiguration.h"
 #import "XCUIApplication+FBUIInterruptions.h"
