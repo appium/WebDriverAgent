@@ -17,6 +17,7 @@
 #import "FBMacros.h"
 #import "FBReflectionUtils.h"
 #import "XCAXClient_iOS.h"
+#import "XCAXClient_iOS+FBSnapshotReqParams.h"
 #import "XCUIDevice.h"
 
 static id FBAXClient = nil;
