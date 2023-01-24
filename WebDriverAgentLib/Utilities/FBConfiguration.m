@@ -64,6 +64,11 @@ static NSMutableDictionary *FBSnapshotRequestParameters;
     @"maxChildren": @INT_MAX,
     @"traverseFromParentsToChildren": @1
   }];
+  // Mimicking XCTest framework behavior (this attribute is added by default unless it is an excludingNonModalElements query)
+  // See https://github.com/appium/WebDriverAgent/pull/523
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
+    FBSnapshotRequestParameters[@"snapshotKeyHonorModalViews"] = @(NO);
+  }
   [FBConfiguration resetSessionSettings];
 }
 
