@@ -17,7 +17,7 @@ void FBSetCustomParameterForElementSnapshot (NSString* name, id value);
 
 id __nullable FBGetCustomParameterForElementSnapshot (NSString *name);
 
-@interface XCAXClient_iOS (WebDriverAgent)
+@interface XCAXClient_iOS (FBSnapshotReqParams)
 
 @end
 

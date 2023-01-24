@@ -42,7 +42,7 @@ static id swizzleDefaultParameters(id self, SEL _cmd)
   return [result copy];
 }
 
-@implementation XCAXClient_iOS (WebDriverAgent)
+@implementation XCAXClient_iOS (FBSnapshotReqParams)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
