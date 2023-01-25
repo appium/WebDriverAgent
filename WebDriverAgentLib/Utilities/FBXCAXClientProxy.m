@@ -40,12 +40,11 @@ static id FBAXClient = nil;
                                      maxDepth:(nullable NSNumber *)maxDepth
                                         error:(NSError **)error
 {
-  // Setting parameters argument to nil enforces `requestSnapshotForElement` to
-  // fetch default values using the swizzled [XCAXClient_iOS defaultParameters] API call.
-  NSMutableDictionary *parameters = nil;
+  NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithDictionary:self.defaultParameters];
+  // Mimicking XCTest framework behavior (this attribute is added by default unless it is an excludingNonModalElements query)
+  // See https://github.com/appium/WebDriverAgent/pull/523
+  parameters[FBSnapshotHonorModalViewsKey] = @(NO);
   if (nil != maxDepth) {
-    parameters = [NSMutableDictionary new];
-    [parameters addEntriesFromDictionary:self.defaultParameters];
     parameters[FBSnapshotMaxDepthKey] = maxDepth;
   }
 

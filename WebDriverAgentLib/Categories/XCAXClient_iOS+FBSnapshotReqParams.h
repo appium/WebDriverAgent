@@ -14,6 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const FBSnapshotMaxDepthKey;
+extern NSString *const FBSnapshotHonorModalViewsKey;
 
 void FBSetCustomParameterForElementSnapshot (NSString* name, id value);
 
