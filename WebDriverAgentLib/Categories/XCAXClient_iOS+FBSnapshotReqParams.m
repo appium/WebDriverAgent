@@ -35,14 +35,11 @@ id FBGetCustomParameterForElementSnapshot (NSString *name)
 
 static id swizzleDefaultParameters(id self, SEL _cmd)
 {
-  if (nil == customRequestParameters || 0 == customRequestParameters.count) {
-    return original_defaultParameters(self, _cmd);
+  NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:original_defaultParameters(self, _cmd)];
+  if (nil != customRequestParameters && customRequestParameters.count > 0) {
+    [result addEntriesFromDictionary:customRequestParameters];
   }
-
-  NSMutableDictionary *result = [NSMutableDictionary new];
-  [result addEntriesFromDictionary:original_defaultParameters(self, _cmd)];
-  [result addEntriesFromDictionary:customRequestParameters];
-  return [result copy];
+  return result.copy;
 }
 
 @implementation XCAXClient_iOS (FBSnapshotReqParams)
