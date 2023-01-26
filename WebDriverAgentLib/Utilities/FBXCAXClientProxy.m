@@ -41,12 +41,6 @@ static id FBAXClient = nil;
                                         error:(NSError **)error
 {
   NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithDictionary:self.defaultParameters];
-  // Mimicking XCTest framework behavior (this attribute is added by default unless it is an excludingNonModalElements query)
-  // A regular snapshot retrieval path as part of resolving a query goes through [XCUIElementQuery _snapshotForElement:error:]
-  // before calling requestSnapshotForElement, and this is the part where the snapshotKeyHonorModalViews is added (as part of
-  // calling [XCTElementQuery snapshotParameters])
-  // See https://github.com/appium/WebDriverAgent/pull/523
-  parameters[FBSnapshotHonorModalViewsKey] = @(NO);
   if (nil != maxDepth) {
     parameters[FBSnapshotMaxDepthKey] = maxDepth;
   }

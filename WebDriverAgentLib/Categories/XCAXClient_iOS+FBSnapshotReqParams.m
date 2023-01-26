@@ -12,11 +12,23 @@
 #import <objc/runtime.h>
 
 #import "FBReflectionUtils.h"
+#import "FBApplication.h"
+#import "XCUIElementQuery.h"
 
+/**
+ Available parameters with their default values for XCTest:
+  @"maxChildren" : (int)2147483647
+  @"traverseFromParentsToChildren" : YES
+  @"maxArrayCount" : (int)2147483647
+  @"snapshotKeyHonorModalViews" : NO
+  @"maxDepth" : (int)2147483647
+ */
 NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
-NSString *const FBSnapshotHonorModalViewsKey = @"snapshotKeyHonorModalViews";
 
 static id (*original_defaultParameters)(id, SEL);
+static id (*original_snapshotParameters)(id, SEL);
+static NSDictionary *defaultRequestParameters;
+static NSDictionary *defaultAdditionalRequestParameters;
 static NSMutableDictionary *customRequestParameters;
 
 void FBSetCustomParameterForElementSnapshot (NSString *name, id value)
@@ -33,14 +45,33 @@ id FBGetCustomParameterForElementSnapshot (NSString *name)
   return customRequestParameters[name];
 }
 
-static id swizzleDefaultParameters(id self, SEL _cmd)
+static id swizzledDefaultParameters(id self, SEL _cmd)
 {
-  NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:original_defaultParameters(self, _cmd)];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:original_defaultParameters(self, _cmd)];
+    [params addEntriesFromDictionary:defaultAdditionalRequestParameters];
+    defaultRequestParameters = params.copy;
+  });
+  if (nil == defaultRequestParameters) {
+    return original_defaultParameters(self, _cmd);
+  }
+  NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:defaultRequestParameters];
   if (nil != customRequestParameters && customRequestParameters.count > 0) {
     [result addEntriesFromDictionary:customRequestParameters];
   }
   return result.copy;
 }
+
+static id swizzledSnapshotParameters(id self, SEL _cmd)
+{
+  NSDictionary *result = original_snapshotParameters(self, _cmd);
+  if (nil == defaultAdditionalRequestParameters) {
+    defaultAdditionalRequestParameters = result;
+  }
+  return result;
+}
+
 
 @implementation XCAXClient_iOS (FBSnapshotReqParams)
 
@@ -50,8 +81,12 @@ static id swizzleDefaultParameters(id self, SEL _cmd)
 + (void)load
 {
   Method original_defaultParametersMethod = class_getInstanceMethod(self.class, @selector(defaultParameters));
-  IMP swizzledImp = (IMP)swizzleDefaultParameters;
-  original_defaultParameters = (id (*)(id, SEL)) method_setImplementation(original_defaultParametersMethod, swizzledImp);
+  IMP swizzledDefaultParametersImp = (IMP)swizzledDefaultParameters;
+  original_defaultParameters = (id (*)(id, SEL)) method_setImplementation(original_defaultParametersMethod, swizzledDefaultParametersImp);
+
+  Method original_snapshotParametersMethod = class_getInstanceMethod(NSClassFromString(@"XCTElementQuery"), NSSelectorFromString(@"snapshotParameters"));
+  IMP swizzledSnapshotParametersImp = (IMP)swizzledSnapshotParameters;
+  original_snapshotParameters = (id (*)(id, SEL)) method_setImplementation(original_snapshotParametersMethod, swizzledSnapshotParametersImp);
 }
 
 #pragma clang diagnostic pop
