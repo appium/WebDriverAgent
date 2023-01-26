@@ -11,10 +11,6 @@
 
 #import <objc/runtime.h>
 
-#import "FBReflectionUtils.h"
-#import "FBApplication.h"
-#import "XCUIElementQuery.h"
-
 /**
  Available parameters with their default values for XCTest:
   @"maxChildren" : (int)2147483647
