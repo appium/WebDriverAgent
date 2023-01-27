@@ -33,7 +33,10 @@ If you are having some issues please checkout [wiki](https://github.com/facebook
 If you want to help us out, you are more than welcome to. However please make sure you have followed the guidelines in [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Creating Bundles
-Follow [this doc](docs/CREATING_BUNDLES.md)
+
+`npm run bundle`
+
+Then, you find `WebDriverAgentRunner-Runner-Sim-<version>.zip` file in the current directory.
 
 ## License
 
