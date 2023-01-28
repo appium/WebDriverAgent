@@ -13,7 +13,9 @@
     "prepare": "npm run build",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
     "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.js\"",
-    "bundle": "node ./Scripts/build-webdriveragent.js",
+    "bundle": "npm run bundle:ios && npm run bundle:tv",
+    "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.js",
+    "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.js",
     "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js"
   },
   "engines": {

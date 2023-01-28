@@ -36,7 +36,7 @@ If you want to help us out, you are more than welcome to. However please make su
 
 `npm run bundle`
 
-Then, you will find `WebDriverAgentRunner-Runner-Sim-<version>.zip` file in the current directory.
+Then, you find `WebDriverAgentRunner-Runner-sim-<version>.zip`  for iOS and `WebDriverAgentRunner-Runner-tv_sim-<version>.zip` for tvOS files in the current directory.
 
 ## License
 
