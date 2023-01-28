@@ -45,26 +45,18 @@ static id swizzledDefaultParameters(id self, SEL _cmd)
 {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:original_defaultParameters(self, _cmd)];
-    [params addEntriesFromDictionary:defaultAdditionalRequestParameters];
-    defaultRequestParameters = params.copy;
+    defaultRequestParameters = original_defaultParameters(self, _cmd);
   });
-  if (nil == defaultRequestParameters) {
-    return original_defaultParameters(self, _cmd);
-  }
   NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:defaultRequestParameters];
-  if (nil != customRequestParameters && customRequestParameters.count > 0) {
-    [result addEntriesFromDictionary:customRequestParameters];
-  }
+  [result addEntriesFromDictionary:defaultAdditionalRequestParameters ?: @{}];
+  [result addEntriesFromDictionary:customRequestParameters ?: @{}];
   return result.copy;
 }
 
 static id swizzledSnapshotParameters(id self, SEL _cmd)
 {
   NSDictionary *result = original_snapshotParameters(self, _cmd);
-  if (nil == defaultAdditionalRequestParameters) {
-    defaultAdditionalRequestParameters = result;
-  }
+  defaultAdditionalRequestParameters = result;
   return result;
 }
 
