@@ -25,7 +25,7 @@ async function buildWebDriverAgent (xcodeVersion) {
   }
 
   if (!SDKS.includes(sdk)) {
-    throw Error(`Please set SDK environment variable from the supported targets ${JSON.stringify(SDKS)}`);
+    throw Error(`Please set SDK environment variable from the supported SDKs ${JSON.stringify(SDKS)}`);
   }
 
 
