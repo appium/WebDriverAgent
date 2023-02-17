@@ -51,14 +51,17 @@ static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
   dispatch_async(dispatch_get_main_queue(), ^{
     NSArray<FBApplication *> *activeApps = FBApplication.fb_activeApplications;
     for (FBApplication *activeApp in activeApps) {
+      XCUIElement *alertElement = nil;
       @try {
-        XCUIElement *alertElement = activeApp.fb_alertElement;
+        alertElement = activeApp.fb_alertElement;
         if (nil != alertElement) {
           [self.delegate didDetectAlert:[FBAlert alertWithElement:alertElement]];
-          break;
         }
       } @catch (NSException *e) {
         [FBLogger logFmt:@"Got an unexpected exception while monitoring alerts: %@\n%@", e.reason, e.callStackSymbols];
+      }
+      if (nil != alertElement) {
+        break;
       }
     }
 
