@@ -71,14 +71,26 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 - (nullable NSString *)fb_wifiIPAddress;
 
 /**
- Opens the particular url scheme using Siri voice recognition helpers.
- This will only work since XCode 8.3/iOS 10.3
+ Opens the particular url scheme using the default application assigned to it.
+ This API only works since XCode 14.3/iOS 16.3
+ Older Xcode/iOS version try to use Siri fallback.
  
  @param url The url scheme represented as a string, for example https://apple.com
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation was successful
  */
 - (BOOL)fb_openUrl:(NSString *)url error:(NSError **)error;
+
+/**
+ Opens the particular url scheme using the given application
+ This API only works since XCode 14.3/iOS 16.3
+
+ @param url The url scheme represented as a string, for example https://apple.com
+ @param bundleId The bundle identifier of an application to use in order to open the given URL
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation was successful
+ */
+- (BOOL)fb_openUrl:(NSString *)url withApplication:(NSString *)bundleId error:(NSError **)error;
 
 /**
  Presses the corresponding hardware button on the device with duration.

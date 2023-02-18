@@ -29,7 +29,7 @@
   xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int buffersize;
-  xmlChar *xmlbuff;
+  xmlChar *xmlbuff = NULL;
   int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
   if (rc >= 0) {
     rc = [FBXPath xmlRepresentationWithRootElement:element

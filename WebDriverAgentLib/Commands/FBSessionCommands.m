@@ -66,9 +66,16 @@
   if (!urlString) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"URL is required" traceback:nil]);
   }
+  NSString* bundleId = request.arguments[@"bundleId"];
   NSError *error;
-  if (![XCUIDevice.sharedDevice fb_openUrl:urlString error:&error]) {
-    return FBResponseWithUnknownError(error);
+  if (nil == bundleId) {
+    if (![XCUIDevice.sharedDevice fb_openUrl:urlString error:&error]) {
+      return FBResponseWithUnknownError(error);
+    }
+  } else {
+    if (![XCUIDevice.sharedDevice fb_openUrl:urlString withApplication:bundleId error:&error]) {
+      return FBResponseWithUnknownError(error);
+    }
   }
   return FBResponseWithOK();
 }

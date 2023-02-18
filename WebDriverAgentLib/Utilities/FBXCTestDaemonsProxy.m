@@ -12,6 +12,7 @@
 #import <objc/runtime.h>
 
 #import "FBConfiguration.h"
+#import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "XCTestDriver.h"
@@ -92,6 +93,56 @@ static dispatch_once_t onceTestRunnerDaemonClass;
         handlerBlock(record, invokeError);
       }];
     }
+  }];
+  return didSucceed;
+}
+
++ (BOOL)openURL:(NSURL *)url usingApplication:(NSString *)bundleId error:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  if (![session respondsToSelector:@selector(openURL:usingApplication:completion:)]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs with given application"]
+       buildError:error];
+    }
+    return NO;
+  }
+
+  __block BOOL didSucceed = NO;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session openURL:url usingApplication:bundleId completion:^(bool result, NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      didSucceed = invokeError == nil && result;
+      completion();
+    }];
+  }];
+  return didSucceed;
+}
+
++ (BOOL)openDefaultApplicationForURL:(NSURL *)url error:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  if (![session respondsToSelector:@selector(openDefaultApplicationForURL:completion:)]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs"]
+       buildError:error];
+    }
+    return NO;
+  }
+
+  __block BOOL didSucceed = NO;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session openDefaultApplicationForURL:url completion:^(bool result, NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      didSucceed = invokeError == nil && result;
+      completion();
+    }];
   }];
   return didSucceed;
 }

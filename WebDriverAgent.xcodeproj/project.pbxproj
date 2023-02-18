@@ -3666,6 +3666,7 @@
 					"-Wno-objc-messaging-id",
 					"-Wno-direct-ivar-access",
 					"-Wno-cast-qual",
+					"-Wno-declaration-after-statement",
 				);
 			};
 			name = Debug;
@@ -3728,6 +3729,7 @@
 					"-Wno-objc-messaging-id",
 					"-Wno-direct-ivar-access",
 					"-Wno-cast-qual",
+					"-Wno-declaration-after-statement",
 				);
 			};
 			name = Release;
@@ -3974,6 +3976,7 @@
 					"-Wno-objc-messaging-id",
 					"-Wno-direct-ivar-access",
 					"-Wno-cast-qual",
+					"-Wno-declaration-after-statement",
 				);
 			};
 			name = Debug;
@@ -4033,6 +4036,7 @@
 					"-Wno-objc-messaging-id",
 					"-Wno-direct-ivar-access",
 					"-Wno-cast-qual",
+					"-Wno-declaration-after-statement",
 				);
 			};
 			name = Release;

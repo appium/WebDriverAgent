@@ -47,7 +47,7 @@ void *FBRetrieveSymbolFromBinary(const char *binary, const char *name)
 
 static NSString *sdkVersion = nil;
 static dispatch_once_t onceSdkVersionToken;
-NSString * _Nullable FBSDKVersion()
+NSString * _Nullable FBSDKVersion(void)
 {
   dispatch_once(&onceSdkVersionToken, ^{
     NSString *sdkName = [[NSBundle mainBundle] infoDictionary][@"DTSDKName"];

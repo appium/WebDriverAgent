@@ -67,4 +67,8 @@
 - (void)_reportInvalidation;
 - (id)initWithConnection:(id)arg1;
 
+// Since Xcode 14.3
+- (void)openURL:(NSURL *)arg1 usingApplication:(NSString *)arg2 completion:(void (^)(_Bool, NSError *))arg3;
+- (void)openDefaultApplicationForURL:(NSURL *)arg1 completion:(void (^)(_Bool, NSError *))arg2;
+
 @end

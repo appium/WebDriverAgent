@@ -21,6 +21,7 @@
 #import "FBScreenshot.h"
 #import "FBXCDeviceEvent.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "XCUIDevice.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
@@ -157,20 +158,38 @@ static bool fb_isLocked;
             buildError:error];
   }
 
+  NSError *err;
+  if ([FBXCTestDaemonsProxy openDefaultApplicationForURL:parsedUrl error:&err]) {
+    return YES;
+  }
+  if (![err.description containsString:@"does not support"]) {
+    if (error) {
+      *error = err;
+    }
+    return NO;
+  }
+
   id siriService = [self valueForKey:@"siriService"];
   if (nil != siriService) {
     return [self fb_activateSiriVoiceRecognitionWithText:[NSString stringWithFormat:@"Open {%@}", url] error:error];
   }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // The link never gets opened by this method: https://forums.developer.apple.com/thread/25355
-  if (![[UIApplication sharedApplication] openURL:parsedUrl]) {
-#pragma clang diagnostic pop
+
+  NSString *description = [NSString stringWithFormat:@"Cannot open '%@' with the default application assigned for it. Consider upgrading to Xcode version 14.3+", url];
+  return [[[FBErrorBuilder builder]
+           withDescriptionFormat:@"%@", description]
+          buildError:error];;
+}
+
+- (BOOL)fb_openUrl:(NSString *)url withApplication:(NSString *)bundleId error:(NSError **)error
+{
+  NSURL *parsedUrl = [NSURL URLWithString:url];
+  if (nil == parsedUrl) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The URL %@ cannot be opened", url]
+             withDescriptionFormat:@"'%@' is not a valid URL", url]
             buildError:error];
   }
-  return YES;
+
+  return [FBXCTestDaemonsProxy openURL:parsedUrl usingApplication:bundleId error:error];
 }
 
 - (BOOL)fb_activateSiriVoiceRecognitionWithText:(NSString *)text error:(NSError **)error

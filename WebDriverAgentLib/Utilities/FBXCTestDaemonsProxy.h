@@ -14,9 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol XCTestManager_ManagerInterface;
 
-/**
- Temporary class used to abstract interactions with TestManager daemon between Xcode 8.2.1 and Xcode 8.3-beta
- */
 @interface FBXCTestDaemonsProxy : NSObject
 
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy;
@@ -27,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record
                             error:(NSError *__autoreleasing*)error;
+
++ (BOOL)openURL:(NSURL *)url usingApplication:(NSString *)bundleId error:(NSError **)error;
++ (BOOL)openDefaultApplicationForURL:(NSURL *)url error:(NSError **)error;
 
 @end
 

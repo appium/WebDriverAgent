@@ -118,11 +118,28 @@
   XCTAssertNil(error);
 }
 
-- (void)disabled_testUrlSchemeActivation
+- (void)testUrlSchemeActivation
 {
-  // This test is not stable on CI because of system slowness
+  if (SYSTEM_VERSION_LESS_THAN(@"16.3")) {
+    return;
+  }
+
   NSError *error;
   XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com" error:&error]);
+  FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
+  XCTAssertNil(error);
+}
+
+- (void)testUrlSchemeActivationWithApp
+{
+  if (SYSTEM_VERSION_LESS_THAN(@"16.3")) {
+    return;
+  }
+
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com"
+                                    withApplication:@"com.apple.mobilesafari"
+                                              error:&error]);
   FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
   XCTAssertNil(error);
 }
