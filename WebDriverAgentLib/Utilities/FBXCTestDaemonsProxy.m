@@ -128,7 +128,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
   if (![session respondsToSelector:@selector(openDefaultApplicationForURL:completion:)]) {
     if (error) {
       [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs"]
+        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs. Consider upgrading to Xcode 14.3+/iOS 16.3+"]
        buildError:error];
     }
     return NO;
