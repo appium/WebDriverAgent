@@ -72,7 +72,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 
 /**
  Opens the particular url scheme using the default application assigned to it.
- This API only works since XCode 14.3/iOS 16.3
+ This API only works since XCode 14.3/iOS 16.4
  Older Xcode/iOS version try to use Siri fallback.
  
  @param url The url scheme represented as a string, for example https://apple.com
@@ -83,7 +83,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 
 /**
  Opens the particular url scheme using the given application
- This API only works since XCode 14.3/iOS 16.3
+ This API only works since XCode 14.3/iOS 16.4
 
  @param url The url scheme represented as a string, for example https://apple.com
  @param bundleId The bundle identifier of an application to use in order to open the given URL

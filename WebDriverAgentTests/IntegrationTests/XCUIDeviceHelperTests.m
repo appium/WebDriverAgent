@@ -120,7 +120,7 @@
 
 - (void)testUrlSchemeActivation
 {
-  if (SYSTEM_VERSION_LESS_THAN(@"16.3")) {
+  if (SYSTEM_VERSION_LESS_THAN(@"16.4")) {
     return;
   }
 
@@ -132,7 +132,7 @@
 
 - (void)testUrlSchemeActivationWithApp
 {
-  if (SYSTEM_VERSION_LESS_THAN(@"16.3")) {
+  if (SYSTEM_VERSION_LESS_THAN(@"16.4")) {
     return;
   }
 
