@@ -69,7 +69,7 @@
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs
     [[FBRoute GET:@"/wda/simulatedLocation"].withoutSession respondWithTarget:self action:@selector(handleGetSimulatedLocation:)],
     [[FBRoute POST:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleSetSimulatedLocation:)],
-    [[FBRoute DELETE:@"/wda/simultedLocation"] respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
+    [[FBRoute DELETE:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
 #endif
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
   ];
