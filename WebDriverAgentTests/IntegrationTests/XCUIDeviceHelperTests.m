@@ -9,10 +9,6 @@
 
 #import <XCTest/XCTest.h>
 
-#if !TARGET_OS_TV
-#import <CoreLocation/CoreLocation.h>
-#endif
-
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBImageUtils.h"

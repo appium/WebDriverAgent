@@ -9,6 +9,10 @@
 
 #import <XCTest/XCTest.h>
 
+#if !TARGET_OS_TV
+#import <CoreLocation/CoreLocation.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {

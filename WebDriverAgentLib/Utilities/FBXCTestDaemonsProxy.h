@@ -8,6 +8,11 @@
  */
 
 #import <XCTest/XCTest.h>
+
+#if !TARGET_OS_TV
+#import <CoreLocation/CoreLocation.h>
+#endif
+
 #import "XCSynthesizedEventRecord.h"
 
 NS_ASSUME_NONNULL_BEGIN
