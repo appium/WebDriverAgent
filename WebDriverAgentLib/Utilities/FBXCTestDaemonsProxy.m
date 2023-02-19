@@ -147,4 +147,107 @@ static dispatch_once_t onceTestRunnerDaemonClass;
   return didSucceed;
 }
 
+#if !TARGET_OS_TV
++ (BOOL)setSimulatedLocation:(CLLocation *)location error:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  if (![session respondsToSelector:@selector(setSimulatedLocation:completion:)]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+       buildError:error];
+    }
+    return NO;
+  }
+  if (![session supportsLocationSimulation]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Your device does not support location simulation"]
+       buildError:error];
+    }
+    return NO;
+  }
+
+  __block BOOL didSucceed = NO;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session setSimulatedLocation:location completion:^(bool result, NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      didSucceed = invokeError == nil && result;
+      completion();
+    }];
+  }];
+  return didSucceed;
+}
+
++ (nullable CLLocation *)getSimulatedLocation:(NSError *__autoreleasing*)error;
+{
+  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  if (![session respondsToSelector:@selector(getSimulatedLocationWithReply:)]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+       buildError:error];
+    }
+    return nil;
+  }
+  if (![session supportsLocationSimulation]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Your device does not support location simulation"]
+       buildError:error];
+    }
+    return nil;
+  }
+
+  __block CLLocation *location = nil;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session getSimulatedLocationWithReply:^(CLLocation *reply, NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      if (nil == invokeError) {
+        location = reply;
+      }
+      completion();
+    }];
+  }];
+  return location;
+}
+
++ (BOOL)clearSimulatedLocation:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  if (![session respondsToSelector:@selector(clearSimulatedLocationWithReply:)]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+       buildError:error];
+    }
+    return NO;
+  }
+  if (![session supportsLocationSimulation]) {
+    if (error) {
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Your device does not support location simulation"]
+       buildError:error];
+    }
+    return NO;
+  }
+
+  __block BOOL didSucceed = NO;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session clearSimulatedLocationWithReply:^(bool result, NSError *invokeError) {
+      if (error) {
+        *error = invokeError;
+      }
+      didSucceed = invokeError == nil && result;
+      completion();
+    }];
+  }];
+  return didSucceed;
+}
+#endif
+
 @end

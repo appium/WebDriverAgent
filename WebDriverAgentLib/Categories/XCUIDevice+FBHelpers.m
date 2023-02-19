@@ -355,4 +355,21 @@ static bool fb_isLocked;
   : nil;
 }
 
+#if !TARGET_OS_TV
+- (BOOL)fb_setSimulatedLocation:(CLLocation *)location error:(NSError **)error
+{
+  return [FBXCTestDaemonsProxy setSimulatedLocation:location error:error];
+}
+
+- (nullable CLLocation *)fb_getSimulatedLocation:(NSError **)error
+{
+  return [FBXCTestDaemonsProxy getSimulatedLocation:error];
+}
+
+- (BOOL)fb_clearSimulatedLocation:(NSError **)error
+{
+  return [FBXCTestDaemonsProxy clearSimulatedLocation:error];
+}
+#endif
+
 @end

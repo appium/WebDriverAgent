@@ -9,6 +9,10 @@
 
 #import <XCTest/XCTest.h>
 
+#if !TARGET_OS_TV
+#import <CoreLocation/CoreLocation.h>
+#endif
+
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBImageUtils.h"
@@ -143,6 +147,31 @@
   FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
   XCTAssertNil(error);
 }
+
+#if !TARGET_OS_TV
+- (void)testSimulatedLocationSetup
+{
+  if (SYSTEM_VERSION_LESS_THAN(@"16.4")) {
+    return;
+  }
+
+  CLLocation *simulatedLocation = [[CLLocation alloc] initWithLatitude:50 longitude:50];
+  NSError *error;
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_setSimulatedLocation:simulatedLocation error:&error]);
+  XCTAssertNil(error);
+  CLLocation *currentLocation = [XCUIDevice.sharedDevice fb_getSimulatedLocation:&error];
+  XCTAssertNil(error);
+  XCTAssertNotNil(currentLocation);
+  XCTAssertEqualWithAccuracy(simulatedLocation.coordinate.latitude, currentLocation.coordinate.latitude, 0.1);
+  XCTAssertEqualWithAccuracy(simulatedLocation.coordinate.longitude, currentLocation.coordinate.longitude, 0.1);
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_clearSimulatedLocation:&error]);
+  XCTAssertNil(error);
+  currentLocation = [XCUIDevice.sharedDevice fb_getSimulatedLocation:&error];
+  XCTAssertNil(error);
+  XCTAssertNotEqualWithAccuracy(simulatedLocation.coordinate.latitude, currentLocation.coordinate.latitude, 0.1);
+  XCTAssertNotEqualWithAccuracy(simulatedLocation.coordinate.longitude, currentLocation.coordinate.longitude, 0.1);
+}
+#endif
 
 - (void)testPressingUnsupportedButton
 {
