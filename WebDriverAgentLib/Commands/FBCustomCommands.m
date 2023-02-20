@@ -507,18 +507,11 @@
     return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
                                                                traceback:nil]);
   }
-  return nil == location
-    // No simulated location has been set previously
-    ? FBResponseWithObject(@{
-        @"latitude": NSNull.null,
-        @"longitude": NSNull.null,
-        @"altitude": NSNull.null,
-      })
-    : FBResponseWithObject(@{
-        @"latitude": @(location.coordinate.latitude),
-        @"longitude": @(location.coordinate.longitude),
-        @"altitude": @(location.altitude),
-      });
+  return FBResponseWithObject(@{
+    @"latitude": location ? @(location.coordinate.latitude) : NSNull.null,
+    @"longitude": location ? @(location.coordinate.longitude) : NSNull.null,
+    @"altitude": location ? @(location.altitude) : NSNull.null,
+  });
 }
 
 + (id<FBResponsePayload>)handleSetSimulatedLocation:(FBRouteRequest *)request
