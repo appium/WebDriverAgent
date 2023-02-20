@@ -503,15 +503,22 @@
 {
   NSError *error;
   CLLocation *location = [XCUIDevice.sharedDevice fb_getSimulatedLocation:&error];
-  if (nil == location) {
+  if (nil != error) {
     return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
                                                                traceback:nil]);
   }
-  return FBResponseWithObject(@{
-    @"latitude": @(location.coordinate.latitude),
-    @"longiture": @(location.coordinate.longitude),
-    @"altitude": @(location.altitude),
-  });
+  return nil == location
+    // No simulated location has been set previously
+    ? FBResponseWithObject(@{
+        @"latitude": NSNull.null,
+        @"longitude": NSNull.null,
+        @"altitude": NSNull.null,
+      })
+    : FBResponseWithObject(@{
+        @"latitude": @(location.coordinate.latitude),
+        @"longitude": @(location.coordinate.longitude),
+        @"altitude": @(location.altitude),
+      });
 }
 
 + (id<FBResponsePayload>)handleSetSimulatedLocation:(FBRouteRequest *)request

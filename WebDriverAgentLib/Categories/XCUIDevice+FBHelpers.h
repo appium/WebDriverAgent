@@ -174,7 +174,8 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
  Only works since Xcode 14.3/iOS 16.4
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return The current simulated location or nil in case of failure
+ @return The current simulated location or nil in case of failure or if no location has previously been seet
+ (the returned error will be nil in the latter case)
  */
 - (nullable CLLocation *)fb_getSimulatedLocation:(NSError **)error;
 
