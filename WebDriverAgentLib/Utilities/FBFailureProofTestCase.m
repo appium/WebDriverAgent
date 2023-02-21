@@ -25,10 +25,11 @@
 - (void)_recordIssue:(XCTIssue *)issue
 {
   NSString *description = [NSString stringWithFormat:@"%@ (%@)", issue.compactDescription, issue.associatedError.description];
+  [FBLogger logFmt:@"Issue type: %ld", issue.type];
   [self _enqueueFailureWithDescription:description
                                 inFile:issue.sourceCodeContext.location.fileURL.path
                                 atLine:issue.sourceCodeContext.location.lineNumber
-                              expected:issue.type == XCTIssueTypeUnmatchedExpectedFailure];
+                              expected:issue.type == 5];
 }
 
 - (void)_recordIssue:(XCTIssue *)issue forCaughtError:(id)error
