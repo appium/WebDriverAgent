@@ -22,7 +22,6 @@
   self.shouldHaltWhenReceivesControl = NO;
 }
 
-#ifdef __IPHONE_16_0
 - (void)_recordIssue:(XCTIssue *)issue
 {
   NSString *description = [NSString stringWithFormat:@"%@ (%@)", issue.compactDescription, issue.associatedError.description];
@@ -41,7 +40,7 @@
 {
   [self _recordIssue:issue];
 }
-#else
+
 /**
  Override 'recordFailureWithDescription' to not stop by failures.
  */
@@ -52,7 +51,6 @@
 {
   [self _enqueueFailureWithDescription:description inFile:filePath atLine:lineNumber expected:expected];
 }
-#endif
 
 /**
  Private XCTestCase method used to block and tunnel failure messages
