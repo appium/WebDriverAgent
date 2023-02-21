@@ -28,7 +28,6 @@
   self.shouldHaltWhenReceivesControl = NO;
 }
 
-
 /**
  Override 'recordFailureWithDescription' to not stop by failures.
  */
