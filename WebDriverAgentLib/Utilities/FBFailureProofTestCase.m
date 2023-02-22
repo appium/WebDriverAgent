@@ -29,6 +29,7 @@
   [self _enqueueFailureWithDescription:description
                                 inFile:issue.sourceCodeContext.location.fileURL.path
                                 atLine:issue.sourceCodeContext.location.lineNumber
+                              // 5 == XCTIssueTypeUnmatchedExpectedFailure
                               expected:issue.type == 5];
 }
 
