@@ -40,11 +40,9 @@
 + (void)load
 {
   Class XCElementSnapshotCls = objc_lookUpClass("XCElementSnapshot");
-  if (XCElementSnapshotCls != nil)
-  {
-    Method uidMethod = class_getInstanceMethod(self.class, @selector(fb_uid));
-    class_addMethod(XCElementSnapshotCls, @selector(fb_uid), method_getImplementation(uidMethod), method_getTypeEncoding(uidMethod));
-  }
+  NSAssert(XCElementSnapshotCls != nil, @"Could not locate XCElementSnapshot class");
+  Method uidMethod = class_getInstanceMethod(self.class, @selector(fb_uid));
+  class_addMethod(XCElementSnapshotCls, @selector(fb_uid), method_getImplementation(uidMethod), method_getTypeEncoding(uidMethod));
 }
 #pragma diagnostic pop
 
