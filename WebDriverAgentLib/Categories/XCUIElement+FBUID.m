@@ -7,12 +7,13 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+#import <objc/runtime.h>
+
 #import "XCUIElement+FBUID.h"
 
 #import "FBElementUtils.h"
 #import "XCUIApplication.h"
 #import "XCUIElement+FBUtilities.h"
-#import <objc/runtime.h>
 
 @implementation XCUIElement (FBUID)
 
