@@ -10,6 +10,9 @@
 #import <UIKit/UIKit.h>
 
 @class NSMutableDictionary, NSXPCConnection, XCSynthesizedEventRecord;
+#if !TARGET_OS_TV // tvOS does not provide relevant APIs
+@class CLLocation;
+#endif
 @protocol XCTUIApplicationMonitor, XCTAXClient, XCTestManager_ManagerInterface;
 
 // iOS since 10.3
@@ -66,5 +69,15 @@
 - (id)registerInvalidationHandler:(CDUnknownBlockType)arg1;
 - (void)_reportInvalidation;
 - (id)initWithConnection:(id)arg1;
+
+// Since Xcode 14.3
+- (void)openURL:(NSURL *)arg1 usingApplication:(NSString *)arg2 completion:(void (^)(_Bool, NSError *))arg3;
+- (void)openDefaultApplicationForURL:(NSURL *)arg1 completion:(void (^)(_Bool, NSError *))arg2;
+#if !TARGET_OS_TV // tvOS does not provide relevant APIs
+- (void)setSimulatedLocation:(CLLocation *)arg1 completion:(void (^)(_Bool, NSError *))arg2;
+- (void)getSimulatedLocationWithReply:(void (^)(CLLocation *, NSError *))arg1;
+- (void)clearSimulatedLocationWithReply:(void (^)(_Bool, NSError *))arg1;
+@property(readonly) _Bool supportsLocationSimulation;
+#endif
 
 @end

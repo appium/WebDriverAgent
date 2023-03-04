@@ -9,6 +9,10 @@
 
 #import <XCTest/XCTest.h>
 
+#if !TARGET_OS_TV
+#import <CoreLocation/CoreLocation.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
@@ -71,14 +75,26 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 - (nullable NSString *)fb_wifiIPAddress;
 
 /**
- Opens the particular url scheme using Siri voice recognition helpers.
- This will only work since XCode 8.3/iOS 10.3
+ Opens the particular url scheme using the default application assigned to it.
+ This API only works since XCode 14.3/iOS 16.4
+ Older Xcode/iOS version try to use Siri fallback.
  
  @param url The url scheme represented as a string, for example https://apple.com
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation was successful
  */
 - (BOOL)fb_openUrl:(NSString *)url error:(NSError **)error;
+
+/**
+ Opens the particular url scheme using the given application
+ This API only works since XCode 14.3/iOS 16.4
+
+ @param url The url scheme represented as a string, for example https://apple.com
+ @param bundleId The bundle identifier of an application to use in order to open the given URL
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation was successful
+ */
+- (BOOL)fb_openUrl:(NSString *)url withApplication:(NSString *)bundleId error:(NSError **)error;
 
 /**
  Presses the corresponding hardware button on the device with duration.
@@ -141,6 +157,37 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
  @return 0 (automatic), 1 (light) or 2 (dark), or nil
  */
 - (nullable NSNumber *)fb_getAppearance;
+
+#if !TARGET_OS_TV
+/**
+ Allows to set a simulated geolocation coordinates.
+ Only works since Xcode 14.3/iOS 16.4
+
+ @param location The simlated location coordinates to set
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the simulated location has been successfully set
+ */
+- (BOOL)fb_setSimulatedLocation:(CLLocation *)location error:(NSError **)error;
+
+/**
+ Allows to get a simulated geolocation coordinates.
+ Only works since Xcode 14.3/iOS 16.4
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return The current simulated location or nil in case of failure or if no location has previously been seet
+ (the returned error will be nil in the latter case)
+ */
+- (nullable CLLocation *)fb_getSimulatedLocation:(NSError **)error;
+
+/**
+ Allows to clear a previosuly set simulated geolocation coordinates.
+ Only works since Xcode 14.3/iOS 16.4
+
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the simulated location has been successfully cleared
+ */
+- (BOOL)fb_clearSimulatedLocation:(NSError **)error;
+#endif
 
 @end
 

@@ -47,9 +47,7 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
   if (nil == uid) {
     return self;
   }
-  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    return [[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] isEqualToString:uid];
-  }];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
   return [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject ?: self;
 }
 

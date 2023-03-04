@@ -7,6 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+#import <objc/runtime.h>
+
 #import "XCUIElement+FBUID.h"
 
 #import "FBElementUtils.h"
@@ -33,6 +35,17 @@
 
 @implementation FBXCElementSnapshotWrapper (FBUID)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-load-method"
++ (void)load
+{
+  Class XCElementSnapshotCls = objc_lookUpClass("XCElementSnapshot");
+  NSAssert(XCElementSnapshotCls != nil, @"Could not locate XCElementSnapshot class");
+  Method uidMethod = class_getInstanceMethod(self.class, @selector(fb_uid));
+  class_addMethod(XCElementSnapshotCls, @selector(fb_uid), method_getImplementation(uidMethod), method_getTypeEncoding(uidMethod));
+}
+#pragma diagnostic pop
+
 - (unsigned long long)fb_accessibiltyId
 {
   return [FBElementUtils idWithAccessibilityElement:self.accessibilityElement];
@@ -45,7 +58,10 @@
 
 - (NSString *)fb_uid
 {
-  return [self.class wdUIDWithSnapshot:self.snapshot];
+  if ([self isKindOfClass:FBXCElementSnapshotWrapper.class]) {
+    return [self.class wdUIDWithSnapshot:self.snapshot];
+  }
+  return [FBElementUtils uidWithAccessibilityElement:[self accessibilityElement]];
 }
 
 @end

@@ -9,13 +9,7 @@
 
 #import "FBFailureProofTestCase.h"
 
-#import "FBExceptions.h"
 #import "FBLogger.h"
-#import "FBXCTestCaseImplementationFailureHoldingProxy.h"
-
-@interface FBFailureProofTestCase ()
-@property (nonatomic, assign) BOOL didRegisterAXTestFailure;
-@end
 
 @implementation FBFailureProofTestCase
 
@@ -28,6 +22,26 @@
   self.shouldHaltWhenReceivesControl = NO;
 }
 
+- (void)_recordIssue:(XCTIssue *)issue
+{
+  NSString *description = [NSString stringWithFormat:@"%@ (%@)", issue.compactDescription, issue.associatedError.description];
+  [FBLogger logFmt:@"Issue type: %ld", issue.type];
+  [self _enqueueFailureWithDescription:description
+                                inFile:issue.sourceCodeContext.location.fileURL.path
+                                atLine:issue.sourceCodeContext.location.lineNumber
+                              // 5 == XCTIssueTypeUnmatchedExpectedFailure
+                              expected:issue.type == 5];
+}
+
+- (void)_recordIssue:(XCTIssue *)issue forCaughtError:(id)error
+{
+  [self _recordIssue:issue];
+}
+
+- (void)recordIssue:(XCTIssue *)issue
+{
+  [self _recordIssue:issue];
+}
 
 /**
  Override 'recordFailureWithDescription' to not stop by failures.
@@ -49,17 +63,7 @@
                               expected:(BOOL)expected
 {
   [FBLogger logFmt:@"Enqueue Failure: %@ %@ %lu %d", description, filePath, (unsigned long)lineNumber, expected];
-  const BOOL isPossibleDeadlock = ([description rangeOfString:@"Failed to get refreshed snapshot"].location != NSNotFound);
-  if (!isPossibleDeadlock) {
-    self.didRegisterAXTestFailure = YES;
-  }
-  else if (self.didRegisterAXTestFailure) {
-    self.didRegisterAXTestFailure = NO; // Reseting to NO to enable future deadlock detection
-    [[NSException exceptionWithName:FBApplicationDeadlockDetectedException
-                             reason:@"Can't communicate with deadlocked application"
-                           userInfo:nil]
-     raise];
-  }
+  // TODO: Figure out which error types we want to escalate
 }
 
 @end

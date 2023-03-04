@@ -19,7 +19,7 @@ jobs:
         lts2=$(cat eol.list | head -2 | tail -1)
         lts3=$(cat eol.list | head -3 | tail -1)
         VERSIONS="[$lts1, $lts2, $lts3]"
-        echo ::set-output name=versions::${VERSIONS}
+        echo "versions=${VERSIONS}" >> "$GITHUB_OUTPUT"
 
   test:
     needs:

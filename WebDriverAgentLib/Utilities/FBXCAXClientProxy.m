@@ -9,46 +9,13 @@
 
 #import "FBXCAXClientProxy.h"
 
-#import <objc/runtime.h>
-
 #import "FBXCAccessibilityElement.h"
-#import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
-#import "FBReflectionUtils.h"
-#import "XCAXClient_iOS.h"
+#import "XCAXClient_iOS+FBSnapshotReqParams.h"
 #import "XCUIDevice.h"
 
 static id FBAXClient = nil;
-
-@implementation XCAXClient_iOS (WebDriverAgent)
-
-/**
- Parameters for traversing elements tree from parents to children while requesting XCElementSnapshot.
-
- @return dictionary with parameters for element's snapshot request
- */
-- (NSDictionary *)fb_getParametersForElementSnapshot
-{
-  return FBConfiguration.snapshotRequestParameters;
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-load-method"
-
-+ (void)load
-{
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    SEL originalParametersSelector = @selector(defaultParameters);
-    SEL swizzledParametersSelector = @selector(fb_getParametersForElementSnapshot);
-    FBReplaceMethod([self class], originalParametersSelector, swizzledParametersSelector);
-  });
-}
-
-#pragma clang diagnostic pop
-
-@end
 
 @implementation FBXCAXClientProxy
 
@@ -73,14 +40,8 @@ static id FBAXClient = nil;
                                      maxDepth:(nullable NSNumber *)maxDepth
                                         error:(NSError **)error
 {
-  NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
-  // Mimicking XCTest framework behavior (this attribute is added by default unless it is an excludingNonModalElements query)
-  // See https://github.com/appium/WebDriverAgent/pull/523
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
-    parameters[@"snapshotKeyHonorModalViews"] = @(NO);
-  }
+  NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithDictionary:self.defaultParameters];
   if (nil != maxDepth) {
-    [parameters addEntriesFromDictionary:self.defaultParameters];
     parameters[FBSnapshotMaxDepthKey] = maxDepth;
   }
 

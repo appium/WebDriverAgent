@@ -162,10 +162,10 @@
   XCUIElementQuery *query = onlyChildren
     ? [self.fb_query childrenMatchingType:type]
     : [self.fb_query descendantsMatchingType:type];
-  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    return [matchedIds containsObject:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot] ?: @""];
-  }];
+  
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K IN %@",FBStringify(FBXCElementSnapshotWrapper, fb_uid), matchedIds];
   [matchedElements addObjectsFromArray:[query matchingPredicate:predicate].allElementsBoundByIndex];
+
   for (XCUIElement *el in matchedElements) {
     el.fb_isResolvedNatively = @NO;
   }
