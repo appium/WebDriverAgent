@@ -653,7 +653,8 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   }
   return FBResponseWithOK();
 }
-  + (id<FBResponsePayload>)handleWheelSelectValue:(FBRouteRequest *)request
+  
++ (id<FBResponsePayload>)handleWheelSelectValue:(FBRouteRequest *)request
   {
     FBElementCache *elementCache = request.session.elementCache;
     XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
