@@ -94,7 +94,6 @@
     [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
     [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
-    [[FBRoute POST:@"/wda/pickerwheel/:uuid/selectvalue"] respondWithTarget:self action:@selector(handleWheelSelectValue:)],
     [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
@@ -630,6 +629,21 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
     isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
   } else if ([order isEqualToString:@"previous"]) {
     isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
+  } else if (request.arguments[@"value"]) {
+    NSString *value = request.arguments[@"value"];
+    NSString* endValue = element.wdValue;
+    if(element.wdValue == value) {
+      return FBResponseWithOK();
+    }
+    do {
+      [element fb_selectNextOptionWithOffset:offset error:&error];
+      element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+      if([element.wdValue isEqualToString: value]) {
+        return FBResponseWithOK();
+      }
+    } while(![element.wdValue isEqualToString: endValue]);
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    
   } else {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
@@ -654,34 +668,6 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   return FBResponseWithOK();
 }
   
-+ (id<FBResponsePayload>)handleWheelSelectValue:(FBRouteRequest *)request
-  {
-    FBElementCache *elementCache = request.session.elementCache;
-    XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-    if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-    }
-    NSError *error;
-    NSString* value = request.arguments[@"value"];
-    NSString* endValue = element.wdValue;
-    if (value == nil) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value parameter is missing"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-    } else {
-      CGFloat offset = DEFAULT_OFFSET;
-      if(element.wdValue == value) {
-        return FBResponseWithOK();
-      }
-      do {
-        [element fb_selectNextOptionWithOffset:offset error:&error];
-        element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-        if([element.wdValue isEqualToString: value]) {
-          return FBResponseWithOK();
-        }
-      } while(![element.wdValue isEqualToString: endValue]);
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-    }
-  }
-
 /**
  Returns gesture coordinate for the application based on absolute coordinate
 
