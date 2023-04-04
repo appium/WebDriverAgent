@@ -59,7 +59,7 @@ static void swizzled_validatePredicateWithExpressionsAllowed(id self, SEL _cmd, 
       IMP swizzledImp = (IMP)swizzled_validatePredicateWithExpressionsAllowed;
       method_setImplementation(validatePredicateMethod, swizzledImp);
     } else {
-      [FBLogger log:@"Could not find method -[XCTElementQueryTransformerPredicateValidator validatePredicate:withExpressionsAllowed:]"];
+      [FBLogger log:@"Could not find method +[XCTElementQueryTransformerPredicateValidator validatePredicate:withExpressionsAllowed:]"];
     }
   }
   
