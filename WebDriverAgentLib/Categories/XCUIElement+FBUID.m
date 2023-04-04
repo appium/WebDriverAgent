@@ -12,9 +12,9 @@
 #import "XCUIElement+FBUID.h"
 
 #import "FBElementUtils.h"
+#import "FBLogger.h"
 #import "XCUIApplication.h"
 #import "XCUIElement+FBUtilities.h"
-#import "FBLogger.h"
 
 @implementation XCUIElement (FBUID)
 
@@ -38,7 +38,6 @@
 
 static void swizzled_validatePredicateWithExpressionsAllowed(id self, SEL _cmd, id predicate, BOOL withExpressionsAllowed)
 {
-  return;
 }
 
 #pragma clang diagnostic push
@@ -52,17 +51,15 @@ static void swizzled_validatePredicateWithExpressionsAllowed(id self, SEL _cmd, 
   
   // Support for Xcode 14.3 requires disabling the new predicate validator, see https://github.com/appium/appium/issues/18444
   Class XCTElementQueryTransformerPredicateValidatorCls = objc_lookUpClass("XCTElementQueryTransformerPredicateValidator");
-  if (XCTElementQueryTransformerPredicateValidatorCls != nil)
-  {
+  if (XCTElementQueryTransformerPredicateValidatorCls != nil) {
     Method validatePredicateMethod = class_getClassMethod(XCTElementQueryTransformerPredicateValidatorCls, NSSelectorFromString(@"validatePredicate:withExpressionsAllowed:"));
-    if (nil != validatePredicateMethod) {
+    if (validatePredicateMethod != nil) {
       IMP swizzledImp = (IMP)swizzled_validatePredicateWithExpressionsAllowed;
       method_setImplementation(validatePredicateMethod, swizzledImp);
     } else {
       [FBLogger log:@"Could not find method +[XCTElementQueryTransformerPredicateValidator validatePredicate:withExpressionsAllowed:]"];
     }
   }
-  
 }
 #pragma diagnostic pop
 
