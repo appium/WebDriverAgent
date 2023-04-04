@@ -51,15 +51,16 @@ static void swizzled_validatePredicateWithExpressionsAllowed(id self, SEL _cmd, 
   
   // Support for Xcode 14.3 requires disabling the new predicate validator, see https://github.com/appium/appium/issues/18444
   Class XCTElementQueryTransformerPredicateValidatorCls = objc_lookUpClass("XCTElementQueryTransformerPredicateValidator");
-  if (XCTElementQueryTransformerPredicateValidatorCls != nil) {
-    Method validatePredicateMethod = class_getClassMethod(XCTElementQueryTransformerPredicateValidatorCls, NSSelectorFromString(@"validatePredicate:withExpressionsAllowed:"));
-    if (validatePredicateMethod != nil) {
-      IMP swizzledImp = (IMP)swizzled_validatePredicateWithExpressionsAllowed;
-      method_setImplementation(validatePredicateMethod, swizzledImp);
-    } else {
-      [FBLogger log:@"Could not find method +[XCTElementQueryTransformerPredicateValidator validatePredicate:withExpressionsAllowed:]"];
-    }
+  if (XCTElementQueryTransformerPredicateValidatorCls == nil) {
+    return;
   }
+  Method validatePredicateMethod = class_getClassMethod(XCTElementQueryTransformerPredicateValidatorCls, NSSelectorFromString(@"validatePredicate:withExpressionsAllowed:"));
+  if (validatePredicateMethod == nil) {
+    [FBLogger log:@"Could not find method +[XCTElementQueryTransformerPredicateValidator validatePredicate:withExpressionsAllowed:]"];
+    return;
+  }
+  IMP swizzledImp = (IMP)swizzled_validatePredicateWithExpressionsAllowed;
+  method_setImplementation(validatePredicateMethod, swizzledImp);  
 }
 #pragma diagnostic pop
 
