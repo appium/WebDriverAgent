@@ -1,3 +1,10 @@
+## [4.13.1](https://github.com/appium/WebDriverAgent/compare/v4.13.0...v4.13.1) (2023-04-04)
+
+
+### Bug Fixes
+
+* Fixed Xpath lookup for Xcode 14.3 ([#681](https://github.com/appium/WebDriverAgent/issues/681)) ([3e0b191](https://github.com/appium/WebDriverAgent/commit/3e0b1914f87585ed69ba20d960502eabb058941c))
+
 ## [4.13.0](https://github.com/appium/WebDriverAgent/compare/v4.12.2...v4.13.0) (2023-02-23)
 
 
