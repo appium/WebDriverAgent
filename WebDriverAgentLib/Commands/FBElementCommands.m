@@ -610,6 +610,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
+  NSNumber *counter = 0;
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
@@ -632,16 +633,16 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   } else if (request.arguments[@"value"]) {
     NSString *value = request.arguments[@"value"];
     NSString* endValue = element.wdValue;
-    if(element.wdValue == value) {
+    if ([element.wdValue isEqualToString: value]) {
       return FBResponseWithOK();
     }
     do {
       [element fb_selectNextOptionWithOffset:offset error:&error];
-      element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-      if([element.wdValue isEqualToString: value]) {
+      if ([element.wdValue isEqualToString: value]) {
         return FBResponseWithOK();
       }
-    } while(![element.wdValue isEqualToString: endValue]);
+      counter = @([counter intValue] + 1);
+    } while (![element.wdValue isEqualToString: endValue] && counter.intValue <= 20);
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     
   } else {
@@ -652,9 +653,8 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   }
   return FBResponseWithOK();
 }
-
 #pragma mark - Helpers
-
+  
 + (id<FBResponsePayload>)handleScrollElementToVisible:(XCUIElement *)element withRequest:(FBRouteRequest *)request
 {
   NSError *error;
