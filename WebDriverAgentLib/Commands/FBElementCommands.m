@@ -608,51 +608,55 @@
 #if !TARGET_OS_TV
 static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
-+ (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
-{
-  NSNumber *counter = 0;
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-  }
-  NSString* order = [request.arguments[@"order"] lowercaseString];
-  CGFloat offset = DEFAULT_OFFSET;
-  if (request.arguments[@"offset"]) {
-    offset = (CGFloat)[request.arguments[@"offset"] doubleValue];
-    if (offset <= 0.0 || offset > 0.5) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+  + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
+  {
+    NSNumber *counter = 0;
+    FBElementCache *elementCache = request.session.elementCache;
+    XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+    if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
-  }
-  BOOL isSuccessful = false;
-  NSError *error;
-  if ([order isEqualToString:@"next"]) {
-    isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
-  } else if ([order isEqualToString:@"previous"]) {
-    isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
-  } else if (request.arguments[@"value"]) {
-    NSString *value = request.arguments[@"value"];
-    NSString* endValue = element.wdValue;
-    if ([element.wdValue isEqualToString: value]) {
-      return FBResponseWithOK();
+    NSString* order = [request.arguments[@"order"] lowercaseString];
+    CGFloat offset = DEFAULT_OFFSET;
+    if (request.arguments[@"offset"]) {
+      offset = (CGFloat)[request.arguments[@"offset"] doubleValue];
+      if (offset <= 0.0 || offset > 0.5) {
+        return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      }
     }
-    do {
-      [element fb_selectNextOptionWithOffset:offset error:&error];
+    BOOL isSuccessful = false;
+    NSError *error;
+    if (request.arguments[@"value"]) {
+      NSString *value = request.arguments[@"value"];
+      NSString* endValue = element.wdValue;
       if ([element.wdValue isEqualToString: value]) {
         return FBResponseWithOK();
       }
-      counter = @([counter intValue] + 1);
-    } while (![element.wdValue isEqualToString: endValue] && counter.intValue <= 20);
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-    
-  } else {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      do {
+        if ([order isEqualToString:@"previous"]) {
+          [element fb_selectPreviousOptionWithOffset:offset error:&error];
+        } else {
+          [element fb_selectNextOptionWithOffset:offset error:&error];
+        }
+        if ([element.wdValue isEqualToString: value]) {
+          return FBResponseWithOK();
+        }
+        counter = @([counter intValue] + 1);
+      } while (![element.wdValue isEqualToString: endValue] && counter.intValue <= 20);
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      
+    } else if ([order isEqualToString:@"next"]) {
+      isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
+    } else if ([order isEqualToString:@"previous"]) {
+      isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
+    } else {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    }
+    if (!isSuccessful) {
+      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+    }
+    return FBResponseWithOK();
   }
-  if (!isSuccessful) {
-    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-  }
-  return FBResponseWithOK();
-}
 #pragma mark - Helpers
   
 + (id<FBResponsePayload>)handleScrollElementToVisible:(XCUIElement *)element withRequest:(FBRouteRequest *)request
