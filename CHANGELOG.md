@@ -1,3 +1,10 @@
+## [4.13.2](https://github.com/appium/WebDriverAgent/compare/v4.13.1...v4.13.2) (2023-04-28)
+
+
+### Miscellaneous Chores
+
+* add withoutSession for pasteboard for debug ([#688](https://github.com/appium/WebDriverAgent/issues/688)) ([edcbf9e](https://github.com/appium/WebDriverAgent/commit/edcbf9e6af903c6f490ca90ff915497ad53bb8b5))
+
 ## [4.13.1](https://github.com/appium/WebDriverAgent/compare/v4.13.0...v4.13.1) (2023-04-04)
 
 
