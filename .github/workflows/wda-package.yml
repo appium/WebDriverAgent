@@ -85,21 +85,36 @@ jobs:
           popd
           mv $PKG_PATH_IOS_SIM_X86_64/$ZIP_PKG_NAME_IOS_SIM_X86_64 ./
 
-      # - name: Build tvOS for simulator
-      #   run: |
-      #     xcodebuild clean build-for-testing \
-      #       -project WebDriverAgent.xcodeproj \
-      #       -derivedDataPath $PKG_PATH_TVOS_SIM \
-      #       -scheme WebDriverAgentRunner_tvOS \
-      #       -scheme WebDriverAgentRunner \
-      #       -destination "platform=tvOS Simulator,name=Apple TV 4K,OS=16.0" \
-      #       CODE_SIGNING_ALLOWED=NO ARCHS=arm64 x86_64
-      # - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
-      #   run: |
-      #     pushd $PKG_PATH_TVOS_SIM
-      #     zip -r $ZIP_PKG_NAME_TVOS_SIM Build
-      #     popd
-      #     mv $PKG_PATH_TVOS_SIM/$ZIP_PKG_NAME_TVOS_SIM ./
+      - name: Build tvOS for simulator for arm64
+        run: |
+          xcodebuild clean build-for-testing \
+            -project WebDriverAgent.xcodeproj \
+            -derivedDataPath $PKG_PATH_TVOS_SIM_ARM64 \
+            -scheme WebDriverAgentRunner_tvOS \
+            -scheme WebDriverAgentRunner \
+            -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
+            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+      - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
+        run: |
+          pushd $PKG_PATH_TVOS_SIM_ARM64
+          zip -r $ZIP_PKG_NAME_TVOS_SIM_ARM64 Build
+          popd
+          mv $PKG_PATH_TVOS_SIM_ARM64/$ZIP_PKG_NAME_TVOS_SIM_ARM64 ./
+      - name: Build tvOS for simulator for x86_64
+        run: |
+          xcodebuild clean build-for-testing \
+            -project WebDriverAgent.xcodeproj \
+            -derivedDataPath $PKG_PATH_TVOS_SIM_X86_64 \
+            -scheme WebDriverAgentRunner_tvOS \
+            -scheme WebDriverAgentRunner \
+            -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
+            CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
+      - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
+        run: |
+          pushd $PKG_PATH_TVOS_SIM_X86_64
+          zip -r $ZIP_PKG_NAME_TVOS_SIM_X86_64 Build
+          popd
+          mv $PKG_PATH_TVOS_SIM_X86_64/$ZIP_PKG_NAME_TVOS_SIM_X86_64 ./
 
       - name: Upload the built generic app package for iOS
         uses: actions/upload-artifact@v3.1.0
@@ -117,7 +132,11 @@ jobs:
         uses: actions/upload-artifact@v3.1.0
         with:
           path: "${{ env.ZIP_PKG_NAME_IOS_SIM_X86_64 }}"
-      # - name: Upload the built generic app package for tvOS Simulator
-      #   uses: actions/upload-artifact@v3.1.0
-      #   with:
-      #     path: "${{ env.ZIP_PKG_NAME_TVOS_SIM }}"
+      - name: Upload the built generic app package for tvOS Simulator for arm64
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "${{ env.ZIP_PKG_NAME_TVOS_SIM_ARM64 }}"
+      - name: Upload the built generic app package for tvOS Simulator for x86_64
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "${{ env.ZIP_PKG_NAME_TVOS_SIM_X86_64 }}"
