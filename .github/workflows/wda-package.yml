@@ -65,8 +65,8 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_IOS \
             -scheme WebDriverAgentRunner \
-            -destination "iPhone 14 Pro" \
-            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+            -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=16.2" \
+            CODE_SIGNING_ALLOWED=NO
       - name: Creating a zip of WebDriverAgentRunner-Build for iOS
         run: |
           pushd appium_wda_ios/Build/
