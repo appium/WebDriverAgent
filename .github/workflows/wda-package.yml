@@ -15,6 +15,9 @@ jobs:
       ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
       PKG_PATH_TVOS: "appium_wda_tvos"
 
+      ZIP_PKG_NAME_IOS_SIM: "WebDriverAgentRunner-Build-Sim.zip"
+      PKG_PATH_IOS_SIM: "appium_wda_ios_sim"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -63,13 +66,13 @@ jobs:
         run: |
           xcodebuild clean build-for-testing \
             -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_IOS \
+            -derivedDataPath $PKG_PATH_IOS_SIM \
             -scheme WebDriverAgentRunner \
             -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=16.2" \
             CODE_SIGNING_ALLOWED=NO
-      - name: Creating a zip of WebDriverAgentRunner-Build for iOS
+      - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
           pushd appium_wda_ios/Build/
-          zip -r $ZIP_PKG_NAME_IOS WebDriverAgentRunner-Build.zip
+          zip -r $ZIP_PKG_NAME_IOS_SIM WebDriverAgentRunner-Build.zip
           popd
-          mv $PKG_PATH_IOS/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
+          mv $PKG_PATH_IOS_SIM/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS_SIM ./
