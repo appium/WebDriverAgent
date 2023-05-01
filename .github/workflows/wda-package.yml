@@ -52,15 +52,6 @@ jobs:
           zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
           popd
           mv $PKG_PATH_TVOS/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
-      - name: Upload the built generic app package for iOS
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          path: "${{ env.ZIP_PKG_NAME_IOS }}"
-      - name: Upload the built generic app package for tvOS
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          path: "${{ env.ZIP_PKG_NAME_TVOS }}"
-
 
       - name: Build iOS for simulator
         run: |
@@ -76,3 +67,16 @@ jobs:
           zip -r $ZIP_PKG_NAME_IOS_SIM Build
           popd
           mv $PKG_PATH_IOS_SIM/$ZIP_PKG_NAME_IOS_SIM ./
+
+      - name: Upload the built generic app package for iOS
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "${{ env.ZIP_PKG_NAME_IOS }}"
+      - name: Upload the built generic app package for tvOS
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "${{ env.ZIP_PKG_NAME_TVOS }}"
+      - name: Upload the built generic app package for iOS Simulator
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: "${{ env.ZIP_PKG_NAME_IOS_SIM }}"
