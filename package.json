@@ -79,7 +79,7 @@
     "mocha": "^10.0.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.7.1",
-    "semantic-release": "^20.0.2",
+    "semantic-release": "^21.0.2",
     "sinon": "^15.0.0"
   },
   "dependencies": {
