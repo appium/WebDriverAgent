@@ -96,7 +96,6 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_TVOS_SIM_ARM64 \
             -scheme WebDriverAgentRunner_tvOS \
-            -scheme WebDriverAgentRunner \
             -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
@@ -111,7 +110,6 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_TVOS_SIM_X86_64 \
             -scheme WebDriverAgentRunner_tvOS \
-            -scheme WebDriverAgentRunner \
             -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
             CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
