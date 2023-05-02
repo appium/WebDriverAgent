@@ -48,7 +48,7 @@ jobs:
             -destination generic/platform=tvOS \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64
       - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
-        run: | 
+        run: |
           pushd $PKG_PATH_TVOS/Build/Products/Debug-appletvos
           zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
           popd
