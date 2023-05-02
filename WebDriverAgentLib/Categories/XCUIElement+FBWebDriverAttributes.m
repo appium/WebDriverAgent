@@ -154,12 +154,10 @@
   return self.fb_isVisible;
 }
 
-#if TARGET_OS_TV
 - (BOOL)isWDFocused
 {
   return self.hasFocus;
 }
-#endif
 
 - (BOOL)isWDAccessible
 {
