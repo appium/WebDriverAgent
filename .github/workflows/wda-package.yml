@@ -3,13 +3,17 @@ name: Building WebDriverAgent
 on:
   workflow_dispatch:
 
+env:
+  XCODE_VERSION: 14.2
+  DESTI_IOS_SIM: platform=iOS Simulator,name=iPhone 14 Pro
+  DESTI_TVOS_SIM: platform=tvOS Simulator,name=Apple TV
+
 jobs:
   for_real_devices:
     name: Build WDA for real iOS and tvOS devices
     runs-on: macos-12
 
     env:
-      XCODE_VERSION: 14.2
       ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
       PKG_PATH_IOS: "appium_wda_ios"
       ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
@@ -65,8 +69,6 @@ jobs:
     runs-on: macos-12
 
     env:
-      XCODE_VERSION: 14.2
-
       ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
       PKG_PATH_IOS_SIM_ARM64: "appium_wda_ios_sim_arm64"
       ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
@@ -89,7 +91,7 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_IOS_SIM_X86_64 \
             -scheme WebDriverAgentRunner \
-            -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=16.2" \
+            -destination "$DESTI_IOS_SIM" \
             CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
@@ -104,7 +106,7 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_TVOS_SIM_X86_64 \
             -scheme WebDriverAgentRunner_tvOS \
-            -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
+            -destination "$DESTI_TVOS_SIM" \
             CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
@@ -128,8 +130,6 @@ jobs:
     runs-on: macos-12
 
     env:
-      XCODE_VERSION: 14.2
-
       ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
       PKG_PATH_IOS_SIM_ARM64: "appium_wda_ios_sim_arm64"
 
@@ -149,7 +149,7 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_IOS_SIM_ARM64 \
             -scheme WebDriverAgentRunner \
-            -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=16.2" \
+            -destination "$DESTI_IOS_SIM" \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
@@ -164,7 +164,7 @@ jobs:
             -project WebDriverAgent.xcodeproj \
             -derivedDataPath $PKG_PATH_TVOS_SIM_ARM64 \
             -scheme WebDriverAgentRunner_tvOS \
-            -destination "platform=tvOS Simulator,name=Apple TV,OS=16.1" \
+            -destination "$DESTI_TVOS_SIM" \
             CODE_SIGNING_ALLOWED=NO ARCHS=arm64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
