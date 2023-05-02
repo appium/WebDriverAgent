@@ -131,6 +131,10 @@
   if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
     FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
+  
+  if (nil != capabilities[FB_SETTING_MAX_ATTEMPT_PICKER_WHEEL]) {
+    [FBConfiguration setMaxAttemptPickerWheel:[capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] intValue]];
+  }
 
   if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
       [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
@@ -295,6 +299,7 @@
       FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
       FB_SETTING_DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
+      FB_SETTING_MAX_ATTEMPT_PICKER_WHEEL: @([FBConfiguration maxAttemptPickerWheel]),
 #if !TARGET_OS_TV
       FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
@@ -382,6 +387,9 @@
   }
   if ([[settings objectForKey:FB_SETTING_DEFAULT_ALERT_ACTION] isKindOfClass:NSString.class]) {
     request.session.defaultAlertAction = [settings[FB_SETTING_DEFAULT_ALERT_ACTION] lowercaseString];
+  }
+  if (nil != [settings objectForKey:FB_SETTING_MAX_ATTEMPT_PICKER_WHEEL]) {
+    [FBConfiguration setMaxAttemptPickerWheel:[[settings objectForKey:FB_SETTING_MAX_ATTEMPT_PICKER_WHEEL] intValue]];
   }
 
 #if !TARGET_OS_TV

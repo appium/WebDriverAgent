@@ -35,6 +35,7 @@ static BOOL FBShouldUseSingletonTestManager = YES;
 static NSUInteger FBMjpegScalingFactor = 100;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
+static NSUInteger FBMaxAttemptPickerWheel = 20;
 
 // Session-specific settings
 static BOOL FBShouldTerminateApp;
@@ -131,6 +132,15 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 
 + (void)setMjpegScalingFactor:(NSUInteger)scalingFactor {
   FBMjpegScalingFactor = scalingFactor;
+}
+
++ (NSUInteger)maxAttemptPickerWheel
+{
+  return FBMaxAttemptPickerWheel;
+}
+
++ (void)setMaxAttemptPickerWheel:(NSUInteger)maxAttemptPickerWheel {
+  FBMaxAttemptPickerWheel = maxAttemptPickerWheel;
 }
 
 + (BOOL)verboseLoggingEnabled
@@ -458,6 +468,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   FBAnimationCoolOffTimeout = 2.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
+  FBMaxAttemptPickerWheel = 20;
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
 #endif

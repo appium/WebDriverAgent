@@ -610,7 +610,6 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
   + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
   {
-    NSNumber *counter = 0;
     FBElementCache *elementCache = request.session.elementCache;
     XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
     if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
@@ -627,24 +626,21 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
     BOOL isSuccessful = false;
     NSError *error;
     if (request.arguments[@"value"]) {
+      NSUInteger counter = 0;
       NSString *value = request.arguments[@"value"];
-      NSString* endValue = element.wdValue;
-      if ([element.wdValue isEqualToString: value]) {
-        return FBResponseWithOK();
-      }
+      NSString* expectedValue = element.wdValue;
       do {
+        if ([element.wdValue isEqualToString:value]) {
+          return FBResponseWithOK();
+        }
         if ([order isEqualToString:@"previous"]) {
           [element fb_selectPreviousOptionWithOffset:offset error:&error];
         } else {
           [element fb_selectNextOptionWithOffset:offset error:&error];
         }
-        if ([element.wdValue isEqualToString: value]) {
-          return FBResponseWithOK();
-        }
-        counter = @([counter intValue] + 1);
-      } while (![element.wdValue isEqualToString: endValue] && counter.intValue <= 20);
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The target value cannot be found on the respective Picker Wheel"] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
-      
+        counter++;
+      } while (![element.wdValue isEqualToString:expectedValue] && counter <= [FBConfiguration maxAttemptPickerWheel]);
+      return FBResponseWithStatus([FBCommandStatus pickerWheelValueNotFound:[NSString stringWithFormat:@"Tried Attempting '%lu' times in '%@' order",[FBConfiguration maxAttemptPickerWheel], request.arguments[@"value"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     } else if ([order isEqualToString:@"next"]) {
       isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
     } else if ([order isEqualToString:@"previous"]) {

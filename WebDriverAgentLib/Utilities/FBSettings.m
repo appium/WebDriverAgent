@@ -32,3 +32,4 @@ NSString* const FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonS
 NSString* const FB_SETTING_SCREENSHOT_ORIENTATION = @"screenshotOrientation";
 NSString* const FB_SETTING_WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
 NSString* const FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT = @"animationCoolOffTimeout";
+NSString* const FB_SETTING_MAX_ATTEMPT_PICKER_WHEEL = @"MaxAttemptPickerWheel";

@@ -76,6 +76,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)noSuchDriverErrorWithMessage:(nullable NSString *)message
                                    traceback:(nullable NSString *)traceback;
 
++ (instancetype)pickerWheelValueNotFound:(nullable NSString *)message
+                                  traceback:(nullable NSString *)traceback;
+
 @end
 
 NS_ASSUME_NONNULL_END

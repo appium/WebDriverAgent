@@ -57,6 +57,10 @@ static NSString *const FB_INVALID_COORDINATES_ERROR = @"invalid coordinates";
 static const HTTPStatusCode FB_INVALID_COORDINATES_ERROR_CODE = kHTTPStatusCodeBadRequest;
 static NSString *const FB_INVALID_COORDINATES_MSG = @"The coordinates provided to an interactions operation are invalid";
 
+static NSString *const FB_PICKER_WHEEL_VALUE_NOT_FOUND_ERROR = @"target value not found";
+static const HTTPStatusCode FB_PICKER_WHEEL_VALUE_NOT_FOUND_ERROR_CODE = kHTTPStatusCodeNotFound;
+static NSString *const FB_PICKER_WHEEL_VALUE_NOT_FOUND_MSG = @"The target value cannot be found on the respective Picker Wheel, please again verify the value or the order";
+
 static NSString *const FB_UNSUPPORTED_OPERATION_ERROR = @"unsupported operation";
 static const HTTPStatusCode FB_UNSUPPORTED_OPERATION_ERROR_CODE = kHTTPStatusCodeInternalServerError;
 static NSString *const FB_UNSUPPORTED_OPERATION_ERROR_MSG = @"The requested operation is not supported";
@@ -125,6 +129,15 @@ static NSString *const FB_NO_SUCH_DRIVER_MSG = @"A session is either terminated 
   return [[FBCommandStatus alloc] initWithError:FB_UNKNOWN_ERROR
                                      statusCode:FB_UNKNOWN_ERROR_CODE
                                         message:message ?: FB_UNKNOWN_ERROR_MSG
+                                      traceback:traceback];
+}
+
++ (instancetype)pickerWheelValueNotFound:(NSString *)message
+                              traceback:(NSString *)traceback
+{
+  return [[FBCommandStatus alloc] initWithError:FB_PICKER_WHEEL_VALUE_NOT_FOUND_ERROR
+                                     statusCode:FB_PICKER_WHEEL_VALUE_NOT_FOUND_ERROR_CODE
+                                        message:message ?: FB_PICKER_WHEEL_VALUE_NOT_FOUND_MSG
                                       traceback:traceback];
 }
 

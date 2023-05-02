@@ -114,6 +114,12 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setMjpegScalingFactor:(NSUInteger)scalingFactor;
 
 /**
+ The maximum number attempts to find a value on the XCUIElementTypePickerWheel
+ */
++(NSUInteger)maxAttemptPickerWheel;
++(void)setMaxAttemptPickerWheel:(NSUInteger)maxAttemptPickerWheel;
+
+/**
  YES if verbose logging is enabled. NO otherwise.
  */
 + (BOOL)verboseLoggingEnabled;
