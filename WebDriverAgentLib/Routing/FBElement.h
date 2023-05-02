@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! Whether element is an accessibility container (contains children of any depth that are accessible) */
 @property (nonatomic, readonly, getter = isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
+
 /*! Whether element is focused */
 @property (nonatomic, readonly, getter = isWDFocused) BOOL wdFocused;
 
