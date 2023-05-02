@@ -69,13 +69,9 @@ jobs:
     runs-on: macos-12
 
     env:
-      ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
-      PKG_PATH_IOS_SIM_ARM64: "appium_wda_ios_sim_arm64"
       ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
       PKG_PATH_IOS_SIM_X86_64: "appium_wda_ios_sim_x86_64"
 
-      ZIP_PKG_NAME_TVOS_SIM_ARM64: "WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip"
-      PKG_PATH_TVOS_SIM_ARM64: "appium_wda_tvos_sim_arm64"
       ZIP_PKG_NAME_TVOS_SIM_X86_64: "WebDriverAgentRunner_tvOS-Build-Sim-x86-64.zip"
       PKG_PATH_TVOS_SIM_X86_64: "appium_wda_tvos_sim_x86_64"
 
