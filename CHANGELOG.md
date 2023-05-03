@@ -1,3 +1,17 @@
+## [4.14.0](https://github.com/appium/WebDriverAgent/compare/v4.13.2...v4.14.0) (2023-05-02)
+
+
+### Features
+
+* start wda process via Xctest in a real device ([#687](https://github.com/appium/WebDriverAgent/issues/687)) ([e1c0f83](https://github.com/appium/WebDriverAgent/commit/e1c0f836a68ad2efbedfc77343794d0d97ef6090))
+
+## [4.13.2](https://github.com/appium/WebDriverAgent/compare/v4.13.1...v4.13.2) (2023-04-28)
+
+
+### Miscellaneous Chores
+
+* add withoutSession for pasteboard for debug ([#688](https://github.com/appium/WebDriverAgent/issues/688)) ([edcbf9e](https://github.com/appium/WebDriverAgent/commit/edcbf9e6af903c6f490ca90ff915497ad53bb8b5))
+
 ## [4.13.1](https://github.com/appium/WebDriverAgent/compare/v4.13.0...v4.13.1) (2023-04-04)
 
 
