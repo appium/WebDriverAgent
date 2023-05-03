@@ -92,6 +92,7 @@ jobs:
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
           pushd $PKG_PATH_IOS_SIM_X86_64
+          rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_IOS_SIM_X86_64 Build
           popd
           mv $PKG_PATH_IOS_SIM_X86_64/$ZIP_PKG_NAME_IOS_SIM_X86_64 ./
@@ -107,6 +108,7 @@ jobs:
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
           pushd $PKG_PATH_TVOS_SIM_X86_64
+          rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_TVOS_SIM_X86_64 Build
           popd
           mv $PKG_PATH_TVOS_SIM_X86_64/$ZIP_PKG_NAME_TVOS_SIM_X86_64 ./
@@ -150,6 +152,7 @@ jobs:
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
           pushd $PKG_PATH_IOS_SIM_ARM64
+          rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_IOS_SIM_ARM64 Build
           popd
           mv $PKG_PATH_IOS_SIM_ARM64/$ZIP_PKG_NAME_IOS_SIM_ARM64 ./
@@ -165,6 +168,7 @@ jobs:
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
           pushd $PKG_PATH_TVOS_SIM_ARM64
+          rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_TVOS_SIM_ARM64 Build
           popd
           mv $PKG_PATH_TVOS_SIM_ARM64/$ZIP_PKG_NAME_TVOS_SIM_ARM64 ./
