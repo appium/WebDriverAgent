@@ -1,0 +1,30 @@
+name: "xcodebuild action"
+description: "Runs xcodebuild"
+
+inputs:
+  derived_data_path:
+  scheme:
+  destination:
+  archs:
+  zip_pkg_name:
+
+runs:
+  using: "composite"
+  steps:
+    - name: Git Checkout
+      uses: actions/checkout@v3
+    - name: Building a WebDriverAgent Runner package
+      run: |
+      xcodebuild clean build-for-testing \
+        -project WebDriverAgent.xcodeproj \
+        -derivedDataPath ${{ inputs.derived_data_path }} \
+        -scheme ${{ inputs.scheme }} \
+        -destination "${{ inputs.destination }}" \
+        CODE_SIGNING_ALLOWED=NO ARCHS=${{ inputs.archs }}
+    - name: Creating a zip
+      run: |
+        pushd ${{ inputs.derived_data_path }}
+        rm -rf Build/Intermediates.noindex
+        zip -r ${{ inputs.zip_pkg_name }} Build
+        popd
+        mv ${{ inputs.derived_data_path }}/${{ inputs.zip_pkg_name }} ./
