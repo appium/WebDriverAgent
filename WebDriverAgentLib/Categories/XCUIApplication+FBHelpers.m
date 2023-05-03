@@ -126,7 +126,9 @@ static NSString* const FBUnknownBundleId = @"unknown";
   info[@"isEnabled"] = [@([wrappedSnapshot isWDEnabled]) stringValue];
   info[@"isVisible"] = [@([wrappedSnapshot isWDVisible]) stringValue];
   info[@"isAccessible"] = [@([wrappedSnapshot isWDAccessible]) stringValue];
+#if TARGET_OS_TV
   info[@"isFocused"] = [@([wrappedSnapshot isWDFocused]) stringValue];
+#endif
   info[@"isSelected"] = [@([wrappedSnapshot isWDSelected]) stringValue];
   info[@"hasKeyboardFocus"] = [@([wrappedSnapshot hasKeyboardFocus]) stringValue];
   
