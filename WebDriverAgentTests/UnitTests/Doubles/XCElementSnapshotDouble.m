@@ -72,6 +72,11 @@
   return YES;
 }
 
+- (BOOL)hasKeyboardFocus
+{
+  return NO;
+}
+
 - (NSDictionary *)additionalAttributes
 {
   return @{};

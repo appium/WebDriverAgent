@@ -95,13 +95,9 @@
 
 @end
 
-#if TARGET_OS_TV
-
 @interface FBFocusedAttribute : FBElementAttribute
 
 @end
-
-#endif
 
 const static char *_UTF8Encoding = "UTF-8";
 
@@ -473,9 +469,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBEnabledAttribute.class,
            FBVisibleAttribute.class,
            FBAccessibleAttribute.class,
-#if TARGET_OS_TV
            FBFocusedAttribute.class,
-#endif
            FBXAttribute.class,
            FBYAttribute.class,
            FBWidthAttribute.class,
@@ -590,8 +584,6 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 @end
 
-#if TARGET_OS_TV
-
 @implementation FBFocusedAttribute
 
 + (NSString *)name
@@ -605,8 +597,6 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 }
 
 @end
-
-#endif
 
 @implementation FBDimensionAttribute
 

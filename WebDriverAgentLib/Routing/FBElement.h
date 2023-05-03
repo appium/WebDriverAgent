@@ -47,16 +47,17 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Whether element is visible */
 @property (nonatomic, readonly, getter = isWDVisible) BOOL wdVisible;
 
+/*! Whether element has keyboard focus */
+@property (nonatomic, readonly, getter = wdHasKeyboardFocus) BOOL wdHasKeyboardFocus;
+
 /*! Whether element is accessible */
 @property (nonatomic, readonly, getter = isWDAccessible) BOOL wdAccessible;
 
 /*! Whether element is an accessibility container (contains children of any depth that are accessible) */
 @property (nonatomic, readonly, getter = isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
-#if TARGET_OS_TV
 /*! Whether element is focused */
 @property (nonatomic, readonly, getter = isWDFocused) BOOL wdFocused;
-#endif
 
 /*! Element's index relatively to its parent. Starts from zero */
 @property (nonatomic, readonly) NSUInteger wdIndex;
