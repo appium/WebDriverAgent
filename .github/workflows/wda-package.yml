@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  HOST_MACHINE: macos-12
   XCODE_VERSION: 14.2
   DESTI_IOS_SIM: platform=iOS Simulator,name=iPhone 14 Pro
   DESTI_TVOS_SIM: platform=tvOS Simulator,name=Apple TV
@@ -12,7 +11,7 @@ env:
 jobs:
   for_real_devices:
     name: Build WDA for real iOS and tvOS devices
-    runs-on: ${{ env.HOST_MACHINE }}
+    runs-on: macos-12
 
     env:
       ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
@@ -67,7 +66,7 @@ jobs:
 
   for_simulator_devices_x86_64:
     name: Build WDA for simulator iOS and tvOS devices - x86-64
-    runs-on: ${{ env.HOST_MACHINE }}
+    runs-on: macos-12
 
     env:
       ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
@@ -126,7 +125,7 @@ jobs:
 
   for_simulator_devices_arm64:
     name: Build WDA for simulator iOS and tvOS devices - arm64
-    runs-on: ${{ env.HOST_MACHINE }}
+    runs-on: macos-12
 
     env:
       ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
