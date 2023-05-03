@@ -599,14 +599,14 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
   return @"focused";
 }
 
-#endif
-
 + (NSString *)valueForElement:(id<FBElement>)element
 {
   return element.wdFocused ? @"true" : @"false";
 }
 
 @end
+
+#endif
 
 @implementation FBDimensionAttribute
 
