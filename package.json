@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "4.13.2",
+  "version": "4.14.0",
   "description": "Package bundling WebDriverAgent",
   "main": "./build/index.js",
   "scripts": {
