@@ -12,7 +12,7 @@ jobs:
   host_machine:
     runs-on: ubuntu-latest
     outputs:
-      host: ${{ needs.macos_host.outputs.host }}
+      host: ${{ steps.macos_host.outputs.host }}
     steps:
       - run: |
           echo "host=macos-12" >> $GITHUB_OUTPUT
