@@ -14,7 +14,9 @@ jobs:
   host_machine:
     runs-on: ubuntu-latest
     outputs:
-      host: "macos-12"
+      host: ${{ needs.host_machine.outputs.host }}
+    steps:
+      - run: echo "host=macos-12" >> $GITHUB_OUTPUT
   
   for_real_devices:
     needs: [host_machine]
