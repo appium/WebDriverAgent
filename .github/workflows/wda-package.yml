@@ -8,16 +8,15 @@ env:
   DESTI_IOS_SIM: platform=iOS Simulator,name=iPhone 14 Pro
   DESTI_TVOS_SIM: platform=tvOS Simulator,name=Apple TV
 
-
-
 jobs:
   host_machine:
     runs-on: ubuntu-latest
     outputs:
-      host: ${{ needs.host_machine.outputs.host }}
+      host: ${{ needs.macos_host.outputs.host }}
     steps:
-      - run: echo "host=macos-12" >> $GITHUB_OUTPUT
-        id: host_machine
+      - run: |
+          echo "host=macos-12" >> $GITHUB_OUTPUT
+        id: macos_host
   
   for_real_devices:
     needs: [host_machine]
