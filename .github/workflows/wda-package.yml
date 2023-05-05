@@ -17,6 +17,7 @@ jobs:
       host: ${{ needs.host_machine.outputs.host }}
     steps:
       - run: echo "host=macos-12" >> $GITHUB_OUTPUT
+        id: host_machine
   
   for_real_devices:
     needs: [host_machine]
