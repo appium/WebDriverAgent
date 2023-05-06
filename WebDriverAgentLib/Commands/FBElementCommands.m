@@ -678,14 +678,12 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
    See issue #732: https://github.com/facebook/WebDriverAgent/issues/732
    */
   XCUIElement *element = application;
-  if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
-    XCUIElement *window = application.windows.allElementsBoundByIndex.firstObject;
-    if (window) {
-      element = window;
-      id<FBXCElementSnapshot> snapshot = element.fb_cachedSnapshot ?: element.fb_takeSnapshot;
-      point.x -= snapshot.frame.origin.x;
-      point.y -= snapshot.frame.origin.y;
-    }
+  XCUIElement *window = application.windows.allElementsBoundByIndex.firstObject;
+  if (window) {
+    element = window;
+    id<FBXCElementSnapshot> snapshot = element.fb_cachedSnapshot ?: element.fb_takeSnapshot;
+    point.x -= snapshot.frame.origin.x;
+    point.y -= snapshot.frame.origin.y;
   }
   return [self gestureCoordinateWithCoordinate:point element:element];
 }

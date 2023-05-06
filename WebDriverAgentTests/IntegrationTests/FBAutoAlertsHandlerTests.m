@@ -49,10 +49,6 @@
 // The test is flaky on slow Travis CI
 - (void)disabled_testAutoAcceptingOfAlerts
 {
-  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
-    return;
-  }
-  
   self.session = [FBSession
                   initWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
@@ -66,10 +62,6 @@
 // The test is flaky on slow Travis CI
 - (void)disabled_testAutoDismissingOfAlerts
 {
-  if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
-    return;
-  }
-
   self.session = [FBSession
                   initWithApplication:FBApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];

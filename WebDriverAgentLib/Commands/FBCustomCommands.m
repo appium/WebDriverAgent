@@ -423,10 +423,8 @@
 #endif
   }];
 
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-    // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstate
-    deviceInfo[@"thermalState"] = @(NSProcessInfo.processInfo.thermalState);
-  }
+  // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstate
+  deviceInfo[@"thermalState"] = @(NSProcessInfo.processInfo.thermalState);
 
   return FBResponseWithObject(deviceInfo);
 }

@@ -275,9 +275,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 
   // To dismiss keyboard tutorial on iOS 11+ (iPad)
   if ([controller respondsToSelector:@selector(setValue:forPreferenceKey:)]) {
-    if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
-      [controller setValue:@YES forPreferenceKey:@"DidShowGestureKeyboardIntroduction"];
-    }
+    [controller setValue:@YES forPreferenceKey:@"DidShowGestureKeyboardIntroduction"];
     if (isSDKVersionGreaterThanOrEqualTo(@"13.0")) {
       [controller setValue:@YES forPreferenceKey:@"DidShowContinuousPathIntroduction"];
     }
