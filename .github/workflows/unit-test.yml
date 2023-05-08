@@ -13,7 +13,7 @@ jobs:
       id: generate-matrix
       run: |
         sudo apt-get install -y lynx
-        lynx -dump https://endoflife.date/nodejs | grep -E -o '[0-9]+ \(LTS\)' | grep -E -o '([0-9]+)' > eol.list
+        lynx -dump https://endoflife.date/nodejs | grep -E -o '[0-9]+[( a-zA-Z]+LTS\)' | grep -E -o '([0-9]+)' > eol.list
         cat eol.list
         lts1=$(cat eol.list | head -1)
         lts2=$(cat eol.list | head -2 | tail -1)
