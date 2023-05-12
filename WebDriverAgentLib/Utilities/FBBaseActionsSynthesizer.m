@@ -41,54 +41,43 @@
 
 @implementation FBBaseGestureItem
 
-- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(id<FBXCElementSnapshot>)snapshot
+- (nullable XCUICoordinate *)hitpointWithElement:(nullable XCUIElement *)element
+                                  positionOffset:(nullable NSValue *)positionOffset
+                                           error:(NSError **)error
 {
-  return hitPoint;
-}
-
-- (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element positionOffset:(nullable NSValue *)positionOffset error:(NSError **)error
-{
-  CGPoint hitPoint;
   if (nil == element) {
+    CGVector offset = CGVectorMake(positionOffset.CGPointValue.x, positionOffset.CGPointValue.y);
     // Only absolute offset is defined
-    hitPoint = [positionOffset CGPointValue];
-  } else {
-    // The offset relative to the element is defined
-
-    id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
-      ? element.lastSnapshot
-      : element.fb_takeSnapshot;
-    if (nil == positionOffset) {
-      NSValue *hitPointValue = [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_hitPoint;
-      if (nil != hitPointValue) {
-        // short circuit element hitpoint
-        return hitPointValue;
-      }
-      [FBLogger logFmt:@"Will use the frame of '%@' for hit point calculation instead", element.debugDescription];
-    }
-    CGRect visibleFrame = snapshot.visibleFrame;
-    CGRect frame = CGRectIsEmpty(visibleFrame) ? element.frame : visibleFrame;
-    if (CGRectIsEmpty(frame)) {
-      [FBLogger log:self.application.fb_descriptionRepresentation];
-      NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
-      if (error) {
-        *error = [[FBErrorBuilder.builder withDescription:description] build];
-      }
-      return nil;
-    }
-    if (nil == positionOffset) {
-      hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2,
-                             frame.origin.y + frame.size.height / 2);
-    } else {
-      CGPoint origin = frame.origin;
-      hitPoint = CGPointMake(origin.x, origin.y);
-      CGPoint offsetValue = [positionOffset CGPointValue];
-      hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
-      // TODO: Shall we throw an exception if hitPoint is out of the element frame?
-    }
-    hitPoint = [self fixedHitPointWith:hitPoint forSnapshot:snapshot];
+    return [[self.application coordinateWithNormalizedOffset:CGVectorMake(0, 0)] coordinateWithOffset:offset];
   }
-  return [NSValue valueWithCGPoint:hitPoint];
+
+  // The offset relative to the element is defined
+  id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
+    ? element.lastSnapshot
+    : element.fb_takeSnapshot;
+  if (nil == positionOffset) {
+    XCUICoordinate *hitPointValue = element.hitPointCoordinate;
+    if (nil != hitPointValue) {
+      // short circuit element hitpoint
+      return hitPointValue;
+    }
+    [FBLogger logFmt:@"Will use the frame of '%@' for hit point calculation instead", element.debugDescription];
+  }
+  if (CGRectIsEmpty(element.frame)) {
+    [FBLogger log:self.application.fb_descriptionRepresentation];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
+    }
+    return nil;
+  }
+  if (nil == positionOffset) {
+    return [element coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
+  }
+
+  CGVector offset = CGVectorMake(positionOffset.CGPointValue.x, positionOffset.CGPointValue.y);
+  // TODO: Shall we throw an exception if hitPoint is out of the element frame?
+  return [[element coordinateWithNormalizedOffset:CGVectorMake(0, 0)] coordinateWithOffset:offset];
 }
 
 @end

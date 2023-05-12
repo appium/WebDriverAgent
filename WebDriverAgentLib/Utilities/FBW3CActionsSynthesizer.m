@@ -133,16 +133,16 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return nil;
     }
     self.duration = durationObj.doubleValue;
-    NSValue *position = [self positionWithError:error];
+    XCUICoordinate *position = [self positionWithError:error];
     if (nil == position) {
       return nil;
     }
-    self.atPosition = [position CGPointValue];
+    self.atPosition = position;
   }
   return self;
 }
 
-- (nullable NSValue *)positionWithError:(NSError **)error
+- (nullable XCUICoordinate *)positionWithError:(NSError **)error
 {
   if (nil == self.previousItem) {
     NSString *errorDescription = [NSString stringWithFormat:@"The '%@' action item must be preceded by %@ item", self.actionItem, FB_ACTION_ITEM_TYPE_POINTER_MOVE];
@@ -151,12 +151,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
     return nil;
   }
-  return [NSValue valueWithCGPoint:self.previousItem.atPosition];
+  return self.previousItem.atPosition;
 }
 
-- (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element
-                           positionOffset:(nullable NSValue *)positionOffset
-                                    error:(NSError **)error
+- (nullable XCUICoordinate *)hitpointWithElement:(nullable XCUIElement *)element
+                                  positionOffset:(nullable NSValue *)positionOffset
+                                           error:(NSError **)error
 {
   if (nil == element || nil == positionOffset) {
     return [super hitpointWithElement:element positionOffset:positionOffset error:error];
@@ -166,24 +166,20 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
     ? element.lastSnapshot
     : element.fb_takeSnapshot;
-  CGRect frame = snapshot.frame;
-  if (CGRectIsEmpty(frame)) {
+  if (CGRectIsEmpty(snapshot.frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_description];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable",
+                             [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
     return nil;
   }
-  CGRect visibleFrame = snapshot.visibleFrame;
-  frame = CGRectIsEmpty(visibleFrame) ? frame : visibleFrame;
+
   // W3C standard requires that relative element coordinates start at the center of the element's rectangle
-  CGPoint hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2, frame.origin.y + frame.size.height / 2);
-  CGPoint offsetValue = [positionOffset CGPointValue];
-  hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
+  CGVector offset = CGVectorMake(positionOffset.CGPointValue.x, positionOffset.CGPointValue.y);
   // TODO: Shall we throw an exception if hitPoint is out of the element frame?
-  hitPoint = [self fixedHitPointWith:hitPoint forSnapshot:snapshot];
-  return [NSValue valueWithCGPoint:hitPoint];
+  return [[element coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)] coordinateWithOffset:offset];
 }
 
 @end
@@ -220,7 +216,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
   }
   if (nil == self.pressure) {
-    XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition
+    XCPointerEventPath *result = [[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition.screenPoint
                                                                           offset:FBMillisToSeconds(self.offset)];
     return @[result];
   }
@@ -247,7 +243,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 @implementation FBPointerMoveItem
 
-- (nullable NSValue *)positionWithError:(NSError **)error
+- (nullable XCUICoordinate *)positionWithError:(NSError **)error
 {
   static NSArray<NSString *> *supportedOriginTypes;
   static dispatch_once_t onceToken;
@@ -295,10 +291,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
     return nil;
   }
-  CGPoint recentPosition = self.previousItem.atPosition;
-  CGPoint offsetRelativeToRecentPosition = (nil == x && nil == y) ? CGPointZero : CGPointMake(x.floatValue, y.floatValue);
-  return [NSValue valueWithCGPoint:CGPointMake(recentPosition.x + offsetRelativeToRecentPosition.x,
-                                               recentPosition.y + offsetRelativeToRecentPosition.y)];
+  XCUICoordinate *recentPosition = self.previousItem.atPosition;
+  CGVector offsetRelativeToRecentPosition = (nil == x && nil == y) ? CGVectorMake(0, 0) : CGVectorMake(x.floatValue, y.floatValue);
+  return [recentPosition coordinateWithOffset:offsetRelativeToRecentPosition];
 }
 
 + (NSString *)actionName
@@ -312,9 +307,11 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                             error:(NSError **)error
 {
   if (nil == eventPath) {
-    return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition offset:FBMillisToSeconds(self.offset + self.duration)]];
+    return @[[[XCPointerEventPath alloc] initForTouchAtPoint:self.atPosition.screenPoint
+                                                      offset:FBMillisToSeconds(self.offset + self.duration)]];
   }
-  [eventPath moveToPoint:self.atPosition atOffset:FBMillisToSeconds(self.offset + self.duration)];
+  [eventPath moveToPoint:self.atPosition.screenPoint
+                atOffset:FBMillisToSeconds(self.offset + self.duration)];
   return @[];
 }
 

@@ -26,7 +26,8 @@
 
 const CGFloat FBFuzzyPointThreshold = 20.f; //Smallest determined value that is not interpreted as touch
 const CGFloat FBScrollToVisibleNormalizedDistance = .5f;
-const CGFloat FBTouchEventDelay = 0.6f;
+const CGFloat FBTouchEventDelay = 0.5f;
+const CGFloat FBTouchVelocity = 300; // pixels per sec
 const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
@@ -325,7 +326,10 @@ const CGFloat FBScrollTouchProportion = 0.75f;
     return YES;
   }
 
-  [startCoordinate pressForDuration:FBTouchEventDelay thenDragToCoordinate:endCoordinate];
+  [startCoordinate pressForDuration:FBTouchEventDelay
+               thenDragToCoordinate:endCoordinate
+                       withVelocity:FBTouchVelocity
+                thenHoldForDuration:FBTouchEventDelay];
   return YES;
 }
 
