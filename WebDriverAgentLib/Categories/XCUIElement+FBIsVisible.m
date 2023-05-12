@@ -186,18 +186,6 @@
   }
   CGPoint midPoint = CGPointMake(visibleRect.origin.x + visibleRect.size.width / 2,
                                  visibleRect.origin.y + visibleRect.size.height / 2);
-#if !TARGET_OS_TV // TV has no orientation, so it does not need to coordinate
-  id<FBXCElementSnapshot> appElement = ancestors.count > 0 ? [ancestors lastObject] : self;
-  CGRect appFrame = appElement.frame;
-  CGRect windowFrame = nil == parentWindow ? selfFrame : parentWindow.frame;
-  if ((appFrame.size.height > appFrame.size.width && windowFrame.size.height < windowFrame.size.width) ||
-      (appFrame.size.height < appFrame.size.width && windowFrame.size.height > windowFrame.size.width)) {
-    // This is the indication of the fact that transformation is broken and coordinates should be
-    // recalculated manually.
-    // However, upside-down case cannot be covered this way, which is not important for Appium
-    midPoint = FBInvertPointForApplication(midPoint, appFrame.size, FBApplication.fb_activeApplication.interfaceOrientation);
-  }
-#endif
   id<FBXCAccessibilityElement> hitElement = [FBActiveAppDetectionPoint axElementWithPoint:midPoint];
   if (nil != hitElement) {
     if (FBIsAXElementEqualToOther(self.accessibilityElement, hitElement)) {

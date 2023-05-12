@@ -30,7 +30,6 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (void)load
 {
-  // XCTRunnerDaemonSession class is only available since Xcode 8.3
   dispatch_once(&onceTestRunnerDaemonClass, ^{
     FBXCTRunnerDaemonSessionClass = objc_lookUpClass("XCTRunnerDaemonSession");
   });
@@ -59,17 +58,6 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 {
   return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;
 }
-
-#if !TARGET_OS_TV
-+ (UIInterfaceOrientation)orientationWithApplication:(XCUIApplication *)application
-{
-  if (nil == FBXCTRunnerDaemonSessionClass ||
-      [[FBXCTRunnerDaemonSessionClass sharedSession] useLegacyEventCoordinateTransformationPath]) {
-    return application.interfaceOrientation;
-  }
-  return UIInterfaceOrientationPortrait;
-}
-#endif
 
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record error:(NSError *__autoreleasing*)error
 {

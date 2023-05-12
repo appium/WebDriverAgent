@@ -43,13 +43,7 @@
 
 - (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
-  UIInterfaceOrientation interfaceOrientation = self.application.interfaceOrientation;
-  if (interfaceOrientation == UIInterfaceOrientationPortrait) {
-    // There is no need to recalculate anything for portrait orientation
-    return hitPoint;
-  }
-  // For Xcode11+ it is always necessary to adjust the tap point coordinates
-  return FBInvertPointForApplication(hitPoint, self.application.frame.size, interfaceOrientation);
+  return hitPoint;
 }
 
 - (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element positionOffset:(nullable NSValue *)positionOffset error:(NSError **)error
@@ -58,12 +52,6 @@
   if (nil == element) {
     // Only absolute offset is defined
     hitPoint = [positionOffset CGPointValue];
-    /*
-     Since iOS 10.0 XCTest has a bug when it always returns portrait coordinates for UI elements
-     even if the device is not in portait mode. That is why we need to recalculate them manually
-     based on the current orientation value
-     */
-    hitPoint = FBInvertPointForApplication(hitPoint, self.application.frame.size, self.application.interfaceOrientation);
   } else {
     // The offset relative to the element is defined
 

@@ -296,9 +296,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     return nil;
   }
   CGPoint recentPosition = self.previousItem.atPosition;
-  CGPoint offsetRelativeToRecentPosition = (nil == x && nil == y) ? CGPointMake(0.0, 0.0) : CGPointMake(x.floatValue, y.floatValue);
-  offsetRelativeToRecentPosition = FBInvertOffsetForOrientation(offsetRelativeToRecentPosition, self.application.interfaceOrientation);
-  return [NSValue valueWithCGPoint:CGPointMake(recentPosition.x + offsetRelativeToRecentPosition.x, recentPosition.y + offsetRelativeToRecentPosition.y)];
+  CGPoint offsetRelativeToRecentPosition = (nil == x && nil == y) ? CGPointZero : CGPointMake(x.floatValue, y.floatValue);
+  return [NSValue valueWithCGPoint:CGPointMake(recentPosition.x + offsetRelativeToRecentPosition.x,
+                                               recentPosition.y + offsetRelativeToRecentPosition.y)];
 }
 
 + (NSString *)actionName
@@ -888,7 +888,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 {
   XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc]
                                            initWithName:@"W3C Touch Action"
-                                           interfaceOrientation:[FBXCTestDaemonsProxy orientationWithApplication:self.application]];
+                                           interfaceOrientation:self.application.interfaceOrientation];
   NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *actionsMapping = [NSMutableDictionary new];
   NSMutableArray<NSString *> *actionIds = [NSMutableArray new];
   for (NSDictionary<NSString *, id> *action in self.actions) {

@@ -527,7 +527,7 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
   BOOL isMultiTouch = [self.actions.firstObject isKindOfClass:NSArray.class];
   eventRecord = [[XCSynthesizedEventRecord alloc]
                  initWithName:(isMultiTouch ? @"Multi-Finger Touch Action" : @"Single-Finger Touch Action")
-                 interfaceOrientation:[FBXCTestDaemonsProxy orientationWithApplication:self.application]];
+                 interfaceOrientation:self.application.interfaceOrientation];
   for (NSArray<NSDictionary<NSString *, id> *> *action in (isMultiTouch ? self.actions : @[self.actions])) {
     NSArray<NSDictionary<NSString *, id> *> *preprocessedAction = [self preprocessAction:action];
     NSArray<XCPointerEventPath *> *eventPaths = [self eventPathsWithAction:preprocessedAction error:error];
