@@ -228,7 +228,6 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                    compressionQuality:(CGFloat)compressionQuality
                                                 error:(NSError **)error
 {
-  // TODO: Use native accessors after we drop the support of Xcode 12.4 and below
   Class imageEncodingClass = NSClassFromString(@"XCTImageEncoding");
   if (nil == imageEncodingClass) {
     [[[FBErrorBuilder builder]

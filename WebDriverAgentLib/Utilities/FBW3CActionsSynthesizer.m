@@ -297,9 +297,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   CGPoint recentPosition = self.previousItem.atPosition;
   CGPoint offsetRelativeToRecentPosition = (nil == x && nil == y) ? CGPointMake(0.0, 0.0) : CGPointMake(x.floatValue, y.floatValue);
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
-    offsetRelativeToRecentPosition = FBInvertOffsetForOrientation(offsetRelativeToRecentPosition, self.application.interfaceOrientation);
-  }
+  offsetRelativeToRecentPosition = FBInvertOffsetForOrientation(offsetRelativeToRecentPosition, self.application.interfaceOrientation);
   return [NSValue valueWithCGPoint:CGPointMake(recentPosition.x + offsetRelativeToRecentPosition.x, recentPosition.y + offsetRelativeToRecentPosition.y)];
 }
 

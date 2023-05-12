@@ -36,26 +36,15 @@ NSString *const FB_SAFARI_APP_NAME = @"Safari";
   }];
   NSPredicate *dstViewContainPredicate1 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeTextView];
   NSPredicate *dstViewContainPredicate2 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeButton];
-  XCUIElement *candidate = nil;
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-    // Find the first XCUIElementTypeOther which is the grandchild of the web view
-    // and is horizontally aligned to the center of the screen
-    candidate = [[[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
-                     matchingIdentifier:@"WebView"]
-                    descendantsMatchingType:XCUIElementTypeOther]
-                   matchingPredicate:dstViewMatchPredicate]
-                  containingPredicate:dstViewContainPredicate1]
-                 containingPredicate:dstViewContainPredicate2].allElementsBoundByIndex.firstObject;
-  } else {
-    NSPredicate *webViewPredicate = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeWebView];
-    // Find the first XCUIElementTypeOther which is the descendant of the scroll view
-    // and is horizontally aligned to the center of the screen
-    candidate = [[[[[scrollView.fb_query containingPredicate:webViewPredicate]
-                    descendantsMatchingType:XCUIElementTypeOther]
-                   matchingPredicate:dstViewMatchPredicate]
-                  containingPredicate:dstViewContainPredicate1]
-                 containingPredicate:dstViewContainPredicate2].allElementsBoundByIndex.firstObject;
-  }
+  // Find the first XCUIElementTypeOther which is the grandchild of the web view
+  // and is horizontally aligned to the center of the screen
+  XCUIElement *candidate = [[[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
+       matchingIdentifier:@"WebView"]
+      descendantsMatchingType:XCUIElementTypeOther]
+     matchingPredicate:dstViewMatchPredicate]
+    containingPredicate:dstViewContainPredicate1]
+   containingPredicate:dstViewContainPredicate2].allElementsBoundByIndex.firstObject;
+
   if (nil == candidate) {
     return nil;
   }
