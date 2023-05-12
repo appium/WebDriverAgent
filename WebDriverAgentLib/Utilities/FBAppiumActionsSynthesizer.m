@@ -124,7 +124,8 @@ static const double FB_LONG_TAP_DURATION_MS = 600.0;
     0.0;
 }
 
-- (nullable XCUICoordinate *)coordinatesWithOptions:(nullable NSDictionary<NSString *, id> *)options error:(NSError **)error
+- (nullable XCUICoordinate *)coordinatesWithOptions:(nullable NSDictionary<NSString *, id> *)options
+                                              error:(NSError **)error
 {
   if (![options isKindOfClass:NSDictionary.class]) {
     NSString *description = [NSString stringWithFormat:@"'%@' key is mandatory for '%@' action", FB_OPTIONS_KEY, self.class.actionName];

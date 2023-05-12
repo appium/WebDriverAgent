@@ -31,7 +31,10 @@
   return nil;
 }
 
-- (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath allItems:(NSArray *)allItems currentItemIndex:(NSUInteger)currentItemIndex error:(NSError **)error
+- (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath
+                                         allItems:(NSArray *)allItems
+                                 currentItemIndex:(NSUInteger)currentItemIndex
+                                            error:(NSError **)error
 {
   @throw [[FBErrorBuilder.builder withDescription:@"Override this method in subclasses"] build];
   return nil;
@@ -52,9 +55,6 @@
   }
 
   // The offset relative to the element is defined
-  id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
-    ? element.lastSnapshot
-    : element.fb_takeSnapshot;
   if (nil == positionOffset) {
     XCUICoordinate *hitPointValue = element.hitPointCoordinate;
     if (nil != hitPointValue) {
@@ -65,7 +65,8 @@
   }
   if (CGRectIsEmpty(element.frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
-    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description];
+    NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable",
+                             element.description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
@@ -138,7 +139,10 @@
 
 @implementation FBBaseActionsSynthesizer
 
-- (instancetype)initWithActions:(NSArray *)actions forApplication:(XCUIApplication *)application elementCache:(nullable FBElementCache *)elementCache error:(NSError **)error
+- (instancetype)initWithActions:(NSArray *)actions
+                 forApplication:(XCUIApplication *)application
+                   elementCache:(nullable FBElementCache *)elementCache
+                          error:(NSError **)error
 {
   self = [super init];
   if (self) {

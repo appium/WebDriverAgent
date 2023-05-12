@@ -163,13 +163,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // An offset relative to the element is defined
-  id<FBXCElementSnapshot> snapshot = element.fb_isResolvedFromCache.boolValue
-    ? element.lastSnapshot
-    : element.fb_takeSnapshot;
-  if (CGRectIsEmpty(snapshot.frame)) {
+  if (CGRectIsEmpty(element.frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
     NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable",
-                             [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_description];
+                             element.description];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:description] build];
     }
