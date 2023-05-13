@@ -595,7 +595,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSError *error;
-  NSData *screenshotData = [element fb_screenshotWithError:&error];
+  NSData *screenshotData = [element.screenshot PNGRepresentation];
   if (nil == screenshotData) {
     return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description
                                                                              traceback:nil]);

@@ -454,7 +454,6 @@
 		71A7EAF91E224648001DA4F2 /* FBClassChainQueryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 71A7EAF71E224648001DA4F2 /* FBClassChainQueryParser.h */; };
 		71A7EAFA1E224648001DA4F2 /* FBClassChainQueryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 71A7EAF81E224648001DA4F2 /* FBClassChainQueryParser.m */; };
 		71A7EAFC1E229302001DA4F2 /* FBClassChainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71A7EAFB1E229302001DA4F2 /* FBClassChainTests.m */; };
-		71AB82B21FDAE8C000D1D7C3 /* FBElementScreenshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71AB82B11FDAE8C000D1D7C3 /* FBElementScreenshotTests.m */; };
 		71ACF5B8242F2FDC00F0AAD4 /* FBSafariAlertTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71ACF5B7242F2FDC00F0AAD4 /* FBSafariAlertTests.m */; };
 		71B155DA23070ECF00646AFB /* FBHTTPStatusCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155D923070ECF00646AFB /* FBHTTPStatusCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		71B155DC230711E900646AFB /* FBCommandStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DB230711E900646AFB /* FBCommandStatus.m */; };
@@ -1038,7 +1037,6 @@
 		71A7EAF71E224648001DA4F2 /* FBClassChainQueryParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBClassChainQueryParser.h; sourceTree = "<group>"; };
 		71A7EAF81E224648001DA4F2 /* FBClassChainQueryParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBClassChainQueryParser.m; sourceTree = "<group>"; };
 		71A7EAFB1E229302001DA4F2 /* FBClassChainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBClassChainTests.m; sourceTree = "<group>"; };
-		71AB82B11FDAE8C000D1D7C3 /* FBElementScreenshotTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBElementScreenshotTests.m; sourceTree = "<group>"; };
 		71ACF5B7242F2FDC00F0AAD4 /* FBSafariAlertTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSafariAlertTests.m; sourceTree = "<group>"; };
 		71B155D923070ECF00646AFB /* FBHTTPStatusCodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBHTTPStatusCodes.h; sourceTree = "<group>"; };
 		71B155DB230711E900646AFB /* FBCommandStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBCommandStatus.m; sourceTree = "<group>"; };
@@ -1975,7 +1973,6 @@
 				719A97AB1F88E7370063B4BD /* FBAppiumMultiTouchActionsIntegrationTests.m */,
 				719CD8FE2126C90200C7D0C2 /* FBAutoAlertsHandlerTests.m */,
 				EE26409C1D0EBA25009BE6B0 /* FBElementAttributeTests.m */,
-				71AB82B11FDAE8C000D1D7C3 /* FBElementScreenshotTests.m */,
 				71F5BE33252E5B2200EE9EBA /* FBElementSwipingTests.m */,
 				EE006EAC1EB99B15006900A4 /* FBElementVisibilityTests.m */,
 				EE6A89361D0B35920083E92B /* FBFailureProofTestCaseTests.m */,
@@ -3315,7 +3312,6 @@
 				715AFAC41FFA2AAF0053896D /* FBScreenTests.m in Sources */,
 				EE22021E1ECC618900A29571 /* FBTapTest.m in Sources */,
 				71930C472066434000D3AFEC /* FBPasteboardTests.m in Sources */,
-				71AB82B21FDAE8C000D1D7C3 /* FBElementScreenshotTests.m in Sources */,
 				7150FFF722476B3A00B2EE28 /* FBForceTouchTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
