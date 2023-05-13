@@ -56,10 +56,9 @@
 
   // The offset relative to the element is defined
   if (nil == positionOffset) {
-    XCUICoordinate *hitPointValue = element.hitPointCoordinate;
-    if (nil != hitPointValue) {
+    if (element.hittable) {
       // short circuit element hitpoint
-      return hitPointValue;
+      return element.hitPointCoordinate;
     }
     [FBLogger logFmt:@"Will use the frame of '%@' for hit point calculation instead", element.debugDescription];
   }
