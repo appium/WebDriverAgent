@@ -594,10 +594,10 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  NSError *error;
   NSData *screenshotData = [element.screenshot PNGRepresentation];
   if (nil == screenshotData) {
-    return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:error.description
+    NSString *errMsg = [NSString stringWithFormat:@"Cannot take a screenshot of %@", element.description];
+    return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:errMsg
                                                                              traceback:nil]);
   }
   NSString *screenshot = [screenshotData base64EncodedStringWithOptions:0];
