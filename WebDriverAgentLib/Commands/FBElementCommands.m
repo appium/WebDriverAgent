@@ -632,7 +632,7 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
   NSNumber *maxAttempts = request.arguments[@"maxAttempts"] ?: @(DEFAULT_MAX_PICKER_ATTEMPTS);
   NSString *expectedValue = request.arguments[@"value"];
   NSInteger attempt = 0;
-  while (attempt++ < [maxAttempts integerValue]) {
+  while (attempt < [maxAttempts integerValue]) {
     BOOL isSuccessful = false;
     NSError *error;
     if ([order isEqualToString:@"next"]) {
@@ -650,6 +650,7 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
     if (nil == expectedValue || [element.wdValue isEqualToString:expectedValue]) {
       return FBResponseWithOK();
     }
+    attempt++;
   }
   NSString *errMsg = [NSString stringWithFormat:@"Cannot select the expected picker wheel value '%@' after %ld attempts", expectedValue, attempt];
   return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:errMsg traceback:nil]);
