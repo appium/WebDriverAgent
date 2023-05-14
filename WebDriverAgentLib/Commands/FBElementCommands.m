@@ -606,36 +606,53 @@
 
 
 #if !TARGET_OS_TV
-static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
+static const CGFloat DEFAULT_PICKER_OFFSET = (CGFloat)0.2;
+static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
+
 
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    NSString *errMsg = [NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                       traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   NSString* order = [request.arguments[@"order"] lowercaseString];
-  CGFloat offset = DEFAULT_OFFSET;
+  CGFloat offset = DEFAULT_PICKER_OFFSET;
   if (request.arguments[@"offset"]) {
     offset = (CGFloat)[request.arguments[@"offset"] doubleValue];
     if (offset <= 0.0 || offset > 0.5) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      NSString *errMsg = [NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]];
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                         traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
   }
-  BOOL isSuccessful = false;
-  NSError *error;
-  if ([order isEqualToString:@"next"]) {
-    isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
-  } else if ([order isEqualToString:@"previous"]) {
-    isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
-  } else {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+  NSNumber *maxAttempts = request.arguments[@"maxAttempts"] ?: @(DEFAULT_MAX_PICKER_ATTEMPTS);
+  NSString *expectedValue = request.arguments[@"value"];
+  NSInteger attempt = 0;
+  while (attempt++ < [maxAttempts integerValue]) {
+    BOOL isSuccessful = false;
+    NSError *error;
+    if ([order isEqualToString:@"next"]) {
+      isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
+    } else if ([order isEqualToString:@"previous"]) {
+      isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
+    } else {
+      NSString *errMsg = [NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]];
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                         traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    }
+    if (!isSuccessful) {
+      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+    }
+    if (nil == expectedValue || [element.wdValue isEqualToString:expectedValue]) {
+      return FBResponseWithOK();
+    }
   }
-  if (!isSuccessful) {
-    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-  }
-  return FBResponseWithOK();
+  NSString *errMsg = [NSString stringWithFormat:@"Cannot select the expected picker wheel value '%@' after %ld attempts", expectedValue, attempt];
+  return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:errMsg traceback:nil]);
 }
 
 #pragma mark - Helpers
