@@ -15,7 +15,6 @@
 #import "FBElementCache.h"
 #import "FBTestMacros.h"
 #import "XCUIDevice+FBRotation.h"
-#import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBIsVisible.h"
 
 @interface FBTapTest : FBIntegrationTestCase
@@ -28,8 +27,7 @@
 - (void)verifyTapWithOrientation:(UIDeviceOrientation)orientation
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
-  NSError *error;
-  [self.testedApplication.buttons[FBShowAlertButtonName] fb_tapWithError:&error];
+  [self.testedApplication.buttons[FBShowAlertButtonName] tap];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
 
@@ -66,10 +64,7 @@
   [self verifyTapWithOrientation:UIDeviceOrientationLandscapeRight];
 }
 
-// Visibility detection for upside-down orientation is broken
-// and cannot be workarounded properly, but this is not very important for Appium, since
-// We don't support such orientation anyway
-- (void)disabled_testTapInPortraitUpsideDown
+- (void)testTapInPortraitUpsideDown
 {
   [self verifyTapWithOrientation:UIDeviceOrientationPortraitUpsideDown];
 }
@@ -77,9 +72,8 @@
 - (void)verifyTapByCoordinatesWithOrientation:(UIDeviceOrientation)orientation
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
-  NSError *error;
   XCUIElement *dstButton = self.testedApplication.buttons[FBShowAlertButtonName];
-  [dstButton fb_tapCoordinate:CGPointMake(dstButton.frame.size.width / 2, dstButton.frame.size.height / 2) error:&error];
+  [[dstButton coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)] tap];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
 
@@ -98,10 +92,7 @@
   [self verifyTapByCoordinatesWithOrientation:UIDeviceOrientationLandscapeRight];
 }
 
-// Visibility detection for upside-down orientation is broken
-// and cannot be workarounded properly, but this is not very important for Appium, since
-// We don't support such orientation anyway
-- (void)disabled_testTapCoordinatesInPortraitUpsideDown
+- (void)testTapCoordinatesInPortraitUpsideDown
 {
   [self verifyTapByCoordinatesWithOrientation:UIDeviceOrientationPortraitUpsideDown];
 }

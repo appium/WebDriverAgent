@@ -256,7 +256,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
           continue;
         }
 
-        [matchedKey fb_tapWithError:nil];
+        [matchedKey tap];
         if (isKeyboardInvisible()) {
           return YES;
         }
@@ -269,7 +269,7 @@ static NSString* const FBUnknownBundleId = @"unknown";
                                     @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)]];
     NSArray *matchedKeys = findMatchingKeys(searchPredicate);
     if (matchedKeys.count > 0) {
-      [matchedKeys[matchedKeys.count - 1] fb_tapWithError:nil];
+      [matchedKeys[matchedKeys.count - 1] tap];
     }
   }
 #endif
