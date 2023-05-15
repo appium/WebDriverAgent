@@ -12,9 +12,7 @@
 #import "FBRunLoopSpinner.h"
 #import "FBXCElementSnapshot.h"
 #import "FBXCodeCompatibility.h"
-#import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
-#import "XCUICoordinate+FBFix.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBResolve.h"
 
@@ -31,16 +29,6 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
   NSString *previousValue = snapshot.value;
   XCUICoordinate *startCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
   XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * snapshot.frame.size.height)];
-  CGPoint tapPoint = endCoord.fb_screenPoint;
-  NSArray<NSDictionary<NSString *, id> *> *gesture =
-  @[@{
-      @"action": @"tap",
-      @"options": @{
-          @"x": @(tapPoint.x),
-          @"y": @(tapPoint.y),
-          }
-      }
-    ];
   // If picker value is reflected in its accessiblity id
   // then fetching of the next snapshot may fail with StaleElementReferenceError
   // because we bound elements by their accessbility ids by default.
@@ -48,9 +36,7 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
   // unique element identifier (UID), so it could be found next time even if its
   // id is different from the initial one. See https://github.com/appium/appium/issues/17569
   XCUIElement *stableInstance = self.fb_stableInstance;
-  if (![self.application fb_performAppiumTouchActions:gesture elementCache:nil error:error]) {
-    return NO;
-  }
+  [endCoord tap];
   return [[[[FBRunLoopSpinner new]
      timeout:VALUE_CHANGE_TIMEOUT]
     timeoutErrorMessage:[NSString stringWithFormat:@"Picker wheel value has not been changed after %@ seconds timeout", @(VALUE_CHANGE_TIMEOUT)]]

@@ -16,11 +16,9 @@
 #import "FBXCodeCompatibility.h"
 #import "FBXCElementSnapshotWrapper.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
-#import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIApplication.h"
 #import "XCUICoordinate.h"
-#import "XCUICoordinate+FBFix.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
@@ -28,7 +26,8 @@
 
 const CGFloat FBFuzzyPointThreshold = 20.f; //Smallest determined value that is not interpreted as touch
 const CGFloat FBScrollToVisibleNormalizedDistance = .5f;
-const CGFloat FBTouchEventDelay = 1.f;
+const CGFloat FBTouchEventDelay = 0.5f;
+const CGFloat FBTouchVelocity = 300; // pixels per sec
 const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
@@ -321,45 +320,16 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
   XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:application normalizedOffset:CGVectorMake(0.0, 0.0)];
   XCUICoordinate *startCoordinate = [[XCUICoordinate alloc] initWithCoordinate:appCoordinate pointsOffset:hitpointOffset];
-  CGPoint startPoint = startCoordinate.fb_screenPoint;
   XCUICoordinate *endCoordinate = [[XCUICoordinate alloc] initWithCoordinate:startCoordinate pointsOffset:vector];
-  CGPoint endPoint = endCoordinate.fb_screenPoint;
 
-  if (FBPointFuzzyEqualToPoint(startPoint, endPoint, FBFuzzyPointThreshold)) {
+  if (FBPointFuzzyEqualToPoint(startCoordinate.screenPoint, endCoordinate.screenPoint, FBFuzzyPointThreshold)) {
     return YES;
   }
 
-  NSArray<NSDictionary<NSString *, id> *> *gesture =
-  @[@{
-      @"action": @"press",
-      @"options": @{
-        @"x": @(startPoint.x),
-        @"y": @(startPoint.y),
-      }
-    },
-    @{
-      @"action": @"wait",
-      @"options": @{
-        @"ms": @(FBTouchEventDelay * 1000),
-      }
-    },
-    @{
-      @"action": @"moveTo",
-      @"options": @{
-        @"x": @(endPoint.x),
-        @"y": @(endPoint.y),
-      }
-    },
-    @{
-      @"action": @"release"
-    }
-  ];
-  if (![application fb_performAppiumTouchActions:gesture
-                                    elementCache:nil
-                                           error:error]) {
-    return NO;
-  }
-
+  [startCoordinate pressForDuration:FBTouchEventDelay
+               thenDragToCoordinate:endCoordinate
+                       withVelocity:FBTouchVelocity
+                thenHoldForDuration:FBTouchEventDelay];
   return YES;
 }
 

@@ -1,3 +1,26 @@
+## [5.1.0](https://github.com/appium/WebDriverAgent/compare/v5.0.0...v5.1.0) (2023-05-14)
+
+
+### Features
+
+* Add a possibility to provide a target picker value ([#699](https://github.com/appium/WebDriverAgent/issues/699)) ([fc76aee](https://github.com/appium/WebDriverAgent/commit/fc76aeecb087429974b7b52b725173186e6f0246))
+
+
+### Code Refactoring
+
+* Remove obsolete coordinate calculation workarounds needed for older xCode SDKs ([#698](https://github.com/appium/WebDriverAgent/issues/698)) ([025b42c](https://github.com/appium/WebDriverAgent/commit/025b42c8a34ff0beba4379f4cb0c1d79d2b222ed))
+
+## [5.0.0](https://github.com/appium/WebDriverAgent/compare/v4.15.1...v5.0.0) (2023-05-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* The minimum supported xCode/iOS version is now 13/15.0
+
+### Code Refactoring
+
+* Drop workarounds for legacy iOS versions ([#696](https://github.com/appium/WebDriverAgent/issues/696)) ([bb562b9](https://github.com/appium/WebDriverAgent/commit/bb562b96db6aad476970ef7bd352cb8df4f1e6c2))
+
 ## [4.15.1](https://github.com/appium/WebDriverAgent/compare/v4.15.0...v4.15.1) (2023-05-06)
 
 

@@ -1,20 +1,20 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml
 variables:
-  MIN_VM_IMAGE: macOS-11
-  MIN_XCODE_VERSION: 12.4
-  MIN_PLATFORM_VERSION: 14.4
-  MIN_TV_PLATFORM_VERSION: 14.3
-  MIN_TV_DEVICE_NAME: Apple TV 4K
+  MIN_VM_IMAGE: macOS-12
+  MIN_XCODE_VERSION: 13.1
+  MIN_PLATFORM_VERSION: 15.0
+  MIN_TV_PLATFORM_VERSION: 15.0
+  MIN_TV_DEVICE_NAME: Apple TV 4K (2nd generation)
   MIN_IPHONE_DEVICE_NAME: iPhone 11
-  MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch) (2nd generation)
+  MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch) (3rd generation)
   MAX_VM_IMAGE: macOS-12
-  MAX_XCODE_VERSION: 13.4
-  MAX_PLATFORM_VERSION: 15.5
-  MAX_PLATFORM_VERSION_TV: 15.4
+  MAX_XCODE_VERSION: 14.2
+  MAX_PLATFORM_VERSION: 16.2
+  MAX_PLATFORM_VERSION_TV: 16.1
   MAX_IPHONE_DEVICE_NAME: iPhone 13
   MAX_TV_DEVICE_NAME: Apple TV 4K (2nd generation)
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (3rd generation)
-  DEFAULT_NODE_VERSION: "16.x"
+  DEFAULT_NODE_VERSION: "18.x"
 
 
 pool:

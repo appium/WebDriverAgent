@@ -51,18 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FBBaseGestureItem : FBBaseActionItem
 
 /*! Absolute position on the screen where the gesure should be performed */
-@property (nonatomic) CGPoint atPosition;
+@property (nonatomic) XCUICoordinate *atPosition;
 /*! Gesture duration in milliseconds */
 @property (nonatomic) double duration;
-
-/**
- Returns fixed hit point coordinates for the case when XCTest fails to transform element snaapshot properly on screen rotation.
-
- @param hitPoint The initial hitpoint coordinates
- @param snapshot Element's snapshot instance
- @return The fixed hit point coordinates, if there is a need to fix them, or the unchanged hit point value
- */
-- (CGPoint)fixedHitPointWith:(CGPoint)hitPoint forSnapshot:(id<FBXCElementSnapshot>)snapshot;
 
 /**
  Calculate absolute gesture position on the screen based on provided element and positionOffset values.
@@ -72,9 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param error If there is an error, upon return contains an NSError object that describes the problem
  @return Adbsolute gesture position on the screen or nil if the calculation fails (for example, the element is invisible)
  */
-- (nullable NSValue *)hitpointWithElement:(nullable XCUIElement *)element
-                           positionOffset:(nullable NSValue *)positionOffset
-                                    error:(NSError **)error;
+- (nullable XCUICoordinate *)hitpointWithElement:(nullable XCUIElement *)element
+                                  positionOffset:(nullable NSValue *)positionOffset
+                                           error:(NSError **)error;
 
 @end
 
