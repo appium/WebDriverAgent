@@ -49,4 +49,7 @@ extern NSString *const FBClassChainQueryParseException;
 /*! Exception used to notify about application crash */
 extern NSString *const FBApplicationCrashedException;
 
+/*! Exception used to notify about the application is not installed  */
+extern NSString *const FBApplicationMissingException;
+
 NS_ASSUME_NONNULL_END

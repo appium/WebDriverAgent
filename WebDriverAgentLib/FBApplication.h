@@ -44,6 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (BOOL)fb_switchToSystemApplicationWithError:(NSError **)error;
 
+/**
+ Returns the bundle indentifier of the system app (ususally Springboard)
+ */
++ (NSString *)fb_systemApplicationBundleID;
+
+/**
+ Checks if the app is installed on the device under test.
+ */
+- (BOOL)fb_isInstalled;
+
 @end
 
 NS_ASSUME_NONNULL_END
