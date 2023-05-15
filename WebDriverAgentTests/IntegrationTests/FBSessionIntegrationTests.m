@@ -126,12 +126,7 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
 - (void)testAppWithInvalidBundleIDCannotBeTerminated
 {
   FBApplication *testedApp = [[FBApplication alloc] initWithBundleIdentifier:@"yolo"];
-  @try {
-    [testedApp terminate];
-    XCTFail(@"An exception is expected to be thrown");
-  } @catch (NSException *exception) {
-    XCTAssertEqualObjects(FBApplicationMissingException, exception.name);
-  }
+  [testedApp terminate];
 }
 
 - (void)testLaunchUnattachedApp

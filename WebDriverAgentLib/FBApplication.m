@@ -182,7 +182,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 - (void)terminate
 {
-  [self fb_assertInstalledByAction:@"terminated"];
   [super terminate];
   if (![self waitForState:XCUIApplicationStateNotRunning timeout:APP_STATE_CHANGE_TIMEOUT]) {
     [FBLogger logFmt:@"The active application is still '%@' after %.2f seconds timeout", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
