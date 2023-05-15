@@ -24,7 +24,8 @@
     commandStatus = [FBCommandStatus noSuchDriverErrorWithMessage:exception.reason
                                                         traceback:traceback];
   } else if ([exception.name isEqualToString:FBInvalidArgumentException]
-             || [exception.name isEqualToString:FBElementAttributeUnknownException]) {
+             || [exception.name isEqualToString:FBElementAttributeUnknownException]
+             || [exception.name isEqualToString:FBApplicationMissingException]) {
     commandStatus = [FBCommandStatus invalidArgumentErrorWithMessage:exception.reason
                                                            traceback:traceback];
   } else if ([exception.name isEqualToString:FBApplicationCrashedException]
