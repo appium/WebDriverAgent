@@ -9,7 +9,6 @@
 
 #import "FBApplication.h"
 
-#import "FBExceptions.h"
 #import "FBXCAccessibilityElement.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
@@ -17,7 +16,6 @@
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "LSApplicationWorkspace.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplicationImpl.h"
@@ -135,16 +133,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
    [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
-+ (NSString *)fb_systemApplicationBundleID
-{
-  static dispatch_once_t onceToken;
-  static NSString *systemAppBundleID;
-  dispatch_once(&onceToken, ^{
-    systemAppBundleID = [[self.class fb_systemApplication] bundleID];
-  });
-  return systemAppBundleID;
-}
-
 + (instancetype)applicationWithPID:(pid_t)processID
 {
   if ([NSProcessInfo processInfo].processIdentifier == processID) {
@@ -153,31 +141,12 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   return (FBApplication *)[FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
 }
 
-/**
- https://github.com/appium/WebDriverAgent/issues/702
- */
-- (void)fb_assertInstalledByAction:(NSString *)action
-{
-  if (![self.bundleID isEqualToString:[self.class fb_systemApplicationBundleID]] && !self.fb_isInstalled) {
-    NSString *message = [NSString stringWithFormat:@"The application '%@' cannot be %@ because it is not installed on the device under test",
-                         self.bundleID, action];
-    [[NSException exceptionWithName:FBApplicationMissingException reason:message userInfo:nil] raise];
-  }
-}
-
 - (void)launch
 {
-  [self fb_assertInstalledByAction:@"launched"];
   [super launch];
   if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
     [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
   }
-}
-
-- (void)activate
-{
-  [self fb_assertInstalledByAction:@"activated"];
-  [super activate];
 }
 
 - (void)terminate
@@ -210,11 +179,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
     return nil != activeApp && [activeApp.bundleID isEqualToString:systemApp.bundleID];
   }
           error:error];
-}
-
-- (BOOL)fb_isInstalled
-{
-  return [[LSApplicationWorkspace defaultWorkspace] applicationIsInstalled:self.bundleID];
 }
 
 @end
