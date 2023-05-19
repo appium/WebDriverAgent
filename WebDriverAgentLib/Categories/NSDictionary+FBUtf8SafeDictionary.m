@@ -19,7 +19,7 @@ const unichar REPLACER = 0xfffd;
     return self;
   }
 
-  NSData *data = [(NSString *)self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+  NSData *data = [self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
   NSString *convertedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   NSMutableString *result = [NSMutableString string];
   NSString *replacementStr = [NSString stringWithCharacters:&replacement length:1];
