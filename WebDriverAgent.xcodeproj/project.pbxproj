@@ -2414,7 +2414,6 @@
 				641EE6C02240C5CA00173FCB /* XCUIApplication+FBHelpers.h in Headers */,
 				641EE6C12240C5CA00173FCB /* _XCTestObservationCenterImplementation.h in Headers */,
 				714EAA0E2673FDFE005C5B47 /* FBCapabilities.h in Headers */,
-				716F0DA22A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6C22240C5CA00173FCB /* XCUIDevice+FBHelpers.h in Headers */,
 				71D3B3D6267FC7260076473D /* XCUIElement+FBResolve.h in Headers */,
 				641EE6C32240C5CA00173FCB /* FBClassChainQueryParser.h in Headers */,
@@ -3117,7 +3116,6 @@
 				641EE5FF2240C5CA00173FCB /* XCUIElement+FBForceTouch.m in Sources */,
 				716C9E0327315EFF005AD475 /* XCUIApplication+FBUIInterruptions.m in Sources */,
 				641EE6002240C5CA00173FCB /* FBTouchActionCommands.m in Sources */,
-				716F0DA42A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				719DCF182601EAFB000E765F /* FBNotificationsHelper.m in Sources */,
 				714EAA102673FDFE005C5B47 /* FBCapabilities.m in Sources */,
 				641EE6012240C5CA00173FCB /* FBImageIOScaler.m in Sources */,
@@ -3172,7 +3170,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */,
-				716F0DA72A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m in Sources */,
 				64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3909,9 +3906,14 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = QUGY3G28TX;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = QUGY3G28TX;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3928,8 +3930,9 @@
 					"@loader_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qulix.wda.CFAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3969,8 +3972,13 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = QUGY3G28TX;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = QUGY3G28TX;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3988,8 +3996,9 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qulix.wda.CFAgentLib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -4211,7 +4220,10 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				CODE_SIGN_STYLE = Manual;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = QUGY3G28TX;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4223,8 +4235,10 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qulix.wda.CFAgent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = CS_WebDriverAgent_Dev;
 				USES_XCTRUNNER = YES;
 				WARNING_CFLAGS = (
 					"$(inherited)",
@@ -4259,6 +4273,9 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = QUGY3G28TX;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4271,8 +4288,10 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qulix.wda.CFAgent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = CS_WebDriverAgent_Dev;
 				USES_XCTRUNNER = YES;
 				WARNING_CFLAGS = (
 					"$(inherited)",
