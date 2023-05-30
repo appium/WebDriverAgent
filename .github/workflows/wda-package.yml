@@ -26,9 +26,7 @@ jobs:
 
     env:
       ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
-      PKG_PATH_IOS: "appium_wda_ios"
       ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
-      PKG_PATH_TVOS: "appium_wda_tvos"
 
     steps:
       - name: Checkout
@@ -37,33 +35,33 @@ jobs:
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Build iOS
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_IOS \
-            -scheme WebDriverAgentRunner \
-            -destination generic/platform=iOS \
-            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_ios
+          SCHEME: WebDriverAgentRunner
+          DESTINATION: generic/platform=iOS
+          ARCHS: arm64
       - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS
         run: |
-          pushd $PKG_PATH_IOS/Build/Products/Debug-iphoneos
+          pushd appium_wda_ios/Build/Products/Debug-iphoneos
           zip -r $ZIP_PKG_NAME_IOS WebDriverAgentRunner-Runner.app
           popd
-          mv $PKG_PATH_IOS/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
+          mv appium_wda_ios/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
+
       - name: Build tvOS
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_TVOS \
-            -scheme WebDriverAgentRunner_tvOS \
-            -destination generic/platform=tvOS \
-            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_tvos
+          SCHEME: WebDriverAgentRunner_tvOS
+          DESTINATION: generic/platform=tvOS
+          ARCHS: arm64
+          ZIP_PKG_NAME: "WebDriverAgentRunner-Runner.zip"
       - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
         run: |
-          pushd $PKG_PATH_TVOS/Build/Products/Debug-appletvos
+          pushd appium_wda_tvos/Build/Products/Debug-appletvos
           zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
           popd
-          mv $PKG_PATH_TVOS/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
+          mv appium_wda_tvos/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
 
       - name: Upload the built generic app package for iOS
         uses: actions/upload-artifact@v3.1.0
@@ -82,10 +80,9 @@ jobs:
 
     env:
       ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
-      PKG_PATH_IOS_SIM_X86_64: "appium_wda_ios_sim_x86_64"
 
       ZIP_PKG_NAME_TVOS_SIM_X86_64: "WebDriverAgentRunner_tvOS-Build-Sim-x86-64.zip"
-      PKG_PATH_TVOS_SIM_X86_64: "appium_wda_tvos_sim_x86_64"
+      PKG_PATH_TVOS_SIM_X86_64: ""
 
     steps:
       - name: Checkout
@@ -94,36 +91,34 @@ jobs:
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Build iOS for simulator for x86_64
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_IOS_SIM_X86_64 \
-            -scheme WebDriverAgentRunner \
-            -destination "$DESTI_IOS_SIM" \
-            CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_ios_sim_x86_64
+          SCHEME: WebDriverAgentRunner
+          DESTINATION: platform=iOS Simulator,name=iPhone 14 Pro
+          ARCHS: x86_64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
-          pushd $PKG_PATH_IOS_SIM_X86_64
+          pushd appium_wda_ios_sim_x86_64
           rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_IOS_SIM_X86_64 Build
           popd
-          mv $PKG_PATH_IOS_SIM_X86_64/$ZIP_PKG_NAME_IOS_SIM_X86_64 ./
+          mv appium_wda_ios_sim_x86_64/$ZIP_PKG_NAME_IOS_SIM_X86_64 ./
 
       - name: Build tvOS for simulator for x86_64
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_TVOS_SIM_X86_64 \
-            -scheme WebDriverAgentRunner_tvOS \
-            -destination "$DESTI_TVOS_SIM" \
-            CODE_SIGNING_ALLOWED=NO ARCHS=x86_64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
+          SCHEME: WebDriverAgentRunner_tvOS
+          DESTINATION: platform=tvOS Simulator,name=Apple TV
+          ARCHS: x86_64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
-          pushd $PKG_PATH_TVOS_SIM_X86_64
+          pushd appium_wda_tvos_sim_x86_64
           rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_TVOS_SIM_X86_64 Build
           popd
-          mv $PKG_PATH_TVOS_SIM_X86_64/$ZIP_PKG_NAME_TVOS_SIM_X86_64 ./
+          mv appium_wda_tvos_sim_x86_64/$ZIP_PKG_NAME_TVOS_SIM_X86_64 ./
 
       - name: Upload the built generic app package for iOS Simulator for x86_64
         uses: actions/upload-artifact@v3.1.0
@@ -142,7 +137,6 @@ jobs:
 
     env:
       ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
-      PKG_PATH_IOS_SIM_ARM64: "appium_wda_ios_sim_arm64"
 
       ZIP_PKG_NAME_TVOS_SIM_ARM64: "WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip"
       PKG_PATH_TVOS_SIM_ARM64: "appium_wda_tvos_sim_arm64"
@@ -155,36 +149,34 @@ jobs:
           xcode-version: "${{ env.XCODE_VERSION }}"
 
       - name: Build iOS for simulator for arm64
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_IOS_SIM_ARM64 \
-            -scheme WebDriverAgentRunner \
-            -destination "$DESTI_IOS_SIM" \
-            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_ios_sim_arm64
+          SCHEME: WebDriverAgentRunner
+          DESTINATION: platform=iOS Simulator,name=iPhone 14 Pro
+          ARCHS: arm64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
-          pushd $PKG_PATH_IOS_SIM_ARM64
+          pushd appium_wda_ios_sim_arm64
           rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_IOS_SIM_ARM64 Build
           popd
-          mv $PKG_PATH_IOS_SIM_ARM64/$ZIP_PKG_NAME_IOS_SIM_ARM64 ./
+          mv appium_wda_ios_sim_arm64/$ZIP_PKG_NAME_IOS_SIM_ARM64 ./
 
       - name: Build tvOS for simulator for arm64
-        run: |
-          xcodebuild clean build-for-testing \
-            -project WebDriverAgent.xcodeproj \
-            -derivedDataPath $PKG_PATH_TVOS_SIM_ARM64 \
-            -scheme WebDriverAgentRunner_tvOS \
-            -destination "$DESTI_TVOS_SIM" \
-            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        env:
+          DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
+          SCHEME: WebDriverAgentRunner_tvOS
+          DESTINATION: platform=tvOS Simulator,name=Apple TV
+          ARCHS: arm64
       - name: Creating a zip of WebDriverAgentRunner-Build-Sim for iOS
         run: |
-          pushd $PKG_PATH_TVOS_SIM_ARM64
+          pushd appium_wda_tvos_sim_arm64
           rm -rf Build/Intermediates.noindex
           zip -r $ZIP_PKG_NAME_TVOS_SIM_ARM64 Build
           popd
-          mv $PKG_PATH_TVOS_SIM_ARM64/$ZIP_PKG_NAME_TVOS_SIM_ARM64 ./
+          mv appium_wda_tvos_sim_arm64/$ZIP_PKG_NAME_TVOS_SIM_ARM64 ./
 
       - name: Upload the built generic app package for iOS Simulator for arm64
         uses: actions/upload-artifact@v3.1.0
