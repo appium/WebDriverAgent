@@ -7,7 +7,7 @@ xcodebuild clean build-for-testing \
   -derivedDataPath $DERIVED_DATA_PATH \
   -scheme $SCHEME \
   -destination "$DESTINATION" \
-  CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
+  CODE_SIGNING_ALLOWED=NO ARCHS=arm64
 
 # Only .app is needed.
 

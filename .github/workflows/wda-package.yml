@@ -40,7 +40,6 @@ jobs:
           DERIVED_DATA_PATH: appium_wda_ios
           SCHEME: WebDriverAgentRunner
           DESTINATION: generic/platform=iOS
-          ARCHS: arm64
           WD: appium_wda_ios/Build/Products/Debug-iphoneos
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_IOS }}"
 
@@ -50,8 +49,6 @@ jobs:
           DERIVED_DATA_PATH: appium_wda_tvos
           SCHEME: WebDriverAgentRunner_tvOS
           DESTINATION: generic/platform=tvOS
-          ARCHS: arm64
-          ZIP_PKG_NAME: "WebDriverAgentRunner-Runner.zip"
           WD: appium_wda_tvos/Build/Products/Debug-appletvos
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
@@ -63,7 +60,6 @@ jobs:
         uses: actions/upload-artifact@v3.1.0
         with:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
-
 
   for_simulator_devices_ios:
     strategy:
