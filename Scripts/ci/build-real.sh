@@ -8,3 +8,8 @@ xcodebuild clean build-for-testing \
   -scheme $SCHEME \
   -destination "$DESTINATION" \
   CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
+
+pushd $WD
+zip -r $ZIP_PKG_NAME WebDriverAgentRunner-Runner.app
+popd
+mv $WD/$ZIP_PKG_NAME ./
