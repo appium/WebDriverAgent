@@ -4,5 +4,5 @@ xcodebuild clean build-for-testing \
   -project WebDriverAgent.xcodeproj \
   -derivedDataPath $DERIVED_DATA_PATH \
   -scheme $SCHEME \
-  -destination $DESTINATION \
+  -destination "$DESTINATION" \
   CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
