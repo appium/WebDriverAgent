@@ -11,9 +11,9 @@ xcodebuild clean build-for-testing \
 
 # simulator needs to build entire build files
 
-pushd $WD
+pushd $DERIVED_DATA_PATH
 # to remove unnecessary space consuming files
 rm -rf Build/Intermediates.noindex
 zip -r $ZIP_PKG_NAME Build
 popd
-mv $WD/$ZIP_PKG_NAME ./
+mv $DERIVED_DATA_PATH/$ZIP_PKG_NAME ./

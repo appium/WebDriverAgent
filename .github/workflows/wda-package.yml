@@ -65,90 +65,48 @@ jobs:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
 
-  for_simulator_devices_x86_64:
-    needs: [host_machine]
-    name: Build WDA for simulator iOS and tvOS devices - x86-64
-    runs-on: ${{ needs.host_machine.outputs.host }}
-
-    env:
-      ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
-      ZIP_PKG_NAME_TVOS_SIM_X86_64: "WebDriverAgentRunner_tvOS-Build-Sim-x86-64.zip"
-
+  for_simulator_devices_ios:
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
-      - name: Create a zip of iOS for simulator for x86_64
+      - name: Create a zip of iOS for simulator for ${{ matrix.arch }}
         run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          DERIVED_DATA_PATH: appium_wda_ios_sim_x86_64
+          DERIVED_DATA_PATH: wda_build
           SCHEME: WebDriverAgentRunner
           DESTINATION: "${{ env.DESTINATION_SIM_IOS }}"
-          ARCHS: x86_64
-          WD: appium_wda_ios_sim_x86_64
-          ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_IOS_SIM_X86_64 }}"
-      - name: Create a zip of tvOS for simulator for x86_64
-        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-        env:
-          DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
-          SCHEME: WebDriverAgentRunner_tvOS
-          DESTINATION: "${{ env.DESTINATION_SIM_TVOS }}"
-          ARCHS: x86_64
-          WD: appium_wda_tvos_sim_x86_64
-          ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS_SIM_X86_64 }}"
-
-      - name: Upload the built generic app package for iOS Simulator for x86_64
+          ARCHS: ${{ matrix.arch }}
+          ZIP_PKG_NAME: "WebDriverAgentRunner-Build-Sim-${{ env.arch }}.zip"
+      - name: Upload the built generic app package for iOS Simulator for ${{ env.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: "${{ env.ZIP_PKG_NAME_IOS_SIM_X86_64 }}"
-      - name: Upload the built generic app package for tvOS Simulator for x86_64
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          path: "${{ env.ZIP_PKG_NAME_TVOS_SIM_X86_64 }}"
+          path: "WebDriverAgentRunner-Build-Sim-${{ env.arch }}.zip"
 
-
-  for_simulator_devices_arm64:
-    needs: [host_machine]
-    name: Build WDA for simulator iOS and tvOS devices - arm64
-    runs-on: ${{ needs.host_machine.outputs.host }}
-
-    env:
-      ZIP_PKG_NAME_IOS_SIM_ARM64: "WebDriverAgentRunner-Build-Sim-arm64.zip"
-      ZIP_PKG_NAME_TVOS_SIM_ARM64: "WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip"
-
+  for_simulator_devices_tvos:
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
-
-      - name: Create a zip of iOS for simulator for arm64
+      - name: Create a zip of tvOS for simulator for ${{ matrix.arch }}
         run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          DERIVED_DATA_PATH: appium_wda_ios_sim_arm64
-          SCHEME: WebDriverAgentRunner
-          DESTINATION: "${{ env.DESTINATION_SIM_IOS }}"
-          ARCHS: arm64
-          WD: appium_wda_ios_sim_arm64
-          ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_IOS_SIM_ARM64 }}"
-      - name: Create a zip of tvOS for simulator for arm64
-        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-        env:
-          DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
+          DERIVED_DATA_PATH: wda_build
           SCHEME: WebDriverAgentRunner_tvOS
           DESTINATION: "${{ env.DESTINATION_SIM_TVOS }}"
-          ARCHS: arm64
-          WD: appium_wda_tvos_sim_arm64
-          ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS_SIM_ARM64 }}"
-
-      - name: Upload the built generic app package for iOS Simulator for arm64
+          ARCHS: ${{ matrix.arch }}
+          ZIP_PKG_NAME: "WebDriverAgentRunner_tvOS-Build-Sim-${{ env.arch }}.zip"
+      - name: Upload the built generic app package for tvOS Simulator for ${{ env.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: "${{ env.ZIP_PKG_NAME_IOS_SIM_ARM64 }}"
-      - name: Upload the built generic app package for tvOS Simulator for arm64
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          path: "${{ env.ZIP_PKG_NAME_TVOS_SIM_ARM64 }}"
+          path: "WebDriverAgentRunner_tvOS-Build-Sim-${{ env.arch }}.zip"
