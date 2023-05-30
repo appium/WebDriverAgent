@@ -6,8 +6,6 @@ on:
 env:
   HOST: macos-12
   XCODE_VERSION: 14.2
-  DESTI_IOS_SIM: platform=iOS Simulator,name=iPhone 14 Pro
-  DESTI_TVOS_SIM: platform=tvOS Simulator,name=Apple TV
 
 jobs:
   host_machine:
@@ -35,7 +33,7 @@ jobs:
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Build iOS
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_ios
           SCHEME: WebDriverAgentRunner
@@ -49,7 +47,7 @@ jobs:
           mv appium_wda_ios/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
 
       - name: Build tvOS
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_tvos
           SCHEME: WebDriverAgentRunner_tvOS
@@ -82,7 +80,6 @@ jobs:
       ZIP_PKG_NAME_IOS_SIM_X86_64: "WebDriverAgentRunner-Build-Sim-x86-64.zip"
 
       ZIP_PKG_NAME_TVOS_SIM_X86_64: "WebDriverAgentRunner_tvOS-Build-Sim-x86-64.zip"
-      PKG_PATH_TVOS_SIM_X86_64: ""
 
     steps:
       - name: Checkout
@@ -91,7 +88,7 @@ jobs:
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Build iOS for simulator for x86_64
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_ios_sim_x86_64
           SCHEME: WebDriverAgentRunner
@@ -106,7 +103,7 @@ jobs:
           mv appium_wda_ios_sim_x86_64/$ZIP_PKG_NAME_IOS_SIM_X86_64 ./
 
       - name: Build tvOS for simulator for x86_64
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
           SCHEME: WebDriverAgentRunner_tvOS
@@ -149,7 +146,7 @@ jobs:
           xcode-version: "${{ env.XCODE_VERSION }}"
 
       - name: Build iOS for simulator for arm64
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_ios_sim_arm64
           SCHEME: WebDriverAgentRunner
@@ -164,7 +161,7 @@ jobs:
           mv appium_wda_ios_sim_arm64/$ZIP_PKG_NAME_IOS_SIM_ARM64 ./
 
       - name: Build tvOS for simulator for arm64
-        run: sh $GITHUB_WORKSPACE/Scripts/build-ci.sh
+        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-ci.sh
         env:
           DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
           SCHEME: WebDriverAgentRunner_tvOS
