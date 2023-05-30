@@ -82,11 +82,11 @@ jobs:
           SCHEME: WebDriverAgentRunner
           DESTINATION: "${{ env.DESTINATION_SIM_IOS }}"
           ARCHS: ${{ matrix.arch }}
-          ZIP_PKG_NAME: "WebDriverAgentRunner-Build-Sim-${{ env.arch }}.zip"
-      - name: Upload the built generic app package for iOS Simulator for ${{ env.arch }}
+          ZIP_PKG_NAME: "WebDriverAgentRunner-Build-Sim-${{ matrix.arch }}.zip"
+      - name: Upload the built generic app package for iOS Simulator for ${{ matrix.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: "WebDriverAgentRunner-Build-Sim-${{ env.arch }}.zip"
+          path: "WebDriverAgentRunner-Build-Sim-${{ matrix.arch }}.zip"
 
   for_simulator_devices_tvos:
     needs: [host_machine]
@@ -109,8 +109,8 @@ jobs:
           SCHEME: WebDriverAgentRunner_tvOS
           DESTINATION: "${{ env.DESTINATION_SIM_TVOS }}"
           ARCHS: ${{ matrix.arch }}
-          ZIP_PKG_NAME: "WebDriverAgentRunner_tvOS-Build-Sim-${{ env.arch }}.zip"
-      - name: Upload the built generic app package for tvOS Simulator for ${{ env.arch }}
+          ZIP_PKG_NAME: "WebDriverAgentRunner_tvOS-Build-Sim-${{ matrix.arch }}.zip"
+      - name: Upload the built generic app package for tvOS Simulator for ${{ matrix.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: "WebDriverAgentRunner_tvOS-Build-Sim-${{ env.arch }}.zip"
+          path: "WebDriverAgentRunner_tvOS-Build-Sim-${{ matrix.arch }}.zip"
