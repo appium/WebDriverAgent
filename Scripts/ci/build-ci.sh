@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # To run build script for CI
 
 xcodebuild clean build-for-testing \
