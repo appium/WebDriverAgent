@@ -62,6 +62,10 @@ jobs:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
   for_simulator_devices_ios:
+    needs: [host_machine]
+    name: Build WDA for iOS simulators
+    runs-on: ${{ needs.host_machine.outputs.host }}
+
     strategy:
       matrix:
         arch: [x86_64, arm64]
@@ -85,6 +89,10 @@ jobs:
           path: "WebDriverAgentRunner-Build-Sim-${{ env.arch }}.zip"
 
   for_simulator_devices_tvos:
+    needs: [host_machine]
+    name: Build WDA for tvOS simulators
+    runs-on: ${{ needs.host_machine.outputs.host }}
+
     strategy:
       matrix:
         arch: [x86_64, arm64]
