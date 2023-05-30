@@ -9,7 +9,10 @@ xcodebuild clean build-for-testing \
   -destination "$DESTINATION" \
   CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
 
+# simulator needs to build entire build files
+
 pushd $WD
+# to remove unnecessary space consuming files
 rm -rf Build/Intermediates.noindex
 zip -r $ZIP_PKG_NAME Build
 popd

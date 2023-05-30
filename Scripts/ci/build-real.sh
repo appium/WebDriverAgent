@@ -9,7 +9,9 @@ xcodebuild clean build-for-testing \
   -destination "$DESTINATION" \
   CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
 
+# Only .app is needed.
+
 pushd $WD
-zip -r $ZIP_PKG_NAME WebDriverAgentRunner-Runner.app
+zip -r $ZIP_PKG_NAME $SCHEME-Runner.app
 popd
 mv $WD/$ZIP_PKG_NAME ./
