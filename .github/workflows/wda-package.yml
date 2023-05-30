@@ -78,7 +78,6 @@ jobs:
       - name: Create a zip of iOS for simulator for ${{ matrix.arch }}
         run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          DERIVED_DATA_PATH: wda_build
           SCHEME: WebDriverAgentRunner
           DESTINATION: "${{ env.DESTINATION_SIM_IOS }}"
           ARCHS: ${{ matrix.arch }}
@@ -105,7 +104,6 @@ jobs:
       - name: Create a zip of tvOS for simulator for ${{ matrix.arch }}
         run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          DERIVED_DATA_PATH: wda_build
           SCHEME: WebDriverAgentRunner_tvOS
           DESTINATION: "${{ env.DESTINATION_SIM_TVOS }}"
           ARCHS: ${{ matrix.arch }}
