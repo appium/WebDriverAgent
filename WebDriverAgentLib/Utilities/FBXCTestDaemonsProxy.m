@@ -13,6 +13,7 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
 #import "XCTestDriver.h"
@@ -20,22 +21,60 @@
 #import "XCUIApplication.h"
 #import "XCUIDevice.h"
 
-@implementation FBXCTestDaemonsProxy
+#define LAUNCH_APP_TIMEOUT_SEC 300
 
-static Class FBXCTRunnerDaemonSessionClass = nil;
-static dispatch_once_t onceTestRunnerDaemonClass;
+static void (*originalLaunchAppMethod)(id, SEL, NSString*, NSString*, NSArray*, NSDictionary*, void (^)(_Bool, NSError *));
+
+static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundleID,
+                              NSArray *arguments, NSDictionary *environment,
+                              void (^reply)(_Bool, NSError *))
+{
+  __block BOOL isSuccessful;
+  __block NSError *error;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  originalLaunchAppMethod(self, _cmd, path, bundleID, arguments, environment, ^(BOOL passed, NSError *innerError) {
+    isSuccessful = passed;
+    error = innerError;
+    dispatch_semaphore_signal(sem);
+  });
+  int64_t timeoutNs = (int64_t)(LAUNCH_APP_TIMEOUT_SEC * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+    NSString *message = [NSString stringWithFormat:@"The application '%@' cannot be launched within %d seconds timeout",
+                         bundleID ?: path, LAUNCH_APP_TIMEOUT_SEC];
+    @throw [NSException exceptionWithName:FBTimeoutException reason:message userInfo:nil];
+  }
+  if (!isSuccessful || nil != error) {
+    [FBLogger logFmt:@"%@", error.description];
+    NSString *message = error.description ?: [NSString stringWithFormat:@"The application '%@' is not installed on the device under test",
+                         bundleID ?: path];
+    @throw [NSException exceptionWithName:FBApplicationMissingException reason:message userInfo:nil];
+  }
+  reply(isSuccessful, error);
+}
+
+@implementation FBXCTestDaemonsProxy
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
 
 + (void)load
 {
-  dispatch_once(&onceTestRunnerDaemonClass, ^{
-    FBXCTRunnerDaemonSessionClass = objc_lookUpClass("XCTRunnerDaemonSession");
-  });
+  [self.class swizzleLaunchApp];
 }
 
 #pragma clang diagnostic pop
+
++ (void)swizzleLaunchApp {
+  Method original = class_getInstanceMethod([XCTRunnerDaemonSession class],
+                                            @selector(launchApplicationWithPath:bundleID:arguments:environment:completion:));
+  if (original == nil) {
+    [FBLogger log:@"Could not find method -[XCTRunnerDaemonSession launchApplicationWithPath:]"];
+    return;
+  }
+  // Workaround for https://github.com/appium/WebDriverAgent/issues/702
+  originalLaunchAppMethod = (void(*)(id, SEL, NSString*, NSString*, NSArray*, NSDictionary*, void (^)(_Bool, NSError *))) method_getImplementation(original);
+  method_setImplementation(original, (IMP)swizzledLaunchApp);
+}
 
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy
 {
@@ -56,7 +95,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (id<XCTestManager_ManagerInterface>)retrieveTestRunnerProxy
 {
-  return ((XCTRunnerDaemonSession *)[FBXCTRunnerDaemonSessionClass sharedSession]).daemonProxy;
+  return ((XCTRunnerDaemonSession *)[XCTRunnerDaemonSession sharedSession]).daemonProxy;
 }
 
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record error:(NSError *__autoreleasing*)error
@@ -70,24 +109,20 @@ static dispatch_once_t onceTestRunnerDaemonClass;
       didSucceed = (invokeError == nil);
       completion();
     };
-    
-    if (nil == FBXCTRunnerDaemonSessionClass) {
-      [[self testRunnerProxy] _XCT_synthesizeEvent:record completion:errorHandler];
-    } else {
-      XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
-        errorHandler(invokeError);
-      };
-      [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
-        handlerBlock(record, invokeError);
-      }];
-    }
+
+    XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
+      errorHandler(invokeError);
+    };
+    [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
+      handlerBlock(record, invokeError);
+    }];
   }];
   return didSucceed;
 }
 
 + (BOOL)openURL:(NSURL *)url usingApplication:(NSString *)bundleId error:(NSError *__autoreleasing*)error
 {
-  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openURL:usingApplication:completion:)]) {
     if (error) {
       [[[FBErrorBuilder builder]
@@ -112,7 +147,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (BOOL)openDefaultApplicationForURL:(NSURL *)url error:(NSError *__autoreleasing*)error
 {
-  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openDefaultApplicationForURL:completion:)]) {
     if (error) {
       [[[FBErrorBuilder builder]
@@ -138,7 +173,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 #if !TARGET_OS_TV
 + (BOOL)setSimulatedLocation:(CLLocation *)location error:(NSError *__autoreleasing*)error
 {
-  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(setSimulatedLocation:completion:)]) {
     if (error) {
       [[[FBErrorBuilder builder]
@@ -171,7 +206,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (nullable CLLocation *)getSimulatedLocation:(NSError *__autoreleasing*)error;
 {
-  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(getSimulatedLocationWithReply:)]) {
     if (error) {
       [[[FBErrorBuilder builder]
@@ -206,7 +241,7 @@ static dispatch_once_t onceTestRunnerDaemonClass;
 
 + (BOOL)clearSimulatedLocation:(NSError *__autoreleasing*)error
 {
-  XCTRunnerDaemonSession *session = [FBXCTRunnerDaemonSessionClass sharedSession];
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(clearSimulatedLocationWithReply:)]) {
     if (error) {
       [[[FBErrorBuilder builder]

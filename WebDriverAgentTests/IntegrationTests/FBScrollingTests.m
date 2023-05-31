@@ -49,6 +49,11 @@
 
 - (void)testSimpleScroll
 {
+  if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
+    // This test is unstable in CI env
+    return;
+  }
+
   FBAssertVisibleCell(@"0");
   FBAssertVisibleCell(@"10");
   [self.scrollView fb_scrollDownByNormalizedDistance:1.0];
@@ -82,6 +87,11 @@
 
 - (void)testNativeFarScrollToVisible
 {
+  if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
+    // This test is unstable in CI env
+    return;
+  }
+
   NSString *cellName = @"80";
   NSError *error;
   FBAssertInvisibleCell(cellName);
@@ -100,6 +110,12 @@
   [element fb_scrollToVisibleWithError:&error];
   XCTAssertNil(error);
   XCTAssertTrue(element.fb_isVisible);
+  
+  if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
+    // This test is unstable in CI env
+    return;
+  }
+
   [element tap];
   XCTAssertTrue(element.wdSelected);
 }

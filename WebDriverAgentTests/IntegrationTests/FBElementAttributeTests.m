@@ -160,7 +160,7 @@
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"1");
   XCTAssertFalse(element.wdSelected);
-  XCTAssertTrue([element fb_tapWithError:nil]);
+  [element tap];
   XCTAssertEqualObjects(element.wdValue, @"0");
   XCTAssertFalse(element.wdSelected);
 }

@@ -33,11 +33,7 @@
   XCTAssertTrue([FBConfiguration reduceMotionEnabled]);
 
   [FBConfiguration setReduceMotionEnabled:defaultReduceMotionEnabled];
-  if (isSDKVersionLessThan(@"10.0")) {
-    XCTAssertFalse([FBConfiguration reduceMotionEnabled]);
-  } else {
-    XCTAssertEqual([FBConfiguration reduceMotionEnabled], defaultReduceMotionEnabled);
-  }
+  XCTAssertEqual([FBConfiguration reduceMotionEnabled], defaultReduceMotionEnabled);
 }
 
 @end

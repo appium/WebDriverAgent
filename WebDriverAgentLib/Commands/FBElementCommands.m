@@ -30,7 +30,6 @@
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBPickerWheel.h"
 #import "XCUIElement+FBScrolling.h"
-#import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBForceTouch.h"
 #import "XCUIElement+FBSwiping.h"
 #import "XCUIElement+FBTyping.h"
@@ -233,14 +232,14 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  NSError *error = nil;
 #if TARGET_OS_IOS
-  if (![element fb_tapWithError:&error]) {
+  [element tap];
 #elif TARGET_OS_TV
+  NSError *error = nil;
   if (![element fb_selectWithError:&error]) {
-#endif
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
+#endif
   return FBResponseWithOK();
 }
 
@@ -296,9 +295,10 @@
 
 + (id<FBResponsePayload>)handleDoubleTapCoordinate:(FBRouteRequest *)request
 {
-  CGPoint doubleTapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *doubleTapCoordinate = [self.class gestureCoordinateWithCoordinate:doubleTapPoint
-                                                                        application:request.session.activeApplication];
+  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
+                                 [request.arguments[@"y"] doubleValue]);
+  XCUICoordinate *doubleTapCoordinate = [self.class gestureCoordinateWithOffset:offset
+                                                                        element:request.session.activeApplication];
   [doubleTapCoordinate doubleTap];
   return FBResponseWithOK();
 }
@@ -334,9 +334,10 @@
 
 + (id<FBResponsePayload>)handleTouchAndHoldCoordinate:(FBRouteRequest *)request
 {
-  CGPoint touchPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithCoordinate:touchPoint
-                                                                    application:request.session.activeApplication];
+  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
+                                 [request.arguments[@"y"] doubleValue]);
+  XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithOffset:offset
+                                                                    element:request.session.activeApplication];
   [pressCoordinate pressForDuration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
@@ -359,18 +360,18 @@
 + (id<FBResponsePayload>)handlePressAndDragCoordinateWithVelocity:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  CGPoint startPoint = CGPointMake((CGFloat)[request.arguments[@"fromX"] doubleValue],
-                                   (CGFloat)[request.arguments[@"fromY"] doubleValue]);
-  CGPoint endPoint = CGPointMake((CGFloat)[request.arguments[@"toX"] doubleValue],
-                                 (CGFloat)[request.arguments[@"toY"] doubleValue]);
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
-                                                                  application:session.activeApplication];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
-                                                                    application:session.activeApplication];
+  CGVector startOffset = CGVectorMake((CGFloat)[request.arguments[@"fromX"] doubleValue],
+                                     (CGFloat)[request.arguments[@"fromY"] doubleValue]);
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
+                                                                    element:session.activeApplication];
   if (![startCoordinate respondsToSelector:@selector(pressForDuration:thenDragToCoordinate:withVelocity:thenHoldForDuration:)]) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
                                                                             traceback:nil]);
   }
+  CGVector endOffset = CGVectorMake((CGFloat)[request.arguments[@"toX"] doubleValue],
+                                    (CGFloat)[request.arguments[@"toY"] doubleValue]);
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
+                                                                  element:session.activeApplication];
   [startCoordinate pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
                thenDragToCoordinate:endCoordinate
                        withVelocity:[request.arguments[@"velocity"] doubleValue]
@@ -444,13 +445,15 @@
 + (id<FBResponsePayload>)handleDragCoordinate:(FBRouteRequest *)request
 {
   FBSession *session = request.session;
-  CGPoint startPoint = CGPointMake((CGFloat)[request.arguments[@"fromX"] doubleValue], (CGFloat)[request.arguments[@"fromY"] doubleValue]);
-  CGPoint endPoint = CGPointMake((CGFloat)[request.arguments[@"toX"] doubleValue], (CGFloat)[request.arguments[@"toY"] doubleValue]);
+  CGVector startOffset = CGVectorMake([request.arguments[@"fromX"] doubleValue],
+                                      [request.arguments[@"fromY"] doubleValue]);
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
+                                                                    element:session.activeApplication];
+  CGVector endOffset = CGVectorMake([request.arguments[@"toX"] doubleValue],
+                                    [request.arguments[@"toY"] doubleValue]);
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
+                                                                  element:session.activeApplication];
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
-                                                                  application:session.activeApplication];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
-                                                                    application:session.activeApplication];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
 }
@@ -460,14 +463,13 @@
   FBSession *session = request.session;
   FBElementCache *elementCache = session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  CGRect frame = [(id<FBXCElementSnapshot>)element.lastSnapshot frame];
-  CGPoint startPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"fromX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"fromY"] doubleValue]));
-  CGPoint endPoint = CGPointMake((CGFloat)(frame.origin.x + [request.arguments[@"toX"] doubleValue]), (CGFloat)(frame.origin.y + [request.arguments[@"toY"] doubleValue]));
+  CGVector startOffset = CGVectorMake([request.arguments[@"fromX"] doubleValue],
+                                      [request.arguments[@"fromY"] doubleValue]);
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset element:element];
+  CGVector endOffset = CGVectorMake([request.arguments[@"toX"] doubleValue],
+                                    [request.arguments[@"toY"] doubleValue]);
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset element:element];
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint
-                                                                  application:session.activeApplication];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint
-                                                                    application:session.activeApplication];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
 }
@@ -493,19 +495,13 @@
 + (id<FBResponsePayload>)handleTap:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  CGPoint tapPoint = CGPointMake((CGFloat)[request.arguments[@"x"] doubleValue], (CGFloat)[request.arguments[@"y"] doubleValue]);
-  if ([elementCache hasElementWithUUID:request.parameters[@"uuid"]]) {
-    XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-    NSError *error;
-    if (![element fb_tapCoordinate:tapPoint error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
-                                                                             traceback:nil]);
-    }
-  } else {
-    XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint
-                                                                    application:request.session.activeApplication];
-    [tapCoordinate tap];
-  }
+  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
+                                 [request.arguments[@"y"] doubleValue]);
+  XCUIElement *element = [elementCache hasElementWithUUID:request.parameters[@"uuid"]]
+    ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]]
+    : request.session.activeApplication;
+  XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithOffset:offset element:element];
+  [tapCoordinate tap];
   return FBResponseWithOK();
 }
 
@@ -606,36 +602,54 @@
 
 
 #if !TARGET_OS_TV
-static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
+static const CGFloat DEFAULT_PICKER_OFFSET = (CGFloat)0.2;
+static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
+
 
 + (id<FBResponsePayload>)handleWheelSelect:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   if ([element.lastSnapshot elementType] != XCUIElementTypePickerWheel) {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    NSString *errMsg = [NSString stringWithFormat:@"The element is expected to be a valid Picker Wheel control. '%@' was given instead", element.wdType];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                       traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
   }
   NSString* order = [request.arguments[@"order"] lowercaseString];
-  CGFloat offset = DEFAULT_OFFSET;
+  CGFloat offset = DEFAULT_PICKER_OFFSET;
   if (request.arguments[@"offset"]) {
     offset = (CGFloat)[request.arguments[@"offset"] doubleValue];
     if (offset <= 0.0 || offset > 0.5) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+      NSString *errMsg = [NSString stringWithFormat:@"'offset' value is expected to be in range (0.0, 0.5]. '%@' was given instead", request.arguments[@"offset"]];
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                         traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
     }
   }
-  BOOL isSuccessful = false;
-  NSError *error;
-  if ([order isEqualToString:@"next"]) {
-    isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
-  } else if ([order isEqualToString:@"previous"]) {
-    isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
-  } else {
-    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:[NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]] traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+  NSNumber *maxAttempts = request.arguments[@"maxAttempts"] ?: @(DEFAULT_MAX_PICKER_ATTEMPTS);
+  NSString *expectedValue = request.arguments[@"value"];
+  NSInteger attempt = 0;
+  while (attempt < [maxAttempts integerValue]) {
+    BOOL isSuccessful = false;
+    NSError *error;
+    if ([order isEqualToString:@"next"]) {
+      isSuccessful = [element fb_selectNextOptionWithOffset:offset error:&error];
+    } else if ([order isEqualToString:@"previous"]) {
+      isSuccessful = [element fb_selectPreviousOptionWithOffset:offset error:&error];
+    } else {
+      NSString *errMsg = [NSString stringWithFormat:@"Only 'previous' and 'next' order values are supported. '%@' was given instead", request.arguments[@"order"]];
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:errMsg
+                                                                         traceback:[NSString stringWithFormat:@"%@", NSThread.callStackSymbols]]);
+    }
+    if (!isSuccessful) {
+      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+    }
+    if (nil == expectedValue || [element.wdValue isEqualToString:expectedValue]) {
+      return FBResponseWithOK();
+    }
+    attempt++;
   }
-  if (!isSuccessful) {
-    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
-  }
-  return FBResponseWithOK();
+  NSString *errMsg = [NSString stringWithFormat:@"Cannot select the expected picker wheel value '%@' after %ld attempts", expectedValue, attempt];
+  return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:errMsg traceback:nil]);
 }
 
 #pragma mark - Helpers
@@ -654,57 +668,18 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 }
 
 /**
- Returns gesture coordinate for the application based on absolute coordinate
+ Returns gesture coordinate for the element based on absolute coordinate
 
- @param coordinate absolute screen coordinates
- @param application the instance of current application under test
+ @param offset absolute screen offset for the given application
+ @param element the element instance to perform the gesture on
  @return translated gesture coordinates ready to be passed to XCUICoordinate methods
  */
-+ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate
-                                        application:(XCUIApplication *)application
++ (XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset
+                                        element:(XCUIElement *)element
 {
-  CGPoint point = coordinate;
-  /**
-   If SDK >= 11, the tap coordinate based on application is not correct when
-   the application orientation is landscape and
-   tapX > application portrait width or tapY > application portrait height.
-   Pass the window element to the method [FBElementCommands gestureCoordinateWithCoordinate:element:]
-   will resolve the problem.
-   More details about the bug, please see the following issues:
-   #705: https://github.com/facebook/WebDriverAgent/issues/705
-   #798: https://github.com/facebook/WebDriverAgent/issues/798
-   #856: https://github.com/facebook/WebDriverAgent/issues/856
-   Notice: On iOS 10, if the application is not launched by wda, no elements will be found.
-   See issue #732: https://github.com/facebook/WebDriverAgent/issues/732
-   */
-  XCUIElement *element = application;
-  if (isSDKVersionGreaterThanOrEqualTo(@"11.0")) {
-    XCUIElement *window = application.windows.allElementsBoundByIndex.firstObject;
-    if (window) {
-      element = window;
-      id<FBXCElementSnapshot> snapshot = element.fb_cachedSnapshot ?: element.fb_takeSnapshot;
-      point.x -= snapshot.frame.origin.x;
-      point.y -= snapshot.frame.origin.y;
-    }
-  }
-  return [self gestureCoordinateWithCoordinate:point element:element];
+  return [[element coordinateWithNormalizedOffset:CGVectorMake(0, 0)] coordinateWithOffset:offset];
 }
 
-/**
- Returns gesture coordinate based on the specified element.
-
- @param coordinate absolute coordinates based on the element
- @param element the element in the current application under test
- @return translated gesture coordinates ready to be passed to XCUICoordinate methods
- */
-+ (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate
-                                            element:(XCUIElement *)element
-{
-  XCUICoordinate *appCoordinate = [[XCUICoordinate alloc] initWithElement:element
-                                                         normalizedOffset:CGVectorMake(0, 0)];
-  return [[XCUICoordinate alloc] initWithCoordinate:appCoordinate
-                                       pointsOffset:CGVectorMake(coordinate.x, coordinate.y)];
-}
 #endif
 
 @end

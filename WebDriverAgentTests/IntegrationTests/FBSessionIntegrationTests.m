@@ -11,6 +11,7 @@
 
 #import "FBIntegrationTestCase.h"
 #import "FBApplication.h"
+#import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
@@ -105,6 +106,28 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
   [FBUnattachedAppLauncher launchAppWithBundleId:SETTINGS_BUNDLE_ID];
   [self.session kill];
   XCTAssertEqualObjects(SETTINGS_BUNDLE_ID, FBApplication.fb_activeApplication.bundleID);
+}
+
+- (void)testAppWithInvalidBundleIDCannotBeStarted
+{
+  FBApplication *testedApp = [[FBApplication alloc] initWithBundleIdentifier:@"yolo"];
+  @try {
+    [testedApp launch];
+    XCTFail(@"An exception is expected to be thrown");
+  } @catch (NSException *exception) {
+    XCTAssertEqualObjects(FBApplicationMissingException, exception.name);
+  }
+}
+
+- (void)testAppWithInvalidBundleIDCannotBeActivated
+{
+  FBApplication *testedApp = [[FBApplication alloc] initWithBundleIdentifier:@"yolo"];
+  @try {
+    [testedApp activate];
+    XCTFail(@"An exception is expected to be thrown");
+  } @catch (NSException *exception) {
+    XCTAssertEqualObjects(FBApplicationMissingException, exception.name);
+  }
 }
 
 @end
