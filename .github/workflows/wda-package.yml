@@ -2,6 +2,10 @@ name: Building WebDriverAgent
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
 
 env:
   HOST: macos-12
