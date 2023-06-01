@@ -78,10 +78,15 @@ jobs:
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Create a zip of WebDriverAgentRunner${{ matrix.target }} for simulator for ${{ matrix.arch }}
-        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+        run: |
+          if [[ $TARGET == '_tvOS' ]]; then
+            DESTINATION=$DESTINATION_SIM_TVOS sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+          else
+            DESTINATION=$DESTINATION_SIM_IOS sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+          fi
         env:
+          TARGET: ${{ matrix.target }}
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
-          DESTINATION: "${{ env.DESTINATION_SIM_${{ matrix.target }} }}"
           ARCHS: ${{ matrix.arch }}
           ZIP_PKG_NAME: "WebDriverAgentRunner_${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
       - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
