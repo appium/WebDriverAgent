@@ -80,4 +80,11 @@
 @property(readonly) _Bool supportsLocationSimulation;
 #endif
 
+// Since Xcode 10.2
+- (void)launchApplicationWithPath:(NSString *)arg1
+                         bundleID:(NSString *)arg2
+                        arguments:(NSArray *)arg3
+                      environment:(NSDictionary *)arg4
+                       completion:(void (^)(_Bool, NSError *))arg5;
+
 @end

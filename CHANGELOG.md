@@ -1,3 +1,71 @@
+## [5.3.0](https://github.com/appium/WebDriverAgent/compare/v5.2.0...v5.3.0) (2023-05-22)
+
+
+### Features
+
+* Use strongbox to persist the previous version of the module ([#714](https://github.com/appium/WebDriverAgent/issues/714)) ([4611792](https://github.com/appium/WebDriverAgent/commit/4611792ee5d5d7f39d188b5ebc31017f436c5ace))
+
+## [5.2.0](https://github.com/appium/WebDriverAgent/compare/v5.1.6...v5.2.0) (2023-05-20)
+
+
+### Features
+
+* Replace non-encodable characters in the resulting JSON ([#713](https://github.com/appium/WebDriverAgent/issues/713)) ([cdfae40](https://github.com/appium/WebDriverAgent/commit/cdfae408be0bcf6607f0ca4462925eed2c300f5e))
+
+## [5.1.6](https://github.com/appium/WebDriverAgent/compare/v5.1.5...v5.1.6) (2023-05-18)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump @appium/support from 3.1.11 to 4.0.0 ([#710](https://github.com/appium/WebDriverAgent/issues/710)) ([3e49523](https://github.com/appium/WebDriverAgent/commit/3e495230674a46db29ecea3b36c2ed0ea1bf2842))
+
+## [5.1.5](https://github.com/appium/WebDriverAgent/compare/v5.1.4...v5.1.5) (2023-05-18)
+
+
+### Miscellaneous Chores
+
+* Drop obsolete workarounds for coordinates calculation ([#701](https://github.com/appium/WebDriverAgent/issues/701)) ([259f731](https://github.com/appium/WebDriverAgent/commit/259f7319305b15a3f541957d3ccaa3cb12c9e1a3))
+
+## [5.1.4](https://github.com/appium/WebDriverAgent/compare/v5.1.3...v5.1.4) (2023-05-16)
+
+
+### Bug Fixes
+
+* Prevent freeze on launch/activate of a missing app ([#706](https://github.com/appium/WebDriverAgent/issues/706)) ([c4976e3](https://github.com/appium/WebDriverAgent/commit/c4976e3e99afa4d471bd39c3dccfc7d9f58d8bfc))
+
+## [5.1.3](https://github.com/appium/WebDriverAgent/compare/v5.1.2...v5.1.3) (2023-05-16)
+
+
+### Bug Fixes
+
+* Revert "fix: Assert app is installed before launching or activating it ([#704](https://github.com/appium/WebDriverAgent/issues/704))" ([#705](https://github.com/appium/WebDriverAgent/issues/705)) ([00baeb2](https://github.com/appium/WebDriverAgent/commit/00baeb2045b9aac98d27fe2e96cedce0dde5e8be))
+
+## [5.1.2](https://github.com/appium/WebDriverAgent/compare/v5.1.1...v5.1.2) (2023-05-15)
+
+
+### Miscellaneous Chores
+
+* remove code for old os versions ([#694](https://github.com/appium/WebDriverAgent/issues/694)) ([4a9faa5](https://github.com/appium/WebDriverAgent/commit/4a9faa5f85e0615c18a5f35090335bdbc7d56ebe))
+
+## [5.1.1](https://github.com/appium/WebDriverAgent/compare/v5.1.0...v5.1.1) (2023-05-15)
+
+
+### Bug Fixes
+
+* Assert app is installed before launching or activating it ([#704](https://github.com/appium/WebDriverAgent/issues/704)) ([94e5c51](https://github.com/appium/WebDriverAgent/commit/94e5c51bce1d4518418e999b4ac466cd46ca3bc3))
+
+## [5.1.0](https://github.com/appium/WebDriverAgent/compare/v5.0.0...v5.1.0) (2023-05-14)
+
+
+### Features
+
+* Add a possibility to provide a target picker value ([#699](https://github.com/appium/WebDriverAgent/issues/699)) ([fc76aee](https://github.com/appium/WebDriverAgent/commit/fc76aeecb087429974b7b52b725173186e6f0246))
+
+
+### Code Refactoring
+
+* Remove obsolete coordinate calculation workarounds needed for older xCode SDKs ([#698](https://github.com/appium/WebDriverAgent/issues/698)) ([025b42c](https://github.com/appium/WebDriverAgent/commit/025b42c8a34ff0beba4379f4cb0c1d79d2b222ed))
+
 ## [5.0.0](https://github.com/appium/WebDriverAgent/compare/v4.15.1...v5.0.0) (2023-05-14)
 
 

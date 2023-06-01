@@ -9,6 +9,8 @@
 
 #import "FBResponseJSONPayload.h"
 
+#import "FBLogger.h"
+#import "NSDictionary+FBUtf8SafeDictionary.h"
 #import "RouteResponse.h"
 
 @interface FBResponseJSONPayload ()
@@ -42,6 +44,13 @@
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.dictionary
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&error];
+  NSCAssert(jsonData, @"Valid JSON must be responded, error of %@", error);
+  if (nil == [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]) {
+    [FBLogger log:@"The incoming data cannot be encoded to UTF-8 JSON. Applying lossy conversion as a workaround."];
+    jsonData = [NSJSONSerialization dataWithJSONObject:[self.dictionary fb_utf8SafeDictionary]
+                                               options:NSJSONWritingPrettyPrinted
+                                                 error:&error];
+  }
   NSCAssert(jsonData, @"Valid JSON must be responded, error of %@", error);
   [response setHeader:@"Content-Type" value:@"application/json;charset=UTF-8"];
   [response setStatusCode:self.httpStatusCode];

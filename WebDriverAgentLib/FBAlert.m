@@ -17,7 +17,6 @@
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBAlert.h"
 #import "XCUIElement+FBClassChain.h"
-#import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
@@ -190,11 +189,13 @@
       ? buttons.lastObject
       : buttons.firstObject;
   }
-  return nil == acceptButton
-    ? [[[FBErrorBuilder builder]
+  if (nil == acceptButton) {
+    return [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find accept button for alert: %@", self.alertElement]
-     buildError:error]
-    : [acceptButton fb_tapWithError:error];
+       buildError:error];
+  }
+  [acceptButton tap];
+  return YES;
 }
 
 - (BOOL)dismissWithError:(NSError **)error
@@ -230,11 +231,13 @@
       : buttons.lastObject;
   }
 
-  return nil == dismissButton
-    ? [[[FBErrorBuilder builder]
+  if (nil == dismissButton) {
+    return [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Failed to find dismiss button for alert: %@", self.alertElement]
-     buildError:error]
-    : [dismissButton fb_tapWithError:error];
+            buildError:error];
+  }
+  [dismissButton tap];
+  return YES;
 }
 
 - (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error
@@ -251,7 +254,8 @@
              withDescriptionFormat:@"Failed to find button with label '%@' for alert: %@", label, self.alertElement]
             buildError:error];
   }
-  return [requestedButton fb_tapWithError:error];
+  [requestedButton tap];
+  return YES;
 }
 
 - (XCUIElement *)alertElement

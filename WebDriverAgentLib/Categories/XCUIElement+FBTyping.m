@@ -16,7 +16,6 @@
 #import "FBXCElementSnapshotWrapper.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBCaching.h"
-#import "XCUIElement+FBTap.h"
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCodeCompatibility.h"
 
@@ -72,7 +71,7 @@
 // There is no possibility to open the keyboard by tapping a field in TvOS
 #if !TARGET_OS_TV
   [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", snapshot.fb_description];
-  [self fb_tapWithError:nil];
+  [self tap];
   // It might take some time to update the UI
   [self fb_takeSnapshot];
 #endif
