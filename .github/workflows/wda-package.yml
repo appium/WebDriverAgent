@@ -88,7 +88,7 @@ jobs:
           TARGET: ${{ matrix.target }}
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
           ARCHS: ${{ matrix.arch }}
-          ZIP_PKG_NAME: "WebDriverAgentRunner_${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
+          ZIP_PKG_NAME: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
       - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
