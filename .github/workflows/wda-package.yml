@@ -61,13 +61,15 @@ jobs:
         with:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
-  for_simulator_devices_ios:
+  for_simulator_devices:
     needs: [host_machine]
-    name: Build WDA for iOS simulators
+    name: Build WDA for ${{ matrix.target }} simulators
     runs-on: ${{ needs.host_machine.outputs.host }}
 
     strategy:
       matrix:
+        # '' is for iOS
+        target: ['', '_tvOS']
         arch: [x86_64, arm64]
     steps:
       - name: Checkout
@@ -75,40 +77,14 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "${{ env.XCODE_VERSION }}"
-      - name: Create a zip of iOS for simulator for ${{ matrix.arch }}
+      - name: Create a zip of WebDriverAgentRunner${{ matrix.target }} for simulator for ${{ matrix.arch }}
         run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          SCHEME: WebDriverAgentRunner
-          DESTINATION: "${{ env.DESTINATION_SIM_IOS }}"
+          SCHEME: WebDriverAgentRunner${{ matrix.target }}
+          DESTINATION: "${{ env.DESTINATION_SIM_${{ matrix.target }} }}"
           ARCHS: ${{ matrix.arch }}
-          ZIP_PKG_NAME: "WebDriverAgentRunner-Build-Sim-${{ matrix.arch }}.zip"
-      - name: Upload the built generic app package for iOS Simulator for ${{ matrix.arch }}
+          ZIP_PKG_NAME: "WebDriverAgentRunner_${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
+      - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
         uses: actions/upload-artifact@v3.1.0
         with:
-          path: "WebDriverAgentRunner-Build-Sim-${{ matrix.arch }}.zip"
-
-  for_simulator_devices_tvos:
-    needs: [host_machine]
-    name: Build WDA for tvOS simulators
-    runs-on: ${{ needs.host_machine.outputs.host }}
-
-    strategy:
-      matrix:
-        arch: [x86_64, arm64]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: "${{ env.XCODE_VERSION }}"
-      - name: Create a zip of tvOS for simulator for ${{ matrix.arch }}
-        run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-        env:
-          SCHEME: WebDriverAgentRunner_tvOS
-          DESTINATION: "${{ env.DESTINATION_SIM_TVOS }}"
-          ARCHS: ${{ matrix.arch }}
-          ZIP_PKG_NAME: "WebDriverAgentRunner_tvOS-Build-Sim-${{ matrix.arch }}.zip"
-      - name: Upload the built generic app package for tvOS Simulator for ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          path: "WebDriverAgentRunner_tvOS-Build-Sim-${{ matrix.arch }}.zip"
+          path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
