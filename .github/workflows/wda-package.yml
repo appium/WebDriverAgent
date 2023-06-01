@@ -6,8 +6,8 @@ on:
 env:
   HOST: macos-12
   XCODE_VERSION: 14.2
-  DESTINATION_SIM_IOS: platform=iOS Simulator,name=iPhone 14 Pro
-  DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV
+  DESTINATION_SIM: platform=iOS Simulator,name=iPhone 14 Pro
+  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV
 
 jobs:
   host_machine:
@@ -79,11 +79,7 @@ jobs:
           xcode-version: "${{ env.XCODE_VERSION }}"
       - name: Create a zip of WebDriverAgentRunner${{ matrix.target }} for simulator for ${{ matrix.arch }}
         run: |
-          if [[ $TARGET == '_tvOS' ]]; then
-            DESTINATION=$DESTINATION_SIM_TVOS sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-          else
-            DESTINATION=$DESTINATION_SIM_IOS sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-          fi
+          DESTINATION=$DESTINATION_SIM${{ matrix.target }} sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
           TARGET: ${{ matrix.target }}
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
