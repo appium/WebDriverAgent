@@ -51,7 +51,6 @@
 - (void)reportMeasurements:(id)arg1 forMetricID:(id)arg2 reportFailures:(BOOL)arg3;
 - (void)_recordValues:(id)arg1 forPerformanceMetricID:(id)arg2 name:(id)arg3 unitsOfMeasurement:(id)arg4 baselineName:(id)arg5 baselineAverage:(id)arg6 maxPercentRegression:(id)arg7 maxPercentRelativeStandardDeviation:(id)arg8 maxRegression:(id)arg9 maxStandardDeviation:(id)arg10 file:(id)arg11 line:(unsigned long long)arg12;
 - (id)_symbolicationRecordForTestCodeInAddressStack:(id)arg1;
-- (void)measureBlock:(CDUnknownBlockType)arg1;
 - (void)stopMeasuring;
 - (void)startMeasuring;
 - (BOOL)_isMeasuringMetrics;
