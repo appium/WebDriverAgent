@@ -68,7 +68,7 @@
     "appium-xcode": "^5.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "conventional-changelog-conventionalcommits": "^6.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.5.0",
     "glob": "^8.0.1",
