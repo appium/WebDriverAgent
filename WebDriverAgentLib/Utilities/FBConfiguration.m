@@ -94,6 +94,16 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"DisableScreenshots"];
 }
 
++ (void)disableScreenRecordings
+{
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"DisableDiagnosticScreenRecordings"];
+}
+
++ (void)enableScreenRecordings
+{
+  [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"DisableDiagnosticScreenRecordings"];
+}
+
 + (NSRange)bindingPortRange
 {
   // 'WebDriverAgent --port 8080' can be passed via the arguments to the process

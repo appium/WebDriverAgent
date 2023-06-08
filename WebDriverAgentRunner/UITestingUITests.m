@@ -26,6 +26,11 @@
   [FBConfiguration disableRemoteQueryEvaluation];
   [FBConfiguration configureDefaultKeyboardPreferences];
   [FBConfiguration disableApplicationUIInterruptionsHandling];
+  if (NSProcessInfo.processInfo.environment[@"ENABLE_AUTOMATIC_SCREEN_RECORDINGS"]) {
+    [FBConfiguration enableScreenRecordings];
+  } else {
+    [FBConfiguration disableScreenRecordings];
+  }
   if (NSProcessInfo.processInfo.environment[@"ENABLE_AUTOMATIC_SCREENSHOTS"]) {
     [FBConfiguration enableScreenshots];
   } else {
