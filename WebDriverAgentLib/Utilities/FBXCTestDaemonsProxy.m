@@ -100,13 +100,12 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record error:(NSError *__autoreleasing*)error
 {
-  __block BOOL didSucceed = NO;
+  __block NSError *innerError = nil;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     void (^errorHandler)(NSError *) = ^(NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
+      if (nil != invokeError) {
+        innerError = invokeError;
       }
-      didSucceed = (invokeError == nil);
       completion();
     };
 
@@ -117,31 +116,40 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
       handlerBlock(record, invokeError);
     }];
   }];
-  return didSucceed;
+  if (nil != innerError) {
+    if (error) {
+      *error = innerError;
+    }
+    return NO;
+  }
+  return YES;
 }
 
 + (BOOL)openURL:(NSURL *)url usingApplication:(NSString *)bundleId error:(NSError *__autoreleasing*)error
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openURL:usingApplication:completion:)]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs with given application"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs with given application"]
+     buildError:error];
     return NO;
   }
 
+  __block NSError *innerError = nil;
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     [session openURL:url usingApplication:bundleId completion:^(bool result, NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
+      if (nil != invokeError) {
+        innerError = invokeError;
+      } else {
+        didSucceed = result;
       }
-      didSucceed = invokeError == nil && result;
       completion();
     }];
   }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
   return didSucceed;
 }
 
@@ -149,24 +157,27 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openDefaultApplicationForURL:completion:)]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+     buildError:error];
     return NO;
   }
 
+  __block NSError *innerError = nil;
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     [session openDefaultApplicationForURL:url completion:^(bool result, NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
+      if (nil != invokeError) {
+        innerError = invokeError;
+      } else {
+        didSucceed = result;
       }
-      didSucceed = invokeError == nil && result;
       completion();
     }];
   }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
   return didSucceed;
 }
 
@@ -175,32 +186,33 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(setSimulatedLocation:completion:)]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+     buildError:error];
     return NO;
   }
   if (![session supportsLocationSimulation]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"Your device does not support location simulation"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"Your device does not support location simulation"]
+     buildError:error];
     return NO;
   }
 
+  __block NSError *innerError = nil;
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     [session setSimulatedLocation:location completion:^(bool result, NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
+      if (nil != invokeError) {
+        innerError = invokeError;
+      } else {
+        didSucceed = result;
       }
-      didSucceed = invokeError == nil && result;
       completion();
     }];
   }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
   return didSucceed;
 }
 
@@ -208,34 +220,33 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(getSimulatedLocationWithReply:)]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
+     buildError:error];
     return nil;
   }
   if (![session supportsLocationSimulation]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
-        withDescriptionFormat:@"Your device does not support location simulation"]
-       buildError:error];
-    }
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"Your device does not support location simulation"]
+     buildError:error];
     return nil;
   }
 
+  __block NSError *innerError = nil;
   __block CLLocation *location = nil;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     [session getSimulatedLocationWithReply:^(CLLocation *reply, NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
-      }
-      if (nil == invokeError) {
+      if (nil != invokeError) {
+        innerError = invokeError;
+      } else {
         location = reply;
       }
       completion();
     }];
   }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
   return location;
 }
 
@@ -259,16 +270,21 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
     return NO;
   }
 
+  __block NSError *innerError = nil;
   __block BOOL didSucceed = NO;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     [session clearSimulatedLocationWithReply:^(bool result, NSError *invokeError) {
-      if (error) {
-        *error = invokeError;
+      if (nil != invokeError) {
+        innerError = invokeError;
+      } else {
+        didSucceed = result;
       }
-      didSucceed = invokeError == nil && result;
       completion();
     }];
   }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
   return didSucceed;
 }
 #endif
