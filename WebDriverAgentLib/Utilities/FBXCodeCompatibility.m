@@ -123,12 +123,16 @@ NSInteger FBTestmanagerdVersion(void)
   static NSInteger testmanagerdVersion;
   dispatch_once(&getTestmanagerdVersion, ^{
     id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [proxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
-      testmanagerdVersion = (NSInteger) code;
-      dispatch_semaphore_signal(sem);
-    }];
-    dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)));
+    if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_exchangeProtocolVersion:reply:)]) {
+      [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+        [proxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
+          testmanagerdVersion = (NSInteger) code;
+          completion();
+        }];
+      }];
+    } else {
+      testmanagerdVersion = 0xFFFF;
+    }
   });
   return testmanagerdVersion;
 }
