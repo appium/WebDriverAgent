@@ -58,6 +58,7 @@
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
+    [[FBRoute POST:@"/wda/performAccessibilityAudit"] respondWithTarget:self action:@selector(handlePerformAccessibilityAudit:)],
     [[FBRoute POST:@"/wda/performIoHidEvent"] respondWithTarget:self action:@selector(handlePeformIOHIDEvent:)],
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
@@ -543,5 +544,24 @@
   return FBResponseWithOK();
 }
 #endif
+
++ (id<FBResponsePayload>)handlePerformAccessibilityAudit:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSArray *requestedTypes = request.arguments[@"auditTypes"];
+  NSMutableSet *typesSet = [NSMutableSet set];
+  if (nil == requestedTypes || 0 == [requestedTypes count]) {
+    [typesSet addObject:@"XCUIAccessibilityAuditTypeAll"];
+  } else {
+    [typesSet addObjectsFromArray:requestedTypes];
+  }
+  NSArray *result = [request.session.activeApplication fb_performAccessibilityAuditWithAuditTypesSet:typesSet.copy
+                                                                                               error:&error];
+  if (nil == result) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithObject(result);
+}
 
 @end

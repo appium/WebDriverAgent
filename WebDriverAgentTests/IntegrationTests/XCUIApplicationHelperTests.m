@@ -14,6 +14,7 @@
 #import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBElement.h"
+#import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -92,6 +93,26 @@
 - (void)testTestmanagerdVersion
 {
   XCTAssertGreaterThan(FBTestmanagerdVersion(), 0);
+}
+
+- (void)testAccessbilityAudit
+{
+  if (SYSTEM_VERSION_LESS_THAN(@"17.0")) {
+    return;
+  }
+
+  NSError *error;
+  NSArray *auditIssues1 = [FBApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypes:~0UL
+                                                                                                   error:&error];
+  XCTAssertNotNil(auditIssues1);
+  XCTAssertNil(error);
+
+  NSMutableSet *set = [NSMutableSet new];
+  [set addObject:@"XCUIAccessibilityAuditTypeAll"];
+  NSArray *auditIssues2 = [FBApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypesSet:set.copy
+                                                                                                      error:&error];
+  XCTAssertEqualObjects(auditIssues1, auditIssues2);
+  XCTAssertNil(error);
 }
 
 @end

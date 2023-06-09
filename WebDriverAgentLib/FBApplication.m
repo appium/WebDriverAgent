@@ -11,6 +11,7 @@
 
 #import "FBXCAccessibilityElement.h"
 #import "FBLogger.h"
+#import "FBExceptions.h"
 #import "FBRunLoopSpinner.h"
 #import "FBMacros.h"
 #import "FBActiveAppDetectionPoint.h"

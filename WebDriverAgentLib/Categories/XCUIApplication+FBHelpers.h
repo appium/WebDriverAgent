@@ -103,6 +103,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_dismissKeyboardWithKeyNames:(nullable NSArray<NSString *> *)keyNames
                                  error:(NSError **)error;
 
+/**
+ A wrapper over https://developer.apple.com/documentation/xctest/xcuiapplication/4190847-performaccessibilityauditwithaud?language=objc
+
+ @param auditTypes Combination of https://developer.apple.com/documentation/xctest/xcuiaccessibilityaudittype?language=objc
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return List of found issues or nil if there was a failure
+ */
+- (nullable NSArray<NSDictionary<NSString *, NSString*> *> *)fb_performAccessibilityAuditWithAuditTypesSet:(NSSet<NSString *> *)auditTypes
+                                                                                                     error:(NSError **)error;
+
+/**
+ A wrapper over https://developer.apple.com/documentation/xctest/xcuiapplication/4190847-performaccessibilityauditwithaud?language=objc
+
+ @param auditTypes Combination of https://developer.apple.com/documentation/xctest/xcuiaccessibilityaudittype?language=objc
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return List of found issues or nil if there was a failure
+ */
+- (nullable NSArray<NSDictionary<NSString *, NSString*> *> *)fb_performAccessibilityAuditWithAuditTypes:(uint64_t)auditTypes
+                                                                                                  error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

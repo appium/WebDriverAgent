@@ -12,6 +12,7 @@
 #import "FBElementTypeTransformer.h"
 #import "FBKeyboard.h"
 #import "FBLogger.h"
+#import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBActiveAppDetectionPoint.h"
@@ -32,6 +33,54 @@
 #import "XCTRunnerDaemonSession.h"
 
 static NSString* const FBUnknownBundleId = @"unknown";
+
+_Nullable id extractIssueProperty(id issue, NSString *propertyName) {
+  SEL selector = NSSelectorFromString(propertyName);
+  NSMethodSignature *methodSignature = [issue methodSignatureForSelector:selector];
+  if (nil == methodSignature) {
+    return nil;
+  }
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+  [invocation setSelector:selector];
+  [invocation invokeWithTarget:issue];
+  id __unsafe_unretained result;
+  [invocation getReturnValue:&result];
+  return result;
+}
+
+NSDictionary<NSString *, NSNumber *> *auditTypeNamesToValues(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    // https://developer.apple.com/documentation/xctest/xcuiaccessibilityaudittype?language=objc
+    result = @{
+      @"XCUIAccessibilityAuditTypeAction": @(1UL << 32),
+      @"XCUIAccessibilityAuditTypeAll": @(~0UL),
+      @"XCUIAccessibilityAuditTypeContrast": @(1UL << 0),
+      @"XCUIAccessibilityAuditTypeDynamicType": @(1UL << 16),
+      @"XCUIAccessibilityAuditTypeElementDetection": @(1UL << 1),
+      @"XCUIAccessibilityAuditTypeHitRegion": @(1UL << 2),
+      @"XCUIAccessibilityAuditTypeParentChild": @(1UL << 33),
+      @"XCUIAccessibilityAuditTypeSufficientElementDescription": @(1UL << 3),
+      @"XCUIAccessibilityAuditTypeTextClipped": @(1UL << 17),
+      @"XCUIAccessibilityAuditTypeTrait": @(1UL << 18),
+    };
+  });
+  return result;
+}
+
+NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary *inverted = [NSMutableDictionary new];
+    [auditTypeNamesToValues() enumerateKeysAndObjectsUsingBlock:^(NSString* key, NSNumber *value, BOOL *stop) {
+      inverted[value] = key;
+    }];
+    result = inverted.copy;
+  });
+  return result;
+}
 
 
 @implementation XCUIApplication (FBHelpers)
@@ -279,6 +328,61 @@ static NSString* const FBUnknownBundleId = @"unknown";
            timeoutErrorMessage:errorDescription]
           spinUntilTrue:isKeyboardInvisible
           error:error];
+}
+
+- (NSArray<NSDictionary<NSString *, NSString*> *> *)fb_performAccessibilityAuditWithAuditTypesSet:(NSSet<NSString *> *)auditTypes
+                                                                                            error:(NSError **)error;
+{
+  uint64_t numTypes = 0;
+  NSDictionary *namesMap = auditTypeNamesToValues();
+  for (NSString *value in auditTypes) {
+    NSNumber *typeValue = namesMap[value];
+    if (nil == typeValue) {
+      NSString *reason = [NSString stringWithFormat:@"Audit type value '%@' is not known. Only the following audit types are supported: %@", value, namesMap.allKeys];
+      @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:@{}];
+    }
+    numTypes |= [typeValue unsignedLongLongValue];
+  }
+  return [self fb_performAccessibilityAuditWithAuditTypes:numTypes error:error];
+}
+
+- (NSArray<NSDictionary<NSString *, NSString*> *> *)fb_performAccessibilityAuditWithAuditTypes:(uint64_t)auditTypes
+                                                                                         error:(NSError **)error;
+{
+  SEL selector = NSSelectorFromString(@"performAccessibilityAuditWithAuditTypes:issueHandler:error:");
+  if (![self respondsToSelector:selector]) {
+    [[[FBErrorBuilder alloc]
+      withDescription:@"Accessibility audit is only supported since iOS 17/Xcode 15"]
+     buildError:error];
+    return nil;
+  }
+
+  NSMutableArray<NSDictionary *> *resultArray = [NSMutableArray array];
+  NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+  [invocation setSelector:selector];
+  [invocation setArgument:&auditTypes atIndex:2];
+  BOOL (^issueHandler)(id) = ^BOOL(id issue) {
+    NSString *auditType = @"";
+    NSDictionary *valuesToNamesMap = auditTypeValuesToNames();
+    NSNumber *auditTypeValue = [issue valueForKey:@"auditType"];
+    if (nil != auditTypeValue) {
+      auditType = valuesToNamesMap[auditTypeValue] ?: [auditTypeValue stringValue];
+    }
+    [resultArray addObject:@{
+      @"detailedDescription": extractIssueProperty(issue, @"detailedDescription") ?: @"",
+      @"compactDescription": extractIssueProperty(issue, @"compactDescription") ?: @"",
+      @"auditType": auditType,
+      @"element": [extractIssueProperty(issue, @"element") description] ?: @"",
+    }];
+    return YES;
+  };
+  [invocation setArgument:&issueHandler atIndex:3];
+  [invocation setArgument:&error atIndex:4];
+  [invocation invokeWithTarget:self];
+  BOOL isSuccessful;
+  [invocation getReturnValue:&isSuccessful];
+  return isSuccessful ? resultArray.copy : nil;
 }
 
 @end
