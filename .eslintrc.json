@@ -9,7 +9,14 @@
       }
     },
     {
-      "files": "Scripts/**/*",
+      "files": "Scripts/**/*.js",
+      "parserOptions": {"sourceType": "script"},
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": "ci-jobs/scripts/*.js",
       "parserOptions": {"sourceType": "script"},
       "rules": {
         "@typescript-eslint/no-var-requires": "off"
