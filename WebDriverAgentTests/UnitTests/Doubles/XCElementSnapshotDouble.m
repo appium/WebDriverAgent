@@ -11,6 +11,7 @@
 
 #import "FBXCAccessibilityElement.h"
 #import "FBXCElementSnapshot.h"
+#import "XCUIHitPointResult.h"
 
 @implementation XCElementSnapshotDouble
 
@@ -85,6 +86,11 @@
 - (id<FBXCElementSnapshot>)parent
 {
   return nil;
+}
+
+- (XCUIHitPointResult *)hitPoint:(NSError **)error
+{
+  return [[XCUIHitPointResult alloc] initWithHitPoint:CGPointZero hittable:YES];
 }
 
 - (NSArray *)children

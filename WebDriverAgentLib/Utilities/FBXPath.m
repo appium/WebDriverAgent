@@ -12,6 +12,7 @@
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
 #import "FBLogger.h"
+#import "FBMacros.h"
 #import "FBXMLGenerationOptions.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "NSString+FBXMLSafeString.h"
@@ -493,8 +494,6 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 }
 
 @end
-
-#define FBBoolToString(b) ((b) ? @"true" : @"false")
 
 @implementation FBTypeAttribute
 
