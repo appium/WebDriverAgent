@@ -20,6 +20,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBElementUtils.h"
 #import "XCTestPrivateSymbols.h"
+#import "XCUIHitPointResult.h"
 
 #define BROKEN_RECT CGRectMake(-1, -1, 0, 0)
 
@@ -228,7 +229,8 @@
 
 - (BOOL)isWDHittable
 {
-  return [self hitPoint:nil] != nil;
+  XCUIHitPointResult *result = [self hitPoint:nil];
+  return result.hittable;
 }
 
 - (NSDictionary *)wdRect
