@@ -32,6 +32,8 @@
 @property (nonatomic, readwrite) NSUInteger wdIndex;
 @property (nonatomic, readwrite, getter=isWDVisible) BOOL wdVisible;
 @property (nonatomic, readwrite, getter=isWDAccessible) BOOL wdAccessible;
+@property (nonatomic, readwrite, getter = isWDFocused) BOOL wdFocused;
+@property (nonatomic, readwrite, getter = isWDHittable) BOOL wdHittable;
 @property (copy, nonnull) NSArray *children;
 @property (nonatomic, readwrite, assign) XCUIElementType elementType;
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;

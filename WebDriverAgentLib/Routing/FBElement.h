@@ -56,6 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Whether element is focused */
 @property (nonatomic, readonly, getter = isWDFocused) BOOL wdFocused;
 
+/*! Whether element is hittable */
+@property (nonatomic, readonly, getter = isWDHittable) BOOL wdHittable;
+
 /*! Element's index relatively to its parent. Starts from zero */
 @property (nonatomic, readonly) NSUInteger wdIndex;
 

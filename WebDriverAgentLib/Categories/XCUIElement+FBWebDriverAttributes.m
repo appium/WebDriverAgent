@@ -226,6 +226,11 @@
   return 0;
 }
 
+- (BOOL)isWDHittable
+{
+  return [self hitPoint:nil] != nil;
+}
+
 - (NSDictionary *)wdRect
 {
   CGRect frame = self.wdFrame;

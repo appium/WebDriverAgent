@@ -27,6 +27,8 @@
     self.wdAccessible = YES;
     self.wdEnabled = YES;
     self.wdSelected = YES;
+    self.wdFocused = YES;
+    self.wdHittable = YES;
     self.wdIndex = 0;
 #if TARGET_OS_TV
     self.wdFocused = YES;
