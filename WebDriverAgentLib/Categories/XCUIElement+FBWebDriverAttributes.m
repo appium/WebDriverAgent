@@ -230,7 +230,7 @@
 - (BOOL)isWDHittable
 {
   XCUIHitPointResult *result = [self hitPoint:nil];
-  return result.hittable;
+  return nil == result ? NO : result.hittable;
 }
 
 - (NSDictionary *)wdRect
