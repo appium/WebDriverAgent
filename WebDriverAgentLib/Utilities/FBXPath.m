@@ -87,6 +87,10 @@
 
 @end
 
+@interface FBHittableAttribute : FBElementAttribute
+
+@end
+
 @interface FBInternalIndexAttribute : FBElementAttribute
 
 @property (nonatomic, nonnull, readonly) NSString* indexValue;
@@ -273,6 +277,9 @@ static NSString *const topNodeIndexPath = @"top";
   NSMutableSet<Class> *includedAttributes;
   if (nil == query) {
     includedAttributes = [NSMutableSet setWithArray:FBElementAttribute.supportedAttributes];
+    // The hittable attribute is expensive to calculate for each snapshot item
+    // thus we only include it when requested by an xPath query
+    [includedAttributes removeObject:FBHittableAttribute.class];
     if (nil != excludedAttributes) {
       for (NSString *excludedAttributeName in excludedAttributes) {
         for (Class supportedAttribute in FBElementAttribute.supportedAttributes) {
@@ -481,10 +488,13 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBWidthAttribute.class,
            FBHeightAttribute.class,
            FBIndexAttribute.class,
+           FBHittableAttribute.class,
           ];
 }
 
 @end
+
+#define FBBoolToString(b) ((b) ? @"true" : @"false")
 
 @implementation FBTypeAttribute
 
@@ -557,7 +567,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return element.wdEnabled ? @"true" : @"false";
+  return FBBoolToString(element.wdEnabled);
 }
 
 @end
@@ -571,7 +581,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return element.wdVisible ? @"true" : @"false";
+  return FBBoolToString(element.wdVisible);
 }
 
 @end
@@ -585,7 +595,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return element.wdAccessible ? @"true" : @"false";
+  return FBBoolToString(element.wdAccessible);
 }
 
 @end
@@ -601,7 +611,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return element.wdFocused ? @"true" : @"false";
+  return FBBoolToString(element.wdFocused);
 }
 
 @end
@@ -663,6 +673,20 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 + (NSString *)valueForElement:(id<FBElement>)element
 {
   return [NSString stringWithFormat:@"%lu", element.wdIndex];
+}
+
+@end
+
+@implementation FBHittableAttribute
+
++ (NSString *)name
+{
+  return @"hittable";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return FBBoolToString(element.wdHittable);
 }
 
 @end
