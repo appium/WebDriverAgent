@@ -307,6 +307,8 @@
 		648C10B022AAAE4000B81B9A /* TIPreferencesController.h in Headers */ = {isa = PBXBuildFile; fileRef = 648C10AE22AAAE4000B81B9A /* TIPreferencesController.h */; };
 		6496A5D9230D6EB30087F8CB /* AXSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 6496A5D8230D6EB30087F8CB /* AXSettings.h */; };
 		6496A5DA230D6EB30087F8CB /* AXSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 6496A5D8230D6EB30087F8CB /* AXSettings.h */; };
+		649ACBE42ABD09210062C33F /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
+		649ACBE52ABD09320062C33F /* NSDictionary+FBUtf8SafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */; };
 		64B264FE228C50E0002A5025 /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B264F3228C5098002A5025 /* FBTVNavigationTrackerTests.m */; };
 		64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B26507228C5514002A5025 /* XCUIElementDouble.m */; };
@@ -2382,6 +2384,7 @@
 				641EE6A62240C5CA00173FCB /* FBImageIOScaler.h in Headers */,
 				641EE6A72240C5CA00173FCB /* FBSession-Private.h in Headers */,
 				641EE6A82240C5CA00173FCB /* NSString+FBXMLSafeString.h in Headers */,
+				649ACBE42ABD09210062C33F /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6A92240C5CA00173FCB /* FBCommandStatus.h in Headers */,
 				71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */,
 				71822741258744BB00661B83 /* HTTPLogging.h in Headers */,
@@ -2414,7 +2417,6 @@
 				641EE6C02240C5CA00173FCB /* XCUIApplication+FBHelpers.h in Headers */,
 				641EE6C12240C5CA00173FCB /* _XCTestObservationCenterImplementation.h in Headers */,
 				714EAA0E2673FDFE005C5B47 /* FBCapabilities.h in Headers */,
-				716F0DA22A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6C22240C5CA00173FCB /* XCUIDevice+FBHelpers.h in Headers */,
 				71D3B3D6267FC7260076473D /* XCUIElement+FBResolve.h in Headers */,
 				641EE6C32240C5CA00173FCB /* FBClassChainQueryParser.h in Headers */,
@@ -3049,7 +3051,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				649ACBE32ABD08400062C33F /* NSDictionary+FBUtf8SafeDictionary.h in Sources */,
+				649ACBE52ABD09320062C33F /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				E444DCBC24917A5E0060D7EB /* HTTPResponseProxy.m in Sources */,
 				71D3B3D8267FC7260076473D /* XCUIElement+FBResolve.m in Sources */,
@@ -3118,7 +3120,6 @@
 				641EE5FF2240C5CA00173FCB /* XCUIElement+FBForceTouch.m in Sources */,
 				716C9E0327315EFF005AD475 /* XCUIApplication+FBUIInterruptions.m in Sources */,
 				641EE6002240C5CA00173FCB /* FBTouchActionCommands.m in Sources */,
-				716F0DA42A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				719DCF182601EAFB000E765F /* FBNotificationsHelper.m in Sources */,
 				714EAA102673FDFE005C5B47 /* FBCapabilities.m in Sources */,
 				641EE6012240C5CA00173FCB /* FBImageIOScaler.m in Sources */,
@@ -3173,7 +3174,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */,
-				716F0DA72A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m in Sources */,
 				64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
