@@ -421,6 +421,8 @@
 + (NSDictionary *)currentCapabilities
 {
   FBApplication *application = [FBSession activeSession].activeApplication;
+  // to log the info in the system
+  [FBLogger logFmt:@"Current active application bundle id is %@", application.bundleID];
   return
   @{
     @"device": ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) ? @"ipad" : @"iphone",
