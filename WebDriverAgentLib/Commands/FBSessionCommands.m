@@ -258,7 +258,7 @@
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null]
         },
       @"build" : buildInfo.copy,
-      @"device": [self.class deviceName:[UIDevice currentDevice].userInterfaceIdiom]
+      @"device": [self.class deviceNameByUserInterfaceIdiom:[UIDevice currentDevice].userInterfaceIdiom]
     }
   );
 }
@@ -422,7 +422,7 @@
 /*
  Return the device kind as lower case
 */
-+ (NSString *)deviceName:(UIUserInterfaceIdiom) userInterfaceIdiom
++ (NSString *)deviceNameByUserInterfaceIdiom:(UIUserInterfaceIdiom) userInterfaceIdiom
 {
   if (userInterfaceIdiom == UIUserInterfaceIdiomPad) {
     return @"ipad";
@@ -441,7 +441,7 @@
   FBApplication *application = [FBSession activeSession].activeApplication;
   return
   @{
-    @"device": [self.class deviceName:[UIDevice currentDevice].userInterfaceIdiom],
+    @"device": [self.class deviceNameByUserInterfaceIdiom:[UIDevice currentDevice].userInterfaceIdiom],
     @"sdkVersion": [[UIDevice currentDevice] systemVersion],
     @"browserName": application.label ?: [NSNull null],
     @"CFBundleIdentifier": application.bundleID ?: [NSNull null],
