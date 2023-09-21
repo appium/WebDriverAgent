@@ -419,13 +419,13 @@
   };
 }
 
-+ (NSString *)deviceName:(UIUserInterfaceIdiom) currentDevice
++ (NSString *)deviceName:(UIUserInterfaceIdiom) userInterfaceIdiom
 {
-  if (currentDevice == UIUserInterfaceIdiomPad) {
+  if (userInterfaceIdiom == UIUserInterfaceIdiomPad) {
     return @"iPad";
-  } else if (currentDevice == UIUserInterfaceIdiomTV) {
+  } else if (userInterfaceIdiom == UIUserInterfaceIdiomTV) {
     return @"Apple TV";
-  } else if (currentDevice == UIUserInterfaceIdiomPhone) {
+  } else if (userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
     return @"iPhone";
   }
   // CarPlay, Mac, Vision UI or unknown are possible
