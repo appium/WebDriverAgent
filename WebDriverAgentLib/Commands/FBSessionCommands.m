@@ -419,14 +419,17 @@
   };
 }
 
+/*
+ Return the device kind as lower case
+*/
 + (NSString *)deviceName:(UIUserInterfaceIdiom) userInterfaceIdiom
 {
   if (userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-    return @"iPad";
+    return @"ipad";
   } else if (userInterfaceIdiom == UIUserInterfaceIdiomTV) {
-    return @"Apple TV";
+    return @"apple tv";
   } else if (userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-    return @"iPhone";
+    return @"iphone";
   }
   // CarPlay, Mac, Vision UI or unknown are possible
   return @"Unknown";
