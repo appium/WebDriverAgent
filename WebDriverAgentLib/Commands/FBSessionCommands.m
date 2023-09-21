@@ -257,7 +257,8 @@
 #endif
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null]
         },
-      @"build" : buildInfo.copy
+      @"build" : buildInfo.copy,
+      @"device": [self.class deviceName:[UIDevice currentDevice].userInterfaceIdiom]
     }
   );
 }
@@ -418,12 +419,26 @@
   };
 }
 
++ (NSString *)deviceName:(UIUserInterfaceIdiom) currentDevice
+{
+  if (currentDevice == UIUserInterfaceIdiomPad) {
+    return @"iPad";
+  } else if (currentDevice == UIUserInterfaceIdiomTV) {
+    return @"Apple TV";
+  } else if (currentDevice == UIUserInterfaceIdiomPhone) {
+    return @"iPhone";
+  }
+  // CarPlay, Mac, Vision UI or unknown are possible
+  return @"Unknown";
+  
+}
+
 + (NSDictionary *)currentCapabilities
 {
   FBApplication *application = [FBSession activeSession].activeApplication;
   return
   @{
-    @"device": ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) ? @"ipad" : @"iphone",
+    @"device": [self.class deviceName:[UIDevice currentDevice].userInterfaceIdiom],
     @"sdkVersion": [[UIDevice currentDevice] systemVersion],
     @"browserName": application.label ?: [NSNull null],
     @"CFBundleIdentifier": application.bundleID ?: [NSNull null],
