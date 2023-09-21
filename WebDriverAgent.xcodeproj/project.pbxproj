@@ -3049,6 +3049,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				649ACBE32ABD08400062C33F /* NSDictionary+FBUtf8SafeDictionary.h in Sources */,
 				718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				E444DCBC24917A5E0060D7EB /* HTTPResponseProxy.m in Sources */,
 				71D3B3D8267FC7260076473D /* XCUIElement+FBResolve.m in Sources */,
@@ -3614,6 +3615,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3675,6 +3680,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
@@ -3926,6 +3935,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3985,6 +3998,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
