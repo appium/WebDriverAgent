@@ -3503,6 +3503,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4235,6 +4239,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -4282,6 +4290,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
