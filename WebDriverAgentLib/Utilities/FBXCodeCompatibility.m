@@ -23,15 +23,6 @@ NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethod
 
 @implementation XCUIApplication (FBCompatibility)
 
-+ (instancetype)fb_applicationWithPID:(pid_t)processID
-{
-  if (0 == processID) {
-    return nil;
-  }
-
-  return [self applicationWithPID:processID];
-}
-
 - (void)fb_activate
 {
   [self activate];

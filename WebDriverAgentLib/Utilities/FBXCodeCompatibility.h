@@ -36,8 +36,6 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 
 @interface XCUIApplication (FBCompatibility)
 
-+ (nullable instancetype)fb_applicationWithPID:(pid_t)processID;
-
 /**
  Get the state of the application. This method only returns reliable results on Xcode SDK 9+
 

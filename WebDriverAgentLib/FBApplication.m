@@ -44,7 +44,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   NSMutableArray<FBApplication *> *result = [NSMutableArray array];
   if (activeApplicationElements.count > 0) {
     for (id<FBXCAccessibilityElement> applicationElement in activeApplicationElements) {
-      FBApplication *app = [FBApplication fb_applicationWithPID:applicationElement.processIdentifier];
+      FBApplication *app = [FBApplication applicationWithPID:applicationElement.processIdentifier];
       if (nil != app) {
         [result addObject:app];
       }
@@ -107,7 +107,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   }
 
   if (nil != activeApplicationElement) {
-    FBApplication *application = [FBApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
+    FBApplication *application = [FBApplication applicationWithPID:activeApplicationElement.processIdentifier];
     if (nil != application) {
       return application;
     }
@@ -117,7 +117,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
   if (activeApplicationElements.count > 0) {
     [FBLogger logFmt:@"Getting the most recent active application (out of %@ total items)", @(activeApplicationElements.count)];
     for (id<FBXCAccessibilityElement> appElement in activeApplicationElements) {
-      FBApplication *application = [FBApplication fb_applicationWithPID:appElement.processIdentifier];
+      FBApplication *application = [FBApplication applicationWithPID:appElement.processIdentifier];
       if (nil != application) {
         return application;
       }
@@ -130,7 +130,7 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 
 + (instancetype)fb_systemApplication
 {
-  return [self fb_applicationWithPID:
+  return [self applicationWithPID:
    [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
 }
 
