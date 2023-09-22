@@ -412,10 +412,7 @@
 
 /**
  Return current session information.
- This response does not have any active application information
- because getting such information for "com.apple.springboard" (Home application's  budnle id in iOS)
- could be expensive.
- Usually when no bundle id is specified, or no app started, the default view could be the spring board.
+ This response does not have any active application information.
 */
 + (NSDictionary *)sessionInformation
 {
