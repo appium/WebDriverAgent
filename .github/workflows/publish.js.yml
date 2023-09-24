@@ -44,9 +44,15 @@ jobs:
           -scheme WebDriverAgentRunner \
           -destination generic/platform=iOS \
           CODE_SIGNING_ALLOWED=NO ARCHS=arm64
-    - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS
+    - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS after removing test frameworks
       run: |
         pushd appium_wda_ios/Build/Products/Debug-iphoneos
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCTAutomationSupport.framework
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCTest.framework
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCTestCore.framework
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCTestSupport.framework
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCUIAutomation.framework
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XCUnit.framework
         zip -r $ZIP_PKG_NAME_IOS WebDriverAgentRunner-Runner.app
         popd
         mv $PKG_PATH_IOS/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
@@ -61,6 +67,12 @@ jobs:
     - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS
       run: |
         pushd appium_wda_tvos/Build/Products/Debug-appletvos
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCTAutomationSupport.framework
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCTest.framework
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCTestCore.framework
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCTestSupport.framework
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCUIAutomation.framework
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XCUnit.framework
         zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
         popd
         mv $PKG_PATH_TVOS/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
