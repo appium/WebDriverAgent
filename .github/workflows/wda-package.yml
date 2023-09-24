@@ -9,7 +9,7 @@ on:
 
 env:
   HOST: macos-13
-  XCODE_VERSION: 15.0.0
+  XCODE_VERSION: "15.0"
   DESTINATION_SIM: platform=iOS Simulator,name=iPhone 14 Pro
   DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV
 
