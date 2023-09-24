@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-13
 
     env:
-      XCODE_VERSION: 14.3.1
+      XCODE_VERSION: 15.0
       ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
       PKG_PATH_IOS: "appium_wda_ios"
       ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
