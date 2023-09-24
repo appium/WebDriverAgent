@@ -312,6 +312,8 @@
 		64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B26507228C5514002A5025 /* XCUIElementDouble.m */; };
 		64B2650A228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
 		64B2650B228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
+		64E3502E2AC0B6EB005F3ACB /* NSDictionary+FBUtf8SafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */; };
+		64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
 		7119097C2152580600BA3C7E /* XCUIScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 7119097B2152580600BA3C7E /* XCUIScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2382,6 +2384,7 @@
 				641EE6A62240C5CA00173FCB /* FBImageIOScaler.h in Headers */,
 				641EE6A72240C5CA00173FCB /* FBSession-Private.h in Headers */,
 				641EE6A82240C5CA00173FCB /* NSString+FBXMLSafeString.h in Headers */,
+				64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6A92240C5CA00173FCB /* FBCommandStatus.h in Headers */,
 				71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */,
 				71822741258744BB00661B83 /* HTTPLogging.h in Headers */,
@@ -3048,6 +3051,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64E3502E2AC0B6EB005F3ACB /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				E444DCBC24917A5E0060D7EB /* HTTPResponseProxy.m in Sources */,
 				71D3B3D8267FC7260076473D /* XCUIElement+FBResolve.m in Sources */,
