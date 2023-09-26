@@ -1,3 +1,38 @@
+## [5.10.0](https://github.com/appium/WebDriverAgent/compare/v5.9.1...v5.10.0) (2023-09-25)
+
+
+### Features
+
+* remove test frameworks in Frameworks and add device local references as rpath for real devices ([#780](https://github.com/appium/WebDriverAgent/issues/780)) ([ae6c842](https://github.com/appium/WebDriverAgent/commit/ae6c842f3c4e7deb51fcc7a1a1045d4eeede69fd))
+
+## [5.9.1](https://github.com/appium/WebDriverAgent/compare/v5.9.0...v5.9.1) (2023-09-22)
+
+
+### Bug Fixes
+
+* Provide signing arguments as command line parameters ([#779](https://github.com/appium/WebDriverAgent/issues/779)) ([51ba527](https://github.com/appium/WebDriverAgent/commit/51ba527b6cde3773ebcd5323cfa7e0890b2563aa))
+
+## [5.9.0](https://github.com/appium/WebDriverAgent/compare/v5.8.7...v5.9.0) (2023-09-22)
+
+
+### Features
+
+* do not get active process information in a new session request ([#774](https://github.com/appium/WebDriverAgent/issues/774)) ([2784ce4](https://github.com/appium/WebDriverAgent/commit/2784ce440f8b5ab9710db08d9ffda704697ac07c))
+
+## [5.8.7](https://github.com/appium/WebDriverAgent/compare/v5.8.6...v5.8.7) (2023-09-22)
+
+
+### Miscellaneous Chores
+
+* tweak device in currentCapabilities ([#773](https://github.com/appium/WebDriverAgent/issues/773)) ([8481b02](https://github.com/appium/WebDriverAgent/commit/8481b02fc84de1147e1254ea7fd114f8735b0226))
+
+## [5.8.6](https://github.com/appium/WebDriverAgent/compare/v5.8.5...v5.8.6) (2023-09-21)
+
+
+### Miscellaneous Chores
+
+* add log to leave it in the system log ([#772](https://github.com/appium/WebDriverAgent/issues/772)) ([012af21](https://github.com/appium/WebDriverAgent/commit/012af21383829397c7265daa0513829cc4e93aee))
+
 ## [5.8.5](https://github.com/appium/WebDriverAgent/compare/v5.8.4...v5.8.5) (2023-09-15)
 
 

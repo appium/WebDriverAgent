@@ -312,6 +312,8 @@
 		64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B26507228C5514002A5025 /* XCUIElementDouble.m */; };
 		64B2650A228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
 		64B2650B228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
+		64E3502E2AC0B6EB005F3ACB /* NSDictionary+FBUtf8SafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */; };
+		64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
 		7119097C2152580600BA3C7E /* XCUIScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 7119097B2152580600BA3C7E /* XCUIScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2382,6 +2384,7 @@
 				641EE6A62240C5CA00173FCB /* FBImageIOScaler.h in Headers */,
 				641EE6A72240C5CA00173FCB /* FBSession-Private.h in Headers */,
 				641EE6A82240C5CA00173FCB /* NSString+FBXMLSafeString.h in Headers */,
+				64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6A92240C5CA00173FCB /* FBCommandStatus.h in Headers */,
 				71822702258744A400661B83 /* HTTPResponseProxy.h in Headers */,
 				71822741258744BB00661B83 /* HTTPLogging.h in Headers */,
@@ -2414,7 +2417,6 @@
 				641EE6C02240C5CA00173FCB /* XCUIApplication+FBHelpers.h in Headers */,
 				641EE6C12240C5CA00173FCB /* _XCTestObservationCenterImplementation.h in Headers */,
 				714EAA0E2673FDFE005C5B47 /* FBCapabilities.h in Headers */,
-				716F0DA22A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h in Headers */,
 				641EE6C22240C5CA00173FCB /* XCUIDevice+FBHelpers.h in Headers */,
 				71D3B3D6267FC7260076473D /* XCUIElement+FBResolve.h in Headers */,
 				641EE6C32240C5CA00173FCB /* FBClassChainQueryParser.h in Headers */,
@@ -3049,6 +3051,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64E3502E2AC0B6EB005F3ACB /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				718226CF2587443700661B83 /* GCDAsyncSocket.m in Sources */,
 				E444DCBC24917A5E0060D7EB /* HTTPResponseProxy.m in Sources */,
 				71D3B3D8267FC7260076473D /* XCUIElement+FBResolve.m in Sources */,
@@ -3117,7 +3120,6 @@
 				641EE5FF2240C5CA00173FCB /* XCUIElement+FBForceTouch.m in Sources */,
 				716C9E0327315EFF005AD475 /* XCUIApplication+FBUIInterruptions.m in Sources */,
 				641EE6002240C5CA00173FCB /* FBTouchActionCommands.m in Sources */,
-				716F0DA42A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m in Sources */,
 				719DCF182601EAFB000E765F /* FBNotificationsHelper.m in Sources */,
 				714EAA102673FDFE005C5B47 /* FBCapabilities.m in Sources */,
 				641EE6012240C5CA00173FCB /* FBImageIOScaler.m in Sources */,
@@ -3172,7 +3174,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */,
-				716F0DA72A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m in Sources */,
 				64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3496,12 +3497,17 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3551,12 +3557,17 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3603,6 +3614,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
@@ -3614,6 +3626,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3664,6 +3680,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
@@ -3675,6 +3692,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/System/Developer/Library/Frameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/Developer/Library/PrivateFrameworks,
+					/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
@@ -3915,6 +3936,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
@@ -3926,6 +3948,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentLib;
@@ -3974,6 +4000,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(PLATFORM_DIR)/Developer/Library/PrivateFrameworks",
@@ -3985,6 +4012,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
@@ -4212,12 +4243,17 @@
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -4259,12 +4295,17 @@
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
 				CLANG_STATIC_ANALYZER_MODE = deep;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = WebDriverAgentRunner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					/Developer/Library/Frameworks,
+					/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/PrivateFrameworks,
+					/System/Developer/Library/Frameworks,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
