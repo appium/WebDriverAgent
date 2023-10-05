@@ -220,7 +220,12 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     [response respondWithString:@"I-AM-ALIVE"];
   }];
 
-  NSString *calibrationPage = @"<html><header><script>function printMousePos(e){document.getElementById(\"x\").innerHTML=e.clientX,document.getElementById(\"y\").innerHTML=e.clientY}document.addEventListener(\"click\",printMousePos)</script></header><div><p id=x><p id=y></div></html>";
+  NSString *calibrationPage = @"<html>"
+  "<title>{\"x\":null,\"y\":null}</title>"
+  "<header>"
+  "<script>document.addEventListener(\"click\",function(e){document.title=JSON.stringify({x:e.clientX,y:e.clientY})})</script>"
+  "</header>"
+  "</html>";
   [self.server get:@"/calibrate" withBlock:^(RouteRequest *request, RouteResponse *response) {
     [response respondWithString:calibrationPage];
   }];
