@@ -78,7 +78,7 @@
     "chai-as-promised": "^7.1.1",
     "conventional-changelog-conventionalcommits": "^7.0.1",
     "eslint": "^8.46.0",
-    "eslint-config-prettier": "^8.9.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-mocha": "^10.1.0",
