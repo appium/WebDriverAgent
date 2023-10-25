@@ -13,6 +13,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBKeyboard : NSObject
 
+#if !TARGET_OS_TV
+/**
+ Transforms key name to its string representation, which could be used with XCTest
+
+ @param name one of available keyboard key names defined in https://developer.apple.com/documentation/xctest/xcuikeyboardkey?language=objc
+ @return Either the key value or nil if no matches have been found
+ */
++ (nullable NSString *)keyValueForName:(NSString *)name;
+#endif
+
 /**
  Types a string into active element. There must be element with keyboard focus; otherwise an
  error is raised.
