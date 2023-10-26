@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBKeyboard : NSObject
 
-#if !TARGET_OS_TV
+#if (!TARGET_OS_TV && __clang_major__ >= 15)
 /**
  Transforms key name to its string representation, which could be used with XCTest
 

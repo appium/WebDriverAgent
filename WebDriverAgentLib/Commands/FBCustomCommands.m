@@ -70,7 +70,9 @@
     [[FBRoute GET:@"/wda/device/location"] respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute GET:@"/wda/device/location"].withoutSession respondWithTarget:self action:@selector(handleGetLocation:)],
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs
+#if __clang_major__ >= 15
     [[FBRoute POST:@"/wda/element/:uuid/keyboardInput"] respondWithTarget:self action:@selector(handleKeyboardInput:)],
+#endif
     [[FBRoute GET:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleGetSimulatedLocation:)],
     [[FBRoute GET:@"/wda/simulatedLocation"].withoutSession respondWithTarget:self action:@selector(handleGetSimulatedLocation:)],
     [[FBRoute POST:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleSetSimulatedLocation:)],
@@ -545,6 +547,7 @@
   return FBResponseWithOK();
 }
 
+#if __clang_major__ >= 15
 + (id<FBResponsePayload>)handleKeyboardInput:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
@@ -584,6 +587,7 @@
   }
   return FBResponseWithOK();
 }
+#endif
 #endif
 
 + (id<FBResponsePayload>)handlePerformAccessibilityAudit:(FBRouteRequest *)request
