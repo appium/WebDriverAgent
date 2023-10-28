@@ -551,7 +551,7 @@
 + (id<FBResponsePayload>)handleKeyboardInput:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  BOOL hasElement = nil != request.parameters[@"uuid"];
+  BOOL hasElement = ![request.parameters[@"uuid"] isEqual:@"0"];
   XCUIElement *destination = hasElement
     ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]]
     : request.session.activeApplication;
