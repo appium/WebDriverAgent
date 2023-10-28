@@ -556,6 +556,13 @@
     ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]]
     : request.session.activeApplication;
   id keys = request.arguments[@"keys"];
+
+  if (![destination respondsToSelector:@selector(typeKey:modifierFlags:)]) {
+    NSString *message = @"Not supported on this OS version";
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:message
+                                                                            traceback:nil]);
+  }
+
   if (![keys isKindOfClass:NSArray.class]) {
     NSString *message = @"The 'keys' argument must be an array";
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message
