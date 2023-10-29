@@ -558,7 +558,7 @@
   id keys = request.arguments[@"keys"];
 
   if (![destination respondsToSelector:@selector(typeKey:modifierFlags:)]) {
-    NSString *message = @"Not supported on this OS version";
+    NSString *message = @"typeKey API is only supported since Xcode15 and iPadOS 17";
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:message
                                                                             traceback:nil]);
   }
