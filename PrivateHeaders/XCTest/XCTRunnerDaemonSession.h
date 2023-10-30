@@ -34,6 +34,7 @@
 @property unsigned long long daemonProtocolVersion;
 @property(readonly) id <XCTestManager_ManagerInterface> daemonProxy;
 
++ (id)testmanagerdServiceName;
 + (instancetype)sharedSession;
 
 - (void)injectVoiceRecognitionAudioInputPaths:(id)arg1 completion:(CDUnknownBlockType)arg2;

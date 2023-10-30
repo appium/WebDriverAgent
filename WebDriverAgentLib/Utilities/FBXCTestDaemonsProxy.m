@@ -23,6 +23,34 @@
 
 #define LAUNCH_APP_TIMEOUT_SEC 300
 
+@implementation XCTRunnerDaemonSession (Hook)
+
++ (void)initialize {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    Class cls = XCTRunnerDaemonSession.class;
+    SEL originalSelector = @selector(testmanagerdServiceName);
+    SEL swizzledSelector = @selector(hook_testmanagerdServiceName);
+    Method originalMethod = class_getClassMethod(cls, originalSelector);
+    if (originalMethod == NULL) {
+      return;
+    }
+
+    Method swizzledMethod = class_getClassMethod(cls, swizzledSelector);
+    method_exchangeImplementations(originalMethod, swizzledMethod);
+  });
+}
+
++ (id)hook_testmanagerdServiceName {
+  if (@available(iOS 17, *)) {
+    return @"com.apple.dt.testmanagerd.runner";
+  }
+
+  return [self hook_testmanagerdServiceName];
+}
+
+@end
+
 static void (*originalLaunchAppMethod)(id, SEL, NSString*, NSString*, NSArray*, NSDictionary*, void (^)(_Bool, NSError *));
 
 static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundleID,
