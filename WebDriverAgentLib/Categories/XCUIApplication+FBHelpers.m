@@ -374,6 +374,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
       @"compactDescription": extractIssueProperty(issue, @"compactDescription") ?: @"",
       @"auditType": auditType,
       @"element": [extractIssueProperty(issue, @"element") description] ?: @"",
+      @"elementDescription": [extractIssueProperty(issue, @"element") debugDescription] ?: @"",
     }];
     return YES;
   };
