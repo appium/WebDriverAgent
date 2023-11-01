@@ -99,7 +99,7 @@
     "appium-ios-device": "^2.5.0",
     "appium-ios-simulator": "^5.0.1",
     "async-lock": "^1.0.0",
-    "asyncbox": "^2.5.3",
+    "asyncbox": "^3.0.0",
     "axios": "^1.4.0",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
