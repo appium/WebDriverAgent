@@ -20,8 +20,12 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCodeCompatibility.h"
 
-#define MAX_CLEAR_RETRIES 3
 
+#if TARGET_OS_IOS
+#define MAX_CLEAR_RETRIES 3
+#else
+#define MAX_CLEAR_RETRIES 2
+#endif
 
 @interface NSString (FBRepeat)
 
@@ -131,6 +135,12 @@
     return YES;
   }
   
+  NSString *placeholderValue = snapshot.placeholderValue;
+  if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
+    // Short circuit if only the placeholder value left
+    return YES;
+  }
+  
   static NSString *backspaceDeleteSequence;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -139,32 +149,34 @@
   });
   
   NSUInteger retry = 0;
-  NSString *placeholderValue = snapshot.placeholderValue;
   NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
+    NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
+#if TARGET_OS_IOS
+    // the ios needs to have keyboard focus to clear text
     if (shouldPrepareForInput && 0 == retry) {
       [self fb_prepareForTextInputWithSnapshot:snapshot];
     }
-    NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
-#if TARGET_OS_IOS
-    if (retry == MAX_CLEAR_RETRIES - 2) {
+
+    if (retry == 0) {
+      // 1st attempt is via the IOHIDEvent as a fastest operation
       // https://github.com/appium/appium/issues/19389
-      [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07
-                                                        usage:0x9c
-                                                     duration:0.05
+      [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07  // kHIDPage_KeyboardOrKeypad
+                                                        usage:0x9c  // kHIDUsage_KeyboardClear
+                                                     duration:0.01
                                                         error:nil];
     } else if (retry >= MAX_CLEAR_RETRIES - 1) {
       // Last chance retry. Tripple-tap the field to select its content
       [self tapWithNumberOfTaps:3 numberOfTouches:1];
       return [FBKeyboard typeText:backspaceDeleteSequence error:error];
     } else if (![FBKeyboard typeText:backspacesToType error:error]) {
+      // 2nd operation
       return NO;
     }
 #else
+    // tvOS does not need a focus
     if (retry >= MAX_CLEAR_RETRIES - 1) {
-      return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"'%@' cannot be cleared of its text", snapshot.fb_description]
-              buildError:error];
+      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
     } else if (![FBKeyboard typeText:backspacesToType error:error]) {
       return NO;
     }
