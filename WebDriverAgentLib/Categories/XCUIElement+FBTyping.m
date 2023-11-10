@@ -151,7 +151,7 @@
     }
 
     if (retry == 0) {
-      // 1st attempt is via the IOHIDEvent as a fastest operation
+      // 1st attempt is via the IOHIDEvent as the fastest operation
       // https://github.com/appium/appium/issues/19389
       [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07  // kHIDPage_KeyboardOrKeypad
                                                         usage:0x9c  // kHIDUsage_KeyboardClear
