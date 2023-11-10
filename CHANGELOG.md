@@ -1,3 +1,10 @@
+## [5.13.3](https://github.com/appium/WebDriverAgent/compare/v5.13.2...v5.13.3) (2023-11-10)
+
+
+### Bug Fixes
+
+* unrecognized selector sent to instance 0x2829adb20 error in clear ([#809](https://github.com/appium/WebDriverAgent/issues/809)) ([79832bc](https://github.com/appium/WebDriverAgent/commit/79832bc6c69e289091fbbb97aee6a1f1d17ca4c3))
+
 ## [5.13.2](https://github.com/appium/WebDriverAgent/compare/v5.13.1...v5.13.2) (2023-11-06)
 
 

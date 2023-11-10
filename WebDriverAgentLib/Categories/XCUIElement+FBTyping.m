@@ -143,7 +143,12 @@
   do {
     if (retry >= MAX_CLEAR_RETRIES - 1) {
       // Last chance retry. Tripple-tap the field to select its content
-      [self tapWithNumberOfTaps:3 numberOfTouches:1];
+
+      if ([self respondsToSelector:@selector(tapWithNumberOfTaps:numberOfTouches:)]) {
+        // e.g. tvOS 17 raised unrecognized selector error for XCUIElementTypeSearchField
+        // while following typeText worked.
+        [self tapWithNumberOfTaps:3 numberOfTouches:1];
+      }
       return [FBKeyboard typeText:backspaceDeleteSequence error:error];
     }
 
