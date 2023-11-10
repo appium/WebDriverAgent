@@ -135,13 +135,8 @@
     return YES;
   }
   
-  NSString *placeholderValue = snapshot.placeholderValue;
-  if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
-    // Short circuit if only the placeholder value left
-    return YES;
-  }
-  
   static NSString *backspaceDeleteSequence;
+  NSString *placeholderValue = snapshot.placeholderValue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     backspaceDeleteSequence = [[NSString alloc] initWithData:(NSData *)[@"\\u0008\\u007F" dataUsingEncoding:NSASCIIStringEncoding]
