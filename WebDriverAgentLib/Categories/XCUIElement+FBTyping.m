@@ -20,12 +20,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCodeCompatibility.h"
 
-
-#if TARGET_OS_IOS
 #define MAX_CLEAR_RETRIES 3
-#else
-#define MAX_CLEAR_RETRIES 2
-#endif
 
 @interface NSString (FBRepeat)
 
