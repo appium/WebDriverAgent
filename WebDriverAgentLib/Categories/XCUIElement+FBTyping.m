@@ -141,13 +141,14 @@
     backspaceDeleteSequence = [[NSString alloc] initWithData:(NSData *)[@"\\u0008\\u007F" dataUsingEncoding:NSASCIIStringEncoding]
                                                     encoding:NSNonLossyASCIIStringEncoding];
   });
-  
+
+  NSUInteger preClearTextLength = [currentValue fb_visualLength];
+  NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
+
+#if TARGET_OS_IOS
   NSUInteger retry = 0;
   NSString *placeholderValue = snapshot.placeholderValue;
-  NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
-    NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
-#if TARGET_OS_IOS
     // the ios needs to have keyboard focus to clear text
     if (shouldPrepareForInput && 0 == retry) {
       [self fb_prepareForTextInputWithSnapshot:snapshot];
@@ -168,14 +169,6 @@
       // 2nd operation
       return NO;
     }
-#else
-    // tvOS does not need a focus
-    if (retry >= MAX_CLEAR_RETRIES - 1) {
-      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
-    } else if (![FBKeyboard typeText:backspacesToType error:error]) {
-      return NO;
-    }
-#endif
 
     currentValue = self.fb_takeSnapshot.value;
     if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
@@ -187,6 +180,11 @@
     retry++;
   } while (preClearTextLength > 0);
   return YES;
+#else
+  // tvOS does not need a focus.
+  // kHIDPage_KeyboardOrKeypad did not work for tvOS's search field. (tvOS 17 at least)
+  return [FBKeyboard typeText:backspacesToType error:error];
+#endif
 }
 
 @end
