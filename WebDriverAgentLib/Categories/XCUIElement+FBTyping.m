@@ -15,11 +15,12 @@
 #import "NSString+FBVisualLength.h"
 #import "FBXCElementSnapshotWrapper.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
+#import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCodeCompatibility.h"
 
-#define MAX_CLEAR_RETRIES 2
+#define MAX_CLEAR_RETRIES 3
 
 
 @interface NSString (FBRepeat)
@@ -141,24 +142,33 @@
   NSString *placeholderValue = snapshot.placeholderValue;
   NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
-    if (retry >= MAX_CLEAR_RETRIES - 1) {
-      // Last chance retry. Tripple-tap the field to select its content
-
-      if ([self respondsToSelector:@selector(tapWithNumberOfTaps:numberOfTouches:)]) {
-        // e.g. tvOS 17 raised unrecognized selector error for XCUIElementTypeSearchField
-        // while following typeText worked.
-        [self tapWithNumberOfTaps:3 numberOfTouches:1];
-      }
-      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
-    }
-
-    NSString *textToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
     if (shouldPrepareForInput && 0 == retry) {
       [self fb_prepareForTextInputWithSnapshot:snapshot];
     }
-    if (![FBKeyboard typeText:textToType error:error]) {
+    NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
+#if TARGET_OS_IOS
+    if (retry == MAX_CLEAR_RETRIES - 2) {
+      // https://github.com/appium/appium/issues/19389
+      [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07
+                                                        usage:0x9c
+                                                     duration:0.05
+                                                        error:nil];
+    } else if (retry >= MAX_CLEAR_RETRIES - 1) {
+      // Last chance retry. Tripple-tap the field to select its content
+      [self tapWithNumberOfTaps:3 numberOfTouches:1];
+      return [FBKeyboard typeText:backspaceDeleteSequence error:error];
+    } else if (![FBKeyboard typeText:backspacesToType error:error]) {
       return NO;
     }
+#else
+    if (retry >= MAX_CLEAR_RETRIES - 1) {
+      return [[[FBErrorBuilder builder]
+               withDescriptionFormat:@"'%@' cannot be cleared of its text", snapshot.fb_description]
+              buildError:error];
+    } else if (![FBKeyboard typeText:backspacesToType error:error]) {
+      return NO;
+    }
+#endif
 
     currentValue = self.fb_takeSnapshot.value;
     if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
