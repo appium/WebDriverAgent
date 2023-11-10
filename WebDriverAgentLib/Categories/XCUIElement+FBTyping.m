@@ -183,6 +183,8 @@
 #else
   // tvOS does not need a focus.
   // kHIDPage_KeyboardOrKeypad did not work for tvOS's search field. (tvOS 17 at least)
+  // Tested XCUIElementTypeSearchField and XCUIElementTypeTextView whch were
+  // common search field and email/passowrd input in tvOS apps.
   return [FBKeyboard typeText:backspacesToType error:error];
 #endif
 }
