@@ -136,7 +136,6 @@
   }
   
   static NSString *backspaceDeleteSequence;
-  NSString *placeholderValue = snapshot.placeholderValue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     backspaceDeleteSequence = [[NSString alloc] initWithData:(NSData *)[@"\\u0008\\u007F" dataUsingEncoding:NSASCIIStringEncoding]
@@ -144,6 +143,7 @@
   });
   
   NSUInteger retry = 0;
+  NSString *placeholderValue = snapshot.placeholderValue;
   NSUInteger preClearTextLength = [currentValue fb_visualLength];
   do {
     NSString *backspacesToType = [backspaceDeleteSequence fb_repeatTimes:preClearTextLength];
