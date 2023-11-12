@@ -13,7 +13,7 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
-#import "FBImageIOScaler.h"
+#import "FBImageProcessor.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
@@ -94,7 +94,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
   if (nil == screenshotData) {
     return nil;
   }
-  return [[[FBImageIOScaler alloc] init] scaledImageWithImage:screenshotData
+  return [[[FBImageProcessor alloc] init] scaledImageWithData:screenshotData
                                                           uti:UTTypePNG
                                                          rect:rect
                                                 scalingFactor:1.0 / scale

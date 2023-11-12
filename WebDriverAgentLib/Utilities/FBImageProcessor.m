@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "FBImageIOScaler.h"
+#import "FBImageProcessor.h"
 
 #import <ImageIO/ImageIO.h>
 #import <UIKit/UIKit.h>
@@ -15,6 +15,7 @@
 
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
+#import "FBImageUtils.h"
 #import "FBLogger.h"
 
 const CGFloat FBMinScalingFactor = 0.01f;
@@ -22,7 +23,7 @@ const CGFloat FBMaxScalingFactor = 1.0f;
 const CGFloat FBMinCompressionQuality = 0.0f;
 const CGFloat FBMaxCompressionQuality = 1.0f;
 
-@interface FBImageIOScaler ()
+@interface FBImageProcessor ()
 
 @property (nonatomic) NSData *nextImage;
 @property (nonatomic, readonly) NSLock *nextImageLock;
@@ -30,7 +31,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 
 @end
 
-@implementation FBImageIOScaler
+@implementation FBImageProcessor
 
 - (id)init
 {
@@ -42,10 +43,10 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   return self;
 }
 
-- (void)submitImage:(NSData *)image
-      scalingFactor:(CGFloat)scalingFactor
- compressionQuality:(CGFloat)compressionQuality
-  completionHandler:(void (^)(NSData *))completionHandler
+- (void)submitImageData:(NSData *)image
+          scalingFactor:(CGFloat)scalingFactor
+     compressionQuality:(CGFloat)compressionQuality
+      completionHandler:(void (^)(NSData *))completionHandler
 {
   [self.nextImageLock lock];
   if (self.nextImage != nil) {
@@ -60,34 +61,37 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 #pragma clang diagnostic ignored "-Wcompletion-handler"
   dispatch_async(self.scalingQueue, ^{
     [self.nextImageLock lock];
-    NSData *next = self.nextImage;
+    NSData *nextImageData = self.nextImage;
     self.nextImage = nil;
     [self.nextImageLock unlock];
-    if (next == nil) {
+    if (nextImageData == nil) {
       return;
     }
 
-    NSError *error;
-    NSData *scaled = [self scaledJpegImageWithImage:next
-                                      scalingFactor:scalingFactor
-                                 compressionQuality:compressionQuality
-                                              error:&error];
-    if (scaled == nil) {
-      [FBLogger logFmt:@"%@", error.description];
+    NSError *error = nil;
+    BOOL usesScaling = fabs(FBMaxScalingFactor - scalingFactor) > DBL_EPSILON;
+    UIImage *resultImage = usesScaling
+      ? [self scaledJpegImageWithData:nextImageData scalingFactor:scalingFactor error:&error]
+      : [UIImage imageWithData:nextImageData];
+    if (resultImage == nil) {
+      [FBLogger logFmt:@"%@", error == nil ? @"The data cannot be decoded as a valid image" : error.description];
       return;
     }
-    completionHandler(scaled);
+    UIImage *fixedImage = resultImage.imageByFixingOrientation;
+    completionHandler(fixedImage == resultImage && !usesScaling
+                      // If no scaling was needed and no orientation fixing then just pass the original JPEG data through
+                      ? nextImageData
+                      : UIImageJPEGRepresentation(fixedImage, compressionQuality));
   });
 #pragma clang diagnostic pop
 }
 
 // This method is more optimized for JPEG scaling
-// and should be used in `submitImage` API, while the `scaledImageWithImage`
+// and should be used in `submitImage` API, while the `scaledImageWithData`
 // one is more generic
-- (nullable NSData *)scaledJpegImageWithImage:(NSData *)image
-                                scalingFactor:(CGFloat)scalingFactor
-                           compressionQuality:(CGFloat)compressionQuality
-                                        error:(NSError **)error
+- (nullable UIImage*)scaledJpegImageWithData:(NSData *)image
+                               scalingFactor:(CGFloat)scalingFactor
+                                       error:(NSError **)error
 {
   CGImageSourceRef imageData = CGImageSourceCreateWithData((CFDataRef)image, nil);
   CGSize size = [self.class imageSizeWithImage:imageData];
@@ -105,23 +109,17 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
      buildError:error];
     return nil;
   }
-  NSData *resData = [self jpegDataWithImage:scaled
-                         compressionQuality:compressionQuality];
-  if (nil == resData) {
-    [[[FBErrorBuilder builder]
-      withDescriptionFormat:@"Failed to compress the image to JPEG format"]
-     buildError:error];
-  }
+  UIImage *result = [UIImage imageWithCGImage:scaled];
   CGImageRelease(scaled);
-  return resData;
+  return result;
 }
 
-- (nullable NSData *)scaledImageWithImage:(NSData *)image
-                                      uti:(UTType *)uti
-                                     rect:(CGRect)rect
-                            scalingFactor:(CGFloat)scalingFactor
-                       compressionQuality:(CGFloat)compressionQuality
-                                    error:(NSError **)error
+- (nullable NSData *)scaledImageWithData:(NSData *)image
+                                     uti:(UTType *)uti
+                                    rect:(CGRect)rect
+                           scalingFactor:(CGFloat)scalingFactor
+                      compressionQuality:(CGFloat)compressionQuality
+                                   error:(NSError **)error
 {
   UIImage *uiImage = [UIImage imageWithData:image];
   CGSize size = uiImage.size;
@@ -156,27 +154,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   return [uti conformsToType:UTTypePNG]
     ? UIImagePNGRepresentation(resultImage)
     : UIImageJPEGRepresentation(resultImage, compressionQuality);
-}
-
-- (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
-                    compressionQuality:(CGFloat)compressionQuality
-{
-  NSMutableData *newImageData = [NSMutableData data];
-  CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData(
-                                                                            (__bridge CFMutableDataRef) newImageData,
-                                                                            (__bridge CFStringRef) UTTypeJPEG.identifier,
-                                                                            1,
-                                                                            NULL);
-  CFDictionaryRef compressionOptions = (__bridge CFDictionaryRef)@{
-    (const NSString *)kCGImageDestinationLossyCompressionQuality: @(compressionQuality)
-  };
-  CGImageDestinationAddImage(imageDestination, imageRef, compressionOptions);
-  if(!CGImageDestinationFinalize(imageDestination)) {
-    [FBLogger log:@"Failed to write the image"];
-    newImageData = nil;
-  }
-  CFRelease(imageDestination);
-  return newImageData;
 }
 
 + (CGSize)imageSizeWithImage:(CGImageSourceRef)imageSource

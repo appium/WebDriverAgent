@@ -9,36 +9,36 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBImageIOScaler.h"
+#import "FBImageProcessor.h"
 #import "FBIntegrationTestCase.h"
 
 
-@interface FBImageIOScalerTests : FBIntegrationTestCase
+@interface FBImageProcessorTests : FBIntegrationTestCase
 
 @property (nonatomic) NSData *originalImage;
 @property (nonatomic) CGSize originalSize;
 
 @end
 
-@implementation FBImageIOScalerTests
+@implementation FBImageProcessorTests
 
 - (void)setUp {
   XCUIApplication *app = [[XCUIApplication alloc] init];
   [app launch];
   XCUIScreenshot *screenshot = app.screenshot;
   self.originalImage = UIImageJPEGRepresentation(screenshot.image, 1.0);
-  self.originalSize = [FBImageIOScalerTests scaledSizeFromImage:screenshot.image];
+  self.originalSize = [FBImageProcessorTests scaledSizeFromImage:screenshot.image];
 }
 
 - (void)testScaling {
   CGFloat halfScale = 0.5;
-  CGSize expectedHalfScaleSize = [FBImageIOScalerTests sizeFromSize:self.originalSize scalingFactor:0.5];
+  CGSize expectedHalfScaleSize = [FBImageProcessorTests sizeFromSize:self.originalSize scalingFactor:0.5];
   [self scaleImageWithFactor:halfScale
                 expectedSize:expectedHalfScaleSize];
 
   // 1 is the smalles scaling factor we accept
   CGFloat minScale = 0.0;
-  CGSize expectedMinScaleSize = [FBImageIOScalerTests sizeFromSize:self.originalSize scalingFactor:0.01];
+  CGSize expectedMinScaleSize = [FBImageProcessorTests sizeFromSize:self.originalSize scalingFactor:0.01];
   [self scaleImageWithFactor:minScale
                 expectedSize:expectedMinScaleSize];
 
@@ -49,16 +49,16 @@
 }
 
 - (void)scaleImageWithFactor:(CGFloat)scalingFactor expectedSize:(CGSize)excpectedSize {
-  FBImageIOScaler *scaler = [[FBImageIOScaler alloc] init];
+  FBImageProcessor *scaler = [[FBImageProcessor alloc] init];
 
   id expScaled = [self expectationWithDescription:@"Receive scaled image"];
 
-  [scaler submitImage:self.originalImage
+  [scaler submitImageData:self.originalImage
         scalingFactor:scalingFactor
    compressionQuality:1.0
     completionHandler:^(NSData *scaled) {
       UIImage *scaledImage = [UIImage imageWithData:scaled];
-      CGSize scaledSize = [FBImageIOScalerTests scaledSizeFromImage:scaledImage];
+      CGSize scaledSize = [FBImageProcessorTests scaledSizeFromImage:scaledImage];
 
       XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, 1.0);
       XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, 1.0);

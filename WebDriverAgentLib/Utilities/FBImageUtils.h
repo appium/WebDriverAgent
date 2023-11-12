@@ -17,4 +17,13 @@ BOOL FBIsPngImage(NSData *imageData);
 /*! Converts the given image data to a PNG representation if necessary */
 NSData *_Nullable FBToPngData(NSData *imageData);
 
+@interface UIImage (FBImageUtils)
+
+/**
+ * Adjusts the actual image orientation to the value present in the file's EXIF metadata
+ */
+- (UIImage *)imageByFixingOrientation;
+
+@end
+
 NS_ASSUME_NONNULL_END

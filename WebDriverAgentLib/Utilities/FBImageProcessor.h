@@ -20,7 +20,7 @@ extern const CGFloat FBMaxScalingFactor;
 extern const CGFloat FBMinCompressionQuality;
 extern const CGFloat FBMaxCompressionQuality;
 
-@interface FBImageIOScaler : NSObject
+@interface FBImageProcessor : NSObject
 
 /**
  Puts the passed image on the queue and dispatches a scaling operation. If there is already a image on the
@@ -32,10 +32,10 @@ extern const CGFloat FBMaxCompressionQuality;
  @param compressionQuality the compression quality in range 0.0..1.0 (0.0 for max. compression and 1.0 for lossless compression)
  Only applicable for UTTypeJPEG
  */
-- (void)submitImage:(NSData *)image
-      scalingFactor:(CGFloat)scalingFactor
- compressionQuality:(CGFloat)compressionQuality
-  completionHandler:(void (^)(NSData *))completionHandler;
+- (void)submitImageData:(NSData *)image
+          scalingFactor:(CGFloat)scalingFactor
+     compressionQuality:(CGFloat)compressionQuality
+      completionHandler:(void (^)(NSData *))completionHandler;
 
 /**
  Scales and crops the source image
@@ -51,12 +51,12 @@ extern const CGFloat FBMaxCompressionQuality;
  @param error The actual error instance if the returned result is nil
  @returns Processed image data compressed according to the given UTI or nil in case of a failure
  */
-- (nullable NSData *)scaledImageWithImage:(NSData *)image
-                                      uti:(UTType *)uti
-                                     rect:(CGRect)rect
-                            scalingFactor:(CGFloat)scalingFactor
-                       compressionQuality:(CGFloat)compressionQuality
-                                    error:(NSError **)error;
+- (nullable NSData *)scaledImageWithData:(NSData *)image
+                                     uti:(UTType *)uti
+                                    rect:(CGRect)rect
+                           scalingFactor:(CGFloat)scalingFactor
+                      compressionQuality:(CGFloat)compressionQuality
+                                   error:(NSError **)error;
 
 @end
 
