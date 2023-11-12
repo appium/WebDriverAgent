@@ -103,17 +103,20 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   CFRelease(properties);
   
   BOOL usesScaling = fabs(FBMaxScalingFactor - scalingFactor) > DBL_EPSILON && scalingFactor > 0;
-  CGSize scaledSize = usesScaling
-    ? CGSizeMake(width.floatValue * scalingFactor, height.floatValue * scalingFactor)
-    : size;
   
   CGImageRef resultImage = NULL;
   if (orientation != kCGImagePropertyOrientationUp) {
+    // Scale and fix orientation.
+    // Unfortunately CGContextDrawImage is known to be not very perfomant,
+    // so consider finding a faster API of for images scale/rotation.
     resultImage = CGImageSourceCreateImageAtIndex(imageDataRef, 0, NULL);
     CGImageRef originalImage = resultImage;
     size_t bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
     BOOL shouldSwapWidthAndHeight = orientation == kCGImagePropertyOrientationLeft
       || orientation == kCGImagePropertyOrientationRight;
+    CGSize scaledSize = usesScaling
+      ? CGSizeMake(width.floatValue * scalingFactor, height.floatValue * scalingFactor)
+      : size;
     size_t contextWidth = (size_t) (shouldSwapWidthAndHeight ? scaledSize.height : scaledSize.width);
     size_t contextHeight = (size_t) (shouldSwapWidthAndHeight ? scaledSize.width : scaledSize.height);
     CGContextRef ctx = CGBitmapContextCreate(
@@ -139,6 +142,9 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     CGContextRelease(ctx);
     CGImageRelease(originalImage);
   } else if (usesScaling) {
+    // Only scale.
+    // ImageIO is known to perform better than the above,
+    // although it cannot rotate the canvas.
     CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
     CFDictionaryRef params = (__bridge CFDictionaryRef)@{
       (const NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
