@@ -108,7 +108,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   if (orientation != kCGImagePropertyOrientationUp) {
     // Scale and fix orientation.
     // Unfortunately CGContextDrawImage is known to be not very perfomant,
-    // so consider finding a faster API of for images scale/rotation.
+    // so consider finding a faster API for images scale/rotation.
     resultImage = CGImageSourceCreateImageAtIndex(imageDataRef, 0, NULL);
     CGImageRef originalImage = resultImage;
     size_t bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
