@@ -108,7 +108,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     : size;
   
   CGImageRef resultImage = NULL;
-  if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
+  if (orientation != kCGImagePropertyOrientationUp) {
     resultImage = CGImageSourceCreateImageAtIndex(imageDataRef, 0, NULL);
     CGImageRef originalImage = resultImage;
     size_t bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
@@ -138,9 +138,21 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     resultImage = CGBitmapContextCreateImage(ctx);
     CGContextRelease(ctx);
     CGImageRelease(originalImage);
+  } else if (usesScaling) {
+    CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
+    CFDictionaryRef params = (__bridge CFDictionaryRef)@{
+      (const NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
+      (const NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent: @(YES),
+      (const NSString *)kCGImageSourceThumbnailMaxPixelSize: @(scaledMaxPixelSize)
+    };
+    resultImage = CGImageSourceCreateThumbnailAtIndex(imageDataRef, 0, params);
   }
   CFRelease(imageDataRef);
   if (NULL == resultImage) {
+    if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
+      // This is suboptimal, but better to have something than nothing at all
+      // NSLog(@"The image cannot be preprocessed. Passing it as is");
+    }
     // No scaling and/or orientation fixing was neecessary
     return imageData;
   }
