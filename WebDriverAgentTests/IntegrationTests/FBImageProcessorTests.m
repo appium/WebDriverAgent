@@ -43,7 +43,7 @@
                 expectedSize:expectedMinScaleSize];
 
   // For scaling factors above 100 we don't perform any scaling and just return the unmodified image
-  CGFloat unscaled = 2.0;
+  CGFloat unscaled = 1.0;
   [self scaleImageWithFactor:unscaled
                 expectedSize:self.originalSize];
 }
@@ -54,17 +54,17 @@
   id expScaled = [self expectationWithDescription:@"Receive scaled image"];
 
   [scaler submitImageData:self.originalImage
-        scalingFactor:scalingFactor
-   compressionQuality:1.0
-    completionHandler:^(NSData *scaled) {
-      UIImage *scaledImage = [UIImage imageWithData:scaled];
-      CGSize scaledSize = [FBImageProcessorTests scaledSizeFromImage:scaledImage];
-
-      XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, 1.0);
-      XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, 1.0);
-
-      [expScaled fulfill];
-    }];
+            scalingFactor:scalingFactor
+       compressionQuality:1.0
+        completionHandler:^(NSData *scaled) {
+    UIImage *scaledImage = [UIImage imageWithData:scaled];
+    CGSize scaledSize = [FBImageProcessorTests scaledSizeFromImage:scaledImage];
+    
+    XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, 1.0);
+    XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, 1.0);
+    
+    [expScaled fulfill];
+  }];
 
   [self waitForExpectations:@[expScaled]
                     timeout:0.5];
