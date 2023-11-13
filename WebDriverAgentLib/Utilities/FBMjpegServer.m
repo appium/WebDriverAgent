@@ -85,10 +85,11 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
   CGFloat scalingFactor = [FBConfiguration mjpegScalingFactor] / 100.0f;
   CGFloat compressionQuality = FBConfiguration.mjpegServerScreenshotQuality / 100.0f;
-  BOOL usesScaling = fabs(FBMaxScalingFactor - scalingFactor) > DBL_EPSILON;
-  // If scaling is applied we perform another JPEG compression after scaling
-  // To get the desired compressionQuality we need to do a lossless compression here
-  CGFloat screenshotCompressionQuality = usesScaling ? FBMaxCompressionQuality : compressionQuality;
+  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
+  BOOL isRotated = XCUIDevice.sharedDevice.orientation != UIDeviceOrientationPortrait;
+  // If scaling or rotation fix is applied then we perform another JPEG compression later
+  // To get the desired compressionQuality we need to request a lossless screenshot here
+  CGFloat screenshotCompressionQuality = usesScaling || isRotated ? FBMaxCompressionQuality : compressionQuality;
   NSError *error;
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
                                                            compressionQuality:screenshotCompressionQuality

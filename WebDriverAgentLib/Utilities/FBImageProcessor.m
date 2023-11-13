@@ -113,13 +113,13 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
       (const NSString *)kCGImageSourceThumbnailMaxPixelSize: @(scaledMaxPixelSize)
     };
     resultImage = CGImageSourceCreateThumbnailAtIndex(imageDataRef, 0, params);
+    // This may be suboptimal, but better to have something than nothing at all
+    //    if (NULL == resultImage) {
+    //      NSLog(@"The image cannot be preprocessed. Passing it as is");
+    //    }
   }
   CFRelease(imageDataRef);
   if (NULL == resultImage) {
-    // This is suboptimal, but better to have something than nothing at all
-    //    if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
-    //      NSLog(@"The image cannot be preprocessed. Passing it as is");
-    //    }
     // No scaling and/or orientation fixing was neecessary
     return imageData;
   }
