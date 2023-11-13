@@ -84,10 +84,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   }
 
   NSError *error;
-  CGFloat compressionQuality = MAX(
-                                   FBMinCompressionQuality,
-                                   MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0f)
-                                   );
+  CGFloat compressionQuality = MAX(FBMinCompressionQuality,
+                                   MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0));
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
                                                            compressionQuality:compressionQuality
                                                                           uti:UTTypeJPEG
@@ -99,7 +97,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     return;
   }
 
-  CGFloat scalingFactor = FBConfiguration.mjpegScalingFactor / 100.0f;
+  CGFloat scalingFactor = FBConfiguration.mjpegScalingFactor / 100.0;
   [self.imageProcessor submitImageData:screenshotData
                          scalingFactor:scalingFactor
                      completionHandler:^(NSData * _Nonnull scaled) {
