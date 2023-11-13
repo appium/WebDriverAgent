@@ -69,10 +69,10 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
 
     NSError *error = nil;
-    NSData *processedImageData = [self processedJpegImageWithData:nextImageData
-                                                    scalingFactor:scalingFactor
-                                               compressionQuality:compressionQuality
-                                                            error:&error];
+    NSData *processedImageData = [self.class processedJpegImageWithData:nextImageData
+                                                          scalingFactor:scalingFactor
+                                                     compressionQuality:compressionQuality
+                                                                  error:&error];
     if (nil == processedImageData) {
       [FBLogger logFmt:@"%@", error.description];
       return;
@@ -85,7 +85,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 // This method is more optimized for JPEG scaling
 // and should be used in `submitImage` API, while the `scaledImageWithData`
 // one is more generic
-- (nullable NSData*)processedJpegImageWithData:(NSData *)imageData
++ (nullable NSData*)processedJpegImageWithData:(NSData *)imageData
                                  scalingFactor:(CGFloat)scalingFactor
                             compressionQuality:(CGFloat)compressionQuality
                                          error:(NSError **)error
@@ -98,53 +98,14 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageDataRef, 0, (CFDictionaryRef)options);
   NSNumber *width = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelWidth];
   NSNumber *height = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelHeight];
-  CGImagePropertyOrientation orientation = (CGImagePropertyOrientation)[[(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyOrientation] integerValue];
+  CGImagePropertyOrientation orientation = (CGImagePropertyOrientation) [[(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyOrientation]
+                                                                        integerValue];
   CGSize size = CGSizeMake([width floatValue], [height floatValue]);
   CFRelease(properties);
   
-  BOOL usesScaling = fabs(FBMaxScalingFactor - scalingFactor) > DBL_EPSILON && scalingFactor > 0;
-  
+  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < 1.0;
   CGImageRef resultImage = NULL;
-  if (orientation != kCGImagePropertyOrientationUp) {
-    // Scale and fix orientation.
-    // Unfortunately CGContextDrawImage is known to be not very perfomant,
-    // so consider finding a faster API for images scale/rotation.
-    resultImage = CGImageSourceCreateImageAtIndex(imageDataRef, 0, NULL);
-    CGImageRef originalImage = resultImage;
-    size_t bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
-    BOOL shouldSwapWidthAndHeight = orientation == kCGImagePropertyOrientationLeft
-      || orientation == kCGImagePropertyOrientationRight;
-    CGSize scaledSize = usesScaling
-      ? CGSizeMake(width.floatValue * scalingFactor, height.floatValue * scalingFactor)
-      : size;
-    size_t contextWidth = (size_t) (shouldSwapWidthAndHeight ? scaledSize.height : scaledSize.width);
-    size_t contextHeight = (size_t) (shouldSwapWidthAndHeight ? scaledSize.width : scaledSize.height);
-    CGContextRef ctx = CGBitmapContextCreate(
-                                             NULL,
-                                             contextWidth,
-                                             contextHeight,
-                                             bitsPerComponent,
-                                             contextWidth * CGImageGetBitsPerPixel(originalImage) / bitsPerComponent,
-                                             CGImageGetColorSpace(originalImage),
-                                             CGImageGetBitmapInfo(originalImage));
-    if (orientation == kCGImagePropertyOrientationLeft) {
-      CGContextRotateCTM(ctx, M_PI_2);
-      CGContextTranslateCTM(ctx, 0, -scaledSize.height);
-    } else if (orientation == kCGImagePropertyOrientationRight) {
-      CGContextRotateCTM(ctx, -M_PI_2);
-      CGContextTranslateCTM(ctx, -scaledSize.width, 0);
-    } else if (orientation == kCGImagePropertyOrientationDown) {
-      CGContextTranslateCTM(ctx, scaledSize.width, scaledSize.height);
-      CGContextRotateCTM(ctx, -M_PI);
-    }
-    CGContextDrawImage(ctx, CGRectMake(0, 0, scaledSize.width, scaledSize.height), originalImage);
-    resultImage = CGBitmapContextCreateImage(ctx);
-    CGContextRelease(ctx);
-    CGImageRelease(originalImage);
-  } else if (usesScaling) {
-    // Only scale.
-    // ImageIO is known to perform better than the above,
-    // although it cannot rotate the canvas.
+  if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
     CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
     CFDictionaryRef params = (__bridge CFDictionaryRef)@{
       (const NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
@@ -155,16 +116,16 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   }
   CFRelease(imageDataRef);
   if (NULL == resultImage) {
-    if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
-      // This is suboptimal, but better to have something than nothing at all
-      // NSLog(@"The image cannot be preprocessed. Passing it as is");
-    }
+    // This is suboptimal, but better to have something than nothing at all
+    //    if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
+    //      NSLog(@"The image cannot be preprocessed. Passing it as is");
+    //    }
     // No scaling and/or orientation fixing was neecessary
     return imageData;
   }
   
-  NSData *resData = [self jpegDataWithImage:resultImage
-                         compressionQuality:compressionQuality];
+  NSData *resData = [self.class jpegDataWithImage:resultImage
+                               compressionQuality:compressionQuality];
   CGImageRelease(resultImage);
   if (nil == resData) {
     [[[FBErrorBuilder builder]
@@ -174,7 +135,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   return resData;
 }
 
-- (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
++ (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
                     compressionQuality:(CGFloat)compressionQuality
 {
   NSMutableData *newImageData = [NSMutableData data];
@@ -187,12 +148,11 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     (const NSString *)kCGImageDestinationLossyCompressionQuality: @(compressionQuality)
   };
   CGImageDestinationAddImage(imageDestination, imageRef, compressionOptions);
-  if(!CGImageDestinationFinalize(imageDestination)) {
-    [FBLogger log:@"Failed to write the image"];
+  if (!CGImageDestinationFinalize(imageDestination)) {
     newImageData = nil;
   }
   CFRelease(imageDestination);
-  return newImageData;
+  return newImageData.copy;
 }
 
 - (nullable NSData *)scaledImageWithData:(NSData *)image
@@ -235,19 +195,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   return [uti conformsToType:UTTypePNG]
     ? UIImagePNGRepresentation(resultImage)
     : UIImageJPEGRepresentation(resultImage, compressionQuality);
-}
-
-+ (CGSize)imageSizeWithImage:(CGImageSourceRef)imageSource
-{
-  NSDictionary *options = @{
-    (const NSString *)kCGImageSourceShouldCache: @(NO)
-  };
-  CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, (CFDictionaryRef)options);
-  NSNumber *width = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelWidth];
-  NSNumber *height = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelHeight];
-  CGSize size = CGSizeMake([width floatValue], [height floatValue]);
-  CFRelease(properties);
-  return size;
 }
 
 @end
