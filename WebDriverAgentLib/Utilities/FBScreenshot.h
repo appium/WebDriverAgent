@@ -25,19 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                    error:(NSError **)error;
 
 /**
- Retrieves non-scaled screenshot of the particular screen rectangle
-
- @param quality The number in range 0-3, where 0 is PNG (lossless), 3 is HEIC (lossless), 1- low quality JPEG and 2 - high quality JPEG
- @param rect The bounding rectange for the screenshot. The value is expected be non-scaled one.
-             CGRectNull could be used to take a screenshot of the full screen.
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return Device screenshot as PNG-encoded data or nil in case of failure
- */
-+ (nullable NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
-                                                    rect:(CGRect)rect
-                                                   error:(NSError **)error;
-
-/**
  Retrieves non-scaled screenshot of the whole screen
 
  @param screenID The screen identifier to take the screenshot from

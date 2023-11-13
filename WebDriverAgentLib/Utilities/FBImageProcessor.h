@@ -39,9 +39,6 @@ extern const CGFloat FBMaxCompressionQuality;
 
  @param image The source image data
  @param uti Either UTTypePNG or UTTypeJPEG
- @param rect The cropping rectange for the screenshot. The value is expected to be non-scaled one
-            since it happens after scaling/orientation change.
-            CGRectNull could be used to take a screenshot of the full screen.
  @param scalingFactor Scaling factor in range 0.01..1.0. A value of 1.0 won't perform scaling at all
  @param compressionQuality the compression quality in range 0.0..1.0 (0.0 for max. compression and 1.0 for lossless compression).
  Only works if UTI is set to kUTTypeJPEG
@@ -50,7 +47,6 @@ extern const CGFloat FBMaxCompressionQuality;
  */
 - (nullable NSData *)scaledImageWithData:(NSData *)image
                                      uti:(UTType *)uti
-                                    rect:(CGRect)rect
                            scalingFactor:(CGFloat)scalingFactor
                       compressionQuality:(CGFloat)compressionQuality
                                    error:(NSError **)error;
