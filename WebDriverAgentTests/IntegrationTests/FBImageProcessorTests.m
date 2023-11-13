@@ -36,15 +36,16 @@
   [self scaleImageWithFactor:halfScale
                 expectedSize:expectedHalfScaleSize];
 
-  // 1 is the smalles scaling factor we accept
+  // 0 is the smalles scaling factor we accept
   CGFloat minScale = 0.0;
   CGSize expectedMinScaleSize = [FBImageProcessorTests sizeFromSize:self.originalSize scalingFactor:0.01];
   [self scaleImageWithFactor:minScale
                 expectedSize:expectedMinScaleSize];
 
   // For scaling factors above 100 we don't perform any scaling and just return the unmodified image
-  CGFloat unscaled = 1.0;
-  [self scaleImageWithFactor:unscaled
+  [self scaleImageWithFactor:1.0
+                expectedSize:self.originalSize];
+  [self scaleImageWithFactor:2.0
                 expectedSize:self.originalSize];
 }
 
@@ -55,7 +56,6 @@
 
   [scaler submitImageData:self.originalImage
             scalingFactor:scalingFactor
-       compressionQuality:1.0
         completionHandler:^(NSData *scaled) {
     UIImage *scaledImage = [UIImage imageWithData:scaled];
     CGSize scaledSize = [FBImageProcessorTests scaledSizeFromImage:scaledImage];

@@ -45,7 +45,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 
 - (void)submitImageData:(NSData *)image
           scalingFactor:(CGFloat)scalingFactor
-     compressionQuality:(CGFloat)compressionQuality
       completionHandler:(void (^)(NSData *))completionHandler
 {
   [self.nextImageLock lock];
@@ -53,7 +52,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     [FBLogger verboseLog:@"Discarding screenshot"];
   }
   scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
-  compressionQuality = MAX(FBMinCompressionQuality, MIN(FBMaxCompressionQuality, compressionQuality));
   self.nextImage = image;
   [self.nextImageLock unlock];
 
@@ -71,7 +69,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     NSError *error = nil;
     NSData *processedImageData = [self.class processedJpegImageWithData:nextImageData
                                                           scalingFactor:scalingFactor
-                                                     compressionQuality:compressionQuality
                                                                   error:&error];
     if (nil == processedImageData) {
       [FBLogger logFmt:@"%@", error.description];
@@ -87,7 +84,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 // one is more generic
 + (nullable NSData*)processedJpegImageWithData:(NSData *)imageData
                                  scalingFactor:(CGFloat)scalingFactor
-                            compressionQuality:(CGFloat)compressionQuality
                                          error:(NSError **)error
 {
   CGImageSourceRef imageDataRef = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
@@ -99,11 +95,11 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   NSNumber *width = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelWidth];
   NSNumber *height = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelHeight];
   CGImagePropertyOrientation orientation = (CGImagePropertyOrientation) [[(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyOrientation]
-                                                                        integerValue];
-  CGSize size = CGSizeMake([width floatValue], [height floatValue]);
+                                                                         integerValue];
+  CGSize size = CGSizeMake([width doubleValue], [height doubleValue]);
   CFRelease(properties);
-  
-  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < 1.0;
+
+  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
   CGImageRef resultImage = NULL;
   if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
     CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
@@ -120,12 +116,11 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   }
   CFRelease(imageDataRef);
   if (NULL == resultImage) {
-    // No scaling and/or orientation fixing was neecessary
+    // No scaling and/or orientation fixing was necessary
     return imageData;
   }
   
-  NSData *resData = [self.class jpegDataWithImage:resultImage
-                               compressionQuality:compressionQuality];
+  NSData *resData = [self.class jpegDataWithImage:resultImage];
   CGImageRelease(resultImage);
   if (nil == resData) {
     [[[FBErrorBuilder builder]
@@ -136,7 +131,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 }
 
 + (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
-                    compressionQuality:(CGFloat)compressionQuality
 {
   NSMutableData *newImageData = [NSMutableData data];
   CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData(
@@ -145,7 +139,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                                                             1,
                                                                             NULL);
   CFDictionaryRef compressionOptions = (__bridge CFDictionaryRef)@{
-    (const NSString *)kCGImageDestinationLossyCompressionQuality: @(compressionQuality)
+    (const NSString *)kCGImageDestinationLossyCompressionQuality: @(FBMaxCompressionQuality)
   };
   CGImageDestinationAddImage(imageDestination, imageRef, compressionOptions);
   if (!CGImageDestinationFinalize(imageDestination)) {

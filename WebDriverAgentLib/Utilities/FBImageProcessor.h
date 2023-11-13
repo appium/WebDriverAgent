@@ -29,12 +29,9 @@ extern const CGFloat FBMaxCompressionQuality;
  @param image The image to scale down
  @param completionHandler called after successfully scaling down an image
  @param scalingFactor the scaling factor in range 0.01..1.0. A value of 1.0 won't perform scaling at all
- @param compressionQuality the compression quality in range 0.0..1.0 (0.0 for max. compression and 1.0 for lossless compression)
- Only applicable for UTTypeJPEG
  */
 - (void)submitImageData:(NSData *)image
           scalingFactor:(CGFloat)scalingFactor
-     compressionQuality:(CGFloat)compressionQuality
       completionHandler:(void (^)(NSData *))completionHandler;
 
 /**
