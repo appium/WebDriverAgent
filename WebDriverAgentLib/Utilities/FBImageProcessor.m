@@ -66,87 +66,21 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
       return;
     }
 
-    NSError *error = nil;
-    NSData *processedImageData = [self.class processedJpegImageWithData:nextImageData
-                                                          scalingFactor:scalingFactor
-                                                                  error:&error];
-    if (nil == processedImageData) {
-      [FBLogger logFmt:@"%@", error.description];
-      return;
+    UIImage *uiImage = [UIImage imageWithData:nextImageData];
+    BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
+    if (uiImage.imageOrientation != UIImageOrientationUp || usesScaling) {
+      BOOL shouldSwapWH = uiImage.imageOrientation == UIImageOrientationLeft
+        || uiImage.imageOrientation == UIImageOrientationRight;
+      CGSize scaledSize = CGSizeMake((shouldSwapWH ? uiImage.size.height : uiImage.size.width) * scalingFactor,
+                                     (shouldSwapWH ? uiImage.size.width : uiImage.size.height) * scalingFactor);
+      [uiImage prepareThumbnailOfSize:scaledSize completionHandler:^(UIImage *thumbnail) {
+        completionHandler(UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
+      }];
+    } else {
+      completionHandler(nextImageData);
     }
-    completionHandler(processedImageData);
   });
 #pragma clang diagnostic pop
-}
-
-// This method is more optimized for JPEG scaling
-// and should be used in `submitImage` API, while the `scaledImageWithData`
-// one is more generic
-+ (nullable NSData*)processedJpegImageWithData:(NSData *)imageData
-                                 scalingFactor:(CGFloat)scalingFactor
-                                         error:(NSError **)error
-{
-  CGImageSourceRef imageDataRef = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
-  
-  NSDictionary *options = @{
-    (const NSString *)kCGImageSourceShouldCache: @(NO)
-  };
-  CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageDataRef, 0, (CFDictionaryRef)options);
-  NSNumber *width = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelWidth];
-  NSNumber *height = [(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyPixelHeight];
-  CGImagePropertyOrientation orientation = (CGImagePropertyOrientation) [[(__bridge NSDictionary *)properties objectForKey:(const NSString *)kCGImagePropertyOrientation]
-                                                                         integerValue];
-  CGSize size = CGSizeMake([width doubleValue], [height doubleValue]);
-  CFRelease(properties);
-
-  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-  CGImageRef resultImage = NULL;
-  if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
-    CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
-    CFDictionaryRef params = (__bridge CFDictionaryRef)@{
-      (const NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
-      (const NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent: @(YES),
-      (const NSString *)kCGImageSourceThumbnailMaxPixelSize: @(scaledMaxPixelSize)
-    };
-    resultImage = CGImageSourceCreateThumbnailAtIndex(imageDataRef, 0, params);
-    // This may be suboptimal, but better to have something than nothing at all
-    //    if (NULL == resultImage) {
-    //      NSLog(@"The image cannot be preprocessed. Passing it as is");
-    //    }
-  }
-  CFRelease(imageDataRef);
-  if (NULL == resultImage) {
-    // No scaling and/or orientation fixing was necessary
-    return imageData;
-  }
-  
-  NSData *resData = [self.class jpegDataWithImage:resultImage];
-  CGImageRelease(resultImage);
-  if (nil == resData) {
-    [[[FBErrorBuilder builder]
-      withDescriptionFormat:@"Failed to compress the image to JPEG format"]
-     buildError:error];
-  }
-  return resData;
-}
-
-+ (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
-{
-  NSMutableData *newImageData = [NSMutableData data];
-  CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData(
-                                                                            (__bridge CFMutableDataRef) newImageData,
-                                                                            (__bridge CFStringRef) UTTypeJPEG.identifier,
-                                                                            1,
-                                                                            NULL);
-  CFDictionaryRef compressionOptions = (__bridge CFDictionaryRef)@{
-    (const NSString *)kCGImageDestinationLossyCompressionQuality: @(FBMaxCompressionQuality)
-  };
-  CGImageDestinationAddImage(imageDestination, imageRef, compressionOptions);
-  if (!CGImageDestinationFinalize(imageDestination)) {
-    newImageData = nil;
-  }
-  CFRelease(imageDestination);
-  return newImageData.copy;
 }
 
 - (nullable NSData *)scaledImageWithData:(NSData *)image
