@@ -49,7 +49,7 @@
                 expectedSize:self.originalSize];
 }
 
-- (void)scaleImageWithFactor:(CGFloat)scalingFactor expectedSize:(CGSize)expectedSize {
+- (void)scaleImageWithFactor:(CGFloat)scalingFactor expectedSize:(CGSize)excpectedSize {
   FBImageProcessor *scaler = [[FBImageProcessor alloc] init];
 
   id expScaled = [self expectationWithDescription:@"Receive scaled image"];
@@ -60,8 +60,8 @@
     UIImage *scaledImage = [UIImage imageWithData:scaled];
     CGSize scaledSize = [FBImageProcessorTests scaledSizeFromImage:scaledImage];
     
-    XCTAssertEqualWithAccuracy(scaledSize.width, expectedSize.width, 1.0);
-    XCTAssertEqualWithAccuracy(scaledSize.height, expectedSize.height, 1.0);
+    XCTAssertEqualWithAccuracy(scaledSize.width, excpectedSize.width, 1.0);
+    XCTAssertEqualWithAccuracy(scaledSize.height, excpectedSize.height, 1.0);
     
     [expScaled fulfill];
   }];

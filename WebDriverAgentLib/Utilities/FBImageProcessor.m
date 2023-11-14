@@ -100,50 +100,58 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   CFRelease(properties);
 
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-  if (orientation == kCGImagePropertyOrientationUp && !usesScaling) {
-    CFRelease(imageDataRef);
+  CGImageRef resultImage = NULL;
+  if (orientation != kCGImagePropertyOrientationUp || usesScaling) {
+    CGFloat scaledMaxPixelSize = MAX(size.width, size.height) * scalingFactor;
+    CFDictionaryRef params = (__bridge CFDictionaryRef)@{
+      (const NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
+      (const NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent: @(YES),
+      (const NSString *)kCGImageSourceThumbnailMaxPixelSize: @(scaledMaxPixelSize)
+    };
+    resultImage = CGImageSourceCreateThumbnailAtIndex(imageDataRef, 0, params);
+    // This may be suboptimal, but better to have something than nothing at all
+    //    if (NULL == resultImage) {
+    //      NSLog(@"The image cannot be preprocessed. Passing it as is");
+    //    }
+  }
+  CFRelease(imageDataRef);
+  if (NULL == resultImage) {
     // No scaling and/or orientation fixing was necessary
     return imageData;
   }
+  
+  NSData *resData = [self.class jpegDataWithImage:resultImage];
+  CGImageRelease(resultImage);
+  if (nil == resData) {
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"Failed to compress the image to JPEG format"]
+     buildError:error];
+  }
+  return resData;
+}
 
-  // Used the perf comparison from https://nshipster.com/image-resizing/
-  CGImageRef originalImage = CGImageSourceCreateImageAtIndex(imageDataRef, 0, NULL);
-  BOOL shouldSwapWidthAndHeight = orientation == kCGImagePropertyOrientationLeft
-    || orientation == kCGImagePropertyOrientationRight;
-  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
-  CGSize contextSize = shouldSwapWidthAndHeight
-    ? CGSizeMake(scaledSize.height, scaledSize.width)
-    : scaledSize;
-  UIGraphicsImageRendererFormat *format = [[UIGraphicsImageRendererFormat alloc] init];
-  format.scale = scalingFactor;
-  UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:contextSize
-                                                                             format:format];
-  NSData *jpegData = [renderer JPEGDataWithCompressionQuality:FBMaxCompressionQuality
-                                                      actions:^(UIGraphicsImageRendererContext * _Nonnull context) {
-    CGContextRef ctx = context.CGContext;
-    if (orientation == kCGImagePropertyOrientationLeft) {
-      CGContextTranslateCTM(ctx, scaledSize.width, 0);
-      CGContextScaleCTM(ctx, -1, 1);
-      CGContextRotateCTM(ctx, -M_PI_2);
-      CGContextTranslateCTM(ctx, -scaledSize.width, -scaledSize.height / 4);
-    } else if (orientation == kCGImagePropertyOrientationRight) {
-      CGContextTranslateCTM(ctx, scaledSize.width, 0);
-      CGContextScaleCTM(ctx, -1, 1);
-      CGContextRotateCTM(ctx, M_PI_2);
-      CGContextTranslateCTM(ctx, 0, -scaledSize.width);
-    } else {
-      CGContextTranslateCTM(ctx, 0, scaledSize.height);
-      CGContextScaleCTM(ctx, 1, -1);
-    }
-    CGContextDrawImage(ctx, CGRectMake(0, 0, scaledSize.width, scaledSize.height), originalImage);
-  }];
-  CFRelease(imageDataRef);
-  CGImageRelease(originalImage);
-  return jpegData;
++ (nullable NSData *)jpegDataWithImage:(CGImageRef)imageRef
+{
+  NSMutableData *newImageData = [NSMutableData data];
+  CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData(
+                                                                            (__bridge CFMutableDataRef) newImageData,
+                                                                            (__bridge CFStringRef) UTTypeJPEG.identifier,
+                                                                            1,
+                                                                            NULL);
+  CFDictionaryRef compressionOptions = (__bridge CFDictionaryRef)@{
+    (const NSString *)kCGImageDestinationLossyCompressionQuality: @(FBMaxCompressionQuality)
+  };
+  CGImageDestinationAddImage(imageDestination, imageRef, compressionOptions);
+  if (!CGImageDestinationFinalize(imageDestination)) {
+    newImageData = nil;
+  }
+  CFRelease(imageDestination);
+  return newImageData.copy;
 }
 
 - (nullable NSData *)scaledImageWithData:(NSData *)image
                                      uti:(UTType *)uti
+                                    rect:(CGRect)rect
                            scalingFactor:(CGFloat)scalingFactor
                       compressionQuality:(CGFloat)compressionQuality
                                    error:(NSError **)error
@@ -170,6 +178,13 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
   UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
+
+  if (!CGRectIsNull(rect)) {
+    UIGraphicsBeginImageContext(rect.size);
+    [resultImage drawAtPoint:CGPointMake(-rect.origin.x, -rect.origin.y)];
+    resultImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+  }
 
   return [uti conformsToType:UTTypePNG]
     ? UIImagePNGRepresentation(resultImage)
