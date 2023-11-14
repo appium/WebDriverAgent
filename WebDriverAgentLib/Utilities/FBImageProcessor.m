@@ -151,7 +151,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 
 - (nullable NSData *)scaledImageWithData:(NSData *)image
                                      uti:(UTType *)uti
-                                    rect:(CGRect)rect
                            scalingFactor:(CGFloat)scalingFactor
                       compressionQuality:(CGFloat)compressionQuality
                                    error:(NSError **)error
@@ -178,13 +177,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
   UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-
-  if (!CGRectIsNull(rect)) {
-    UIGraphicsBeginImageContext(rect.size);
-    [resultImage drawAtPoint:CGPointMake(-rect.origin.x, -rect.origin.y)];
-    resultImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-  }
 
   return [uti conformsToType:UTTypePNG]
     ? UIImagePNGRepresentation(resultImage)
