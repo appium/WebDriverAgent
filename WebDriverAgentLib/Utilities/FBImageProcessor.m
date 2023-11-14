@@ -67,12 +67,8 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
 
     UIImage *uiImage = [UIImage imageWithData:nextImageData];
-    if (nil == uiImage) {
-      completionHandler(nextImageData);
-      return;
-    }
     BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-    if (uiImage.imageOrientation != UIImageOrientationUp || usesScaling) {
+    if (nil != uiImage && (uiImage.imageOrientation != UIImageOrientationUp || usesScaling)) {
       BOOL shouldSwapWH = uiImage.imageOrientation == UIImageOrientationLeft
         || uiImage.imageOrientation == UIImageOrientationRight;
       CGSize scaledSize = CGSizeMake((shouldSwapWH ? uiImage.size.height : uiImage.size.width) * scalingFactor,
