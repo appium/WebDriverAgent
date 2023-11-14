@@ -67,6 +67,10 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
 
     UIImage *uiImage = [UIImage imageWithData:nextImageData];
+    if (nil == uiImage) {
+      completionHandler(nextImageData);
+      return;
+    }
     BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
     if (uiImage.imageOrientation != UIImageOrientationUp || usesScaling) {
       BOOL shouldSwapWH = uiImage.imageOrientation == UIImageOrientationLeft
@@ -74,7 +78,11 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
       CGSize scaledSize = CGSizeMake((shouldSwapWH ? uiImage.size.height : uiImage.size.width) * scalingFactor,
                                      (shouldSwapWH ? uiImage.size.width : uiImage.size.height) * scalingFactor);
       [uiImage prepareThumbnailOfSize:scaledSize completionHandler:^(UIImage *thumbnail) {
-        completionHandler(UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
+        if (nil == thumbnail) {
+          completionHandler(nextImageData);
+        } else {
+          completionHandler(UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
+        }
       }];
     } else {
       completionHandler(nextImageData);
