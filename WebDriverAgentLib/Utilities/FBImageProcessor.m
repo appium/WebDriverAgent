@@ -86,15 +86,14 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     return image;
   }
   
-  CGSize size = image.size;
-  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
-  UIGraphicsBeginImageContext(scaledSize);
+  CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
+  UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize];
   UIImage *uiImage = [UIImage imageWithCGImage:(CGImageRef)image.CGImage
                                          scale:image.scale
                                    orientation:orientation];
-  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-  UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
+  UIImage *resultImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+    [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+  }];
   return resultImage;
 }
 
