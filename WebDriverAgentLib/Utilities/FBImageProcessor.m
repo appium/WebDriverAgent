@@ -74,11 +74,9 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
       CGSize scaledSize = CGSizeMake((shouldSwapWH ? uiImage.size.height : uiImage.size.width) * scalingFactor,
                                      (shouldSwapWH ? uiImage.size.width : uiImage.size.height) * scalingFactor);
       [uiImage prepareThumbnailOfSize:scaledSize completionHandler:^(UIImage *thumbnail) {
-        if (nil == thumbnail) {
-          completionHandler(nextImageData);
-        } else {
-          completionHandler(UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
-        }
+        completionHandler(nil == thumbnail
+                          ? nextImageData
+                          : UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
       }];
     } else {
       completionHandler(nextImageData);
