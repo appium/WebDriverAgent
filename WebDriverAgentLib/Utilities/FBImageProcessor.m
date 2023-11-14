@@ -66,35 +66,44 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
       return;
     }
 
-    UIImage *uiImage = [UIImage imageWithData:nextImageData];
-    UIImage *thumbnail = [self.class fixedImageWithImage:uiImage
-                                           scalingFactor:scalingFactor
-                                      desiredOrientation:uiImage.imageOrientation];
-    completionHandler(nil == thumbnail
-                      ? nextImageData
-                        : UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
+    NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
+                                                      scalingFactor:scalingFactor
+                                                                uti:UTTypeJPEG
+                                                 compressionQuality:FBMaxCompressionQuality
+                                                 desiredOrientation:nil];
+    completionHandler(thumbnailData ?: nextImageData);
   });
 #pragma clang diagnostic pop
 }
 
-+ (nullable UIImage *)fixedImageWithImage:(nullable UIImage *)image
-                            scalingFactor:(CGFloat)scalingFactor
-                       desiredOrientation:(UIImageOrientation)orientation
++ (nullable NSData *)fixedImageDataWithImageData:(NSData *)imageData
+                                   scalingFactor:(CGFloat)scalingFactor
+                                             uti:(UTType *)uti
+                              compressionQuality:(CGFloat)compressionQuality
+                              desiredOrientation:(nullable NSNumber *)orientation
 {
+  UIImage *image = [UIImage imageWithData:imageData];
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
   if (nil == image || (image.imageOrientation == UIImageOrientationUp && !usesScaling)) {
-    return image;
+    return imageData;
   }
   
   CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
   UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize];
+  UIImageOrientation desiredOrientation = orientation == nil
+    ? image.imageOrientation
+    : (UIImageOrientation)orientation.integerValue;
   UIImage *uiImage = [UIImage imageWithCGImage:(CGImageRef)image.CGImage
                                          scale:image.scale
-                                   orientation:orientation];
-  UIImage *resultImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-    [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-  }];
-  return resultImage;
+                                   orientation:desiredOrientation];
+  return [uti conformsToType:UTTypePNG]
+    ? [renderer PNGDataWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+      [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+    }]
+    : [renderer JPEGDataWithCompressionQuality:compressionQuality
+                                       actions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+      [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+    }];
 }
 
 - (nullable NSData *)scaledImageWithData:(NSData *)imageData
@@ -103,28 +112,24 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                       compressionQuality:(CGFloat)compressionQuality
                                    error:(NSError **)error
 {
-  UIImage *uiImage = [UIImage imageWithData:imageData];
-  UIImageOrientation orientation = uiImage.imageOrientation;
+  NSNumber *orientation = nil;
 #if !TARGET_OS_TV
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortrait) {
-    orientation = UIImageOrientationUp;
+    orientation = @(UIImageOrientationUp);
   } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-    orientation = UIImageOrientationDown;
+    orientation = @(UIImageOrientationDown);
   } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
-    orientation = UIImageOrientationRight;
+    orientation = @(UIImageOrientationRight);
   } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
-    orientation = UIImageOrientationLeft;
+    orientation = @(UIImageOrientationLeft);
   }
 #endif
-  UIImage *resultImage = [self.class fixedImageWithImage:uiImage
-                                           scalingFactor:scalingFactor
-                                      desiredOrientation:orientation];
-  if (nil == resultImage) {
-    return imageData;
-  }
-  return [uti conformsToType:UTTypePNG]
-    ? UIImagePNGRepresentation(resultImage)
-    : UIImageJPEGRepresentation(resultImage, compressionQuality);
+  NSData *resultData = [self.class fixedImageDataWithImageData:imageData
+                                                 scalingFactor:scalingFactor
+                                                           uti:uti
+                                            compressionQuality:compressionQuality
+                                            desiredOrientation:orientation];
+  return resultData ?: imageData;
 }
 
 @end
