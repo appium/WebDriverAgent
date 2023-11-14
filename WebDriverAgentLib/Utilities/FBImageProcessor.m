@@ -67,34 +67,44 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
 
     UIImage *uiImage = [UIImage imageWithData:nextImageData];
-    BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-    if (nil != uiImage && (uiImage.imageOrientation != UIImageOrientationUp || usesScaling)) {
-      BOOL shouldSwapWH = uiImage.imageOrientation == UIImageOrientationLeft
-        || uiImage.imageOrientation == UIImageOrientationRight;
-      CGSize scaledSize = CGSizeMake((shouldSwapWH ? uiImage.size.height : uiImage.size.width) * scalingFactor,
-                                     (shouldSwapWH ? uiImage.size.width : uiImage.size.height) * scalingFactor);
-      [uiImage prepareThumbnailOfSize:scaledSize completionHandler:^(UIImage *thumbnail) {
-        completionHandler(nil == thumbnail
-                          ? nextImageData
-                          : UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
-      }];
-    } else {
-      completionHandler(nextImageData);
-    }
+    UIImage *thumbnail = [self.class fixedImageWithImage:uiImage
+                                           scalingFactor:scalingFactor
+                                      desiredOrientation:uiImage.imageOrientation];
+    completionHandler(nil == thumbnail
+                      ? nextImageData
+                        : UIImageJPEGRepresentation(thumbnail, FBMaxCompressionQuality));
   });
 #pragma clang diagnostic pop
 }
 
-- (nullable NSData *)scaledImageWithData:(NSData *)image
++ (nullable UIImage *)fixedImageWithImage:(nullable UIImage *)image
+                            scalingFactor:(CGFloat)scalingFactor
+                       desiredOrientation:(UIImageOrientation)orientation
+{
+  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
+  if (nil == image || (image.imageOrientation == UIImageOrientationUp && !usesScaling)) {
+    return image;
+  }
+  
+  CGSize size = image.size;
+  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
+  UIGraphicsBeginImageContext(scaledSize);
+  UIImage *uiImage = [UIImage imageWithCGImage:(CGImageRef)image.CGImage
+                                         scale:image.scale
+                                   orientation:orientation];
+  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+  UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  return resultImage;
+}
+
+- (nullable NSData *)scaledImageWithData:(NSData *)imageData
                                      uti:(UTType *)uti
                            scalingFactor:(CGFloat)scalingFactor
                       compressionQuality:(CGFloat)compressionQuality
                                    error:(NSError **)error
 {
-  UIImage *uiImage = [UIImage imageWithData:image];
-  CGSize size = uiImage.size;
-  CGSize scaledSize = CGSizeMake(size.width * scalingFactor, size.height * scalingFactor);
-  UIGraphicsBeginImageContext(scaledSize);
+  UIImage *uiImage = [UIImage imageWithData:imageData];
   UIImageOrientation orientation = uiImage.imageOrientation;
 #if !TARGET_OS_TV
   if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortrait) {
@@ -107,13 +117,12 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     orientation = UIImageOrientationLeft;
   }
 #endif
-  uiImage = [UIImage imageWithCGImage:(CGImageRef)uiImage.CGImage
-                                scale:uiImage.scale
-                          orientation:orientation];
-  [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-  UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
+  UIImage *resultImage = [self.class fixedImageWithImage:uiImage
+                                           scalingFactor:scalingFactor
+                                      desiredOrientation:orientation];
+  if (nil == resultImage) {
+    return imageData;
+  }
   return [uti conformsToType:UTTypePNG]
     ? UIImagePNGRepresentation(resultImage)
     : UIImageJPEGRepresentation(resultImage, compressionQuality);
