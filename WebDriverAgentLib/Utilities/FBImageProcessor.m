@@ -68,10 +68,10 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
                                                       scalingFactor:scalingFactor
                                                                 uti:UTTypeJPEG
-                                                 compressionQuality:FBMaxCompressionQuality
+                                                 compressionQuality:0.95
     // iOS always returns screnshots in portrait orientation, but puts the real value into the metadata
-    // Orientation fix is too expensive. See https://github.com/appium/WebDriverAgent/pull/812
-                                                     fixOrientation:NO
+    // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
+                                                     fixOrientation:FBConfiguration.mjpegShouldFixOrientation
                                                  desiredOrientation:nil];
     completionHandler(thumbnailData ?: nextImageData);
   });

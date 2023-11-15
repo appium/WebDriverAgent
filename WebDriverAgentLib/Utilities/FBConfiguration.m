@@ -33,6 +33,7 @@ static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 
 static NSUInteger FBMjpegScalingFactor = 100;
+static BOOL FBMjpegShouldFixOrientation = NO;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
 
@@ -141,6 +142,15 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 
 + (void)setMjpegScalingFactor:(NSUInteger)scalingFactor {
   FBMjpegScalingFactor = scalingFactor;
+}
+
++ (BOOL)mjpegShouldFixOrientation
+{
+  return FBMjpegShouldFixOrientation;
+}
+
++ (void)setMjpegShouldFixOrientation:(BOOL)enabled {
+  FBMjpegShouldFixOrientation = enabled;
 }
 
 + (BOOL)verboseLoggingEnabled

@@ -14,6 +14,7 @@ NSString* const FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES = @"elementResponseAttrib
 NSString* const FB_SETTING_MJPEG_SERVER_SCREENSHOT_QUALITY = @"mjpegServerScreenshotQuality";
 NSString* const FB_SETTING_MJPEG_SERVER_FRAMERATE = @"mjpegServerFramerate";
 NSString* const FB_SETTING_MJPEG_SCALING_FACTOR = @"mjpegScalingFactor";
+NSString* const FB_SETTING_MJPEG_FIX_ORIENTATION = @"mjpegFixOrientation";
 NSString* const FB_SETTING_SCREENSHOT_QUALITY = @"screenshotQuality";
 NSString* const FB_SETTING_KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
 NSString* const FB_SETTING_KEYBOARD_PREDICTION = @"keyboardPrediction";
