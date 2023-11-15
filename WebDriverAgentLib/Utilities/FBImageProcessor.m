@@ -87,48 +87,54 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 {
   scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-  if (!usesScaling && !fixOrientation) {
-    return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
-  }
-  UIImage *image = [UIImage imageWithData:imageData];
-  if (nil == image
-      || ((image.imageOrientation == UIImageOrientationUp || !fixOrientation) && !usesScaling)) {
-    return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
-  }
-  
-  CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
-  if (!fixOrientation && usesScaling) {
-    __block UIImage *result = nil;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    [image prepareThumbnailOfSize:scaledSize
-                completionHandler:^(UIImage * _Nullable thumbnail) {
-      result = thumbnail;
-      dispatch_semaphore_signal(semaphore);
-    }];
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    if (nil == result) {
+  @autoreleasepool {
+    if (!usesScaling && !fixOrientation) {
       return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
     }
-    return [uti conformsToType:UTTypePNG]
-      ? UIImagePNGRepresentation(result)
-      : UIImageJPEGRepresentation(result, compressionQuality);
-  }
   
-  UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize];
-  UIImageOrientation desiredOrientation = orientation == nil
-    ? image.imageOrientation
-    : (UIImageOrientation)orientation.integerValue;
-  UIImage *uiImage = [UIImage imageWithCGImage:(CGImageRef)image.CGImage
-                                         scale:image.scale
-                                   orientation:desiredOrientation];
-  return [uti conformsToType:UTTypePNG]
-    ? [renderer PNGDataWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-      [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-    }]
-    : [renderer JPEGDataWithCompressionQuality:compressionQuality
-                                       actions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-      [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
-    }];
+    UIImage *image = [UIImage imageWithData:imageData];
+    if (nil == image
+        || ((image.imageOrientation == UIImageOrientationUp || !fixOrientation) && !usesScaling)) {
+      return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
+    }
+    
+    CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
+    if (!fixOrientation && usesScaling) {
+      dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+      __block UIImage *result = nil;
+      [image prepareThumbnailOfSize:scaledSize
+                  completionHandler:^(UIImage * _Nullable thumbnail) {
+        result = thumbnail;
+        dispatch_semaphore_signal(semaphore);
+      }];
+      dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+      if (nil == result) {
+        return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
+      }
+      return [uti conformsToType:UTTypePNG]
+        ? UIImagePNGRepresentation(result)
+        : UIImageJPEGRepresentation(result, compressionQuality);
+    }
+  
+    UIGraphicsImageRendererFormat *format = [[UIGraphicsImageRendererFormat alloc] init];
+    format.scale = scalingFactor;
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize
+                                                                               format:format];
+    UIImageOrientation desiredOrientation = orientation == nil
+      ? image.imageOrientation
+      : (UIImageOrientation)orientation.integerValue;
+    UIImage *uiImage = [UIImage imageWithCGImage:(CGImageRef)image.CGImage
+                                           scale:image.scale
+                                     orientation:desiredOrientation];
+    return [uti conformsToType:UTTypePNG]
+      ? [renderer PNGDataWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+      }]
+      : [renderer JPEGDataWithCompressionQuality:compressionQuality
+                                         actions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+      }];
+  }
 }
 
 - (nullable NSData *)scaledImageWithData:(NSData *)imageData

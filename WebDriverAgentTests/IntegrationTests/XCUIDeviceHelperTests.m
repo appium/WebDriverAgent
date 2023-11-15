@@ -78,14 +78,12 @@
   XCTAssertTrue(screenshot.size.width > screenshot.size.height);
 
   XCUIScreen *mainScreen = XCUIScreen.mainScreen;
-  // TODO: This screenshot rotation was not landscape in an iOS 16 beta simulator. 
   UIImage *screenshotExact = ((XCUIScreenshot *)mainScreen.screenshot).image;
-  XCTAssertEqualWithAccuracy(screenshotExact.size.height * mainScreen.scale,
-                             screenshot.size.height,
-                             FLT_EPSILON);
-  XCTAssertEqualWithAccuracy(screenshotExact.size.width * mainScreen.scale,
-                             screenshot.size.width,
-                             FLT_EPSILON);
+  CGSize realMainScreenSize = screenshotExact.size.height > screenshot.size.width
+    ? CGSizeMake(screenshotExact.size.height * mainScreen.scale, screenshotExact.size.width * mainScreen.scale)
+    : CGSizeMake(screenshotExact.size.width * mainScreen.scale, screenshotExact.size.height * mainScreen.scale);
+  XCTAssertEqualWithAccuracy(realMainScreenSize.height, screenshot.size.height, FLT_EPSILON);
+  XCTAssertEqualWithAccuracy(realMainScreenSize.width, screenshot.size.width, FLT_EPSILON);
 }
 
 - (void)testWifiAddress
