@@ -51,7 +51,6 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   if (self.nextImage != nil) {
     [FBLogger verboseLog:@"Discarding screenshot"];
   }
-  scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
   self.nextImage = image;
   [self.nextImageLock unlock];
 
@@ -86,8 +85,12 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                   fixOrientation:(BOOL)fixOrientation
                               desiredOrientation:(nullable NSNumber *)orientation
 {
-  UIImage *image = [UIImage imageWithData:imageData];
+  scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
+  if (!usesScaling && !fixOrientation) {
+    return imageData;
+  }
+  UIImage *image = [UIImage imageWithData:imageData];
   if (nil == image
       || ((image.imageOrientation == UIImageOrientationUp || !fixOrientation) && !usesScaling)) {
     return imageData;
