@@ -88,12 +88,12 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
   if (!usesScaling && !fixOrientation) {
-    return imageData;
+    return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
   }
   UIImage *image = [UIImage imageWithData:imageData];
   if (nil == image
       || ((image.imageOrientation == UIImageOrientationUp || !fixOrientation) && !usesScaling)) {
-    return imageData;
+    return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
   }
   
   CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
@@ -107,7 +107,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }];
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     if (nil == result) {
-      return imageData;
+      return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
     }
     return [uti conformsToType:UTTypePNG]
       ? UIImagePNGRepresentation(result)

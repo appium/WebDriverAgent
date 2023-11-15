@@ -17,4 +17,10 @@ BOOL FBIsPngImage(NSData *imageData);
 /*! Converts the given image data to a PNG representation if necessary */
 NSData *_Nullable FBToPngData(NSData *imageData);
 
+/*! Returns YES if the data contains a JPG image */
+BOOL FBIsJpegImage(NSData *imageData);
+
+/*! Converts the given image data to a JPG representation if necessary */
+NSData *_Nullable FBToJpegData(NSData *imageData, CGFloat compressionQuality);
+
 NS_ASSUME_NONNULL_END
