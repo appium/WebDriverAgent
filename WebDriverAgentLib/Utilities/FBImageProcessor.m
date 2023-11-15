@@ -70,6 +70,9 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                                       scalingFactor:scalingFactor
                                                                 uti:UTTypeJPEG
                                                  compressionQuality:FBMaxCompressionQuality
+    // iOS always returns screnshots in portrait orientation, but puts the real value into the metadata
+    // Orientation fix is too expensive. See https://github.com/appium/WebDriverAgent/pull/812
+                                                     fixOrientation:NO
                                                  desiredOrientation:nil];
     completionHandler(thumbnailData ?: nextImageData);
   });
@@ -80,15 +83,34 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                    scalingFactor:(CGFloat)scalingFactor
                                              uti:(UTType *)uti
                               compressionQuality:(CGFloat)compressionQuality
+                                  fixOrientation:(BOOL)fixOrientation
                               desiredOrientation:(nullable NSNumber *)orientation
 {
   UIImage *image = [UIImage imageWithData:imageData];
   BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
-  if (nil == image || (image.imageOrientation == UIImageOrientationUp && !usesScaling)) {
+  if (nil == image
+      || ((image.imageOrientation == UIImageOrientationUp || !fixOrientation) && !usesScaling)) {
     return imageData;
   }
   
   CGSize scaledSize = CGSizeMake(image.size.width * scalingFactor, image.size.height * scalingFactor);
+  if (!fixOrientation && usesScaling) {
+    __block UIImage *result = nil;
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    [image prepareThumbnailOfSize:scaledSize
+                completionHandler:^(UIImage * _Nullable thumbnail) {
+      result = thumbnail;
+      dispatch_semaphore_signal(semaphore);
+    }];
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    if (nil == result) {
+      return imageData;
+    }
+    return [uti conformsToType:UTTypePNG]
+      ? UIImagePNGRepresentation(result)
+      : UIImageJPEGRepresentation(result, compressionQuality);
+  }
+  
   UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize];
   UIImageOrientation desiredOrientation = orientation == nil
     ? image.imageOrientation
@@ -128,6 +150,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                                  scalingFactor:scalingFactor
                                                            uti:uti
                                             compressionQuality:compressionQuality
+                                                fixOrientation:YES
                                             desiredOrientation:orientation];
   return resultData ?: imageData;
 }
