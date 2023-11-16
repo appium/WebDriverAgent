@@ -372,8 +372,8 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     
     id extractedElement = extractIssueProperty(issue, @"element");
     
-    id<FBXCElementSnapshot> snapshot = [extractedElement fb_takeSnapshot];
-    NSDictionary *elementObject = snapshot ? [self.class dictionaryForElement:snapshot recursive:NO] : @{};
+    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_takeSnapshot];
+    NSDictionary *elementAttributes = elementSnapshot ? [self.class dictionaryForElement:elementSnapshot recursive:NO] : @{};
     
     [resultArray addObject:@{
       @"detailedDescription": extractIssueProperty(issue, @"detailedDescription") ?: @"",
@@ -381,7 +381,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
       @"auditType": auditType,
       @"element": [extractedElement description] ?: @"",
       @"elementDescription": [extractedElement debugDescription] ?: @"",
-      @"elementObject": elementObject ?: @{},
+      @"elementAttributes": elementAttributes ?: @{},
     }];
     return YES;
   };
