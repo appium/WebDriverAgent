@@ -340,7 +340,8 @@ static bool fb_isLocked;
     return YES;
   }
 
-#if __clang_major__ >= 15
+#if __clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3
+  // Xcode 14.3.1 can build these values.
   // For iOS 17+
   if ([self respondsToSelector:NSSelectorFromString(@"appearance")]) {
     switch (appearance) {
