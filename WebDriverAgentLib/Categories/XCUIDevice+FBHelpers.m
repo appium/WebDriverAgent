@@ -344,20 +344,8 @@ static bool fb_isLocked;
   // Xcode 14.3.1 can build these values.
   // For iOS 17+
   if ([self respondsToSelector:NSSelectorFromString(@"appearance")]) {
-    switch (appearance) {
-      case FBUIInterfaceAppearanceUnspecified:
-        self.appearance = XCUIDeviceAppearanceUnspecified;
-        return YES;
-      case FBUIInterfaceAppearanceLight:
-        self.appearance = XCUIDeviceAppearanceLight;
-        return YES;
-      case FBUIInterfaceAppearanceDark:
-        self.appearance = XCUIDeviceAppearanceDark;
-        return YES;
-      default:
-        [FBLogger logFmt:@"No matched appearance pattern with %lu", appearance];
-        break;
-    }
+    self.appearance = appearance;
+    return YES;
   }
 #endif
 
