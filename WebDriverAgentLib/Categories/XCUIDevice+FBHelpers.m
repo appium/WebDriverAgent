@@ -329,9 +329,6 @@ static bool fb_isLocked;
 
 - (BOOL)fb_setAppearance:(FBUIInterfaceAppearance)appearance error:(NSError **)error
 {
-  // Check the 'setAppearanceMode' first since 'appearance' below was introcued with Xcode 14.3
-  // but iOS 16.7 works with this 'setAppearanceMode' method.
-  // It is safe to check the old method first, then newer one.
   SEL selector = NSSelectorFromString(@"setAppearanceMode:");
   if (nil != selector && [self respondsToSelector:selector]) {
     NSMethodSignature *signature = [self methodSignatureForSelector:selector];
@@ -343,6 +340,7 @@ static bool fb_isLocked;
     return YES;
   }
 
+#if __clang_major__ >= 15
   // For iOS 17+
   if ([self respondsToSelector:NSSelectorFromString(@"appearance")]) {
     switch (appearance) {
@@ -360,6 +358,7 @@ static bool fb_isLocked;
         break;
     }
   }
+#endif
 
   return [[[FBErrorBuilder builder]
            withDescriptionFormat:@"Current Xcode SDK does not support appearance changing"]
