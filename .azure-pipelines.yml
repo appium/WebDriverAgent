@@ -16,6 +16,15 @@ variables:
   MAX_IPAD_DEVICE_NAME: iPad Pro (11-inch) (4th generation)
   DEFAULT_NODE_VERSION: "18.x"
 
+trigger:
+  batch: true
+  branches:
+    include: [master]
+
+pr:
+  autoCancel: true
+  branches:
+    include: [master]
 
 pool:
   vmImage: "$(MAX_VM_IMAGE)"
