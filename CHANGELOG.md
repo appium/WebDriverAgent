@@ -1,3 +1,10 @@
+## [5.15.4](https://github.com/appium/WebDriverAgent/compare/v5.15.3...v5.15.4) (2023-12-07)
+
+
+### Bug Fixes
+
+* set appearance in iOS 17+ ([#818](https://github.com/appium/WebDriverAgent/issues/818)) ([357a2cb](https://github.com/appium/WebDriverAgent/commit/357a2cbca106daf42bc892b251802bfa00895598))
+
 ## [5.15.3](https://github.com/appium/WebDriverAgent/compare/v5.15.2...v5.15.3) (2023-11-24)
 
 
