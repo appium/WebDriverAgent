@@ -4,7 +4,7 @@ lane :test do
   # https://docs.fastlane.tools/actions/scan/
   run_tests(
     project: XC_PROJECT,
-    fail_build: false,
+    fail_build: true,
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
     destination: ENV['DEST'],
