@@ -24,7 +24,8 @@ lane :test do
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
     destination: ENV['DEST'],
-    testrun_completed_block: test_run_block
+    testrun_completed_block: test_run_block,
+    output_types: 'junit'
   )
   unless result[:failed_testcount].zero?
     msg = "There are #{result[:failed_testcount]} legitimate failing tests"
