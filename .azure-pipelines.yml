@@ -1,13 +1,13 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml
 variables:
-  MIN_VM_IMAGE: macOS-13
+  MIN_VM_IMAGE: macos-13-arm64
   MIN_XCODE_VERSION: 14.1
   MIN_PLATFORM_VERSION: 16.1
   MIN_TV_PLATFORM_VERSION: 16.1
   MIN_TV_DEVICE_NAME: Apple TV 4K (3rd generation)
   MIN_IPHONE_DEVICE_NAME: iPhone 14
   MIN_IPAD_DEVICE_NAME: iPad Pro (11-inch) (4th generation)
-  MAX_VM_IMAGE: macOS-13
+  MAX_VM_IMAGE: macos-13-arm64
   MAX_XCODE_VERSION: 15.0.1
   MAX_PLATFORM_VERSION: 17.0.1
   MAX_PLATFORM_VERSION_TV: 17.0
