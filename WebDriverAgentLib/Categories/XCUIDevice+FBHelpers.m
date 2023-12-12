@@ -356,6 +356,14 @@ static bool fb_isLocked;
 
 - (NSNumber *)fb_getAppearance
 {
+#if __clang_major__ >= 15 || (__clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3)
+  // Xcode 14.3.1 can build these values.
+  // For iOS 17+
+  if ([self respondsToSelector:NSSelectorFromString(@"appearance")]) {
+    return [NSNumber numberWithLongLong:[self appearance]];
+  }
+#endif
+
   return [self respondsToSelector:@selector(appearanceMode)]
   ? [NSNumber numberWithLongLong:[self appearanceMode]]
   : nil;
