@@ -33,12 +33,10 @@
 
 - (void)setUp
 {
+  // Launch the app everytime to ensure the orientation for each test.
   [super setUp];
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self launchApplication];
-    [self goToAlertsPage];
-  });
+  [self launchApplication];
+  [self goToAlertsPage];
   [self clearAlert];
 }
 
