@@ -67,14 +67,13 @@
 
 - (void)testSwipeDownWithVelocity
 {
-#if TARGET_IPAD_SIMULATOR
-  XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-#else
+  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
+  }
   [self.scrollView fb_swipeWithDirection:@"up" velocity:@2500];
   FBAssertInvisibleCell(@"0");
   [self.scrollView fb_swipeWithDirection:@"down" velocity:@2500];
   FBAssertVisibleCell(@"0");
-#endif
 }
 
 @end
@@ -117,14 +116,13 @@
 
 - (void)testSwipeDownWithVelocity
 {
-#if TARGET_IPAD_SIMULATOR
-  XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-#else
+  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
+  }
   [self.testedApplication fb_swipeWithDirection:@"up" velocity:@2500];
   FBAssertInvisibleCell(@"0");
   [self.testedApplication fb_swipeWithDirection:@"down" velocity:@2500];
   FBAssertVisibleCell(@"0");
-#endif
 }
 
 @end

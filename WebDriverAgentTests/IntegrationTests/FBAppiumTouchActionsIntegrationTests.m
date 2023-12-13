@@ -244,9 +244,9 @@
 
 - (void)testLongPress
 {
-#if TARGET_IPAD_SIMULATOR
-  XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-#else
+  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
+  }
   UIDeviceOrientation orientation = UIDeviceOrientationLandscapeLeft;
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
   CGRect elementFrame = self.testedApplication.buttons[FBShowAlertButtonName].frame;
@@ -270,7 +270,6 @@
       }
   ];
   [self verifyGesture:gesture orientation:orientation];
-#endif
 }
 
 @end

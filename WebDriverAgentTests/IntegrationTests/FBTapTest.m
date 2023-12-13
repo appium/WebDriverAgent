@@ -65,12 +65,10 @@
 
 - (void)testTapInPortraitUpsideDown
 {
-  
-#if TARGET_IPAD_SIMULATOR
-  XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-#else
+  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
+  }
   [self verifyTapWithOrientation:UIDeviceOrientationPortraitUpsideDown];
-#endif
 }
 
 - (void)verifyTapByCoordinatesWithOrientation:(UIDeviceOrientation)orientation
@@ -98,11 +96,10 @@
 
 - (void)testTapCoordinatesInPortraitUpsideDown
 {
-#if TARGET_IPAD_SIMULATOR
-  XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-#else
+  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
+  }
   [self verifyTapByCoordinatesWithOrientation:UIDeviceOrientationPortraitUpsideDown];
-#endif
 }
 
 @end
