@@ -8,5 +8,6 @@ lane :test do
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
     destination: ENV['DEST'],
+    number_of_retries: 3
   )
 end
