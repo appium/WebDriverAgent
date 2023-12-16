@@ -157,15 +157,14 @@
 // It worked locally but CI did not.
 - (void)testCameraRollAlert
 {
-  XCTSkip(@"The alert depends on the permission condition. Azure CI env might have an issue to handle permission.");
-
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
   XCTAssertNil(alert.text);
 
   [self.testedApplication.buttons[@"Create Camera Roll Alert"] tap];
   FBAssertWaitTillBecomesTrue(alert.isPresent);
 
-  XCTAssertTrue([alert.text containsString:@"Would Like to Access Your Photos"]);
+  // "Would Like to Access Your Photos" or "Would Like to Access Your Photo Library" displayes on the alert button.
+  XCTAssertTrue([alert.text containsString:@"Would Like to Access Your Photo"]);
   // iOS 15 has different UI flow
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
     [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
