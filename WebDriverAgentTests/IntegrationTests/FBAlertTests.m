@@ -155,7 +155,6 @@
 }
 
 // This test case depends on the local app permission state.
-// It worked locally but CI did not.√
 - (void)testCameraRollAlert
 {
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
@@ -169,6 +168,7 @@
   // iOS 15 has different UI flow
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
     [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+    // CI env could take longer time to show up the button, thus it needs to wait a bit.
     XCTAssertTrue([self.testedApplication.buttons[@"Cancel"] waitForExistenceWithTimeout:30.0]);
     [self.testedApplication.buttons[@"Cancel"] tap];
   }
