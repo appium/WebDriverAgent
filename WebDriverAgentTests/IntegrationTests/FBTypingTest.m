@@ -60,6 +60,10 @@
   XCTAssertTrue([textField fb_clearTextWithError:&error]);
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.value, @"");
+  XCTAssertTrue([textField fb_typeText:@"Happy typing" shouldClear:YES error:&error]);
+  XCTAssertTrue([textField fb_typeText:@"Happy typing 2" shouldClear:YES error:&error]);
+  XCTAssertEqualObjects(textField.value, @"Happy typing 2");
+  XCTAssertNil(error);
 }
 
 @end

@@ -39,7 +39,7 @@ static NSUInteger FBMjpegServerFramerate = 10;
 
 // Session-specific settings
 static BOOL FBShouldTerminateApp;
-static NSUInteger FBMaxTypingFrequency;
+static NSNumber* FBMaxTypingFrequency;
 static NSUInteger FBScreenshotQuality;
 static NSTimeInterval FBCustomSnapshotTimeout;
 static BOOL FBShouldUseFirstMatch;
@@ -56,6 +56,13 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
 
 @implementation FBConfiguration
+
++ (NSUInteger)defaultTypingFrequency
+{
+  NSInteger defaultFreq = [[NSUserDefaults standardUserDefaults]
+                           integerForKey:@"com.apple.xctest.iOSMaximumTypingFrequency"];
+  return defaultFreq > 0 ? defaultFreq : 60;
+}
 
 + (void)initialize
 {
@@ -200,12 +207,17 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 
 + (void)setMaxTypingFrequency:(NSUInteger)value
 {
-  FBMaxTypingFrequency = value;
+  FBMaxTypingFrequency = @(value);
 }
 
 + (NSUInteger)maxTypingFrequency
 {
-  return FBMaxTypingFrequency;
+  if (nil == FBMaxTypingFrequency) {
+    return [self defaultTypingFrequency];
+  }
+  return FBMaxTypingFrequency.integerValue <= 0 
+    ? [self defaultTypingFrequency]
+    : FBMaxTypingFrequency.integerValue;
 }
 
 + (void)setShouldUseSingletonTestManager:(BOOL)value
@@ -462,7 +474,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   FBShouldTerminateApp = YES;
   FBShouldUseCompactResponses = YES;
   FBElementResponseAttributes = @"type,label";
-  FBMaxTypingFrequency = 60;
+  FBMaxTypingFrequency = @([self defaultTypingFrequency]);
   FBScreenshotQuality = 3;
   FBCustomSnapshotTimeout = 15.;
   FBShouldUseFirstMatch = NO;

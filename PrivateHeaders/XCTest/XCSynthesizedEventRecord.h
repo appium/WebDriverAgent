@@ -25,6 +25,7 @@
 #if !TARGET_OS_TV
 - (id)initWithName:(NSString *)arg1 interfaceOrientation:(UIInterfaceOrientation)arg2;
 #endif
+- (id)initWithName:(id)arg1;
 - (id)init;
 - (BOOL)synthesizeWithError:(NSError **)arg1;
 

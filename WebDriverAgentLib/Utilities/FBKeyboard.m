@@ -25,31 +25,6 @@
 
 @implementation FBKeyboard
 
-+ (BOOL)typeText:(NSString *)text error:(NSError **)error
-{
-  return [self typeText:text frequency:[FBConfiguration maxTypingFrequency] error:error];
-}
-
-+ (BOOL)typeText:(NSString *)text frequency:(NSUInteger)frequency error:(NSError **)error
-{
-  __block BOOL didSucceed = NO;
-  __block NSError *innerError;
-  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    [[FBXCTestDaemonsProxy testRunnerProxy]
-     _XCT_sendString:text
-     maximumFrequency:frequency
-     completion:^(NSError *typingError){
-       didSucceed = (typingError == nil);
-       innerError = typingError;
-       completion();
-     }];
-  }];
-  if (error) {
-    *error = innerError;
-  }
-  return didSucceed;
-}
-
 + (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app timeout:(NSTimeInterval)timeout error:(NSError **)error
 {
   BOOL (^isKeyboardVisible)(void) = ^BOOL(void) {

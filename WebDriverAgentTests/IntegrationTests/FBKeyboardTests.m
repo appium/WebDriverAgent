@@ -27,31 +27,6 @@
   [self goToAttributesPage];
 }
 
-- (void)testTextTyping
-{
-  if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-    XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
-  }
-  NSString *text = @"Happy typing";
-  XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
-  [textField tap];
-
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"15.0")) {
-    // A workaround until find out to clear tutorial on iOS 15
-    XCUIElement *textField = self.testedApplication.staticTexts[@"Continue"];
-    if (textField.hittable) {
-      [textField tap];
-    }
-  }
-
-  NSError *error;
-  XCTAssertTrue([FBKeyboard waitUntilVisibleForApplication:self.testedApplication timeout:1 error:&error]);
-  XCTAssertNil(error);
-  XCTAssertTrue([FBKeyboard typeText:text error:&error]);
-  XCTAssertNil(error);
-  XCTAssertEqualObjects(textField.value, text);
-}
-
 - (void)testKeyboardDismissal
 {
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];

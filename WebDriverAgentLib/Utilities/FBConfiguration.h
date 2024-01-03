@@ -60,6 +60,7 @@ extern NSString *const FBSnapshotMaxDepthKey;
 /* The maximum typing frequency for all typing activities */
 + (void)setMaxTypingFrequency:(NSUInteger)value;
 + (NSUInteger)maxTypingFrequency;
++ (NSUInteger)defaultTypingFrequency;
 
 /* Use singleton test manager proxy */
 + (void)setShouldUseSingletonTestManager:(BOOL)value;

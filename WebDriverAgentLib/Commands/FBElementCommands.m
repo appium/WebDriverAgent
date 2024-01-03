@@ -555,10 +555,11 @@
 
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
+  XCUIApplication *app = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *textToType = [request.arguments[@"value"] componentsJoinedByString:@""];
   NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error;
-  if (![FBKeyboard typeText:textToType frequency:frequency error:&error]) {
+  if (![app fb_typeText:textToType shouldClear:NO frequency:frequency error:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
                                                                            traceback:nil]);
   }
