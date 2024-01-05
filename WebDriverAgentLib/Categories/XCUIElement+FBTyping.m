@@ -10,14 +10,15 @@
 #import "XCUIElement+FBTyping.h"
 
 #import "FBConfiguration.h"
+#import "FBErrorBuilder.h"
 #import "FBXCElementSnapshotWrapper.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
+#import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "NSString+FBVisualLength.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
-#import "FBXCodeCompatibility.h"
-#import "FBXCTestDaemonsProxy.h"
 #import "XCSynthesizedEventRecord.h"
 #import "XCPointerEventPath.h"
 
