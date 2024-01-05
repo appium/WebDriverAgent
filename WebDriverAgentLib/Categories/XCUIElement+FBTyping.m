@@ -25,6 +25,20 @@
 #define MAX_TEXT_ABBR_LEN 12
 #define MAX_CLEAR_RETRIES 3
 
+BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
+{
+  NSString *name = text.length <= MAX_TEXT_ABBR_LEN
+    ? [NSString stringWithFormat:@"Type '%@'", text]
+    : [NSString stringWithFormat:@"Type '%@…'", [text substringToIndex:MAX_TEXT_ABBR_LEN]];
+  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:name];
+  XCPointerEventPath *ep = [[XCPointerEventPath alloc] initForTextInput];
+  [ep typeText:text
+      atOffset:0.0
+   typingSpeed:typingSpeed
+  shouldRedact:NO];
+  [eventRecord addPointerEventPath:ep];
+  return [FBXCTestDaemonsProxy synthesizeEventWithRecord:eventRecord error:error];
+}
 
 @interface NSString (FBRepeat)
 
@@ -65,23 +79,6 @@
 
 @implementation XCUIElement (FBTyping)
 
-+ (BOOL)fb_typeText:(NSString *)text
-        typingSpeed:(NSUInteger)typingSpeed
-              error:(NSError **)error
-{
-  NSString *name = text.length <= MAX_TEXT_ABBR_LEN
-    ? [NSString stringWithFormat:@"Type '%@'", text]
-    : [NSString stringWithFormat:@"Type '%@…'", [text substringToIndex:MAX_TEXT_ABBR_LEN]];
-  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:name];
-  XCPointerEventPath *ep = [[XCPointerEventPath alloc] initForTextInput];
-  [ep typeText:text
-      atOffset:0.0
-   typingSpeed:typingSpeed
-  shouldRedact:NO];
-  [eventRecord addPointerEventPath:ep];
-  return [FBXCTestDaemonsProxy synthesizeEventWithRecord:eventRecord error:error];
-}
-
 - (void)fb_prepareForTextInputWithSnapshot:(FBXCElementSnapshotWrapper *)snapshot
 {
   if (snapshot.fb_hasKeyboardFocus) {
@@ -103,31 +100,25 @@
               error:(NSError **)error
 {
   return [self fb_typeText:text
-             shouldPrepare:YES
                shouldClear:shouldClear
                  frequency:FBConfiguration.maxTypingFrequency
                      error:error];
 }
 
 - (BOOL)fb_typeText:(NSString *)text
-      shouldPrepare:(BOOL)shouldPrepare
         shouldClear:(BOOL)shouldClear
           frequency:(NSUInteger)frequency
               error:(NSError **)error
 {
-  if (shouldPrepare || shouldClear) {
-    id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
-      ? self.lastSnapshot
-      : self.fb_takeSnapshot;
-    FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
-    if (shouldPrepare) {
-      [self fb_prepareForTextInputWithSnapshot:wrapped];
-    }
-    if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
-      return NO;
-    }
+  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
+    ? self.lastSnapshot
+    : self.fb_takeSnapshot;
+  FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  [self fb_prepareForTextInputWithSnapshot:wrapped];
+  if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
+    return NO;
   }
-  return [self.class fb_typeText:text typingSpeed:frequency error:error];
+  return FBTypeText(text, frequency, error);
 }
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
@@ -185,12 +176,8 @@
     } else if (retry >= MAX_CLEAR_RETRIES - 1) {
       // Last chance retry. Tripple-tap the field to select its content
       [self tapWithNumberOfTaps:3 numberOfTouches:1];
-      return [self.class fb_typeText:backspaceDeleteSequence
-                         typingSpeed:FBConfiguration.defaultTypingFrequency
-                               error:error];
-    } else if (![self.class fb_typeText:backspacesToType
-                            typingSpeed:FBConfiguration.defaultTypingFrequency
-                                  error:error]) {
+      return FBTypeText(backspaceDeleteSequence, FBConfiguration.defaultTypingFrequency, error);
+    } else if (!FBTypeText(backspacesToType, FBConfiguration.defaultTypingFrequency, error)) {
       // 2nd operation
       return NO;
     }

@@ -220,7 +220,6 @@
   NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error = nil;
   if (![element fb_typeText:textToType
-              shouldPrepare:YES
                 shouldClear:NO
                   frequency:frequency
                       error:&error]) {
@@ -559,11 +558,7 @@
   NSString *textToType = [request.arguments[@"value"] componentsJoinedByString:@""];
   NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error;
-  if (![FBApplication.fb_systemApplication fb_typeText:textToType
-                                         shouldPrepare:NO
-                                           shouldClear:NO
-                                             frequency:frequency
-                                                 error:&error]) {
+  if (!FBTypeText(textToType, frequency, &error)) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description
                                                                            traceback:nil]);
   }
