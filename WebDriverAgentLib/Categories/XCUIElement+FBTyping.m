@@ -102,23 +102,29 @@
               error:(NSError **)error
 {
   return [self fb_typeText:text
+             shouldPrepare:YES
                shouldClear:shouldClear
                  frequency:FBConfiguration.maxTypingFrequency
                      error:error];
 }
 
 - (BOOL)fb_typeText:(NSString *)text
+      shouldPrepare:(BOOL)shouldPrepare
         shouldClear:(BOOL)shouldClear
           frequency:(NSUInteger)frequency
               error:(NSError **)error
 {
-  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot
-    : self.fb_takeSnapshot;
-  FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
-  [self fb_prepareForTextInputWithSnapshot:wrapped];
-  if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
-    return NO;
+  if (shouldPrepare || shouldClear) {
+    id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
+      ? self.lastSnapshot
+      : self.fb_takeSnapshot;
+    FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+    if (shouldPrepare) {
+      [self fb_prepareForTextInputWithSnapshot:wrapped];
+    }
+    if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
+      return NO;
+    }
   }
   return [self.class fb_typeText:text typingSpeed:frequency error:error];
 }

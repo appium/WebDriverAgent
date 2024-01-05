@@ -31,12 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
  It will try to activate keyboard on element, if element has no keyboard focus.
 
  @param text text that should be typed
+ @param shouldPrepare Whether to prepare the element for the text input (e.g. put the keyboard focus if not there)
  @param shouldClear Whether to clear the input field before start typing
  @param frequency Frequency of typing (letters per sec)
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the operation succeeds, otherwise NO.
  */
 - (BOOL)fb_typeText:(NSString *)text
+      shouldPrepare:(BOOL)shouldPrepare
         shouldClear:(BOOL)shouldClear
           frequency:(NSUInteger)frequency
               error:(NSError **)error;
