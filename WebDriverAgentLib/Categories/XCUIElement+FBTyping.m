@@ -197,9 +197,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
   // kHIDPage_KeyboardOrKeypad did not work for tvOS's search field. (tvOS 17 at least)
   // Tested XCUIElementTypeSearchField and XCUIElementTypeTextView whch were
   // common search field and email/passowrd input in tvOS apps.
-  return [self.class fb_typeText:backspacesToType
-                     typingSpeed:FBConfiguration.defaultTypingFrequency
-                           error:error];
+  return FBTypeText(backspacesToType, FBConfiguration.defaultTypingFrequency, error);
 #endif
 }
 
