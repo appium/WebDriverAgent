@@ -9,6 +9,7 @@
 
 #import "FBRuntimeUtils.h"
 
+#import "FBErrorBuilder.h"
 #import "FBMacros.h"
 #import "XCUIDevice.h"
 
@@ -110,4 +111,20 @@ BOOL isSDKVersionGreaterThan(NSString *expected)
   }
   NSComparisonResult result = [version compare:expected options:NSNumericSearch];
   return result == NSOrderedDescending;
+}
+
+BOOL FBSimuteLowMemoryWarning(NSError **error)
+{
+  SEL selector = NSSelectorFromString(@"_performMemoryWarning");
+  UIApplication *sharedApp = [UIApplication sharedApplication];
+  NSMethodSignature *signature = [sharedApp methodSignatureForSelector:selector];
+  if (nil == signature) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"Cannot simulate the Low Memory warning"]
+            buildError:error];
+  }
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation invokeWithTarget:sharedApp];
+  return YES;
 }

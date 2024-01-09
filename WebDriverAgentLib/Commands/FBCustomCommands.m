@@ -21,6 +21,7 @@
 #import "FBRoute.h"
 #import "FBRouteRequest.h"
 #import "FBRunLoopSpinner.h"
+#import "FBRuntimeUtils.h"
 #import "FBScreen.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
@@ -80,6 +81,7 @@
     [[FBRoute DELETE:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
     [[FBRoute DELETE:@"/wda/simulatedLocation"].withoutSession respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
 #endif
+    [[FBRoute POST:@"/wda/simulateLowMemoryWarning"] respondWithTarget:self action:@selector(handleSimulateLowMemoryWarning:)],
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
   ];
 }
@@ -298,6 +300,16 @@
     return FBResponseWithOK();
   }
   return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:@"LSApplicationWorkspace failed to launch app" traceback:nil]);
+}
+
++ (id <FBResponsePayload>)handleSimulateLowMemoryWarning:(FBRouteRequest *)request
+{
+  NSError *error;
+  if (!FBSimuteLowMemoryWarning(&error)) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithOK();
 }
 
 + (id <FBResponsePayload>)handleResetAppAuth:(FBRouteRequest *)request

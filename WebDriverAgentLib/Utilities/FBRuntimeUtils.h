@@ -77,4 +77,16 @@ BOOL isSDKVersionGreaterThanOrEqualTo(NSString *expected);
  */
 BOOL isSDKVersionGreaterThan(NSString *expected);
 
+/**
+ This simulates a situation when the app under test receives
+ `didReceiveMemoryWarning` callback and allows to verify
+ its behavior under low memory circumstances.
+ If the app under test has no callback defined for the above handler
+ then this API will be a NOOP.
+
+ @param error The actual error object if the simulation fails
+ @return YES if the simulation was successful
+ */
+BOOL FBSimuteLowMemoryWarning(NSError **error);
+
 NS_ASSUME_NONNULL_END
