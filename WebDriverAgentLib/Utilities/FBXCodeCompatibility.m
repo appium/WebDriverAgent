@@ -9,9 +9,11 @@
 
 #import "FBXCodeCompatibility.h"
 
+#import "FBXCAXClientProxy.h"
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
+#import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
 #import "FBXCTestDaemonsProxy.h"
@@ -22,15 +24,6 @@ static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
 NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethodNotSupportedException";
 
 @implementation XCUIApplication (FBCompatibility)
-
-+ (instancetype)fb_applicationWithPID:(pid_t)processID
-{
-  if (0 == processID) {
-    return nil;
-  }
-
-  return [self applicationWithPID:processID];
-}
 
 - (void)fb_activate
 {
@@ -48,9 +41,12 @@ NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethod
   }
 }
 
-- (NSUInteger)fb_state
+- (void)fb_launch
 {
-  return [[self valueForKey:@"state"] intValue];
+  [self launch];
+  if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
+    [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
+  }
 }
 
 @end
@@ -89,7 +85,7 @@ NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethod
   static dispatch_once_t hasIncludingNonModalElements;
   static BOOL result;
   dispatch_once(&hasIncludingNonModalElements, ^{
-    result = [FBApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
+    result = [XCUIApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
   });
   return result;
 }

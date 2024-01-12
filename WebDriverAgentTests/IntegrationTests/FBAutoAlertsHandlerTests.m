@@ -10,7 +10,6 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
-#import "FBApplication.h"
 #import "FBMacros.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
@@ -50,7 +49,7 @@
 - (void)disabled_testAutoAcceptingOfAlerts
 {
   self.session = [FBSession
-                  initWithApplication:FBApplication.fb_activeApplication
+                  initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] tap];
@@ -63,7 +62,7 @@
 - (void)disabled_testAutoDismissingOfAlerts
 {
   self.session = [FBSession
-                  initWithApplication:FBApplication.fb_activeApplication
+                  initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];
   for (int i = 0; i < 2; i++) {
     [self.testedApplication.buttons[FBShowAlertButtonName] tap];

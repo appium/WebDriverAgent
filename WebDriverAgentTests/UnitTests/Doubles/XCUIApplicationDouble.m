@@ -7,13 +7,13 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "FBApplicationDouble.h"
+#import "XCUIApplicationDouble.h"
 
-@interface FBApplicationDouble ()
+@interface XCUIApplicationDouble ()
 @property (nonatomic, assign, readwrite) BOOL didTerminate;
 @end
 
-@implementation FBApplicationDouble
+@implementation XCUIApplicationDouble
 
 - (instancetype)init
 {

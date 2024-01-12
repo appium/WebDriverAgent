@@ -9,7 +9,6 @@
 
 #import "FBSessionCommands.h"
 
-#import "FBApplication.h"
 #import "FBCapabilities.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
@@ -17,7 +16,6 @@
 #import "FBRouteRequest.h"
 #import "FBSession.h"
 #import "FBSettings.h"
-#import "FBApplication.h"
 #import "FBRuntimeUtils.h"
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
@@ -138,27 +136,27 @@
   }
 
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
-  FBApplication *app = nil;
+  XCUIApplication *app = nil;
   if (bundleID != nil) {
-    app = [[FBApplication alloc] initWithBundleIdentifier:bundleID];
+    app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
     BOOL forceAppLaunch = YES;
     if (nil != capabilities[FB_CAP_FORCE_APP_LAUNCH]) {
       forceAppLaunch = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
     }
-    NSUInteger appState = [app fb_state];
-    BOOL isAppRunning = appState >= 2;
+    NSUInteger appState = app.state;
+    BOOL isAppRunning = appState >= XCUIApplicationStateRunningBackground;
     if (!isAppRunning || (isAppRunning && forceAppLaunch)) {
       app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
         || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
       app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
       app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
-      [app launch];
+      [app fb_launch];
       if (![app running]) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
         return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
                                                                   traceback:nil]);
       }
-    } else if (appState < 4 && !forceAppLaunch) {
+    } else if (appState < XCUIApplicationStateRunningForeground && !forceAppLaunch) {
       [app fb_activate];
     }
   }
@@ -265,7 +263,7 @@
 
 + (id<FBResponsePayload>)handleGetHealthCheck:(FBRouteRequest *)request
 {
-  if (![[XCUIDevice sharedDevice] fb_healthCheckWithApplication:[FBApplication fb_activeApplication]]) {
+  if (![[XCUIDevice sharedDevice] fb_healthCheckWithApplication:[XCUIApplication fb_activeApplication]]) {
     return FBResponseWithUnknownErrorFormat(@"Health check failed");
   }
   return FBResponseWithOK();

@@ -9,11 +9,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBImageUtils.h"
 #import "FBMacros.h"
 #import "FBTestMacros.h"
+#import "XCUIApplication.h"
+#import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIDevice+FBRotation.h"
 #import "XCUIScreen.h"
@@ -101,7 +102,7 @@
   NSError *error;
   XCTAssertTrue([[XCUIDevice sharedDevice] fb_goToHomescreenWithError:&error]);
   XCTAssertNil(error);
-  XCTAssertTrue([FBApplication fb_activeApplication].icons[@"Safari"].exists);
+  XCTAssertTrue([XCUIApplication fb_activeApplication].icons[@"Safari"].exists);
 }
 
 - (void)testLockUnlockScreen
@@ -124,7 +125,7 @@
 
   NSError *error;
   XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com" error:&error]);
-  FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
+  FBAssertWaitTillBecomesTrue([XCUIApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
   XCTAssertNil(error);
 }
 
@@ -138,7 +139,7 @@
   XCTAssertTrue([XCUIDevice.sharedDevice fb_openUrl:@"https://apple.com"
                                     withApplication:@"com.apple.mobilesafari"
                                               error:&error]);
-  FBAssertWaitTillBecomesTrue([FBApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
+  FBAssertWaitTillBecomesTrue([XCUIApplication.fb_activeApplication.bundleID isEqualToString:@"com.apple.mobilesafari"]);
   XCTAssertNil(error);
 }
 

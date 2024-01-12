@@ -9,13 +9,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBApplicationDouble.h"
 #import "FBSession.h"
 #import "FBConfiguration.h"
+#import "XCUIApplicationDouble.h"
 
 @interface FBSessionTests : XCTestCase
 @property (nonatomic, strong) FBSession *session;
-@property (nonatomic, strong) FBApplication *testedApplication;
+@property (nonatomic, strong) XCUIApplication *testedApplication;
 @property (nonatomic) BOOL shouldTerminateAppValue;
 @end
 
@@ -24,7 +24,7 @@
 - (void)setUp
 {
   [super setUp];
-  self.testedApplication = (id)FBApplicationDouble.new;
+  self.testedApplication = (id)XCUIApplicationDouble.new;
   self.shouldTerminateAppValue = FBConfiguration.shouldTerminateApp;
   [FBConfiguration setShouldTerminateApp:NO];
   self.session = [FBSession initWithApplication:self.testedApplication];

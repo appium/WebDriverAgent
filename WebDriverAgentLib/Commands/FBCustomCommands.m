@@ -12,7 +12,6 @@
 #import <XCTest/XCUIDevice.h>
 #import <CoreLocation/CoreLocation.h>
 
-#import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBKeyboard.h"
 #import "FBNotificationsHelper.h"
@@ -24,6 +23,7 @@
 #import "FBScreen.h"
 #import "FBSession.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
 #import "XCUIElement.h"
@@ -171,7 +171,7 @@
 
 + (id<FBResponsePayload>)handleActiveAppInfo:(FBRouteRequest *)request
 {
-  XCUIApplication *app = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   return FBResponseWithObject(@{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,

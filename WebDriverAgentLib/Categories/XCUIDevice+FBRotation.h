@@ -8,7 +8,6 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <WebDriverAgentLib/FBApplication.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

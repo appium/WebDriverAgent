@@ -9,13 +9,14 @@
 
 #import "XCUIApplication+FBHelpers.h"
 
+#import "FBActiveAppDetectionPoint.h"
 #import "FBElementTypeTransformer.h"
 #import "FBKeyboard.h"
 #import "FBLogger.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
-#import "FBActiveAppDetectionPoint.h"
+#import "FBRunLoopSpinner.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXPath.h"
 #import "FBXCAccessibilityElement.h"
@@ -23,14 +24,19 @@
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXMLGenerationOptions.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTestPrivateSymbols.h"
+#import "XCTRunnerDaemonSession.h"
+#import "XCUIApplication.h"
+#import "XCUIApplicationImpl.h"
+#import "XCUIApplicationProcess.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIElement.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
-#import "XCTestPrivateSymbols.h"
-#import "XCTRunnerDaemonSession.h"
+#import "XCUIElementQuery.h"
 
 static NSString* const FBUnknownBundleId = @"unknown";
 
@@ -391,6 +397,143 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   BOOL isSuccessful;
   [invocation getReturnValue:&isSuccessful];
   return isSuccessful ? resultArray.copy : nil;
+}
+
++ (instancetype)fb_activeApplication
+{
+  return [self fb_activeApplicationWithDefaultBundleId:nil];
+}
+
++ (NSArray<XCUIApplication *> *)fb_activeApplications
+{
+  NSArray<id<FBXCAccessibilityElement>> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  NSMutableArray<XCUIApplication *> *result = [NSMutableArray array];
+  if (activeApplicationElements.count > 0) {
+    for (id<FBXCAccessibilityElement> applicationElement in activeApplicationElements) {
+      XCUIApplication *app = [XCUIApplication fb_applicationWithPID:applicationElement.processIdentifier];
+      if (nil != app) {
+        [result addObject:app];
+      }
+    }
+  }
+  return result.count > 0 ? result.copy : @[self.class.fb_systemApplication];
+}
+
++ (instancetype)fb_activeApplicationWithDefaultBundleId:(nullable NSString *)bundleId
+{
+  NSArray<id<FBXCAccessibilityElement>> *activeApplicationElements = [FBXCAXClientProxy.sharedClient activeApplications];
+  id<FBXCAccessibilityElement> activeApplicationElement = nil;
+  id<FBXCAccessibilityElement> currentElement = nil;
+  if (nil != bundleId) {
+    currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
+    if (nil != currentElement) {
+      NSArray<NSDictionary *> *appInfos = [self fb_appsInfoWithAxElements:@[currentElement]];
+      [FBLogger logFmt:@"Detected on-screen application: %@", appInfos.firstObject[@"bundleId"]];
+      if ([[appInfos.firstObject objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
+        activeApplicationElement = currentElement;
+      }
+    }
+  }
+  if (nil == activeApplicationElement && activeApplicationElements.count > 1) {
+    if (nil != bundleId) {
+      NSArray<NSDictionary *> *appInfos = [self fb_appsInfoWithAxElements:activeApplicationElements];
+      NSMutableArray<NSString *> *bundleIds = [NSMutableArray array];
+      for (NSDictionary *appInfo in appInfos) {
+        [bundleIds addObject:(NSString *)appInfo[@"bundleId"]];
+      }
+      [FBLogger logFmt:@"Detected system active application(s): %@", bundleIds];
+      // Try to select the desired application first
+      for (NSUInteger appIdx = 0; appIdx < appInfos.count; appIdx++) {
+        if ([[[appInfos objectAtIndex:appIdx] objectForKey:@"bundleId"] isEqualToString:(id)bundleId]) {
+          activeApplicationElement = [activeApplicationElements objectAtIndex:appIdx];
+          break;
+        }
+      }
+    }
+    // Fall back to the "normal" algorithm if the desired application is either
+    // not set or is not active
+    if (nil == activeApplicationElement) {
+      if (nil == currentElement) {
+        currentElement = FBActiveAppDetectionPoint.sharedInstance.axElement;
+      }
+      if (nil == currentElement) {
+        [FBLogger log:@"Cannot precisely detect the current application. Will use the system's recently active one"];
+        if (nil == bundleId) {
+          [FBLogger log:@"Consider changing the 'defaultActiveApplication' setting to the bundle identifier of the desired application under test"];
+        }
+      } else {
+        for (id<FBXCAccessibilityElement> appElement in activeApplicationElements) {
+          if (appElement.processIdentifier == currentElement.processIdentifier) {
+            activeApplicationElement = appElement;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  if (nil != activeApplicationElement) {
+    XCUIApplication *application = [XCUIApplication fb_applicationWithPID:activeApplicationElement.processIdentifier];
+    if (nil != application) {
+      return application;
+    }
+    [FBLogger log:@"Cannot translate the active process identifier into an application object"];
+  }
+
+  if (activeApplicationElements.count > 0) {
+    [FBLogger logFmt:@"Getting the most recent active application (out of %@ total items)", @(activeApplicationElements.count)];
+    for (id<FBXCAccessibilityElement> appElement in activeApplicationElements) {
+      XCUIApplication *application = [XCUIApplication fb_applicationWithPID:appElement.processIdentifier];
+      if (nil != application) {
+        return application;
+      }
+    }
+  }
+
+  [FBLogger log:@"Cannot retrieve any active applications. Assuming the system application is the active one"];
+  return [self fb_systemApplication];
+}
+
++ (instancetype)fb_systemApplication
+{
+  return [self fb_applicationWithPID:
+                           [[FBXCAXClientProxy.sharedClient systemApplication] processIdentifier]];
+}
+
++ (instancetype)fb_applicationWithPID:(pid_t)processID
+{
+  return [FBXCAXClientProxy.sharedClient monitoredApplicationWithProcessIdentifier:processID];
+}
+
++ (BOOL)fb_switchToSystemApplicationWithError:(NSError **)error
+{
+  XCUIApplication *systemApp = self.fb_systemApplication;
+  @try {
+    if (!systemApp.running) {
+      [systemApp launch];
+    } else {
+      [systemApp activate];
+    }
+  } @catch (NSException *e) {
+    return [[[FBErrorBuilder alloc]
+             withDescription:nil == e ? @"Cannot open the home screen" : e.reason]
+            buildError:error];
+  }
+  return [[[[FBRunLoopSpinner new]
+            timeout:5]
+           timeoutErrorMessage:@"Timeout waiting until the home screen is visible"]
+          spinUntilTrue:^BOOL{
+    return [systemApp fb_isSameAppAs:self.fb_activeApplication];
+  }
+          error:error];
+}
+
+- (BOOL)fb_isSameAppAs:(nullable XCUIApplication *)otherApp
+{
+  if (nil == otherApp) {
+    return NO;
+  }
+  return [self.bundleID isEqualToString:(NSString *)otherApp.bundleID];
 }
 
 @end

@@ -16,7 +16,6 @@ FOUNDATION_EXPORT double WebDriverAgentLib_VersionNumber;
 FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 
 #import <WebDriverAgentLib/FBAlert.h>
-#import <WebDriverAgentLib/FBApplication.h>
 #import <WebDriverAgentLib/FBCommandHandler.h>
 #import <WebDriverAgentLib/FBCommandStatus.h>
 #import <WebDriverAgentLib/FBConfiguration.h>

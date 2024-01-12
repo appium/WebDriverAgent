@@ -10,9 +10,9 @@
 #import "FBAlertViewCommands.h"
 
 #import "FBAlert.h"
-#import "FBApplication.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
+#import "XCUIApplication+FBHelpers.h"
 
 @implementation FBAlertViewCommands
 
@@ -38,7 +38,7 @@
 
 + (id<FBResponsePayload>)handleAlertGetTextCommand:(FBRouteRequest *)request
 {
-  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSString *alertText = [FBAlert alertWithApplication:application].text;
   if (!alertText) {
     return FBResponseWithStatus([FBCommandStatus noAlertOpenErrorWithMessage:nil
@@ -73,7 +73,7 @@
 
 + (id<FBResponsePayload>)handleAlertAcceptCommand:(FBRouteRequest *)request
 {
-  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSString *name = request.arguments[@"name"];
   FBAlert *alert = [FBAlert alertWithApplication:application];
   NSError *error;
@@ -96,7 +96,7 @@
 
 + (id<FBResponsePayload>)handleAlertDismissCommand:(FBRouteRequest *)request
 {
-  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSString *name = request.arguments[@"name"];
   FBAlert *alert = [FBAlert alertWithApplication:application];
   NSError *error;

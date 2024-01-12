@@ -11,11 +11,11 @@
 
 #import <mach/mach_time.h>
 
-#import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBElement.h"
 #import "FBMacros.h"
 #import "FBTestMacros.h"
+#import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
@@ -34,8 +34,8 @@
 - (void)testQueringSpringboard
 {
   [self goToSpringBoardFirstPage];
-  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Safari"].exists);
-  XCTAssertTrue(FBApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.exists);
+  XCTAssertTrue(XCUIApplication.fb_systemApplication.icons[@"Safari"].exists);
+  XCTAssertTrue(XCUIApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.exists);
 }
 
 - (void)testApplicationTree
@@ -58,10 +58,10 @@
 
 - (void)testActiveApplication
 {
-  FBApplication *systemApp = FBApplication.fb_systemApplication;
-  XCTAssertTrue([FBApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
+  XCUIApplication *systemApp = XCUIApplication.fb_systemApplication;
+  XCTAssertTrue([XCUIApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
-  XCTAssertEqualObjects([FBApplication fb_activeApplication].bundleID, systemApp.bundleID);
+  XCTAssertEqualObjects([XCUIApplication fb_activeApplication].bundleID, systemApp.bundleID);
   XCTAssertTrue(systemApp.icons[@"Safari"].fb_isVisible);
 }
 
@@ -102,14 +102,14 @@
   }
 
   NSError *error;
-  NSArray *auditIssues1 = [FBApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypes:~0UL
+  NSArray *auditIssues1 = [XCUIApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypes:~0UL
                                                                                                    error:&error];
   XCTAssertNotNil(auditIssues1);
   XCTAssertNil(error);
 
   NSMutableSet *set = [NSMutableSet new];
   [set addObject:@"XCUIAccessibilityAuditTypeAll"];
-  NSArray *auditIssues2 = [FBApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypesSet:set.copy
+  NSArray *auditIssues2 = [XCUIApplication.fb_activeApplication fb_performAccessibilityAuditWithAuditTypesSet:set.copy
                                                                                                       error:&error];
   XCTAssertEqualObjects(auditIssues1, auditIssues2);
   XCTAssertNil(error);

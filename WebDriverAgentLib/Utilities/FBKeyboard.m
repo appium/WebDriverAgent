@@ -9,8 +9,6 @@
 
 #import "FBKeyboard.h"
 
-
-#import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "FBErrorBuilder.h"
@@ -25,10 +23,13 @@
 
 @implementation FBKeyboard
 
-+ (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app timeout:(NSTimeInterval)timeout error:(NSError **)error
++ (BOOL)waitUntilVisibleForApplication:(XCUIApplication *)app 
+                               timeout:(NSTimeInterval)timeout
+                                 error:(NSError **)error
 {
   BOOL (^isKeyboardVisible)(void) = ^BOOL(void) {
-    if (!app.keyboard.exists) {
+    XCUIElement *keyboard = app.keyboards.fb_firstMatch;
+    if (nil == keyboard) {
       return NO;
     }
 
@@ -36,7 +37,7 @@
                                                                             NSDictionary *bindings) {
       return snapshot.label.length > 0;
     }];
-    XCUIElement *firstKey = [[app.keyboard descendantsMatchingType:XCUIElementTypeKey]
+    XCUIElement *firstKey = [[keyboard descendantsMatchingType:XCUIElementTypeKey]
                              matchingPredicate:keySearchPredicate].allElementsBoundByIndex.firstObject;
     return firstKey.exists && firstKey.hittable;
   };

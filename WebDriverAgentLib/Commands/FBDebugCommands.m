@@ -9,7 +9,6 @@
 
 #import "FBDebugCommands.h"
 
-#import "FBApplication.h"
 #import "FBRouteRequest.h"
 #import "FBSession.h"
 #import "FBXMLGenerationOptions.h"
@@ -42,7 +41,7 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
 + (id<FBResponsePayload>)handleGetSourceCommand:(FBRouteRequest *)request
 {
   // This method might be called without session
-  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSString *sourceType = request.parameters[@"format"] ?: SOURCE_FORMAT_XML;
   NSString *sourceScope = request.parameters[@"scope"];
   id result;
@@ -71,7 +70,7 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
 + (id<FBResponsePayload>)handleGetAccessibleSourceCommand:(FBRouteRequest *)request
 {
   // This method might be called without session
-  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
+  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   return FBResponseWithObject(application.fb_accessibilityTree ?: @{});
 }
 

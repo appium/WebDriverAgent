@@ -36,15 +36,6 @@ extern NSString *const FBApplicationMethodNotSupportedException;
 
 @interface XCUIApplication (FBCompatibility)
 
-+ (nullable instancetype)fb_applicationWithPID:(pid_t)processID;
-
-/**
- Get the state of the application. This method only returns reliable results on Xcode SDK 9+
-
- @return State value as enum item. See https://developer.apple.com/documentation/xctest/xcuiapplicationstate?language=objc for more details.
- */
-- (NSUInteger)fb_state;
-
 /**
  Activate the application by restoring it from the background.
  Nothing will happen if the application is already in foreground.
@@ -58,6 +49,11 @@ extern NSString *const FBApplicationMethodNotSupportedException;
  Terminate the application and wait until it disappears from the list of active apps
  */
 - (void)fb_terminate;
+
+/**
+ Laucnhes the app and waits until it exists on the screen
+ */
+- (void)fb_launch;
 
 @end
 

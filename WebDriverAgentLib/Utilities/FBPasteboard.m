@@ -11,9 +11,9 @@
 
 #import <mach/mach_time.h>
 #import "FBAlert.h"
-#import "FBApplication.h"
 #import "FBErrorBuilder.h"
 #import "FBMacros.h"
+#import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBAlert.h"
 
 #define ALERT_TIMEOUT_SEC 30
@@ -101,7 +101,7 @@
       break;
     }
 
-    XCUIElement *alertElement = FBApplication.fb_systemApplication.fb_alertElement;
+    XCUIElement *alertElement = XCUIApplication.fb_systemApplication.fb_alertElement;
     if (nil != alertElement) {
       FBAlert *alert = [FBAlert alertWithElement:alertElement];
       [alert acceptWithError:nil];
