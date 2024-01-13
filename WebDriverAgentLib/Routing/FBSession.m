@@ -185,11 +185,15 @@ static FBSession *_activeSession = nil;
   if (!app.running) {
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
-    [app fb_launch];
+    [app launch];
   } else {
-    [app fb_activate];
+    [app activate];
   }
   if ([app fb_isSameAppAs:self.testedApplication]) {
+    if (self.testedApplication.processID != app.processID) {
+      // The app under test has been restarted
+      self.testedApplication = app;
+    }
     self.isTestedApplicationExpectedToRun = YES;
   }
   return app;
@@ -198,7 +202,7 @@ static FBSession *_activeSession = nil;
 - (XCUIApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
   XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
-  [app fb_activate];
+  [app activate];
   return app;
 }
 
@@ -209,7 +213,7 @@ static FBSession *_activeSession = nil;
     self.isTestedApplicationExpectedToRun = NO;
   }
   if (app.running) {
-    [app fb_terminate];
+    [app terminate];
     return YES;
   }
   return NO;

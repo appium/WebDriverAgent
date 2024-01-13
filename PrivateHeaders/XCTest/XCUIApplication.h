@@ -39,7 +39,6 @@
 @property(readonly) id/*XCAccessibilityElement*/ accessibilityElement;
 
 + (instancetype)applicationWithPID:(pid_t)processID;
-/*! DO NOT USE DIRECTLY! Please use fb_activate instead */
 - (void)activate;
 
 - (void)dismissKeyboard;

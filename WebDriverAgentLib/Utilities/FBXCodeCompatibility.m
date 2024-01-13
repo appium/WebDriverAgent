@@ -13,44 +13,10 @@
 #import "FBConfiguration.h"
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
-#import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTestManager_ManagerInterface-Protocol.h"
-
-static const NSTimeInterval APP_STATE_CHANGE_TIMEOUT = 5.0;
-
-NSString *const FBApplicationMethodNotSupportedException = @"FBApplicationMethodNotSupportedException";
-
-@implementation XCUIApplication (FBCompatibility)
-
-- (void)fb_activate
-{
-  [self activate];
-  if (![self waitForState:XCUIApplicationStateRunningForeground timeout:APP_STATE_CHANGE_TIMEOUT / 2] || ![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT / 2]) {
-    [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
-  }
-}
-
-- (void)fb_terminate
-{
-  [self terminate];
-  if (![self waitForState:XCUIApplicationStateNotRunning timeout:APP_STATE_CHANGE_TIMEOUT]) {
-    [FBLogger logFmt:@"The active application is still '%@' after %.2f seconds timeout", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
-  }
-}
-
-- (void)fb_launch
-{
-  [self launch];
-  if (![self fb_waitForAppElement:APP_STATE_CHANGE_TIMEOUT]) {
-    [FBLogger logFmt:@"The application '%@' is not running in foreground after %.2f seconds", self.bundleID, APP_STATE_CHANGE_TIMEOUT];
-  }
-}
-
-@end
-
 
 @implementation XCUIElementQuery (FBCompatibility)
 

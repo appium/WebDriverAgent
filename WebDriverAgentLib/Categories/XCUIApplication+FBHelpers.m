@@ -147,7 +147,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     return NO;
   }
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX(duration, .0)]];
-  [self fb_activate];
+  [self activate];
   return YES;
 }
 

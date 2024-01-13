@@ -143,21 +143,21 @@
     if (nil != capabilities[FB_CAP_FORCE_APP_LAUNCH]) {
       forceAppLaunch = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
     }
-    NSUInteger appState = app.state;
+    XCUIApplicationState appState = app.state;
     BOOL isAppRunning = appState >= XCUIApplicationStateRunningBackground;
     if (!isAppRunning || (isAppRunning && forceAppLaunch)) {
       app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
         || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
       app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
       app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
-      [app fb_launch];
+      [app launch];
       if (![app running]) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
         return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
                                                                   traceback:nil]);
       }
-    } else if (appState < XCUIApplicationStateRunningForeground && !forceAppLaunch) {
-      [app fb_activate];
+    } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
+      [app activate];
     }
   }
 

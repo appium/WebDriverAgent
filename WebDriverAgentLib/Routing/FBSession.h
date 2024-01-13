@@ -83,7 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param arguments The optional array of application command line arguments. The arguments are going to be applied if the application was not running before.
  @param environment The optional dictionary of environment variables for the application, which is going to be executed. The environment variables are going to be applied if the application was not running before.
  @return The application instance
- @throws FBApplicationMethodNotSupportedException if the method is not supported with the current XCTest SDK
  */
 - (XCUIApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
                            shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
@@ -96,7 +95,6 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param bundleIdentifier Valid bundle identifier of the application to be activated
  @return The application instance
- @throws FBApplicationMethodNotSupportedException if the method is not supported with the current XCTest SDK
  */
 - (XCUIApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier;
 
