@@ -190,10 +190,6 @@ static FBSession *_activeSession = nil;
     [app activate];
   }
   if ([app fb_isSameAppAs:self.testedApplication]) {
-    if (self.testedApplication.processID != app.processID) {
-      // The app under test has been restarted
-      self.testedApplication = app;
-    }
     self.isTestedApplicationExpectedToRun = YES;
   }
   return app;
