@@ -51,12 +51,36 @@ describe('utils', function () {
         .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
     });
 
+    it('should return sdk based path without udid with arm 64 architecture, copy them', async function () {
+      mocks.fs.expects('exists')
+        .withExactArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
+        .returns(false);
+      mocks.fs.expects('exists')
+        .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-x86_64.xctestrun`))
+        .returns(false);
+      mocks.fs.expects('exists')
+        .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-arm64.xctestrun`))
+        .returns(true);
+      mocks.fs.expects('copyFile')
+        .withExactArgs(
+          path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-arm64.xctestrun`),
+          path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`)
+        )
+        .returns(true);
+      const deviceInfo = {isRealDevice: false, udid, platformVersion};
+      await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)
+      .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
+    });
+
     it('should return platform based path', async function () {
       mocks.fs.expects('exists')
         .withExactArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
         .returns(false);
       mocks.fs.expects('exists')
         .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-x86_64.xctestrun`))
+        .returns(false);
+      mocks.fs.expects('exists')
+        .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-arm64.xctestrun`))
         .returns(false);
       mocks.fs.expects('exists')
         .withExactArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`))
@@ -74,6 +98,9 @@ describe('utils', function () {
         .returns(false);
       mocks.fs.expects('exists')
         .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-x86_64.xctestrun`))
+        .returns(false);
+      mocks.fs.expects('exists')
+        .withExactArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-arm64.xctestrun`))
         .returns(false);
       mocks.fs.expects('exists')
         .withExactArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`))
@@ -95,7 +122,7 @@ describe('utils', function () {
 
     it('should raise an exception because of no files', async function () {
       const expected = path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-x86_64.xctestrun`);
-      mocks.fs.expects('exists').exactly(4).returns(false);
+      mocks.fs.expects('exists').exactly(6).returns(false);
 
       const deviceInfo = {isRealDevice: false, udid, platformVersion};
       try {
