@@ -12,29 +12,44 @@
 #import "FBLogger.h"
 #import "XCUIElement.h"
 
-@implementation XCUIElement (FBSwiping)
-
-- (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity
-{
+void swipeWithDirection(NSObject *target, NSString *direction, NSNumber* _Nullable velocity) {
   double velocityValue = .0;
   if (nil != velocity) {
     velocityValue = [velocity doubleValue];
   }
 
   if (velocityValue > 0) {
-    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"swipe%@WithVelocity:", direction.lowercaseString.capitalizedString]);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"swipe%@WithVelocity:",
+                                         direction.lowercaseString.capitalizedString]);
+    NSMethodSignature *signature = [target methodSignatureForSelector:selector];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
     [invocation setSelector:selector];
     [invocation setArgument:&velocityValue atIndex:2];
-    [invocation invokeWithTarget:self];
+    [invocation invokeWithTarget:target];
   } else {
-    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"swipe%@", direction.lowercaseString.capitalizedString]);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"swipe%@",
+                                         direction.lowercaseString.capitalizedString]);
+    NSMethodSignature *signature = [target methodSignatureForSelector:selector];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
     [invocation setSelector:selector];
-    [invocation invokeWithTarget:self];
+    [invocation invokeWithTarget:target];
   }
+}
+
+@implementation XCUIElement (FBSwiping)
+
+- (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity
+{
+  swipeWithDirection(self, direction, velocity);
+}
+
+@end
+
+@implementation XCUICoordinate (FBSwiping)
+
+- (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity
+{
+  swipeWithDirection(self, direction, velocity);
 }
 
 @end

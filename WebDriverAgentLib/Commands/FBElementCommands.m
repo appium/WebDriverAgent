@@ -74,24 +74,48 @@
     [[FBRoute POST:@"/wda/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
 #else
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
+    [[FBRoute POST:@"/wda/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
+    [[FBRoute POST:@"/wda/pinch"] respondWithTarget:self action:@selector(handlePinch:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/rotate"] respondWithTarget:self action:@selector(handleRotate:)],
+    [[FBRoute POST:@"/wda/rotate"] respondWithTarget:self action:@selector(handleRotate:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTap:)],
+    [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTap:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/twoFingerTap"] respondWithTarget:self action:@selector(handleTwoFingerTap:)],
-    [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self action:@selector(handleTapWithNumberOfTaps:)],
+    [[FBRoute POST:@"/wda/twoFingerTap"] respondWithTarget:self action:@selector(handleTwoFingerTap:)],
+
+    [[FBRoute POST:@"/wda/element/:uuid/tapWithNumberOfTaps"] respondWithTarget:self
+                                                                         action:@selector(handleTapWithNumberOfTaps:)],
+    [[FBRoute POST:@"/wda/tapWithNumberOfTaps"] respondWithTarget:self
+                                                           action:@selector(handleTapWithNumberOfTaps:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
+    [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHold:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
+    [[FBRoute POST:@"/wda/scroll"] respondWithTarget:self action:@selector(handleScroll:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/scrollTo"] respondWithTarget:self action:@selector(handleScrollTo:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
+    [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDrag:)],
+
     [[FBRoute POST:@"/wda/element/:uuid/pressAndDragWithVelocity"] respondWithTarget:self action:@selector(handlePressAndDragWithVelocity:)],
-    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
-    [[FBRoute POST:@"/wda/dragfromtoforduration"] respondWithTarget:self action:@selector(handleDragCoordinate:)],
     [[FBRoute POST:@"/wda/pressAndDragWithVelocity"] respondWithTarget:self action:@selector(handlePressAndDragCoordinateWithVelocity:)],
-    [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
-    [[FBRoute POST:@"/wda/touchAndHold"] respondWithTarget:self action:@selector(handleTouchAndHoldCoordinate:)],
-    [[FBRoute POST:@"/wda/doubleTap"] respondWithTarget:self action:@selector(handleDoubleTapCoordinate:)],
-    [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+
+    [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
     [[FBRoute POST:@"/wda/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
+
+    [[FBRoute POST:@"/wda/element/:uuid/tap"] respondWithTarget:self action:@selector(handleTap:)],
+    [[FBRoute POST:@"/wda/tap"] respondWithTarget:self action:@selector(handleTap:)],
+    // This endpoint is deprecated and will be removed in the future
+    [[FBRoute POST:@"/wda/tap/:uuid"] respondWithTarget:self action:@selector(handleTap:)],
+
+    [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
   ];
@@ -285,38 +309,30 @@
 #else
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  [element doubleTap];
-  return FBResponseWithOK();
-}
-
-+ (id<FBResponsePayload>)handleDoubleTapCoordinate:(FBRouteRequest *)request
-{
-  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
-                                 [request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *doubleTapCoordinate = [self.class gestureCoordinateWithOffset:offset
-                                                                        element:request.session.activeApplication];
-  [doubleTapCoordinate doubleTap];
+  NSError *error;
+  id target = [self targetWithXyCoordinatesFromRequest:request error:&error];
+  if (nil == target) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                       traceback:nil]);
+  }
+  [target doubleTap];
   return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTwoFingerTap:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   [element twoFingerTap];
   return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTapWithNumberOfTaps:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
   if (nil == request.arguments[@"numberOfTaps"] || nil == request.arguments[@"numberOfTouches"]) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both 'numberOfTaps' and 'numberOfTouches' arguments must be provided"
                                                                        traceback:nil]);
   }
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   [element tapWithNumberOfTaps:[request.arguments[@"numberOfTaps"] integerValue]
                numberOfTouches:[request.arguments[@"numberOfTouches"] integerValue]];
   return FBResponseWithOK();
@@ -324,26 +340,20 @@
 
 + (id<FBResponsePayload>)handleTouchAndHold:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  [element pressForDuration:[request.arguments[@"duration"] doubleValue]];
-  return FBResponseWithOK();
-}
-
-+ (id<FBResponsePayload>)handleTouchAndHoldCoordinate:(FBRouteRequest *)request
-{
-  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
-                                 [request.arguments[@"y"] doubleValue]);
-  XCUICoordinate *pressCoordinate = [self.class gestureCoordinateWithOffset:offset
-                                                                    element:request.session.activeApplication];
-  [pressCoordinate pressForDuration:[request.arguments[@"duration"] doubleValue]];
+  NSError *error;
+  id target = [self targetWithXyCoordinatesFromRequest:request error:&error];
+  if (nil == target) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                       traceback:nil]);
+  }
+  [target pressForDuration:[request.arguments[@"duration"] doubleValue]];
   return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handlePressAndDragWithVelocity:(FBRouteRequest *)request
 {
   FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   if (![element respondsToSelector:@selector(pressForDuration:thenDragToElement:withVelocity:thenHoldForDuration:)]) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
                                                                             traceback:nil]);
@@ -379,8 +389,7 @@
 
 + (id<FBResponsePayload>)handleScroll:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   // Using presence of arguments as a way to convey control flow seems like a pretty bad idea but it's
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
@@ -440,33 +449,18 @@
                                                                       traceback:nil]);
 }
 
-+ (id<FBResponsePayload>)handleDragCoordinate:(FBRouteRequest *)request
-{
-  FBSession *session = request.session;
-  CGVector startOffset = CGVectorMake([request.arguments[@"fromX"] doubleValue],
-                                      [request.arguments[@"fromY"] doubleValue]);
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
-                                                                    element:session.activeApplication];
-  CGVector endOffset = CGVectorMake([request.arguments[@"toX"] doubleValue],
-                                    [request.arguments[@"toY"] doubleValue]);
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
-                                                                  element:session.activeApplication];
-  NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
-  return FBResponseWithOK();
-}
-
 + (id<FBResponsePayload>)handleDrag:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
-  FBElementCache *elementCache = session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  NSString *elementUdid = (NSString *)request.parameters[@"uuid"];
+  XCUIElement *target = nil == elementUdid
+    ? request.session.activeApplication
+    : [request.session.elementCache elementForUUID:elementUdid];
   CGVector startOffset = CGVectorMake([request.arguments[@"fromX"] doubleValue],
                                       [request.arguments[@"fromY"] doubleValue]);
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset element:element];
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset element:target];
   CGVector endOffset = CGVectorMake([request.arguments[@"toX"] doubleValue],
                                     [request.arguments[@"toY"] doubleValue]);
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset element:element];
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset element:target];
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
@@ -474,39 +468,41 @@
 
 + (id<FBResponsePayload>)handleSwipe:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   NSString *const direction = request.arguments[@"direction"];
   if (!direction) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Missing 'direction' parameter" traceback:nil]);
   }
   NSArray<NSString *> *supportedDirections = @[@"up", @"down", @"left", @"right"];
   if (![supportedDirections containsObject:direction.lowercaseString]) {
-    return FBResponseWithStatus([FBCommandStatus
-                                 invalidArgumentErrorWithMessage:[NSString stringWithFormat: @"Unsupported swipe direction '%@'. Only the following directions are supported: %@", direction, supportedDirections]
-                                 traceback:nil]);
+    NSString *message = [NSString stringWithFormat:@"Unsupported swipe direction '%@'. Only the following directions are supported: %@", direction, supportedDirections];
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message
+                                                                       traceback:nil]);
   }
-  [element fb_swipeWithDirection:direction.lowercaseString velocity:request.arguments[@"velocity"]];
+  NSError *error;
+  id target = [self targetWithXyCoordinatesFromRequest:request error:&error];
+  if (nil == target) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                       traceback:nil]);
+  }
+  [target fb_swipeWithDirection:direction velocity:request.arguments[@"velocity"]];
   return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTap:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  CGVector offset = CGVectorMake([request.arguments[@"x"] doubleValue],
-                                 [request.arguments[@"y"] doubleValue]);
-  XCUIElement *element = [elementCache hasElementWithUUID:request.parameters[@"uuid"]]
-    ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]]
-    : request.session.activeApplication;
-  XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithOffset:offset element:element];
-  [tapCoordinate tap];
+  NSError *error;
+  id target = [self targetWithXyCoordinatesFromRequest:request error:&error];
+  if (nil == target) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                       traceback:nil]);
+  }
+  [target tap];
   return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handlePinch:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   CGFloat scale = (CGFloat)[request.arguments[@"scale"] doubleValue];
   CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
   [element pinchWithScale:scale velocity:velocity];
@@ -515,8 +511,7 @@
 
 + (id<FBResponsePayload>)handleRotate:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
+  XCUIElement *element = [self targetFromRequest:request];
   CGFloat rotation = (CGFloat)[request.arguments[@"rotation"] doubleValue];
   CGFloat velocity = (CGFloat)[request.arguments[@"velocity"] doubleValue];
   [element rotate:rotation withVelocity:velocity];
@@ -525,13 +520,7 @@
 
 + (id<FBResponsePayload>)handleForceTouch:(FBRouteRequest *)request
 {
-  XCUIElement *element = nil;
-  if (nil == request.parameters[@"uuid"]) {
-    element = XCUIApplication.fb_activeApplication;
-  } else {
-    FBElementCache *elementCache = request.session.elementCache;
-    element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  }
+  XCUIElement *element = [self targetFromRequest:request];
   NSNumber *pressure = request.arguments[@"pressure"];
   NSNumber *duration = request.arguments[@"duration"];
   NSNumber *x = request.arguments[@"x"];
@@ -671,6 +660,45 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
                                         element:(XCUIElement *)element
 {
   return [[element coordinateWithNormalizedOffset:CGVectorMake(0, 0)] coordinateWithOffset:offset];
+}
+
+/**
+ Returns either coordinates or the target element for the given request that expects 'x' and 'y' coordannates
+
+ @param request HTTP request object
+ @param error Error instance if any
+ @return Either XCUICoordinate or XCUIElement instance. nil if the input data is invalid
+ */
++ (nullable id)targetWithXyCoordinatesFromRequest:(FBRouteRequest *)request error:(NSError **)error
+{
+  NSNumber *x = request.arguments[@"x"];
+  NSNumber *y = request.arguments[@"y"];
+  if (nil == x && nil == y) {
+    return [self targetFromRequest:request];
+  }
+  if ((nil == x && nil != y) || (nil != x && nil == y)) {
+    [[[FBErrorBuilder alloc]
+      withDescription:@"Both x and y coordinates must be provided"]
+     buildError:error];
+    return nil;
+  }
+  return [self gestureCoordinateWithOffset:CGVectorMake(x.doubleValue, y.doubleValue)
+                                   element:request.session.activeApplication];
+}
+
+/**
+ Returns the target element for the given request
+
+ @param request HTTP request object
+ @return Matching XCUIElement instance
+ */
++ (XCUIElement *)targetFromRequest:(FBRouteRequest *)request
+{
+  FBElementCache *elementCache = request.session.elementCache;
+  NSString *elementUuid = (NSString *)request.parameters[@"uuid"];
+  return nil == elementUuid
+    ? request.session.activeApplication
+    : [elementCache elementForUUID:elementUuid];
 }
 
 #endif
