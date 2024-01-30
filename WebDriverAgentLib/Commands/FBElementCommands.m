@@ -683,7 +683,7 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
     return nil;
   }
   return [self gestureCoordinateWithOffset:CGVectorMake(x.doubleValue, y.doubleValue)
-                                   element:request.session.activeApplication];
+                                   element:[self targetFromRequest:request]];
 }
 
 /**
