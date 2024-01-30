@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#if !TARGET_OS_TV
 @interface XCUICoordinate (FBSwiping)
 
 /**
@@ -33,5 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)fb_swipeWithDirection:(NSString *)direction velocity:(nullable NSNumber*)velocity;
 
 @end
+#endif
 
 NS_ASSUME_NONNULL_END
