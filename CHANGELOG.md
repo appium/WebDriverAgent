@@ -1,3 +1,6 @@
+## 5.15.9
+- Revert  Ditch FBApplication in favour of XCUIApplication extensions ([#834](https://github.com/appium/WebDriverAgent/issues/834)) ([70a8d98](https://github.com/appium/WebDriverAgent/commit/70a8d98bc15d8fc615455be07fad9c37ff8d430b))
+
 ## [5.15.8](https://github.com/appium/WebDriverAgent/compare/v5.15.7...v5.15.8) (2024-01-24)
 
 
