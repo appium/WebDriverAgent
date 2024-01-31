@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface XCUIApplicationDouble : NSObject
+@interface FBApplicationDouble : NSObject
 @property (nonatomic, assign, readonly) BOOL didTerminate;
 @property (nonatomic, strong) NSString* bundleID;
 @property (nonatomic) BOOL fb_shouldWaitForQuiescence;

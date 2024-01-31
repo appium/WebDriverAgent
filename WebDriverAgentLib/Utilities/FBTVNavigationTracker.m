@@ -10,6 +10,7 @@
 #import "FBTVNavigationTracker.h"
 #import "FBTVNavigationTracker-Private.h"
 
+#import "FBApplication.h"
 #import "FBMathUtils.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
@@ -68,7 +69,7 @@
 
 - (FBTVDirection)directionToFocusedElement
 {
-  XCUIElement *focused = XCUIApplication.fb_activeApplication.fb_focusedElement;
+  XCUIElement *focused = FBApplication.fb_activeApplication.fb_focusedElement;
 
   CGPoint focusedCenter = FBRectGetCenter(focused.wdFrame);
   FBTVNavigationItem *item = [self navigationItemWithElement:focused];

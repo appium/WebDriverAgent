@@ -10,8 +10,6 @@
 #import "XCUIDevice+FBRotation.h"
 
 #import "FBConfiguration.h"
-#import "XCUIApplication.h"
-#import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBUtilities.h"
 
 # if !TARGET_OS_TV
@@ -20,7 +18,7 @@
 
 - (BOOL)fb_setDeviceInterfaceOrientation:(UIDeviceOrientation)orientation
 {
-  XCUIApplication *application = XCUIApplication.fb_activeApplication;
+  FBApplication *application = FBApplication.fb_activeApplication;
   [XCUIDevice sharedDevice].orientation = orientation;
   return [self waitUntilInterfaceIsAtOrientation:orientation application:application];
 }
@@ -32,12 +30,12 @@
     return NO;
   }
   NSInteger orientation = keysForRotationObj.firstObject.integerValue;
-  XCUIApplication *application = XCUIApplication.fb_activeApplication;
+  FBApplication *application = FBApplication.fb_activeApplication;
   [XCUIDevice sharedDevice].orientation = orientation;
   return [self waitUntilInterfaceIsAtOrientation:orientation application:application];
 }
 
-- (BOOL)waitUntilInterfaceIsAtOrientation:(NSInteger)orientation application:(XCUIApplication *)application
+- (BOOL)waitUntilInterfaceIsAtOrientation:(NSInteger)orientation application:(FBApplication *)application
 {
   // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
   // We should wait till UI cools off, before continuing

@@ -12,8 +12,7 @@
 #import "FBRouteRequest.h"
 #import "FBMacros.h"
 #import "FBSession.h"
-#import "XCUIApplication.h"
-#import "XCUIApplication+FBHelpers.h"
+#import "FBApplication.h"
 #import "XCUIDevice.h"
 
 extern const struct FBWDOrientationValues {
@@ -56,14 +55,14 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 
 + (id<FBResponsePayload>)handleGetOrientation:(FBRouteRequest *)request
 {
-  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   NSString *orientation = [self.class interfaceOrientationForApplication:application];
   return FBResponseWithObject([[self _wdOrientationsMapping] objectForKey:orientation]);
 }
 
 + (id<FBResponsePayload>)handleSetOrientation:(FBRouteRequest *)request
 {
-  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   if ([self.class setDeviceOrientation:request.arguments[@"orientation"] forApplication:application]) {
     return FBResponseWithOK();
   }
@@ -74,7 +73,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 + (id<FBResponsePayload>)handleGetRotation:(FBRouteRequest *)request
 {
   XCUIDevice *device = [XCUIDevice sharedDevice];
-  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   UIInterfaceOrientation orientation = application.interfaceOrientation;
   return FBResponseWithObject(device.fb_rotationMapping[@(orientation)]);
 }
@@ -102,7 +101,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
                                                                        traceback:nil]);
   }
 
-  XCUIApplication *application = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  FBApplication *application = request.session.activeApplication ?: FBApplication.fb_activeApplication;
   if (![self.class setDeviceRotation:request.arguments forApplication:application]) {
     NSString *errMessage = [
       NSString stringWithFormat:@"The current rotation cannot be set to %@. Make sure the %@ application supports it",
@@ -117,7 +116,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 
 #pragma mark - Helpers
 
-+ (NSString *)interfaceOrientationForApplication:(XCUIApplication *)application
++ (NSString *)interfaceOrientationForApplication:(FBApplication *)application
 {
   NSNumber *orientation = @(application.interfaceOrientation);
   NSSet *keys = [[self _orientationsMapping] keysOfEntriesPassingTest:^BOOL(id key, NSNumber *obj, BOOL *stop) {
@@ -129,12 +128,12 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
   return keys.anyObject;
 }
 
-+ (BOOL)setDeviceRotation:(NSDictionary *)rotationObj forApplication:(XCUIApplication *)application
++ (BOOL)setDeviceRotation:(NSDictionary *)rotationObj forApplication:(FBApplication *)application
 {
   return [[XCUIDevice sharedDevice] fb_setDeviceRotation:rotationObj];
 }
 
-+ (BOOL)setDeviceOrientation:(NSString *)orientation forApplication:(XCUIApplication *)application
++ (BOOL)setDeviceOrientation:(NSString *)orientation forApplication:(FBApplication *)application
 {
   NSNumber *orientationValue = [[self _orientationsMapping] objectForKey:[orientation uppercaseString]];
   if (orientationValue == nil) {

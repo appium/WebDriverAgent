@@ -9,6 +9,7 @@
 
 #import "FBElementCommands.h"
 
+#import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBKeyboard.h"
 #import "FBRoute.h"
@@ -17,6 +18,7 @@
 #import "FBElementCache.h"
 #import "FBErrorBuilder.h"
 #import "FBSession.h"
+#import "FBApplication.h"
 #import "FBElementUtils.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
@@ -527,7 +529,7 @@
 {
   XCUIElement *element = nil;
   if (nil == request.parameters[@"uuid"]) {
-    element = XCUIApplication.fb_activeApplication;
+    element = [FBApplication fb_activeApplication];
   } else {
     FBElementCache *elementCache = request.session.elementCache;
     element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
@@ -565,7 +567,7 @@
 
 + (id<FBResponsePayload>)handleGetWindowSize:(FBRouteRequest *)request
 {
-  XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  XCUIApplication *app = request.session.activeApplication ?: FBApplication.fb_activeApplication;
 
 #if TARGET_OS_TV
   CGSize screenSize = app.frame.size;

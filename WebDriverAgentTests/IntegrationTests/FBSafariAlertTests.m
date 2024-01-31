@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBApplication.h"
 #import "FBTestMacros.h"
 #import "FBMacros.h"
 #import "FBSession.h"
@@ -32,7 +33,7 @@ static NSString *const SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 - (void)setUp
 {
   [super setUp];
-  self.session = [FBSession initWithApplication:XCUIApplication.fb_activeApplication];
+  self.session = [FBSession initWithApplication:FBApplication.fb_activeApplication];
   [self.session launchApplicationWithBundleId:SAFARI_BUNDLE_ID
                       shouldWaitForQuiescence:nil
                                     arguments:nil

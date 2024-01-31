@@ -10,6 +10,7 @@
 #import <XCTest/XCTest.h>
 #import "XCTest/XCUIElementTypes.h"
 
+#import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBTestMacros.h"
 #import "FBElement.h"

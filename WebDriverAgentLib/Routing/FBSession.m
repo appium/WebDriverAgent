@@ -14,6 +14,7 @@
 
 #import "FBXCAccessibilityElement.h"
 #import "FBAlertsMonitor.h"
+#import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBElementCache.h"
 #import "FBExceptions.h"
@@ -30,7 +31,7 @@
 NSString *const FBDefaultApplicationAuto = @"auto";
 
 @interface FBSession ()
-@property (nullable, nonatomic) XCUIApplication *testedApplication;
+@property (nonatomic) NSString *testedApplicationBundleId;
 @property (nonatomic) BOOL isTestedApplicationExpectedToRun;
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
@@ -95,7 +96,7 @@ static FBSession *_activeSession = nil;
   return _activeSession;
 }
 
-+ (instancetype)initWithApplication:(XCUIApplication *)application
++ (instancetype)initWithApplication:(FBApplication *)application
 {
   FBSession *session = [FBSession new];
   session.useNativeCachingStrategy = YES;
@@ -104,10 +105,10 @@ static FBSession *_activeSession = nil;
   session.elementsVisibilityCache = [NSMutableDictionary dictionary];
   session.identifier = [[NSUUID UUID] UUIDString];
   session.defaultActiveApplication = FBDefaultApplicationAuto;
-  session.testedApplication = nil;
+  session.testedApplicationBundleId = nil;
   session.isTestedApplicationExpectedToRun = nil != application && application.running;
   if (application) {
-    session.testedApplication = application;
+    session.testedApplicationBundleId = application.bundleID;
     session.shouldAppsWaitForQuiescence = application.fb_shouldWaitForQuiescence;
   }
   session.elementCache = [FBElementCache new];
@@ -115,7 +116,7 @@ static FBSession *_activeSession = nil;
   return session;
 }
 
-+ (instancetype)initWithApplication:(nullable XCUIApplication *)application
++ (instancetype)initWithApplication:(nullable FBApplication *)application
                  defaultAlertAction:(NSString *)defaultAlertAction
 {
   FBSession *session = [self.class initWithApplication:application];
@@ -137,78 +138,81 @@ static FBSession *_activeSession = nil;
     self.alertsMonitor = nil;
   }
 
-  if (nil != self.testedApplication
-      && FBConfiguration.shouldTerminateApp
-      && self.testedApplication.running
-      && ![self.testedApplication fb_isSameAppAs:XCUIApplication.fb_systemApplication]) {
-    @try {
-      [self.testedApplication terminate];
-    } @catch (NSException *e) {
-      [FBLogger logFmt:@"%@", e.description];
+  if (self.testedApplicationBundleId && [FBConfiguration shouldTerminateApp]
+      && ![self.testedApplicationBundleId isEqualToString:FBApplication.fb_systemApplication.bundleID]) {
+    FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:self.testedApplicationBundleId];
+    if ([app running]) {
+      @try {
+        [app terminate];
+      } @catch (NSException *e) {
+        [FBLogger logFmt:@"%@", e.description];
+      }
     }
   }
 
   _activeSession = nil;
 }
 
-- (XCUIApplication *)activeApplication
+- (FBApplication *)activeApplication
 {
-  if (nil != self.testedApplication) {
-    XCUIApplicationState testedAppState = self.testedApplication.state;
-    if (testedAppState >= XCUIApplicationStateRunningForeground) {
-      return (XCUIApplication *)self.testedApplication;
-    }
-    if (self.isTestedApplicationExpectedToRun && testedAppState <= XCUIApplicationStateNotRunning) {
-      NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplication.bundleID];
-      @throw [NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil];
-    }
-  }
-
   NSString *defaultBundleId = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto]
     ? nil
     : self.defaultActiveApplication;
-  return [XCUIApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
+  FBApplication *application = [FBApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
+  FBApplication *testedApplication = nil;
+  if (self.testedApplicationBundleId && self.isTestedApplicationExpectedToRun) {
+    testedApplication = nil != application.bundleID && [application.bundleID isEqualToString:self.testedApplicationBundleId]
+      ? application
+      : [[FBApplication alloc] initWithBundleIdentifier:self.testedApplicationBundleId];
+  }
+  if (testedApplication && !testedApplication.running) {
+    NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplicationBundleId];
+    [[NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil] raise];
+  }
+  return application;
 }
 
-- (XCUIApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
-                           shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
-                                         arguments:(nullable NSArray<NSString *> *)arguments
-                                       environment:(nullable NSDictionary <NSString *, NSString *> *)environment
+- (FBApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+                         shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
+                                       arguments:(nullable NSArray<NSString *> *)arguments
+                                     environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
-  XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
   if (nil == shouldWaitForQuiescence) {
     // Iherit the quiescence check setting from the main app under test by default
-    app.fb_shouldWaitForQuiescence = nil != self.testedApplication && self.shouldAppsWaitForQuiescence;
+    app.fb_shouldWaitForQuiescence = nil != self.testedApplicationBundleId && self.shouldAppsWaitForQuiescence;
   } else {
     app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
   }
-  if (!app.running) {
+  if (app.fb_state < 2) {
     app.launchArguments = arguments ?: @[];
     app.launchEnvironment = environment ?: @{};
     [app launch];
   } else {
-    [app activate];
+    [app fb_activate];
   }
-  if ([app fb_isSameAppAs:self.testedApplication]) {
+  if (nil != self.testedApplicationBundleId
+      && [bundleIdentifier isEqualToString:(NSString *)self.testedApplicationBundleId]) {
     self.isTestedApplicationExpectedToRun = YES;
   }
   return app;
 }
 
-- (XCUIApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
+- (FBApplication *)activateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
-  XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
-  [app activate];
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
+  [app fb_activate];
   return app;
 }
 
 - (BOOL)terminateApplicationWithBundleId:(NSString *)bundleIdentifier
 {
-  XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
-  if ([app fb_isSameAppAs:self.testedApplication]) {
+  FBApplication *app = [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier];
+  if (nil != self.testedApplicationBundleId
+      && [bundleIdentifier isEqualToString:(NSString *)self.testedApplicationBundleId]) {
     self.isTestedApplicationExpectedToRun = NO;
   }
-  if (app.running) {
+  if (app.fb_state >= 2) {
     [app terminate];
     return YES;
   }
@@ -217,14 +221,7 @@ static FBSession *_activeSession = nil;
 
 - (NSUInteger)applicationStateWithBundleId:(NSString *)bundleIdentifier
 {
-  return [self makeApplicationWithBundleId:bundleIdentifier].state;
-}
-
-- (XCUIApplication *)makeApplicationWithBundleId:(NSString *)bundleIdentifier
-{
-  return nil != self.testedApplication && [bundleIdentifier isEqualToString:(NSString *)self.testedApplication.bundleID]
-    ? self.testedApplication
-    : [[XCUIApplication alloc] initWithBundleIdentifier:bundleIdentifier];
+  return [[FBApplication alloc] initWithBundleIdentifier:bundleIdentifier].fb_state;
 }
 
 @end

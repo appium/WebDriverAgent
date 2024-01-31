@@ -10,6 +10,7 @@
 #import "FBFindElementCommands.h"
 
 #import "FBAlert.h"
+#import "FBApplication.h"
 #import "FBConfiguration.h"
 #import "FBElementCache.h"
 #import "FBExceptions.h"

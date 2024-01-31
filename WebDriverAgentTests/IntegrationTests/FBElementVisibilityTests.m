@@ -9,6 +9,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FBApplication.h"
 #import "FBIntegrationTestCase.h"
 #import "FBMacros.h"
 #import "FBTestMacros.h"
