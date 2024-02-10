@@ -136,7 +136,9 @@
   }
 
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
+  NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
+  BOOL didOpenInitalUrl = NO;
   if (bundleID != nil) {
     app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
     BOOL forceAppLaunch = YES;
@@ -150,7 +152,19 @@
         || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
       app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
       app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
-      [app launch];
+      if (nil != initialUrl) {
+        NSError *openError;
+        didOpenInitalUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
+                                               withApplication:bundleID
+                                                         error:&openError];
+        if (!didOpenInitalUrl) {
+          // TODO: Make it a failure after we stop supporting iOS 16
+          [FBLogger logFmt:@"%@", openError.description];
+        }
+      }
+      if (!didOpenInitalUrl) {
+        [app launch];
+      }
       if (![app running]) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
         return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
@@ -158,6 +172,23 @@
       }
     } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
       [app activate];
+      if (nil != initialUrl) {
+        NSError *openError;
+        didOpenInitalUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
+                                               withApplication:bundleID
+                                                         error:&openError];
+        if (!didOpenInitalUrl) {
+          // TODO: Make it a failure after we stop supporting iOS 16
+          [FBLogger logFmt:@"%@", openError.description];
+        }
+      }
+    }
+  }
+
+  if (nil != initialUrl && nil == bundleID) {
+    NSError *openError;
+    if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl error:&openError]) {
+      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
     }
   }
 
