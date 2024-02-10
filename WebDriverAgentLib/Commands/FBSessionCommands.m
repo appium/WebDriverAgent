@@ -138,7 +138,7 @@
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
-  BOOL didOpenInitalUrl = NO;
+  BOOL didOpenInitialUrl = NO;
   if (bundleID != nil) {
     app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
     BOOL forceAppLaunch = YES;
@@ -154,15 +154,15 @@
       app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
       if (nil != initialUrl) {
         NSError *openError;
-        didOpenInitalUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
+        didOpenInitialUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
                                                withApplication:bundleID
                                                          error:&openError];
-        if (!didOpenInitalUrl) {
+        if (!didOpenInitialUrl) {
           // TODO: Make it a failure after we stop supporting iOS 16
           [FBLogger logFmt:@"%@", openError.description];
         }
       }
-      if (!didOpenInitalUrl) {
+      if (!didOpenInitialUrl) {
         [app launch];
       }
       if (![app running]) {
@@ -174,10 +174,10 @@
       [app activate];
       if (nil != initialUrl) {
         NSError *openError;
-        didOpenInitalUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
+        didOpenInitialUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
                                                withApplication:bundleID
                                                          error:&openError];
-        if (!didOpenInitalUrl) {
+        if (!didOpenInitialUrl) {
           // TODO: Make it a failure after we stop supporting iOS 16
           [FBLogger logFmt:@"%@", openError.description];
         }
