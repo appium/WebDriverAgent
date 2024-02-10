@@ -158,11 +158,11 @@
                                                withApplication:bundleID
                                                          error:&openError];
         if (!didOpenInitialUrl) {
-          // TODO: Make it a failure after we stop supporting iOS 16
-          [FBLogger logFmt:@"%@", openError.description];
+          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ in %@ application. Original error: %@",
+                                initialUrl, bundleID, openError.description];
+          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
-      }
-      if (!didOpenInitialUrl) {
+      } else {
         [app launch];
       }
       if (![app running]) {
@@ -178,8 +178,9 @@
                                                withApplication:bundleID
                                                          error:&openError];
         if (!didOpenInitialUrl) {
-          // TODO: Make it a failure after we stop supporting iOS 16
-          [FBLogger logFmt:@"%@", openError.description];
+          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ in %@ application. Original error: %@",
+                                initialUrl, bundleID, openError.description];
+          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       }
     }
@@ -188,7 +189,9 @@
   if (nil != initialUrl && nil == bundleID) {
     NSError *openError;
     if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl error:&openError]) {
-      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
+      NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@. Original error: %@",
+                            initialUrl, openError.description];
+      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
     }
   }
 
