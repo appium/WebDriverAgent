@@ -171,7 +171,6 @@
                                                                   traceback:nil]);
       }
     } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
-      [app activate];
       if (nil != initialUrl) {
         NSError *openError;
         didOpenInitialUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
@@ -182,6 +181,8 @@
                                 initialUrl, bundleID, openError.description];
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
+      } else {
+        [app activate];
       }
     }
   }
