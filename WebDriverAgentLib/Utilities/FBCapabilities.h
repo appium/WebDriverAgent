@@ -23,10 +23,11 @@ extern NSString* const FB_CAP_SHOULD_TERMINATE_APP;
 extern NSString* const FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC;
 /** Bundle identifier of the application to run the test for */
 extern NSString* const FB_CAP_BUNDLE_ID;
-/** Usually a URL used as initial link to run Mobile Safari, but could be any other deep link
-    This might also work together with `FB_CAP_BUNLDE_ID`, which tells XCTest to open
-    the given deep link in the particular app.
-    Only works since iOS 16.4
+/**
+ Usually an URL used as initial link to run Mobile Safari, but could be any other deep link.
+ This might also work together with `FB_CAP_BUNLDE_ID`, which tells XCTest to open
+ the given deep link in the particular app.
+ Only works since iOS 16.4
  */
 extern NSString* const FB_CAP_INITIAL_URL;
 /** Whether to enforrce (re)start of the application under test on session startup */
