@@ -8,9 +8,8 @@
     "dev": "npm run build -- --watch",
     "clean": "npm run build -- --clean",
     "lint": "eslint .",
+    "format": "prettier -w ./lib",
     "lint:fix": "npm run lint -- --fix",
-    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "precommit-lint": "lint-staged",
     "prepare": "npm run build",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
     "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.js\"",
@@ -23,20 +22,11 @@
     "node": ">=14",
     "npm": ">=8"
   },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix"
-    ]
-  },
   "prettier": {
     "bracketSpacing": false,
     "printWidth": 100,
     "singleQuote": true
   },
-  "pre-commit": [
-    "precommit-msg",
-    "precommit-lint"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/appium/WebDriverAgent.git"
@@ -83,9 +73,7 @@
     "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-mocha": "^10.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "lint-staged": "^15.0.2",
     "mocha": "^10.0.0",
-    "pre-commit": "^1.2.2",
     "prettier": "^3.0.0",
     "semantic-release": "^23.0.0",
     "sinon": "^17.0.0",
