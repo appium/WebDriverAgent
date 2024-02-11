@@ -138,7 +138,6 @@
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
-  BOOL didOpenInitialUrl = NO;
   if (bundleID != nil) {
     app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
     BOOL forceAppLaunch = YES;
@@ -153,19 +152,21 @@
       app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
       app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
       if (nil != initialUrl) {
+        if (app.running) {
+          [app terminate];
+        }
         NSError *openError;
-        didOpenInitialUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
-                                               withApplication:bundleID
-                                                         error:&openError];
-        if (!didOpenInitialUrl) {
-          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ in %@ application. Original error: %@",
+        if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl
+                                 withApplication:bundleID
+                                           error:&openError]) {
+          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ wuth the %@ application. Original error: %@",
                                 initialUrl, bundleID, openError.description];
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
         [app launch];
       }
-      if (![app running]) {
+      if (!app.running) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
         return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
                                                                   traceback:nil]);
@@ -173,11 +174,10 @@
     } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
       if (nil != initialUrl) {
         NSError *openError;
-        didOpenInitialUrl = [XCUIDevice.sharedDevice fb_openUrl:initialUrl
-                                               withApplication:bundleID
-                                                         error:&openError];
-        if (!didOpenInitialUrl) {
-          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ in %@ application. Original error: %@",
+        if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl
+                                 withApplication:bundleID
+                                           error:&openError]) {
+          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ with the %@ application. Original error: %@",
                                 initialUrl, bundleID, openError.description];
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
