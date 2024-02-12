@@ -10,7 +10,6 @@
 
 #import "XCUIApplication+FBTouchAction.h"
 
-#import "FBAppiumActionsSynthesizer.h"
 #import "FBBaseActionsSynthesizer.h"
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
@@ -52,20 +51,6 @@
     return [self.class handleEventSynthesWithError:*error];
   }
   return [self fb_synthesizeEvent:eventRecord error:error];
-}
-
-- (BOOL)fb_performAppiumTouchActions:(NSArray *)actions
-                        elementCache:(FBElementCache *)elementCache
-                               error:(NSError **)error
-{
-  if (![self fb_performActionsWithSynthesizerType:FBAppiumActionsSynthesizer.class
-                                          actions:actions
-                                     elementCache:elementCache
-                                            error:error]) {
-    return NO;
-  }
-  [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
-  return YES;
 }
 
 - (BOOL)fb_performW3CActions:(NSArray *)actions
