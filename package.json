@@ -64,7 +64,7 @@
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "appium-xcode": "^5.0.0",
-    "chai": "^4.2.0",
+    "chai": "^5.1.0",
     "chai-as-promised": "^7.1.1",
     "conventional-changelog-conventionalcommits": "^7.0.1",
     "eslint": "^8.46.0",
