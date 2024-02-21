@@ -261,7 +261,10 @@
 - (XCUIElement *)alertElement
 {
   if (nil == self.element) {
-    self.element = self.application.fb_alertElement ?: XCUIApplication.fb_systemApplication.fb_alertElement;
+    XCUIApplication *systemApp = XCUIApplication.fb_systemApplication;
+    self.element = systemApp.state == XCUIApplicationStateRunningForeground
+      ? (systemApp.fb_alertElement ?: self.application.fb_alertElement)
+      : (self.application.fb_alertElement ?: systemApp.fb_alertElement);
   }
   return self.element;
 }
