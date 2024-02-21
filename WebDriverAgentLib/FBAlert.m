@@ -260,11 +260,9 @@
 
 - (XCUIElement *)alertElement
 {
-  if (nil != self.element) {
-    return self.element;
+  if (nil == self.element) {
+    self.element = self.application.fb_alertElement ?: XCUIApplication.fb_systemApplication.fb_alertElement;
   }
-
-  self.element = self.application.fb_alertElement ?: XCUIApplication.fb_systemApplication.fb_alertElement;
   return self.element;
 }
 
