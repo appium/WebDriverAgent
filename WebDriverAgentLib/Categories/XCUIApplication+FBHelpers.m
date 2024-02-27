@@ -533,7 +533,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   if (nil == otherApp) {
     return NO;
   }
-  return [self.bundleID isEqualToString:(NSString *)otherApp.bundleID];
+  return self == otherApp || [self.bundleID isEqualToString:(NSString *)otherApp.bundleID];
 }
 
 @end
