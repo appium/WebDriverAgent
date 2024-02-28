@@ -10,6 +10,7 @@
 #import "FBExceptions.h"
 
 NSString *const FBInvalidArgumentException = @"FBInvalidArgumentException";
+NSString *const FBSessionCreationException = @"FBSessionCreationException";
 NSString *const FBSessionDoesNotExistException = @"FBSessionDoesNotExistException";
 NSString *const FBApplicationDeadlockDetectedException = @"FBApplicationDeadlockDetectedException";
 NSString *const FBElementAttributeUnknownException = @"FBElementAttributeUnknownException";

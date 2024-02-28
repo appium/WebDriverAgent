@@ -45,6 +45,9 @@
   } else if ([exception.name isEqualToString:FBTimeoutException]) {
     commandStatus = [FBCommandStatus timeoutErrorWithMessage:exception.reason
                                                    traceback:traceback];
+  } else if ([exception.name isEqualToString:FBSessionCreationException]) {
+    commandStatus = [FBCommandStatus sessionNotCreatedError:exception.reason
+                                                  traceback:traceback];
   } else {
     commandStatus = [FBCommandStatus unknownErrorWithMessage:exception.reason
                                                    traceback:traceback];

@@ -14,6 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Exception used to notify about missing session */
 extern NSString *const FBSessionDoesNotExistException;
 
+/*! Exception used to notify about session creation issues */
+extern NSString *const FBSessionCreationException;
+
 /*! Exception used to notify about application deadlock */
 extern NSString *const FBApplicationDeadlockDetectedException;
 

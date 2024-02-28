@@ -11,6 +11,7 @@
 
 #import "FBCapabilities.h"
 #import "FBConfiguration.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBProtocolHelpers.h"
 #import "FBRouteRequest.h"
@@ -20,6 +21,7 @@
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIApplication+FBLaunch.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
@@ -164,7 +166,7 @@
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
-        [app launch];
+        [app fb_launchWithInterruptingAlertCheckInterval:1. exceptionName:FBSessionCreationException];
       }
       if (!app.running) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
