@@ -17,16 +17,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSNumber *fb_didStartWithoutBlockingAlert;
 
 /** This property must only be used internally */
-@property (nonatomic, nullable) NSNumber *fb_hasBlockingAlert;
+@property (nonatomic, nullable) NSString *fb_blockingAlertText;
 
 /**
  * Launches the app with background blocking alert validation.
  * This allows to avoid deadlocks or long timeouts on app startup.
  * @param interval The amount of float ssconds between blocking alert presence checks
- * @param exceptionName The name of the exception to be thrown in case an alert is detected
+ * @param error  The actual error if present
+ * @return YES in case of success
  */
-- (void)fb_launchWithInterruptingAlertCheckInterval:(NSTimeInterval)interval
-                                      exceptionName:(NSString *)exceptionName;
+- (BOOL)fb_launchWithInterruptingAlertCheckInterval:(NSTimeInterval)interval 
+                                              error:(NSError **)error;
 
 @end
 

@@ -166,7 +166,11 @@
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
-        [app fb_launchWithInterruptingAlertCheckInterval:1. exceptionName:FBSessionCreationException];
+        NSError *launchError;
+        if (![app fb_launchWithInterruptingAlertCheckInterval:1. error:&launchError]) {
+          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:launchError.description
+                                                                    traceback:nil]);
+        }
       }
       if (!app.running) {
         NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
