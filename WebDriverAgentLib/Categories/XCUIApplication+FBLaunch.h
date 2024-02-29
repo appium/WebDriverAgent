@@ -13,8 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIApplication (FBLaunch)
 
-/**This property must only be used internally */
+/** This property must only be used internally */
 @property (nonatomic, nullable) NSNumber *fb_didStartWithoutBlockingAlert;
+
+/** This property must only be used internally */
+@property (nonatomic, nullable) NSNumber *fb_hasBlockingAlert;
 
 /**
  * Launches the app with background blocking alert validation.
