@@ -93,7 +93,7 @@
                                                               traceback:nil]);
   }
   if (nil == (capabilities = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error))) {
-    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.description traceback:nil]);
+    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.localizedDescription traceback:nil]);
   }
 
   [FBConfiguration resetSessionSettings];
@@ -161,14 +161,14 @@
         if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl
                                  withApplication:bundleID
                                            error:&openError]) {
-          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ wuth the %@ application. Original error: %@",
-                                initialUrl, bundleID, openError.description];
+          NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ with the %@ application. Original error: %@",
+                                initialUrl, bundleID, openError.localizedDescription];
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
         NSError *launchError;
         if (![app fb_launchWithInterruptingAlertCheckInterval:1. error:&launchError]) {
-          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:launchError.description
+          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:launchError.localizedDescription
                                                                     traceback:nil]);
         }
       }
@@ -184,7 +184,7 @@
                                  withApplication:bundleID
                                            error:&openError]) {
           NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ with the %@ application. Original error: %@",
-                                initialUrl, bundleID, openError.description];
+                                initialUrl, bundleID, openError.localizedDescription];
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
@@ -197,7 +197,7 @@
     NSError *openError;
     if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl error:&openError]) {
       NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@. Original error: %@",
-                            initialUrl, openError.description];
+                            initialUrl, openError.localizedDescription];
       return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
     }
   }
@@ -402,7 +402,8 @@
     NSError *error;
     if (![FBActiveAppDetectionPoint.sharedInstance setCoordinatesWithString:(NSString *)[settings objectForKey:FB_SETTING_ACTIVE_APP_DETECTION_POINT]
                                                                       error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description traceback:nil]);
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                         traceback:nil]);
     }
   }
   if (nil != [settings objectForKey:FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS]) {
@@ -433,7 +434,7 @@
     NSError *error;
     if (![FBConfiguration setScreenshotOrientation:(NSString *)[settings objectForKey:FB_SETTING_SCREENSHOT_ORIENTATION]
                                              error:&error]) {
-      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.description
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
                                                                          traceback:nil]);
     }
   }
