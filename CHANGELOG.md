@@ -1,3 +1,31 @@
+## [7.0.5](https://github.com/appium/WebDriverAgent/compare/v7.0.4...v7.0.5) (2024-03-03)
+
+
+### Reverts
+
+* Revert "chore: tune release packages (#856)" (#857) ([dc72015](https://github.com/appium/WebDriverAgent/commit/dc720157a60925451e6d5935abcd168082d44785)), closes [#856](https://github.com/appium/WebDriverAgent/issues/856) [#857](https://github.com/appium/WebDriverAgent/issues/857)
+
+## [7.0.4](https://github.com/appium/WebDriverAgent/compare/v7.0.3...v7.0.4) (2024-03-03)
+
+
+### Miscellaneous Chores
+
+* dummy commit to trigger a release ([0cb66c5](https://github.com/appium/WebDriverAgent/commit/0cb66c5edc91c191d5ec412ba0a479e07cb4214b))
+
+## [7.0.3](https://github.com/appium/WebDriverAgent/compare/v7.0.2...v7.0.3) (2024-03-03)
+
+
+### Miscellaneous Chores
+
+* tune release packages ([#856](https://github.com/appium/WebDriverAgent/issues/856)) ([aa0765e](https://github.com/appium/WebDriverAgent/commit/aa0765e425faba6c035a9933320e91679b167b80))
+
+## [7.0.2](https://github.com/appium/WebDriverAgent/compare/v7.0.1...v7.0.2) (2024-02-28)
+
+
+### Miscellaneous Chores
+
+* Tune alert detection if system app is active ([#854](https://github.com/appium/WebDriverAgent/issues/854)) ([857d3de](https://github.com/appium/WebDriverAgent/commit/857d3decf497935098ba6acb61654be1da173b11))
+
 ## [7.0.1](https://github.com/appium/WebDriverAgent/compare/v7.0.0...v7.0.1) (2024-02-21)
 
 
