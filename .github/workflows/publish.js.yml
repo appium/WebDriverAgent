@@ -14,7 +14,9 @@ jobs:
 
     env:
       XCODE_VERSION: 14.3.1
+      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
       PKG_PATH_IOS: "appium_wda_ios"
+      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
       PKG_PATH_TVOS: "appium_wda_tvos"
 
     steps:
@@ -33,7 +35,7 @@ jobs:
     - run: npm run test
       name: Run test
 
-    # building WDA packages to test package build
+    # building WDA packages
     - name: Build iOS
       run: |
         xcodebuild clean build-for-testing \
@@ -42,6 +44,13 @@ jobs:
           -scheme WebDriverAgentRunner \
           -destination generic/platform=iOS \
           CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+    - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS after removing test frameworks
+      run: |
+        pushd appium_wda_ios/Build/Products/Debug-iphoneos
+        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XC*.framework
+        zip -r $ZIP_PKG_NAME_IOS WebDriverAgentRunner-Runner.app
+        popd
+        mv $PKG_PATH_IOS/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
     - name: Build tvOS
       run: |
         xcodebuild clean build-for-testing \
@@ -50,6 +59,13 @@ jobs:
           -scheme WebDriverAgentRunner_tvOS \
           -destination generic/platform=tvOS \
           CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+    - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS after removing test frameworks
+      run: |
+        pushd appium_wda_tvos/Build/Products/Debug-appletvos
+        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XC*.framework
+        zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
+        popd
+        mv $PKG_PATH_TVOS/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
 
     # release tasks
     - run: npx semantic-release
@@ -57,3 +73,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       name: Release
+

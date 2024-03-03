@@ -2,8 +2,10 @@ name: Building WebDriverAgent
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
 
 env:
   HOST: macos-13
@@ -54,25 +56,14 @@ jobs:
           WD: appium_wda_tvos/Build/Products/Debug-appletvos
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
-      - name: upload WebDriverAgentRunner-Runner.zip
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+      - name: Upload the built generic app package for iOS
+        uses: actions/upload-artifact@v3.1.0
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: "${{ env.ZIP_PKG_NAME_IOS }}"
-          asset_name: WebDriverAgentRunner-Runner.zip
-          asset_content_type: application/zip
-
-      - name: upload WebDriverAgentRunner_tvOS-Runner.zip
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          path: "${{ env.ZIP_PKG_NAME_IOS }}"
+      - name: Upload the built generic app package for tvOS
+        uses: actions/upload-artifact@v3.1.0
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.ZIP_PKG_NAME_TVOS }}"
-          asset_name: WebDriverAgentRunner_tvOS-Runner.zip
-          asset_content_type: application/zip
+          path: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
   for_simulator_devices:
     needs: [host_machine]
@@ -98,12 +89,7 @@ jobs:
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
           ARCHS: ${{ matrix.arch }}
           ZIP_PKG_NAME: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
-      - name: upload windows WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+      - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
+        uses: actions/upload-artifact@v3.1.0
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
-          asset_name: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
-          asset_content_type: application/zip
+          path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
