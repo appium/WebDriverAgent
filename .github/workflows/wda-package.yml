@@ -54,25 +54,25 @@ jobs:
           WD: appium_wda_tvos/Build/Products/Debug-appletvos
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
-    - name: upload WebDriverAgentRunner-Runner.zip
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.token }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: "${{ env.ZIP_PKG_NAME_IOS }}"
-        asset_name: WebDriverAgentRunner-Runner.zip
-        asset_content_type: application/zip
+      - name: upload WebDriverAgentRunner-Runner.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: "${{ env.ZIP_PKG_NAME_IOS }}"
+          asset_name: WebDriverAgentRunner-Runner.zip
+          asset_content_type: application/zip
 
-    - name: upload WebDriverAgentRunner_tvOS-Runner.zip
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.token }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ env.ZIP_PKG_NAME_TVOS }}"
-        asset_name: WebDriverAgentRunner_tvOS-Runner.zip
-        asset_content_type: application/zip
+      - name: upload WebDriverAgentRunner_tvOS-Runner.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.ZIP_PKG_NAME_TVOS }}"
+          asset_name: WebDriverAgentRunner_tvOS-Runner.zip
+          asset_content_type: application/zip
 
   for_simulator_devices:
     needs: [host_machine]

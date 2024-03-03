@@ -14,9 +14,7 @@ jobs:
 
     env:
       XCODE_VERSION: 14.3.1
-      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
       PKG_PATH_IOS: "appium_wda_ios"
-      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
       PKG_PATH_TVOS: "appium_wda_tvos"
 
     steps:
@@ -34,6 +32,24 @@ jobs:
       name: Run build
     - run: npm run test
       name: Run test
+
+    # building WDA packages to test package build
+    - name: Build iOS
+      run: |
+        xcodebuild clean build-for-testing \
+          -project WebDriverAgent.xcodeproj \
+          -derivedDataPath $PKG_PATH_IOS \
+          -scheme WebDriverAgentRunner \
+          -destination generic/platform=iOS \
+          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+    - name: Build tvOS
+      run: |
+        xcodebuild clean build-for-testing \
+          -project WebDriverAgent.xcodeproj \
+          -derivedDataPath $PKG_PATH_TVOS \
+          -scheme WebDriverAgentRunner_tvOS \
+          -destination generic/platform=tvOS \
+          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
 
     # release tasks
     - run: npx semantic-release
