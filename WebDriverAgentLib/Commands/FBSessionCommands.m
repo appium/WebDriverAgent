@@ -21,7 +21,6 @@
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBHelpers.h"
-#import "XCUIApplication+FBLaunch.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
@@ -166,10 +165,10 @@
           return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
         }
       } else {
-        NSError *launchError;
-        if (![app fb_launchWithInterruptingAlertCheckInterval:1. error:&launchError]) {
-          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:launchError.localizedDescription
-                                                                    traceback:nil]);
+        @try {
+          [app launch];
+        } @catch (NSException *e) {
+          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:e.reason traceback:nil]);
         }
       }
       if (!app.running) {
