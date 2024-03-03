@@ -32,10 +32,6 @@
       "assets": ["docs", "package.json", "CHANGELOG.md"],
       "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
     }],
-    ["@semantic-release/github", {
-      "assets": [
-        "WebDriverAgentRunner-Runner.zip",
-        "WebDriverAgentRunner_tvOS-Runner.zip"
-    ]}]
+    ["@semantic-release/github"]
   ]
 }
