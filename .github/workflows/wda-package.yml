@@ -54,7 +54,7 @@ jobs:
           WD: appium_wda_tvos/Build/Products/Debug-appletvos
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
-    - name: upload windows artifact
+    - name: upload WebDriverAgentRunner-Runner.zip
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.token }}
@@ -64,7 +64,7 @@ jobs:
         asset_name: WebDriverAgentRunner-Runner.zip
         asset_content_type: application/zip
 
-    - name: upload windows artifact
+    - name: upload WebDriverAgentRunner_tvOS-Runner.zip
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.token }}
@@ -98,7 +98,7 @@ jobs:
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
           ARCHS: ${{ matrix.arch }}
           ZIP_PKG_NAME: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
-      - name: upload windows artifact
+      - name: upload windows WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
