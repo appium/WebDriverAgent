@@ -147,6 +147,7 @@ static FBSession *_activeSession = nil;
     if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
       [FBLogger logFmt:@"%@", error];
     }
+    [FBScreenRecordingContainer.sharedInstance reset];
   }
 
   if (nil != self.testedApplication
