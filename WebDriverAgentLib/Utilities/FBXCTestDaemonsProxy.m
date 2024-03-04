@@ -16,6 +16,8 @@
 #import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
+#import "FBScreenRecordingPromise.h"
+#import "FBScreenRecordingRequest.h"
 #import "XCTestDriver.h"
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIApplication.h"
@@ -129,10 +131,9 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openURL:usingApplication:completion:)]) {
-    [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
       withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs with given application"]
      buildError:error];
-    return NO;
   }
 
   __block NSError *innerError = nil;
@@ -157,10 +158,9 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(openDefaultApplicationForURL:completion:)]) {
-    [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
       withDescriptionFormat:@"The current Xcode SDK does not support opening of URLs. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
      buildError:error];
-    return NO;
   }
 
   __block NSError *innerError = nil;
@@ -186,16 +186,14 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(setSimulatedLocation:completion:)]) {
-    [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
       withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
      buildError:error];
-    return NO;
   }
   if (![session supportsLocationSimulation]) {
-    [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
       withDescriptionFormat:@"Your device does not support location simulation"]
      buildError:error];
-    return NO;
   }
 
   __block NSError *innerError = nil;
@@ -254,20 +252,14 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 {
   XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
   if (![session respondsToSelector:@selector(clearSimulatedLocationWithReply:)]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
         withDescriptionFormat:@"The current Xcode SDK does not support location simulation. Consider upgrading to Xcode 14.3+/iOS 16.4+"]
        buildError:error];
-    }
-    return NO;
   }
   if (![session supportsLocationSimulation]) {
-    if (error) {
-      [[[FBErrorBuilder builder]
+    return [[[FBErrorBuilder builder]
         withDescriptionFormat:@"Your device does not support location simulation"]
        buildError:error];
-    }
-    return NO;
   }
 
   __block NSError *innerError = nil;
@@ -288,5 +280,78 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
   return didSucceed;
 }
 #endif
+
++ (FBScreenRecordingPromise *)startScreenRecordingWithRequest:(FBScreenRecordingRequest *)request
+                                                        error:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
+  if (![session respondsToSelector:@selector(startScreenRecordingWithRequest:withReply:)]) {
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The current Xcode SDK does not support screen recording. Consider upgrading to Xcode 15+/iOS 17+"]
+     buildError:error];
+    return nil;
+  }
+  if (![session supportsScreenRecording]) {
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"Your device does not support screen recording"]
+     buildError:error];
+    return nil;
+  }
+
+  id nativeRequest = [request toNativeRequestWithError:error];
+  if (nil == nativeRequest) {
+    return nil;
+  }
+
+  __block id futureMetadata = nil;
+  __block NSError *innerError = nil;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session startScreenRecordingWithRequest:nativeRequest withReply:^(id reply, NSError *invokeError) {
+      if (nil == invokeError) {
+        futureMetadata = reply;
+      } else {
+        innerError = invokeError;
+      }
+      completion();
+    }];
+  }];
+  if (nil != innerError) {
+    if (error) {
+      *error = innerError;
+    }
+    return nil;
+  }
+  return [[FBScreenRecordingPromise alloc] initWithNativePromise:futureMetadata];
+}
+
++ (BOOL)stopScreenRecordingWithUUID:(NSUUID *)uuid error:(NSError *__autoreleasing*)error
+{
+  XCTRunnerDaemonSession *session = [XCTRunnerDaemonSession sharedSession];
+  if (![session respondsToSelector:@selector(stopScreenRecordingWithUUID:withReply:)]) {
+    return [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"The current Xcode SDK does not support screen recording. Consider upgrading to Xcode 15+/iOS 17+"]
+       buildError:error];
+
+  }
+  if (![session supportsScreenRecording]) {
+    return [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Your device does not support screen recording"]
+       buildError:error];
+  }
+
+  __block NSError *innerError = nil;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    [session stopScreenRecordingWithUUID:uuid withReply:^(NSError *invokeError) {
+      if (nil != invokeError) {
+        innerError = invokeError;
+      }
+      completion();
+    }];
+  }];
+  if (nil != innerError && error) {
+    *error = innerError;
+  }
+  return nil == innerError;
+}
 
 @end

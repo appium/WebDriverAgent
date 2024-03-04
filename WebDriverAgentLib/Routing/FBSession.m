@@ -18,7 +18,11 @@
 #import "FBElementCache.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
+#import "FBScreenRecordingContainer.h"
+#import "FBScreenRecordingPromise.h"
+#import "FBScreenRecordingRequest.h"
 #import "FBXCodeCompatibility.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
 
@@ -135,6 +139,14 @@ static FBSession *_activeSession = nil;
   if (nil != self.alertsMonitor) {
     [self.alertsMonitor disable];
     self.alertsMonitor = nil;
+  }
+
+  FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
+  if (nil != activeScreenRecording) {
+    NSError *error;
+    if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
+      [FBLogger logFmt:@"%@", error];
+    }
   }
 
   if (nil != self.testedApplication
