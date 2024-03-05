@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param fps FPS value
  @param codec Codec value
  */
-- (void)storeScreenRecordingPromise:(nullable FBScreenRecordingPromise *)screenRecordingPromise
+- (void)storeScreenRecordingPromise:(FBScreenRecordingPromise *)screenRecordingPromise
                                 fps:(NSUInteger)fps
                               codec:(long long)codec;
 /**

@@ -32,7 +32,7 @@
   return instance;
 }
 
-- (void)storeScreenRecordingPromise:(nullable FBScreenRecordingPromise *)screenRecordingPromise
+- (void)storeScreenRecordingPromise:(FBScreenRecordingPromise *)screenRecordingPromise
                                 fps:(NSUInteger)fps
                               codec:(long long)codec;
 {
@@ -45,7 +45,12 @@
 {
   self.fps = 0;
   self.codec = 0;
-  self.screenRecordingPromise = nil;
+  if (nil != self.screenRecordingPromise) {
+    [XCTContext runActivityNamed:@"Video Cleanup" block:^(id<XCTActivity> activity){
+      [activity addAttachment:(XCTAttachment *)self.screenRecordingPromise.nativePromise];
+    }];
+    self.screenRecordingPromise = nil;
+  }
 }
 
 - (nullable NSDictionary *)toDictionary
@@ -57,7 +62,7 @@
   return @{
     @"fps": @(self.fps),
     @"codec": @(self.codec),
-    @"uuid": [self.screenRecordingPromise identifier] ?: [NSNull null],
+    @"uuid": [self.screenRecordingPromise identifier].UUIDString ?: [NSNull null],
   };
 }
 

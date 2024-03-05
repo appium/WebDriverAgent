@@ -41,8 +41,10 @@ const NSUInteger DEFAULT_CODEC = 0;
   NSError *error;
   if (nil != activeScreenRecording) {
     if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
+      [FBScreenRecordingContainer.sharedInstance reset];
       return FBResponseWithUnknownError(error);
     }
+    [FBScreenRecordingContainer.sharedInstance reset];
     activeScreenRecording = nil;
   }
 
@@ -71,18 +73,17 @@ const NSUInteger DEFAULT_CODEC = 0;
 
   NSUUID *recordingId = activeScreenRecording.identifier;
   NSDictionary *response = [FBScreenRecordingContainer.sharedInstance toDictionary];
-  [FBScreenRecordingContainer.sharedInstance reset];
   NSError *error;
   if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:recordingId error:&error]) {
+    [FBScreenRecordingContainer.sharedInstance reset];
     return FBResponseWithUnknownError(error);
   }
-
+  [FBScreenRecordingContainer.sharedInstance reset];
   return FBResponseWithObject(response);
 }
 
 + (id<FBResponsePayload>)handleGetVideoRecording:(FBRouteRequest *)request
 {
-  NSDictionary *response = [FBScreenRecordingContainer.sharedInstance toDictionary];
   return FBResponseWithObject([FBScreenRecordingContainer.sharedInstance toDictionary] ?: [NSNull null]);
 }
 

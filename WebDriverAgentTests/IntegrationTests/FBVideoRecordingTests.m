@@ -15,6 +15,7 @@
 #import "FBMacros.h"
 #import "FBScreenRecordingPromise.h"
 #import "FBScreenRecordingRequest.h"
+#import "FBScreenRecordingContainer.h"
 #import "FBXCTestDaemonsProxy.h"
 
 @interface FBVideoRecordingTests : FBIntegrationTestCase
@@ -24,6 +25,7 @@
 
 - (void)setUp
 {
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"DisableDiagnosticScreenRecordings"];
   [super setUp];
 }
 
@@ -42,12 +44,20 @@
   XCTAssertNotNil(promise);
   XCTAssertNotNil(promise.identifier);
   XCTAssertNil(error);
+  
+  [FBScreenRecordingContainer.sharedInstance storeScreenRecordingPromise:promise
+                                                                     fps:24
+                                                                   codec:0];
+  XCTAssertEqual(FBScreenRecordingContainer.sharedInstance.screenRecordingPromise, promise);
 
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:2.]];
 
   BOOL isSuccessfull = [FBXCTestDaemonsProxy stopScreenRecordingWithUUID:promise.identifier error:&error];
   XCTAssertTrue(isSuccessfull);
   XCTAssertNil(error);
+  
+  [FBScreenRecordingContainer.sharedInstance reset];
+  XCTAssertNil(FBScreenRecordingContainer.sharedInstance.screenRecordingPromise);
 }
 
 @end

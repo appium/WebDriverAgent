@@ -11,7 +11,7 @@
 #import "FBScreenRecordingPromise.h"
 
 @interface FBScreenRecordingPromise ()
-@property (nonatomic) id promise;
+@property (readwrite) id nativePromise;
 @end
 
 @implementation FBScreenRecordingPromise
@@ -19,14 +19,16 @@
 - (instancetype)initWithNativePromise:(id)promise
 {
   if ((self = [super init])) {
-    self.promise = promise;
+    self.nativePromise = promise;
+    // 2 -> Always delete
+    ((XCTAttachment *) self.nativePromise).lifetime = 2;
   }
   return self;
 }
 
 - (NSUUID *)identifier
 {
-  return (NSUUID *)[self.promise valueForKey:@"_UUID"];
+  return (NSUUID *)[self.nativePromise valueForKey:@"_UUID"];
 }
 
 @end

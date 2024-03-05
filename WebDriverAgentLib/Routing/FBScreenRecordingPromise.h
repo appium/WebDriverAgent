@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Unique identiifier of the video recording, also used as the default file name */
 @property (nonatomic, readonly) NSUUID *identifier;
+/** Native screen recording promise */
+@property (nonatomic, readonly) id nativePromise;
 
 /**
  Creates a wrapper object for a native screen recording promise
