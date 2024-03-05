@@ -20,8 +20,6 @@
 {
   if ((self = [super init])) {
     self.nativePromise = promise;
-    // 2 -> Always delete
-    ((XCTAttachment *) self.nativePromise).lifetime = 2;
   }
   return self;
 }
