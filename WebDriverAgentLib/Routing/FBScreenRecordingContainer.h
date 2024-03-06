@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) long long codec;
 /** Keep the currently active screen resording promise. Equals to nil if no active screen recordings are running */
 @property (readonly, nonatomic, nullable) FBScreenRecordingPromise* screenRecordingPromise;
+/** The timestamp of the video startup as Unix float seconds  */
+@property (readonly, nonatomic, nullable) NSNumber *startedAt;
 
 /**
 @return singleton instance

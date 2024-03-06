@@ -17,6 +17,7 @@
 @property (readwrite) NSUInteger fps;
 @property (readwrite) long long codec;
 @property (readwrite) FBScreenRecordingPromise* screenRecordingPromise;
+@property (readwrite) NSNumber *startedAt;
 
 @end
 
@@ -39,6 +40,7 @@
   self.fps = fps;
   self.codec = codec;
   self.screenRecordingPromise = screenRecordingPromise;
+  self.startedAt = @([NSDate.date timeIntervalSince1970]);
 }
 
 - (void)reset;
@@ -51,6 +53,7 @@
     }];
     self.screenRecordingPromise = nil;
   }
+  self.startedAt = nil;
 }
 
 - (nullable NSDictionary *)toDictionary
@@ -63,6 +66,7 @@
     @"fps": @(self.fps),
     @"codec": @(self.codec),
     @"uuid": [self.screenRecordingPromise identifier].UUIDString ?: [NSNull null],
+    @"startedAt": self.startedAt ?: [NSNull null],
   };
 }
 

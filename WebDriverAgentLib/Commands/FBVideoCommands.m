@@ -38,20 +38,15 @@ const NSUInteger DEFAULT_CODEC = 0;
 + (id<FBResponsePayload>)handleStartVideoRecording:(FBRouteRequest *)request
 {
   FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
-  NSError *error;
   if (nil != activeScreenRecording) {
-    if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
-      [FBScreenRecordingContainer.sharedInstance reset];
-      return FBResponseWithUnknownError(error);
-    }
-    [FBScreenRecordingContainer.sharedInstance reset];
-    activeScreenRecording = nil;
+    return FBResponseWithObject([FBScreenRecordingContainer.sharedInstance toDictionary] ?: [NSNull null]);
   }
 
   NSNumber *fps = (NSNumber *)request.arguments[@"fps"] ?: @(DEFAULT_FPS);
   NSNumber *codec = (NSNumber *)request.arguments[@"codec"] ?: @(DEFAULT_CODEC);
   FBScreenRecordingRequest *recordingRequest = [[FBScreenRecordingRequest alloc] initWithFps:fps.integerValue
                                                                                        codec:codec.longLongValue];
+  NSError *error;
   FBScreenRecordingPromise* promise = [FBXCTestDaemonsProxy startScreenRecordingWithRequest:recordingRequest
                                                                                       error:&error];
   if (nil == promise) {
