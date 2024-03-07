@@ -78,7 +78,7 @@
     "semantic-release": "^23.0.0",
     "sinon": "^17.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "~5.2"
+    "typescript": "~5.4"
   },
   "dependencies": {
     "@appium/base-driver": "^9.0.0",
