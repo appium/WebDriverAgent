@@ -166,7 +166,8 @@ static FBSession *_activeSession = nil;
 
 - (XCUIApplication *)activeApplication
 {
-  if (nil != self.testedApplication) {
+  BOOL isAuto = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto];
+  if (isAuto && nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
       return (XCUIApplication *)self.testedApplication;
@@ -177,7 +178,7 @@ static FBSession *_activeSession = nil;
     }
   }
 
-  NSString *defaultBundleId = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto]
+  NSString *defaultBundleId = isAuto
     ? nil
     : self.defaultActiveApplication;
   return [XCUIApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
