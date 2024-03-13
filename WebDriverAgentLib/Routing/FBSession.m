@@ -178,7 +178,7 @@ static FBSession *_activeSession = nil;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
       return (XCUIApplication *)self.testedApplication;
     }
-    if (WebDriverAgentLib/Routing/FBSession.mself.isTestedApplicationExpectedToRun && testedAppState <= XCUIApplicationStateNotRunning) {
+    if (self.isTestedApplicationExpectedToRun && testedAppState <= XCUIApplicationStateNotRunning) {
       NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplication.bundleID];
       @throw [NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil];
     }
