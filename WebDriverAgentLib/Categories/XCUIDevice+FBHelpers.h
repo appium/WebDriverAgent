@@ -70,7 +70,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 - (nullable NSData *)fb_screenshotWithError:(NSError*__autoreleasing*)error;
 
 /**
- Returns device current wifi ip4 address
+ Returns device's current wifi ip4 address
  */
 - (nullable NSString *)fb_wifiIPAddress;
 
