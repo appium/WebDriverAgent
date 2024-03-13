@@ -167,6 +167,14 @@ static FBSession *_activeSession = nil;
 - (XCUIApplication *)activeApplication
 {
   BOOL isAuto = [self.defaultActiveApplication isEqualToString:FBDefaultApplicationAuto];
+  NSString *defaultBundleId = isAuto
+    ? nil
+    : self.defaultActiveApplication;
+
+  if (nil != defaultBundleId && [self applicationStateWithBundleId:defaultBundleId] >= XCUIApplicationStateRunningForeground) {
+    return [self makeApplicationWithBundleId:defaultBundleId];
+  }
+
   if (isAuto && nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
@@ -176,14 +184,6 @@ static FBSession *_activeSession = nil;
       NSString *description = [NSString stringWithFormat:@"The application under test with bundle id '%@' is not running, possibly crashed", self.testedApplication.bundleID];
       @throw [NSException exceptionWithName:FBApplicationCrashedException reason:description userInfo:nil];
     }
-  }
-
-  NSString *defaultBundleId = isAuto
-    ? nil
-    : self.defaultActiveApplication;
-
-  if (nil != defaultBundleId && [self applicationStateWithBundleId:defaultBundleId] >= XCUIApplicationStateRunningForeground) {
-    return [self makeApplicationWithBundleId:defaultBundleId];
   }
 
   return [XCUIApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
