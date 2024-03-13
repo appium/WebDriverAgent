@@ -181,6 +181,11 @@ static FBSession *_activeSession = nil;
   NSString *defaultBundleId = isAuto
     ? nil
     : self.defaultActiveApplication;
+
+  if (nil != defaultBundleId && [self applicationStateWithBundleId:defaultBundleId] >= XCUIApplicationStateRunningForeground) {
+    return [self makeApplicationWithBundleId:defaultBundleId];
+  }
+
   return [XCUIApplication fb_activeApplicationWithDefaultBundleId:defaultBundleId];
 }
 
