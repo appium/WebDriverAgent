@@ -340,3 +340,36 @@ describe('setupCaching()', function () {
     });
   });
 });
+
+
+describe('usePreinstalledWDA related functions', function () {
+  describe('bundleIdForXctest', function () {
+    it('should have xctrunner automatically', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      args.updatedWDABundleId = 'io.appium.wda';
+      const agent = new WebDriverAgent({}, args);
+      agent.bundleIdForXctest.should.equal('io.appium.wda.xctrunner');
+    });
+
+    it('should have xctrunner automatically with default bundle id', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      const agent = new WebDriverAgent({}, args);
+      agent.bundleIdForXctest.should.equal('com.facebook.WebDriverAgentRunner.xctrunner');
+    });
+
+    it('should not have xctrunner suffix', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      args.updatedWDABundleId = 'io.appium.wda';
+      args.doNotAddXctrunnerSuffix = true;
+      const agent = new WebDriverAgent({}, args);
+      agent.bundleIdForXctest.should.equal('io.appium.wda');
+    });
+
+    it('should have xctrunner automatically with default bundle id', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      args.doNotAddXctrunnerSuffix = true;
+      const agent = new WebDriverAgent({}, args);
+      agent.bundleIdForXctest.should.equal('com.facebook.WebDriverAgentRunner');
+    });
+  });
+});
