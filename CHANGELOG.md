@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/appium/WebDriverAgent/compare/v8.0.0...v8.0.1) (2024-03-26)
+
+
+### Miscellaneous Chores
+
+* use bundle id outside opts for this.device.devicectl.launchApp ([#872](https://github.com/appium/WebDriverAgent/issues/872)) ([e2aeda2](https://github.com/appium/WebDriverAgent/commit/e2aeda2f2020f4014cba478b459e47954175f597))
+
 ## [8.0.0](https://github.com/appium/WebDriverAgent/compare/v7.3.1...v8.0.0) (2024-03-25)
 
 
