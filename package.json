@@ -86,7 +86,7 @@
     "@appium/strongbox": "^0.x",
     "@appium/support": "^4.0.0",
     "appium-ios-device": "^2.5.0",
-    "appium-ios-simulator": "^5.0.1",
+    "appium-ios-simulator": "^6.0.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^3.0.0",
     "axios": "^1.4.0",
