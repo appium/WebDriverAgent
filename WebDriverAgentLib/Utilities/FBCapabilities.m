@@ -23,3 +23,4 @@ NSString* const FB_CAP_ARGUMENTS = @"arguments";
 NSString* const FB_CAP_ENVIRNOMENT = @"environment";
 NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY = @"useNativeCachingStrategy";
 NSString* const FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE = @"forceSimulatorSoftwareKeyboardPresence";
+NSString* const FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC = @"appLaunchStateTimeoutSec";

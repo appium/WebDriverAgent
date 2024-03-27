@@ -11,7 +11,7 @@
 
 /** Whether to use alternative elements visivility detection method */
 extern NSString* const FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION;
-/** Set the maximum amount of charatcers that could be typed within a minute (60 by default) */
+/** Set the maximum amount of characters that could be typed within a minute (60 by default) */
 extern NSString* const FB_CAP_MAX_TYPING_FREQUENCY;
 /** this setting was needed for some legacy stuff */
 extern NSString* const FB_CAP_USE_SINGLETON_TEST_MANAGER;
@@ -42,3 +42,5 @@ extern NSString* const FB_CAP_ENVIRNOMENT;
 extern NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY;
 /** Whether to enforce software keyboard presence on simulator */
 extern NSString* const FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE;
+/** Sets the application state change timeout for the initial app startup */
+extern NSString* const FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC;
