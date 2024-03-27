@@ -156,11 +156,11 @@
         if (app.running) {
           [app terminate];
         }
-        id<FBResponsePayload> response = [self openDeepLink:initialUrl
-                                            withApplication:bundleID
-                                                    timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
-        if (nil != response) {
-          return response;
+        id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
+                                                 withApplication:bundleID
+                                                         timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+        if (nil != errorResponse) {
+          return errorResponse;
         }
       } else {
         NSTimeInterval defaultTimeout = _XCTApplicationStateTimeout();
@@ -184,11 +184,11 @@
       }
     } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
       if (nil != initialUrl) {
-        id<FBResponsePayload> response = [self openDeepLink:initialUrl
-                                            withApplication:bundleID
-                                                    timeout:nil];
-        if (nil != response) {
-          return response;
+        id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
+                                                 withApplication:bundleID
+                                                         timeout:nil];
+        if (nil != errorResponse) {
+          return errorResponse;
         }
       } else {
         [app activate];
@@ -197,11 +197,11 @@
   }
 
   if (nil != initialUrl && nil == bundleID) {
-    NSError *openError;
-    if (![XCUIDevice.sharedDevice fb_openUrl:initialUrl error:&openError]) {
-      NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@. Original error: %@",
-                            initialUrl, openError.localizedDescription];
-      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
+    id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
+                                             withApplication:nil
+                                                     timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+    if (nil != errorResponse) {
+      return errorResponse;
     }
   }
 
@@ -516,7 +516,7 @@
       return nil;
     }
     NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ with the %@ application. Original error: %@",
-                          initialUrl, bundleID, openError.localizedDescription];
+                          initialUrl, bundleID ?: @"default", openError.localizedDescription];
     return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
   } @finally {
     if (nil != timeout) {
