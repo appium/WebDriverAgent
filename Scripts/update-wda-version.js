@@ -29,9 +29,9 @@ async function updateWdaVersion() {
     );
   }
 
-  const runnerManifest = path.resolve('WebDriverAgentLib', 'Info.plist');
-  log.info(`Updating the WebDriverAgent manifest at '${runnerManifest}' to version '${newVersion}'`);
-  await plist.updatePlistFile(runnerManifest, {
+  const libManifest = path.resolve('WebDriverAgentLib', 'Info.plist');
+  log.info(`Updating the WebDriverAgent manifest at '${libManifest}' to version '${newVersion}'`);
+  await plist.updatePlistFile(libManifest, {
     CFBundleShortVersionString: newVersion,
     CFBundleVersion: newVersion,
   }, false);
