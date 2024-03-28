@@ -279,6 +279,11 @@
   if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
     [buildInfo setObject:upgradeTimestamp forKey:@"upgradedAt"];
   }
+  NSDictionary *infoDict = [[NSBundle bundleForClass:self.class] infoDictionary];
+  NSString *version = [infoDict objectForKey:@"CFBundleShortVersionString"];
+  if (nil != version) {
+    [buildInfo setObject:version forKey:@"version"];
+  }
 
   return FBResponseWithObject(
     @{

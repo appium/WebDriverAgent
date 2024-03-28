@@ -11,12 +11,14 @@
     "format": "prettier -w ./lib",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "npm run build",
+    "version": "npm run sync-wda-version",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
     "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.js\"",
     "bundle": "npm run bundle:ios && npm run bundle:tv",
     "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.js",
     "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.js",
-    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js"
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js",
+    "sync-wda-version": "node ./scripts/update-wda-version.js --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
   },
   "engines": {
     "node": ">=14",
@@ -73,10 +75,12 @@
     "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-mocha": "^10.1.0",
     "eslint-plugin-promise": "^6.1.1",
+    "fancy-log": "^2.0.0",
     "node-simctl": "^7.0.1",
     "mocha": "^10.0.0",
     "prettier": "^3.0.0",
     "semantic-release": "^23.0.0",
+    "semver": "^7.3.7",
     "sinon": "^17.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.2"
