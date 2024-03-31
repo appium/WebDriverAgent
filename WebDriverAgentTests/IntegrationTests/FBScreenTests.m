@@ -30,7 +30,7 @@
 
 - (void)testStatusBarSize
 {
-  CGSize statusBarSize = [FBScreen statusBarSizeForApplication];
+  CGSize statusBarSize = [FBScreen statusBarSize];
   BOOL statusBarSizeIsZero = CGSizeEqualToSize(CGSizeZero, statusBarSize);
   XCTAssertFalse(statusBarSizeIsZero);
 }

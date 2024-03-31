@@ -144,7 +144,7 @@
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);
 #endif
 
-  CGSize statusBarSize = [FBScreen statusBarSizeForApplication];
+  CGSize statusBarSize = [FBScreen statusBarSize];
   return FBResponseWithObject(
                               @{
     @"screenSize":@{@"width": @(screenSize.width),
