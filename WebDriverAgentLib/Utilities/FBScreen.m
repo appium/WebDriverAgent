@@ -19,13 +19,4 @@
   return [XCUIScreen.mainScreen scale];
 }
 
-+ (CGSize)statusBarSize
-{
-  XCUIElement *mainStatusBar = XCUIApplication.fb_systemApplication.statusBars.allElementsBoundByIndex.firstObject;
-  if (nil == mainStatusBar) {
-    return CGSizeZero;
-  }
-  return mainStatusBar.frame.size;
-}
-
 @end

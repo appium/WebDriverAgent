@@ -137,6 +137,9 @@
 + (id<FBResponsePayload>)handleGetScreen:(FBRouteRequest *)request
 {
   XCUIApplication *app = XCUIApplication.fb_systemApplication;
+
+  CGSize statusBarSize = app.statusBars.allElementsBoundByIndex.firstObject.frame.size;
+
 #if TARGET_OS_TV
   CGSize screenSize = app.frame.size;
 #else
@@ -144,7 +147,6 @@
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);
 #endif
 
-  CGSize statusBarSize = [FBScreen statusBarSize];
   return FBResponseWithObject(
                               @{
     @"screenSize":@{@"width": @(screenSize.width),

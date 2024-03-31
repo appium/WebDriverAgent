@@ -28,12 +28,5 @@
   XCTAssertTrue([FBScreen scale] >= 2);
 }
 
-- (void)testStatusBarSize
-{
-  CGSize statusBarSize = [FBScreen statusBarSize];
-  BOOL statusBarSizeIsZero = CGSizeEqualToSize(CGSizeZero, statusBarSize);
-  XCTAssertFalse(statusBarSizeIsZero);
-}
-
 @end
 
