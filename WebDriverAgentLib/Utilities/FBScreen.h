@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The absolute size of application's status bar or CGSizeZero if it's hidden or does not exist
  */
-+ (CGSize)statusBarSizeForApplication:(XCUIApplication *)application;
++ (CGSize)statusBarSizeForApplication;
 
 @end
 

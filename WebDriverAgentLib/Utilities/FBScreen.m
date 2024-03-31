@@ -19,7 +19,7 @@
   return [XCUIScreen.mainScreen scale];
 }
 
-+ (CGSize)statusBarSizeForApplication:(XCUIApplication *)application
++ (CGSize)statusBarSizeForApplication
 {
   XCUIApplication *app = XCUIApplication.fb_systemApplication;
   // Since iOS 13 the status bar is no longer part of the application, it’s part of the SpringBoard
