@@ -144,8 +144,7 @@
 #if TARGET_OS_TV
   CGSize screenSize = app.frame.size;
 #else
-  CGRect frame = app.wdFrame;
-  CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);
+  CGSize screenSize = FBAdjustDimensionsForApplication(app.wdFrame.size, app.interfaceOrientation);
 #endif
 
   return FBResponseWithObject(
