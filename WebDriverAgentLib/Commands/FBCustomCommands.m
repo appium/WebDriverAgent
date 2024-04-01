@@ -139,7 +139,7 @@
   XCUIApplication *app = XCUIApplication.fb_systemApplication;
 
   XCUIElement *mainStatusBar = app.statusBars.allElementsBoundByIndex.firstObject;
-  CGSize statusBarSize =  (nil == mainStatusBar) ? CGSizeZero : mainStatusBar.frame.size;
+  CGSize statusBarSize = (nil == mainStatusBar) ? CGSizeZero : mainStatusBar.frame.size;
 
 #if TARGET_OS_TV
   CGSize screenSize = app.frame.size;
