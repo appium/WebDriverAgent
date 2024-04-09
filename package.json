@@ -1,8 +1,9 @@
 {
   "name": "appium-webdriveragent",
-  "version": "8.4.0",
+  "version": "8.5.1",
   "description": "Package bundling WebDriverAgent",
   "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "dev": "npm run build -- --watch",
@@ -100,9 +101,9 @@
     "teen_process": "^2.0.0"
   },
   "files": [
-    "index.js",
+    "index.ts",
     "lib",
-    "build/index.js",
+    "build/index.*",
     "build/lib",
     "Scripts/build.sh",
     "Scripts/fetch-prebuilt-wda.js",

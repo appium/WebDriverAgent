@@ -1,3 +1,17 @@
+## [8.5.1](https://github.com/appium/WebDriverAgent/compare/v8.5.0...v8.5.1) (2024-04-08)
+
+
+### Miscellaneous Chores
+
+* Add more type declarations ([#886](https://github.com/appium/WebDriverAgent/issues/886)) ([9ca7632](https://github.com/appium/WebDriverAgent/commit/9ca7632faf999931e7f5edf47267fcce6d6392b2))
+
+## [8.5.0](https://github.com/appium/WebDriverAgent/compare/v8.4.0...v8.5.0) (2024-04-07)
+
+
+### Features
+
+* Add types for WDA caps and settings ([#885](https://github.com/appium/WebDriverAgent/issues/885)) ([4b3c220](https://github.com/appium/WebDriverAgent/commit/4b3c220c0c609802924b7b6ff9a4dfa7a98eb5f4))
+
 ## [8.4.0](https://github.com/appium/WebDriverAgent/compare/v8.3.1...v8.4.0) (2024-04-01)
 
 
