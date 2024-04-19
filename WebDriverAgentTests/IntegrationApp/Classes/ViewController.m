@@ -51,7 +51,7 @@
       orientation = @"LandscapeRight";
       break;
     case UIDeviceOrientationFaceUp:
-      orientation = @"FaceUo";
+      orientation = @"FaceUp";
       break;
     case UIDeviceOrientationFaceDown:
       orientation = @"FaceDown";
