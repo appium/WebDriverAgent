@@ -352,10 +352,6 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [self targetFromRequest:request];
-  if (![element respondsToSelector:@selector(pressForDuration:thenDragToElement:withVelocity:thenHoldForDuration:)]) {
-    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
-                                                                            traceback:nil]);
-  }
   [element pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
           thenDragToElement:[elementCache elementForUUID:(NSString *)request.arguments[@"toElement"]]
                withVelocity:[request.arguments[@"velocity"] doubleValue]
@@ -370,10 +366,6 @@
                                      (CGFloat)[request.arguments[@"fromY"] doubleValue]);
   XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
                                                                     element:session.activeApplication];
-  if (![startCoordinate respondsToSelector:@selector(pressForDuration:thenDragToCoordinate:withVelocity:thenHoldForDuration:)]) {
-    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:@"This method is only supported in Xcode 12 and above"
-                                                                            traceback:nil]);
-  }
   CGVector endOffset = CGVectorMake((CGFloat)[request.arguments[@"toX"] doubleValue],
                                     (CGFloat)[request.arguments[@"toY"] doubleValue]);
   XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
