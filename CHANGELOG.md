@@ -1,3 +1,11 @@
+## [8.5.2](https://github.com/appium/WebDriverAgent/compare/v8.5.1...v8.5.2) (2024-04-09)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 7.6.0 ([#888](https://github.com/appium/WebDriverAgent/issues/888)) ([ead75eb](https://github.com/appium/WebDriverAgent/commit/ead75eb87a5c8e94088bace8f372ab137dcf57ad))
+* Remove extra imports ([fb25742](https://github.com/appium/WebDriverAgent/commit/fb25742a07a2fbcb0365a48d54117267c7c916df))
+
 ## [8.5.1](https://github.com/appium/WebDriverAgent/compare/v8.5.0...v8.5.1) (2024-04-08)
 
 
