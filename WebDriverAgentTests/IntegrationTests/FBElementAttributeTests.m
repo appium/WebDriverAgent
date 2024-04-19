@@ -48,6 +48,8 @@
   XCUIElement *inaccessibleButtonElement = self.testedApplication.buttons[@"not_accessible"];
   XCTAssertTrue(inaccessibleButtonElement.exists);
   XCTAssertFalse(inaccessibleButtonElement.fb_isAccessibilityElement);
+  // FIXME: Xcode 11 environment returns false even if iOS 12
+  // We must fix here to XCTAssertTrue if Xcode version will return the value properly
   XCTAssertFalse(inaccessibleButtonElement.isWDAccessibilityContainer);
 }
 
