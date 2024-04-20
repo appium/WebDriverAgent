@@ -8,10 +8,10 @@ on:
       - completed
 
 env:
-  HOST: macos-13
-  XCODE_VERSION: 14.3.1
-  DESTINATION_SIM: platform=iOS Simulator,name=iPhone 14 Pro
-  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV
+  HOST: macos-14
+  XCODE_VERSION: 15.3
+  DESTINATION_SIM: platform=iOS Simulator,name=iPhone 15 Pro
+  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
 jobs:
   host_machine:
