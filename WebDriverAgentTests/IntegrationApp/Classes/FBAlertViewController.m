@@ -37,7 +37,14 @@
 
 - (IBAction)createNotificationAlert:(UIButton *)sender
 {
-  [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert categories:nil]];
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound|UNAuthorizationOptionAlert|UNAuthorizationOptionBadge) 
+                        completionHandler:^(BOOL granted, NSError * _Nullable error)
+   {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [[UIApplication sharedApplication] registerForRemoteNotifications];
+    });
+  }];
 }
 
 - (IBAction)createCameraRollAccessAlert:(UIButton *)sender

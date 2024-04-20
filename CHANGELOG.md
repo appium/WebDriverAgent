@@ -1,3 +1,10 @@
+## [8.5.3](https://github.com/appium/WebDriverAgent/compare/v8.5.2...v8.5.3) (2024-04-19)
+
+
+### Miscellaneous Chores
+
+* update integerationapp for newer OS env ([#891](https://github.com/appium/WebDriverAgent/issues/891)) ([2c78348](https://github.com/appium/WebDriverAgent/commit/2c7834842afeb1aec77e953ce11ac3c43c839431))
+
 ## [8.5.2](https://github.com/appium/WebDriverAgent/compare/v8.5.1...v8.5.2) (2024-04-09)
 
 

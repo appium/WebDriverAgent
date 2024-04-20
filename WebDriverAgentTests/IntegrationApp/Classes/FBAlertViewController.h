@@ -8,6 +8,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
 @interface FBAlertViewController : UIViewController
 

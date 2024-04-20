@@ -37,7 +37,7 @@
 - (void)updateOrentationLabel
 {
   NSString *orientation = nil;
-  switch (self.interfaceOrientation) {
+  switch (UIDevice.currentDevice.orientation) {
     case UIInterfaceOrientationPortrait:
       orientation = @"Portrait";
       break;
@@ -49,6 +49,12 @@
       break;
     case UIInterfaceOrientationLandscapeRight:
       orientation = @"LandscapeRight";
+      break;
+    case UIDeviceOrientationFaceUp:
+      orientation = @"FaceUp";
+      break;
+    case UIDeviceOrientationFaceDown:
+      orientation = @"FaceDown";
       break;
     case UIInterfaceOrientationUnknown:
       orientation = @"Unknown";
