@@ -279,9 +279,8 @@
 - (void)testDescendantsWithClassChainWithIndex
 {
   NSArray<XCUIElement *> *matchingSnapshots;
-  NSString *queryString = @"XCUIElementTypeWindow/*/*[2]/*/*/XCUIElementTypeButton";
   // iPhone
-  queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton";
+  NSString *queryString = @"XCUIElementTypeWindow/*/*/*/*[2]/*/*/XCUIElementTypeButton";
   matchingSnapshots = [self.testedApplication fb_descendantsMatchingClassChain:queryString
                                                    shouldReturnAfterFirstMatch:NO];
   if (matchingSnapshots.count == 0) {
