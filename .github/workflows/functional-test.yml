@@ -8,11 +8,11 @@ jobs:
     env:
       CI: true
       _FORCE_LOGS: 1
-      XCODE_VERSION: 13.4
-      DEVICE_NAME: iPhone 11
-      PLATFORM_VERSION: 15.5
-    # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
-    runs-on: macos-12
+      XCODE_VERSION: 15.3
+      DEVICE_NAME: iPhone 15 Plus
+      PLATFORM_VERSION: 17.4
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
