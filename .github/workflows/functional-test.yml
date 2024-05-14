@@ -26,12 +26,12 @@ jobs:
         mkdir -p ./Resources/WebDriverAgent.bundle
       name: Install dev dependencies
 
-    - run: xcrun simctl list devices available
-
-    - run: |
-        target_sim_id=$(xcrun simctl list devices available | grep "$DEVICE_NAME (" | cut -d "(" -f2 | cut -d ")" -f1)
-        open -Fn "$(xcode-select -p)/Applications/Simulator.app"
-        xcrun simctl bootstatus $target_sim_id -b
+    - uses: futureware-tech/simulator-action@v3
+      with:
+        model: ${{ env.DEVICE_NAME }}
+        os: iOS
+        os_version: ${{ env.PLATFORM_VERSION }}
+        erase_before_boot: true
       name: Preboot Simulator
 
     - run: npm run e2e-test
