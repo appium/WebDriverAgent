@@ -43,11 +43,11 @@ jobs:
         # to prevent unexpected shutdown failure error
         shutdown_after_job: false
       name: Preboot Simulator
+
+    - run: npm run e2e-test
+      name: Run functional tests
       env:
         CI: true
         _FORCE_LOGS: 1
         DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
         PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
-
-    - run: npm run e2e-test
-      name: Run functional tests
