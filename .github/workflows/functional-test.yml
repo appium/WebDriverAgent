@@ -5,6 +5,17 @@ on: [pull_request]
 
 jobs:
   test:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_targets:
+          - XCODE_VERSION: 15.3
+            IOS_VERSION: 17.4
+            IOS_MODEL: iPhone 15 Plus
+          - XCODE_VERSION: 14.3.1
+            IOS_VERSION: 16.4
+            IOS_MODEL: iPhone 14 Plus
+
     env:
       CI: true
       _FORCE_LOGS: 1
@@ -20,7 +31,7 @@ jobs:
         node-version: lts/*
     - uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: "${{ env.XCODE_VERSION }}"
+        xcode-version:${{matrix.test_targets.XCODE_VERSION}}
     - run: |
         npm install
         mkdir -p ./Resources/WebDriverAgent.bundle
@@ -28,10 +39,12 @@ jobs:
 
     - uses: futureware-tech/simulator-action@v3
       with:
-        model: ${{ env.DEVICE_NAME }}
+        model: ${{matrix.test_targets.IOS_MODEL}}
         os: iOS
-        os_version: ${{ env.PLATFORM_VERSION }}
+        os_version: ${{matrix.test_targets.IOS_VERSION}}
         erase_before_boot: true
+        # to prevent unexpected shutdown failure error
+        shutdown_after_job: false
       name: Preboot Simulator
 
     - run: npm run e2e-test
