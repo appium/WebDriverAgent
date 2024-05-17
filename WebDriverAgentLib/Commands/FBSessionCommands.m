@@ -104,8 +104,8 @@
   if (elementResponseAttributes) {
     [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
   }
-  if (capabilities[FB_SETTING_MAX_TYPING_FREQUENCY]) {
-    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_SETTING_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
+  if (capabilities[FB_CAP_MAX_TYPING_FREQUENCY]) {
+    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
   }
   if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
     [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];

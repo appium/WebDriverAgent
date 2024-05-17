@@ -11,6 +11,8 @@
 
 /** Whether to use alternative elements visivility detection method */
 extern NSString* const FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION;
+/** Set the maximum amount of characters that could be typed within a minute (60 by default) */
+extern NSString* const FB_CAP_MAX_TYPING_FREQUENCY;
 /** this setting was needed for some legacy stuff */
 extern NSString* const FB_CAP_USE_SINGLETON_TEST_MANAGER;
 /** Whether to disable screneshots that XCTest automaticallly creates after each step */
