@@ -104,8 +104,8 @@
   if (elementResponseAttributes) {
     [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
   }
-  if (capabilities[FB_CAP_MAX_TYPING_FREQUENCY]) {
-    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
+  if (capabilities[FB_SETTING_MAX_TYPING_FREQUENCY]) {
+    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_SETTING_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
   }
   if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
     [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];
@@ -344,6 +344,7 @@
       FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
       FB_SETTING_DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
+      FB_SETTING_MAX_TYPING_FREQUENCY: @([FBConfiguration maxTypingFrequency]),
 #if !TARGET_OS_TV
       FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
@@ -435,6 +436,9 @@
   }
   if ([[settings objectForKey:FB_SETTING_DEFAULT_ALERT_ACTION] isKindOfClass:NSString.class]) {
     request.session.defaultAlertAction = [settings[FB_SETTING_DEFAULT_ALERT_ACTION] lowercaseString];
+  }
+  if (nil != [settings objectForKey:FB_SETTING_MAX_TYPING_FREQUENCY]) {
+    [FBConfiguration setMaxTypingFrequency:[[settings objectForKey:FB_SETTING_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
   }
 
 #if !TARGET_OS_TV

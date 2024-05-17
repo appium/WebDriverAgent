@@ -24,6 +24,7 @@ export interface WDASettings {
   screenshotOrientation?: 'auto' | 'portrait' | 'portraitUpsideDown' | 'landscapeRight' | 'landscapeLeft'
   waitForIdleTimeout?: number;
   animationCoolOffTimeout?: number;
+  maxTypingFrequency?: number;
 }
 
 // WebDriverAgentLib/Utilities/FBCapabilities.h
