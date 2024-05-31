@@ -66,6 +66,10 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setShouldUseSingletonTestManager:(BOOL)value;
 + (BOOL)shouldUseSingletonTestManager;
 
+/* Enforces WDA to verify the presense of system alerts while checking for an active app */
++ (void)setShouldRespectSystemAlerts:(BOOL)value;
++ (BOOL)shouldRespectSystemAlerts;
+
 /**
  * Extract switch value from arguments
  *

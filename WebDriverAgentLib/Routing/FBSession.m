@@ -176,6 +176,10 @@ static FBSession *_activeSession = nil;
   if (nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
+      if ([FBConfiguration shouldRespectSystemAlerts]
+          && [XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAlert].count > 0) {
+        return XCUIApplication.fb_systemApplication;
+      }
       return (XCUIApplication *)self.testedApplication;
     }
     if (self.isTestedApplicationExpectedToRun && testedAppState <= XCUIApplicationStateNotRunning) {
