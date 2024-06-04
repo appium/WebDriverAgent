@@ -65,7 +65,7 @@
     "@types/sinon-chai": "^3.2.9",
     "@types/teen_process": "^2.0.1",
     "appium-xcode": "^5.0.0",
-    "chai": "^4.2.0",
+    "chai": "^5.1.1",
     "chai-as-promised": "^7.1.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "fancy-log": "^2.0.0",
