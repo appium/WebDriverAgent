@@ -67,7 +67,7 @@
     "appium-xcode": "^5.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog-conventionalcommits": "^7.0.1",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
     "fancy-log": "^2.0.0",
     "node-simctl": "^7.0.1",
     "mocha": "^10.0.0",
