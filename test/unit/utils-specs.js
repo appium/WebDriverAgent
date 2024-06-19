@@ -1,21 +1,26 @@
 import { getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName } from '../../lib/utils';
 import { PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS } from '../../lib/constants';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { withMocks } from '@appium/test-support';
 import { fs } from '@appium/support';
 import path from 'path';
 import { fail } from 'assert';
 import { arch } from 'os';
 
-chai.should();
-chai.use(chaiAsPromised);
-
 function get_arch() {
   return arch() === 'arm64' ? 'arm64' : 'x86_64';
 }
 
 describe('utils', function () {
+  let chai;
+
+  before(async function() {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+
+    chai.should();
+    chai.use(chaiAsPromised.default);
+  });
+
   describe('#getXctestrunFilePath', withMocks({fs}, function (mocks) {
     const platformVersion = '12.0';
     const sdkVersion = '12.2';

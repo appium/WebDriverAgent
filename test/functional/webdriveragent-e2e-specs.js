@@ -1,5 +1,3 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import Simctl from 'node-simctl';
 import { getVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
@@ -14,10 +12,6 @@ const MOCHA_TIMEOUT_MS = 60 * 1000 * 4;
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
 const SIM_STARTUP_TIMEOUT_MS = MOCHA_TIMEOUT_MS;
-
-
-chai.should();
-chai.use(chaiAsPromised);
 
 let testUrl = 'http://localhost:8100/tree';
 
@@ -36,9 +30,16 @@ function getStartOpts (device) {
 
 describe('WebDriverAgent', function () {
   this.timeout(MOCHA_TIMEOUT_MS);
-
+  let chai;
   let xcodeVersion;
+
   before(async function () {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+
+    chai.should();
+    chai.use(chaiAsPromised.default);
+
     // Don't do these tests on Sauce Labs
     if (process.env.CLOUD) {
       this.skip();

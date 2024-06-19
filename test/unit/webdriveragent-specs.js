@@ -1,15 +1,9 @@
 import { BOOTSTRAP_PATH } from '../../lib/utils';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import * as utils from '../../lib/utils';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
 import _ from 'lodash';
 import sinon from 'sinon';
-
-
-chai.should();
-chai.use(chaiAsPromised);
 
 const fakeConstructorArgs = {
   device: 'some sim',
@@ -25,6 +19,16 @@ const customAgentPath = '/path/to/some/agent/WebDriverAgent.xcodeproj';
 const customDerivedDataPath = '/path/to/some/agent/DerivedData/';
 
 describe('Constructor', function () {
+  let chai;
+
+  before(async function() {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+
+    chai.should();
+    chai.use(chaiAsPromised.default);
+  });
+
   it('should have a default wda agent if not specified', function () {
     let agent = new WebDriverAgent({}, fakeConstructorArgs);
     agent.bootstrapPath.should.eql(BOOTSTRAP_PATH);
