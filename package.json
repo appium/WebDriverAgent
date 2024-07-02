@@ -48,7 +48,6 @@
   },
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
-    "@appium/eslint-config-appium": "^8.0.4",
     "@appium/eslint-config-appium-ts": "^0.x",
     "@appium/test-support": "^3.0.0",
     "@appium/tsconfig": "^0.x",
@@ -86,7 +85,7 @@
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
     "source-map-support": "^0.x",
-    "teen_process": "^2.0.0"
+    "teen_process": "^2.2.0"
   },
   "files": [
     "index.ts",
