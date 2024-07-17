@@ -53,32 +53,21 @@ NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNu
   return durationObj;
 }
 
-BOOL FBIsMetaModifier(NSString *value)
+NSNumber *FBToMetaModifier(NSString *value)
 {
-  unichar charCode = [value characterAtIndex:0];
-  return charCode >= 0xE000 && charCode <= 0xF8FF;
-}
-
-NSUInteger FBToMetaModifier(NSString *value)
-{
-  if (!FBIsMetaModifier(value)) {
-    return 0;
-  }
-
   unichar charCode = [value characterAtIndex:0];
   switch (charCode) {
     case 0xE000:
-      return XCUIKeyModifierNone;
+      return @(XCUIKeyModifierNone);
     case 0xE03D:
-      return XCUIKeyModifierCommand;
+      return @(XCUIKeyModifierCommand);
     case 0xE009:
-      return XCUIKeyModifierControl;
+      return @(XCUIKeyModifierControl);
     case 0xE00A:
-      return XCUIKeyModifierOption;
+      return @(XCUIKeyModifierOption);
     case 0xE008:
-      return XCUIKeyModifierShift;
+      return @(XCUIKeyModifierShift);
     default:
-      [FBLogger logFmt:@"Skipping the unsupported meta modifier with code %@", @(charCode)];
-      return 0;
+      return nil;
   }
 }

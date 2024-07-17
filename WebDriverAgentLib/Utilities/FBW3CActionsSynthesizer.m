@@ -410,13 +410,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
           currentItemIndex:(NSUInteger)currentItemIndex
 {
   NSInteger balance = 1;
-  BOOL isSelfMetaModifier = FBIsMetaModifier(self.value);
+  NSNumber *metaModifier = FBToMetaModifier(self.value);
   for (NSInteger index = currentItemIndex - 1; index >= 0; index--) {
     FBW3CKeyItem *item = [allItems objectAtIndex:index];
     BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
     BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
     if (!isKeyUp && !isKeyDown) {
-      if (isSelfMetaModifier) {
+      if (nil != metaModifier) {
         continue;
       } else {
         break;
@@ -447,7 +447,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
 
     NSString *value = [item performSelector:@selector(value)];
-    NSUInteger modifier = FBToMetaModifier(value);
+    NSUInteger modifier = [FBToMetaModifier(value) unsignedIntegerValue];
     if (modifier > 0) {
       if (isKeyDown) {
         modifiers |= modifier;
@@ -473,7 +473,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
 
     NSString *value = [item performSelector:@selector(value)];
-    if (FBIsMetaModifier(value)) {
+    if (nil != FBToMetaModifier(value)) {
       continue;
     }
 
@@ -497,7 +497,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     return nil;
   }
 
-  if (FBIsMetaModifier(self.value)) {
+  if (nil != FBToMetaModifier(self.value)) {
     return @[];
   }
 
@@ -555,13 +555,13 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
         currentItemIndex:(NSUInteger)currentItemIndex
 {
   NSInteger balance = 1;
-  BOOL isSelfMetaModifier = FBIsMetaModifier(self.value);
+  NSNumber *metaModifier = FBToMetaModifier(self.value);
   for (NSUInteger index = currentItemIndex + 1; index < allItems.count; index++) {
     FBW3CKeyItem *item = [allItems objectAtIndex:index];
     BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
     BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
     if (!isKeyUp && !isKeyDown) {
-      if (isSelfMetaModifier) {
+      if (nil != metaModifier) {
         continue;
       } else {
         break;
