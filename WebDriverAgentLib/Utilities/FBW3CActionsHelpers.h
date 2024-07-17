@@ -30,12 +30,4 @@ NSString *_Nullable FBRequireValue(NSDictionary<NSString *, id> *actionItem, NSE
  */
 NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNumber *_Nullable defaultValue, NSError **error);
 
-/**
- * Maps W3C meta modifier to XCUITest compatible-one
- *
- * @param value key action value
- * @returns the mapped modifier value or null in case the char cannot be mapped
- */
-NSNumber *_Nullable FBToMetaModifier(NSString *value);
-
 NS_ASSUME_NONNULL_END

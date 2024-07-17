@@ -410,17 +410,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
           currentItemIndex:(NSUInteger)currentItemIndex
 {
   NSInteger balance = 1;
-  NSNumber *metaModifier = FBToMetaModifier(self.value);
   for (NSInteger index = currentItemIndex - 1; index >= 0; index--) {
     FBW3CKeyItem *item = [allItems objectAtIndex:index];
     BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
     BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
     if (!isKeyUp && !isKeyDown) {
-      if (nil != metaModifier) {
-        continue;
-      } else {
-        break;
-      }
+      break;
     }
 
     NSString *value = [item performSelector:@selector(value)];
@@ -432,32 +427,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
   }
   return 0 == balance;
-}
-
-- (NSUInteger)collectModifersWithItems:(NSArray *)allItems
-                      currentItemIndex:(NSUInteger)currentItemIndex
-{
-  NSUInteger modifiers = 0;
-  for (NSUInteger index = 0; index < currentItemIndex; index++) {
-    FBW3CKeyItem *item = [allItems objectAtIndex:index];
-    BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
-    BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
-    if (!isKeyUp && !isKeyDown) {
-      continue;
-    }
-
-    NSString *value = [item performSelector:@selector(value)];
-    NSUInteger modifier = [FBToMetaModifier(value) unsignedIntegerValue];
-    if (modifier > 0) {
-      if (isKeyDown) {
-        modifiers |= modifier;
-      } else if (item.offset < self.offset) {
-        // only cancel the modifier if it is not in the same group
-        modifiers &= ~modifier;
-      }
-    }
-  }
-  return modifiers;
 }
 
 - (NSString *)collectTextWithItems:(NSArray *)allItems
@@ -473,10 +442,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
 
     NSString *value = [item performSelector:@selector(value)];
-    if (nil != FBToMetaModifier(value)) {
-      continue;
-    }
-
     if (isKeyUp) {
       [result addObject:value];
     }
@@ -497,10 +462,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     return nil;
   }
 
-  if (nil != FBToMetaModifier(self.value)) {
-    return @[];
-  }
-
   BOOL isLastKeyUpInGroup = currentItemIndex == allItems.count - 1
     || [[allItems objectAtIndex:currentItemIndex + 1] isKindOfClass:FBKeyPauseItem.class];
   if (!isLastKeyUpInGroup) {
@@ -510,10 +471,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   NSString *text = [self collectTextWithItems:allItems currentItemIndex:currentItemIndex];
   NSTimeInterval offset = FBMillisToSeconds(self.offset);
   XCPointerEventPath *resultPath = [[XCPointerEventPath alloc] initForTextInput];
-  // TODO: Figure out how meta modifiers could be applied
-  // TODO: The current approach throws zero division error on execution
-  // NSUInteger modifiers = [self collectModifersWithItems:allItems currentItemIndex:currentItemIndex];
-  // [resultPath setModifiers:modifiers mergeWithCurrentModifierFlags:NO atOffset:0];
   [resultPath typeText:text
               atOffset:offset
            typingSpeed:FBConfiguration.maxTypingFrequency
@@ -555,17 +512,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
         currentItemIndex:(NSUInteger)currentItemIndex
 {
   NSInteger balance = 1;
-  NSNumber *metaModifier = FBToMetaModifier(self.value);
   for (NSUInteger index = currentItemIndex + 1; index < allItems.count; index++) {
     FBW3CKeyItem *item = [allItems objectAtIndex:index];
     BOOL isKeyDown = [item isKindOfClass:FBKeyDownItem.class];
     BOOL isKeyUp = !isKeyDown && [item isKindOfClass:FBKeyUpItem.class];
     if (!isKeyUp && !isKeyDown) {
-      if (nil != metaModifier) {
-        continue;
-      } else {
-        break;
-      }
+      break;
     }
 
     NSString *value = [item performSelector:@selector(value)];

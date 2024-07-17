@@ -52,22 +52,3 @@ NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNu
   }
   return durationObj;
 }
-
-NSNumber *FBToMetaModifier(NSString *value)
-{
-  unichar charCode = [value characterAtIndex:0];
-  switch (charCode) {
-    case 0xE000:
-      return @(XCUIKeyModifierNone);
-    case 0xE03D:
-      return @(XCUIKeyModifierCommand);
-    case 0xE009:
-      return @(XCUIKeyModifierControl);
-    case 0xE00A:
-      return @(XCUIKeyModifierOption);
-    case 0xE008:
-      return @(XCUIKeyModifierShift);
-    default:
-      return nil;
-  }
-}
