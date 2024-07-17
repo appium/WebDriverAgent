@@ -30,4 +30,14 @@ NSString *_Nullable FBRequireValue(NSDictionary<NSString *, id> *actionItem, NSE
  */
 NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNumber *_Nullable defaultValue, NSError **error);
 
+/**
+ * Maps W3C meta modifier to XCUITest compatible-one
+ * See https://w3c.github.io/webdriver/#keyboard-actions
+ *
+ * @param value key action value
+ * @returns the mapped modifier value or the same input character
+ * if no mapped value could be found for it.
+ */
+NSString * FBMapIfSpecialCharacter(NSString *value);
+
 NS_ASSUME_NONNULL_END

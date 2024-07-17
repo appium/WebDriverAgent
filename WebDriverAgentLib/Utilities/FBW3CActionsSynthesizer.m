@@ -443,7 +443,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
     NSString *value = [item performSelector:@selector(value)];
     if (isKeyUp) {
-      [result addObject:value];
+      [result addObject:FBMapIfSpecialCharacter(value)];
     }
   }
   return [result.reverseObjectEnumerator.allObjects componentsJoinedByString:@""];

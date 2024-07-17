@@ -142,8 +142,10 @@
           @{@"type": @"keyUp", @"value": @"B"},
           @{@"type": @"keyDown", @"value": @"A"},
           @{@"type": @"keyUp", @"value": @"A"},
-          @{@"type": @"keyDown", @"value": @"\uE003"},
-          @{@"type": @"keyUp", @"value": @"\uE003"},
+          @{@"type": @"keyDown", @"value": @"a"},
+          @{@"type": @"keyUp", @"value": @"a"},
+          @{@"type": @"keyDown", @"value": [NSString stringWithFormat:@"%C", 0xE003]},
+          @{@"type": @"keyUp", @"value": [NSString stringWithFormat:@"%C", 0xE003]},
           @{@"type": @"pause", @"duration": @500},
           ],
       },
@@ -153,8 +155,7 @@
                                                 elementCache:nil
                                                        error:&error]);
   XCTAssertNil(error);
-
-  XCTAssertEqualObjects(textField.wdValue, @"🏀NBA\uE003");
+  XCTAssertEqualObjects(textField.wdValue, @"🏀NBA");
 }
 
 @end
