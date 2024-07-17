@@ -55,6 +55,10 @@ NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNu
 
 NSString *FBMapIfSpecialCharacter(NSString *value)
 {
+  if (0 == [value length]) {
+    return value;
+  }
+
   unichar charCode = [value characterAtIndex:0];
   switch (charCode) {
     case 0xE000:
