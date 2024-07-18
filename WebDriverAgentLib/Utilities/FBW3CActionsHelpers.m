@@ -53,32 +53,68 @@ NSNumber *_Nullable FBOptDuration(NSDictionary<NSString *, id> *actionItem, NSNu
   return durationObj;
 }
 
-BOOL FBIsMetaModifier(NSString *value)
+NSString *FBMapIfSpecialCharacter(NSString *value)
 {
-  unichar charCode = [value characterAtIndex:0];
-  return charCode >= 0xE000 && charCode <= 0xF8FF;
-}
-
-NSUInteger FBToMetaModifier(NSString *value)
-{
-  if (!FBIsMetaModifier(value)) {
-    return 0;
+  if (0 == [value length]) {
+    return value;
   }
 
   unichar charCode = [value characterAtIndex:0];
   switch (charCode) {
     case 0xE000:
-      return XCUIKeyModifierNone;
-    case 0xE03D:
-      return XCUIKeyModifierCommand;
-    case 0xE009:
-      return XCUIKeyModifierControl;
-    case 0xE00A:
-      return XCUIKeyModifierOption;
-    case 0xE008:
-      return XCUIKeyModifierShift;
+      return @"";
+    case 0xE003:
+      return [NSString stringWithFormat:@"%C", 0x0008];
+    case 0xE004:
+      return [NSString stringWithFormat:@"%C", 0x0009];
+    case 0xE006:
+      return [NSString stringWithFormat:@"%C", 0x000D];
+    case 0xE007:
+      return [NSString stringWithFormat:@"%C", 0x000A];
+    case 0xE00C:
+      return [NSString stringWithFormat:@"%C", 0x001B];
+    case 0xE00D:
+    case 0xE05D:
+      return @" ";
+    case 0xE017:
+      return [NSString stringWithFormat:@"%C", 0x007F];
+    case 0xE018:
+      return @";";
+    case 0xE019:
+      return @"=";
+    case 0xE01A:
+      return @"0";
+    case 0xE01B:
+      return @"1";
+    case 0xE01C:
+      return @"2";
+    case 0xE01D:
+      return @"3";
+    case 0xE01E:
+      return @"4";
+    case 0xE01F:
+      return @"5";
+    case 0xE020:
+      return @"6";
+    case 0xE021:
+      return @"7";
+    case 0xE022:
+      return @"8";
+    case 0xE023:
+      return @"9";
+    case 0xE024:
+      return @"*";
+    case 0xE025:
+      return @"+";
+    case 0xE026:
+      return @",";
+    case 0xE027:
+      return @"-";
+    case 0xE028:
+      return @".";
+    case 0xE029:
+      return @"/";
     default:
-      [FBLogger logFmt:@"Skipping the unsupported meta modifier with code %@", @(charCode)];
-      return 0;
+      return charCode >= 0xE000 && charCode <= 0xE05D ? @"" : value;
   }
 }

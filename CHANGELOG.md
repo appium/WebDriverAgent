@@ -1,3 +1,9 @@
+## [8.7.7](https://github.com/appium/WebDriverAgent/compare/v8.7.6...v8.7.7) (2024-07-18)
+
+### Bug Fixes
+
+* Pass-through modifier keys ([#918](https://github.com/appium/WebDriverAgent/issues/918)) ([29d0e5c](https://github.com/appium/WebDriverAgent/commit/29d0e5cb2a19809e1babb06e5adaa49b43c754a5))
+
 ## [8.7.6](https://github.com/appium/WebDriverAgent/compare/v8.7.5...v8.7.6) (2024-07-02)
 
 ### Miscellaneous Chores
