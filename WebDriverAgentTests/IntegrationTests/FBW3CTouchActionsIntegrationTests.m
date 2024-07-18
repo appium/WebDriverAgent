@@ -267,6 +267,21 @@
   }
 }
 
+- (void)testNothingDoesWithoutError
+{
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[@{
+      @"type": @"pointer",
+      @"id": @"finger1",
+      @"parameters": @{@"pointerType": @"touch"},
+      @"actions": @[],
+      },
+    ];
+  NSError *error;
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:gesture elementCache:nil error:&error]);
+  XCTAssertNil(error);
+}
+
 - (void)testTap
 {
   NSArray<NSDictionary<NSString *, id> *> *gesture =
