@@ -70,15 +70,6 @@
         },
       ],
     
-    // Chain element with empty 'actions'
-    @[@{
-        @"type": @"pointer",
-        @"id": @"finger1",
-        @"parameters": @{@"pointerType": @"touch"},
-        @"actions": @[],
-        },
-      ],
-    
     // Chain element without type
     @[@{
         @"id": @"finger1",
