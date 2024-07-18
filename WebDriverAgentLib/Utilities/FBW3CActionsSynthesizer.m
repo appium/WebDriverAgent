@@ -884,8 +884,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
         *error = [[FBErrorBuilder.builder withDescription:description] build];
       }
       return nil;
-    }
-    
+    }    
     NSArray<NSDictionary<NSString *, id> *> *actionItems = [action objectForKey:FB_KEY_ACTIONS];
     if (nil == actionItems) {
      NSString *description = [NSString stringWithFormat:@"It is mandatory to have at least one item defined for each action. Action with id '%@' contains none", actionId];
@@ -894,7 +893,6 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       }
       return nil;
     }
-
     if (0 == actionItems.count) {
       [FBLogger logFmt:@"Action items in the action id '%@' had an empty array. Skipping the action.", actionId];
       continue;
