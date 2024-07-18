@@ -1,3 +1,9 @@
+## [8.7.8](https://github.com/appium/WebDriverAgent/compare/v8.7.7...v8.7.8) (2024-07-18)
+
+### Bug Fixes
+
+* do nothing for an empty array in w3c actions ([#919](https://github.com/appium/WebDriverAgent/issues/919)) ([9e70ec1](https://github.com/appium/WebDriverAgent/commit/9e70ec1dbec1d1844278a58297a5b956ebaeb7fc))
+
 ## [8.7.7](https://github.com/appium/WebDriverAgent/compare/v8.7.6...v8.7.7) (2024-07-18)
 
 ### Bug Fixes
