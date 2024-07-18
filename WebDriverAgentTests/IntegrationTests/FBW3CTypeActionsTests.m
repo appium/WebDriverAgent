@@ -156,8 +156,17 @@
                                                        error:&error]);
   XCTAssertNil(error);
   XCTAssertEqualObjects(textField.wdValue, @"🏀NBA");
+}
 
-  NSArray<NSDictionary<NSString *, id> *> *typeAction2 =
+- (void)testTextTypingWithEmptyActions
+{
+  if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
+    return;
+  }
+
+  XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
+  [textField tap];
+  NSArray<NSDictionary<NSString *, id> *> *typeAction =
     @[
       @{
       @"type": @"pointer",
@@ -165,11 +174,12 @@
       @"actions": @[],
       },
     ];
-  XCTAssertTrue([self.testedApplication fb_performW3CActions:typeAction2
+  NSError *error;
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:typeAction
                                                 elementCache:nil
                                                        error:&error]);
   XCTAssertNil(error);
-  XCTAssertEqualObjects(textField.value, @"🏀NBA");
+  XCTAssertEqualObjects(textField.value, @"");
 }
 
 @end
