@@ -692,6 +692,14 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   });
 
   NSArray<NSDictionary<NSString *, id> *> *actionItems = [actionDescription objectForKey:FB_KEY_ACTIONS];
+  if (nil == actionItems || 0 == actionItems.count) {
+   NSString *description = [NSString stringWithFormat:@"It is mandatory to have at least one item defined for each action. Action with id '%@' contains none", actionId];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
+    }
+    return nil;
+  }
+
   FBW3CKeyItemsChain *chain = [[FBW3CKeyItemsChain alloc] init];
   NSArray<NSDictionary<NSString *, id> *> *processedItems = [self preprocessedActionItemsWith:actionItems];
   for (NSDictionary<NSString *, id> *actionItem in processedItems) {
@@ -762,6 +770,14 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   NSArray<NSDictionary<NSString *, id> *> *actionItems = [actionDescription objectForKey:FB_KEY_ACTIONS];
+  if (nil == actionItems || 0 == actionItems.count) {
+    NSString *description = [NSString stringWithFormat:@"It is mandatory to have at least one gesture item defined for each action. Action with id '%@' contains none", actionId];
+    if (error) {
+      *error = [[FBErrorBuilder.builder withDescription:description] build];
+    }
+    return nil;
+  }
+
   FBW3CGestureItemsChain *chain = [[FBW3CGestureItemsChain alloc] init];
   NSArray<NSDictionary<NSString *, id> *> *processedItems = [self preprocessedActionItemsWith:actionItems];
   for (NSDictionary<NSString *, id> *actionItem in processedItems) {
