@@ -217,7 +217,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)registerServerKeyRouteHandlers
 {
   [self.server get:@"/health" withBlock:^(RouteRequest *request, RouteResponse *response) {
-    [response respondWithString:@"I-AM-ALIVE"];
+    [response respondWithString:@"<!DOCTYPE html><html><title>Health Check</title><body><p>I-AM-ALIVE</p></body></html>"];
   }];
 
   NSString *calibrationPage = @"<html>"
