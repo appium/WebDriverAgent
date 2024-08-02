@@ -63,7 +63,6 @@
     "chai": "^5.1.1",
     "chai-as-promised": "^8.0.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "fancy-log": "^2.0.0",
     "node-simctl": "^7.0.1",
     "mocha": "^10.0.0",
     "prettier": "^3.0.0",
