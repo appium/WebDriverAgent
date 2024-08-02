@@ -1,7 +1,6 @@
-const {plist} = require('@appium/support');
+const {plist, logger} = require('@appium/support');
 const path = require('node:path');
 const semver = require('semver');
-const {logger} = require('appium/support');
 
 const log = logger.getLogger('Versioner');
 
