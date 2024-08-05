@@ -20,6 +20,7 @@
 #import "FBRuntimeUtils.h"
 #import "FBActiveAppDetectionPoint.h"
 #import "FBXCodeCompatibility.h"
+#import "FBWebServerParams.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIDevice.h"
@@ -174,6 +175,18 @@
         } @finally {
           if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
             _XCTSetApplicationStateTimeout(defaultTimeout);
+          }
+        }
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"17.0") && [bundleID isEqualToString:FB_SAFARI_BUNDLE_ID]) {
+          // Opening the default URL in Safari instead of an empty page helps
+          // the remote debugger to avoid issues while looking for active web views
+          FBWebServerParams *wsParams = FBWebServerParams.sharedInstance;
+          NSString *healthEndpoint = [NSString stringWithFormat:@"http://127.0.0.1:%@/health", wsParams.port];
+          id<FBResponsePayload> errorResponse = [self openDeepLink:healthEndpoint
+                                                   withApplication:bundleID
+                                                           timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+          if (nil != errorResponse) {
+            NSLog(@"Was not able to open the default URL %@ in Safari", healthEndpoint);
           }
         }
       }

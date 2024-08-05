@@ -23,6 +23,7 @@
 #import "FBUnknownCommands.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBWebServerParams.h"
 
 #import "XCUIDevice+FBHelpers.h"
 
@@ -102,6 +103,8 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
     serverStarted = [self attemptToStartServer:self.server onPort:port withError:&error];
     if (serverStarted) {
+      FBWebServerParams* wsParams = FBWebServerParams.sharedInstance;
+      wsParams.port = @(self.server.port);
       break;
     }
 

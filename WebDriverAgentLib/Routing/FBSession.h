@@ -14,6 +14,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Bundle identifier of Mobile Safari browser */
+extern NSString* const FB_SAFARI_BUNDLE_ID;
+
 /**
  Class that represents testing session
  */

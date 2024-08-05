@@ -33,6 +33,8 @@
  */
 NSString *const FBDefaultApplicationAuto = @"auto";
 
+NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
+
 @interface FBSession ()
 @property (nullable, nonatomic) XCUIApplication *testedApplication;
 @property (nonatomic) BOOL isTestedApplicationExpectedToRun;
