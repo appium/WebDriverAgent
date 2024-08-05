@@ -23,7 +23,7 @@ function getStartOpts (device) {
     port: 8100,
     realDevice: false,
     showXcodeLog: true,
-    wdaLaunchTimeout: 60 * 3 * 1000,
+    wdaLaunchTimeout: 60 * 4 * 1000,
   };
 }
 
