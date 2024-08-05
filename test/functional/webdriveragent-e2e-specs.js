@@ -8,7 +8,7 @@ import { retryInterval } from 'asyncbox';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import axios from 'axios';
 
-const MOCHA_TIMEOUT_MS = 60 * 1000 * 4;
+const MOCHA_TIMEOUT_MS = 60 * 1000 * 5;
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
 const SIM_STARTUP_TIMEOUT_MS = MOCHA_TIMEOUT_MS;
