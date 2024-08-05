@@ -34,15 +34,15 @@ jobs:
         mkdir -p ./Resources/WebDriverAgent.bundle
       name: Install dev dependencies
 
-    - uses: futureware-tech/simulator-action@v3
-      with:
-        model: ${{matrix.test_targets.IOS_MODEL}}
-        os: iOS
-        os_version: ${{matrix.test_targets.IOS_VERSION}}
-        erase_before_boot: true
-        # to prevent unexpected shutdown failure error
-        shutdown_after_job: false
-      name: Preboot Simulator
+    - name: Prepare iOS simulator
+      env:
+        DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
+        PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
+      run: |
+        open -Fn "$(xcode-select -p)/Applications/Simulator.app"
+        udid=$(xcrun simctl list devices available -j | \
+          node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
+        xcrun simctl bootstatus $udid -b
 
     - run: npm run e2e-test
       name: Run functional tests
