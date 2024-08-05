@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         test_targets:
-          - XCODE_VERSION: 15.3
-            IOS_VERSION: 17.4
+          - XCODE_VERSION: '15.3'
+            IOS_VERSION: '17.4'
             IOS_MODEL: iPhone 15 Plus
           - XCODE_VERSION: 14.3.1
-            IOS_VERSION: 16.4
+            IOS_VERSION: '16.4'
             IOS_MODEL: iPhone 14 Plus
 
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
@@ -43,6 +43,7 @@ jobs:
         udid=$(xcrun simctl list devices available -j | \
           node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
         xcrun simctl bootstatus $udid -b
+        xcrun simctl shutdown $udid
 
     - run: npm run e2e-test
       name: Run functional tests
