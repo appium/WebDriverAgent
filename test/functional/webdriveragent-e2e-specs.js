@@ -23,7 +23,7 @@ function getStartOpts (device) {
     port: 8100,
     realDevice: false,
     showXcodeLog: true,
-    wdaLaunchTimeout: 60 * 4 * 1000,
+    wdaLaunchTimeout: 60 * 3 * 1000,
   };
 }
 
@@ -59,6 +59,15 @@ describe('WebDriverAgent', function () {
         PLATFORM_VERSION
       );
       device = await getSimulator(simctl.udid);
+
+      // Prebuild WDA
+      const wda = new WebDriverAgent(xcodeVersion, {
+        iosSdkVersion: PLATFORM_VERSION,
+        platformVersion: PLATFORM_VERSION,
+        showXcodeLog: true,
+        device,
+      });
+      await wda.xcodebuild.start(true);
     });
 
     after(async function () {

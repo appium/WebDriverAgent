@@ -50,5 +50,6 @@ jobs:
       env:
         CI: true
         _FORCE_LOGS: 1
+        _LOG_TIMESTAMP: 1
         DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
         PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
