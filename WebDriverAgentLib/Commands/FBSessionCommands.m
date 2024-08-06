@@ -188,6 +188,10 @@
           if (nil != errorResponse) {
             NSLog(@"Was not able to open the default URL %@ in Safari", healthEndpoint);
           }
+          NSLog(@"Waiting for %@ to finish loading", healthEndpoint);
+          // To avoid the race condition while starting the remote debugger
+          [app fb_waitUntilStableWithTimeout:15.0];
+          NSLog(@"Load completed: %@", healthEndpoint);
         }
       }
       if (!app.running) {
