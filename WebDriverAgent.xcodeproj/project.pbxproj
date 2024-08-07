@@ -421,10 +421,6 @@
 		7182276E258744C900661B83 /* HTTPErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC59249131880060D7EB /* HTTPErrorResponse.h */; };
 		71822777258744CE00661B83 /* DDNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC7D249131B00060D7EB /* DDNumber.h */; };
 		71822780258744D000661B83 /* DDRange.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DC7B249131B00060D7EB /* DDRange.h */; };
-		718D2C122C60BAE3000788F2 /* FBWebServerParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 718D2C112C60BAE3000788F2 /* FBWebServerParams.m */; };
-		718D2C132C60BAE3000788F2 /* FBWebServerParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 718D2C102C60BAE3000788F2 /* FBWebServerParams.h */; };
-		718D2C142C60BAE3000788F2 /* FBWebServerParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 718D2C102C60BAE3000788F2 /* FBWebServerParams.h */; };
-		718D2C152C60BAE3000788F2 /* FBWebServerParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 718D2C112C60BAE3000788F2 /* FBWebServerParams.m */; };
 		718F49C8230844330045FE8B /* FBProtocolHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */; };
 		718F49C923087ACF0045FE8B /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
 		718F49CA23087AD30045FE8B /* FBProtocolHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DE23080CA600646AFB /* FBProtocolHelpers.m */; };
@@ -1031,8 +1027,6 @@
 		718226C72587443600661B83 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.h; sourceTree = SOURCE_ROOT; };
 		718226C82587443600661B83 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m; sourceTree = SOURCE_ROOT; };
 		718226C92587443600661B83 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = WebDriverAgentLib/Vendor/CocoaAsyncSocket/GCDAsyncUdpSocket.m; sourceTree = SOURCE_ROOT; };
-		718D2C102C60BAE3000788F2 /* FBWebServerParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBWebServerParams.h; sourceTree = "<group>"; };
-		718D2C112C60BAE3000788F2 /* FBWebServerParams.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBWebServerParams.m; sourceTree = "<group>"; };
 		718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBProtocolHelpersTests.m; sourceTree = "<group>"; };
 		71930C4020662E1F00D3AFEC /* FBPasteboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBPasteboard.h; sourceTree = "<group>"; };
 		71930C4120662E1F00D3AFEC /* FBPasteboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBPasteboard.m; sourceTree = "<group>"; };
@@ -1954,8 +1948,6 @@
 				7140974A1FAE1B51008FB2C5 /* FBW3CActionsSynthesizer.m */,
 				713AE573243A53BE0000D657 /* FBW3CActionsHelpers.h */,
 				713AE574243A53BE0000D657 /* FBW3CActionsHelpers.m */,
-				718D2C102C60BAE3000788F2 /* FBWebServerParams.h */,
-				718D2C112C60BAE3000788F2 /* FBWebServerParams.m */,
 				7157B28F221DADD2001C348C /* FBXCAXClientProxy.h */,
 				7157B290221DADD2001C348C /* FBXCAXClientProxy.m */,
 				EE5A24401F136C8D0078B1D9 /* FBXCodeCompatibility.h */,
@@ -2471,7 +2463,6 @@
 				641EE6D62240C5CA00173FCB /* FBLogger.h in Headers */,
 				71BB58F72B96531900CB9BFE /* FBScreenRecordingContainer.h in Headers */,
 				641EE6D72240C5CA00173FCB /* XCTestObserver.h in Headers */,
-				718D2C142C60BAE3000788F2 /* FBWebServerParams.h in Headers */,
 				641EE6D82240C5CA00173FCB /* XCUIElement.h in Headers */,
 				641EE6D92240C5CA00173FCB /* XCKeyboardInputSolver.h in Headers */,
 				718226CB2587443700661B83 /* GCDAsyncUdpSocket.h in Headers */,
@@ -2727,7 +2718,6 @@
 				EE35AD311E3B77D600A02D78 /* XCKeyboardLayout.h in Headers */,
 				716C9DFA27315D21005AD475 /* FBReflectionUtils.h in Headers */,
 				E444DCB624913C220060D7EB /* RouteRequest.h in Headers */,
-				718D2C132C60BAE3000788F2 /* FBWebServerParams.h in Headers */,
 				71F5BE23252E576C00EE9EBA /* XCUIElement+FBSwiping.h in Headers */,
 				718226CC2587443700661B83 /* GCDAsyncSocket.h in Headers */,
 				EE35AD3B1E3B77D600A02D78 /* XCTAsyncActivity-Protocol.h in Headers */,
@@ -3103,7 +3093,6 @@
 				641EE5D72240C5CA00173FCB /* FBScreenshotCommands.m in Sources */,
 				71F3E7D725417FF400E0C22B /* FBSettings.m in Sources */,
 				641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */,
-				718D2C152C60BAE3000788F2 /* FBWebServerParams.m in Sources */,
 				641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */,
 				641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */,
 				71C8E55425399A6B008572C1 /* XCUIApplication+FBQuiescence.m in Sources */,
@@ -3293,7 +3282,6 @@
 				AD76723E1D6B7CC000610457 /* XCUIElement+FBTyping.m in Sources */,
 				EE158AAF1CBD456F00A3E3F0 /* XCUIElement+FBAccessibility.m in Sources */,
 				714E14BA29805CAE00375DD7 /* XCAXClient_iOS+FBSnapshotReqParams.m in Sources */,
-				718D2C122C60BAE3000788F2 /* FBWebServerParams.m in Sources */,
 				7150348821A6DAD600A0F4BA /* FBImageUtils.m in Sources */,
 				E444DCAB24913C220060D7EB /* HTTPResponseProxy.m in Sources */,
 				E444DC6D249131890060D7EB /* HTTPErrorResponse.m in Sources */,
