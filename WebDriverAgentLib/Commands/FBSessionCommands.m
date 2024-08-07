@@ -79,7 +79,7 @@
     }
     if (idleTimeoutMs.doubleValue > 0) {
       XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
-      [app fb_waitUntilStableWithTimeout:idleTimeoutMs.doubleValue / 1000.0];
+      [app fb_waitUntilStableWithTimeout:FBMillisToSeconds(idleTimeoutMs.doubleValue)];
     }
   }
   return FBResponseWithOK();
