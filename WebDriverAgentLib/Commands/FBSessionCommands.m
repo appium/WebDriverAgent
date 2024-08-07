@@ -67,6 +67,7 @@
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"URL is required" traceback:nil]);
   }
   NSString* bundleId = request.arguments[@"bundleId"];
+  NSNumber* idleTimeoutMs = request.arguments[@"idleTimeoutMs"];
   NSError *error;
   if (nil == bundleId) {
     if (![XCUIDevice.sharedDevice fb_openUrl:urlString error:&error]) {
@@ -75,6 +76,10 @@
   } else {
     if (![XCUIDevice.sharedDevice fb_openUrl:urlString withApplication:bundleId error:&error]) {
       return FBResponseWithUnknownError(error);
+    }
+    if (idleTimeoutMs.doubleValue > 0) {
+      XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
+      [app fb_waitUntilStableWithTimeout:idleTimeoutMs.doubleValue / 1000.0];
     }
   }
   return FBResponseWithOK();
