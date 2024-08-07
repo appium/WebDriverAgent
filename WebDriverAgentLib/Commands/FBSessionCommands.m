@@ -177,17 +177,20 @@
             _XCTSetApplicationStateTimeout(defaultTimeout);
           }
         }
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"17.0") && [bundleID isEqualToString:FB_SAFARI_BUNDLE_ID]) {
-          // Opening the default URL in Safari instead of an empty page helps
-          // the remote debugger to avoid issues while looking for active web views
-          FBWebServerParams *wsParams = FBWebServerParams.sharedInstance;
-          NSString *healthEndpoint = [NSString stringWithFormat:@"http://127.0.0.1:%@/health", wsParams.port];
-          id<FBResponsePayload> errorResponse = [self openDeepLink:healthEndpoint
-                                                   withApplication:bundleID
-                                                           timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
-          if (nil != errorResponse) {
-            NSLog(@"Was not able to open the default URL %@ in Safari", healthEndpoint);
-          }
+        // Opening a new page in Safari via deeplink as part of new session request could cause
+        // content load failure and non-response behavior after the new session request for now.
+        // i.e. https://github.com/appium/appium-xcuitest-driver/pull/2447#issuecomment-2272735187
+        // if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"17.0") && [bundleID isEqualToString:FB_SAFARI_BUNDLE_ID]) {
+        //   // Opening the default URL in Safari instead of an empty page helps
+        //   // the remote debugger to avoid issues while looking for active web views
+        //   FBWebServerParams *wsParams = FBWebServerParams.sharedInstance;
+        //   NSString *healthEndpoint = [NSString stringWithFormat:@"http://127.0.0.1:%@/health", wsParams.port];
+        //   id<FBResponsePayload> errorResponse = [self openDeepLink:healthEndpoint
+        //                                            withApplication:bundleID
+        //                                                    timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+        //   if (nil != errorResponse) {
+        //     NSLog(@"Was not able to open the default URL %@ in Safari", healthEndpoint);
+        //   }
         }
       }
       if (!app.running) {
