@@ -31,6 +31,7 @@
 #import "XCTElementSetTransformer-Protocol.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
+#import "XCUIApplicationProcess+FBQuiescence.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -190,7 +191,7 @@
     self.application.fb_shouldWaitForQuiescence = YES;
   }
   [[[self.application applicationImpl] currentProcess]
-   waitForQuiescenceIncludingAnimationsIdle:YES];
+   fb_waitForQuiescenceIncludingAnimationsIdle:YES];
   if (previousQuiescence != self.application.fb_shouldWaitForQuiescence) {
     self.application.fb_shouldWaitForQuiescence = previousQuiescence;
   }

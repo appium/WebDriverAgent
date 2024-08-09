@@ -22,3 +22,4 @@ NSString *const FBXPathQueryEvaluationException = @"FBXPathQueryEvaluationExcept
 NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseException";
 NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException";
 NSString *const FBApplicationMissingException = @"FBApplicationMissingException";
+NSString *const FBIncompatibleWdaException = @"FBIncompatibleWdaException";

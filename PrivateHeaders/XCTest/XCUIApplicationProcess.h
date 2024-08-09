@@ -65,7 +65,11 @@
 - (void)terminate;
 - (void)waitForViewControllerViewDidDisappearWithTimeout:(double)arg1;
 - (void)waitForAutomationSession;
+// Before Xcode16-beta5
 - (void)waitForQuiescenceIncludingAnimationsIdle:(BOOL)arg1;
+// Since Xcode16-beta5
+- (void)waitForQuiescenceIncludingAnimationsIdle:(BOOL)arg1 isPreEvent:(BOOL)arg2;
+
 
 - (id)shortDescription;
 - (id)_queue_description;

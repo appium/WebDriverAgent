@@ -73,9 +73,12 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
     [FBLogger log:@"Could not find method -[XCTRunnerDaemonSession launchApplicationWithPath:]"];
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
   // Workaround for https://github.com/appium/WebDriverAgent/issues/702
   originalLaunchAppMethod = (void(*)(id, SEL, NSString*, NSString*, NSArray*, NSDictionary*, void (^)(_Bool, NSError *))) method_getImplementation(original);
   method_setImplementation(original, (IMP)swizzledLaunchApp);
+#pragma clang diagnostic pop
 }
 
 + (id<XCTestManager_ManagerInterface>)testRunnerProxy

@@ -61,7 +61,10 @@ static NSLock * lock = nil;
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess setEventLoopHasIdled:]"];
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
   orig_set_event_loop_has_idled = (void(*)(id, SEL, BOOL)) method_getImplementation(original);
+#pragma clang diagnostic pop
   Method replace = class_getClassMethod([XCUIApplicationProcessDelay class], @selector(setEventLoopHasIdled:));
   method_setImplementation(original, method_getImplementation(replace));
   isSwizzled = YES;

@@ -20,6 +20,8 @@ static _Bool swizzledShouldInterruptTest(id self, SEL _cmd)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+
 + (void)load
 {
   SEL originalShouldInterruptTest = NSSelectorFromString(@"shouldInterruptTest");
@@ -28,6 +30,7 @@ static _Bool swizzledShouldInterruptTest(id self, SEL _cmd)
   if (nil == originalShouldInterruptTestMethod) return;
   method_setImplementation(originalShouldInterruptTestMethod, (IMP)swizzledShouldInterruptTest);
 }
+
 #pragma clang diagnostic pop
 
 @end
