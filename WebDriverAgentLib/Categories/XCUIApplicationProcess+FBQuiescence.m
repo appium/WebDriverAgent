@@ -65,13 +65,12 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SE
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
 
 + (void)load
 {
   Method waitForQuiescenceIncludingAnimationsIdleMethod = class_getInstanceMethod(self.class, @selector(waitForQuiescenceIncludingAnimationsIdle:));
   Method waitForQuiescenceIncludingAnimationsIdlePreEventMethod = class_getInstanceMethod(self.class, @selector(waitForQuiescenceIncludingAnimationsIdle:isPreEvent:));
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
   if (nil != waitForQuiescenceIncludingAnimationsIdleMethod) {
     IMP swizzledImp = (IMP)swizzledWaitForQuiescenceIncludingAnimationsIdle;
     original_waitForQuiescenceIncludingAnimationsIdle = (void (*)(id, SEL, BOOL)) method_setImplementation(waitForQuiescenceIncludingAnimationsIdleMethod, swizzledImp);
@@ -81,7 +80,6 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SE
   } else {
     [FBLogger log:@"Could not find method -[XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:]"];
   }
-#pragma clang diagnostic pop
 }
 
 #pragma clang diagnostic pop
