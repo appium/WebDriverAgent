@@ -65,6 +65,7 @@ static id swizzledSnapshotParameters(id self, SEL _cmd)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
 
 + (void)load
 {

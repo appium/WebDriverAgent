@@ -39,7 +39,10 @@ static NSString *const FBRouteSessionPrefix = @"/session/:sessionID";
 - (void)mountRequest:(FBRouteRequest *)request intoResponse:(RouteResponse *)response
 {
   [self decorateRequest:request];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
   id<FBResponsePayload> (*requestMsgSend)(id, SEL, FBRouteRequest *) = ((id<FBResponsePayload>(*)(id, SEL, FBRouteRequest *))objc_msgSend);
+#pragma clang diagnostic pop
   id<FBResponsePayload> payload = requestMsgSend(self.target, self.action, request);
   [payload dispatchWithResponse:response];
 }

@@ -55,4 +55,7 @@ extern NSString *const FBApplicationCrashedException;
 /*! Exception used to notify about the application is not installed  */
 extern NSString *const FBApplicationMissingException;
 
+/*! Exception used to notify about WDA incompatibility with the current platform version */
+extern NSString *const FBIncompatibleWdaException;
+
 NS_ASSUME_NONNULL_END

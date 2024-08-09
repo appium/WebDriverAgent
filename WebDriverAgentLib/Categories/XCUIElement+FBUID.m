@@ -42,6 +42,7 @@ static void swizzled_validatePredicateWithExpressionsAllowed(id self, SEL _cmd, 
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-load-method"
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
 + (void)load
 {
   Class XCElementSnapshotCls = objc_lookUpClass("XCElementSnapshot");
