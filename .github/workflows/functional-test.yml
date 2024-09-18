@@ -15,6 +15,9 @@ jobs:
           - XCODE_VERSION: '16.0.0'
             IOS_VERSION: '18.0'
             IOS_MODEL: iPhone 15 Plus
+          - XCODE_VERSION: '15.3'
+            IOS_VERSION: '17.4'
+            IOS_MODEL: iPhone 15 Plus
           - XCODE_VERSION: 14.3.1
             IOS_VERSION: '16.4'
             IOS_MODEL: iPhone 14 Plus
