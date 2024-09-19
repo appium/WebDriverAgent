@@ -210,7 +210,7 @@
   return (nil == app) ? @{} : @{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
-    @"name": app.identifier,
+    @"state": @(app.state),
     @"processArguments": @{
       @"args": app.launchArguments ?: @[],
       @"env": app.launchEnvironment ?: @{}
