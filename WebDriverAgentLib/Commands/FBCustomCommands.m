@@ -52,6 +52,8 @@
     [[FBRoute GET:@"/wda/screen"].withoutSession respondWithTarget:self action:@selector(handleGetScreen:)],
     [[FBRoute GET:@"/wda/activeAppInfo"] respondWithTarget:self action:@selector(handleActiveAppInfo:)],
     [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)],
+    [[FBRoute GET:@"/wda/activeAppCandidatesInfo"] respondWithTarget:self action:@selector(handleActiveAppCandidatesInfo:)],
+    [[FBRoute GET:@"/wda/activeAppCandidatesInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppCandidatesInfo:)],
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs
     [[FBRoute POST:@"/wda/setPasteboard"] respondWithTarget:self action:@selector(handleSetPasteboard:)],
     [[FBRoute POST:@"/wda/setPasteboard"].withoutSession respondWithTarget:self action:@selector(handleSetPasteboard:)],
@@ -186,47 +188,33 @@
 + (id<FBResponsePayload>)handleActiveAppInfo:(FBRouteRequest *)request
 {
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
-  return FBResponseWithObject(@{
+  return FBResponseWithObject([self appInfoWithApp:app]);
+}
+
++ (id<FBResponsePayload>)handleActiveAppCandidatesInfo:(FBRouteRequest *)request
+{
+  NSArray<XCUIApplication *> *apps = XCUIApplication.fb_activeApplications;
+  XCUIApplication *activeApp = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  pid_t activeAppPid = nil == activeApp ? 0 : activeApp.processID;
+  NSMutableArray<NSDictionary *> *result = [NSMutableArray array];
+  for (XCUIApplication *app in apps) {
+    NSMutableDictionary *info = [self appInfoWithApp:app].mutableCopy;
+    info[@"isActive"] = @(app.processID == activeAppPid);
+    [result addObject:info.copy];
+  }
+  return FBResponseWithObject(result.copy);
+}
+
++ (NSDictionary *)appInfoWithApp:(XCUIApplication *)app
+{
+  return (nil == app) ? @{} : @{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
     @"name": app.identifier,
-    @"processArguments": [self processArguments:app],
-  });
-}
-
-/**
- * Returns current active app and its arguments of active session
- *
- * @return The dictionary of current active bundleId and its process/environment argumens
- *
- * @example
- *
- *     [self currentActiveApplication]
- *     //=> {
- *     //       "processArguments" : {
- *     //       "env" : {
- *     //           "HAPPY" : "testing"
- *     //       },
- *     //       "args" : [
- *     //           "happy",
- *     //           "tseting"
- *     //       ]
- *     //   }
- *
- *     [self currentActiveApplication]
- *     //=> {}
- */
-+ (NSDictionary *)processArguments:(XCUIApplication *)app
-{
-  // Can be nil if no active activation is defined by XCTest
-  if (app == nil) {
-    return @{};
-  }
-
-  return
-  @{
-    @"args": app.launchArguments,
-    @"env": app.launchEnvironment
+    @"processArguments": @{
+      @"args": app.launchArguments ?: @[],
+      @"env": app.launchEnvironment ?: @{}
+    }
   };
 }
 
