@@ -9,6 +9,10 @@
 
 #import "FBConfiguration.h"
 
+#import "AXSettings.h"
+#import "UIKeyboardImpl.h"
+#import "TIPreferencesController.h"
+
 #include <dlfcn.h>
 #import <UIKit/UIKit.h>
 
