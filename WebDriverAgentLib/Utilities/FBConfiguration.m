@@ -36,6 +36,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldRespectSystemAlerts = NO;
+static BOOL FBShouldRespectHalfModals = NO;
 
 static NSUInteger FBMjpegScalingFactor = 100;
 static BOOL FBMjpegShouldFixOrientation = NO;
@@ -386,6 +387,16 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 + (BOOL)shouldRespectSystemAlerts
 {
   return FBShouldRespectSystemAlerts;
+}
+
++ (void)setShouldRespectHalfModals:(BOOL)value
+{
+  FBShouldRespectHalfModals = value;
+}
+
++ (BOOL)shouldRespectHalfModals
+{
+  return FBShouldRespectHalfModals;
 }
 
 + (void)setUseFirstMatch:(BOOL)enabled

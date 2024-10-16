@@ -66,6 +66,10 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setShouldRespectSystemAlerts:(BOOL)value;
 + (BOOL)shouldRespectSystemAlerts;
 
+/* Enforces WDA to verify the presense of half modals while checking for an active app */
++ (void)setShouldRespectHalfModals:(BOOL)value;
++ (BOOL)shouldRespectHalfModals;
+
 /**
  * Extract switch value from arguments
  *

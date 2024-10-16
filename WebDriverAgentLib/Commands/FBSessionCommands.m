@@ -351,6 +351,7 @@
       FB_SETTING_DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
       FB_SETTING_MAX_TYPING_FREQUENCY: @([FBConfiguration maxTypingFrequency]),
       FB_SETTING_RESPECT_SYSTEM_ALERTS: @([FBConfiguration shouldRespectSystemAlerts]),
+      FB_SETTING_RESPECT_HALF_MODALS: @([FBConfiguration shouldRespectHalfModals]),
 #if !TARGET_OS_TV
       FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
@@ -393,6 +394,9 @@
   }
   if (nil != [settings objectForKey:FB_SETTING_RESPECT_SYSTEM_ALERTS]) {
     [FBConfiguration setShouldRespectSystemAlerts:[[settings objectForKey:FB_SETTING_RESPECT_SYSTEM_ALERTS] boolValue]];
+  }
+  if (nil != [settings objectForKey:FB_SETTING_RESPECT_HALF_MODALS]) {
+    [FBConfiguration setShouldRespectHalfModals:[[settings objectForKey:FB_SETTING_RESPECT_HALF_MODALS] boolValue]];
   }
   // SNAPSHOT_TIMEOUT setting is deprecated. Please use CUSTOM_SNAPSHOT_TIMEOUT instead
   if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_TIMEOUT]) {
