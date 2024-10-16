@@ -181,9 +181,6 @@ static FBSession *_activeSession = nil;
       if ([FBConfiguration shouldRespectSystemAlerts]
           && [XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAlert].count > 0) {
         return XCUIApplication.fb_systemApplication;
-      } else if ([FBConfiguration shouldRespectHalfModals]
-                 && [XCUIApplication.fb_systemApplication fb_descendantsMatchingProperty:@"name" value:@"SBTransientOverlayWindow" partialSearch:false].count > 0) {
-        return XCUIApplication.fb_systemApplication;
       }
       return (XCUIApplication *)self.testedApplication;
     }
