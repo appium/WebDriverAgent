@@ -179,7 +179,8 @@ static FBSession *_activeSession = nil;
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
       if ([FBConfiguration shouldRespectSystemAlerts]
-          && [XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAlert].count > 0) {
+          && ([XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAlert].count > 0
+              || [XCUIApplication.fb_systemApplication fb_descendantsMatchingProperty:@"name" value:@"SBTransientOverlayWindow" partialSearch:false].count > 0)) {
         return XCUIApplication.fb_systemApplication;
       }
       return (XCUIApplication *)self.testedApplication;
