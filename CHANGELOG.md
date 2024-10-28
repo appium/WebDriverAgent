@@ -1,3 +1,9 @@
+## [8.9.4](https://github.com/appium/WebDriverAgent/compare/v8.9.3...v8.9.4) (2024-10-17)
+
+### Bug Fixes
+
+* Consider transient overlay windows when respectSystemAlerts is enabled ([#946](https://github.com/appium/WebDriverAgent/issues/946)) ([f0bdce7](https://github.com/appium/WebDriverAgent/commit/f0bdce7eb8fdb13d2309d28e936950c77f006b20))
+
 ## [8.9.3](https://github.com/appium/WebDriverAgent/compare/v8.9.2...v8.9.3) (2024-10-07)
 
 ### Miscellaneous Chores
