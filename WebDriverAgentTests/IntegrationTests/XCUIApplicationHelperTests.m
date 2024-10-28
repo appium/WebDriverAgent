@@ -121,6 +121,7 @@
     @"elementAttributes"
   ];
 
+  XCTAssertEqual([auditIssues1 count], [auditIssues2 count]);
   for (int i = 1; i < [auditIssues1 count]; i++) {
     for (NSString *k in checkKeys) {
       XCTAssertEqualObjects(
