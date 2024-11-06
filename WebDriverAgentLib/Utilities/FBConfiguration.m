@@ -56,7 +56,7 @@ static NSTimeInterval FBWaitForIdleTimeout;
 static NSTimeInterval FBAnimationCoolOffTimeout;
 static BOOL FBShouldUseCompactResponses;
 static NSString *FBElementResponseAttributes;
-static BOOL FBUseHIDClear;
+static BOOL FBUseClearTextShortcut;
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
@@ -439,14 +439,14 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   return FBDismissAlertButtonSelector;
 }
 
-+ (void)setUseHIDClear:(BOOL)enabled
++ (void)setUseClearTextShortcut:(BOOL)enabled
 {
-  FBUseHIDClear = enabled;
+  FBUseClearTextShortcut = enabled;
 }
 
-+ (BOOL)useHIDClear
++ (BOOL)useClearTextShortcut
 {
-  return FBUseHIDClear;
+  return FBUseClearTextShortcut;
 }
 
 #if !TARGET_OS_TV
@@ -514,7 +514,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   FBAnimationCoolOffTimeout = 2.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
-  FBUseHIDClear = YES;
+  FBUseClearTextShortcut = YES;
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
 #endif

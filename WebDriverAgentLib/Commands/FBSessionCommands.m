@@ -141,6 +141,10 @@
     [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
   }
 
+  if (capabilities[FB_SETTING_USE_CLEAR_TEXT_SHORTCUT]) {
+    [FBConfiguration setUseClearTextShortcut:[capabilities[FB_SETTING_USE_CLEAR_TEXT_SHORTCUT] boolValue]];
+  }
+
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
@@ -351,7 +355,7 @@
       FB_SETTING_DEFAULT_ALERT_ACTION: request.session.defaultAlertAction ?: @"",
       FB_SETTING_MAX_TYPING_FREQUENCY: @([FBConfiguration maxTypingFrequency]),
       FB_SETTING_RESPECT_SYSTEM_ALERTS: @([FBConfiguration shouldRespectSystemAlerts]),
-      FB_SETTING_USE_HID_CLEAR: @([FBConfiguration useHIDClear]),
+      FB_SETTING_USE_CLEAR_TEXT_SHORTCUT: @([FBConfiguration useClearTextShortcut]),
 #if !TARGET_OS_TV
       FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
 #endif
@@ -450,8 +454,8 @@
   if (nil != [settings objectForKey:FB_SETTING_MAX_TYPING_FREQUENCY]) {
     [FBConfiguration setMaxTypingFrequency:[[settings objectForKey:FB_SETTING_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
   }
-  if (nil != [settings objectForKey:FB_SETTING_USE_HID_CLEAR]) {
-    [FBConfiguration setUseHIDClear:[[settings objectForKey:FB_SETTING_USE_HID_CLEAR] boolValue]];
+  if (nil != [settings objectForKey:FB_SETTING_USE_CLEAR_TEXT_SHORTCUT]) {
+    [FBConfiguration setUseClearTextShortcut:[[settings objectForKey:FB_SETTING_USE_CLEAR_TEXT_SHORTCUT] boolValue]];
   }
 
 #if !TARGET_OS_TV

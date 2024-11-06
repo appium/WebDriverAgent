@@ -289,8 +289,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  *
  * @param enabled Either YES or NO
  */
-+ (void)setUseHIDClear:(BOOL)enabled;
-+ (BOOL)useHIDClear;
++ (void)setUseClearTextShortcut:(BOOL)enabled;
++ (BOOL)useClearTextShortcut;
 
 #if !TARGET_OS_TV
 /**
