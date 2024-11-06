@@ -44,5 +44,3 @@ extern NSString* const FB_CAP_USE_NATIVE_CACHING_STRATEGY;
 extern NSString* const FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE;
 /** Sets the application state change timeout for the initial app startup */
 extern NSString* const FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC;
-/** Whether to use HIDEvent for text clear */
-extern NSString* const FB_CAP_USE_HID_CLEAR;

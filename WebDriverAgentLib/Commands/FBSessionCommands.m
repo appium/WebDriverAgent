@@ -141,10 +141,6 @@
     [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
   }
 
-  if (capabilities[FB_CAP_USE_HID_CLEAR]) {
-    [FBConfiguration setUseHIDClear:[capabilities[FB_CAP_USE_HID_CLEAR] boolValue]];
-  }
-
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
