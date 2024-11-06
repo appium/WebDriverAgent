@@ -283,6 +283,15 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (void)setDismissAlertButtonSelector:(NSString *)classChainSelector;
 + (NSString *)dismissAlertButtonSelector;
 
+/**
+ * Whether to use HIDEvent for text clear.
+ * By default this is enabled and HIDEvent is used for text clear.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setUseHIDClear:(BOOL)enabled;
++ (BOOL)useHIDClear;
+
 #if !TARGET_OS_TV
 /**
  Set the screenshot orientation for iOS

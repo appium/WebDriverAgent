@@ -25,6 +25,7 @@ export interface WDASettings {
   waitForIdleTimeout?: number;
   animationCoolOffTimeout?: number;
   maxTypingFrequency?: number;
+  useHIDClear?: boolean;
 }
 
 // WebDriverAgentLib/Utilities/FBCapabilities.h
@@ -48,4 +49,5 @@ export interface WDACapabilities {
   forceSimulatorSoftwareKeyboardPresence?: boolean;
   defaultAlertAction?: 'accept' | 'dismiss';
   appLaunchStateTimeoutSec?: number;
+  useHIDClear?: boolean;
 }
