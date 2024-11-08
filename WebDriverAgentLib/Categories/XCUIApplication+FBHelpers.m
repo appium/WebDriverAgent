@@ -199,7 +199,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   };
 
   for (NSString *key in attributeBlocks) {
-      if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) { // check for attribute exclusion
+      if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([key isEqualToString:@"frame"]) {
               info[key] = value;
@@ -219,7 +219,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot recursive:YES excludedAttributes:excludedAttributes]];
+      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot 
+                                                    recursive:YES
+                                           excludedAttributes:excludedAttributes]];
     }
   }
   return info;
