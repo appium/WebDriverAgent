@@ -40,7 +40,12 @@
 
 - (void)testApplicationTree
 {
-  XCTAssertNotNil([self.testedApplication fb_tree:[NSSet setWithArray:@[@"visible"]]]);
+  XCTAssertNotNil([self.testedApplication fb_tree:nil]);
+  
+  NSDictionary *applicationTree = [self.testedApplication fb_tree:[NSSet setWithArray:@[@"visible"]]];
+  XCTAssertNotNil(applicationTree);
+  XCTAssertNil([applicationTree objectForKey:@"isVisible"], @"'isVisible' key should not be present in the application tree");
+  
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 
