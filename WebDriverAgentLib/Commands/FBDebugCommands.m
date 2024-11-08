@@ -54,9 +54,11 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
           withExcludedAttributes:excludedAttributes]
          withScope:sourceScope]];
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_JSON] == NSOrderedSame) {
-    NSArray<NSString *> *excludedAttributes = nil == request.parameters[@"excluded_attributes"]
-      ? nil
-      : [request.parameters[@"excluded_attributes"] componentsSeparatedByString:@","];
+    NSString *excludedAttributesString = request.parameters[@"excluded_attributes"];
+    NSSet<NSString *> *excludedAttributes = (excludedAttributesString == nil)
+          ? nil
+          : [NSSet setWithArray:[excludedAttributesString componentsSeparatedByString:@","]];
+
     result = [application fb_tree:excludedAttributes];
   } else if ([sourceType caseInsensitiveCompare:SOURCE_FORMAT_DESCRIPTION] == NSOrderedSame) {
     result = application.fb_descriptionRepresentation;

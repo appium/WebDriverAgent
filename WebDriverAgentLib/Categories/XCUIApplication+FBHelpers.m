@@ -151,7 +151,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return YES;
 }
 
-- (NSDictionary *)fb_tree:(NSArray *) excludedAttributes
+- (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *) excludedAttributes
 {
   id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
@@ -167,7 +167,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
-+ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot recursive:(BOOL)recursive excludedAttributes:(NSArray *) excludedAttributes
++ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot 
+                             recursive:(BOOL)recursive
+                    excludedAttributes:(nullable NSSet<NSString *> *) excludedAttributes
 {
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
@@ -178,7 +180,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   info[@"label"] = FBValueOrNull(wrappedSnapshot.wdLabel);
   info[@"rect"] = wrappedSnapshot.wdRect;
   
-  NSDictionary *attributeBlocks = @{
+  NSDictionary<NSString *, NSString * (^)(void)> *attributeBlocks = @{
       @"frame": ^{
           return NSStringFromCGRect(wrappedSnapshot.wdFrame);
       },
@@ -197,7 +199,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   };
 
   for (NSString *key in attributeBlocks) {
-      if (![excludedAttributes containsObject:key]) { // check for attribute exclusion
+      if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) { // check for attribute exclusion
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([key isEqualToString:@"frame"]) {
               info[key] = value;
@@ -206,6 +208,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
           }
       }
   }
+
 
 
   if (!recursive) {
