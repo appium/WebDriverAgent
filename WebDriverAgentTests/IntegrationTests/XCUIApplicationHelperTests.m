@@ -40,7 +40,7 @@
 
 - (void)testApplicationTree
 {
-  XCTAssertNotNil([self.testedApplication fb_tree:@[@"visible"]]);
+  XCTAssertNotNil([self.testedApplication fb_tree:[NSSet setWithArray:@[@"visible"]]]);
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 
