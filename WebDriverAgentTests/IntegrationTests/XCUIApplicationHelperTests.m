@@ -40,7 +40,7 @@
 
 - (void)testApplicationTree
 {
-  XCTAssertNotNil(self.testedApplication.fb_tree);
+  XCTAssertNotNil([self.testedApplication fb_tree:@[]]);
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 
