@@ -151,12 +151,12 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return YES;
 }
 
-- (NSDictionary *)fb_tree:(NSArray *) excluded_attributes
+- (NSDictionary *)fb_tree:(NSArray *) excludedAttributes
 {
   id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
-  return [self.class dictionaryForElement:snapshot recursive:YES excludedAttributes:excluded_attributes];
+  return [self.class dictionaryForElement:snapshot recursive:YES excludedAttributes:excludedAttributes];
 }
 
 - (NSDictionary *)fb_accessibilityTree
@@ -167,7 +167,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
-+ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot recursive:(BOOL)recursive excludedAttributes:(NSArray *) excluded_attributes
++ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot recursive:(BOOL)recursive excludedAttributes:(NSArray *) excludedAttributes
 {
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
@@ -197,7 +197,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   };
 
   for (NSString *key in attributeBlocks) {
-      if (![excluded_attributes containsObject:key]) {
+      if (![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([key isEqualToString:@"frame"]) {
               info[key] = value;
@@ -216,7 +216,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot recursive:YES excludedAttributes:excluded_attributes]];
+      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot recursive:YES excludedAttributes:excludedAttributes]];
     }
   }
   return info;
