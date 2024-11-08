@@ -197,7 +197,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   };
 
   for (NSString *key in attributeBlocks) {
-      if (![excludedAttributes containsObject:key]) {
+      if (![excludedAttributes containsObject:key]) { // check for attribute exclusion
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([key isEqualToString:@"frame"]) {
               info[key] = value;
