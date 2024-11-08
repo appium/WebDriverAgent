@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_deactivateWithDuration:(NSTimeInterval)duration error:(NSError **)error;
 
 /**
-  @Param excludedAttributes which needs to be excluded from the response possible values contain frame, enabled, visible, accessible, focused
-  @Return application elements tree in form of nested dictionaries
+  @param excludedAttributes Set of possible attributes to be excluded i.e frame, enabled, visible, accessible, focused
+  @return application elements tree in form of nested dictionaries
  */
 - (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *) excludedAttributes;
 
