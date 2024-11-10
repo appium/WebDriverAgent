@@ -141,10 +141,6 @@
     [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
   }
 
-  if (capabilities[FB_SETTING_USE_CLEAR_TEXT_SHORTCUT]) {
-    [FBConfiguration setUseClearTextShortcut:[capabilities[FB_SETTING_USE_CLEAR_TEXT_SHORTCUT] boolValue]];
-  }
-
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
