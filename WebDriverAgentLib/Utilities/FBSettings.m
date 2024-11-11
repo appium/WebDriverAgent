@@ -35,3 +35,4 @@ NSString* const FB_SETTING_WAIT_FOR_IDLE_TIMEOUT = @"waitForIdleTimeout";
 NSString* const FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT = @"animationCoolOffTimeout";
 NSString* const FB_SETTING_MAX_TYPING_FREQUENCY = @"maxTypingFrequency";
 NSString* const FB_SETTING_RESPECT_SYSTEM_ALERTS = @"respectSystemAlerts";
+NSString* const FB_SETTING_USE_CLEAR_TEXT_SHORTCUT = @"useClearTextShortcut";

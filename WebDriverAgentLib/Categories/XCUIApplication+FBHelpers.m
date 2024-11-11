@@ -153,10 +153,15 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
 
 - (NSDictionary *)fb_tree
 {
+  return [self fb_tree:nil];
+}
+
+- (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *) excludedAttributes
+{
   id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
-  return [self.class dictionaryForElement:snapshot recursive:YES];
+  return [self.class dictionaryForElement:snapshot recursive:YES excludedAttributes:excludedAttributes];
 }
 
 - (NSDictionary *)fb_accessibilityTree
@@ -167,7 +172,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
-+ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot recursive:(BOOL)recursive
++ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot 
+                             recursive:(BOOL)recursive
+                    excludedAttributes:(nullable NSSet<NSString *> *) excludedAttributes
 {
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
@@ -177,11 +184,35 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   info[@"value"] = FBValueOrNull(wrappedSnapshot.wdValue);
   info[@"label"] = FBValueOrNull(wrappedSnapshot.wdLabel);
   info[@"rect"] = wrappedSnapshot.wdRect;
-  info[@"frame"] = NSStringFromCGRect(wrappedSnapshot.wdFrame);
-  info[@"isEnabled"] = [@([wrappedSnapshot isWDEnabled]) stringValue];
-  info[@"isVisible"] = [@([wrappedSnapshot isWDVisible]) stringValue];
-  info[@"isAccessible"] = [@([wrappedSnapshot isWDAccessible]) stringValue];
-  info[@"isFocused"] = [@([wrappedSnapshot isWDFocused]) stringValue];
+  
+  NSDictionary<NSString *, NSString * (^)(void)> *attributeBlocks = @{
+      @"frame": ^{
+          return NSStringFromCGRect(wrappedSnapshot.wdFrame);
+      },
+      @"enabled": ^{
+          return [@([wrappedSnapshot isWDEnabled]) stringValue];
+      },
+      @"visible": ^{
+          return [@([wrappedSnapshot isWDVisible]) stringValue];
+      },
+      @"accessible": ^{
+          return [@([wrappedSnapshot isWDAccessible]) stringValue];
+      },
+      @"focused": ^{
+          return [@([wrappedSnapshot isWDFocused]) stringValue];
+      }
+  };
+
+  for (NSString *key in attributeBlocks) {
+      if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
+          NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
+          if ([key isEqualToString:@"frame"]) {
+              info[key] = value;
+          } else {
+              info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
+          }
+      }
+  }
 
   if (!recursive) {
     return info.copy;
@@ -191,7 +222,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot recursive:YES]];
+      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot 
+                                                    recursive:YES
+                                           excludedAttributes:excludedAttributes]];
     }
   }
   return info;
@@ -379,7 +412,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     id extractedElement = extractIssueProperty(issue, @"element");
     
     id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_takeSnapshot];
-    NSDictionary *elementAttributes = elementSnapshot ? [self.class dictionaryForElement:elementSnapshot recursive:NO] : @{};
+    NSDictionary *elementAttributes = elementSnapshot 
+      ? [self.class dictionaryForElement:elementSnapshot recursive:NO excludedAttributes:nil]
+      : @{};
     
     [resultArray addObject:@{
       @"detailedDescription": extractIssueProperty(issue, @"detailedDescription") ?: @"",

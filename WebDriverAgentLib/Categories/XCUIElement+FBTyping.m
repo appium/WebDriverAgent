@@ -166,7 +166,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
       [self fb_prepareForTextInputWithSnapshot:snapshot];
     }
 
-    if (retry == 0) {
+    if (retry == 0 && FBConfiguration.useClearTextShortcut) {
       // 1st attempt is via the IOHIDEvent as the fastest operation
       // https://github.com/appium/appium/issues/19389
       [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07  // kHIDPage_KeyboardOrKeypad

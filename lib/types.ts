@@ -25,6 +25,7 @@ export interface WDASettings {
   waitForIdleTimeout?: number;
   animationCoolOffTimeout?: number;
   maxTypingFrequency?: number;
+  useClearTextShortcut?: boolean;
 }
 
 // WebDriverAgentLib/Utilities/FBCapabilities.h

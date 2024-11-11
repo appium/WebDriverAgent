@@ -1,3 +1,21 @@
+## [8.11.0](https://github.com/appium/WebDriverAgent/compare/v8.10.1...v8.11.0) (2024-11-11)
+
+### Features
+
+* Add support for excluded_attributes in JSON source hierarchy ([#953](https://github.com/appium/WebDriverAgent/issues/953)) ([6112223](https://github.com/appium/WebDriverAgent/commit/6112223b21026fae5545fe1b1433a09c67ff524b))
+
+## [8.10.1](https://github.com/appium/WebDriverAgent/compare/v8.10.0...v8.10.1) (2024-11-10)
+
+### Miscellaneous Chores
+
+* remove unnecessary lines ([#954](https://github.com/appium/WebDriverAgent/issues/954)) ([940df80](https://github.com/appium/WebDriverAgent/commit/940df80937381b481a2762fbf86b6249804591bd))
+
+## [8.10.0](https://github.com/appium/WebDriverAgent/compare/v8.9.4...v8.10.0) (2024-11-07)
+
+### Features
+
+* add useClearTextShortcut setting ([#952](https://github.com/appium/WebDriverAgent/issues/952)) ([61bc051](https://github.com/appium/WebDriverAgent/commit/61bc051180d691d26233c66a5a76ed20b7fa09d2))
+
 ## [8.9.4](https://github.com/appium/WebDriverAgent/compare/v8.9.3...v8.9.4) (2024-10-17)
 
 ### Bug Fixes
