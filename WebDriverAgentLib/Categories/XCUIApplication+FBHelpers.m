@@ -151,6 +151,11 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return YES;
 }
 
+- (NSDictionary *)fb_tree
+{
+  return [self fb_tree:nil];
+}
+
 - (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *) excludedAttributes
 {
   id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
@@ -208,8 +213,6 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
           }
       }
   }
-
-
 
   if (!recursive) {
     return info.copy;
