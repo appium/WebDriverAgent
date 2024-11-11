@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_deactivateWithDuration:(NSTimeInterval)duration error:(NSError **)error;
 
 /**
-  @return application elements tree in form of nested dictionaries
+  Return application elements tree in form of nested dictionaries
  */
 - (NSDictionary *)fb_tree;
 /**
