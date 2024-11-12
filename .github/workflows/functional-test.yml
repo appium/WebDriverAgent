@@ -15,7 +15,7 @@ jobs:
           - HOST_OS: 'macos-15'
             XCODE_VERSION: '16.0.0'
             IOS_VERSION: '18.0'
-            IOS_MODEL: iPhone 15 Plus
+            IOS_MODEL: iPhone 16 Plus
           - HOST_OS: 'macos-14'
             XCODE_VERSION: '15.3'
             IOS_VERSION: '17.4'
