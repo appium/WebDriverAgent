@@ -1,3 +1,9 @@
+## [8.11.1](https://github.com/appium/WebDriverAgent/compare/v8.11.0...v8.11.1) (2024-11-11)
+
+### Miscellaneous Chores
+
+* bump appium-ios-device ([#955](https://github.com/appium/WebDriverAgent/issues/955)) ([021f349](https://github.com/appium/WebDriverAgent/commit/021f34901866f4a7870914c00781b83bd0cbddc4))
+
 ## [8.11.0](https://github.com/appium/WebDriverAgent/compare/v8.10.1...v8.11.0) (2024-11-11)
 
 ### Features

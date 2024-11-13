@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "8.11.0",
+  "version": "8.11.1",
   "description": "Package bundling WebDriverAgent",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -76,7 +76,7 @@
     "@appium/base-driver": "^9.0.0",
     "@appium/strongbox": "^0.x",
     "@appium/support": "^5.0.3",
-    "appium-ios-device": "^2.5.0",
+    "appium-ios-device": "^2.7.25",
     "appium-ios-simulator": "^6.0.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^3.0.0",
