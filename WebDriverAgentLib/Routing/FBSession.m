@@ -178,10 +178,10 @@ static FBSession *_activeSession = nil;
   if (nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
-      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR identifier IN {%@, %@}",
+      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K IN {%@, %@}",
                                       @"elementType", @(XCUIElementTypeAlert), 
                                       // To look for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
-                                      @"SBTransientOverlayWindow",
+                                      @"identifier", @"SBTransientOverlayWindow",
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
                                       // See https://github.com/appium/appium/issues/20835
                                       @"Notification"];
