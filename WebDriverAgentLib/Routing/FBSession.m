@@ -178,13 +178,13 @@ static FBSession *_activeSession = nil;
   if (nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
-      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K == %@ OR %K == %@",
+      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR identifier IN {%@, %@}",
                                       @"elementType", @(XCUIElementTypeAlert), 
-                                      // To ook for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
-                                      @"identifier", @"SBTransientOverlayWindow",
+                                      // To look for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
+                                      @"SBTransientOverlayWindow",
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
                                       // See https://github.com/appium/appium/issues/20835
-                                      @"identifier", @"Notification"];
+                                      @"Notification"];
       if ([FBConfiguration shouldRespectSystemAlerts]
           && [[XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAny]
               matchingPredicate:searchPredicate].count > 0) {
