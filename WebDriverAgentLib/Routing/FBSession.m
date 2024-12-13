@@ -184,7 +184,7 @@ static FBSession *_activeSession = nil;
                                       @"identifier", @"SBTransientOverlayWindow",
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
                                       // See https://github.com/appium/appium/issues/20835
-                                      @"Notification"];
+                                      @"NotificationShortLookView"];
       if ([FBConfiguration shouldRespectSystemAlerts]
           && [[XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAny]
               matchingPredicate:searchPredicate].count > 0) {
