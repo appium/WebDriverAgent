@@ -47,7 +47,7 @@ async function fetchPrebuiltWebDriverAgentAssets () {
     try {
       const nameOfAgent = _.last(url.split('/'));
       agentsDownloading.push(downloadAgent(url, path.join(webdriveragentsDir, nameOfAgent)));
-    } catch (ign) { }
+    } catch { }
   }
 
   // Wait for them all to finish
