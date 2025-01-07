@@ -161,7 +161,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
     ? self.lastSnapshot
     : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
-  return [self.class dictionaryForElement:snapshot recursive:YES excludedAttributes:excludedAttributes];
+  return [self.class dictionaryForElement:snapshot recursive:YES parentAccessible:NO excludedAttributes:excludedAttributes];
 }
 
 - (NSDictionary *)fb_accessibilityTree
@@ -174,8 +174,11 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
 
 + (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot 
                              recursive:(BOOL)recursive
+                      parentAccessible: (BOOL) parentAccessible
                     excludedAttributes:(nullable NSSet<NSString *> *) excludedAttributes
 {
+  __block BOOL isAccessible = YES;
+  XCUIElementType elementType = snapshot.elementType;
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
   info[@"rawIdentifier"] = FBValueOrNull([snapshot.identifier isEqual:@""] ? nil : snapshot.identifier);
@@ -196,7 +199,24 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
           return [@([wrappedSnapshot isWDVisible]) stringValue];
       },
       @"accessible": ^{
-          return [@([wrappedSnapshot isWDAccessible]) stringValue];
+          if (parentAccessible) {
+            isAccessible = NO;
+          } else {
+            if (elementType == XCUIElementTypeCell) {
+              if (!wrappedSnapshot.fb_isAccessibilityElement) {
+                id<FBXCElementSnapshot> containerView = [[wrappedSnapshot children] firstObject];
+                FBXCElementSnapshotWrapper *ws = [FBXCElementSnapshotWrapper ensureWrapped:containerView];
+                if (!ws.fb_isAccessibilityElement) {
+                  isAccessible = NO;
+                }
+              }
+            } else if (elementType != XCUIElementTypeTextField && elementType != XCUIElementTypeSecureTextField) {
+              if (!wrappedSnapshot.fb_isAccessibilityElement) {
+                isAccessible = NO;
+              }
+            }
+          }
+          return [@(isAccessible) stringValue];
       },
       @"focused": ^{
           return [@([wrappedSnapshot isWDFocused]) stringValue];
@@ -214,6 +234,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
       }
   }
 
+  // update isAccessible for parent
+  parentAccessible = (isAccessible && elementType != XCUIElementTypeTable) || parentAccessible;
+      
   if (!recursive) {
     return info.copy;
   }
@@ -222,8 +245,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot 
+      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot
                                                     recursive:YES
+                                             parentAccessible:parentAccessible
                                            excludedAttributes:excludedAttributes]];
     }
   }
@@ -413,7 +437,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     
     id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_takeSnapshot];
     NSDictionary *elementAttributes = elementSnapshot 
-      ? [self.class dictionaryForElement:elementSnapshot recursive:NO excludedAttributes:nil]
+      ? [self.class dictionaryForElement:elementSnapshot recursive:NO parentAccessible:NO excludedAttributes:nil]
       : @{};
     
     [resultArray addObject:@{
