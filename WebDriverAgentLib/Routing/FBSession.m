@@ -178,10 +178,13 @@ static FBSession *_activeSession = nil;
   if (nil != self.testedApplication) {
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
-      // We look for `SBTransientOverlayWindow` elements for half modals. See https://github.com/appium/WebDriverAgent/pull/946
-      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K == %@",
+      NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K IN {%@, %@}",
                                       @"elementType", @(XCUIElementTypeAlert), 
-                                      @"identifier", @"SBTransientOverlayWindow"];
+                                      // To look for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
+                                      @"identifier", @"SBTransientOverlayWindow",
+                                      // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
+                                      // See https://github.com/appium/appium/issues/20835
+                                      @"NotificationShortLookView"];
       if ([FBConfiguration shouldRespectSystemAlerts]
           && [[XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAny]
               matchingPredicate:searchPredicate].count > 0) {

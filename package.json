@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "8.10.0",
+  "version": "8.12.1",
   "description": "Package bundling WebDriverAgent",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
-    "@appium/eslint-config-appium-ts": "^0.x",
+    "@appium/eslint-config-appium-ts": "^1.0.0",
     "@appium/test-support": "^3.0.0",
     "@appium/tsconfig": "^0.x",
     "@appium/types": "^0.x",
@@ -64,7 +64,7 @@
     "chai-as-promised": "^8.0.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "node-simctl": "^7.0.1",
-    "mocha": "^10.0.0",
+    "mocha": "^11.0.1",
     "prettier": "^3.0.0",
     "semantic-release": "^24.0.0",
     "semver": "^7.3.7",
@@ -75,8 +75,8 @@
   "dependencies": {
     "@appium/base-driver": "^9.0.0",
     "@appium/strongbox": "^0.x",
-    "@appium/support": "^5.0.3",
-    "appium-ios-device": "^2.5.0",
+    "@appium/support": "^6.0.0",
+    "appium-ios-device": "^2.7.25",
     "appium-ios-simulator": "^6.0.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^3.0.0",

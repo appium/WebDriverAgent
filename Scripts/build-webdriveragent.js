@@ -34,7 +34,7 @@ async function buildWebDriverAgent (xcodeVersion) {
     await exec('xcodebuild', ['clean', '-derivedDataPath', DERIVED_DATA_PATH, '-scheme', 'WebDriverAgentRunner'], {
       cwd: ROOT_DIR
     });
-  } catch (ign) {}
+  } catch {}
 
   // Get Xcode version
   xcodeVersion = xcodeVersion || await xcode.getVersion();

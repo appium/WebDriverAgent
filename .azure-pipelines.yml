@@ -1,6 +1,6 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml
 variables:
-  MIN_VM_IMAGE: macOS-14
+  MIN_VM_IMAGE: macOS-13
   MIN_XCODE_VERSION: 14.3.1
   MIN_PLATFORM_VERSION: 16.4
   MIN_TV_PLATFORM_VERSION: 16.4

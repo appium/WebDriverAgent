@@ -1,4 +1,4 @@
-import Simctl from 'node-simctl';
+import { Simctl } from 'node-simctl';
 import { getVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
 import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
@@ -89,7 +89,7 @@ describe('WebDriverAgent', function () {
           await retryInterval(5, 1000, async function () {
             await shutdownSimulator(device);
           });
-        } catch (ign) {}
+        } catch {}
       });
 
       it('should launch agent on a sim', async function () {
@@ -106,7 +106,7 @@ describe('WebDriverAgent', function () {
 
         const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
 
-        agent.xcodebuild.createSubProcess = async function () { // eslint-disable-line require-await
+        agent.xcodebuild.createSubProcess = async function () {
           let args = [
             '-workspace',
             `${this.agentPath}dfgs`,
