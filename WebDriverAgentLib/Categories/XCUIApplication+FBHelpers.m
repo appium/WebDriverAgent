@@ -40,6 +40,13 @@
 
 static NSString* const FBUnknownBundleId = @"unknown";
 
+static NSString* const FBExclusionAttributeFrame = @"frame";
+static NSString* const FBExclusionAttributeEnabled = @"enabled";
+static NSString* const FBExclusionAttributeVisible = @"visible";
+static NSString* const FBExclusionAttributeAccessible = @"accessible";
+static NSString* const FBExclusionAttributeFocused = @"focused";
+
+
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
   NSMethodSignature *methodSignature = [issue methodSignatureForSelector:selector];
@@ -88,6 +95,17 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return result;
 }
 
+NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    result = @{
+      FBExclusionAttributeVisible: FB_XCAXAIsVisibleAttributeName,
+      FBExclusionAttributeAccessible: FB_XCAXAIsElementAttributeName,
+    };
+  });
+  return result;
+}
 
 @implementation XCUIApplication (FBHelpers)
 
@@ -156,12 +174,26 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   return [self fb_tree:nil];
 }
 
-- (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *) excludedAttributes
+- (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *)excludedAttributes
 {
-  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot
-    : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
-  return [self.class dictionaryForElement:snapshot recursive:YES excludedAttributes:excludedAttributes];
+  // This set includes XCTest-specific internal attribute names,
+  // while the `excludedAttributes` arg contains human-readable ones
+  NSMutableSet* includedAttributeNames = [NSMutableSet setWithArray:FBCustomAttributeNames()];
+  [includedAttributeNames addObjectsFromArray:FBStandardAttributeNames()];
+  if (nil != excludedAttributes) {
+    for (NSString *attr in excludedAttributes) {
+      NSString *mappedName = [customExclusionAttributesMap() objectForKey:attr];
+      if (nil != mappedName) {
+        [includedAttributeNames removeObject:attr];
+      }
+    }
+  }
+  id<FBXCElementSnapshot> snapshot = nil == excludedAttributes
+    ? [self fb_snapshotWithAllAttributesAndMaxDepth:nil]
+    : [self fb_snapshotWithAttributes:[includedAttributeNames allObjects] maxDepth:nil];
+  return [self.class dictionaryForElement:snapshot
+                                recursive:YES
+                       excludedAttributes:excludedAttributes];
 }
 
 - (NSDictionary *)fb_accessibilityTree
@@ -174,7 +206,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
 
 + (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot 
                              recursive:(BOOL)recursive
-                    excludedAttributes:(nullable NSSet<NSString *> *) excludedAttributes
+                    excludedAttributes:(nullable NSSet<NSString *> *)excludedAttributes
 {
   NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
   info[@"type"] = [FBElementTypeTransformer shortStringWithElementType:snapshot.elementType];
@@ -186,19 +218,19 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   info[@"rect"] = wrappedSnapshot.wdRect;
   
   NSDictionary<NSString *, NSString * (^)(void)> *attributeBlocks = @{
-      @"frame": ^{
+      FBExclusionAttributeFrame: ^{
           return NSStringFromCGRect(wrappedSnapshot.wdFrame);
       },
-      @"enabled": ^{
+      FBExclusionAttributeEnabled: ^{
           return [@([wrappedSnapshot isWDEnabled]) stringValue];
       },
-      @"visible": ^{
+      FBExclusionAttributeVisible: ^{
           return [@([wrappedSnapshot isWDVisible]) stringValue];
       },
-      @"accessible": ^{
+      FBExclusionAttributeAccessible: ^{
           return [@([wrappedSnapshot isWDAccessible]) stringValue];
       },
-      @"focused": ^{
+      FBExclusionAttributeFocused: ^{
           return [@([wrappedSnapshot isWDFocused]) stringValue];
       }
   };
@@ -206,7 +238,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
   for (NSString *key in attributeBlocks) {
       if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
-          if ([key isEqualToString:@"frame"]) {
+          if ([key isEqualToString:FBExclusionAttributeFrame]) {
               info[key] = value;
           } else {
               info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
@@ -396,6 +428,8 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     return nil;
   }
 
+  // These custom attributes could take too long to fetch, thus excluded
+  NSSet *customAttributesToExclude = [NSSet setWithArray:[customExclusionAttributesMap() allKeys]];
   NSMutableArray<NSDictionary *> *resultArray = [NSMutableArray array];
   NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
   NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
@@ -413,7 +447,9 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
     
     id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_takeSnapshot];
     NSDictionary *elementAttributes = elementSnapshot 
-      ? [self.class dictionaryForElement:elementSnapshot recursive:NO excludedAttributes:nil]
+      ? [self.class dictionaryForElement:elementSnapshot
+                               recursive:NO
+                      excludedAttributes:customAttributesToExclude]
       : @{};
     
     [resultArray addObject:@{
