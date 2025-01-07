@@ -445,7 +445,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     
     id extractedElement = extractIssueProperty(issue, @"element");
     
-    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_takeSnapshot];
+    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot];
     NSDictionary *elementAttributes = elementSnapshot 
       ? [self.class dictionaryForElement:elementSnapshot
                                recursive:NO
