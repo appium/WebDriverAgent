@@ -234,7 +234,7 @@ NSDictionary<NSNumber *, NSString *> *auditTypeValuesToNames(void) {
       }
   }
 
-  // update isAccessible for parent
+  // update isAccessible property for parent
   parentAccessible = (isAccessible && elementType != XCUIElementTypeTable) || parentAccessible;
       
   if (!recursive) {
