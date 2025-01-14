@@ -3,5 +3,5 @@ steps:
   - script: mkdir -p ./Resources/WebDriverAgent.bundle
   - task: UseRubyVersion@0
     inputs:
-      versionSpec: '3'
+      versionSpec: '3.3'
       addToPath: true
