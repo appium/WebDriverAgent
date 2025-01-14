@@ -50,7 +50,7 @@
     if (nil == self.alertElement) {
       return NO;
     }
-    [self.alertElement fb_takeSnapshot];
+    [self.alertElement fb_takeSnapshot:YES];
     return YES;
   } @catch (NSException *) {
     return NO;
@@ -82,7 +82,7 @@
   }
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  id<FBXCElementSnapshot> snapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> snapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_takeSnapshot:YES];
   BOOL isSafariAlert = [self.class isSafariWebAlertWithSnapshot:snapshot];
   [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     XCUIElementType elementType = descendant.elementType;
@@ -145,7 +145,8 @@
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  [self.alertElement.lastSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_takeSnapshot:YES];
+  [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
     }
@@ -163,7 +164,7 @@
     return [self notPresentWithError:error];
   }
 
-  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_takeSnapshot:YES];
   XCUIElement *acceptButton = nil;
   if (FBConfiguration.acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
@@ -204,7 +205,7 @@
     return [self notPresentWithError:error];
   }
 
-  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot;
+  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_takeSnapshot:YES];
   XCUIElement *dismissButton = nil;
   if (FBConfiguration.dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;

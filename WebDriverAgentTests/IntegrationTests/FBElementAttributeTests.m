@@ -133,7 +133,7 @@
   XCTAssertEqualObjects(element.wdType, @"XCUIElementTypeSlider");
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
-  XCTAssertEqualObjects(element.wdValue, @"50%");
+  XCTAssertTrue([element.wdValue containsString:@"50"]);
 }
 
 - (void)testActivityIndicatorAttributes

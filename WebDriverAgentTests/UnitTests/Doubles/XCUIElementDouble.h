@@ -19,7 +19,6 @@
 @property (nonatomic, readwrite, nullable) id lastSnapshot;
 @property (nonatomic, assign) BOOL fb_isObstructedByAlert;
 @property (nonatomic, readonly, nonnull) NSString *fb_cacheId;
-@property (nonatomic, nullable) NSNumber *fb_isResolvedFromCache;
 @property (nonatomic, readwrite, copy, nonnull) NSDictionary *wdRect;
 @property (nonatomic, readwrite, assign) CGRect wdFrame;
 @property (nonatomic, readwrite, copy, nonnull) NSString *wdUID;
@@ -39,7 +38,7 @@
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
 - (void)resolve;
-- (id _Nonnull)fb_takeSnapshot;
+- (id _Nonnull)fb_takeSnapshot:(BOOL)inDepth;
 - (nullable id)query;
 
 // Checks

@@ -567,7 +567,8 @@
   FBElementCache *elementCache = request.session.elementCache;
   BOOL hasElement = ![request.parameters[@"uuid"] isEqual:@"0"];
   XCUIElement *destination = hasElement
-    ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]]
+    ? [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
+                    checkStaleness:YES]
     : request.session.activeApplication;
   id keys = request.arguments[@"keys"];
 

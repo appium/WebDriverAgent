@@ -20,9 +20,9 @@
 
 @implementation XCUIElementQuery (FBCompatibility)
 
-- (XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error
+- (id<FBXCElementSnapshot>)fb_uniqueSnapshotWithError:(NSError **)error
 {
-  return [self uniqueMatchingSnapshotWithError:error];
+  return (id<FBXCElementSnapshot>)[self uniqueMatchingSnapshotWithError:error];
 }
 
 - (XCUIElement *)fb_firstMatch

@@ -18,7 +18,6 @@
 @property (nonatomic, readwrite, assign) CGRect frame;
 @property (nonatomic, readwrite, nullable) id lastSnapshot;
 @property (nonatomic, assign) BOOL fb_isObstructedByAlert;
-@property (nonatomic, nullable) NSNumber *fb_isResolvedFromCache;
 @property (nonatomic, readwrite, copy, nonnull) NSDictionary *wdRect;
 @property (nonatomic, readwrite, assign) CGRect wdFrame;
 @property (nonatomic, readwrite, copy, nonnull) NSString *wdUID;

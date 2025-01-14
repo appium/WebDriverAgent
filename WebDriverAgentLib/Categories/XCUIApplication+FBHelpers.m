@@ -179,7 +179,6 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   // This set includes XCTest-specific internal attribute names,
   // while the `excludedAttributes` arg contains human-readable ones
   NSMutableSet* includedAttributeNames = [NSMutableSet setWithArray:FBCustomAttributeNames()];
-  [includedAttributeNames addObjectsFromArray:FBStandardAttributeNames()];
   if (nil != excludedAttributes) {
     for (NSString *attr in excludedAttributes) {
       NSString *mappedName = [customExclusionAttributesMap() objectForKey:attr];
@@ -189,8 +188,10 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     }
   }
   id<FBXCElementSnapshot> snapshot = nil == excludedAttributes
-    ? [self fb_snapshotWithAllAttributesAndMaxDepth:nil]
-    : [self fb_snapshotWithAttributes:[includedAttributeNames allObjects] maxDepth:nil];
+    ? [self fb_snapshotWithAllAttributes:YES]
+    : [self fb_snapshotWithCustomAttributes:[includedAttributeNames allObjects]
+                 exludingStandardAttributes:NO
+                                    inDepth:YES];
   return [self.class dictionaryForElement:snapshot
                                 recursive:YES
                        excludedAttributes:excludedAttributes];
@@ -198,9 +199,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_accessibilityTree
 {
-  id<FBXCElementSnapshot> snapshot = self.fb_isResolvedFromCache.boolValue
-    ? self.lastSnapshot
-    : [self fb_snapshotWithAllAttributesAndMaxDepth:nil];
+  id<FBXCElementSnapshot> snapshot = [self fb_snapshotWithAllAttributes:YES];
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
@@ -445,8 +444,8 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     
     id extractedElement = extractIssueProperty(issue, @"element");
     
-    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot];
-    NSDictionary *elementAttributes = elementSnapshot 
+    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot:NO];
+    NSDictionary *elementAttributes = elementSnapshot
       ? [self.class dictionaryForElement:elementSnapshot
                                recursive:NO
                       excludedAttributes:customAttributesToExclude]

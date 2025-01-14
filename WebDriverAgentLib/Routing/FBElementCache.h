@@ -35,26 +35,20 @@ extern const int ELEMENT_CACHE_SIZE;
 
  @param uuid uuid of element to fetch
  @return element
- @throws FBStaleElementException if the found element is not present in DOM anymore
  @throws FBInvalidArgumentException if uuid is nil
  */
 - (XCUIElement *)elementForUUID:(NSString *)uuid;
 
 /**
- Returns cached element
+ Returns cached element resolved with default snapshot attributes
 
  @param uuid uuid of element to fetch
- @param additionalAttributes Add additonal attribute names if the snapshot should contain
- them in `addtionalAttributes` section. nil value resolves the snapshot with standard attributes.
- @param maxDepth The maximum depth of the snapshot. Only works if additional attributes are provided.
- `nil` value means to use the default maximum depth value.
+ @param checkStaleness Whether to throw FBStaleElementException if the found element is not present in DOM anymore
  @return element
- @throws FBStaleElementException if the found element is not present in DOM anymore
+ @throws FBStaleElementException if `checkStaleness` is enabled
  @throws FBInvalidArgumentException if uuid is nil
  */
-- (XCUIElement *)elementForUUID:(NSString *)uuid
- resolveForAdditionalAttributes:(nullable NSArray <NSString *> *)additionalAttributes
-                    andMaxDepth:(nullable NSNumber *)maxDepth;
+- (XCUIElement *)elementForUUID:(NSString *)uuid checkStaleness:(BOOL)checkStaleness;
 
 /**
  Checks element existence in the cache

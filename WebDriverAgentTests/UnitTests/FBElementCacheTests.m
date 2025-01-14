@@ -43,10 +43,8 @@
   XCUIElement *element = (XCUIElement *)XCUIElementDouble.new;
   NSString *uuid = [self.cache storeElement:element];
   XCTAssertNotNil(uuid, @"Stored index should be higher than 0");
-  XCTAssertFalse(element.fb_isResolvedFromCache.boolValue);
   XCUIElement *cachedElement = [self.cache elementForUUID:uuid];
   XCTAssertEqual(element, cachedElement);
-  XCTAssertTrue(element.fb_isResolvedFromCache.boolValue);
 }
 
 - (void)testFetchingBadIndex

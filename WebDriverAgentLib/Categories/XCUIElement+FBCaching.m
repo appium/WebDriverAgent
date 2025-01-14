@@ -18,20 +18,6 @@
 
 @implementation XCUIElement (FBCaching)
 
-static char XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY;
-
-@dynamic fb_isResolvedFromCache;
-
-- (void)setFb_isResolvedFromCache:(NSNumber *)isResolvedFromCache
-{
-  objc_setAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY, isResolvedFromCache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber *)fb_isResolvedFromCache
-{
-  return (NSNumber *)objc_getAssociatedObject(self, &XCUIELEMENT_IS_RESOLVED_FROM_CACHE_KEY);
-}
-
 static char XCUIELEMENT_CACHE_ID_KEY;
 
 @dynamic fb_cacheId;
@@ -43,14 +29,7 @@ static char XCUIELEMENT_CACHE_ID_KEY;
     return (NSString *)result;
   }
 
-  NSString *uid;
-  if ([self isKindOfClass:XCUIApplication.class]) {
-    uid = self.fb_uid;
-  } else {
-    id<FBXCElementSnapshot> snapshot = self.fb_cachedSnapshot ?: self.fb_takeSnapshot;
-    uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
-  }
-
+  NSString *uid = self.fb_uid;
   objc_setAssociatedObject(self, &XCUIELEMENT_CACHE_ID_KEY, uid, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   return uid;
 }

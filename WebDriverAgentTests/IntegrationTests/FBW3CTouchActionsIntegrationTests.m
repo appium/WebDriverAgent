@@ -424,7 +424,7 @@
                    timeout:2.0]
                   timeoutErrorMessage:@"Picker wheel value has not been changed after 2 seconds timeout"]
                  spinUntilTrue:^BOOL{
-                   return ![self.pickerWheel.fb_takeSnapshot.value isEqualToString:previousValue];
+    return ![[self.pickerWheel fb_takeSnapshot:NO].value isEqualToString:previousValue];
                  }
                  error:&error]);
   XCTAssertNil(error);

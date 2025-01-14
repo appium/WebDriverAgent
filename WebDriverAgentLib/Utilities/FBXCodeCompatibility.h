@@ -10,6 +10,8 @@
 #import <WebDriverAgentLib/WebDriverAgentLib.h>
 #import "XCPointerEvent.h"
 
+@class FBXCElementSnapshot;
+
 /**
  The version of testmanagerd process which is running on the device.
 
@@ -46,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param error The error instance if there was a failure while retrieveing the snapshot
  @returns The cached unqiue snapshot or nil if the element is stale
  */
-- (nullable XCElementSnapshot *)fb_uniqueSnapshotWithError:(NSError **)error;
+- (nullable id<FBXCElementSnapshot>)fb_uniqueSnapshotWithError:(NSError **)error;
 
 @end
 

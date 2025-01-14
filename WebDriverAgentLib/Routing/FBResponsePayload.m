@@ -91,13 +91,7 @@ id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status)
 
 inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact)
 {
-  id<FBXCElementSnapshot> snapshot = nil;
-  if (nil != element.query.rootElementSnapshot) {
-    snapshot = element.fb_cachedSnapshot;
-  }
-  if (nil == snapshot) {
-    snapshot = element.lastSnapshot ?: element.fb_takeSnapshot;
-  }
+  id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_takeSnapshot:YES];
   NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
   if (compact) {
     return compactResult;

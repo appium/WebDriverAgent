@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
                                             attributes:(nullable NSArray<NSString *> *)attributes
-                                              maxDepth:(nullable NSNumber *)maxDepth
+                                               inDepth:(BOOL)inDepth
                                                  error:(NSError **)error;
 
 - (NSArray<id<FBXCAccessibilityElement>> *)activeApplications;

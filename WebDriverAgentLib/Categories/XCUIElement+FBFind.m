@@ -110,7 +110,7 @@
     matchingSnapshots = @[snapshot];
   }
   return [self fb_filterDescendantsWithSnapshots:matchingSnapshots
-                                         selfUID:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:self.lastSnapshot]
+                                         selfUID:self.fb_uid
                                     onlyChildren:NO];
 }
 

@@ -57,9 +57,7 @@
   self = [super init];
   if (self) {
     _targetElement = targetElement;
-    CGRect frame = targetElement.fb_isResolvedFromCache.boolValue
-      ? [FBXCElementSnapshotWrapper ensureWrapped:targetElement.lastSnapshot].wdFrame
-      : targetElement.wdFrame;
+    CGRect frame = targetElement.wdFrame;
     _targetCenter = FBRectGetCenter(frame);
     _navigationItems = [NSMutableDictionary dictionary];
   }

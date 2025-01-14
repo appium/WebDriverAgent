@@ -43,9 +43,9 @@
 - (id<FBXCElementSnapshot>)destinationSnapshot
 {
   XCUIElement *matchingElement = self.testedView.buttons.allElementsBoundByIndex.firstObject;
-  FBAssertWaitTillBecomesTrue(nil != matchingElement.fb_takeSnapshot);
+  FBAssertWaitTillBecomesTrue(nil != [matchingElement fb_snapshotWithAllAttributes:YES]);
 
-  id<FBXCElementSnapshot> snapshot = matchingElement.fb_takeSnapshot;
+  id<FBXCElementSnapshot> snapshot = matchingElement.lastSnapshot;
   // Over iOS13, snapshot returns a child.
   // The purpose of here is return a single element to replace children with an empty array for testing.
   snapshot.children = @[];

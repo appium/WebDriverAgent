@@ -68,7 +68,7 @@
   self.didResolve = YES;
 }
 
-- (id)fb_takeSnapshot
+- (id _Nonnull)fb_takeSnapshot:(BOOL)inDepth;
 {
   return [self lastSnapshot];
 }

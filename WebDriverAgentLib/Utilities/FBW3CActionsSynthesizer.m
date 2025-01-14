@@ -661,7 +661,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     if ([origin isKindOfClass:XCUIElement.class]) {
       instance = origin;
     } else if ([origin isKindOfClass:NSString.class]) {
-      instance = [self.elementCache elementForUUID:(NSString *)origin];
+      instance = [self.elementCache elementForUUID:(NSString *)origin checkStaleness:YES];
     } else {
       [result addObject:actionItem];
       continue;

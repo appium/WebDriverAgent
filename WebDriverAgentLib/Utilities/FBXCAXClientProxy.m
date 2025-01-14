@@ -37,12 +37,12 @@ static id FBAXClient = nil;
 
 - (id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
                                    attributes:(NSArray<NSString *> *)attributes
-                                     maxDepth:(nullable NSNumber *)maxDepth
+                                      inDepth:(BOOL)inDepth
                                         error:(NSError **)error
 {
   NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithDictionary:self.defaultParameters];
-  if (nil != maxDepth) {
-    parameters[FBSnapshotMaxDepthKey] = maxDepth;
+  if (!inDepth) {
+    parameters[FBSnapshotMaxDepthKey] = @1;
   }
 
   id result = [FBAXClient requestSnapshotForElement:element

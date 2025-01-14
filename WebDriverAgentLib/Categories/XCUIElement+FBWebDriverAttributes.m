@@ -28,24 +28,27 @@
 
 - (id<FBXCElementSnapshot>)fb_snapshotForAttributeName:(NSString *)name
 {
+  BOOL inDepth = [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
+    || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]
+    || [name isEqualToString:FBStringify(XCUIElement, wdIndex)];
+
   // These attributes are special, because we can only retrieve them from
   // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
   // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
   // call
   if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
-    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsVisibleAttributeName]
-                                  maxDepth:@1];
+    return [self fb_snapshotWithCustomAttributes:@[FB_XCAXAIsVisibleAttributeName]
+                      exludingStandardAttributes:YES
+                                         inDepth:inDepth];
   }
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]) {
-    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
-                                  maxDepth:@1];
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
+      || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    return [self fb_snapshotWithCustomAttributes:@[FB_XCAXAIsElementAttributeName]
+                      exludingStandardAttributes:NO
+                                         inDepth:inDepth];
   }
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-    return [self fb_snapshotWithAttributes:@[FB_XCAXAIsElementAttributeName]
-                                  maxDepth:nil];
-  }
-  
-  return self.fb_takeSnapshot;
+
+  return [self fb_takeSnapshot:inDepth];
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name
