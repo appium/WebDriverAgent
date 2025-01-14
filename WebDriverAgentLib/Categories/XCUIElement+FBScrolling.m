@@ -86,7 +86,8 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   return [self fb_scrollToVisibleWithNormalizedScrollDistance:FBScrollToVisibleNormalizedDistance error:error];
 }
 
-- (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance error:(NSError **)error
+- (BOOL)fb_scrollToVisibleWithNormalizedScrollDistance:(CGFloat)normalizedScrollDistance
+                                                 error:(NSError **)error
 {
   return [self fb_scrollToVisibleWithNormalizedScrollDistance:normalizedScrollDistance
                                               scrollDirection:FBXCUIElementScrollDirectionUnknown
@@ -130,12 +131,12 @@ const CGFloat FBScrollTouchProportion = 0.75f;
       FBXCElementSnapshotWrapper *wrappedCellSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:cellSnapshot];
       if (wrappedCellSnapshot.wdVisible) {
         [visibleCellSnapshots addObject:cellSnapshot];
+        if (visibleCellSnapshots.count > 1) {
+          return YES;
+        }
       }
     }
 
-    if (visibleCellSnapshots.count > 1) {
-      return YES;
-    }
     return NO;
   }];
 
@@ -247,27 +248,32 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   return self.visibleFrame;
 }
 
-- (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance inApplication:(XCUIApplication *)application
+- (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
+                          inApplication:(XCUIApplication *)application
 {
   [self fb_scrollByNormalizedVector:CGVectorMake(0.0, distance) inApplication:application];
 }
 
-- (void)fb_scrollDownByNormalizedDistance:(CGFloat)distance inApplication:(XCUIApplication *)application
+- (void)fb_scrollDownByNormalizedDistance:(CGFloat)distance
+                            inApplication:(XCUIApplication *)application
 {
   [self fb_scrollByNormalizedVector:CGVectorMake(0.0, -distance) inApplication:application];
 }
 
-- (void)fb_scrollLeftByNormalizedDistance:(CGFloat)distance inApplication:(XCUIApplication *)application
+- (void)fb_scrollLeftByNormalizedDistance:(CGFloat)distance
+                            inApplication:(XCUIApplication *)application
 {
   [self fb_scrollByNormalizedVector:CGVectorMake(distance, 0.0) inApplication:application];
 }
 
-- (void)fb_scrollRightByNormalizedDistance:(CGFloat)distance inApplication:(XCUIApplication *)application
+- (void)fb_scrollRightByNormalizedDistance:(CGFloat)distance
+                             inApplication:(XCUIApplication *)application
 {
   [self fb_scrollByNormalizedVector:CGVectorMake(-distance, 0.0) inApplication:application];
 }
 
-- (BOOL)fb_scrollByNormalizedVector:(CGVector)normalizedScrollVector inApplication:(XCUIApplication *)application
+- (BOOL)fb_scrollByNormalizedVector:(CGVector)normalizedScrollVector
+                      inApplication:(XCUIApplication *)application
 {
   CGVector scrollVector = CGVectorMake(CGRectGetWidth(self.scrollingFrame) * normalizedScrollVector.dx,
                                        CGRectGetHeight(self.scrollingFrame) * normalizedScrollVector.dy
@@ -275,7 +281,9 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   return [self fb_scrollByVector:scrollVector inApplication:application error:nil];
 }
 
-- (BOOL)fb_scrollByVector:(CGVector)vector inApplication:(XCUIApplication *)application error:(NSError **)error
+- (BOOL)fb_scrollByVector:(CGVector)vector
+            inApplication:(XCUIApplication *)application
+                    error:(NSError **)error
 {
   CGVector scrollBoundingVector = CGVectorMake(
                                                CGRectGetWidth(self.scrollingFrame) * FBScrollTouchProportion,
@@ -306,7 +314,9 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   return CGVectorMake((CGFloat)floor(x), (CGFloat)floor(y));
 }
 
-- (BOOL)fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:(CGVector)vector inApplication:(XCUIApplication *)application error:(NSError **)error
+- (BOOL)fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:(CGVector)vector
+                                                   inApplication:(XCUIApplication *)application
+                                                           error:(NSError **)error
 {
   CGVector hitpointOffset = [self fb_hitPointOffsetForScrollingVector:vector];
 
