@@ -71,6 +71,7 @@
   XCTAssertEqualObjects(element.wdLabel, @"Button");
   XCTAssertNil(element.wdValue);
   XCTAssertFalse(element.wdSelected);
+  XCTAssertTrue(element.fb_isVisible);
   [element tap];
   XCTAssertTrue(element.wdValue.boolValue);
   XCTAssertTrue(element.wdSelected);

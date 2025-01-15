@@ -27,6 +27,7 @@
 - (void)_XCT_requestElementAtPoint:(CGPoint)arg1 reply:(void (^)(id/*XCAccessibilityElement*/, NSError *))arg2;
 - (void)_XCT_fetchParameterizedAttributeForElement:(id/*XCAccessibilityElement*/)arg1 attributes:(NSNumber *)arg2 parameter:(id)arg3 reply:(void (^)(id, NSError *))arg4;
 - (void)_XCT_setAttribute:(NSNumber *)arg1 value:(id)arg2 element:(id/*XCAccessibilityElement*/)arg3 reply:(void (^)(BOOL, NSError *))arg4;
+- (void)_XCT_fetchAttributes:(id)attributes forElement:(id)element reply:(void (^)(NSDictionary *, NSError *))reply;
 - (void)_XCT_fetchAttributesForElement:(id/*XCAccessibilityElement*/)arg1 attributes:(NSArray *)arg2 reply:(void (^)(NSDictionary *, NSError *))arg3;
 - (void)_XCT_terminateApplicationWithBundleID:(NSString *)arg1 completion:(void (^)(NSError *))arg2;
 - (void)_XCT_performAccessibilityAction:(int)arg1 onElement:(id/*XCAccessibilityElement*/)arg2 withValue:(id)arg3 reply:(void (^)(NSError *))arg4;

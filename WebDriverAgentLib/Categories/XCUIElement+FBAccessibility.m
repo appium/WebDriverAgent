@@ -35,15 +35,16 @@
     return isAccessibilityElement.boolValue;
   }
 
-  NSError *error = nil;
+  NSError *error;
   NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsElementAttributeName
                                              timeout:AX_FETCH_TIMEOUT
                                                error:&error];
-  if (nil != attributeValue && nil == error) {
+  if (nil != attributeValue) {
     return [attributeValue boolValue];
   }
 
-  NSLog(@"Cannot determine element accessibility: %@", error.description);
+  NSLog(@"Cannot determine '%@' accessibility natively: %@. Defaulting to: %@",
+        self.fb_description, error.description, @(NO));
   return NO;
 }
 

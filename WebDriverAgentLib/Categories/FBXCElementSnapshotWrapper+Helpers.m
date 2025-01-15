@@ -10,9 +10,11 @@
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 
 #import "FBFindElementCommands.h"
+#import "FBErrorBuilder.h"
 #import "FBRunLoopSpinner.h"
 #import "FBLogger.h"
 #import "FBXCElementSnapshot.h"
+#import "FBXCTestDaemonsProxy.h"
 #import "FBXCAXClientProxy.h"
 #import "XCTestDriver.h"
 #import "XCTestPrivateSymbols.h"
@@ -70,14 +72,35 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snaps
                 timeout:(NSTimeInterval)timeout
                   error:(NSError **)error
 {
-  BOOL isTimeoutSet = [FBXCAXClientProxy.sharedClient setAXTimeout:timeout error:nil];
-  NSDictionary *result = [FBXCAXClientProxy.sharedClient attributesForElement:[self accessibilityElement]
-                                                                   attributes:@[attribute]
-                                                                        error:error];
-  if (isTimeoutSet) {
-    [FBXCAXClientProxy.sharedClient setAXTimeout:FBDefaultAxTimeout error:nil];
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  __block NSDictionary *result = nil;
+  __block NSError *blockError;
+  [proxy _XCT_fetchAttributes:@[attribute]
+                   forElement:[self accessibilityElement]
+                        reply:^(NSDictionary *innerResult, NSError *innerError) {
+    if (nil == innerError) {
+      result = innerResult;
+    } else {
+      blockError = innerError;
+    }
+    dispatch_semaphore_signal(sem);
+  }];
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)))) {
+    NSString *timeoutMsg = [NSString stringWithFormat:@"Cannot fetch %@ attribute of '%@' within %@s timeout",
+                            attribute, self.fb_description, @(timeout)];
+    [[[FBErrorBuilder builder]
+      withDescription:timeoutMsg]
+     buildError:error];
+    return nil;
   }
-  return [result objectForKey:attribute];
+  if (nil != result) {
+    return [result objectForKey:attribute];
+  }
+  if (error) {
+    *error = blockError;
+  }
+  return nil;
 }
 
 inline static BOOL areValuesEqual(id value1, id value2);

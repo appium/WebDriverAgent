@@ -53,24 +53,31 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 - (BOOL)fb_isVisible
 {
   NSNumber *isVisible = fetchSnapshotVisibility(self);
-  if (isVisible != nil) {
+  if (nil != isVisible) {
     return isVisible.boolValue;
   }
 
+  // Fetching the attribute value is expensive.
+  // Shortcircuit here to save time and assume if any of descendants or ancestors
+  // are already determined as visible then the container should be visible as well
   if ([self fb_hasVisibleAncestorsOrDescendants]) {
     return YES;
   }
 
-  NSError *error = nil;
+  NSError *error;
   NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsVisibleAttributeName
                                              timeout:AX_FETCH_TIMEOUT
                                                error:&error];
-  if (nil != attributeValue && nil == error) {
+  if (nil != attributeValue) {
     return [attributeValue boolValue];
   }
 
-  NSLog(@"Cannot determine element visibility: %@", error.description);
-  return nil != [self fb_hitPoint];
+  // If we fail to fetch the "true" visibility from AX then fallback to
+  // the lousy `hittable`-based detection method
+  BOOL fallbackResult = nil != [self fb_hitPoint];
+  NSLog(@"Cannot determine '%@' visibility natively: %@. Defaulting to: %@",
+        self.fb_description, error.description, @(fallbackResult));
+  return fallbackResult;
 }
 
 @end
