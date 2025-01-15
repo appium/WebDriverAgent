@@ -20,6 +20,8 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIHitPointResult.h"
 
+#define VisibleFrameFetchTimeout 0.3
+
 inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snapshot,
                                                    NSArray<NSNumber *> *types);
 
@@ -65,10 +67,17 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snaps
 }
 
 - (id)fb_attributeValue:(NSString *)attribute
+                timeout:(NSTimeInterval)timeout
+                  error:(NSError **)error
 {
+  BOOL isTimeoutSet = [FBXCAXClientProxy.sharedClient setAXTimeout:timeout error:nil];
   NSDictionary *result = [FBXCAXClientProxy.sharedClient attributesForElement:[self accessibilityElement]
-                                                                   attributes:@[attribute]];
-  return result[attribute];
+                                                                   attributes:@[attribute]
+                                                                        error:error];
+  if (isTimeoutSet) {
+    [FBXCAXClientProxy.sharedClient setAXTimeout:FBDefaultAxTimeout error:nil];
+  }
+  return [result objectForKey:attribute];
 }
 
 inline static BOOL areValuesEqual(id value1, id value2);
@@ -146,8 +155,10 @@ inline static BOOL isNilOrEmpty(id value);
   if (!CGRectIsEmpty(thisVisibleFrame)) {
     return thisVisibleFrame;
   }
-  
-  NSDictionary *visibleFrameDict = (NSDictionary*)[self fb_attributeValue:@"XC_kAXXCAttributeVisibleFrame"];
+
+  NSDictionary *visibleFrameDict = [self fb_attributeValue:FB_XCAXAVisibleFrameAttributeName
+                                                   timeout:VisibleFrameFetchTimeout
+                                                     error:nil];
   if (visibleFrameDict == nil) {
     return thisVisibleFrame;
   }

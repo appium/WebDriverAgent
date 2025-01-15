@@ -38,38 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot;
 
 /**
- Gets the most recent snapshot of the current element and already resolves the accessibility attributes
- needed for creating the page source of this element. No additional calls to the accessibility layer
- are required.
- Calls to this method mutate the `lastSnapshot` instance property.
-
- @param inDepth Whether to resolve snapshot parents and children
-
- @return The recent snapshot of the element with all attributes resolved or a snapshot with default
- attributes resolved if there was a failure while resolving additional attributes
- @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
- */
-- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAllAttributes:(BOOL)inDepth;
-
-/**
- Gets the most recent snapshot of the current element with given attributes resolved.
- No additional calls to the accessibility layer are required.
- Calls to this method mutate the `lastSnapshot` instance property.
-
- @param customAttributeNames The list of custom attribute names to resolve. Must be one of
- FB_...Name values exported by XCTestPrivateSymbols.h module.
- `nil` value means that only the default attributes must be extracted
- @param inDepth Whether to resolve snapshot parents and children
-
- @return The recent snapshot of the element with the given attributes resolved or a snapshot with default
- attributes resolved if there was a failure while resolving additional attributes
- @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
-*/
-- (nullable id<FBXCElementSnapshot>)fb_snapshotWithCustomAttributes:(nullable NSArray<NSString *> *)customAttributeNames
-                                         exludingStandardAttributes:(BOOL)exludingStandardAttributes
-                                                            inDepth:(BOOL)inDepth;
-
-/**
  Filters elements by matching them to snapshots from the corresponding array
 
  @param snapshots Array of snapshots to be matched with

@@ -42,8 +42,6 @@
 #import "XCUIScreen.h"
 #import "XCUIElement+FBResolve.h"
 
-#define DEFAULT_AX_TIMEOUT 60.
-
 @implementation XCUIElement (FBUtilities)
 
 - (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)inDepth
@@ -70,80 +68,6 @@
 - (id<FBXCElementSnapshot>)fb_cachedSnapshot
 {
   return [self.query fb_cachedSnapshot];
-}
-
-- (nullable id<FBXCElementSnapshot>)fb_snapshotWithAllAttributes:(BOOL)inDepth
-{
-  return [self fb_snapshotWithCustomAttributes:FBCustomAttributeNames()
-                    exludingStandardAttributes:NO
-                                       inDepth:inDepth];
-}
-
-- (nullable id<FBXCElementSnapshot>)fb_snapshotWithCustomAttributes:(NSArray<NSString *> *)customAttributeNames
-                                         exludingStandardAttributes:(BOOL)exludingStandardAttributes
-                                                            inDepth:(BOOL)inDepth
-{
-  NSTimeInterval axTimeout = FBConfiguration.customSnapshotTimeout;
-  if (nil == customAttributeNames
-      || [customAttributeNames count] == 0
-      || axTimeout < DBL_EPSILON) {
-    // return the "normal" element snapshot if no custom attributes are requested
-    return [self fb_takeSnapshot:inDepth];
-  }
-
-  BOOL isSelfApplicationElement = [self isKindOfClass:XCUIApplication.class];
-  id<FBXCAccessibilityElement> axElement = isSelfApplicationElement
-    ? [(XCUIApplication *)self accessibilityElement]
-    : [[self fb_takeSnapshot:inDepth] accessibilityElement];
-  if (nil == axElement) {
-    return nil;
-  }
-
-  NSError *setTimeoutError;
-  BOOL isTimeoutSet = [FBXCAXClientProxy.sharedClient setAXTimeout:axTimeout
-                                                             error:&setTimeoutError];
-  if (!isTimeoutSet) {
-    [FBLogger logFmt:@"Cannot set snapshoting timeout to %.1fs. Original error: %@",
-     axTimeout, setTimeoutError.localizedDescription];
-  }
-
-  NSError *error;
-  NSMutableArray *attributeNames = [NSMutableArray arrayWithArray:exludingStandardAttributes ? @[] : FBStandardAttributeNames()];
-  [attributeNames addObjectsFromArray:customAttributeNames ?: @[]];
-  BOOL requiresFullTreeSnapshot = isSelfApplicationElement || inDepth;
-  id<FBXCAccessibilityElement> appAxElement = isSelfApplicationElement ? axElement : self.application.accessibilityElement;
-  id<FBXCElementSnapshot> snapshotWithAttributes = [FBXCAXClientProxy.sharedClient snapshotForElement:requiresFullTreeSnapshot ? appAxElement : axElement
-                                                                                           attributes:attributeNames.copy
-                                                                                              inDepth:requiresFullTreeSnapshot
-                                                                                                error:&error];
-  NSString *axElementUid = [FBElementUtils uidWithAccessibilityElement:axElement];
-  if (nil != snapshotWithAttributes && nil != axElementUid && !isSelfApplicationElement) {
-    NSArray *matches = [snapshotWithAttributes descendantsByFilteringWithBlock:^BOOL(id<FBXCElementSnapshot>  _Nonnull snapshot) {
-      return [[FBElementUtils uidWithAccessibilityElement:snapshot.accessibilityElement] isEqualToString:axElementUid];
-    }];
-    if ([matches count] > 0) {
-      snapshotWithAttributes = [matches objectAtIndex:0];
-    }
-  }
-  if (nil == snapshotWithAttributes) {
-    if (isSelfApplicationElement || !inDepth) {
-      [self fb_takeSnapshot:YES];
-    }
-    NSString *description = [FBXCElementSnapshotWrapper ensureWrapped:self.lastSnapshot].fb_description;
-    [FBLogger logFmt:@"Cannot take a snapshot with attribute(s) %@ of '%@' after %.2f seconds",
-     attributeNames, description, axTimeout];
-    [FBLogger logFmt:@"This timeout could be customized via '%@' setting", FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT];
-    [FBLogger logFmt:@"Internal error: %@", error.localizedDescription];
-    [FBLogger logFmt:@"Falling back to the default snapshotting mechanism for the element '%@' (some attribute values, like visibility or accessibility might not be precise though)", description];
-    snapshotWithAttributes = self.lastSnapshot;
-  } else {
-    self.lastSnapshot = snapshotWithAttributes;
-  }
-
-  if (isTimeoutSet) {
-    [FBXCAXClientProxy.sharedClient setAXTimeout:DEFAULT_AX_TIMEOUT error:nil];
-  }
-  return snapshotWithAttributes;
 }
 
 - (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<id<FBXCElementSnapshot>> *)snapshots

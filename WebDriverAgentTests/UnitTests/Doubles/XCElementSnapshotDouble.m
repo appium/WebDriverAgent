@@ -98,4 +98,9 @@
   return @[];
 }
 
+- (NSArray *)_allDescendants
+{
+  return @[];
+}
+
 @end

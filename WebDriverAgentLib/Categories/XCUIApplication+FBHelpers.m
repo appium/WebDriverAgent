@@ -176,22 +176,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *)excludedAttributes
 {
-  // This set includes XCTest-specific internal attribute names,
-  // while the `excludedAttributes` arg contains human-readable ones
-  NSMutableSet* includedAttributeNames = [NSMutableSet setWithArray:FBCustomAttributeNames()];
-  if (nil != excludedAttributes) {
-    for (NSString *attr in excludedAttributes) {
-      NSString *mappedName = [customExclusionAttributesMap() objectForKey:attr];
-      if (nil != mappedName) {
-        [includedAttributeNames removeObject:attr];
-      }
-    }
-  }
-  id<FBXCElementSnapshot> snapshot = nil == excludedAttributes
-    ? [self fb_snapshotWithAllAttributes:YES]
-    : [self fb_snapshotWithCustomAttributes:[includedAttributeNames allObjects]
-                 exludingStandardAttributes:NO
-                                    inDepth:YES];
+  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:YES];
   return [self.class dictionaryForElement:snapshot
                                 recursive:YES
                        excludedAttributes:excludedAttributes];
@@ -199,7 +184,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_accessibilityTree
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_snapshotWithAllAttributes:YES];
+  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:YES];
   return [self.class accessibilityInfoForElement:snapshot];
 }
 

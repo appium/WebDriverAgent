@@ -14,13 +14,13 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 
+#define AX_FETCH_TIMEOUT 0.3
+
 @implementation XCUIElement (FBAccessibility)
 
 - (BOOL)fb_isAccessibilityElement
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_snapshotWithCustomAttributes:@[FB_XCAXAIsElementAttributeName]
-                                                exludingStandardAttributes:YES
-                                                                   inDepth:NO];
+  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
   return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isAccessibilityElement;
 }
 
@@ -34,8 +34,17 @@
   if (nil != isAccessibilityElement) {
     return isAccessibilityElement.boolValue;
   }
-  
-  return [(NSNumber *)[self fb_attributeValue:FB_XCAXAIsElementAttributeName] boolValue];
+
+  NSError *error = nil;
+  NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsElementAttributeName
+                                             timeout:AX_FETCH_TIMEOUT
+                                               error:&error];
+  if (nil != attributeValue && nil == error) {
+    return [attributeValue boolValue];
+  }
+
+  NSLog(@"Cannot determine element accessibility: %@", error.description);
+  return NO;
 }
 
 @end

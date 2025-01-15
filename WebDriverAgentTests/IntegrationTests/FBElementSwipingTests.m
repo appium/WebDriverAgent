@@ -72,7 +72,7 @@
   }
   [self.scrollView fb_swipeWithDirection:@"up" velocity:@2500];
   FBAssertInvisibleCell(@"0");
-  [self.scrollView fb_swipeWithDirection:@"down" velocity:@2500];
+  [self.scrollView fb_swipeWithDirection:@"down" velocity:@3000];
   FBAssertVisibleCell(@"0");
 }
 

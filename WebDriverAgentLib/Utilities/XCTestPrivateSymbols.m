@@ -18,6 +18,7 @@ NSNumber *FB_XCAXAIsVisibleAttribute;
 NSString *FB_XCAXAIsVisibleAttributeName = @"XC_kAXXCAttributeIsVisible";
 NSNumber *FB_XCAXAIsElementAttribute;
 NSString *FB_XCAXAIsElementAttributeName = @"XC_kAXXCAttributeIsElement";
+NSString *FB_XCAXAVisibleFrameAttributeName = @"XC_kAXXCAttributeVisibleFrame";
 
 void (*XCSetDebugLogger)(id <XCDebugLogDelegate>);
 id<XCDebugLogDelegate> (*XCDebugLogger)(void);

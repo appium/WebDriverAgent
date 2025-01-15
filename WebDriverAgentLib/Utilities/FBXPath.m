@@ -368,19 +368,12 @@ static NSString *const topNodeIndexPath = @"top";
   NSArray<id<FBXCElementSnapshot>> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
     XCUIElement *element = (XCUIElement *)root;
-    NSMutableArray<NSString *> *customAttributes = [NSMutableArray array];
     if (nil == includedAttributes || [includedAttributes containsObject:FBVisibleAttribute.class]) {
-      [customAttributes addObject:FB_XCAXAIsVisibleAttributeName];
       // If the app is not idle state while we retrieve the visiblity state
       // then the snapshot retrieval operation might freeze and time out
       [element.application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
     }
-    if (nil == includedAttributes || [includedAttributes containsObject:FBAccessibleAttribute.class]) {
-      [customAttributes addObject:FB_XCAXAIsElementAttributeName];
-    }
-    currentSnapshot = [element fb_snapshotWithCustomAttributes:customAttributes.copy
-                                    exludingStandardAttributes:NO
-                                                       inDepth:YES];
+    currentSnapshot = [element fb_takeSnapshot:YES];
     children = currentSnapshot.children;
   } else {
     currentSnapshot = (id<FBXCElementSnapshot>)root;

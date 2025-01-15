@@ -17,6 +17,8 @@
 
 static id FBAXClient = nil;
 
+const NSTimeInterval FBDefaultAxTimeout = 60.0;
+
 @implementation FBXCAXClientProxy
 
 + (instancetype)sharedClient
@@ -76,15 +78,11 @@ static id FBAXClient = nil;
 
 - (NSDictionary *)attributesForElement:(id<FBXCAccessibilityElement>)element
                             attributes:(NSArray *)attributes
+                                 error:(NSError**)error;
 {
-  NSError *error = nil;
-  NSDictionary* result = [FBAXClient attributesForElement:element
-                                               attributes:attributes
-                                                    error:&error];
-  if (error) {
-    [FBLogger logFmt:@"Cannot retrieve element attribute(s) %@. Original error: %@", attributes, error.description];
-  }
-  return result;
+  return [FBAXClient attributesForElement:element
+                               attributes:attributes
+                                    error:error];
 }
 
 - (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid

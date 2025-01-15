@@ -31,23 +31,6 @@
   BOOL inDepth = [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
     || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]
     || [name isEqualToString:FBStringify(XCUIElement, wdIndex)];
-
-  // These attributes are special, because we can only retrieve them from
-  // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
-  // That is why fb_snapshotWithAllAttributes method must be used instead of the default snapshot
-  // call
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)]) {
-    return [self fb_snapshotWithCustomAttributes:@[FB_XCAXAIsVisibleAttributeName]
-                      exludingStandardAttributes:YES
-                                         inDepth:inDepth];
-  }
-  if ([name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
-      || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-    return [self fb_snapshotWithCustomAttributes:@[FB_XCAXAIsElementAttributeName]
-                      exludingStandardAttributes:NO
-                                         inDepth:inDepth];
-  }
-
   return [self fb_takeSnapshot:inDepth];
 }
 
@@ -186,8 +169,8 @@
     // In the scenario when table provides Search results controller, table could be marked as accessible element, even though it isn't
     // As it is highly unlikely that table view should ever be an accessibility element itself,
     // for now we work around that by skipping Table View in container checks
-    if ([FBXCElementSnapshotWrapper ensureWrapped:parentSnapshot].fb_isAccessibilityElement
-        && parentSnapshot.elementType != XCUIElementTypeTable) {
+    if (parentSnapshot.elementType != XCUIElementTypeTable
+        && [FBXCElementSnapshotWrapper ensureWrapped:parentSnapshot].fb_isAccessibilityElement) {
       return NO;
     }
     parentSnapshot = parentSnapshot.parent;

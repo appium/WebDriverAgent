@@ -19,6 +19,9 @@ extern NSString *FB_XCAXAIsVisibleAttributeName;
 extern NSNumber *FB_XCAXAIsElementAttribute;
 extern NSString *FB_XCAXAIsElementAttributeName;
 
+/*!  Accessibility identifier for visible frame attribute */
+extern NSString *FB_XCAXAVisibleFrameAttributeName;
+
 /*! Getter for  XCTest logger */
 extern id<XCDebugLogDelegate> (*XCDebugLogger)(void);
 
