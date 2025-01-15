@@ -22,9 +22,6 @@ extern NSString* const FB_SETTING_MJPEG_SCALING_FACTOR;
 extern NSString* const FB_SETTING_SCREENSHOT_QUALITY;
 extern NSString* const FB_SETTING_KEYBOARD_AUTOCORRECTION;
 extern NSString* const FB_SETTING_KEYBOARD_PREDICTION;
-// This setting is deprecated. Please use CUSTOM_SNAPSHOT_TIMEOUT instead
-extern NSString* const FB_SETTING_SNAPSHOT_TIMEOUT;
-extern NSString* const FB_SETTING_CUSTOM_SNAPSHOT_TIMEOUT;
 extern NSString* const FB_SETTING_SNAPSHOT_MAX_DEPTH;
 extern NSString* const FB_SETTING_USE_FIRST_MATCH;
 extern NSString* const FB_SETTING_BOUND_ELEMENTS_BY_INDEX;

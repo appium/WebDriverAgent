@@ -178,14 +178,6 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (FBConfigurationKeyboardPreference)keyboardPrediction;
 
 /**
- * The maximum time to wait until accessibility snapshot is taken
- *
- * @param timeout The number of float seconds to wait (15 seconds by default)
- */
-+ (void)setCustomSnapshotTimeout:(NSTimeInterval)timeout;
-+ (NSTimeInterval)customSnapshotTimeout;
-
-/**
  Sets maximum depth for traversing elements tree from parents to children while requesting XCElementSnapshot.
  Used to set maxDepth value in a dictionary provided by XCAXClient_iOS's method defaultParams.
  The original XCAXClient_iOS maxDepth value is set to INT_MAX, which is too big for some queries
