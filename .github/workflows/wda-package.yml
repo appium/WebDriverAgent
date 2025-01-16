@@ -29,7 +29,9 @@ jobs:
     runs-on: ${{ needs.host_machine.outputs.host }}
 
     env:
+      PKG_NAME_IOS: "WebDriverAgentRunner-Runner"
       ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
+      PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner"
       ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
 
     steps:
@@ -59,20 +61,13 @@ jobs:
       - name: Upload the built generic app package for iOS
         uses: actions/upload-artifact@master
         with:
-          name: "${{ env.ZIP_PKG_NAME_IOS }}"
+          name: "${{ env.PKG_NAME_IOS }}"
           path: "${{ env.ZIP_PKG_NAME_IOS }}"
       - name: Upload the built generic app package for tvOS
         uses: actions/upload-artifact@master
         with:
-          name: "${{ env.ZIP_PKG_NAME_TVOS }}"
+          name: "${{ env.PKG_NAME_TVOS }}"
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: merged-artifacts
-          pattern: "*"
-          separate-directories: false
-          delete-merged: true
 
   for_simulator_devices:
     needs: [host_machine]
@@ -101,12 +96,5 @@ jobs:
       - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
         uses: actions/upload-artifact@master
         with:
-          name: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
+          name: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}"
           path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: merged-artifacts
-          pattern: "*"
-          separate-directories: false
-          delete-merged: true
