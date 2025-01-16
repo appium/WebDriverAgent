@@ -34,23 +34,35 @@ id<FBResponsePayload> FBResponseWithObject(id object)
   return FBResponseWithStatus([FBCommandStatus okWithValue:object]);
 }
 
-id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElementCache *elementCache, BOOL compact)
+XCUIElement *maybeStable(XCUIElement *element)
 {
   BOOL useNativeCachingStrategy = nil == FBSession.activeSession
     ? YES
     : FBSession.activeSession.useNativeCachingStrategy;
-  [elementCache storeElement:(useNativeCachingStrategy ? element : element.fb_stableInstance)];
+  if (useNativeCachingStrategy) {
+    return element;
+  }
+
+  XCUIElement *result = element;
+  id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: [element fb_cachedSnapshot] ?: [element fb_takeSnapshot:NO];
+  NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
+  if (nil != uid) {
+    result = [element fb_stableInstanceWithUid:uid];
+  }
+  return result;
+}
+
+id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElementCache *elementCache, BOOL compact)
+{
+  [elementCache storeElement:maybeStable(element)];
   return FBResponseWithStatus([FBCommandStatus okWithValue:FBDictionaryResponseWithElement(element, compact)]);
 }
 
 id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *elements, FBElementCache *elementCache, BOOL compact)
 {
   NSMutableArray *elementsResponse = [NSMutableArray array];
-  BOOL useNativeCachingStrategy = nil == FBSession.activeSession
-    ? YES
-    : FBSession.activeSession.useNativeCachingStrategy;
   for (XCUIElement *element in elements) {
-    [elementCache storeElement:(useNativeCachingStrategy ? element : element.fb_stableInstance)];
+    [elementCache storeElement:maybeStable(element)];
     [elementsResponse addObject:FBDictionaryResponseWithElement(element, compact)];
   }
   return FBResponseWithStatus([FBCommandStatus okWithValue:elementsResponse]);

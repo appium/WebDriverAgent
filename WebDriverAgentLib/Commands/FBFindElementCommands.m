@@ -87,7 +87,6 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
       && [FBXCElementSnapshotWrapper ensureWrapped:shot].wdVisible;
   }];
   NSArray *cells = [element fb_filterDescendantsWithSnapshots:visibleCellSnapshots
-                                                      selfUID:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]
                                                  onlyChildren:NO];
   return FBResponseWithCachedElements(cells, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
 }

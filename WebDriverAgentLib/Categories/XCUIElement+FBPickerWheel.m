@@ -12,6 +12,7 @@
 #import "FBRunLoopSpinner.h"
 #import "FBXCElementSnapshot.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUICoordinate.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBResolve.h"
@@ -33,7 +34,7 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
   // Fetching stable instance of an element allows it to be bounded to the
   // unique element identifier (UID), so it could be found next time even if its
   // id is different from the initial one. See https://github.com/appium/appium/issues/17569
-  XCUIElement *stableInstance = self.fb_stableInstance;
+  XCUIElement *stableInstance = [self fb_stableInstanceWithUid:[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]];
   [endCoord tap];
   return [[[[FBRunLoopSpinner new]
      timeout:VALUE_CHANGE_TIMEOUT]

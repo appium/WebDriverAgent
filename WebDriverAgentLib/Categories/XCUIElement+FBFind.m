@@ -110,7 +110,6 @@
     matchingSnapshots = @[snapshot];
   }
   return [self fb_filterDescendantsWithSnapshots:matchingSnapshots
-                                         selfUID:self.fb_uid
                                     onlyChildren:NO];
 }
 

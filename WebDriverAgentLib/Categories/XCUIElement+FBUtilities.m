@@ -71,7 +71,6 @@
 }
 
 - (NSArray<XCUIElement *> *)fb_filterDescendantsWithSnapshots:(NSArray<id<FBXCElementSnapshot>> *)snapshots
-                                                      selfUID:(NSString *)selfUID
                                                  onlyChildren:(BOOL)onlyChildren
 {
   if (0 == snapshots.count) {
@@ -85,13 +84,11 @@
     }
   }
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
-  NSString *uid = selfUID;
-  if (nil == uid) {
-    uid = self.fb_uid;
-  }
+  NSString *uid = nil == self.lastSnapshot
+    ? self.fb_uid
+    : [FBXCElementSnapshotWrapper wdUIDWithSnapshot:self.lastSnapshot];
   if (nil != uid && [matchedIds containsObject:uid]) {
-    XCUIElement *stableSelf = self.fb_stableInstance;
-    stableSelf.fb_isResolvedNatively = @NO;
+    XCUIElement *stableSelf = [self fb_stableInstanceWithUid:uid];
     if (1 == snapshots.count) {
       return @[stableSelf];
     }

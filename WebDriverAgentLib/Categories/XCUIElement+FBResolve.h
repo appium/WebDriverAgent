@@ -27,10 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
  Although, if the cached element instance is the one returned by this API call then the same element
  is going to be matched and no staleness exception will be thrown.
 
+ @param uid Element UUID
  @return Either the same element instance if `fb_isResolvedNatively` was set to NO (usually the cache for elements
  matched by xpath locators) or the stable instance of the self element based on the query by element's UUID.
  */
-- (XCUIElement *)fb_stableInstance;
+- (XCUIElement *)fb_stableInstanceWithUid:(NSString *)uid;
 
 @end
 

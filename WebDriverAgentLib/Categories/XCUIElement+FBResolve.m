@@ -32,23 +32,19 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
   return nil == result ? @YES : result;
 }
 
-- (XCUIElement *)fb_stableInstance
+- (XCUIElement *)fb_stableInstanceWithUid:(NSString *)uid
 {
-  if (![self.fb_isResolvedNatively boolValue]) {
+  if (nil == uid || ![self.fb_isResolvedNatively boolValue] || [self isKindOfClass:XCUIApplication.class]) {
     return self;
   }
-
-  XCUIElementQuery *query = [self isKindOfClass:XCUIApplication.class]
-    ? self.application.fb_query
-    : [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
-  NSString *uid = nil == self.fb_cachedSnapshot
-    ? self.fb_uid
-    : [FBXCElementSnapshotWrapper wdUIDWithSnapshot:(id)self.fb_cachedSnapshot];
-  if (nil == uid) {
-    return self;
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
+  XCUIElementQuery *query = [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
+  XCUIElement *result = [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
+  if (nil != result) {
+    result.fb_isResolvedNatively = @NO;
+    return result;
   }
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
-  return [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject ?: self;
+  return self;
 }
 
 @end

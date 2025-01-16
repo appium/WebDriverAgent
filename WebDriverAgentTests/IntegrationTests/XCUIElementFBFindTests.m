@@ -15,6 +15,7 @@
 #import "FBTestMacros.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
+#import "XCUIElement+FBUID.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBClassChain.h"
@@ -93,7 +94,10 @@
   NSArray<XCUIElement *> *matchingSnapshots = [self.testedView fb_descendantsMatchingIdentifier:@"Alerts"
                                                                     shouldReturnAfterFirstMatch:YES];
   XCTAssertEqual(matchingSnapshots.count, 1);
-  for (XCUIElement *el in @[matchingSnapshots.lastObject, matchingSnapshots.lastObject.fb_stableInstance]) {
+  for (XCUIElement *el in @[
+    matchingSnapshots.lastObject,
+    [matchingSnapshots.lastObject fb_stableInstanceWithUid:[matchingSnapshots.lastObject fb_uid]]
+  ]) {
     XCTAssertEqual(el.elementType, XCUIElementTypeButton);
     XCTAssertEqualObjects(el.label, @"Alerts");
   }
