@@ -35,6 +35,7 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElement+FBTVFocuse.h"
 #import "XCUIElement+FBResolve.h"
+#import "XCUIElement+FBUID.h"
 #import "FBElementTypeTransformer.h"
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
