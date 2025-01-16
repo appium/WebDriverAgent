@@ -35,14 +35,8 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 
 @implementation FBXCElementSnapshotWrapper (FBIsVisible)
 
-- (BOOL)fb_hasVisibleAncestorsOrDescendants
+- (BOOL)fb_hasVisibleDescendants
 {
-  if (nil != [self fb_parentMatchingOneOfTypes:@[@(XCUIElementTypeAny)]
-                                        filter:^BOOL(id<FBXCElementSnapshot>  _Nonnull parent) {
-    return [fetchSnapshotVisibility(parent) boolValue];
-  }]) {
-    return YES;
-  }
   for (id<FBXCElementSnapshot> descendant in (self._allDescendants ?: @[])) {
     if ([fetchSnapshotVisibility(descendant) boolValue]) {
       return YES;
@@ -59,9 +53,9 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
   }
 
   // Fetching the attribute value is expensive.
-  // Shortcircuit here to save time and assume if any of descendants or ancestors
-  // are already determined as visible then the container should be visible as well
-  if ([self fb_hasVisibleAncestorsOrDescendants]) {
+  // Shortcircuit here to save time and assume if any of descendants
+  // is already determined as visible then the container should be visible as well
+  if ([self fb_hasVisibleDescendants]) {
     return YES;
   }
 
@@ -72,14 +66,14 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
   if (nil != attributeValue) {
     NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
     [updatedValue setObject:attributeValue forKey:FB_XCAXAIsVisibleAttribute];
-    self.additionalAttributes = updatedValue.copy;
+    self.snapshot.additionalAttributes = updatedValue.copy;
     return [attributeValue boolValue];
   }
 
   // If we fail to fetch the "true" visibility from AX then fallback to
   // the lousy `visibleFrame`-based detection method
   BOOL fallbackResult = !CGRectIsEmpty(self.fb_visibleFrame);
-  NSLog(@"Cannot determine '%@' visibility natively: %@. Defaulting to: %@",
+  NSLog(@"Cannot determine visibility of '%@' natively: %@. Defaulting to: %@",
         self.fb_description, error.description, @(fallbackResult));
   return fallbackResult;
 }

@@ -42,11 +42,11 @@
   if (nil != attributeValue) {
     NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
     [updatedValue setObject:attributeValue forKey:FB_XCAXAIsElementAttribute];
-    self.additionalAttributes = updatedValue.copy;
+    self.snapshot.additionalAttributes = updatedValue.copy;
     return [attributeValue boolValue];
   }
 
-  NSLog(@"Cannot determine '%@' accessibility natively: %@. Defaulting to: %@",
+  NSLog(@"Cannot determine accessibility of '%@' natively: %@. Defaulting to: %@",
         self.fb_description, error.description, @(NO));
   return NO;
 }
