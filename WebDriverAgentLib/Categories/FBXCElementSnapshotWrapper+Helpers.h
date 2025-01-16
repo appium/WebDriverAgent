@@ -58,13 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param attribute attribute's accessibility identifier. Can be one of
  `XC_kAXXCAttribute`-prefixed attribute names.
- @param timeout The maximum time is flota seconds to wait until XCTest/Accessbility framework
- returns the value of the requested attribute
  @param error Error instance in case of a failure
  @return value for given accessibility property identifier or nil in case of failure
  */
 - (nullable id)fb_attributeValue:(NSString *)attribute
-                         timeout:(NSTimeInterval)timeout
                            error:(NSError **)error;
 
 /**

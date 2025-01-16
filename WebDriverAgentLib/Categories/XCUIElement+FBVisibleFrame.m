@@ -14,8 +14,6 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCTestPrivateSymbols.h"
 
-#define VisibleFrameFetchTimeout 0.3
-
 @implementation XCUIElement (FBVisibleFrame)
 
 - (CGRect)fb_visibleFrame
@@ -36,7 +34,6 @@
   }
 
   NSDictionary *visibleFrameDict = [self fb_attributeValue:FB_XCAXAVisibleFrameAttributeName
-                                                   timeout:VisibleFrameFetchTimeout
                                                      error:nil];
   if (nil == visibleFrameDict) {
     return thisVisibleFrame;

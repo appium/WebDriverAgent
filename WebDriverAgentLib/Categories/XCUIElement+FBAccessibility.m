@@ -14,8 +14,6 @@
 #import "XCUIElement+FBUtilities.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 
-#define AX_FETCH_TIMEOUT 0.3
-
 @implementation XCUIElement (FBAccessibility)
 
 - (BOOL)fb_isAccessibilityElement
@@ -37,7 +35,6 @@
 
   NSError *error;
   NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsElementAttributeName
-                                             timeout:AX_FETCH_TIMEOUT
                                                error:&error];
   if (nil != attributeValue) {
     NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];

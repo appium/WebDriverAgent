@@ -16,8 +16,6 @@
 #import "XCUIElement+FBVisibleFrame.h"
 #import "XCTestPrivateSymbols.h"
 
-#define AX_FETCH_TIMEOUT 0.3
-
 NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 {
   return nil == snapshot.additionalAttributes ? nil : snapshot.additionalAttributes[FB_XCAXAIsVisibleAttribute];
@@ -61,7 +59,6 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 
   NSError *error;
   NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsVisibleAttributeName
-                                             timeout:AX_FETCH_TIMEOUT
                                                error:&error];
   if (nil != attributeValue) {
     NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
@@ -70,12 +67,9 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
     return [attributeValue boolValue];
   }
 
-  // If we fail to fetch the "true" visibility from AX then fallback to
-  // the lousy `visibleFrame`-based detection method
-  BOOL fallbackResult = !CGRectIsEmpty(self.fb_visibleFrame);
-  NSLog(@"Cannot determine visibility of '%@' natively: %@. Defaulting to: %@",
-        self.fb_description, error.description, @(fallbackResult));
-  return fallbackResult;
+  NSLog(@"Cannot determine visiblity of %@ natively: %@. Defaulting to: %@",
+        self.fb_description, error.description, @(NO));
+  return NO;
 }
 
 @end
