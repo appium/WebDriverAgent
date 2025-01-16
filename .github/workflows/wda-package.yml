@@ -64,6 +64,8 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
 
   for_simulator_devices:
     needs: [host_machine]
@@ -93,3 +95,5 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
