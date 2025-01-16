@@ -57,11 +57,11 @@ jobs:
           ZIP_PKG_NAME: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
       - name: Upload the built generic app package for iOS
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@master
         with:
           path: "${{ env.ZIP_PKG_NAME_IOS }}"
       - name: Upload the built generic app package for tvOS
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@master
         with:
           path: "${{ env.ZIP_PKG_NAME_TVOS }}"
 
@@ -90,6 +90,6 @@ jobs:
           ARCHS: ${{ matrix.arch }}
           ZIP_PKG_NAME: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
       - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@master
         with:
           path: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
