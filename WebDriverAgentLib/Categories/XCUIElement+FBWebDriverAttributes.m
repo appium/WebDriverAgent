@@ -78,6 +78,7 @@
     value = @([value boolValue]);
   } else if (elementType == XCUIElementTypeTextView ||
              elementType == XCUIElementTypeTextField ||
+             elementType == XCUIElementTypeSearchField ||
              elementType == XCUIElementTypeSecureTextField) {
     NSString *placeholderValue = self.placeholderValue;
     value = FBFirstNonEmptyValue(value, placeholderValue);
