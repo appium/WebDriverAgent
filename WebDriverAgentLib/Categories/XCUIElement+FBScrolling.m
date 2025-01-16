@@ -20,6 +20,7 @@
 #import "XCUIApplication.h"
 #import "XCUICoordinate.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "XCUIElement+FBVisibleFrame.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
@@ -208,7 +209,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   // Trying fb_cachedSnapshot first
   FBXCElementSnapshotWrapper *targetCellSnapshotWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[self fb_takeSnapshot:YES]];
   targetCellSnapshot = [targetCellSnapshotWrapped fb_parentCellSnapshot];
-  CGRect visibleFrame = [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrameWithFallback;
+  CGRect visibleFrame = [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame;
   
   CGVector scrollVector = CGVectorMake(visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        visibleFrame.size.height - targetCellSnapshot.frame.size.height

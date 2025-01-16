@@ -103,4 +103,9 @@
   return @[];
 }
 
+- (CGRect)visibleFrame
+{
+  return CGRectZero;
+}
+
 @end

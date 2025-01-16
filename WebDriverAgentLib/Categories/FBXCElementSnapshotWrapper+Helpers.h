@@ -93,13 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)fb_description;
 
 /**
- Returns the snapshot visibleFrame with a fallback to direct attribute retrieval from FBXCAXClient in case of a snapshot fault (nil visibleFrame)
- 
- @return the snapshot visibleFrame
- */
-- (CGRect)fb_visibleFrameWithFallback;
-
-/**
  Wrapper for Apple's hitpoint, thats resolves few known issues
 
  @return Element's hitpoint if exists nil otherwise

@@ -17,8 +17,6 @@
 
 static id FBAXClient = nil;
 
-const NSTimeInterval FBDefaultAxTimeout = 60.0;
-
 @implementation FBXCAXClientProxy
 
 + (instancetype)sharedClient

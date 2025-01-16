@@ -40,6 +40,9 @@
                                              timeout:AX_FETCH_TIMEOUT
                                                error:&error];
   if (nil != attributeValue) {
+    NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
+    [updatedValue setObject:attributeValue forKey:FB_XCAXAIsElementAttribute];
+    self.additionalAttributes = updatedValue.copy;
     return [attributeValue boolValue];
   }
 

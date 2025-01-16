@@ -22,8 +22,6 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIHitPointResult.h"
 
-#define VisibleFrameFetchTimeout 0.3
-
 inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snapshot,
                                                    NSArray<NSNumber *> *types);
 
@@ -170,31 +168,6 @@ inline static BOOL isNilOrEmpty(id value);
       targetCellSnapshot = [self fb_parentMatchingOneOfTypes:acceptableElementTypes];
   }
   return targetCellSnapshot;
-}
-
-- (CGRect)fb_visibleFrameWithFallback
-{
-  CGRect thisVisibleFrame = [self visibleFrame];
-  if (!CGRectIsEmpty(thisVisibleFrame)) {
-    return thisVisibleFrame;
-  }
-
-  NSDictionary *visibleFrameDict = [self fb_attributeValue:FB_XCAXAVisibleFrameAttributeName
-                                                   timeout:VisibleFrameFetchTimeout
-                                                     error:nil];
-  if (visibleFrameDict == nil) {
-    return thisVisibleFrame;
-  }
-  
-  id x = [visibleFrameDict objectForKey:@"X"];
-  id y = [visibleFrameDict objectForKey:@"Y"];
-  id height = [visibleFrameDict objectForKey:@"Height"];
-  id width = [visibleFrameDict objectForKey:@"Width"];
-  if (x != nil && y != nil && height != nil && width != nil) {
-    return CGRectMake([x doubleValue], [y doubleValue], [width doubleValue], [height doubleValue]);
-  }
-  
-  return thisVisibleFrame;
 }
 
 - (NSValue *)fb_hitPoint

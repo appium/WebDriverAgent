@@ -10,8 +10,6 @@
 #import <XCTest/XCTest.h>
 #import "FBXCElementSnapshot.h"
 
-extern const NSTimeInterval FBDefaultAxTimeout;
-
 @protocol FBXCAccessibilityElement;
 
 NS_ASSUME_NONNULL_BEGIN

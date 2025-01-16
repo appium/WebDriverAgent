@@ -451,6 +451,10 @@
 		71A7EAFA1E224648001DA4F2 /* FBClassChainQueryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 71A7EAF81E224648001DA4F2 /* FBClassChainQueryParser.m */; };
 		71A7EAFC1E229302001DA4F2 /* FBClassChainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71A7EAFB1E229302001DA4F2 /* FBClassChainTests.m */; };
 		71ACF5B8242F2FDC00F0AAD4 /* FBSafariAlertTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71ACF5B7242F2FDC00F0AAD4 /* FBSafariAlertTests.m */; };
+		71AE3CF72D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 71AE3CF52D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h */; };
+		71AE3CF82D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 71AE3CF62D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m */; };
+		71AE3CF92D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 71AE3CF52D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h */; };
+		71AE3CFA2D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 71AE3CF62D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m */; };
 		71B155DA23070ECF00646AFB /* FBHTTPStatusCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155D923070ECF00646AFB /* FBHTTPStatusCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		71B155DC230711E900646AFB /* FBCommandStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DB230711E900646AFB /* FBCommandStatus.m */; };
 		71B155DF23080CA600646AFB /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
@@ -1050,6 +1054,8 @@
 		71A7EAF81E224648001DA4F2 /* FBClassChainQueryParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBClassChainQueryParser.m; sourceTree = "<group>"; };
 		71A7EAFB1E229302001DA4F2 /* FBClassChainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBClassChainTests.m; sourceTree = "<group>"; };
 		71ACF5B7242F2FDC00F0AAD4 /* FBSafariAlertTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSafariAlertTests.m; sourceTree = "<group>"; };
+		71AE3CF52D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBVisibleFrame.h"; sourceTree = "<group>"; };
+		71AE3CF62D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBVisibleFrame.m"; sourceTree = "<group>"; };
 		71B155D923070ECF00646AFB /* FBHTTPStatusCodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBHTTPStatusCodes.h; sourceTree = "<group>"; };
 		71B155DB230711E900646AFB /* FBCommandStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBCommandStatus.m; sourceTree = "<group>"; };
 		71B155DD23080CA600646AFB /* FBProtocolHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBProtocolHelpers.h; sourceTree = "<group>"; };
@@ -1781,6 +1787,8 @@
 				71B49EC61ED1A58100D51AD6 /* XCUIElement+FBUID.m */,
 				EEE3763F1D59F81400ED88DD /* XCUIElement+FBUtilities.h */,
 				EEE376401D59F81400ED88DD /* XCUIElement+FBUtilities.m */,
+				71AE3CF52D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h */,
+				71AE3CF62D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m */,
 				EEE376471D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.h */,
 				EEE376481D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.m */,
 				641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */,
@@ -2399,6 +2407,7 @@
 				641EE6A42240C5CA00173FCB /* FBCommandHandler.h in Headers */,
 				641EE6A52240C5CA00173FCB /* FBSessionCommands.h in Headers */,
 				641EE70C2240CE2D00173FCB /* FBTVNavigationTracker.h in Headers */,
+				71AE3CF72D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h in Headers */,
 				641EE6A62240C5CA00173FCB /* FBImageProcessor.h in Headers */,
 				641EE6A72240C5CA00173FCB /* FBSession-Private.h in Headers */,
 				641EE6A82240C5CA00173FCB /* NSString+FBXMLSafeString.h in Headers */,
@@ -2585,6 +2594,7 @@
 				714EAA0D2673FDFE005C5B47 /* FBCapabilities.h in Headers */,
 				EE35AD5C1E3B77D600A02D78 /* XCTNSPredicateExpectation.h in Headers */,
 				EE35AD521E3B77D600A02D78 /* XCTestObservationCenter.h in Headers */,
+				71AE3CF92D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.h in Headers */,
 				EE35AD5B1E3B77D600A02D78 /* XCTNSNotificationExpectation.h in Headers */,
 				E444DC97249131D40060D7EB /* HTTPServer.h in Headers */,
 				E444DCAE24913C220060D7EB /* HTTPResponseProxy.h in Headers */,
@@ -3160,6 +3170,7 @@
 				641EE60E2240C5CA00173FCB /* XCUIElement+FBTyping.m in Sources */,
 				641EE60F2240C5CA00173FCB /* XCUIElement+FBAccessibility.m in Sources */,
 				641EE6102240C5CA00173FCB /* FBImageUtils.m in Sources */,
+				71AE3CF82D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m in Sources */,
 				641EE6112240C5CA00173FCB /* FBSession.m in Sources */,
 				641EE6122240C5CA00173FCB /* FBFindElementCommands.m in Sources */,
 				71A5C67629A4F39600421C37 /* XCTIssue+FBPatcher.m in Sources */,
@@ -3232,6 +3243,7 @@
 				713AE576243A53BE0000D657 /* FBW3CActionsHelpers.m in Sources */,
 				71B155E123080CA600646AFB /* FBProtocolHelpers.m in Sources */,
 				EE158AB11CBD456F00A3E3F0 /* XCUIElement+FBIsVisible.m in Sources */,
+				71AE3CFA2D38EE8E0039FC36 /* XCUIElement+FBVisibleFrame.m in Sources */,
 				EEBBD48C1D47746D00656A81 /* XCUIElement+FBFind.m in Sources */,
 				EE158ADD1CBD456F00A3E3F0 /* FBResponsePayload.m in Sources */,
 				E444DCB524913C220060D7EB /* RouteRequest.m in Sources */,
