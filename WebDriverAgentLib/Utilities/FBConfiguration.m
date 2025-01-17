@@ -501,7 +501,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   FBWaitForIdleTimeout = 10.;
   FBAnimationCoolOffTimeout = 2.;
   // 60 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
-  FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @60);
+  FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
   FBUseClearTextShortcut = YES;
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
