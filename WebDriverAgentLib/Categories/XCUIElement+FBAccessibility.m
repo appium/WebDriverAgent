@@ -33,6 +33,10 @@
     return isAccessibilityElement.boolValue;
   }
 
+  if (FBConfiguration.snapshotMaxDepth > 0 && self.depth > FBConfiguration.snapshotMaxDepth) {
+    return NO;
+  }
+
   NSError *error;
   NSNumber *attributeValue = [self fb_attributeValue:FB_XCAXAIsElementAttributeName
                                                error:&error];

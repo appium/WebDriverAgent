@@ -25,11 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error;
 
-- (nullable id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
-                                            attributes:(nullable NSArray<NSString *> *)attributes
-                                               inDepth:(BOOL)inDepth
-                                                 error:(NSError **)error;
-
 - (NSArray<id<FBXCAccessibilityElement>> *)activeApplications;
 
 - (id<FBXCAccessibilityElement>)systemApplication;

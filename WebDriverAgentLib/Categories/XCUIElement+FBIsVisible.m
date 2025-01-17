@@ -9,11 +9,9 @@
 
 #import "XCUIElement+FBIsVisible.h"
 
-#import "FBElementUtils.h"
-#import "FBXCodeCompatibility.h"
+#import "FBConfiguration.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCUIElement+FBUtilities.h"
-#import "XCUIElement+FBVisibleFrame.h"
 #import "XCTestPrivateSymbols.h"
 
 NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
@@ -48,6 +46,10 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
   NSNumber *isVisible = fetchSnapshotVisibility(self);
   if (nil != isVisible) {
     return isVisible.boolValue;
+  }
+
+  if (FBConfiguration.snapshotMaxDepth > 0 && self.depth > FBConfiguration.snapshotMaxDepth) {
+    return NO;
   }
 
   // Fetching the attribute value is expensive.
