@@ -48,7 +48,7 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
     return isVisible.boolValue;
   }
 
-  if (FBConfiguration.snapshotMaxDepth > 0 && self.depth > FBConfiguration.snapshotMaxDepth) {
+  if (nil != self.parent && FBConfiguration.snapshotMaxDepth > 0 && self.depth > FBConfiguration.snapshotMaxDepth) {
     return NO;
   }
 
