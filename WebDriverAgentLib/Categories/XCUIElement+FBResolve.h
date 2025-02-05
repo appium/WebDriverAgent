@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return Either the same element instance if `fb_isResolvedNatively` was set to NO (usually the cache for elements
  matched by xpath locators) or the stable instance of the self element based on the query by element's UUID.
  */
-- (XCUIElement *)fb_stableInstanceWithUid:(NSString *)uid;
+- (XCUIElement *)fb_stableInstanceWithUid:(NSString *__nullable)uid;
 
 @end
 
