@@ -59,8 +59,10 @@
   NSPredicate *wdPredicate = [self.class fb_formatSearchPredicate:input];
   return [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject,
                                                NSDictionary<NSString *,id> * _Nullable bindings) {
-    FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:evaluatedObject];
-    return [wdPredicate evaluateWithObject:wrappedSnapshot];
+    @autoreleasepool {
+      FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:evaluatedObject];
+      return [wdPredicate evaluateWithObject:wrappedSnapshot];
+    }
   }];
 }
 
