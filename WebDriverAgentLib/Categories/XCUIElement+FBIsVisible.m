@@ -25,10 +25,10 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 
 - (BOOL)fb_isVisible
 {
-   @autoreleasepool {
-     id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
-     return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isVisible;
-   }
+  @autoreleasepool {
+    id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+    return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isVisible;
+  }
 }
 
 @end

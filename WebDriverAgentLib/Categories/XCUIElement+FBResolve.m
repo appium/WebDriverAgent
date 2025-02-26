@@ -41,10 +41,10 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
   @autoreleasepool {
     XCUIElementQuery *query = [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
     XCUIElement *result = [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
-      if (nil != result) {
-        result.fb_isResolvedNatively = @NO;
-        return result;
-      }
+    if (nil != result) {
+      result.fb_isResolvedNatively = @NO;
+      return result;
+    }
   }
   return self;
 }

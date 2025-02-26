@@ -104,39 +104,38 @@ id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status)
 inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact)
 {
   __block NSDictionary *finalResult = nil;
-    @autoreleasepool {
-      
-      id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_takeSnapshot:YES];
-      NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
-      if (compact) {
-        return finalResult = compactResult;
-      }
+  @autoreleasepool {
+    id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_takeSnapshot:YES];
+    NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
+    if (compact) {
+      return finalResult = compactResult;
+    }
 
-      NSMutableDictionary *result = compactResult.mutableCopy;
-      FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
-      NSArray *fields = [FBConfiguration.elementResponseAttributes componentsSeparatedByString:@","];
-      for (NSString *field in fields) {
-        // 'name' here is the w3c-approved identifier for what we mean by 'type'
-        if ([field isEqualToString:@"name"] || [field isEqualToString:@"type"]) {
-          result[field] = wrappedSnapshot.wdType;
-        } else if ([field isEqualToString:@"text"]) {
-          result[field] = FBFirstNonEmptyValue(wrappedSnapshot.wdValue, wrappedSnapshot.wdLabel) ?: [NSNull null];
-        } else if ([field isEqualToString:@"rect"]) {
-          result[field] = wrappedSnapshot.wdRect;
-        } else if ([field isEqualToString:@"enabled"]) {
-          result[field] = @(wrappedSnapshot.wdEnabled);
-        } else if ([field isEqualToString:@"displayed"]) {
-          result[field] = @(wrappedSnapshot.wdVisible);
-        } else if ([field isEqualToString:@"selected"]) {
-          result[field] = @(wrappedSnapshot.wdSelected);
-        } else if ([field isEqualToString:@"label"]) {
-          result[field] = wrappedSnapshot.wdLabel ?: [NSNull null];
-        } else if ([field hasPrefix:arbitraryAttrPrefix]) {
-          NSString *attributeName = [field substringFromIndex:[arbitraryAttrPrefix length]];
-          result[field] = [wrappedSnapshot fb_valueForWDAttributeName:attributeName] ?: [NSNull null];
-        }
-        finalResult = result.copy;
-     }
+    NSMutableDictionary *result = compactResult.mutableCopy;
+    FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+    NSArray *fields = [FBConfiguration.elementResponseAttributes componentsSeparatedByString:@","];
+    for (NSString *field in fields) {
+      // 'name' here is the w3c-approved identifier for what we mean by 'type'
+      if ([field isEqualToString:@"name"] || [field isEqualToString:@"type"]) {
+        result[field] = wrappedSnapshot.wdType;
+      } else if ([field isEqualToString:@"text"]) {
+        result[field] = FBFirstNonEmptyValue(wrappedSnapshot.wdValue, wrappedSnapshot.wdLabel) ?: [NSNull null];
+      } else if ([field isEqualToString:@"rect"]) {
+        result[field] = wrappedSnapshot.wdRect;
+      } else if ([field isEqualToString:@"enabled"]) {
+        result[field] = @(wrappedSnapshot.wdEnabled);
+      } else if ([field isEqualToString:@"displayed"]) {
+        result[field] = @(wrappedSnapshot.wdVisible);
+      } else if ([field isEqualToString:@"selected"]) {
+        result[field] = @(wrappedSnapshot.wdSelected);
+      } else if ([field isEqualToString:@"label"]) {
+        result[field] = wrappedSnapshot.wdLabel ?: [NSNull null];
+      } else if ([field hasPrefix:arbitraryAttrPrefix]) {
+        NSString *attributeName = [field substringFromIndex:[arbitraryAttrPrefix length]];
+        result[field] = [wrappedSnapshot fb_valueForWDAttributeName:attributeName] ?: [NSNull null];
+      }
+      finalResult = result.copy;
+    }
   }
   return finalResult;
 }
