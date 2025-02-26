@@ -364,7 +364,7 @@ static NSString *const topNodeIndexPath = @"top";
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  id<FBXCElementSnapshot> currentSnapshot;
+  __block id<FBXCElementSnapshot> currentSnapshot;
   NSArray<id<FBXCElementSnapshot>> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
     XCUIElement *element = (XCUIElement *)root;

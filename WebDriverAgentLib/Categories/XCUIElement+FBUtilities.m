@@ -50,9 +50,9 @@
   @autoreleasepool {
     NSError *error = nil;
     snapshot = inDepth
-    ? [self.fb_query fb_uniqueSnapshotWithError:&error]
-    : (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
-    if (nil == self.lastSnapshot) {
+      ? [self.fb_query fb_uniqueSnapshotWithError:&error]
+      : (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
+    if (nil == snapshot) {
       NSString *hintText = @"Make sure the application UI has the expected state";
       if (nil != error && [error.localizedDescription containsString:@"Identity Binding"]) {
         hintText = [NSString stringWithFormat:@"%@. You could also try to switch the binding strategy using the 'boundElementsByIndex' setting for the element lookup", hintText];
