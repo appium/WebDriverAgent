@@ -103,12 +103,13 @@ id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status)
 
 inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact)
 {
-  __block NSDictionary *finalResult = nil;
+  __block NSDictionary *elementResponse = nil;
   @autoreleasepool {
     id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_takeSnapshot:YES];
     NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
     if (compact) {
-      return finalResult = compactResult;
+      elementResponse = compactResult;
+      return elementResponse;
     }
 
     NSMutableDictionary *result = compactResult.mutableCopy;
@@ -134,8 +135,8 @@ inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL 
         NSString *attributeName = [field substringFromIndex:[arbitraryAttrPrefix length]];
         result[field] = [wrappedSnapshot fb_valueForWDAttributeName:attributeName] ?: [NSNull null];
       }
-      finalResult = result.copy;
     }
+    elementResponse = result.copy;
   }
-  return finalResult;
+  return elementResponse;
 }
