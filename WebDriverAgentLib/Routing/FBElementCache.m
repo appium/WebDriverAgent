@@ -73,7 +73,13 @@ const int ELEMENT_CACHE_SIZE = 1024;
     @throw [NSException exceptionWithName:FBStaleElementException reason:reason userInfo:@{}];
   }
   if (checkStaleness) {
-    [element fb_takeSnapshot:NO];
+    @try {
+      [element fb_takeSnapshot:NO];
+    }
+    @catch (NSException *exception) {
+      [self.elementCache removeObjectForKey:uuid];
+      @throw exception;
+    }
   }
   return element;
 }

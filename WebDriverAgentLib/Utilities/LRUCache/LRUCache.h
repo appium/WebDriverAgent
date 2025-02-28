@@ -54,6 +54,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray *)allObjects;
 
+/**
+ Removes the object associated with the specified key from the cache.
+
+ @param key The key identifying the object to remove.
+ */
+- (void)removeObjectForKey:(id<NSCopying>)key;
+
 @end
 
 NS_ASSUME_NONNULL_END
