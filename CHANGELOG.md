@@ -1,3 +1,9 @@
+## [9.0.5](https://github.com/appium/WebDriverAgent/compare/v9.0.4...v9.0.5) (2025-02-26)
+
+### Bug Fixes
+
+* add autorelease pool to drain temporary objects ([#983](https://github.com/appium/WebDriverAgent/issues/983)) ([f92f1cd](https://github.com/appium/WebDriverAgent/commit/f92f1cde0fe914086103a110844bbe3bc0e3c4a6))
+
 ## [9.0.4](https://github.com/appium/WebDriverAgent/compare/v9.0.3...v9.0.4) (2025-02-21)
 
 ### Bug Fixes
