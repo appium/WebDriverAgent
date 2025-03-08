@@ -154,6 +154,7 @@
   XCTAssertEqualObjects(element.wdType, @"XCUIElementTypeSwitch");
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
+  XCTAssertNil(element.wdPlaceholderValue);
   XCTAssertEqualObjects(element.wdValue, @"1");
   XCTAssertFalse(element.wdSelected);
   XCTAssertTrue(element.wdHittable);

@@ -729,7 +729,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return FBBoolToString(element.wdPlaceholderValue);
+  return element.wdPlaceholderValue;
 }
 
 @end

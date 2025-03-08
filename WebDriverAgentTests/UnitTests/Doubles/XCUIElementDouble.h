@@ -33,6 +33,7 @@
 @property (nonatomic, readwrite, getter=isWDAccessible) BOOL wdAccessible;
 @property (nonatomic, readwrite, getter = isWDFocused) BOOL wdFocused;
 @property (nonatomic, readwrite, getter = isWDHittable) BOOL wdHittable;
+@property (nonatomic, copy, readwrite, nullable) NSString *wdPlaceholderValue;
 @property (copy, nonnull) NSArray *children;
 @property (nonatomic, readwrite, assign) XCUIElementType elementType;
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
