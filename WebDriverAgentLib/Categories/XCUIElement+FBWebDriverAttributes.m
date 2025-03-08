@@ -115,6 +115,15 @@
   return FBTransferEmptyStringToNil(label);
 }
 
+- (NSString *)wdPlaceholderValue
+{
+  NSString *placehlderValue = self.placeholderValue;
+  if (nil != placehlderValue) {
+    return placehlderValue;
+  }
+  return FBTransferEmptyStringToNil(placehlderValue);
+}
+
 - (NSString *)wdType
 {
   return [FBElementTypeTransformer stringWithElementType:self.elementType];

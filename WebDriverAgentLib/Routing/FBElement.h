@@ -62,6 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's index relatively to its parent. Starts from zero */
 @property (nonatomic, readonly) NSUInteger wdIndex;
 
+/*! Element's placeholder value */
+@property (nonatomic, readonly, copy, nullable) NSString *wdPlaceholderValue;
+
 /**
  Returns value of given property specified in WebDriver Spec
  Check the FBElement protocol to get list of supported attributes.
