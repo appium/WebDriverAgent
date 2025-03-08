@@ -38,11 +38,13 @@ static char XCUIELEMENT_IS_RESOLVED_NATIVELY_KEY;
     return self;
   }
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
-  XCUIElementQuery *query = [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
-  XCUIElement *result = [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
-  if (nil != result) {
-    result.fb_isResolvedNatively = @NO;
-    return result;
+  @autoreleasepool {
+    XCUIElementQuery *query = [self.application.fb_query descendantsMatchingType:XCUIElementTypeAny];
+    XCUIElement *result = [query matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
+    if (nil != result) {
+      result.fb_isResolvedNatively = @NO;
+      return result;
+    }
   }
   return self;
 }

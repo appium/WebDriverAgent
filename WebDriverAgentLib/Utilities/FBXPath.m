@@ -368,7 +368,7 @@ static NSString *const topNodeIndexPath = @"top";
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  id<FBXCElementSnapshot> currentSnapshot;
+  __block id<FBXCElementSnapshot> currentSnapshot;
   NSArray<id<FBXCElementSnapshot>> *children;
   if ([root isKindOfClass:XCUIElement.class]) {
     XCUIElement *element = (XCUIElement *)root;
@@ -377,7 +377,9 @@ static NSString *const topNodeIndexPath = @"top";
       // then the snapshot retrieval operation might freeze and time out
       [element.application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
     }
-    currentSnapshot = [element fb_takeSnapshot:YES];
+    @autoreleasepool {
+      currentSnapshot = [element fb_takeSnapshot:YES];
+    }
     children = currentSnapshot.children;
   } else {
     currentSnapshot = (id<FBXCElementSnapshot>)root;
@@ -404,18 +406,20 @@ static NSString *const topNodeIndexPath = @"top";
   }
 
   for (NSUInteger i = 0; i < [children count]; i++) {
-    id<FBXCElementSnapshot> childSnapshot = [children objectAtIndex:i];
-    NSString *newIndexPath = (indexPath != nil) ? [indexPath stringByAppendingFormat:@",%lu", (unsigned long)i] : nil;
-    if (elementStore != nil && newIndexPath != nil) {
-      [elementStore setObject:childSnapshot forKey:(id)newIndexPath];
-    }
-    rc = [self writeXmlWithRootElement:[FBXCElementSnapshotWrapper ensureWrapped:childSnapshot]
-                             indexPath:newIndexPath
-                          elementStore:elementStore
-                    includedAttributes:includedAttributes
-                                writer:writer];
-    if (rc < 0) {
-      return rc;
+    @autoreleasepool {
+      id<FBXCElementSnapshot> childSnapshot = [children objectAtIndex:i];
+      NSString *newIndexPath = (indexPath != nil) ? [indexPath stringByAppendingFormat:@",%lu", (unsigned long)i] : nil;
+      if (elementStore != nil && newIndexPath != nil) {
+        [elementStore setObject:childSnapshot forKey:(id)newIndexPath];
+      }
+      rc = [self writeXmlWithRootElement:[FBXCElementSnapshotWrapper ensureWrapped:childSnapshot]
+                               indexPath:newIndexPath
+                            elementStore:elementStore
+                      includedAttributes:includedAttributes
+                                  writer:writer];
+      if (rc < 0) {
+        return rc;
+      }
     }
   }
 

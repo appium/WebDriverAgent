@@ -135,4 +135,12 @@
   }
 }
 
+- (void)removeObjectForKey:(id<NSCopying>)key
+{
+  LRUCacheNode *node = self.store[key];
+  if (node != nil) {
+    [self removeNode:node];
+  }
+}
+
 @end

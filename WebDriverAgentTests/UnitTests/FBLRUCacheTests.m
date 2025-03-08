@@ -96,4 +96,33 @@
   XCTAssertEqualObjects(@[@(count)], cache.allObjects);
 }
 
+- (void)testRemoveExistingObjectForKey {
+    LRUCache *cache = [[LRUCache alloc] initWithCapacity:3];
+    [cache setObject:@"foo" forKey:@"bar"];
+    [cache setObject:@"foo2" forKey:@"bar2"];
+    [cache setObject:@"foo3" forKey:@"bar3"];
+    [self assertArray:@[@"foo3", @"foo2", @"foo"] equalsTo:cache.allObjects];
+    [cache removeObjectForKey:@"bar2"];
+    XCTAssertNil([cache objectForKey:@"bar2"]);
+    [self assertArray:@[@"foo3", @"foo"] equalsTo:cache.allObjects];
+}
+
+- (void)testRemoveNonExistingObjectForKey {
+    LRUCache *cache = [[LRUCache alloc] initWithCapacity:2];
+    [cache setObject:@"foo" forKey:@"bar"];
+    [cache removeObjectForKey:@"nonExisting"];
+    XCTAssertNotNil([cache objectForKey:@"bar"]);
+    [self assertArray:@[@"foo"] equalsTo:cache.allObjects];
+}
+
+- (void)testRemoveAndInsertFlow {
+    LRUCache *cache = [[LRUCache alloc] initWithCapacity:2];
+    [cache setObject:@"foo" forKey:@"bar"];
+    [cache setObject:@"foo2" forKey:@"bar2"];
+    [cache removeObjectForKey:@"bar"];
+    XCTAssertNil([cache objectForKey:@"bar"]);
+    [cache setObject:@"foo3" forKey:@"bar3"];
+    [self assertArray:@[@"foo3", @"foo2"] equalsTo:cache.allObjects];
+}
+
 @end

@@ -178,23 +178,25 @@ const CGFloat FBScrollTouchProportion = 0.75f;
   FBXCElementSnapshotWrapper *scrollViewWrapped = [FBXCElementSnapshotWrapper ensureWrapped:scrollView];
   // Scrolling till cell is visible and get current value of frames
   while (![self fb_isEquivalentElementSnapshotVisible:prescrollSnapshot] && scrollCount < maxScrollCount) {
-    if (targetCellIndex < visibleCellIndex) {
-      scrollDirection == FBXCUIElementScrollDirectionVertical ?
-        [scrollViewWrapped fb_scrollUpByNormalizedDistance:normalizedScrollDistance
-                                             inApplication:self.application] :
-        [scrollViewWrapped fb_scrollLeftByNormalizedDistance:normalizedScrollDistance
-                                               inApplication:self.application];
-    }
-    else {
-      scrollDirection == FBXCUIElementScrollDirectionVertical ?
-        [scrollViewWrapped fb_scrollDownByNormalizedDistance:normalizedScrollDistance
+    @autoreleasepool {
+      if (targetCellIndex < visibleCellIndex) {
+        scrollDirection == FBXCUIElementScrollDirectionVertical ?
+          [scrollViewWrapped fb_scrollUpByNormalizedDistance:normalizedScrollDistance
                                                inApplication:self.application] :
-        [scrollViewWrapped fb_scrollRightByNormalizedDistance:normalizedScrollDistance
-                                                inApplication:self.application];
+          [scrollViewWrapped fb_scrollLeftByNormalizedDistance:normalizedScrollDistance
+                                                 inApplication:self.application];
+      }
+      else {
+        scrollDirection == FBXCUIElementScrollDirectionVertical ?
+          [scrollViewWrapped fb_scrollDownByNormalizedDistance:normalizedScrollDistance
+                                                 inApplication:self.application] :
+          [scrollViewWrapped fb_scrollRightByNormalizedDistance:normalizedScrollDistance
+                                                  inApplication:self.application];
+      }
+      scrollCount++;
+      // Wait for scroll animation
+      [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
     }
-    scrollCount++;
-    // Wait for scroll animation
-    [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   }
 
   if (scrollCount >= maxScrollCount) {

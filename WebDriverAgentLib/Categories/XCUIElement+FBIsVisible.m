@@ -25,8 +25,10 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
 
 - (BOOL)fb_isVisible
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
-  return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isVisible;
+  @autoreleasepool {
+    id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+    return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isVisible;
+  }
 }
 
 @end
@@ -64,7 +66,9 @@ NSNumber* _Nullable fetchSnapshotVisibility(id<FBXCElementSnapshot> snapshot)
     NSMutableDictionary *updatedValue = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
     [updatedValue setObject:attributeValue forKey:FB_XCAXAIsVisibleAttribute];
     self.snapshot.additionalAttributes = updatedValue.copy;
-    return [attributeValue boolValue];
+    @autoreleasepool {
+      return [attributeValue boolValue];
+    }
   }
 
   NSLog(@"Cannot determine visiblity of %@ natively: %@. Defaulting to: %@",

@@ -238,9 +238,11 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   if ([childElements count]) {
     info[@"children"] = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in childElements) {
-      [info[@"children"] addObject:[self dictionaryForElement:childSnapshot 
-                                                    recursive:YES
-                                           excludedAttributes:excludedAttributes]];
+      @autoreleasepool {
+        [info[@"children"] addObject:[self dictionaryForElement:childSnapshot
+                                                      recursive:YES
+                                             excludedAttributes:excludedAttributes]];
+      }
     }
   }
   return info;
@@ -262,9 +264,11 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   } else {
     NSMutableArray *children = [[NSMutableArray alloc] init];
     for (id<FBXCElementSnapshot> childSnapshot in snapshot.children) {
-      NSDictionary *childInfo = [self accessibilityInfoForElement:childSnapshot];
-      if ([childInfo count]) {
-        [children addObject: childInfo];
+      @autoreleasepool {
+        NSDictionary *childInfo = [self accessibilityInfoForElement:childSnapshot];
+        if ([childInfo count]) {
+          [children addObject: childInfo];
+        }
       }
     }
     if ([children count]) {
@@ -420,31 +424,33 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   [invocation setSelector:selector];
   [invocation setArgument:&auditTypes atIndex:2];
   BOOL (^issueHandler)(id) = ^BOOL(id issue) {
-    NSString *auditType = @"";
-    NSDictionary *valuesToNamesMap = auditTypeValuesToNames();
-    NSNumber *auditTypeValue = [issue valueForKey:@"auditType"];
-    if (nil != auditTypeValue) {
-      auditType = valuesToNamesMap[auditTypeValue] ?: [auditTypeValue stringValue];
-    }
-    
-    id extractedElement = extractIssueProperty(issue, @"element");
-    
-    id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot:NO];
-    NSDictionary *elementAttributes = elementSnapshot
+    @autoreleasepool {
+      NSString *auditType = @"";
+      NSDictionary *valuesToNamesMap = auditTypeValuesToNames();
+      NSNumber *auditTypeValue = [issue valueForKey:@"auditType"];
+      if (nil != auditTypeValue) {
+        auditType = valuesToNamesMap[auditTypeValue] ?: [auditTypeValue stringValue];
+      }
+      
+      id extractedElement = extractIssueProperty(issue, @"element");
+      
+      id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot:NO];
+      NSDictionary *elementAttributes = elementSnapshot
       ? [self.class dictionaryForElement:elementSnapshot
                                recursive:NO
                       excludedAttributes:customAttributesToExclude]
       : @{};
-    
-    [resultArray addObject:@{
-      @"detailedDescription": extractIssueProperty(issue, @"detailedDescription") ?: @"",
-      @"compactDescription": extractIssueProperty(issue, @"compactDescription") ?: @"",
-      @"auditType": auditType,
-      @"element": [extractedElement description] ?: @"",
-      @"elementDescription": [extractedElement debugDescription] ?: @"",
-      @"elementAttributes": elementAttributes ?: @{},
-    }];
-    return YES;
+      
+      [resultArray addObject:@{
+        @"detailedDescription": extractIssueProperty(issue, @"detailedDescription") ?: @"",
+        @"compactDescription": extractIssueProperty(issue, @"compactDescription") ?: @"",
+        @"auditType": auditType,
+        @"element": [extractedElement description] ?: @"",
+        @"elementDescription": [extractedElement debugDescription] ?: @"",
+        @"elementAttributes": elementAttributes ?: @{},
+      }];
+      return YES;
+    }
   };
   [invocation setArgument:&issueHandler atIndex:3];
   [invocation setArgument:&error atIndex:4];
