@@ -38,6 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's value */
 @property (nonatomic, readonly, strong, nullable) NSString *wdValue;
 
+/**
+ Element's value of https://developer.apple.com/documentation/xctest/xcuielementattributes/value
+ wdValue includes various logic to return value in the historical reason.
+ This property returns vanilla 'value' result from the XCTest.
+ */
+@property (nonatomic, readonly, strong, nullable) NSString *wdXcValue;
+
 /*! Element's unique identifier */
 @property (nonatomic, readonly, copy, nullable) NSString *wdUID;
 

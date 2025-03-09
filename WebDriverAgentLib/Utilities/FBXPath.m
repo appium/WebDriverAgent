@@ -44,6 +44,10 @@
 
 @end
 
+@interface FBXcValueAttribute : FBElementAttribute
+
+@end
+
 @interface FBNameAttribute : FBElementAttribute
 
 @end
@@ -481,6 +485,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
   // The enumeration order does matter here
   return @[FBTypeAttribute.class,
            FBValueAttribute.class,
+           FBXcValueAttribute.class,
            FBNameAttribute.class,
            FBLabelAttribute.class,
            FBEnabledAttribute.class,
@@ -531,6 +536,20 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
     return idValue;
   }
   return [idValue description];
+}
+
+@end
+
+@implementation FBXcValueAttribute
+
++ (NSString *)name
+{
+  return @"xcValue";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return element.wdXcValue;
 }
 
 @end

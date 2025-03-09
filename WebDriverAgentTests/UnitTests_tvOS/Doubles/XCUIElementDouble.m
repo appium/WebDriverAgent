@@ -23,6 +23,7 @@
     self.wdName = @"testName";
     self.wdLabel = @"testLabel";
     self.wdValue = @"magicValue";
+    self.wdXcValue = @"testXcValue";
     self.wdVisible = YES;
     self.wdAccessible = YES;
     self.wdEnabled = YES;

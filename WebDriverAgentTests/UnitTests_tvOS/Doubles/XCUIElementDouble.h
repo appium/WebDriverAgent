@@ -25,6 +25,7 @@
 @property (nonatomic, copy, readwrite, nullable) NSString *wdLabel;
 @property (nonatomic, copy, readwrite, nonnull) NSString *wdType;
 @property (nonatomic, strong, readwrite, nullable) NSString *wdValue;
+@property (nonatomic, strong, readwrite, nullable) NSString *wdXcValue;
 @property (nonatomic, readwrite, getter=isWDEnabled) BOOL wdEnabled;
 @property (nonatomic, readwrite, getter=isWDSelected) BOOL wdSelected;
 @property (nonatomic, readwrite) NSUInteger wdIndex;

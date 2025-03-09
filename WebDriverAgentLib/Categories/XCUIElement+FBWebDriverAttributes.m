@@ -90,6 +90,16 @@
   return value;
 }
 
+- (NSString *)wdXcValue
+{
+  NSString *value = self.value;
+  if (nil != value) {
+    return value;
+  }
+  return FBTransferEmptyStringToNil(value);
+}
+
+
 + (NSString *)wdNameWithSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
   NSString *identifier = snapshot.identifier;

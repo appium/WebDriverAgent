@@ -63,8 +63,23 @@
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:nil
                                excludingAttributes:nil];
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
-                           element.wdType, element.wdType, element.wdValue, element.wdName, element.wdLabel, FBBoolToString(element.wdEnabled), FBBoolToString(element.wdVisible), FBBoolToString(element.wdAccessible), element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex, element.wdPlaceholderValue];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" xcValue=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
+                           element.wdType,
+                           element.wdType,
+                           element.wdValue,
+                           element.wdXcValue,
+                           element.wdName,
+                           element.wdLabel,
+                           FBBoolToString(element.wdEnabled),
+                           FBBoolToString(element.wdVisible),
+                           FBBoolToString(element.wdAccessible),
+                           element.wdRect[@"x"],
+                           element.wdRect[@"y"],
+                           element.wdRect[@"width"],
+                           element.wdRect[@"height"],
+                           element.wdIndex,
+                           element.wdPlaceholderValue
+  ];
   XCTAssertTrue([resultXml isEqualToString: expectedXml]);
 }
 
@@ -75,8 +90,19 @@
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:nil
                                excludingAttributes:@[@"type", @"visible", @"value", @"index"]];
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ name=\"%@\" label=\"%@\" enabled=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
-                           element.wdType, element.wdName, element.wdLabel, FBBoolToString(element.wdEnabled), FBBoolToString(element.wdAccessible), element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdPlaceholderValue];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ xcValue=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
+                           element.wdType,
+                           element.wdXcValue,
+                           element.wdName,
+                           element.wdLabel,
+                           FBBoolToString(element.wdEnabled),
+                           FBBoolToString(element.wdAccessible),
+                           element.wdRect[@"x"],
+                           element.wdRect[@"y"],
+                           element.wdRect[@"width"],
+                           element.wdRect[@"height"],
+                           element.wdPlaceholderValue
+  ];
   XCTAssertEqualObjects(resultXml, expectedXml);
 }
 
@@ -89,8 +115,23 @@
   NSString *resultXml = [self xmlStringWithElement:element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
                                excludingAttributes:@[@"visible"]];
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" hittable=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
-                           element.wdType, element.wdType, @"йоло&lt;&gt;&amp;&quot;", element.wdName, @"a&#10;b", FBBoolToString(element.wdEnabled), FBBoolToString(element.wdVisible), FBBoolToString(element.wdAccessible), element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex, FBBoolToString(element.wdHittable), element.wdPlaceholderValue];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" xcValue=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" hittable=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
+                           element.wdType,
+                           element.wdType,
+                           @"йоло&lt;&gt;&amp;&quot;",
+                           @"йоло&lt;&gt;&amp;&quot;",
+                           element.wdName, @"a&#10;b",
+                           FBBoolToString(element.wdEnabled),
+                           FBBoolToString(element.wdVisible),
+                           FBBoolToString(element.wdAccessible),
+                           element.wdRect[@"x"],
+                           element.wdRect[@"y"],
+                           element.wdRect[@"width"],
+                           element.wdRect[@"height"],
+                           element.wdIndex,
+                           FBBoolToString(element.wdHittable),
+                           element.wdPlaceholderValue
+  ];
   XCTAssertEqualObjects(expectedXml, resultXml);
 }
 

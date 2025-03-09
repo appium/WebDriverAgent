@@ -70,6 +70,7 @@
   XCTAssertEqualObjects(element.wdName, @"Button");
   XCTAssertEqualObjects(element.wdLabel, @"Button");
   XCTAssertNil(element.wdValue);
+  XCTAssertNil(element.wdXcValue);
   XCTAssertFalse(element.wdSelected);
   XCTAssertTrue(element.fb_isVisible);
   [element tap];
@@ -85,6 +86,8 @@
   XCTAssertEqualObjects(element.wdName, @"Label");
   XCTAssertEqualObjects(element.wdLabel, @"Label");
   XCTAssertEqualObjects(element.wdValue, @"Label");
+  // The element has 'label', but it is not 'value' in XCTest.
+  XCTAssertNil(element.wdXcValue);
 }
 
 - (void)testIndexAttributes
@@ -105,6 +108,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertEqualObjects(element.wdLabel, @"");
   XCTAssertEqualObjects(element.wdValue, @"Value");
+  XCTAssertEqualObjects(element.wdXcValue, @"Value");
 }
 
 - (void)testTextFieldWithAccessibilityIdentifiersAttributes
@@ -115,6 +119,7 @@
   XCTAssertEqualObjects(element.wdName, @"aIdentifier");
   XCTAssertEqualObjects(element.wdLabel, @"aLabel");
   XCTAssertEqualObjects(element.wdValue, @"Value2");
+  XCTAssertEqualObjects(element.wdXcValue, @"Value2");
 }
 
 - (void)testSegmentedControlAttributes
@@ -125,6 +130,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertNil(element.wdValue);
+  XCTAssertNil(element.wdXcValue);
 }
 
 - (void)testSliderAttributes
@@ -135,6 +141,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertTrue([element.wdValue containsString:@"50"]);
+  XCTAssertTrue([element.wdXcValue containsString:@"50"]);
 }
 
 - (void)testActivityIndicatorAttributes
@@ -145,6 +152,7 @@
   XCTAssertEqualObjects(element.wdName, @"Progress halted");
   XCTAssertEqualObjects(element.wdLabel, @"Progress halted");
   XCTAssertEqualObjects(element.wdValue, @"0");
+  XCTAssertEqualObjects(element.wdXcValue, @"0");
 }
 
 - (void)testSwitchAttributes
@@ -156,10 +164,12 @@
   XCTAssertNil(element.wdLabel);
   XCTAssertNil(element.wdPlaceholderValue);
   XCTAssertEqualObjects(element.wdValue, @"1");
+  XCTAssertEqualObjects(element.wdXcValue, @"1");
   XCTAssertFalse(element.wdSelected);
   XCTAssertTrue(element.wdHittable);
   [element tap];
   XCTAssertEqualObjects(element.wdValue, @"0");
+  XCTAssertEqualObjects(element.wdXcValue, @"0");
   XCTAssertFalse(element.wdSelected);
 }
 
@@ -171,6 +181,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"Today");
+  XCTAssertEqualObjects(element.wdXcValue, @"Today");
 }
 
 - (void)testPageIndicatorAttributes
@@ -181,6 +192,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"page 1 of 3");
+  XCTAssertEqualObjects(element.wdXcValue, @"page 1 of 3");
 }
 
 - (void)testTextViewAttributes
@@ -191,6 +203,7 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertEqualObjects(element.wdValue, @"Text Field long text");
+  XCTAssertEqualObjects(element.wdXcValue, @"Text Field long text");
 }
 
 @end
