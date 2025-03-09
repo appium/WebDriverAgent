@@ -60,7 +60,7 @@
 
 - (NSString *)placeholderValue
 {
-  return @"";
+  return @"testPlaceholderValue";
 }
 
 - (BOOL)isSelected
