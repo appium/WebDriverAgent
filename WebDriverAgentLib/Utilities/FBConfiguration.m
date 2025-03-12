@@ -56,6 +56,7 @@ static NSTimeInterval FBAnimationCoolOffTimeout;
 static BOOL FBShouldUseCompactResponses;
 static NSString *FBElementResponseAttributes;
 static BOOL FBUseClearTextShortcut;
+static BOOL FBLimitXpathContextScope = YES;
 #if !TARGET_OS_TV
 static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
@@ -438,6 +439,16 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   return FBUseClearTextShortcut;
 }
 
++ (BOOL)limitXpathContextScope
+{
+  return FBLimitXpathContextScope;
+}
+
++ (void)setLimitXpathContextScope:(BOOL)enabled
+{
+  FBLimitXpathContextScope = enabled;
+}
+
 #if !TARGET_OS_TV
 + (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error
 {
@@ -503,6 +514,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
   FBUseClearTextShortcut = YES;
+  FBLimitXpathContextScope = YES;
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
 #endif

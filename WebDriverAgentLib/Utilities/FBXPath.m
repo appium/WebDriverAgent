@@ -11,6 +11,7 @@
 
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
+#import "FBElementUtils.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBXMLGenerationOptions.h"
@@ -145,7 +146,7 @@ static NSString *const topNodeIndexPath = @"top";
     }
 
     if (rc >= 0) {
-      rc = [self xmlRepresentationWithRootElement:root
+      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root]
                                            writer:writer
                                      elementStore:nil
                                             query:nil
@@ -193,10 +194,29 @@ static NSString *const topNodeIndexPath = @"top";
   }
   NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
   int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
+  id<FBXCElementSnapshot> lookupScopeSnapshot = nil;
+  id<FBXCElementSnapshot> contextRootSnapshot = nil;
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
   } else {
-    rc = [self xmlRepresentationWithRootElement:root
+    if (FBConfiguration.limitXpathContextScope) {
+      lookupScopeSnapshot = [self snapshotWithRoot:root];
+    } else {
+      if ([root isKindOfClass:XCUIElement.class]) {
+        lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]];
+        contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
+          ? nil
+          : [(XCUIElement *)root fb_takeSnapshot:YES];
+      } else {
+        lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
+        contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
+        while (nil != lookupScopeSnapshot.parent) {
+          lookupScopeSnapshot = lookupScopeSnapshot.parent;
+        }
+      }
+    }
+
+    rc = [self xmlRepresentationWithRootElement:lookupScopeSnapshot
                                          writer:writer
                                    elementStore:elementStore
                                           query:xpathQuery
@@ -214,7 +234,22 @@ static NSString *const topNodeIndexPath = @"top";
     return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
   }
 
-  xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery document:doc];
+  xmlXPathObjectPtr contextNodeQueryResult = [self matchNodeInDocument:doc
+                                                          elementStore:elementStore.copy
+                                                           forSnapshot:contextRootSnapshot];
+  xmlNodePtr contextNode = NULL;
+  if (NULL != contextNodeQueryResult) {
+    xmlNodeSetPtr nodeSet = contextNodeQueryResult->nodesetval;
+    if (!xmlXPathNodeSetIsEmpty(nodeSet)) {
+      contextNode = nodeSet->nodeTab[0];
+    }
+  }
+  xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery
+                                        document:doc
+                                     contextNode:contextNode];
+  if (NULL != contextNodeQueryResult) {
+    xmlXPathFreeObject(contextNodeQueryResult);
+  }
   if (NULL == queryResult) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);
@@ -256,6 +291,36 @@ static NSString *const topNodeIndexPath = @"top";
   return matchingSnapshots.copy;
 }
 
++ (nullable xmlXPathObjectPtr)matchNodeInDocument:(xmlDocPtr)doc
+                                     elementStore:(NSDictionary<NSString *, id<FBXCElementSnapshot>> *)elementStore
+                                      forSnapshot:(nullable id<FBXCElementSnapshot>)snapshot
+{
+  if (nil == snapshot) {
+    return NULL;
+  }
+
+  NSString *contextRootUid = [FBElementUtils uidWithAccessibilityElement:[(id)snapshot accessibilityElement]];
+  if (nil == contextRootUid) {
+    return NULL;
+  }
+
+  for (NSString *key in elementStore) {
+    id<FBXCElementSnapshot> value = [elementStore objectForKey:key];
+    NSString *snapshotUid = [FBElementUtils uidWithAccessibilityElement:[value accessibilityElement]];
+    if (nil == snapshotUid || ![snapshotUid isEqualToString:contextRootUid]) {
+      continue;
+    }
+    NSString *indexQuery = [NSString stringWithFormat:@"//*[@%@=\"%@\"]", kXMLIndexPathKey, key];
+    xmlXPathObjectPtr queryResult = [self evaluate:indexQuery
+                                          document:doc
+                                       contextNode:NULL];
+    if (NULL != queryResult) {
+      return queryResult;
+    }
+  }
+  return NULL;
+}
+
 + (NSSet<Class> *)elementAttributesWithXPathQuery:(NSString *)query
 {
   if ([query rangeOfString:@"[^\\w@]@\\*[^\\w]" options:NSRegularExpressionSearch].location != NSNotFound) {
@@ -271,7 +336,7 @@ static NSString *const topNodeIndexPath = @"top";
   return result.copy;
 }
 
-+ (int)xmlRepresentationWithRootElement:(id<FBElement>)root
++ (int)xmlRepresentationWithRootElement:(id<FBXCElementSnapshot>)root
                                  writer:(xmlTextWriterPtr)writer
                            elementStore:(nullable NSMutableDictionary *)elementStore
                                   query:(nullable NSString*)query
@@ -312,14 +377,16 @@ static NSString *const topNodeIndexPath = @"top";
   return 0;
 }
 
-+ (xmlXPathObjectPtr)evaluate:(NSString *)xpathQuery document:(xmlDocPtr)doc
++ (xmlXPathObjectPtr)evaluate:(NSString *)xpathQuery
+                     document:(xmlDocPtr)doc
+                  contextNode:(nullable xmlNodePtr)contextNode
 {
   xmlXPathContextPtr xpathCtx = xmlXPathNewContext(doc);
   if (NULL == xpathCtx) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathNewContext for XPath query \"%@\"", xpathQuery];
     return NULL;
   }
-  xpathCtx->node = doc->children;
+  xpathCtx->node = NULL == contextNode ? doc->children : contextNode;
 
   xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression((const xmlChar *)[xpathQuery UTF8String], xpathCtx);
   if (NULL == xpathObj) {
@@ -360,7 +427,7 @@ static NSString *const topNodeIndexPath = @"top";
   return 0;
 }
 
-+ (int)writeXmlWithRootElement:(id<FBElement>)root
++ (int)writeXmlWithRootElement:(id<FBXCElementSnapshot>)root
                      indexPath:(nullable NSString *)indexPath
                   elementStore:(nullable NSMutableDictionary *)elementStore
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
@@ -368,29 +435,13 @@ static NSString *const topNodeIndexPath = @"top";
 {
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
-  __block id<FBXCElementSnapshot> currentSnapshot;
-  NSArray<id<FBXCElementSnapshot>> *children;
-  if ([root isKindOfClass:XCUIElement.class]) {
-    XCUIElement *element = (XCUIElement *)root;
-    if (nil == includedAttributes || [includedAttributes containsObject:FBVisibleAttribute.class]) {
-      // If the app is not idle state while we retrieve the visiblity state
-      // then the snapshot retrieval operation might freeze and time out
-      [element.application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
-    }
-    @autoreleasepool {
-      currentSnapshot = [element fb_takeSnapshot:YES];
-    }
-    children = currentSnapshot.children;
-  } else {
-    currentSnapshot = (id<FBXCElementSnapshot>)root;
-    children = currentSnapshot.children;
-  }
+  NSArray<id<FBXCElementSnapshot>> *children = root.children;
 
   if (elementStore != nil && indexPath != nil && [indexPath isEqualToString:topNodeIndexPath]) {
-    [elementStore setObject:currentSnapshot forKey:topNodeIndexPath];
+    [elementStore setObject:root forKey:topNodeIndexPath];
   }
 
-  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:currentSnapshot];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:root];
   int rc = xmlTextWriterStartElement(writer, (xmlChar *)[wrappedSnapshot.wdType UTF8String]);
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", wrappedSnapshot.wdType, rc];
@@ -398,7 +449,7 @@ static NSString *const topNodeIndexPath = @"top";
   }
 
   rc = [self recordElementAttributes:writer
-                          forElement:currentSnapshot
+                          forElement:root
                            indexPath:indexPath
                   includedAttributes:includedAttributes];
   if (rc < 0) {
@@ -429,6 +480,20 @@ static NSString *const topNodeIndexPath = @"top";
     return rc;
   }
   return 0;
+}
+
++ (id<FBXCElementSnapshot>)snapshotWithRoot:(id<FBElement>)root
+{
+  if (![root isKindOfClass:XCUIElement.class]) {
+    return (id<FBXCElementSnapshot>)root;
+  }
+
+  // If the app is not idle state while we retrieve the visiblity state
+  // then the snapshot retrieval operation might freeze and time out
+  [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  @autoreleasepool {
+    return [(XCUIElement *)root fb_takeSnapshot:YES];
+  }
 }
 
 @end

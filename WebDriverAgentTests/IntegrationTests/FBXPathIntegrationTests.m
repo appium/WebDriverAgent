@@ -96,6 +96,29 @@
   }
 }
 
+- (void)testFindMatchesWithoutContextScopeLimit
+{
+  XCUIElement *button = self.testedApplication.buttons.firstMatch;
+  BOOL previousValue = FBConfiguration.limitXpathContextScope;
+  FBConfiguration.limitXpathContextScope = NO;
+  @try {
+    NSArray *parentSnapshots = [FBXPath matchesWithRootElement:button forQuery:@".."];
+    XCTAssertEqual(parentSnapshots.count, 1);
+    XCTAssertEqualObjects(
+                          [FBXCElementSnapshotWrapper ensureWrapped:[parentSnapshots objectAtIndex:0]].wdLabel,
+                          @"MainView"
+                          );
+    NSArray *currentSnapshots = [FBXPath matchesWithRootElement:button forQuery:@"."];
+    XCTAssertEqual(currentSnapshots.count, 1);
+    XCTAssertEqualObjects(
+                          [FBXCElementSnapshotWrapper ensureWrapped:[currentSnapshots objectAtIndex:0]].wdType,
+                          @"XCUIElementTypeButton"
+                          );
+  } @finally {
+    FBConfiguration.limitXpathContextScope = previousValue;
+  }
+}
+
 - (void)testFindMatchesInElementWithDotNotation
 {
   NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@".//XCUIElementTypeButton"];

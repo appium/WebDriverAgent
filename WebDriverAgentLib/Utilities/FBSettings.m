@@ -34,3 +34,4 @@ NSString* const FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT = @"animationCoolOffTimeou
 NSString* const FB_SETTING_MAX_TYPING_FREQUENCY = @"maxTypingFrequency";
 NSString* const FB_SETTING_RESPECT_SYSTEM_ALERTS = @"respectSystemAlerts";
 NSString* const FB_SETTING_USE_CLEAR_TEXT_SHORTCUT = @"useClearTextShortcut";
+NSString* const FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE = @"limitXpathContextScope";

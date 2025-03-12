@@ -21,7 +21,7 @@
 
 @implementation FBXPathTests
 
-- (NSString *)xmlStringWithElement:(id<FBElement>)element
+- (NSString *)xmlStringWithElement:(id<FBXCElementSnapshot>)snapshot
                         xpathQuery:(nullable NSString *)query
                excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes
 {
@@ -33,7 +33,7 @@
   xmlChar *xmlbuff = NULL;
   int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
   if (rc >= 0) {
-    rc = [FBXPath xmlRepresentationWithRootElement:element
+    rc = [FBXPath xmlRepresentationWithRootElement:snapshot
                                             writer:writer
                                       elementStore:elementStore
                                              query:query
@@ -60,7 +60,7 @@
 {
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
-  NSString *resultXml = [self xmlStringWithElement:element
+  NSString *resultXml = [self xmlStringWithElement:(id<FBXCElementSnapshot>)element
                                         xpathQuery:nil
                                excludingAttributes:nil];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
@@ -72,7 +72,7 @@
 {
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
-  NSString *resultXml = [self xmlStringWithElement:element
+  NSString *resultXml = [self xmlStringWithElement:(id<FBXCElementSnapshot>)element
                                         xpathQuery:nil
                                excludingAttributes:@[@"type", @"visible", @"value", @"index"]];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ name=\"%@\" label=\"%@\" enabled=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
@@ -86,7 +86,7 @@
   snapshot.value = @"йоло<>&\"";
   snapshot.label = @"a\nb";
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
-  NSString *resultXml = [self xmlStringWithElement:element
+  NSString *resultXml = [self xmlStringWithElement:(id<FBXCElementSnapshot>)element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
                                excludingAttributes:@[@"visible"]];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" hittable=\"%@\" placeholderValue=\"%@\" private_indexPath=\"top\"/>\n",
@@ -98,7 +98,7 @@
 {
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
-  NSString *resultXml = [self xmlStringWithElement:element
+  NSString *resultXml = [self xmlStringWithElement:(id<FBXCElementSnapshot>)element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@%@ and contains(@%@, 'blabla')]", element.wdType, @"value", @"name"]
                                excludingAttributes:nil];
   NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ value=\"%@\" name=\"%@\" private_indexPath=\"top\"/>\n",
@@ -117,7 +117,7 @@
   NSString *query = [NSString stringWithFormat:@"//%@", root.wdType];
   int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
   if (rc >= 0) {
-    rc = [FBXPath xmlRepresentationWithRootElement:root
+    rc = [FBXPath xmlRepresentationWithRootElement:(id<FBXCElementSnapshot>)root
                                             writer:writer
                                       elementStore:elementStore
                                              query:query
@@ -132,7 +132,7 @@
     XCTFail(@"Unable to create the source XML document");
   }
 
-  xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc];
+  xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];
   if (NULL == queryResult) {
     xmlFreeTextWriter(writer);
     xmlFreeDoc(doc);

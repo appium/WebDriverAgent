@@ -104,6 +104,14 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setMjpegServerFramerate:(NSUInteger)framerate;
 
 /**
+ Whether to limit the XPath scope to descendant items only while performing a lookup
+ in an element context. Enabled by default. Being disabled, allows to use XPath locators
+ like ".." in order to match parent items of the current context root.
+ */
++ (BOOL)limitXpathContextScope;
++ (void)setLimitXpathContextScope:(BOOL)enabled;
+
+/**
  The quality of display screenshots. The higher quality you set is the bigger screenshot size is.
  The highest quality value is 0 (lossless PNG) or 3 (lossless HEIC). The lowest quality is 2 (highly compressed JPEG).
  The default quality value is 3 (lossless HEIC).
