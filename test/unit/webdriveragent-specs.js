@@ -71,10 +71,10 @@ describe('launch', function () {
     await agent.launch('sessionId').should.eventually.eql({build: 'data'});
     agent.url.href.should.eql(override);
     agent.jwproxy.server.should.eql('mockurl');
-    agent.jwproxy.port.should.eql('8100');
+    agent.jwproxy.port.should.eql(8100);
     agent.jwproxy.base.should.eql('');
     agent.noSessionProxy.server.should.eql('mockurl');
-    agent.noSessionProxy.port.should.eql('8100');
+    agent.noSessionProxy.port.should.eql(8100);
     agent.noSessionProxy.base.should.eql('');
     wdaStub.reset();
   });
@@ -97,10 +97,10 @@ describe('use wda proxy url', function () {
     agent.url.hostname.should.eql('127.0.0.1');
     agent.url.path.should.eql('/aabbccdd');
     agent.jwproxy.server.should.eql('127.0.0.1');
-    agent.jwproxy.port.should.eql('8100');
+    agent.jwproxy.port.should.eql(8100);
     agent.jwproxy.base.should.eql('/aabbccdd');
     agent.noSessionProxy.server.should.eql('127.0.0.1');
-    agent.noSessionProxy.port.should.eql('8100');
+    agent.noSessionProxy.port.should.eql(8100);
     agent.noSessionProxy.base.should.eql('/aabbccdd');
   });
 });

@@ -13,17 +13,13 @@ jobs:
       matrix:
         test_targets:
           - HOST_OS: 'macos-15'
-            XCODE_VERSION: '16.1.0'
-            IOS_VERSION: '18.1'
+            XCODE_VERSION: '16.2'
+            IOS_VERSION: '18.2'
             IOS_MODEL: iPhone 16 Plus
-          - HOST_OS: 'macos-14'
-            XCODE_VERSION: '15.3'
-            IOS_VERSION: '17.4'
+          - HOST_OS: 'macos-15'
+            XCODE_VERSION: '15.4'
+            IOS_VERSION: '17.5'
             IOS_MODEL: iPhone 15 Plus
-          - HOST_OS: 'macos-13'
-            XCODE_VERSION: 14.3.1
-            IOS_VERSION: '16.4'
-            IOS_MODEL: iPhone 14 Plus
 
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
     runs-on: ${{matrix.test_targets.HOST_OS}}
