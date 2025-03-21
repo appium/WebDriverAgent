@@ -216,8 +216,14 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
 - (void)registerServerKeyRouteHandlers
 {
+  // Create a separate dispatch queue for the health endpoint
+  dispatch_queue_t healthCheckQueue = dispatch_queue_create("com.facebook.WebDriverAgent.HealthCheck", DISPATCH_QUEUE_CONCURRENT);
+  
   [self.server get:@"/health" withBlock:^(RouteRequest *request, RouteResponse *response) {
-    [response respondWithString:@"<!DOCTYPE html><html><title>Health Check</title><body><p>I-AM-ALIVE</p></body></html>"];
+    // Use the dedicated queue for health checks so they don't get blocked
+    dispatch_async(healthCheckQueue, ^{
+      [response respondWithString:@"<!DOCTYPE html><html><title>Health Check</title><body><p>I-AM-ALIVE</p></body></html>"];
+    });
   }];
 
   NSString *calibrationPage = @"<html>"
