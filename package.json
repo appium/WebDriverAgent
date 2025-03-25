@@ -68,7 +68,7 @@
     "prettier": "^3.0.0",
     "semantic-release": "^24.0.0",
     "semver": "^7.3.7",
-    "sinon": "^19.0.1",
+    "sinon": "^20.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.2"
   },
