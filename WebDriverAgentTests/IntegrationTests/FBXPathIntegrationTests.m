@@ -108,10 +108,22 @@
                           [FBXCElementSnapshotWrapper ensureWrapped:[parentSnapshots objectAtIndex:0]].wdLabel,
                           @"MainView"
                           );
+    NSArray *elements = [button.application fb_filterDescendantsWithSnapshots:parentSnapshots onlyChildren:NO];
+    XCTAssertEqual(elements.count, 1);
+    XCTAssertEqualObjects(
+                          [[elements objectAtIndex:0] wdLabel],
+                          @"MainView"
+                          );
     NSArray *currentSnapshots = [FBXPath matchesWithRootElement:button forQuery:@"."];
     XCTAssertEqual(currentSnapshots.count, 1);
     XCTAssertEqualObjects(
                           [FBXCElementSnapshotWrapper ensureWrapped:[currentSnapshots objectAtIndex:0]].wdType,
+                          @"XCUIElementTypeButton"
+                          );
+    NSArray *currentElements = [button.application fb_filterDescendantsWithSnapshots:currentSnapshots onlyChildren:NO];
+    XCTAssertEqual(currentElements.count, 1);
+    XCTAssertEqualObjects(
+                          [[currentElements objectAtIndex:0] wdType],
                           @"XCUIElementTypeButton"
                           );
   } @finally {

@@ -12,6 +12,7 @@
 
 #import "FBMacros.h"
 #import "FBElementTypeTransformer.h"
+#import "FBConfiguration.h"
 #import "NSPredicate+FBFormat.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
@@ -109,8 +110,9 @@
     id<FBXCElementSnapshot> snapshot = matchingSnapshots.firstObject;
     matchingSnapshots = @[snapshot];
   }
-  return [self fb_filterDescendantsWithSnapshots:matchingSnapshots
-                                    onlyChildren:NO];
+  XCUIElement *scopeRoot = FBConfiguration.limitXpathContextScope ? self : self.application;
+  return [scopeRoot fb_filterDescendantsWithSnapshots:matchingSnapshots
+                                         onlyChildren:NO];
 }
 
 
