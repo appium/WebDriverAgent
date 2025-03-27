@@ -1,3 +1,9 @@
+## [9.3.2](https://github.com/appium/WebDriverAgent/compare/v9.3.1...v9.3.2) (2025-03-26)
+
+### Bug Fixes
+
+* Adjust limitXPathContextScope setting name ([#995](https://github.com/appium/WebDriverAgent/issues/995)) ([9789e39](https://github.com/appium/WebDriverAgent/commit/9789e393b55bc682a9a8ef5a65fba5e4dbf752ce))
+
 ## [9.3.1](https://github.com/appium/WebDriverAgent/compare/v9.3.0...v9.3.1) (2025-03-25)
 
 ### Miscellaneous Chores
