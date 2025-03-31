@@ -37,6 +37,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
+#import "FBConfiguration.h"
 
 static NSString* const FBUnknownBundleId = @"unknown";
 
@@ -176,7 +177,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *)excludedAttributes
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:YES];
+  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:[FBConfiguration inDepthSnapshot]];
   return [self.class dictionaryForElement:snapshot
                                 recursive:YES
                        excludedAttributes:excludedAttributes];

@@ -202,6 +202,24 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (int)snapshotMaxDepth;
 
 /**
+ * Sets whether to take a deep snapshot of the application elements.
+ * When enabled, the snapshot captures more detailed information about the UI hierarchy.
+ * This may be useful for complex views but can impact performance.
+ *
+ * @param value A boolean value indicating whether to enable deep snapshots.
+ *              Pass YES for a detailed snapshot, NO for a faster but less detailed one.
+ */
++ (void)setInDepthSnapshot:(BOOL)value;
+
+/**
+ * Gets the current setting for in-depth snapshot capturing.
+ * If enabled, snapshots will include more detailed UI information.
+ *
+ * @return A boolean indicating whether in-depth snapshots are enabled.
+ */
++ (BOOL)inDepthSnapshot;
+
+/**
  * Whether to use fast search result matching while searching for elements.
  * By default this is disabled due to https://github.com/appium/appium/issues/10101
  * but it still makes sense to enable it for views containing large counts of elements

@@ -19,6 +19,7 @@ NSString* const FB_SETTING_SCREENSHOT_QUALITY = @"screenshotQuality";
 NSString* const FB_SETTING_KEYBOARD_AUTOCORRECTION = @"keyboardAutocorrection";
 NSString* const FB_SETTING_KEYBOARD_PREDICTION = @"keyboardPrediction";
 NSString* const FB_SETTING_SNAPSHOT_MAX_DEPTH = @"snapshotMaxDepth";
+NSString* const FB_SETTING_IN_DEPTH_SNAPSHOT = @"inDepthSnapshot";
 NSString* const FB_SETTING_USE_FIRST_MATCH = @"useFirstMatch";
 NSString* const FB_SETTING_BOUND_ELEMENTS_BY_INDEX = @"boundElementsByIndex";
 NSString* const FB_SETTING_REDUCE_MOTION = @"reduceMotion";

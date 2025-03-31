@@ -36,6 +36,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
 static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldRespectSystemAlerts = NO;
+static BOOL FBInDepthSnapshot = YES;
 
 static NSUInteger FBMjpegScalingFactor = 100;
 static BOOL FBMjpegShouldFixOrientation = NO;
@@ -367,6 +368,14 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 + (int)snapshotMaxDepth
 {
   return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey) intValue];
+}
+
++ (void)setInDepthSnapshot:(BOOL)value {
+  FBInDepthSnapshot = value;
+}
+
++ (BOOL)inDepthSnapshot {
+  return FBInDepthSnapshot;
 }
 
 + (void)setShouldRespectSystemAlerts:(BOOL)value
