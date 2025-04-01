@@ -20,6 +20,23 @@
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
 
+void calculateMaxTreeDepth(NSDictionary *tree, NSNumber *currentDepth, NSNumber** maxDepth) {
+  if (nil == maxDepth) {
+    return;
+  }
+
+  NSArray *children = tree[@"children"];
+  if (nil == children || 0 == children.count) {
+    return;
+  }
+  for (NSDictionary *child in children) {
+    if (currentDepth.integerValue > [*maxDepth integerValue]) {
+      *maxDepth = currentDepth;
+    }
+    calculateMaxTreeDepth(child, @(currentDepth.integerValue + 1), maxDepth);
+  }
+}
+
 @interface XCUIApplicationHelperTests : FBIntegrationTestCase
 @end
 
@@ -40,7 +57,11 @@
 
 - (void)testApplicationTree
 {
-  XCTAssertNotNil(self.testedApplication.fb_tree);
+  NSDictionary *tree = self.testedApplication.fb_tree;
+  XCTAssertNotNil(tree);
+  NSNumber *maxDepth;
+  calculateMaxTreeDepth(tree, @0, &maxDepth);
+  XCTAssertGreaterThan(maxDepth.integerValue, 3);
   XCTAssertNotNil(self.testedApplication.fb_accessibilityTree);
 }
 

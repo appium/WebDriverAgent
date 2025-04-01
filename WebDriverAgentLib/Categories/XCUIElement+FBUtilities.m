@@ -49,7 +49,7 @@
   __block id<FBXCElementSnapshot> snapshot = nil;
   @autoreleasepool {
     NSError *error = nil;
-    snapshot = inDepth
+    snapshot = inDepth && ![self isKindOfClass:XCUIApplication.class]
       ? [self.fb_query fb_uniqueSnapshotWithError:&error]
       : (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
     if (nil == snapshot) {
