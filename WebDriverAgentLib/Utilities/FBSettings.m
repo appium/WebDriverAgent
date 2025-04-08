@@ -35,3 +35,4 @@ NSString* const FB_SETTING_MAX_TYPING_FREQUENCY = @"maxTypingFrequency";
 NSString* const FB_SETTING_RESPECT_SYSTEM_ALERTS = @"respectSystemAlerts";
 NSString* const FB_SETTING_USE_CLEAR_TEXT_SHORTCUT = @"useClearTextShortcut";
 NSString* const FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE = @"limitXPathContextScope";
+NSString* const FB_SETTING_AUTO_CLICK_ALERT_SELECTOR = @"autoClickAlertSelector";

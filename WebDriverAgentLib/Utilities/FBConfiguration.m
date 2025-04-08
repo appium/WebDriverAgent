@@ -51,6 +51,7 @@ static BOOL FBShouldBoundElementsByIndex;
 static BOOL FBIncludeNonModalElements;
 static NSString *FBAcceptAlertButtonSelector;
 static NSString *FBDismissAlertButtonSelector;
+static NSString *FBAutoClickAlertSelector;
 static NSTimeInterval FBWaitForIdleTimeout;
 static NSTimeInterval FBAnimationCoolOffTimeout;
 static BOOL FBShouldUseCompactResponses;
@@ -429,6 +430,16 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   return FBDismissAlertButtonSelector;
 }
 
++ (void)setAutoClickAlertSelector:(NSString *)classChainSelector
+{
+  FBAutoClickAlertSelector = classChainSelector;
+}
+
++ (NSString *)autoClickAlertSelector
+{
+  return FBAutoClickAlertSelector;
+}
+
 + (void)setUseClearTextShortcut:(BOOL)enabled
 {
   FBUseClearTextShortcut = enabled;
@@ -509,6 +520,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
   FBIncludeNonModalElements = NO;
   FBAcceptAlertButtonSelector = @"";
   FBDismissAlertButtonSelector = @"";
+  FBAutoClickAlertSelector = @"";
   FBWaitForIdleTimeout = 10.;
   FBAnimationCoolOffTimeout = 2.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
