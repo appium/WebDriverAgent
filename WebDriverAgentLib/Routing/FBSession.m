@@ -56,15 +56,15 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 {
   NSString *autoClickAlertSelector = FBConfiguration.autoClickAlertSelector;
   if ([autoClickAlertSelector length] > 0) {
-    NSArray<XCUIElement*> *matches = [alert.alertElement fb_descendantsMatchingClassChain:autoClickAlertSelector
-                                                              shouldReturnAfterFirstMatch:YES];
-    if (matches.count > 0) {
-      @try {
-        [[matches objectAtIndex:0] tap];
-      } @catch (NSException *e) {
-        [FBLogger logFmt:@"Could not click at the selected alert element '%@'. Original error: %@",
-         autoClickAlertSelector, e.description];
+    @try {
+      NSArray<XCUIElement*> *matches = [alert.alertElement fb_descendantsMatchingClassChain:autoClickAlertSelector
+                                                                shouldReturnAfterFirstMatch:YES];
+      if (matches.count > 0) {
+          [[matches objectAtIndex:0] tap];
       }
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"Could not click at the alert element '%@'. Original error: %@",
+       autoClickAlertSelector, e.description];
     }
     // This setting has priority over other settings if enabled
     return;
