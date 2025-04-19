@@ -151,7 +151,7 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:[element fb_takeSnapshot:NO]];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:[element fb_takeSnapshot:YES]];
   id text = FBFirstNonEmptyValue(wrappedSnapshot.wdValue, wrappedSnapshot.wdLabel);
   return FBResponseWithObject(text ?: @"");
 }
