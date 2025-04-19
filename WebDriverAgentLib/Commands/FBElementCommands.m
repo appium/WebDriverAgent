@@ -151,8 +151,9 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  // 'fb_takeSnapshot:YES' is to retrice entire text https://github.com/appium/appium-xcuitest-driver/issues/2552
-  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:[element fb_takeSnapshot:YES]];
+  // https://github.com/appium/appium-xcuitest-driver/issues/2552
+  id<FBXCElementSnapshot> snapshot = [element fb_customSnapshotWithMaxDepth:1];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
   id text = FBFirstNonEmptyValue(wrappedSnapshot.wdValue, wrappedSnapshot.wdLabel);
   return FBResponseWithObject(text ?: @"");
 }

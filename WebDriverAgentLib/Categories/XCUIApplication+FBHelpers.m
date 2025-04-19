@@ -176,7 +176,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_tree:(nullable NSSet<NSString *> *)excludedAttributes
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:YES];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   return [self.class dictionaryForElement:snapshot
                                 recursive:YES
                        excludedAttributes:excludedAttributes];
@@ -184,7 +184,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 - (NSDictionary *)fb_accessibilityTree
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:YES];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
@@ -434,7 +434,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       
       id extractedElement = extractIssueProperty(issue, @"element");
       
-      id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_takeSnapshot:NO];
+      id<FBXCElementSnapshot> elementSnapshot = [extractedElement fb_cachedSnapshot] ?: [extractedElement fb_standardSnapshot];
       NSDictionary *elementAttributes = elementSnapshot
       ? [self.class dictionaryForElement:elementSnapshot
                                recursive:NO

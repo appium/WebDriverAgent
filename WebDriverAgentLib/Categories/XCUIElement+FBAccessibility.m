@@ -18,7 +18,7 @@
 
 - (BOOL)fb_isAccessibilityElement
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   return [FBXCElementSnapshotWrapper ensureWrapped:snapshot].fb_isAccessibilityElement;
 }
 

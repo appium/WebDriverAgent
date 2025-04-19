@@ -37,7 +37,9 @@
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
 - (void)resolve;
-- (id _Nonnull)fb_takeSnapshot;
+- (id _Nonnull)fb_standardSnapshot;
+- (id _Nonnull)fb_customSnapshot;
+- (id _Nonnull)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth;
 
 // Checks
 @property (nonatomic, assign, readonly) BOOL didResolve;

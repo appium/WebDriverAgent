@@ -91,7 +91,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
   [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", snapshot.fb_description];
   [self tap];
   // It might take some time to update the UI
-  [self fb_takeSnapshot:NO];
+  [self fb_standardSnapshot];
 #endif
 }
 
@@ -110,7 +110,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
           frequency:(NSUInteger)frequency
               error:(NSError **)error
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
   [self fb_prepareForTextInputWithSnapshot:wrapped];
   if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
@@ -121,7 +121,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   return [self fb_clearTextWithSnapshot:[FBXCElementSnapshotWrapper ensureWrapped:snapshot]
                   shouldPrepareForInput:YES
                                   error:error];
@@ -178,7 +178,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
       return NO;
     }
 
-    currentValue = [self fb_takeSnapshot:NO].value;
+    currentValue = [self fb_standardSnapshot].value;
     if (nil != placeholderValue && [currentValue isEqualToString:placeholderValue]) {
       // Short circuit if only the placeholder value left
       return YES;

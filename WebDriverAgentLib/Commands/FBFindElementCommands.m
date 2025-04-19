@@ -81,7 +81,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
-  id<FBXCElementSnapshot> snapshot = [element fb_takeSnapshot:YES];
+  id<FBXCElementSnapshot> snapshot = [element fb_customSnapshot];
   NSArray<id<FBXCElementSnapshot>> *visibleCellSnapshots = [snapshot descendantsByFilteringWithBlock:^BOOL(id<FBXCElementSnapshot> shot) {
     return shot.elementType == XCUIElementTypeCell
       && [FBXCElementSnapshotWrapper ensureWrapped:shot].wdVisible;

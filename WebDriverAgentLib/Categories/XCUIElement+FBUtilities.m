@@ -44,14 +44,23 @@
 
 @implementation XCUIElement (FBUtilities)
 
-- (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)inDepth
+- (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)isCustom maxDepth:(nullable NSNumber *)maxDepth
 {
   __block id<FBXCElementSnapshot> snapshot = nil;
   @autoreleasepool {
     NSError *error = nil;
-    snapshot = inDepth && ![self isKindOfClass:XCUIApplication.class]
-      ? [self.fb_query fb_uniqueSnapshotWithError:&error]
-      : (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
+    if (isCustom) {
+      int previousMaxDepth = FBConfiguration.snapshotMaxDepth;
+      if (nil != maxDepth) {
+        FBConfiguration.snapshotMaxDepth = maxDepth.unsignedIntValue;
+      }
+      snapshot = [self.fb_query fb_uniqueSnapshotWithError:&error];
+      if (nil != maxDepth) {
+        FBConfiguration.snapshotMaxDepth = previousMaxDepth;
+      }
+    } else {
+      snapshot = (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
+    }
     if (nil == snapshot) {
       NSString *hintText = @"Make sure the application UI has the expected state";
       if (nil != error && [error.localizedDescription containsString:@"Identity Binding"]) {
@@ -67,6 +76,21 @@
   }
   self.lastSnapshot = snapshot;
   return self.lastSnapshot;
+}
+
+- (id<FBXCElementSnapshot>)fb_standardSnapshot
+{
+  return [self fb_takeSnapshot:NO maxDepth:nil];
+}
+
+- (id<FBXCElementSnapshot>)fb_customSnapshot
+{
+  return [self fb_takeSnapshot:YES maxDepth:nil];
+}
+
+- (id<FBXCElementSnapshot>)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth
+{
+  return [self fb_takeSnapshot:YES maxDepth:@(maxDepth)];
 }
 
 - (id<FBXCElementSnapshot>)fb_cachedSnapshot

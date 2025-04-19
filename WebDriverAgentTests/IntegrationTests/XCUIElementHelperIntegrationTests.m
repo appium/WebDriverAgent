@@ -41,7 +41,7 @@
   [allElements addObjectsFromArray:windows];
   
   NSMutableArray<id<FBXCElementSnapshot>> *buttonSnapshots = [NSMutableArray array];
-  [buttonSnapshots addObject:[buttons.firstObject fb_takeSnapshot:YES]];
+  [buttonSnapshots addObject:[buttons.firstObject fb_customSnapshot]];
 
   NSArray<XCUIElement *> *result = [self.testedApplication fb_filterDescendantsWithSnapshots:buttonSnapshots
                                                                                 onlyChildren:NO];
