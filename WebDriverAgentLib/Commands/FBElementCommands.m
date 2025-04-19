@@ -152,7 +152,7 @@
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]];
   // https://github.com/appium/appium-xcuitest-driver/issues/2552
-  id<FBXCElementSnapshot> snapshot = [element fb_customSnapshotWithMaxDepth:1];
+  id<FBXCElementSnapshot> snapshot = [element fb_customSnapshot];
   FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
   id text = FBFirstNonEmptyValue(wrappedSnapshot.wdValue, wrappedSnapshot.wdLabel);
   return FBResponseWithObject(text ?: @"");

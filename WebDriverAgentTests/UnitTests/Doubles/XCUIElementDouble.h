@@ -41,7 +41,6 @@
 - (void)resolve;
 - (id _Nonnull)fb_standardSnapshot;
 - (id _Nonnull)fb_customSnapshot;
-- (id _Nonnull)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth;
 - (nullable id)query;
 
 // Checks

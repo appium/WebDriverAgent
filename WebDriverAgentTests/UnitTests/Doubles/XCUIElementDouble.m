@@ -79,11 +79,6 @@
   return [self lastSnapshot];
 }
 
-- (id _Nonnull)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth
-{
-  return [self lastSnapshot];
-}
-
 - (NSString *)fb_cacheId
 {
   return self.wdUID;

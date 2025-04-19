@@ -50,17 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FBXCElementSnapshot>)fb_customSnapshot;
 
 /**
- Gets the most recent snapshot of the current element. The element will be
- automatically resolved if the snapshot is not available yet.
- Calls to this method mutate the `lastSnapshot` instance property..
-
- @param maxDepth Allows to customize the maximum depth of the snapshot tree
- @return The recent snapshot of the element
- @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
- */
-- (id<FBXCElementSnapshot>)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth;
-
-/**
  Extracts the cached element snapshot from its query.
  No requests to the accessiblity framework is made.
  It is only safe to use this call right after element lookup query

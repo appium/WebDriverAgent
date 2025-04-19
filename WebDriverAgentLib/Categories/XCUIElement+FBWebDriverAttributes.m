@@ -28,14 +28,11 @@
 
 - (id<FBXCElementSnapshot>)fb_snapshotForAttributeName:(NSString *)name
 {
-  BOOL isValueRequest = [name isEqualToString:FBStringify(XCUIElement, wdValue)];
-  // https://github.com/appium/appium-xcuitest-driver/issues/2552
-  if (isValueRequest) {
-    return [self fb_customSnapshotWithMaxDepth:1];
-  }
   BOOL isCustomSnapshot = ![self isKindOfClass:XCUIApplication.class]
     || [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
     || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]
+    // https://github.com/appium/appium-xcuitest-driver/issues/2552
+    || [name isEqualToString:FBStringify(XCUIElement, wdValue)]
     || [name isEqualToString:FBStringify(XCUIElement, wdIndex)];
   return isCustomSnapshot ? [self fb_customSnapshot] : [self fb_standardSnapshot];
 }

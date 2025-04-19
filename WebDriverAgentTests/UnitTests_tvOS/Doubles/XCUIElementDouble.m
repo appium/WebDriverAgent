@@ -62,11 +62,6 @@
   return [self lastSnapshot];
 }
 
-- (id _Nonnull)fb_customSnapshotWithMaxDepth:(NSUInteger)maxDepth
-{
-  return [self lastSnapshot];
-}
-
 - (void)resolve
 {
   self.didResolve = YES;
