@@ -206,7 +206,7 @@ static NSString *const topNodeIndexPath = @"top";
         lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]];
         contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
           ? nil
-          : [(XCUIElement *)root fb_takeSnapshot:YES];
+          : ([(XCUIElement *)root lastSnapshot] ?: [(XCUIElement *)root fb_customSnapshot]);
       } else {
         lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
         contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
@@ -491,9 +491,9 @@ static NSString *const topNodeIndexPath = @"top";
   // If the app is not idle state while we retrieve the visiblity state
   // then the snapshot retrieval operation might freeze and time out
   [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
-  @autoreleasepool {
-    return [(XCUIElement *)root fb_takeSnapshot:YES];
-  }
+  return [root isKindOfClass:XCUIApplication.class]
+    ? [(XCUIElement *)root fb_standardSnapshot]
+    : [(XCUIElement *)root fb_customSnapshot];
 }
 
 @end

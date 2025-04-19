@@ -52,7 +52,12 @@
   return @"test";
 }
 
-- (id)fb_takeSnapshot
+- (id)fb_standardSnapshot
+{
+  return [self lastSnapshot];
+}
+
+- (id)fb_customSnapshot
 {
   return [self lastSnapshot];
 }

@@ -44,7 +44,9 @@ XCUIElement *maybeStable(XCUIElement *element)
   }
 
   XCUIElement *result = element;
-  id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: [element fb_cachedSnapshot] ?: [element fb_takeSnapshot:NO];
+  id<FBXCElementSnapshot> snapshot = element.lastSnapshot
+    ?: element.fb_cachedSnapshot
+    ?: [element fb_standardSnapshot];
   NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
   if (nil != uid) {
     result = [element fb_stableInstanceWithUid:uid];
@@ -108,7 +110,9 @@ inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL 
 {
   __block NSDictionary *elementResponse = nil;
   @autoreleasepool {
-    id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_takeSnapshot:YES];
+    id<FBXCElementSnapshot> snapshot = element.lastSnapshot
+      ?: element.fb_cachedSnapshot
+      ?: [element fb_customSnapshot];
     NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
     if (compact) {
       elementResponse = compactResult;

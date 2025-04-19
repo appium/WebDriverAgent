@@ -74,7 +74,7 @@ const int ELEMENT_CACHE_SIZE = 1024;
   }
   if (checkStaleness) {
     @try {
-      [element fb_takeSnapshot:NO];
+      [element fb_standardSnapshot];
     } @catch (NSException *exception) {
       //  if the snapshot method threw FBStaleElementException (implying the element is stale) we need to explicitly remove it from the cache, PR: https://github.com/appium/WebDriverAgent/pull/985
       if ([exception.name isEqualToString:FBStaleElementException]) {

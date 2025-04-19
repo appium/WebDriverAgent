@@ -18,14 +18,36 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Gets the most recent snapshot of the current element. The element will be
  automatically resolved if the snapshot is not available yet.
- Calls to this method mutate the `lastSnapshot` instance property..
+ Calls to this method mutate the `lastSnapshot` instance property.
+ The snapshot is taken by the native API provided by XCTest.
+ The maximum snapshot tree depth is set by `FBConfiguration.snapshotMaxDepth`
 
- @param inDepth Whether to resolve snapshot parents and children. Setting it to NO
- would improve the snapshotting performance
+ Snapshot specifics:
+ - Most performant
+ - Memory-friedly
+ - `children` property is set to `nil` if not taken from XCUIApplication
+ - `value` property is cut off to max 512 bytes
+
  @return The recent snapshot of the element
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
  */
-- (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)inDepth;
+- (id<FBXCElementSnapshot>)fb_standardSnapshot;
+
+/**
+ Gets the most recent snapshot of the current element. The element will be
+ automatically resolved if the snapshot is not available yet.
+ Calls to this method mutate the `lastSnapshot` instance property..
+ The maximum snapshot tree depth is set by `FBConfiguration.snapshotMaxDepth`
+
+ Snapshot specifics:
+ - Less performant in comparison to the standard one
+ - `children` property is always defined
+ - `value` property is not cut off
+
+ @return The recent snapshot of the element
+ @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
+ */
+- (id<FBXCElementSnapshot>)fb_customSnapshot;
 
 /**
  Extracts the cached element snapshot from its query.

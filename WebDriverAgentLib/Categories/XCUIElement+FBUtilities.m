@@ -44,12 +44,12 @@
 
 @implementation XCUIElement (FBUtilities)
 
-- (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)inDepth
+- (id<FBXCElementSnapshot>)fb_takeSnapshot:(BOOL)isCustom
 {
   __block id<FBXCElementSnapshot> snapshot = nil;
   @autoreleasepool {
     NSError *error = nil;
-    snapshot = inDepth && ![self isKindOfClass:XCUIApplication.class]
+    snapshot = isCustom
       ? [self.fb_query fb_uniqueSnapshotWithError:&error]
       : (id<FBXCElementSnapshot>)[self snapshotWithError:&error];
     if (nil == snapshot) {
@@ -67,6 +67,16 @@
   }
   self.lastSnapshot = snapshot;
   return self.lastSnapshot;
+}
+
+- (id<FBXCElementSnapshot>)fb_standardSnapshot
+{
+  return [self fb_takeSnapshot:NO];
+}
+
+- (id<FBXCElementSnapshot>)fb_customSnapshot
+{
+  return [self fb_takeSnapshot:YES];
 }
 
 - (id<FBXCElementSnapshot>)fb_cachedSnapshot

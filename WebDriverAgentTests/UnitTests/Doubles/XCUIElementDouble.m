@@ -69,7 +69,12 @@
   self.didResolve = YES;
 }
 
-- (id _Nonnull)fb_takeSnapshot:(BOOL)inDepth;
+- (id _Nonnull)fb_standardSnapshot;
+{
+  return [self lastSnapshot];
+}
+
+- (id _Nonnull)fb_customSnapshot;
 {
   return [self lastSnapshot];
 }

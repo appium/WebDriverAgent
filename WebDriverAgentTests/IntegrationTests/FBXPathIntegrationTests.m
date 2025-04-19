@@ -43,7 +43,7 @@
 - (id<FBXCElementSnapshot>)destinationSnapshot
 {
   XCUIElement *matchingElement = self.testedView.buttons.allElementsBoundByIndex.firstObject;
-  id<FBXCElementSnapshot> snapshot = [matchingElement fb_takeSnapshot:YES];
+  id<FBXCElementSnapshot> snapshot = [matchingElement fb_customSnapshot];
   // Over iOS13, snapshot returns a child.
   // The purpose of here is return a single element to replace children with an empty array for testing.
   snapshot.children = @[];

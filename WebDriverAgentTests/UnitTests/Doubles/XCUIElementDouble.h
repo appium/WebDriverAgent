@@ -39,7 +39,8 @@
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 
 - (void)resolve;
-- (id _Nonnull)fb_takeSnapshot:(BOOL)inDepth;
+- (id _Nonnull)fb_standardSnapshot;
+- (id _Nonnull)fb_customSnapshot;
 - (nullable id)query;
 
 // Checks

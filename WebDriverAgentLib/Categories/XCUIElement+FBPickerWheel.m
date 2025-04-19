@@ -24,7 +24,7 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 
 - (BOOL)fb_scrollWithOffset:(CGFloat)relativeHeightOffset error:(NSError **)error
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_takeSnapshot:NO];
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   NSString *previousValue = snapshot.value;
   XCUICoordinate *startCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
   XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * snapshot.frame.size.height)];

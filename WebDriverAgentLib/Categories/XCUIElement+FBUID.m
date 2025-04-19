@@ -22,14 +22,14 @@
 {
   return [FBElementUtils idWithAccessibilityElement:([self isKindOfClass:XCUIApplication.class]
                                                      ? [(XCUIApplication *)self accessibilityElement]
-                                                     : [self fb_takeSnapshot:NO].accessibilityElement)];
+                                                     : [self fb_standardSnapshot].accessibilityElement)];
 }
 
 - (NSString *)fb_uid
 {
   return [self isKindOfClass:XCUIApplication.class]
     ? [FBElementUtils uidWithAccessibilityElement:[(XCUIApplication *)self accessibilityElement]]
-    : [FBXCElementSnapshotWrapper ensureWrapped:[self fb_takeSnapshot:NO]].fb_uid;
+    : [FBXCElementSnapshotWrapper ensureWrapped:[self fb_standardSnapshot]].fb_uid;
 }
 
 @end
