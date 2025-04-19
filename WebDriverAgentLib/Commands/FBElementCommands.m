@@ -269,6 +269,7 @@
     NSString *focusedUUID = [elementCache storeElement:(useNativeCachingStrategy
                                                         ? focusedElement
                                                         : [focusedElement fb_stableInstanceWithUid:focusedElement.fb_uid])];
+    focusedElement.lastSnapshot = nil;
     if (focusedUUID && [focusedUUID isEqualToString:(id)request.parameters[@"uuid"]]) {
       isFocused = YES;
     }

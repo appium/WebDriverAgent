@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, readonly) NSString* message;
 @property (nonatomic, nullable, readonly) NSString* traceback;
 @property (nonatomic, readonly) HTTPStatusCode statusCode;
-
+@property (nonatomic, readonly) BOOL hasError;
 
 + (instancetype)ok;
 

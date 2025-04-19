@@ -284,6 +284,12 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (NSString *)dismissAlertButtonSelector;
 
 /**
+ Sets class chain selector to apply for an automated alert click
+ */
++ (void)setAutoClickAlertSelector:(NSString *)classChainSelector;
++ (NSString *)autoClickAlertSelector;
+
+/**
  * Whether to use HIDEvent for text clear.
  * By default this is enabled and HIDEvent is used for text clear.
  *
