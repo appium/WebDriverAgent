@@ -30,6 +30,7 @@
 {
   BOOL inDepth = [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
     || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]
+    // To retrice entire text https://github.com/appium/appium-xcuitest-driver/issues/2552
     || [name isEqualToString:FBStringify(XCUIElement, wdValue)]
     || [name isEqualToString:FBStringify(XCUIElement, wdIndex)];
   return [self fb_takeSnapshot:inDepth];
