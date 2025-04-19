@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return an array of descendants matching given class chain
  @throws FBUnknownAttributeException if any of predicates in the chain contains unknown attribute(s)
  */
-- (NSArray<XCUIElement *> *)fb_descendantsMatchingClassChain:(NSString *)classChainQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch;
+- (NSArray<XCUIElement *> *)fb_descendantsMatchingClassChain:(NSString *)classChainQuery
+                                 shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch;
 
 @end
 

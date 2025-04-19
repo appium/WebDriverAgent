@@ -55,7 +55,9 @@ XCUIElement *maybeStable(XCUIElement *element)
 id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElementCache *elementCache, BOOL compact)
 {
   [elementCache storeElement:maybeStable(element)];
-  return FBResponseWithStatus([FBCommandStatus okWithValue:FBDictionaryResponseWithElement(element, compact)]);
+  NSDictionary *response = FBDictionaryResponseWithElement(element, compact);
+  element.lastSnapshot = nil;
+  return FBResponseWithStatus([FBCommandStatus okWithValue:response]);
 }
 
 id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *elements, FBElementCache *elementCache, BOOL compact)
@@ -64,6 +66,7 @@ id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *eleme
   for (XCUIElement *element in elements) {
     [elementCache storeElement:maybeStable(element)];
     [elementsResponse addObject:FBDictionaryResponseWithElement(element, compact)];
+    element.lastSnapshot = nil;
   }
   return FBResponseWithStatus([FBCommandStatus okWithValue:elementsResponse]);
 }

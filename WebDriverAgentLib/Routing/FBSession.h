@@ -121,6 +121,22 @@ extern NSString* const FB_SAFARI_BUNDLE_ID;
  */
 - (NSUInteger)applicationStateWithBundleId:(NSString *)bundleIdentifier;
 
+/**
+ Allows to enable automated session alerts monitoring.
+ Repeated calls are ignored if alerts monitoring has been already enabled.
+
+ @returns YES if the actual alerts monitoring state has been changed
+ */
+- (BOOL)enableAlertsMonitor;
+
+/**
+ Allows to disable automated alerts monitoring
+ Repeated calls are ignored if alerts monitoring has been already disabled.
+
+ @returns YES if the actual alerts monitoring state has been changed
+ */
+- (BOOL)disableAlertsMonitor;
+
 @end
 
 NS_ASSUME_NONNULL_END

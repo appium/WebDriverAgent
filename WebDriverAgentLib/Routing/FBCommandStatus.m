@@ -109,6 +109,11 @@ static NSString *const FB_NO_SUCH_DRIVER_MSG = @"A session is either terminated 
   return self;
 }
 
+- (BOOL)hasError
+{
+  return self.statusCode != kHTTPStatusCodeOK;
+}
+
 + (instancetype)ok
 {
   return [[FBCommandStatus alloc] initWithValue:nil];

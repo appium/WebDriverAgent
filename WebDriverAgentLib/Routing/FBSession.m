@@ -25,6 +25,7 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
+#import "XCUIElement+FBClassChain.h"
 
 /*!
  The intial value for the default application property.
@@ -53,6 +54,22 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 
 - (void)didDetectAlert:(FBAlert *)alert
 {
+  NSString *autoClickAlertSelector = FBConfiguration.autoClickAlertSelector;
+  if ([autoClickAlertSelector length] > 0) {
+    @try {
+      NSArray<XCUIElement*> *matches = [alert.alertElement fb_descendantsMatchingClassChain:autoClickAlertSelector
+                                                                shouldReturnAfterFirstMatch:YES];
+      if (matches.count > 0) {
+          [[matches objectAtIndex:0] tap];
+      }
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"Could not click at the alert element '%@'. Original error: %@",
+       autoClickAlertSelector, e.description];
+    }
+    // This setting has priority over other settings if enabled
+    return;
+  }
+
   if (nil == self.defaultAlertAction || 0 == self.defaultAlertAction.length) {
     return;
   }
@@ -125,11 +142,32 @@ static FBSession *_activeSession = nil;
                  defaultAlertAction:(NSString *)defaultAlertAction
 {
   FBSession *session = [self.class initWithApplication:application];
-  session.alertsMonitor = [[FBAlertsMonitor alloc] init];
-  session.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)session;
   session.defaultAlertAction = [defaultAlertAction lowercaseString];
-  [session.alertsMonitor enable];
+  [session enableAlertsMonitor];
   return session;
+}
+
+- (BOOL)enableAlertsMonitor
+{
+  if (nil != self.alertsMonitor) {
+    return NO;
+  }
+
+  self.alertsMonitor = [[FBAlertsMonitor alloc] init];
+  self.alertsMonitor.delegate = (id<FBAlertsMonitorDelegate>)self;
+  [self.alertsMonitor enable];
+  return YES;
+}
+
+- (BOOL)disableAlertsMonitor
+{
+  if (nil == self.alertsMonitor) {
+    return NO;
+  }
+
+  [self.alertsMonitor disable];
+  self.alertsMonitor = nil;
+  return YES;
 }
 
 - (void)kill
@@ -138,10 +176,7 @@ static FBSession *_activeSession = nil;
     return;
   }
 
-  if (nil != self.alertsMonitor) {
-    [self.alertsMonitor disable];
-    self.alertsMonitor = nil;
-  }
+  [self disableAlertsMonitor];
 
   FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
   if (nil != activeScreenRecording) {
