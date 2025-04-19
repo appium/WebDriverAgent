@@ -30,6 +30,7 @@
 {
   BOOL inDepth = [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)]
     || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]
+    || [name isEqualToString:FBStringify(XCUIElement, wdValue)]
     || [name isEqualToString:FBStringify(XCUIElement, wdIndex)];
   return [self fb_takeSnapshot:inDepth];
 }
