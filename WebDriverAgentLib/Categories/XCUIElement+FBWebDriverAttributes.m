@@ -120,11 +120,7 @@
 
 - (NSString *)wdPlaceholderValue
 {
-  NSString *placehlderValue = self.placeholderValue;
-  if (nil != placehlderValue) {
-    return placehlderValue;
-  }
-  return FBTransferEmptyStringToNil(placehlderValue);
+  return FBTransferEmptyStringToNil(self.placeholderValue);
 }
 
 - (NSString *)wdType
