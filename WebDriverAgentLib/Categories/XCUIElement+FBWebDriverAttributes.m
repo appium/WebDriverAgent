@@ -70,6 +70,15 @@
   return [self valueForKey:[FBElementUtils wdAttributeNameForAttributeName:name]];
 }
 
+- (BOOL)fb_supportsInnerText
+{
+  XCUIElementType elementType = self.elementType;
+  return elementType == XCUIElementTypeTextView
+    || elementType == XCUIElementTypeTextField
+    || elementType == XCUIElementTypeSearchField
+    || elementType == XCUIElementTypeSecureTextField;
+}
+
 - (NSString *)wdValue
 {
   id value = self.value;
@@ -82,10 +91,7 @@
     value = FBFirstNonEmptyValue(value, isSelected);
   } else if (elementType == XCUIElementTypeSwitch) {
     value = @([value boolValue]);
-  } else if (elementType == XCUIElementTypeTextView ||
-             elementType == XCUIElementTypeTextField ||
-             elementType == XCUIElementTypeSearchField ||
-             elementType == XCUIElementTypeSecureTextField) {
+  } else if (self.fb_supportsInnerText) {
     NSString *placeholderValue = self.placeholderValue;
     value = FBFirstNonEmptyValue(value, placeholderValue);
   }
@@ -113,17 +119,16 @@
 
 - (NSString *)wdLabel
 {
-  NSString *label = self.label;
-  XCUIElementType elementType = self.elementType;
-  if (elementType == XCUIElementTypeTextField || elementType == XCUIElementTypeSecureTextField ) {
-    return label;
-  }
-  return FBTransferEmptyStringToNil(label);
+  return self.fb_supportsInnerText
+    ? self.label
+    : FBTransferEmptyStringToNil(self.label);
 }
 
 - (NSString *)wdPlaceholderValue
 {
-  return FBTransferEmptyStringToNil(self.placeholderValue);
+  return self.fb_supportsInnerText
+    ? self.placeholderValue
+    : FBTransferEmptyStringToNil(self.placeholderValue);
 }
 
 - (NSString *)wdType
