@@ -119,7 +119,9 @@
 
 - (NSString *)wdLabel
 {
-  return self.fb_supportsInnerText
+  XCUIElementType elementType = self.elementType;
+  return (elementType == XCUIElementTypeTextField
+          || elementType == XCUIElementTypeSecureTextField)
     ? self.label
     : FBTransferEmptyStringToNil(self.label);
 }
