@@ -568,9 +568,7 @@
                                         checkStaleness:YES];
     NSData *screenshotData = nil;
     @autoreleasepool {
-      XCUIScreenshot *screenshotObj = element.screenshot;
-      screenshotData = [screenshotObj PNGRepresentation];
-      screenshotObj = nil;
+      screenshotData = [element.screenshot PNGRepresentation];
       if (nil == screenshotData) {
         NSString *errMsg = [NSString stringWithFormat:@"Cannot take a screenshot of %@", element.description];
         return FBResponseWithStatus([FBCommandStatus unableToCaptureScreenErrorWithMessage:errMsg
