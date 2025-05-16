@@ -202,7 +202,8 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   info[@"label"] = FBValueOrNull(wrappedSnapshot.wdLabel);
   info[@"rect"] = wrappedSnapshot.wdRect;
   
-  NSDictionary<NSString *, NSString * (^)(void)> *attributeBlocks = @{
+  // Define the base attribute blocks that apply to all elements.
+  NSDictionary<NSString *, NSString * (^)(void)> *baseAttributeBlocks = @{
       FBExclusionAttributeFrame: ^{
           return NSStringFromCGRect(wrappedSnapshot.wdFrame);
       },
@@ -217,11 +218,28 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       },
       FBExclusionAttributeFocused: ^{
           return [@([wrappedSnapshot isWDFocused]) stringValue];
-      },
-      FBExclusionAttributePlaceholderValue: ^{
-          return FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
       }
   };
+  
+  NSMutableDictionary<NSString *, NSString *(^)(void)> *attributeBlocks;
+  
+  // Add placeholderValue only for elements where it is meaningful (e.g., text input fields).
+  switch (snapshot.elementType) {
+      case XCUIElementTypeTextField:
+      case XCUIElementTypeSecureTextField:
+      case XCUIElementTypeSearchField: {
+          // Copy base attributes to a mutable dictionary so we can add placeholderValue.
+          attributeBlocks = [baseAttributeBlocks mutableCopy];
+          attributeBlocks[FBExclusionAttributePlaceholderValue] = ^{
+            return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
+        };
+          break;
+      }
+      default:
+          // Use the base attributes as-is if placeholderValue is not applicable.
+          attributeBlocks = [baseAttributeBlocks copy];
+          break;
+  }
 
   NSSet *nonPrefixedKeys = [NSSet setWithObjects:FBExclusionAttributeFrame, FBExclusionAttributePlaceholderValue, nil];
 
