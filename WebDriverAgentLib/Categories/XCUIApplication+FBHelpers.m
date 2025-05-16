@@ -45,7 +45,7 @@ static NSString* const FBExclusionAttributeEnabled = @"enabled";
 static NSString* const FBExclusionAttributeVisible = @"visible";
 static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
-
+static NSString* const FBExclusionAttributeRealFrame = @"realFrame";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -188,7 +188,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   return [self.class accessibilityInfoForElement:snapshot];
 }
 
-+ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot 
++ (NSDictionary *)dictionaryForElement:(id<FBXCElementSnapshot>)snapshot
                              recursive:(BOOL)recursive
                     excludedAttributes:(nullable NSSet<NSString *> *)excludedAttributes
 {
@@ -205,6 +205,9 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       FBExclusionAttributeFrame: ^{
           return NSStringFromCGRect(wrappedSnapshot.wdFrame);
       },
+      FBExclusionAttributeRealFrame: ^{
+          return wrappedSnapshot.wdRealFrameString;
+      },
       FBExclusionAttributeEnabled: ^{
           return [@([wrappedSnapshot isWDEnabled]) stringValue];
       },
@@ -219,10 +222,12 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       }
   };
 
+  NSSet *nonPrefixedKeys = [NSSet setWithObjects:FBExclusionAttributeFrame, FBExclusionAttributeRealFrame, nil];
+
   for (NSString *key in attributeBlocks) {
       if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
-          if ([key isEqualToString:FBExclusionAttributeFrame]) {
+          if ([nonPrefixedKeys containsObject:key]) {
               info[key] = value;
           } else {
               info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
