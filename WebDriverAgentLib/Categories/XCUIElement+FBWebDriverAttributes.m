@@ -155,6 +155,34 @@
     : CGRectIntegral(frame);
 }
 
+- (CGRect)wdRealFrame
+{
+  CGRect frame = self.frame;
+  // To prevent confusion regarding the frame returned by `wdFrame`,
+  // an additional property is provided to represent the actual rendered
+  // frame of the element.
+  //
+  // Use `wdRealFrameString` to obtain this value in a simplified string
+  // format, avoiding excessively long numeric values in the JSON output.
+  double factor = pow(10, 2);
+  return CGRectMake(
+      round(frame.origin.x * factor) / factor,
+      round(frame.origin.y * factor) / factor,
+      round(frame.size.width * factor) / factor,
+      round(frame.size.height * factor) / factor
+  );
+}
+
+- (NSString *)wdRealFrameString
+{
+  CGRect frame = self.wdRealFrame;
+  return [NSString stringWithFormat:@"{{%g, %g}, {%g, %g}}",
+          frame.origin.x,
+          frame.origin.y,
+          frame.size.width,
+          frame.size.height];
+}
+
 - (BOOL)isWDVisible
 {
   return self.fb_isVisible;
