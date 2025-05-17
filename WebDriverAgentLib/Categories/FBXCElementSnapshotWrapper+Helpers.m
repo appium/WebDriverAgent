@@ -162,6 +162,13 @@ inline static BOOL isNilOrEmpty(id value);
   return [NSValue valueWithCGPoint:result.hitPoint];
 }
 
+- (BOOL)fb_supportsPlaceholder {
+  XCUIElementType elementType = self.elementType;
+  return elementType == XCUIElementTypeTextField
+    || elementType == XCUIElementTypeSearchField
+    || elementType == XCUIElementTypeSecureTextField;
+}
+
 @end
 
 inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snapshot, NSArray<NSNumber *> *types)
