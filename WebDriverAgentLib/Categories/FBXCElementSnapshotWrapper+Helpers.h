@@ -96,6 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSValue *)fb_hitPoint;
 
+/**
+ @return YES,  if the element type is one that supports placeholder text
+ */
+- (BOOL)fb_supportsPlaceholder;
+
 @end
 
 NS_ASSUME_NONNULL_END

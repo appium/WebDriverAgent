@@ -45,6 +45,7 @@ static NSString* const FBExclusionAttributeEnabled = @"enabled";
 static NSString* const FBExclusionAttributeVisible = @"visible";
 static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
+static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
@@ -201,28 +202,16 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   info[@"label"] = FBValueOrNull(wrappedSnapshot.wdLabel);
   info[@"rect"] = wrappedSnapshot.wdRect;
   
-  NSDictionary<NSString *, NSString * (^)(void)> *attributeBlocks = @{
-      FBExclusionAttributeFrame: ^{
-          return NSStringFromCGRect(wrappedSnapshot.wdFrame);
-      },
-      FBExclusionAttributeEnabled: ^{
-          return [@([wrappedSnapshot isWDEnabled]) stringValue];
-      },
-      FBExclusionAttributeVisible: ^{
-          return [@([wrappedSnapshot isWDVisible]) stringValue];
-      },
-      FBExclusionAttributeAccessible: ^{
-          return [@([wrappedSnapshot isWDAccessible]) stringValue];
-      },
-      FBExclusionAttributeFocused: ^{
-          return [@([wrappedSnapshot isWDFocused]) stringValue];
-      }
-  };
+  NSMutableDictionary<NSString *, NSString *(^)(void)> *attributeBlocks = [self attributeBlockMapForSnapshot:snapshot
+                                                                                wrappedSnapshot:wrappedSnapshot];
+
+  NSSet *nonPrefixedKeys = [NSSet setWithObjects:FBExclusionAttributeFrame,
+                            FBExclusionAttributePlaceholderValue, nil];
 
   for (NSString *key in attributeBlocks) {
       if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
-          if ([key isEqualToString:FBExclusionAttributeFrame]) {
+          if ([nonPrefixedKeys containsObject:key]) {
               info[key] = value;
           } else {
               info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
@@ -246,6 +235,41 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     }
   }
   return info;
+}
+
+// Private helper that builds all attribute blocks for a given snapshot.
+// Includes both base attributes and any element-specific ones (e.g. placeholder for text inputs, etc.).
++ (NSMutableDictionary<NSString *, NSString *(^)(void)> *)attributeBlockMapForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                                                       wrappedSnapshot:(FBXCElementSnapshotWrapper *)wrappedSnapshot
+{
+  // Base attributes common to every element
+  NSMutableDictionary<NSString *, NSString *(^)(void)> *blocks =
+  [@{
+    FBExclusionAttributeFrame: ^{
+    return NSStringFromCGRect(wrappedSnapshot.wdFrame);
+  },
+    FBExclusionAttributeEnabled: ^{
+    return [@([wrappedSnapshot isWDEnabled]) stringValue];
+  },
+    FBExclusionAttributeVisible: ^{
+    return [@([wrappedSnapshot isWDVisible]) stringValue];
+  },
+    FBExclusionAttributeAccessible: ^{
+    return [@([wrappedSnapshot isWDAccessible]) stringValue];
+  },
+    FBExclusionAttributeFocused: ^{
+    return [@([wrappedSnapshot isWDFocused]) stringValue];
+  }
+  } mutableCopy];
+  
+  // Text-input placeholder (only for elements that support inner text)
+  if ([wrappedSnapshot fb_supportsPlaceholder]) {
+    blocks[FBExclusionAttributePlaceholderValue] = ^{
+      return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
+    };
+  }
+  
+  return blocks;
 }
 
 + (NSDictionary *)accessibilityInfoForElement:(id<FBXCElementSnapshot>)snapshot
