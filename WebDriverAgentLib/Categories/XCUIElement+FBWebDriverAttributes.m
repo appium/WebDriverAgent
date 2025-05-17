@@ -10,6 +10,7 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 
 #import "FBElementTypeTransformer.h"
+#import "FBElementHelpers.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBXCElementSnapshotWrapper.h"
@@ -70,15 +71,6 @@
   return [self valueForKey:[FBElementUtils wdAttributeNameForAttributeName:name]];
 }
 
-- (BOOL)fb_supportsInnerText
-{
-  XCUIElementType elementType = self.elementType;
-  return elementType == XCUIElementTypeTextView
-    || elementType == XCUIElementTypeTextField
-    || elementType == XCUIElementTypeSearchField
-    || elementType == XCUIElementTypeSecureTextField;
-}
-
 - (NSString *)wdValue
 {
   id value = self.value;
@@ -91,7 +83,7 @@
     value = FBFirstNonEmptyValue(value, isSelected);
   } else if (elementType == XCUIElementTypeSwitch) {
     value = @([value boolValue]);
-  } else if (self.fb_supportsInnerText) {
+  } else if (FBDoesElementSupportsInnerText(elementType)) {
     NSString *placeholderValue = self.placeholderValue;
     value = FBFirstNonEmptyValue(value, placeholderValue);
   }
@@ -128,7 +120,7 @@
 
 - (NSString *)wdPlaceholderValue
 {
-  return self.fb_supportsInnerText
+  return FBDoesElementSupportsInnerText(self.elementType)
     ? self.placeholderValue
     : FBTransferEmptyStringToNil(self.placeholderValue);
 }
