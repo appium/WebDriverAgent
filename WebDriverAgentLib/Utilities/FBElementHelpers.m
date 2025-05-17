@@ -9,7 +9,7 @@
 
 #import "FBElementHelpers.h"
 
-BOOL FBDoesElementSupportsInnerText(XCUIElementType elementType) {
+BOOL FBDoesElementSupportInnerText(XCUIElementType elementType) {
   return elementType == XCUIElementTypeTextView
     || elementType == XCUIElementTypeTextField
     || elementType == XCUIElementTypeSearchField

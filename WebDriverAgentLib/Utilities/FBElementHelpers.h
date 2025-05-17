@@ -17,6 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param elementType XCTest element type
  @return YES if the elemnt is a text field
  */
-BOOL FBDoesElementSupportsInnerText(XCUIElementType elementType);
+BOOL FBDoesElementSupportInnerText(XCUIElementType elementType);
 
 NS_ASSUME_NONNULL_END

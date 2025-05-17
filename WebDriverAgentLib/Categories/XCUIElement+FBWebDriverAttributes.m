@@ -83,7 +83,7 @@
     value = FBFirstNonEmptyValue(value, isSelected);
   } else if (elementType == XCUIElementTypeSwitch) {
     value = @([value boolValue]);
-  } else if (FBDoesElementSupportsInnerText(elementType)) {
+  } else if (FBDoesElementSupportInnerText(elementType)) {
     NSString *placeholderValue = self.placeholderValue;
     value = FBFirstNonEmptyValue(value, placeholderValue);
   }
@@ -120,7 +120,7 @@
 
 - (NSString *)wdPlaceholderValue
 {
-  return FBDoesElementSupportsInnerText(self.elementType)
+  return FBDoesElementSupportInnerText(self.elementType)
     ? self.placeholderValue
     : FBTransferEmptyStringToNil(self.placeholderValue);
 }
