@@ -147,6 +147,14 @@
     : CGRectIntegral(frame);
 }
 
+- (CGRect)wdNativeFrame
+{
+  // To avoid confusion regarding the frame returned by `wdFrame`,
+  // the current property is provided to represent the element's
+  // actual rendered frame.
+  return self.frame;
+}
+
 - (BOOL)isWDVisible
 {
   return self.fb_isVisible;

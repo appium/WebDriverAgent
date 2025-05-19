@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's frame in normalized (rounded dimensions without Infinity values) CGRect format */
 @property (nonatomic, readonly, assign) CGRect wdFrame;
 
+/*! Represents the element's frame as a CGRect, preserving the actual values. */
+@property (nonatomic, readonly, assign) CGRect wdNativeFrame;
+
 /*! Element's wsFrame in NSDictionary format */
 @property (nonatomic, readonly, copy) NSDictionary *wdRect;
 
