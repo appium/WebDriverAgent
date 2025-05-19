@@ -47,7 +47,7 @@ static NSString* const FBExclusionAttributeVisible = @"visible";
 static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
-
+static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -205,8 +205,11 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   
   NSDictionary<NSString *, NSString *(^)(void)> *attributeBlocks = [self fb_attributeBlockMapForWrappedSnapshot:wrappedSnapshot];
 
-  NSSet *nonPrefixedKeys = [NSSet setWithObjects:FBExclusionAttributeFrame,
-                            FBExclusionAttributePlaceholderValue, nil];
+  NSSet *nonPrefixedKeys = [NSSet setWithObjects:
+                            FBExclusionAttributeFrame,
+                            FBExclusionAttributePlaceholderValue,
+                            FBExclusionAttributeNativeFrame,
+                            nil];
 
   for (NSString *key in attributeBlocks) {
       if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
@@ -247,6 +250,9 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   [@{
     FBExclusionAttributeFrame: ^{
     return NSStringFromCGRect(wrappedSnapshot.wdFrame);
+  },
+    FBExclusionAttributeNativeFrame: ^{
+    return NSStringFromCGRect(wrappedSnapshot.wdNativeFrame);
   },
     FBExclusionAttributeEnabled: ^{
     return [@([wrappedSnapshot isWDEnabled]) stringValue];
