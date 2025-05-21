@@ -211,8 +211,6 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
                             FBExclusionAttributeNativeFrame,
                             nil];
 
-  NSSet *nonPrefixedKeys = [NSSet setWithObjects:FBExclusionAttributeFrame, FBExclusionAttributeNativeFrame, nil];
-
   for (NSString *key in attributeBlocks) {
       if (excludedAttributes == nil || ![excludedAttributes containsObject:key]) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
