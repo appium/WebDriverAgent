@@ -97,6 +97,34 @@
   XCTAssertEqual(element2.wdIndex, 0);
 }
 
+- (void)testAccessibilityTraits
+{
+  XCUIElement *button = self.testedApplication.buttons.firstMatch;
+  XCTAssertTrue(button.exists);
+  XCTAssertEqualObjects(button.wdTraits, @"Button");
+  XCTAssertEqualObjects(button.wdType, @"XCUIElementTypeButton");
+  
+  XCUIElement *toggle = self.testedApplication.switches.firstMatch;
+  XCTAssertTrue(toggle.exists);
+  XCTAssertEqualObjects(toggle.wdTraits, @"ToggleButton, Button");
+  XCTAssertEqualObjects(toggle.wdType, @"XCUIElementTypeSwitch");
+  
+  XCUIElement *slider = self.testedApplication.sliders.firstMatch;
+  XCTAssertTrue(slider.exists);
+  XCTAssertEqualObjects(slider.wdTraits, @"Adjustable");
+  XCTAssertEqualObjects(slider.wdType, @"XCUIElementTypeSlider");
+  
+  XCUIElement *picker = self.testedApplication.pickerWheels.firstMatch;
+  XCTAssertTrue(picker.exists);
+  XCTAssertEqualObjects(picker.wdTraits, @"Adjustable");
+  XCTAssertEqualObjects(picker.wdType, @"XCUIElementTypePickerWheel");
+  
+  XCUIElement *pageIndicator = self.testedApplication.pageIndicators.firstMatch;
+  XCTAssertTrue(pageIndicator.exists);
+  XCTAssertEqualObjects(pageIndicator.wdTraits, @"Adjustable, UpdatesFrequently");
+  XCTAssertEqualObjects(pageIndicator.wdType, @"XCUIElementTypePageIndicator");
+}
+
 - (void)testTextFieldAttributes
 {
   XCUIElement *element = self.testedApplication.textFields[@"Value"];
