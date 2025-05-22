@@ -48,6 +48,7 @@ static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
+static NSString* const FBExclusionAttributeHittable = @"hittable";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -203,7 +204,9 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   info[@"label"] = FBValueOrNull(wrappedSnapshot.wdLabel);
   info[@"rect"] = wrappedSnapshot.wdRect;
   
-  NSDictionary<NSString *, NSString *(^)(void)> *attributeBlocks = [self fb_attributeBlockMapForWrappedSnapshot:wrappedSnapshot];
+  NSDictionary<NSString *, NSString *(^)(void)> *attributeBlocks = [self fb_attributeBlockMapForWrappedSnapshot:wrappedSnapshot
+                              excludedAttributes:excludedAttributes];
+
 
   NSSet *nonPrefixedKeys = [NSSet setWithObjects:
                             FBExclusionAttributeFrame,
@@ -243,6 +246,8 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 // Helper used by `dictionaryForElement:` to assemble attribute value blocks,
 // including both common attributes and conditionally included ones like placeholderValue.
 + (NSDictionary<NSString *, NSString *(^)(void)> *)fb_attributeBlockMapForWrappedSnapshot:(FBXCElementSnapshotWrapper *)wrappedSnapshot
+                                                                    excludedAttributes:(nullable NSSet<NSString *> *)excludedAttributes
+
 
 {
   // Base attributes common to every element
@@ -276,6 +281,13 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
     };
   }
+  
+  // Adding isHittable, only if not excluded
+    if (excludedAttributes == nil || ![excludedAttributes containsObject:FBExclusionAttributeHittable]) {
+      blocks[FBExclusionAttributeHittable] = ^{
+        return [@([wrappedSnapshot isWDNativeHittable]) stringValue];
+      };
+    }
   
   return [blocks copy];
 }
