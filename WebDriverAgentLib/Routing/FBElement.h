@@ -38,6 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's type */
 @property (nonatomic, readonly, copy) NSString *wdType;
 
+/*! Element's accessibility traits as a comma-separated string */
+@property (nonatomic, readonly, copy) NSString *wdTraits;
+
 /*! Element's value */
 @property (nonatomic, readonly, strong, nullable) NSString *wdValue;
 

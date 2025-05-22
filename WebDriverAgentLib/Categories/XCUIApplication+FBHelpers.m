@@ -48,6 +48,7 @@ static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
+static NSString* const FBExclusionAttributeTraits = @"traits";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -209,6 +210,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
                             FBExclusionAttributeFrame,
                             FBExclusionAttributePlaceholderValue,
                             FBExclusionAttributeNativeFrame,
+                            FBExclusionAttributeTraits,
                             nil];
 
   for (NSString *key in attributeBlocks) {
@@ -276,6 +278,11 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
     };
   }
+  
+  // Accessibility traits as readable strings
+  blocks[FBExclusionAttributeTraits] = ^{
+    return wrappedSnapshot.wdTraits;
+  };
   
   return [blocks copy];
 }
