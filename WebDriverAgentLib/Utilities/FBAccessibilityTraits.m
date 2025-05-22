@@ -18,7 +18,7 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
-        traitsMapping = @{
+        NSMutableDictionary<NSNumber *, NSString *> *mapping = [@{
             @(UIAccessibilityTraitNone): @"None",
             @(UIAccessibilityTraitButton): @"Button",
             @(UIAccessibilityTraitLink): @"Link",
@@ -36,10 +36,27 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
             @(UIAccessibilityTraitAdjustable): @"Adjustable",
             @(UIAccessibilityTraitAllowsDirectInteraction): @"AllowsDirectInteraction",
             @(UIAccessibilityTraitCausesPageTurn): @"CausesPageTurn",
-            @(UIAccessibilityTraitTabBar): @"TabBar",
-            @(UIAccessibilityTraitToggleButton): @"ToggleButton",
-            @(UIAccessibilityTraitSupportsZoom): @"SupportsZoom"
-        };
+            @(UIAccessibilityTraitTabBar): @"TabBar"
+        } mutableCopy];
+        
+        // Add iOS 17.0 and watchOS 10.0 specific traits if available
+        #if TARGET_OS_IOS
+        if (@available(iOS 17.0, *)) {
+            [mapping addEntriesFromDictionary:@{
+                @(UIAccessibilityTraitToggleButton): @"ToggleButton",
+                @(UIAccessibilityTraitSupportsZoom): @"SupportsZoom"
+            }];
+        }
+        #elif TARGET_OS_WATCH
+        if (@available(watchOS 10.0, *)) {
+            [mapping addEntriesFromDictionary:@{
+                @(UIAccessibilityTraitToggleButton): @"ToggleButton",
+                @(UIAccessibilityTraitSupportsZoom): @"SupportsZoom"
+            }];
+        }
+        #endif
+        
+        traitsMapping = [mapping copy];
     });
 
     traitStringsArray = [NSMutableArray array];
