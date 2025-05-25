@@ -267,7 +267,10 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   },
     FBExclusionAttributeFocused: ^{
     return [@([wrappedSnapshot isWDFocused]) stringValue];
-  }
+  },
+    FBExclusionAttributeTraits: ^{
+    return wrappedSnapshot.wdTraits;
+    }
   } mutableCopy];
   
   XCUIElementType elementType = wrappedSnapshot.elementType;
@@ -278,11 +281,6 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
     };
   }
-  
-  // Accessibility traits as readable strings
-  blocks[FBExclusionAttributeTraits] = ^{
-    return wrappedSnapshot.wdTraits;
-  };
   
   return [blocks copy];
 }

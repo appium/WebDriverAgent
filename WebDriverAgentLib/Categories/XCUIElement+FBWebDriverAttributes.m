@@ -161,6 +161,8 @@
  This method converts the element's accessibility traits bitmask into human-readable strings
  using fb_accessibilityTraitsToStringsArray. The traits represent various accessibility
  characteristics of the element such as Button, Link, Image, etc.
+ You can find the list of possible traits in the Apple documentation:
+ https://developer.apple.com/documentation/uikit/uiaccessibilitytraits?language=objc
  
  @return A comma-separated string of accessibility traits, or an empty string if no traits are set
  */

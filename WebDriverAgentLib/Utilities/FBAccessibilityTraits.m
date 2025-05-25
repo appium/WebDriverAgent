@@ -11,7 +11,6 @@
 
 NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long traits) {
     NSMutableArray<NSString *> *traitStringsArray;
-    NSString *traitString;
     NSNumber *key;
     
     static NSDictionary<NSNumber *, NSString *> *traitsMapping;
@@ -39,16 +38,9 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
             @(UIAccessibilityTraitTabBar): @"TabBar"
         } mutableCopy];
         
-        // Add iOS 17.0 and watchOS 10.0 specific traits if available
+        // Add iOS 17.0 specific traits if available
         #if TARGET_OS_IOS
         if (@available(iOS 17.0, *)) {
-            [mapping addEntriesFromDictionary:@{
-                @(UIAccessibilityTraitToggleButton): @"ToggleButton",
-                @(UIAccessibilityTraitSupportsZoom): @"SupportsZoom"
-            }];
-        }
-        #elif TARGET_OS_WATCH
-        if (@available(watchOS 10.0, *)) {
             [mapping addEntriesFromDictionary:@{
                 @(UIAccessibilityTraitToggleButton): @"ToggleButton",
                 @(UIAccessibilityTraitSupportsZoom): @"SupportsZoom"
@@ -61,13 +53,10 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
 
     traitStringsArray = [NSMutableArray array];
     for (key in traitsMapping) {
-        if (traits & [key unsignedLongLongValue]) {
-            traitString = traitsMapping[key];
-            if (traitString != nil) {
-                [traitStringsArray addObject:traitString];
-            }
-        }
+      if (traits & [key unsignedLongLongValue] && nil != traitsMapping[key]) {
+        [traitStringsArray addObject:traitsMapping[key]];
+      }
     }
 
-    return traitStringsArray;
+    return [traitStringsArray copy];
 }
