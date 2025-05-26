@@ -15,7 +15,6 @@
 #import "FBMacros.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBScrolling.h"
-
 #import "XCUIElement+FBClassChain.h"
 #import "FBXCodeCompatibility.h"
 
@@ -43,8 +42,12 @@
 {
   FBAssertVisibleCell(@"0");
   FBAssertVisibleCell(@"10");
+  XCUIElement *cell10 = FBCellElementWithLabel(@"10");
+  XCTAssertEqual([cell10 isWDHittable], [cell10 isHittable]);
   FBAssertInvisibleCell(@"30");
   FBAssertInvisibleCell(@"50");
+  XCUIElement *cell50 = FBCellElementWithLabel(@"50");
+  XCTAssertEqual([cell50 isWDHittable], [cell50 isHittable]);
 }
 
 - (void)testSimpleScroll

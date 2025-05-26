@@ -16,7 +16,6 @@
 #import "XCUIElement+FBAccessibility.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
-#import "FBXCodeCompatibility.h"
 
 @interface FBElementAttributeTests : FBIntegrationTestCase
 @end
@@ -157,7 +156,7 @@
   XCTAssertNil(element.wdPlaceholderValue);
   XCTAssertEqualObjects(element.wdValue, @"1");
   XCTAssertFalse(element.wdSelected);
-  XCTAssertTrue(element.wdHittable);
+  XCTAssertEqual(element.wdHittable, element.hittable);
   [element tap];
   XCTAssertEqualObjects(element.wdValue, @"0");
   XCTAssertFalse(element.wdSelected);

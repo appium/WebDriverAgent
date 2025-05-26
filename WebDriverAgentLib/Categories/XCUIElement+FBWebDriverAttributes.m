@@ -29,6 +29,10 @@
 
 - (id<FBXCElementSnapshot>)fb_snapshotForAttributeName:(NSString *)name
 {
+  // https://github.com/appium/appium-xcuitest-driver/pull/2565
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDHittable)]) {
+    return [self fb_nativeSnapshot];
+  }
   // https://github.com/appium/appium-xcuitest-driver/issues/2552
   BOOL isValueRequest = [name isEqualToString:FBStringify(XCUIElement, wdValue)];
   if ([self isKindOfClass:XCUIApplication.class] && !isValueRequest) {
