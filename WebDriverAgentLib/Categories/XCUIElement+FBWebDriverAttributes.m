@@ -159,7 +159,7 @@
 /**
  Returns a comma-separated string of accessibility traits for the element.
  This method converts the element's accessibility traits bitmask into human-readable strings
- using fb_accessibilityTraitsToStringsArray. The traits represent various accessibility
+ using FBAccessibilityTraitsToStringsArray. The traits represent various accessibility
  characteristics of the element such as Button, Link, Image, etc.
  You can find the list of possible traits in the Apple documentation:
  https://developer.apple.com/documentation/uikit/uiaccessibilitytraits?language=objc
@@ -168,7 +168,7 @@
  */
 - (NSString *)wdTraits
 {
-  NSArray<NSString *> *traits = fb_accessibilityTraitsToStringsArray(self.snapshot.traits);
+  NSArray<NSString *> *traits = FBAccessibilityTraitsToStringsArray(self.snapshot.traits);
   return [traits componentsJoinedByString:@", "];
 }
 

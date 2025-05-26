@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param traits The accessibility traits bitmask
  @return Array of strings representing the accessibility traits
  */
-NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long traits);
+NSArray<NSString *> *FBAccessibilityTraitsToStringsArray(unsigned long long traits);
 
 NS_ASSUME_NONNULL_END
 

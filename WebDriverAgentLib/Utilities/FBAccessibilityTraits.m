@@ -9,7 +9,7 @@
 
 #import <XCTest/XCTest.h>
 
-NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long traits) {
+NSArray<NSString *> *FBAccessibilityTraitsToStringsArray(unsigned long long traits) {
     NSMutableArray<NSString *> *traitStringsArray;
     NSNumber *key;
     
@@ -38,8 +38,8 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
             @(UIAccessibilityTraitTabBar): @"TabBar"
         } mutableCopy];
         
+        #if __clang_major__ >= 15 || (__clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3)
         // Add iOS 17.0 specific traits if available
-        #if TARGET_OS_IOS
         if (@available(iOS 17.0, *)) {
             [mapping addEntriesFromDictionary:@{
                 @(UIAccessibilityTraitToggleButton): @"ToggleButton",
@@ -54,7 +54,7 @@ NSArray<NSString *> *fb_accessibilityTraitsToStringsArray(unsigned long long tra
     traitStringsArray = [NSMutableArray array];
     for (key in traitsMapping) {
       if (traits & [key unsignedLongLongValue] && nil != traitsMapping[key]) {
-        [traitStringsArray addObject:traitsMapping[key]];
+        [traitStringsArray addObject:(id)traitsMapping[key]];
       }
     }
 
