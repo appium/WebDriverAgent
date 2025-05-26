@@ -146,7 +146,8 @@ static NSString *const topNodeIndexPath = @"top";
     }
 
     if (rc >= 0) {
-      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root]
+      [self waitUntilStableWithElement:root];
+      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root useNative:NO]
                                            writer:writer
                                      elementStore:nil
                                             query:nil
@@ -196,17 +197,23 @@ static NSString *const topNodeIndexPath = @"top";
   int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
   id<FBXCElementSnapshot> lookupScopeSnapshot = nil;
   id<FBXCElementSnapshot> contextRootSnapshot = nil;
+  BOOL useNativeSnapshot = nil == xpathQuery
+    ? NO
+    : [[self.class elementAttributesWithXPathQuery:xpathQuery] containsObject:FBHittableAttribute.class];
   if (rc < 0) {
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
   } else {
+    [self waitUntilStableWithElement:root];
     if (FBConfiguration.limitXpathContextScope) {
-      lookupScopeSnapshot = [self snapshotWithRoot:root];
+      lookupScopeSnapshot = [self snapshotWithRoot:root useNative:useNativeSnapshot];
     } else {
       if ([root isKindOfClass:XCUIElement.class]) {
-        lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]];
+        lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]
+                                           useNative:useNativeSnapshot];
         contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
           ? nil
-          : ([(XCUIElement *)root lastSnapshot] ?: [(XCUIElement *)root fb_customSnapshot]);
+          : ([(XCUIElement *)root lastSnapshot] ?: [self snapshotWithRoot:(XCUIElement *)root
+                                                                useNative:useNativeSnapshot]);
       } else {
         lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
         contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
@@ -483,17 +490,27 @@ static NSString *const topNodeIndexPath = @"top";
 }
 
 + (id<FBXCElementSnapshot>)snapshotWithRoot:(id<FBElement>)root
+                                  useNative:(BOOL)useNative
 {
   if (![root isKindOfClass:XCUIElement.class]) {
     return (id<FBXCElementSnapshot>)root;
   }
 
-  // If the app is not idle state while we retrieve the visiblity state
-  // then the snapshot retrieval operation might freeze and time out
-  [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  if (useNative) {
+    return [(XCUIElement *)root fb_nativeSnapshot];
+  }
   return [root isKindOfClass:XCUIApplication.class]
     ? [(XCUIElement *)root fb_standardSnapshot]
     : [(XCUIElement *)root fb_customSnapshot];
+}
+
++ (void)waitUntilStableWithElement:(id<FBElement>)root
+{
+  if ([root isKindOfClass:XCUIElement.class]) {
+    // If the app is not idle state while we retrieve the visiblity state
+    // then the snapshot retrieval operation might freeze and time out
+    [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  }
 }
 
 @end

@@ -461,4 +461,13 @@
   XCTAssertFalse(matchingSnapshots.lastObject.fb_isVisible);
 }
 
+- (void)testNonHittableDescendantWithXPathQuery
+{
+  NSArray<XCUIElement *> *matchingSnapshots = [self.testedApplication fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeStaticText[@hittable='false']"
+                                                                           shouldReturnAfterFirstMatch:NO];
+  XCTAssertGreaterThan(matchingSnapshots.count, 1);
+  XCTAssertEqual(matchingSnapshots.lastObject.elementType, XCUIElementTypeStaticText);
+  XCTAssertFalse(matchingSnapshots.lastObject.fb_isVisible);
+}
+
 @end

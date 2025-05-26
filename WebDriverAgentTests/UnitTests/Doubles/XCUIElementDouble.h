@@ -28,6 +28,7 @@
 @property (nonatomic, strong, readwrite, nullable) NSString *wdValue;
 @property (nonatomic, readwrite, getter=isWDEnabled) BOOL wdEnabled;
 @property (nonatomic, readwrite, getter=isWDSelected) BOOL wdSelected;
+@property (nonatomic, readwrite, assign) CGRect wdNativeFrame;
 @property (nonatomic, readwrite) NSUInteger wdIndex;
 @property (nonatomic, readwrite, getter=isWDVisible) BOOL wdVisible;
 @property (nonatomic, readwrite, getter=isWDAccessible) BOOL wdAccessible;

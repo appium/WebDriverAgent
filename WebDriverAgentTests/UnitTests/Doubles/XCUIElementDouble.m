@@ -19,7 +19,8 @@
 {
   self = [super init];
   if (self) {
-    self.wdFrame = CGRectMake(0, 0, 0, 0);
+    self.wdFrame = CGRectZero;
+    self.wdNativeFrame = CGRectZero;
     self.wdName = @"testName";
     self.wdLabel = @"testLabel";
     self.wdValue = @"magicValue";
