@@ -38,7 +38,7 @@ NSArray<NSString *> *FBAccessibilityTraitsToStringsArray(unsigned long long trai
             @(UIAccessibilityTraitTabBar): @"TabBar"
         } mutableCopy];
         
-        #if __clang_major__ >= 15 || (__clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3)
+        #if __clang_major__ >= 16
         // Add iOS 17.0 specific traits if available
         if (@available(iOS 17.0, *)) {
             [mapping addEntriesFromDictionary:@{
