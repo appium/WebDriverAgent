@@ -270,7 +270,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   },
     FBExclusionAttributeTraits: ^{
     return wrappedSnapshot.wdTraits;
-    }
+  }
   } mutableCopy];
   
   XCUIElementType elementType = wrappedSnapshot.elementType;

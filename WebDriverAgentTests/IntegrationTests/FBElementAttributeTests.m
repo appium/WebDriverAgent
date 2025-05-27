@@ -106,7 +106,14 @@
   
   XCUIElement *toggle = self.testedApplication.switches.firstMatch;
   XCTAssertTrue(toggle.exists);
-  XCTAssertEqualObjects(toggle.wdTraits, @"ToggleButton, Button");
+  
+  // iOS 17.0 specific traits if available
+  if (@available(iOS 17.0, *)) {
+    XCTAssertEqualObjects(toggle.wdTraits, @"ToggleButton, Button");
+  } else {
+    XCTAssertEqualObjects(toggle.wdTraits, @"Button");
+  }
+  
   XCTAssertEqualObjects(toggle.wdType, @"XCUIElementTypeSwitch");
   
   XCUIElement *slider = self.testedApplication.sliders.firstMatch;

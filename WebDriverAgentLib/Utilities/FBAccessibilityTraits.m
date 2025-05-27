@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <XCTest/XCTest.h>
+#import "FBAccessibilityTraits.h"
 
 NSArray<NSString *> *FBAccessibilityTraitsToStringsArray(unsigned long long traits) {
     NSMutableArray<NSString *> *traitStringsArray;
