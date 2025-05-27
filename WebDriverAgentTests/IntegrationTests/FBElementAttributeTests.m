@@ -101,34 +101,50 @@
 {
   XCUIElement *button = self.testedApplication.buttons.firstMatch;
   XCTAssertTrue(button.exists);
-  XCTAssertEqualObjects(button.wdTraits, @"Button");
+  NSArray *buttonTraits = [button.wdTraits componentsSeparatedByString:@", "];
+  NSArray *expectedButtonTraits = @[@"Button"];
+  XCTAssertEqual(buttonTraits.count, expectedButtonTraits.count, @"Button should have exactly 1 trait");
+  XCTAssertEqualObjects(buttonTraits, expectedButtonTraits);
   XCTAssertEqualObjects(button.wdType, @"XCUIElementTypeButton");
   
   XCUIElement *toggle = self.testedApplication.switches.firstMatch;
   XCTAssertTrue(toggle.exists);
   
   // iOS 17.0 specific traits if available
+  NSArray *toggleTraits = [toggle.wdTraits componentsSeparatedByString:@", "];
+  NSArray *expectedToggleTraits;
   if (@available(iOS 17.0, *)) {
-    XCTAssertEqualObjects(toggle.wdTraits, @"ToggleButton, Button");
+    expectedToggleTraits = @[@"ToggleButton", @"Button"];
+    XCTAssertEqual(toggleTraits.count, 2, @"Toggle should have exactly 2 traits on iOS 17+");
   } else {
-    XCTAssertEqualObjects(toggle.wdTraits, @"Button");
+    expectedToggleTraits = @[@"Button"];
+    XCTAssertEqual(toggleTraits.count, 1, @"Toggle should have exactly 1 trait on iOS < 17");
   }
-  
+  XCTAssertEqualObjects(toggleTraits, expectedToggleTraits);
   XCTAssertEqualObjects(toggle.wdType, @"XCUIElementTypeSwitch");
   
   XCUIElement *slider = self.testedApplication.sliders.firstMatch;
   XCTAssertTrue(slider.exists);
-  XCTAssertEqualObjects(slider.wdTraits, @"Adjustable");
+  NSArray *sliderTraits = [slider.wdTraits componentsSeparatedByString:@", "];
+  NSArray *expectedSliderTraits = @[@"Adjustable"];
+  XCTAssertEqual(sliderTraits.count, expectedSliderTraits.count, @"Slider should have exactly 1 trait");
+  XCTAssertEqualObjects(sliderTraits, expectedSliderTraits);
   XCTAssertEqualObjects(slider.wdType, @"XCUIElementTypeSlider");
   
   XCUIElement *picker = self.testedApplication.pickerWheels.firstMatch;
   XCTAssertTrue(picker.exists);
-  XCTAssertEqualObjects(picker.wdTraits, @"Adjustable");
+  NSArray *pickerTraits = [picker.wdTraits componentsSeparatedByString:@", "];
+  NSArray *expectedPickerTraits = @[@"Adjustable"];
+  XCTAssertEqual(pickerTraits.count, expectedPickerTraits.count, @"Picker should have exactly 1 trait");
+  XCTAssertEqualObjects(pickerTraits, expectedPickerTraits);
   XCTAssertEqualObjects(picker.wdType, @"XCUIElementTypePickerWheel");
   
   XCUIElement *pageIndicator = self.testedApplication.pageIndicators.firstMatch;
   XCTAssertTrue(pageIndicator.exists);
-  XCTAssertEqualObjects(pageIndicator.wdTraits, @"Adjustable, UpdatesFrequently");
+  NSArray *pageIndicatorTraits = [pageIndicator.wdTraits componentsSeparatedByString:@", "];
+  NSArray *expectedPageIndicatorTraits = @[@"Adjustable", @"UpdatesFrequently"];
+  XCTAssertEqual(pageIndicatorTraits.count, expectedPageIndicatorTraits.count, @"Page indicator should have exactly 2 traits");
+  XCTAssertEqualObjects(pageIndicatorTraits, expectedPageIndicatorTraits);
   XCTAssertEqualObjects(pageIndicator.wdType, @"XCUIElementTypePageIndicator");
 }
 
