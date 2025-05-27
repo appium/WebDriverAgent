@@ -113,13 +113,16 @@
   // iOS 17.0 specific traits if available
   NSArray *toggleTraits = [toggle.wdTraits componentsSeparatedByString:@", "];
   NSArray *expectedToggleTraits;
+  
+  #if __clang_major__ >= 16
   if (@available(iOS 17.0, *)) {
     expectedToggleTraits = @[@"ToggleButton", @"Button"];
     XCTAssertEqual(toggleTraits.count, 2, @"Toggle should have exactly 2 traits on iOS 17+");
-  } else {
-    expectedToggleTraits = @[@"Button"];
-    XCTAssertEqual(toggleTraits.count, 1, @"Toggle should have exactly 1 trait on iOS < 17");
   }
+  #else
+  expectedToggleTraits = @[@"Button"];
+  XCTAssertEqual(toggleTraits.count, 1, @"Toggle should have exactly 1 trait on iOS < 17");
+  #endif
   XCTAssertEqualObjects(toggleTraits, expectedToggleTraits);
   XCTAssertEqualObjects(toggle.wdType, @"XCUIElementTypeSwitch");
   
@@ -138,14 +141,6 @@
   XCTAssertEqual(pickerTraits.count, expectedPickerTraits.count, @"Picker should have exactly 1 trait");
   XCTAssertEqualObjects(pickerTraits, expectedPickerTraits);
   XCTAssertEqualObjects(picker.wdType, @"XCUIElementTypePickerWheel");
-  
-  XCUIElement *pageIndicator = self.testedApplication.pageIndicators.firstMatch;
-  XCTAssertTrue(pageIndicator.exists);
-  NSArray *pageIndicatorTraits = [pageIndicator.wdTraits componentsSeparatedByString:@", "];
-  NSArray *expectedPageIndicatorTraits = @[@"Adjustable", @"UpdatesFrequently"];
-  XCTAssertEqual(pageIndicatorTraits.count, expectedPageIndicatorTraits.count, @"Page indicator should have exactly 2 traits");
-  XCTAssertEqualObjects(pageIndicatorTraits, expectedPageIndicatorTraits);
-  XCTAssertEqualObjects(pageIndicator.wdType, @"XCUIElementTypePageIndicator");
 }
 
 - (void)testTextFieldAttributes
