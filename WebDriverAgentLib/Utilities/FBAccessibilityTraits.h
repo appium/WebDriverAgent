@@ -7,9 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#ifndef FBAccessibilityTraits_h
-#define FBAccessibilityTraits_h
-
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,5 +19,3 @@ NS_ASSUME_NONNULL_BEGIN
 NSArray<NSString *> *FBAccessibilityTraitsToStringsArray(unsigned long long traits);
 
 NS_ASSUME_NONNULL_END
-
-#endif /* FBAccessibilityTraits_h */
