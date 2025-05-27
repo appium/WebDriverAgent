@@ -24,6 +24,7 @@
     self.wdLabel = @"testLabel";
     self.wdValue = @"magicValue";
     self.wdPlaceholderValue = @"testPlaceholderValue";
+    self.wdTraits = @"testTraits";
     self.wdVisible = YES;
     self.wdAccessible = YES;
     self.wdEnabled = YES;
@@ -92,6 +93,11 @@
 - (id)fb_uid
 {
   return self.wdUID;
+}
+
+- (NSString *)wdTraits
+{
+  return self.wdTraits;
 }
 
 @end

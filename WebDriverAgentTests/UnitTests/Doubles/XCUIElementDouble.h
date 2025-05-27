@@ -37,6 +37,7 @@
 @property (copy, nonnull) NSArray *children;
 @property (nonatomic, readwrite, assign) XCUIElementType elementType;
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
+@property (nonatomic, copy, readwrite, nullable) NSString *wdTraits;
 
 - (void)resolve;
 - (id _Nonnull)fb_standardSnapshot;
