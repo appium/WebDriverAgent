@@ -48,6 +48,7 @@ static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
+static NSString* const FBExclusionAttributeHittable = @"hittable";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -205,6 +206,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   
   NSDictionary<NSString *, NSString *(^)(void)> *attributeBlocks = [self fb_attributeBlockMapForWrappedSnapshot:wrappedSnapshot];
 
+
   NSSet *nonPrefixedKeys = [NSSet setWithObjects:
                             FBExclusionAttributeFrame,
                             FBExclusionAttributePlaceholderValue,
@@ -243,7 +245,6 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 // Helper used by `dictionaryForElement:` to assemble attribute value blocks,
 // including both common attributes and conditionally included ones like placeholderValue.
 + (NSDictionary<NSString *, NSString *(^)(void)> *)fb_attributeBlockMapForWrappedSnapshot:(FBXCElementSnapshotWrapper *)wrappedSnapshot
-
 {
   // Base attributes common to every element
   NSMutableDictionary<NSString *, NSString *(^)(void)> *blocks =
@@ -276,6 +277,10 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
     };
   }
+  
+  blocks[FBExclusionAttributeHittable] = ^{
+    return [@([wrappedSnapshot isWDResolvedHittable]) stringValue];
+  };
   
   return [blocks copy];
 }

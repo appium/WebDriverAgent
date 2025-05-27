@@ -22,6 +22,7 @@
 #import "FBElementUtils.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCUIHitPointResult.h"
+#import "XCUIApplication+FBHelpers.h"
 
 #define BROKEN_RECT CGRectMake(-1, -1, 0, 0)
 
@@ -240,6 +241,14 @@
 {
   XCUIHitPointResult *result = [self hitPoint:nil];
   return nil == result ? NO : result.hittable;
+}
+
+- (BOOL)isWDResolvedHittable
+{
+  // Snapshot-based estimation of XCUIElement.hittable using accessibility, visibility, and hit point.
+  // Does not rely on live XCUIElement resolution.
+  // See discussion: https://github.com/appium/WebDriverAgent/pull/1021
+  return self.isWDAccessible && self.isWDHittable && self.isWDVisible;
 }
 
 - (NSDictionary *)wdRect
