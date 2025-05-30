@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "FBXCElementSnapshotWrapper.h"
+#import <WebDriverAgentLib/FBXCElementSnapshotWrapper.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

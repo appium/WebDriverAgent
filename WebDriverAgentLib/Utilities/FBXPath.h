@@ -9,7 +9,7 @@
 
 #import <XCTest/XCTest.h>
 #import <WebDriverAgentLib/FBElement.h>
-#import "FBXCElementSnapshot.h"
+#import <WebDriverAgentLib/FBXCElementSnapshot.h>
 
 #ifdef __clang__
 #pragma clang diagnostic push

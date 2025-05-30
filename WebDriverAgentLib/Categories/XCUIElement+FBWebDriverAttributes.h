@@ -9,7 +9,7 @@
 
 #import <WebDriverAgentLib/FBElement.h>
 #import <WebDriverAgentLib/XCUIElement.h>
-#import "FBXCElementSnapshotWrapper.h"
+#import <WebDriverAgentLib/FBXCElementSnapshotWrapper.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
