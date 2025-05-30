@@ -15,21 +15,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Gets xmllib2-compatible XML representation of n XCElementSnapshot instance
- 
- @param root the root element to execute XPath query for
- @param writer the correspondig libxml2 writer object
- @param elementStore an empty dictionary to store indexes mapping or nil if no mappings should be stored
- @param query Optional XPath query value. By analyzing this query we may optimize the lookup speed.
- @param excludedAttributes The list of XML attribute names to be excluded from the generated XML representation.
- Setting nil to this argument means that none of the known attributes must be excluded.
- If `query` argument is assigned then `excludedAttributes` argument is effectively ignored.
- @return zero if the method has completed successfully
- */
-+ (int)xmlRepresentationWithRootElement:(id<FBXCElementSnapshot>)root
-                                 writer:(xmlTextWriterPtr)writer
-                           elementStore:(nullable NSMutableDictionary *)elementStore
-                                  query:(nullable NSString*)query
-                    excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes;
+
+ @param root The root element to generate XML from.
+ @param writer The corresponding libxml2 writer object.
+ @param elementStore An optional mutable dictionary used to store index path to snapshot mappings. Pass nil to skip mapping.
+ @param query An optional XPath query string. If provided, it will be used to optimize the list of included attributes.
+ @param options Optional configuration object that allows fine-tuning of the XML generation process.
+                If `query` is provided, options.excludedAttributes and useNativeHittable will be ignored.
+                If `query` is nil:
+                  - `options.excludedAttributes` can be used to exclude specific XML attributes from the output.
+                  - `options.useNativeHittable` enables the calculation of true `hittable` values using native snapshots (expensive).
+  @return Zero if the method completes successfully, or a negative libxml2 error code otherwise.
+  */
+ + (int)xmlRepresentationWithRootElement:(id<FBXCElementSnapshot>)root
+                                  writer:(xmlTextWriterPtr)writer
+                            elementStore:(nullable NSMutableDictionary *)elementStore
+                                   query:(nullable NSString*)query
+                                 options:(nullable FBXMLGenerationOptions *)options;
 
 /**
  Gets the list of matched snapshots from xmllib2-compatible xmlNodeSetPtr structure

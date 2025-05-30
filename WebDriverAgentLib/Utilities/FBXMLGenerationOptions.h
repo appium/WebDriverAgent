@@ -24,6 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
  Passing nil means all the available attributes should be included
  */
 @property (nonatomic, nullable) NSArray<NSString *> *excludedAttributes;
+/**
+ Determines whether to calculate `hittable` attribute using native snapshots.
+ Defaults to NO. When enabled, generates more accurate `hittable` values,
+ but may affect performance.
+ */
+@property (nonatomic, assign) BOOL useNativeHittable;
 
 /**
  Allows to provide XML scope.
@@ -40,6 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
  @return self instance for chaining
  */
 - (FBXMLGenerationOptions *)withExcludedAttributes:(nullable NSArray<NSString *> *)excludedAttributes;
+
+/**
+ Allows to enable accurate `hittable` attribute calculation using native snapshots.
+
+ @param useNativeHittable See the property description above
+ @return self instance for chaining
+ */
+- (FBXMLGenerationOptions *)withUseNativeHittable:(BOOL)useNativeHittable;
 
 @end
 

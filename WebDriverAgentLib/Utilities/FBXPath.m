@@ -147,11 +147,11 @@ static NSString *const topNodeIndexPath = @"top";
 
     if (rc >= 0) {
       [self waitUntilStableWithElement:root];
-      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root useNative:NO]
+      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root useNative:options.useNativeHittable]
                                            writer:writer
                                      elementStore:nil
                                             query:nil
-                              excludingAttributes:options.excludedAttributes];
+                                          options:options];
     }
 
     if (rc >= 0 && hasScope) {
@@ -227,7 +227,7 @@ static NSString *const topNodeIndexPath = @"top";
                                          writer:writer
                                    elementStore:elementStore
                                           query:xpathQuery
-                            excludingAttributes:nil];
+                                        options:nil];
     if (rc >= 0) {
       rc = xmlTextWriterEndDocument(writer);
       if (rc < 0) {
@@ -347,18 +347,20 @@ static NSString *const topNodeIndexPath = @"top";
                                  writer:(xmlTextWriterPtr)writer
                            elementStore:(nullable NSMutableDictionary *)elementStore
                                   query:(nullable NSString*)query
-                    excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes
+                                options:(nullable FBXMLGenerationOptions *)options
 {
   // Trying to be smart here and only including attributes, that were asked in the query, to the resulting document.
   // This may speed up the lookup significantly in some cases
   NSMutableSet<Class> *includedAttributes;
   if (nil == query) {
     includedAttributes = [NSMutableSet setWithArray:FBElementAttribute.supportedAttributes];
-    // The hittable attribute is expensive to calculate for each snapshot item
-    // thus we only include it when requested by an xPath query
-    [includedAttributes removeObject:FBHittableAttribute.class];
-    if (nil != excludedAttributes) {
-      for (NSString *excludedAttributeName in excludedAttributes) {
+    if (options == nil || !options.useNativeHittable) {
+      // The hittable attribute is expensive to calculate for each snapshot item
+      // thus we only include it when requested explicitly
+      [includedAttributes removeObject:FBHittableAttribute.class];
+    }
+    if (nil != options.excludedAttributes) {
+      for (NSString *excludedAttributeName in options.excludedAttributes) {
         for (Class supportedAttribute in FBElementAttribute.supportedAttributes) {
           if ([[supportedAttribute name] caseInsensitiveCompare:excludedAttributeName] == NSOrderedSame) {
             [includedAttributes removeObject:supportedAttribute];
