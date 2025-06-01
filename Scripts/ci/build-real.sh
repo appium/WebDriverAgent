@@ -18,6 +18,9 @@ pushd $WD
 # XCUIAutomation.framework, XCUnit.framework
 rm -rf $SCHEME-Runner.app/Frameworks/XC*.framework
 
+# Xcode 16 started generating Testing.framework but it might not be necessary for WDA
+rm -rf $SCHEME-Runner.app/Frameworks/Testing.framework
+
 zip -r $ZIP_PKG_NAME $SCHEME-Runner.app
 popd
 mv $WD/$ZIP_PKG_NAME ./
