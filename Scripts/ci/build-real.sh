@@ -18,8 +18,14 @@ pushd $WD
 # XCUIAutomation.framework, XCUnit.framework
 rm -rf $SCHEME-Runner.app/Frameworks/XC*.framework
 
-# Xcode 16 started generating Testing.framework but it might not be necessary for WDA
+# Xcode 16 started generating 5.9MB of 'Testing.framework', but it might not be necessary for WDA
 rm -rf $SCHEME-Runner.app/Frameworks/Testing.framework
+
+# This library is used for Swift testing. WDA doesn't include Swift stuff, thus this is not needed.
+# Xcode 16 generates a 2.6 MB file size. Xcode 15 was a 1 MB file size.
+rm -rf $SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib
+
+
 
 zip -r $ZIP_PKG_NAME $SCHEME-Runner.app
 popd
