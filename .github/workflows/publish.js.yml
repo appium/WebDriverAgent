@@ -10,14 +10,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     env:
-      XCODE_VERSION: 15.3
-      ZIP_PKG_NAME_IOS: "WebDriverAgentRunner-Runner.zip"
-      PKG_PATH_IOS: "appium_wda_ios"
-      ZIP_PKG_NAME_TVOS: "WebDriverAgentRunner_tvOS-Runner.zip"
-      PKG_PATH_TVOS: "appium_wda_tvos"
+      XCODE_VERSION: 16.3
 
     steps:
     - uses: actions/checkout@v2
@@ -36,36 +32,22 @@ jobs:
       name: Run test
 
     # building WDA packages
-    - name: Build iOS
-      run: |
-        xcodebuild clean build-for-testing \
-          -project WebDriverAgent.xcodeproj \
-          -derivedDataPath $PKG_PATH_IOS \
-          -scheme WebDriverAgentRunner \
-          -destination generic/platform=iOS \
-          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
-    - name: Creating a zip of WebDriverAgentRunner-Runner.app for iOS after removing test frameworks
-      run: |
-        pushd appium_wda_ios/Build/Products/Debug-iphoneos
-        rm -rf WebDriverAgentRunner-Runner.app/Frameworks/XC*.framework
-        zip -r $ZIP_PKG_NAME_IOS WebDriverAgentRunner-Runner.app
-        popd
-        mv $PKG_PATH_IOS/Build/Products/Debug-iphoneos/$ZIP_PKG_NAME_IOS ./
-    - name: Build tvOS
-      run: |
-        xcodebuild clean build-for-testing \
-          -project WebDriverAgent.xcodeproj \
-          -derivedDataPath $PKG_PATH_TVOS \
-          -scheme WebDriverAgentRunner_tvOS \
-          -destination generic/platform=tvOS \
-          CODE_SIGNING_ALLOWED=NO ARCHS=arm64
-    - name: Creating a zip of WebDriverAgentRunner-Runner.app for tvOS after removing test frameworks
-      run: |
-        pushd appium_wda_tvos/Build/Products/Debug-appletvos
-        rm -rf WebDriverAgentRunner_tvOS-Runner.app/Frameworks/XC*.framework
-        zip -r $ZIP_PKG_NAME_TVOS WebDriverAgentRunner_tvOS-Runner.app
-        popd
-        mv $PKG_PATH_TVOS/Build/Products/Debug-appletvos/$ZIP_PKG_NAME_TVOS ./
+    - name: Building iOS
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-real.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_ios
+        SCHEME: WebDriverAgentRunner
+        DESTINATION: generic/platform=iOS
+        WD: appium_wda_ios/Build/Products/Debug-iphoneos
+        ZIP_PKG_NAME: WebDriverAgentRunner-Runner.zip
+    - name: Building tvOS
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-real.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_tvos
+        SCHEME: WebDriverAgentRunner_tvOS
+        DESTINATION: generic/platform=tvOS
+        WD: appium_wda_tvos/Build/Products/Debug-appletvos
+        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Runner.zip
 
     # release tasks
     - run: npx semantic-release
