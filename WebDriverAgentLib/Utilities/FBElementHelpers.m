@@ -15,3 +15,8 @@ BOOL FBDoesElementSupportInnerText(XCUIElementType elementType) {
     || elementType == XCUIElementTypeSearchField
     || elementType == XCUIElementTypeSecureTextField;
 }
+
+BOOL FBDoesElementSupportMinMaxValue(XCUIElementType elementType) {
+  return elementType == XCUIElementTypeSlider
+      || elementType == XCUIElementTypeStepper;
+}

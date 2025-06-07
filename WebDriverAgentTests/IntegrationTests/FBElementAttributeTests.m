@@ -180,7 +180,17 @@
   XCTAssertNil(element.wdName);
   XCTAssertNil(element.wdLabel);
   XCTAssertTrue([element.wdValue containsString:@"50"]);
+
+  NSNumber *minValue = element.wdMinValue;
+  NSNumber *maxValue = element.wdMaxValue;
+
+  XCTAssertNotNil(minValue, @"Slider minValue should not be nil");
+  XCTAssertNotNil(maxValue, @"Slider maxValue should not be nil");
+
+  XCTAssertEqualObjects(minValue, @0);
+  XCTAssertEqualObjects(maxValue, @1);
 }
+
 
 - (void)testActivityIndicatorAttributes
 {

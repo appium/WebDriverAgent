@@ -15,8 +15,16 @@ NS_ASSUME_NONNULL_BEGIN
  Checks if the element is a text field
 
  @param elementType XCTest element type
- @return YES if the elemnt is a text field
+ @return YES if the element is a text field
  */
 BOOL FBDoesElementSupportInnerText(XCUIElementType elementType);
+
+/**
+ Checks if the element supports min/max value attributes
+
+ @param elementType XCTest element type
+ @return YES if the element type supports min/max value attributes
+ */
+BOOL FBDoesElementSupportMinMaxValue(XCUIElementType elementType);
 
 NS_ASSUME_NONNULL_END

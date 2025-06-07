@@ -49,6 +49,8 @@ static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
 static NSString* const FBExclusionAttributeTraits = @"traits";
+static NSString* const FBExclusionAttributeMinValue = @"minValue";
+static NSString* const FBExclusionAttributeMaxValue = @"maxValue";
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -211,6 +213,8 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
                             FBExclusionAttributePlaceholderValue,
                             FBExclusionAttributeNativeFrame,
                             FBExclusionAttributeTraits,
+                            FBExclusionAttributeMinValue,
+                            FBExclusionAttributeMaxValue,
                             nil];
 
   for (NSString *key in attributeBlocks) {
@@ -248,7 +252,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 
 {
   // Base attributes common to every element
-  NSMutableDictionary<NSString *, NSString *(^)(void)> *blocks =
+  NSMutableDictionary<NSString *, id(^)(void)> *blocks =
   [@{
     FBExclusionAttributeFrame: ^{
     return NSStringFromCGRect(wrappedSnapshot.wdFrame);
@@ -279,6 +283,16 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   if (FBDoesElementSupportInnerText(elementType)) {
     blocks[FBExclusionAttributePlaceholderValue] = ^{
       return (NSString *)FBValueOrNull(wrappedSnapshot.wdPlaceholderValue);
+    };
+  }
+  
+  // Only for elements that support min/max value
+  if (FBDoesElementSupportMinMaxValue(elementType)) {
+    blocks[FBExclusionAttributeMinValue] = ^{
+      return wrappedSnapshot.wdMinValue;
+    };
+    blocks[FBExclusionAttributeMaxValue] = ^{
+      return wrappedSnapshot.wdMaxValue;
     };
   }
   

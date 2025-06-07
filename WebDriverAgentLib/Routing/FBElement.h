@@ -71,6 +71,12 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's placeholder value */
 @property (nonatomic, readonly, copy, nullable) NSString *wdPlaceholderValue;
 
+/*! Element's minimum value */
+@property (nonatomic, readonly, strong, nullable) NSNumber *wdMinValue;
+
+/*! Element's maximum value */
+@property (nonatomic, readonly, strong, nullable) NSNumber *wdMaxValue;
+
 /**
  Returns value of given property specified in WebDriver Spec
  Check the FBElement protocol to get list of supported attributes.

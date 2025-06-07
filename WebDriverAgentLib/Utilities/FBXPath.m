@@ -22,6 +22,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCTestPrivateSymbols.h"
+#import "FBElementHelpers.h"
 
 
 @interface FBElementAttribute : NSObject
@@ -110,6 +111,14 @@
 @end
 
 @interface FBTraitsAttribute : FBElementAttribute
+
+@end
+
+@interface FBMinValueAttribute : FBElementAttribute
+
+@end
+
+@interface FBMaxValueAttribute : FBElementAttribute
 
 @end
 
@@ -374,6 +383,15 @@ static NSString *const topNodeIndexPath = @"top";
       // Include nativeFrame only when requested
       [includedAttributes removeObject:FBNativeFrameAttribute.class];
     }
+    if (!FBConfiguration.includePlaceholderValueInPageSource) {
+      // placeholderValue may be expensive to resolve for certain text fields
+      [includedAttributes removeObject:FBPlaceholderValueAttribute.class];
+    }
+    if (!FBConfiguration.includeMinMaxValueInPageSource) {
+      // minValue/maxValue are retrieved from private APIs and may be slow on deep trees
+      [includedAttributes removeObject:FBMinValueAttribute.class];
+      [includedAttributes removeObject:FBMaxValueAttribute.class];
+    }
     if (nil != excludedAttributes) {
       for (NSString *excludedAttributeName in excludedAttributes) {
         for (Class supportedAttribute in FBElementAttribute.supportedAttributes) {
@@ -435,6 +453,16 @@ static NSString *const topNodeIndexPath = @"top";
   for (Class attributeCls in FBElementAttribute.supportedAttributes) {
     // include all supported attributes by default unless enumerated explicitly
     if (includedAttributes && ![includedAttributes containsObject:attributeCls]) {
+      continue;
+    }
+    // Text-input placeholder (only for elements that support inner text)
+    if ((attributeCls == FBPlaceholderValueAttribute.class) &&
+        !FBDoesElementSupportInnerText(element.elementType)) {
+      continue;
+    }
+    // Only for elements that support min/max value
+    if ((attributeCls == FBMinValueAttribute.class || attributeCls == FBMaxValueAttribute.class) &&
+        !FBDoesElementSupportMinMaxValue(element.elementType)) {
       continue;
     }
     int rc = [attributeCls recordWithWriter:writer
@@ -597,6 +625,8 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBPlaceholderValueAttribute.class,
            FBTraitsAttribute.class,
            FBNativeFrameAttribute.class,
+           FBMinValueAttribute.class,
+           FBMaxValueAttribute.class,
           ];
 }
 
@@ -857,6 +887,34 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 + (NSString *)valueForElement:(id<FBElement>)element
 {
   return element.wdTraits;
+}
+
+@end
+
+@implementation FBMinValueAttribute
+
++ (NSString *)name
+{
+  return @"minValue";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return [element.wdMinValue stringValue];
+}
+
+@end
+
+@implementation FBMaxValueAttribute
+
++ (NSString *)name
+{
+  return @"maxValue";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return [element.wdMaxValue stringValue];
 }
 
 @end

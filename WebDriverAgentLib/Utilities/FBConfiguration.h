@@ -359,6 +359,29 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (void)setIncludeNativeFrameInPageSource:(BOOL)enabled;
 + (BOOL)includeNativeFrameInPageSource;
 
+/**
+ * Whether to include `placeholderValue` attribute in the page source.
+ * This flag controls whether to retrieve runtime placeholder strings
+ * from text input elements. This may impact performance on large trees.
+ * Disabled by default.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setIncludePlaceholderValueInPageSource:(BOOL)enabled;
++ (BOOL)includePlaceholderValueInPageSource;
+
+/**
+ * Whether to include `minValue`/`maxValue` attributes in the page source.
+ * These attributes are retrieved from native element snapshots and represent
+ * value boundaries for elements like sliders or progress indicators.
+ * This may affect performance if used on many elements.
+ * Disabled by default.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setIncludeMinMaxValueInPageSource:(BOOL)enabled;
++ (BOOL)includeMinMaxValueInPageSource;
+
 @end
 
 NS_ASSUME_NONNULL_END

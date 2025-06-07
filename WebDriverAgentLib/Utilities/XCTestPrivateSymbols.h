@@ -22,6 +22,14 @@ extern NSString *FB_XCAXAIsElementAttributeName;
 /*!  Accessibility identifier for visible frame attribute */
 extern NSString *FB_XCAXAVisibleFrameAttributeName;
 
+/*! Accessibility identifier для минимума */
+extern NSNumber   *FB_XCAXACustomMinValueAttribute;
+extern NSString   *FB_XCAXACustomMinValueAttributeName;
+
+/*! Accessibility identifier для максимума */
+extern NSNumber   *FB_XCAXACustomMaxValueAttribute;
+extern NSString   *FB_XCAXACustomMaxValueAttributeName;
+
 /*! Getter for  XCTest logger */
 extern id<XCDebugLogDelegate> (*XCDebugLogger)(void);
 

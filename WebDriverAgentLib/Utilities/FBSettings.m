@@ -38,3 +38,5 @@ NSString* const FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE = @"limitXPathContextScope"
 NSString* const FB_SETTING_AUTO_CLICK_ALERT_SELECTOR = @"autoClickAlertSelector";
 NSString* const FB_SETTING_INCLUDE_HITTABLE_IN_PAGE_SOURCE = @"includeHittableInPageSource";
 NSString* const FB_SETTING_INCLUDE_NATIVE_FRAME_IN_PAGE_SOURCE = @"includeNativeFrameInPageSource";
+NSString* const FB_SETTING_INCLUDE_PLACEHOLDER_VALUE_IN_PAGE_SOURCE = @"includePlaceholderValueInPageSource";
+NSString* const FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE = @"includeMinMaxValueInPageSource";

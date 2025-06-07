@@ -23,6 +23,7 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCUIHitPointResult.h"
 #import "FBAccessibilityTraits.h"
+#import "XCUIElement+FBMinMax.h"
 
 #define BROKEN_RECT CGRectMake(-1, -1, 0, 0)
 
@@ -74,6 +75,16 @@
 - (id)fb_valueForWDAttributeName:(NSString *)name
 {
   return [self valueForKey:[FBElementUtils wdAttributeNameForAttributeName:name]];
+}
+
+- (NSNumber *)wdMinValue
+{
+  return self.fb_minValue;
+}
+
+- (NSNumber *)wdMaxValue
+{
+  return self.fb_maxValue;
 }
 
 - (NSString *)wdValue
