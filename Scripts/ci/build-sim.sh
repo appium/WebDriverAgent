@@ -13,11 +13,8 @@ xcodebuild clean build-for-testing \
 
 pushd $WD
 
-       # WDA doesn't use Xcode's testing feature support.
-rm -rf $SCHEME-Runner.app/Frameworks/Testing.framework \
-       # WDA dpesn't use Swift code.
-       $SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib
-
-zip -r $ZIP_PKG_NAME $SCHEME-Runner.app
+zip -r $ZIP_PKG_NAME $SCHEME-Runner.app \
+    -x "$SCHEME-Runner.app/Frameworks/Testing.framework" \
+       "$SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib"
 popd
 mv $WD/$ZIP_PKG_NAME ./
