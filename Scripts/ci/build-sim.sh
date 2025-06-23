@@ -9,7 +9,11 @@ xcodebuild clean build-for-testing \
   -derivedDataPath wda_build \
   -scheme $SCHEME \
   -destination "$DESTINATION" \
-  CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
+  CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS &
+
+# CI started starting the next `rm` etc BEFORE ending this xcodebuild, which is weird,
+# but to make sure the behavior on ci.
+wait
 
 # simulator needs to build entire build files
 
