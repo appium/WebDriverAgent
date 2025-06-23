@@ -24,8 +24,10 @@ pushd $WD
 #        $SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib
 
 zip -r $ZIP_PKG_NAME $SCHEME-Runner.app \
-  -x $SCHEME-Runner.app/Frameworks/XC*.framework* \
-     $SCHEME-Runner.app/Frameworks/Testing.framework* \
+  -x $SCHEME-Runner.app/Frameworks/XC*.framework \
+     $SCHEME-Runner.app/Frameworks/XC*.framework/* \
+     $SCHEME-Runner.app/Frameworks/Testing.framework \
+     $SCHEME-Runner.app/Frameworks/Testing.framework/* \
      $SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib
 popd
 mv $WD/$ZIP_PKG_NAME ./
