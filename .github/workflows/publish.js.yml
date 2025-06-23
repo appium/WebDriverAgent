@@ -14,6 +14,9 @@ jobs:
 
     env:
       XCODE_VERSION: 16.3
+      # Available destination for simulators depend on Xcode version.
+      DESTINATION_SIM: platform=iOS Simulator,name=iPhone 16 Plus
+      DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
     steps:
     - uses: actions/checkout@v2
@@ -48,6 +51,38 @@ jobs:
         DESTINATION: generic/platform=tvOS
         WD: appium_wda_tvos/Build/Products/Debug-appletvos
         ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Runner.zip
+    - name: Building iOS sim arm64
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_ios_sim_arm64
+        SCHEME: WebDriverAgentRunner
+        DESTINATION: ${{ env.DESTINATION_SIM }}
+        WD: appium_wda_ios_sim_arm64/Build/Products/Debug-iphonesimulator
+        ZIP_PKG_NAME: WebDriverAgentRunner-Build-Sim-arm64.zip
+    - name: Building iOS sim x86_64
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_ios_sim_x86_64
+        SCHEME: WebDriverAgentRunner
+        DESTINATION: ${{ env.DESTINATION_SIM }}
+        WD: appium_wda_ios_sim_x86_64/Build/Products/Debug-iphonesimulator
+        ZIP_PKG_NAME: WebDriverAgentRunner-Build-Sim-x86_64.zip
+    - name: Building tvOS sim arm64
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
+        SCHEME: WebDriverAgentRunner_tvOS
+        DESTINATION: ${{ env.DESTINATION_SIM }}
+        WD: appium_wda_tvos_sim_arm64/Build/Products/Debug-appletvsimulator
+        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip
+    - name: Building tvOS sim x86_64
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
+      env:
+        DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
+        SCHEME: WebDriverAgentRunner_tvOS
+        DESTINATION: ${{ env.DESTINATION_SIM }}
+        WD: appium_wda_tvos_sim_x86_64/Build/Products/Debug-appletvsimulator
+        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-x86_64.zip
 
     # release tasks
     - run: npx semantic-release
