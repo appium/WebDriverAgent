@@ -76,9 +76,19 @@ jobs:
 
     strategy:
       matrix:
-        # '' is for iOS
-        target: ['', '_tvOS']
-        arch: [x86_64, arm64]
+        include:
+          - target: ''
+            arch: x86_64
+            simulator_name: Debug-iphonesimulator
+          - target: ''
+            arch: arm64
+            simulator_name: Debug-iphonesimulator
+          - target: '_tvOS'
+            arch: x86_64
+            simulator_name: Debug-appletvsimulator
+          - target: '_tvOS'
+            arch: arm64
+            simulator_name: Debug-appletvsimulator
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -89,10 +99,11 @@ jobs:
         run: |
           DESTINATION=$DESTINATION_SIM${{ matrix.target }} sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
         env:
-          TARGET: ${{ matrix.target }}
           SCHEME: WebDriverAgentRunner${{ matrix.target }}
           ARCHS: ${{ matrix.arch }}
           ZIP_PKG_NAME: "WebDriverAgentRunner${{ matrix.target }}-Build-Sim-${{ matrix.arch }}.zip"
+          DERIVED_DATA_PATH: wda_build
+          WD: wda_build/Build/Products/${{ matrix.simulator_name }}
       - name: Upload the built generic app package for WebDriverAgentRunner${{ matrix.target }} with ${{ matrix.arch }}
         uses: actions/upload-artifact@master
         with:

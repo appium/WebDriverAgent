@@ -6,24 +6,15 @@ set -x
 
 xcodebuild clean build-for-testing \
   -project WebDriverAgent.xcodeproj \
-  -derivedDataPath wda_build \
+  -derivedDataPath $DERIVED_DATA_PATH \
   -scheme $SCHEME \
   -destination "$DESTINATION" \
   CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
 
-# simulator needs to build entire build files
+pushd WD
 
-cd wda_build
-# to remove unnecessary space consuming files
-rm -rf Build/Intermediates.noindex
+rm -rf $SCHEME-Runner.app/Frameworks/Testing.framework $SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib
 
-# Xcode 16 started generating 5.9MB of 'Testing.framework', but it might not be necessary for WDA
-rm -rf Build/**/Frameworks/Testing.framework
-
-# This library is used for Swift testing. WDA doesn't include Swift stuff, thus this is not needed.
-# Xcode 16 generates a 2.6 MB file size. Xcode 15 was a 1 MB file size.
-rm -rf Build/**/Frameworks/libXCTestSwiftSupport.dylib
-
-zip -r $ZIP_PKG_NAME Build
-cd ..
-mv wda_build/$ZIP_PKG_NAME ./
+zip -r $ZIP_PKG_NAME $SCHEME-Runner.app
+popd
+mv $WD/$ZIP_PKG_NAME ./
