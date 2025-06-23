@@ -16,7 +16,7 @@ jobs:
       XCODE_VERSION: 16.3
       # Available destination for simulators depend on Xcode version.
       DESTINATION_SIM: platform=iOS Simulator,name=iPhone 16 Plus
-      DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+      DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
     steps:
     - uses: actions/checkout@v2
@@ -72,7 +72,7 @@ jobs:
       env:
         DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
         SCHEME: WebDriverAgentRunner_tvOS
-        DESTINATION: ${{ env.DESTINATION_SIM }}
+        DESTINATION: ${{ env.DESTINATION_SIM_TVOS }}
         WD: appium_wda_tvos_sim_arm64/Build/Products/Debug-appletvsimulator
         ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip
     - name: Building tvOS sim x86_64
@@ -80,7 +80,7 @@ jobs:
       env:
         DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
         SCHEME: WebDriverAgentRunner_tvOS
-        DESTINATION: ${{ env.DESTINATION_SIM }}
+        DESTINATION: ${{ env.DESTINATION_SIM_TVOS }}
         WD: appium_wda_tvos_sim_x86_64/Build/Products/Debug-appletvsimulator
         ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-x86_64.zip
 
