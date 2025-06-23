@@ -9,15 +9,11 @@ xcodebuild clean build-for-testing \
   -derivedDataPath wda_build \
   -scheme $SCHEME \
   -destination "$DESTINATION" \
-  CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS &
-
-# CI started starting the next `rm` etc BEFORE ending this xcodebuild, which is weird,
-# but to make sure the behavior on ci.
-wait
+  CODE_SIGNING_ALLOWED=NO ARCHS=$ARCHS
 
 # simulator needs to build entire build files
 
-pushd wda_build
+cd wda_build
 # to remove unnecessary space consuming files
 rm -rf Build/Intermediates.noindex
 
@@ -29,5 +25,5 @@ rm -rf Build/**/Frameworks/Testing.framework
 rm -rf Build/**/Frameworks/libXCTestSwiftSupport.dylib
 
 zip -r $ZIP_PKG_NAME Build
-popd
+cd ..
 mv wda_build/$ZIP_PKG_NAME ./
