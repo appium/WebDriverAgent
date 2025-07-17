@@ -102,7 +102,7 @@
   NSError *error;
   XCTAssertTrue([[XCUIDevice sharedDevice] fb_goToHomescreenWithError:&error]);
   XCTAssertNil(error);
-  XCTAssertTrue([XCUIApplication fb_activeApplication].icons[@"Safari"].exists);
+  FBAssertWaitTillBecomesTrue([XCUIApplication fb_activeApplication].icons[@"Safari"].exists);
 }
 
 - (void)testLockUnlockScreen
