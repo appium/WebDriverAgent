@@ -621,23 +621,17 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 {
   XCUIApplication *systemApp = self.fb_systemApplication;
   @try {
-    if (!systemApp.running) {
-      [systemApp launch];
-    } else {
+    if (systemApp.running) {
       [systemApp activate];
+    } else {
+      [systemApp launch];
     }
   } @catch (NSException *e) {
     return [[[FBErrorBuilder alloc]
              withDescription:nil == e ? @"Cannot open the home screen" : e.reason]
             buildError:error];
   }
-  return [[[[FBRunLoopSpinner new]
-            timeout:5]
-           timeoutErrorMessage:@"Timeout waiting until the home screen is visible"]
-          spinUntilTrue:^BOOL{
-    return [systemApp fb_isSameAppAs:self.fb_activeApplication];
-  }
-          error:error];
+  return YES;
 }
 
 - (BOOL)fb_isSameAppAs:(nullable XCUIApplication *)otherApp

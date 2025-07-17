@@ -28,7 +28,7 @@ static const CGFloat LOW_QUALITY = 0.25;
 
 NSString *formatTimeInterval(NSTimeInterval interval) {
   NSUInteger milliseconds = (NSUInteger)(interval * 1000);
-  return [NSString stringWithFormat:@"%ld ms", milliseconds];
+  return [NSString stringWithFormat:@"%lu ms", milliseconds];
 }
 
 @implementation FBScreenshot
