@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
                                      attributes:(NSArray *)attributes
                                           error:(NSError**)error;
 
-- (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid;
+- (nullable XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid;
 
 @end
 
