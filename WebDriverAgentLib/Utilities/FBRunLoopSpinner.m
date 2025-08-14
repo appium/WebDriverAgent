@@ -12,6 +12,7 @@
 #import <stdatomic.h>
 
 #import "FBErrorBuilder.h"
+#import "NSRunLoop+Monotonic.h"
 
 static const NSTimeInterval FBWaitInterval = 0.1;
 
@@ -30,7 +31,7 @@ static const NSTimeInterval FBWaitInterval = 0.1;
     atomic_fetch_or(&didFinish, true);
   });
   while (!atomic_fetch_and(&didFinish, false)) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBWaitInterval]];
+    [[NSRunLoop currentRunLoop] runForMonotonicInterval:FBWaitInterval];
   }
 }
 
@@ -71,7 +72,7 @@ static const NSTimeInterval FBWaitInterval = 0.1;
 {
   NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:self.timeout];
   while (!untilTrue()) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:self.interval]];
+    [[NSRunLoop currentRunLoop] runForMonotonicInterval:self.interval];
     if (timeoutDate.timeIntervalSinceNow < 0) {
       return
       [[[FBErrorBuilder builder]
