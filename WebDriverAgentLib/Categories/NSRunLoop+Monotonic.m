@@ -1,5 +1,5 @@
 #import "NSRunLoop+Monotonic.h"
-#import <QuartzCore/QuartzCore.h> // 为了用 CACurrentMediaTime()
+#import <QuartzCore/QuartzCore.h>
 
 @implementation NSRunLoop (Monotonic)
 
