@@ -23,6 +23,7 @@
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIDevice.h"
+#import "NSRunLoop+Monotonic.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
@@ -84,13 +85,13 @@ static bool fb_isLocked;
     return YES;
   }
   [self pressButton:XCUIDeviceButtonHome];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBHomeButtonCoolOffTime]];
+  [[NSRunLoop currentRunLoop] runForMonotonicInterval:FBHomeButtonCoolOffTime];
 #if !TARGET_OS_TV
   [self pressButton:XCUIDeviceButtonHome];
 #else
   [self pressButton:XCUIDeviceButtonHome];
 #endif
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:FBHomeButtonCoolOffTime]];
+  [[NSRunLoop currentRunLoop] runForMonotonicInterval:FBHomeButtonCoolOffTime];
   return [[[[FBRunLoopSpinner new]
             timeout:FBScreenLockTimeout]
            timeoutErrorMessage:@"Timed out while waiting until the screen gets unlocked"]
