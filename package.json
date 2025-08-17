@@ -22,8 +22,8 @@
     "sync-wda-version": "node ./scripts/update-wda-version.js --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
   },
   "engines": {
-    "node": ">=14",
-    "npm": ">=8"
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+    "npm": ">=10"
   },
   "prettier": {
     "bracketSpacing": false,
@@ -48,22 +48,21 @@
   },
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
-    "@appium/eslint-config-appium-ts": "^1.0.0",
-    "@appium/test-support": "^3.0.0",
-    "@appium/tsconfig": "^0.x",
-    "@appium/types": "^0.x",
+    "@appium/eslint-config-appium-ts": "^2.0.0-rc.1",
+    "@appium/test-support": "^4.0.0-rc.1",
+    "@appium/tsconfig": "^1.0.0-rc.1",
+    "@appium/types": "^1.0.0-rc.1",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
     "@types/bluebird": "^3.5.38",
     "@types/lodash": "^4.14.196",
     "@types/mocha": "^10.0.1",
     "@types/node": "^24.0.0",
-    "@types/teen_process": "^2.0.1",
-    "appium-xcode": "^5.0.0",
+    "appium-xcode": "^6.0.0",
     "chai": "^5.1.1",
     "chai-as-promised": "^8.0.0",
     "conventional-changelog-conventionalcommits": "^9.0.0",
-    "node-simctl": "^7.0.1",
+    "node-simctl": "^8.0.0",
     "mocha": "^11.0.1",
     "prettier": "^3.0.0",
     "semantic-release": "^24.0.0",
@@ -73,18 +72,18 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@appium/base-driver": "^9.0.0",
-    "@appium/strongbox": "^0.x",
-    "@appium/support": "^6.0.0",
-    "appium-ios-device": "^2.9.0",
-    "appium-ios-simulator": "^6.2.2",
+    "@appium/base-driver": "^10.0.0-rc.1",
+    "@appium/strongbox": "^1.0.0-rc.1",
+    "@appium/support": "^7.0.0-rc.1",
+    "appium-ios-device": "^3.0.0",
+    "appium-ios-simulator": "^7.0.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^3.0.0",
     "axios": "^1.4.0",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
     "source-map-support": "^0.x",
-    "teen_process": "^2.2.0"
+    "teen_process": "^3.0.0"
   },
   "files": [
     "index.ts",
