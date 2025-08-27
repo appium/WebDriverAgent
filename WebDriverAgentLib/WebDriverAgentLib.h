@@ -29,6 +29,7 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/FBElementCommands.h>
 #import <WebDriverAgentLib/FBElementTypeTransformer.h>
 #import <WebDriverAgentLib/FBErrorBuilder.h>
+#import <WebDriverAgentLib/FBExceptions.h>
 #import <WebDriverAgentLib/FBExceptionHandler.h>
 #import <WebDriverAgentLib/FBFindElementCommands.h>
 #import <WebDriverAgentLib/FBHTTPStatusCodes.h>
