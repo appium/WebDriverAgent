@@ -79,3 +79,7 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/XCUIElement+FBUtilities.h>
 #import <WebDriverAgentLib/XCUIElement+FBWebDriverAttributes.h>
 #import <WebDriverAgentLib/XCTIssue+FBPatcher.h>
+
+// QAWolf code
+#import <WebDriverAgentLib/ExecuteWDACommand.h>
+#import <WebDriverAgentLib/HandleWDACommandException.h>
