@@ -83,3 +83,5 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 // QAWolf code
 #import <WebDriverAgentLib/ExecuteWDACommand.h>
 #import <WebDriverAgentLib/HandleWDACommandException.h>
+#import <WebDriverAgentLib/XCUIElement+QAWSnapshotUtilities.h>
+#import <WebDriverAgentLib/QAWSnapshotResult.h>

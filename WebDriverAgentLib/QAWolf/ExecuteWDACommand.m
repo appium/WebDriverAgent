@@ -5,7 +5,6 @@
 //  Created by Elton Carreiro on 28/08/25.
 //
 
-// ExceptionCatcher.m
 #import "ExecuteWDACommand.h"
 #import "HandleWDACommandException.h"
 #import <WebDriverAgentLib/FBResponseJSONPayload.h>

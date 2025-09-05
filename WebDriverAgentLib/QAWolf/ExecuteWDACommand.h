@@ -5,7 +5,6 @@
 //  Created by Elton Carreiro on 28/08/25.
 //
 
-// ExceptionCatcher.h
 #import <Foundation/Foundation.h>
 #import <WebDriverAgentLib/FBCommandStatus.h>
 #import <WebDriverAgentLib/FBResponseJSONPayload.h>

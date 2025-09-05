@@ -65,6 +65,7 @@ let package = Package(
                 .headerSearchPath("Categories"),
                 .headerSearchPath("Commands"),
                 .headerSearchPath("include/WebDriverAgentLib"),
+                .headerSearchPath("QAWolf"),
                 .headerSearchPath("../PrivateHeaders/XCTest"),
                 .headerSearchPath("../PrivateHeaders/MobileCoreServices"),
                 .headerSearchPath("../PrivateHeaders/AccessibilityUtilities"),
