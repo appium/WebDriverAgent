@@ -6,7 +6,7 @@
 - (void)runForMonotonicInterval:(NSTimeInterval)seconds {
     CFTimeInterval end = CACurrentMediaTime() + seconds;
     while (CACurrentMediaTime() < end) {
-        [self runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        [self runMode:NSRunLoopCommonModes beforeDate:[NSDate distantFuture]];
     }
 }
 
