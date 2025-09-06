@@ -17,12 +17,15 @@
 #import "FBXMLGenerationOptions.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "NSString+FBXMLSafeString.h"
+#import "XCUIApplication.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCTestPrivateSymbols.h"
 #import "FBElementHelpers.h"
+#import "FBXCAXClientProxy.h"
+#import "FBXCAccessibilityElement.h"
 
 
 @interface FBElementAttribute : NSObject
@@ -33,6 +36,7 @@
 + (nullable NSString *)valueForElement:(id<FBElement>)element;
 
 + (int)recordWithWriter:(xmlTextWriterPtr)writer forElement:(id<FBElement>)element;
++ (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(nullable NSString *)value;
 
 + (NSArray<Class> *)supportedAttributes;
 
@@ -98,7 +102,13 @@
 
 @property (nonatomic, nonnull, readonly) NSString* indexValue;
 
-+ (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(NSString *)value;
+@end
+
+@interface FBApplicationBundleIdAttribute : FBElementAttribute
+
+@end
+
+@interface FBApplicationPidAttribute : FBElementAttribute
 
 @end
 
@@ -472,6 +482,27 @@ static NSString *const topNodeIndexPath = @"top";
     // index path is the special case
     return [FBInternalIndexAttribute recordWithWriter:writer forValue:indexPath];
   }
+  if (element.elementType == XCUIElementTypeApplication) {
+    // only record process identifier and bundle identifier for the application element
+    int pid = [element.accessibilityElement processIdentifier];
+    if (pid > 0) {
+      int rc = [FBApplicationPidAttribute recordWithWriter:writer
+                                                  forValue:[NSString stringWithFormat:@"%d", pid]];
+      if (rc < 0) {
+        return rc;
+      }
+      XCUIApplication *app = [[FBXCAXClientProxy sharedClient]
+                              monitoredApplicationWithProcessIdentifier:pid];
+      NSString *bundleID = [app bundleID];
+      if (nil != bundleID) {
+        rc = [FBApplicationBundleIdAttribute recordWithWriter:writer
+                                                     forValue:bundleID];
+        if (rc < 0) {
+          return rc;
+        }
+      }
+    }
+  }
   return 0;
 }
 
@@ -585,6 +616,11 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 + (int)recordWithWriter:(xmlTextWriterPtr)writer forElement:(id<FBElement>)element
 {
   NSString *value = [self valueForElement:element];
+  return [self recordWithWriter:writer forValue:value];
+}
+
++ (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(nullable NSString *)value
+{
   if (nil == value) {
     // Skip the attribute if the value equals to nil
     return 0;
@@ -830,22 +866,25 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
   return kXMLIndexPathKey;
 }
 
-+ (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(NSString *)value
-{
-  if (nil == value) {
-    // Skip the attribute if the value equals to nil
-    return 0;
-  }
-  int rc = xmlTextWriterWriteAttribute(writer,
-                                       (xmlChar *)[[FBXPath safeXmlStringWithString:[self name]] UTF8String],
-                                       (xmlChar *)[[FBXPath safeXmlStringWithString:value] UTF8String]);
-  if (rc < 0) {
-    [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterWriteAttribute(%@='%@'). Error code: %d", [self name], value, rc];
-  }
-  return rc;
-}
 @end
 
+@implementation FBApplicationBundleIdAttribute : FBElementAttribute
+
++ (NSString *)name
+{
+  return @"bundleId";
+}
+
+@end
+
+@implementation FBApplicationPidAttribute : FBElementAttribute
+
++ (NSString *)name
+{
+  return @"processId";
+}
+
+@end
 
 @implementation FBPlaceholderValueAttribute
 

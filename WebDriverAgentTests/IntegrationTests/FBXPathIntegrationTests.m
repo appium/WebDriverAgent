@@ -13,9 +13,11 @@
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "FBXPath.h"
+#import "FBXCAccessibilityElement.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXMLGenerationOptions.h"
+#import "XCUIApplication.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBFind.h"
 #import "XCUIElement+FBUtilities.h"
@@ -48,6 +50,19 @@
   // The purpose of here is return a single element to replace children with an empty array for testing.
   snapshot.children = @[];
   return snapshot;
+}
+
+- (void)testApplicationNodeXMLRepresentation
+{
+  id<FBXCElementSnapshot> snapshot = [self.testedApplication fb_customSnapshot];
+  snapshot.children = @[];
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  NSString *xmlStr = [FBXPath xmlStringWithRootElement:wrappedSnapshot
+                                               options:nil];
+  int pid = [snapshot.accessibilityElement processIdentifier];
+  XCTAssertNotNil(xmlStr);
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" traits=\"%@\" processId=\"%d\" bundleId=\"%@\"/>\n", wrappedSnapshot.wdType, wrappedSnapshot.wdType, wrappedSnapshot.wdName, wrappedSnapshot.wdLabel, FBBoolToString(wrappedSnapshot.wdEnabled), FBBoolToString(wrappedSnapshot.wdVisible), FBBoolToString(wrappedSnapshot.wdAccessible), [wrappedSnapshot.wdRect[@"x"] stringValue], [wrappedSnapshot.wdRect[@"y"] stringValue], [wrappedSnapshot.wdRect[@"width"] stringValue], [wrappedSnapshot.wdRect[@"height"] stringValue], wrappedSnapshot.wdIndex, wrappedSnapshot.wdTraits, pid, [self.testedApplication bundleID]];
+  XCTAssertEqualObjects(xmlStr, expectedXml);
 }
 
 - (void)testSingleDescendantXMLRepresentation

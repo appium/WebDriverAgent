@@ -1,3 +1,27 @@
+## [10.1.0](https://github.com/appium/WebDriverAgent/compare/v10.0.1...v10.1.0) (2025-09-03)
+
+### Features
+
+* Add process and bundle identifiers to the application node in the XML source ([#1055](https://github.com/appium/WebDriverAgent/issues/1055)) ([088cff2](https://github.com/appium/WebDriverAgent/commit/088cff2b2bc19ddde698ec06f1db37c6989cf392))
+
+## [10.0.1](https://github.com/appium/WebDriverAgent/compare/v10.0.0...v10.0.1) (2025-08-23)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump chai from 5.3.2 to 6.0.0 ([#1053](https://github.com/appium/WebDriverAgent/issues/1053)) ([9e9ec38](https://github.com/appium/WebDriverAgent/commit/9e9ec381bd6695e1c8b89f2a9c304b12385c0134))
+
+## [10.0.0](https://github.com/appium/WebDriverAgent/compare/v9.15.3...v10.0.0) (2025-08-17)
+
+### ⚠ BREAKING CHANGES
+
+* Required Node.js version has been bumped to ^20.19.0 || ^22.12.0 || >=24.0.0
+* Required npm version has been bumped to >=10
+* Required base driver version has been bumped to >=10.0.0-rc.1
+
+### Features
+
+* Update server compatibility ([#1051](https://github.com/appium/WebDriverAgent/issues/1051)) ([f9ea1e5](https://github.com/appium/WebDriverAgent/commit/f9ea1e5e2f5306030387d5293f073b2a6fe658e7))
+
 ## [9.15.3](https://github.com/appium/WebDriverAgent/compare/v9.15.2...v9.15.3) (2025-08-12)
 
 ### Miscellaneous Chores
