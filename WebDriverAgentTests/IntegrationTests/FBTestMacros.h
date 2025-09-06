@@ -8,6 +8,7 @@
  */
 
 #import <WebDriverAgentLib/FBRunLoopSpinner.h>
+#import "NSRunLoop+Monotonic.h"
 
 /**
  Macro used to wait till certain condition is true.
@@ -26,7 +27,7 @@
 
 #define FBWaitExact(timeoutSeconds) \
   ({ \
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:(timeoutSeconds)]]; \
+    [[NSRunLoop currentRunLoop] runForMonotonicInterval:(timeoutSeconds)]; \
   })
 
 #define FBCellElementWithLabel(label) ([self.testedApplication descendantsMatchingType:XCUIElementTypeAny][label])

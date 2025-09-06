@@ -38,6 +38,7 @@
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
 #import "FBElementHelpers.h"
+#import "NSRunLoop+Monotonic.h"
 
 static NSString* const FBUnknownBundleId = @"unknown";
 
@@ -169,7 +170,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   if(![[XCUIDevice sharedDevice] fb_goToHomescreenWithError:error]) {
     return NO;
   }
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX(duration, .0)]];
+  [[NSRunLoop currentRunLoop] runForMonotonicInterval:MAX(duration, .0)];
   [self activate];
   return YES;
 }

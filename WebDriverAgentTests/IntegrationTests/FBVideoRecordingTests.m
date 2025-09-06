@@ -17,6 +17,7 @@
 #import "FBScreenRecordingRequest.h"
 #import "FBScreenRecordingContainer.h"
 #import "FBXCTestDaemonsProxy.h"
+#import "NSRunLoop+Monotonic.h"
 
 @interface FBVideoRecordingTests : FBIntegrationTestCase
 @end
@@ -52,7 +53,7 @@
                                                                    codec:0];
   XCTAssertEqual(FBScreenRecordingContainer.sharedInstance.screenRecordingPromise, promise);
 
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:2.]];
+  [[NSRunLoop currentRunLoop] runForMonotonicInterval:2.];
 
   BOOL isSuccessfull = [FBXCTestDaemonsProxy stopScreenRecordingWithUUID:promise.identifier error:&error];
   XCTAssertTrue(isSuccessfull);
