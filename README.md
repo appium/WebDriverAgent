@@ -40,7 +40,7 @@ Then, you find `WebDriverAgentRunner-Runner-sim-<version>.zip`  for iOS and `Web
 
 ## License
 
-[`WebDriverAgent` is BSD-licensed](LICENSE). We also provide an additional [patent grant](PATENTS).
+[`WebDriverAgent` is BSD-licensed](LICENSE).
 
 ## Third Party Sources
 
