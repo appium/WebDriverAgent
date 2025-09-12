@@ -54,6 +54,134 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
                                         options:(nullable FBXMLGenerationOptions *)options;
 
+/**
+    Exported by QAWolf
+ */
++ (NSSet<Class> *)elementAttributesWithXPathQuery:(NSString *)query;
+
+
+/**
+    Exported by QAWolf
+ */
++ (int)recordElementAttributes:(xmlTextWriterPtr)writer
+                    forElement:(id<FBXCElementSnapshot>)element
+                     indexPath:(nullable NSString *)indexPath
+            includedAttributes:(nullable NSSet<Class> *)includedAttributes;
+
+/**
+    Exported by QAWolf
+ */
++ (nullable NSString *)safeXmlStringWithString:(NSString *)str;
+
 @end
+
+/**
+ These types were not being exported originally.
+ */
+
+@interface FBElementAttribute : NSObject
+
+@property (nonatomic, readonly) id<FBElement> element;
+
++ (nonnull NSString *)name;
++ (nullable NSString *)valueForElement:(id<FBElement>)element;
+
++ (int)recordWithWriter:(xmlTextWriterPtr)writer forElement:(id<FBElement>)element;
+
++ (NSArray<Class> *)supportedAttributes;
+
+@end
+
+@interface FBTypeAttribute : FBElementAttribute
+
+@end
+
+@interface FBValueAttribute : FBElementAttribute
+
+@end
+
+@interface FBNameAttribute : FBElementAttribute
+
+@end
+
+@interface FBLabelAttribute : FBElementAttribute
+
+@end
+
+@interface FBEnabledAttribute : FBElementAttribute
+
+@end
+
+@interface FBVisibleAttribute : FBElementAttribute
+
+@end
+
+@interface FBAccessibleAttribute : FBElementAttribute
+
+@end
+
+@interface FBDimensionAttribute : FBElementAttribute
+
+@end
+
+@interface FBXAttribute : FBDimensionAttribute
+
+@end
+
+@interface FBYAttribute : FBDimensionAttribute
+
+@end
+
+@interface FBWidthAttribute : FBDimensionAttribute
+
+@end
+
+@interface FBHeightAttribute : FBDimensionAttribute
+
+@end
+
+@interface FBIndexAttribute : FBElementAttribute
+
+@end
+
+@interface FBHittableAttribute : FBElementAttribute
+
+@end
+
+@interface FBInternalIndexAttribute : FBElementAttribute
+
+@property (nonatomic, nonnull, readonly) NSString* indexValue;
+
++ (int)recordWithWriter:(xmlTextWriterPtr)writer forValue:(NSString *)value;
+
+@end
+
+@interface FBPlaceholderValueAttribute : FBElementAttribute
+
+@end
+
+@interface FBNativeFrameAttribute : FBElementAttribute
+
+@end
+
+@interface FBTraitsAttribute : FBElementAttribute
+
+@end
+
+@interface FBMinValueAttribute : FBElementAttribute
+
+@end
+
+@interface FBMaxValueAttribute : FBElementAttribute
+
+@end
+
+#if TARGET_OS_TV
+
+@interface FBFocusedAttribute : FBElementAttribute
+
+@end
+
+#endif
 
 NS_ASSUME_NONNULL_END

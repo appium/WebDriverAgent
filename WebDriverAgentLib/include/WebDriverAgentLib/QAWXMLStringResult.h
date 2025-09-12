@@ -1,1 +1,0 @@
-../../QAWolf/QAWXMLStringResult.h

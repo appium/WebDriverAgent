@@ -71,7 +71,6 @@ let package = Package(
                 .headerSearchPath("../PrivateHeaders/AccessibilityUtilities"),
                 .headerSearchPath("../PrivateHeaders/TextInput"),
                 .headerSearchPath("../PrivateHeaders/UIKitCore"),
-                .headerSearchPath("../PrivateHeaders/CoreGraphics"),
             ],
             linkerSettings: [
                 // Link against XCTest and system UIKit/Foundation frameworks that
@@ -80,8 +79,7 @@ let package = Package(
                 .linkedFramework("UIKit"),
                 .linkedFramework("Foundation"),
                 .linkedFramework("MobileCoreServices"),
-                .linkedFramework("UniformTypeIdentifiers"),
-                .linkedFramework("CoreGraphics"),
+                .linkedFramework("UniformTypeIdentifiers")
             ]
         ),
         // Unit-test target (optional – keeps parity with the original project).

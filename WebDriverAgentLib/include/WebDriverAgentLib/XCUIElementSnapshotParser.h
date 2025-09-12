@@ -1,0 +1,1 @@
+../../QAWolf/XCUIElementSnapshotParser.h

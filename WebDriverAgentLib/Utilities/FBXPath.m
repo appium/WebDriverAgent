@@ -142,7 +142,6 @@
 @end
 
 #endif
-
 const static char *_UTF8Encoding = "UTF-8";
 
 static NSString *const kXMLIndexPathKey = @"private_indexPath";
