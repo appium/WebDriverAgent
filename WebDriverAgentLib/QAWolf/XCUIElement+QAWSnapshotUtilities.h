@@ -3,6 +3,6 @@
 
 @interface XCUIElement (QAWSnapshotUtilities)
 
-- (QAWSnapshotResult * _Nonnull)qaw_nativeSnapshotWithMaxDepth:(NSNumber *) maxDepth;
+- (QAWSnapshotResult * _Nonnull)qaw_snapshotWithMaxDepth:(NSNumber * _Nonnull) maxDepth;
 
 @end

@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- These types were not being exported originally.
+    Exported by QAWolf
  */
 
 @interface FBElementAttribute : NSObject

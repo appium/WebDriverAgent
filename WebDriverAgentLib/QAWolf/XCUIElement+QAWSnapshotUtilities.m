@@ -4,15 +4,15 @@
 
 @implementation XCUIElement (QAWSnapshotUtilities)
 
-- (QAWSnapshotResult * _Nonnull)qaw_nativeSnapshotWithMaxDepth:(NSNumber *)maxDepth {
+- (QAWSnapshotResult * _Nonnull)qaw_snapshotWithMaxDepth:(NSNumber *)maxDepth {
     NSNumber *originalMaxDepth = @(FBConfiguration.snapshotMaxDepth);
     [FBConfiguration setSnapshotMaxDepth:[maxDepth intValue]];
 
-    id<XCUIElementSnapshot> snapshot = nil;
+    id<FBXCElementSnapshot> snapshot = nil;
     NSException *caughtException = nil;
 
     @try {
-        snapshot = (id<XCUIElementSnapshot>)[self fb_standardSnapshot];
+        snapshot = [self fb_standardSnapshot];
     }
     @catch (NSException *exception) {
         caughtException = exception;

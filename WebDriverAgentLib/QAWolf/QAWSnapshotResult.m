@@ -14,7 +14,7 @@
     return self.snapshot != nil && self.exception == nil;
 }
 
-- (instancetype)initWithSnapshot:(id<XCUIElementSnapshot> _Nonnull)snapshot {
+- (instancetype)initWithSnapshot:(id<FBXCElementSnapshot> _Nonnull)snapshot {
     self = [super init];
     if (self) {
         _snapshot = snapshot;
@@ -32,7 +32,7 @@
     return self;
 }
 
-+ (instancetype)resultWithSnapshot:(id<XCUIElementSnapshot> _Nonnull)snapshot {
++ (instancetype)resultWithSnapshot:(id<FBXCElementSnapshot> _Nonnull)snapshot {
     return [[self alloc] initWithSnapshot:snapshot];
 }
 

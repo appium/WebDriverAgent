@@ -6,12 +6,13 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "FBXCElementSnapshot.h"
 
 @interface QAWSnapshotResult : NSObject
-@property (nonatomic, strong, nullable) id<XCUIElementSnapshot> snapshot;
+@property (nonatomic, strong, nullable) id<FBXCElementSnapshot> snapshot;
 @property (nonatomic, strong, nullable) NSException *exception;
 @property (nonatomic, readonly) BOOL isSuccess;
 
-+ (instancetype)resultWithSnapshot:(id<XCUIElementSnapshot> _Nonnull)snapshot;
++ (instancetype _Nonnull )resultWithSnapshot:(id<FBXCElementSnapshot> _Nonnull)snapshot;
 + (instancetype _Nonnull )resultWithException:(NSException * _Nonnull)exception;
 @end
