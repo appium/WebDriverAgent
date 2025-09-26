@@ -91,7 +91,7 @@ static NSString *const topNodeIndexPath = @"top";
   NSString *result = [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
   xmlFree(xmlbuff);
   
-  XMLWithParentId *xmlWithParentId = [XMLWithParentId initWithParentId:root.id xmlString:result];
+  XMLWithParentId *xmlWithParentId = [XMLWithParentId initWithParentId:parentLeafId xmlString:result];
   XMLRepresentationAndLeaves *xmlRepresentationAndLeaves = [XMLRepresentationAndLeaves initWithXMLRepresentation:xmlWithParentId leaves:leaves];
   return xmlRepresentationAndLeaves;
 }
