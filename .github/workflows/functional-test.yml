@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         test_targets:
-          - HOST_OS: 'macos-26'
+          - HOST_OS: 'macos-15'
             XCODE_VERSION: '26.0'
             IOS_VERSION: '26.0'
             IOS_MODEL: iPhone 17
