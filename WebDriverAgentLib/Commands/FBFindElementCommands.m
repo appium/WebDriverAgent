@@ -94,7 +94,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
-                                       checkStaleness:YES];
+                                       checkStaleness:NO];
   XCUIElement *foundElement = [self.class elementUsing:request.arguments[@"using"]
                                              withValue:request.arguments[@"value"]
                                                  under:element];
@@ -108,7 +108,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"]
-                                       checkStaleness:YES];
+                                       checkStaleness:NO];
   NSArray *foundElements = [self.class elementsUsing:request.arguments[@"using"]
                                            withValue:request.arguments[@"value"]
                                                under:element
