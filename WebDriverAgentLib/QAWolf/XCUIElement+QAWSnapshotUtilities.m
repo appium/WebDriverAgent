@@ -42,7 +42,7 @@
 - (void)waitUntilStableWithElement:(id<FBElement>)root
 {
   if ([root isKindOfClass:XCUIElement.class]) {
-    // If the app is not idle state while we retrieve the visiblity statfbdebuge
+    // If the app is not idle state while we retrieve the visiblity state
     // then the snapshot retrieval operation might freeze and time out
     [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
   }
