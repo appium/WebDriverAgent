@@ -12,7 +12,7 @@
 
 - (QAWSnapshotResult * _Nonnull)qaw_snapshotWithMaxDepth:(NSNumber *)maxDepth {
   NSNumber *originalMaxDepth = @(FBConfiguration.snapshotMaxDepth);
-  [FBConfiguration setSnapshotMaxDepth:[maxDepth intValue]];
+  
 
   id<FBXCElementSnapshot> snapshot = nil;
   NSException *caughtException = nil;
@@ -20,15 +20,22 @@
   id<FBElement> root = (id<FBElement>)self;
 
   @try {
+    [FBLogger logFmt:@"Waiting for element to become stable."];
     [self waitUntilStableWithElement:root];
+    [FBLogger logFmt:@"Element is stable."];
+    [FBLogger logFmt:@"Updating snapshot depth to: %d", [maxDepth intValue]];
+    [FBConfiguration setSnapshotMaxDepth:[maxDepth intValue]];
+    [FBLogger logFmt:@"Taking snapshot..."];
     snapshot = [self snapshotWithRoot:root
                           useNative:FBConfiguration.includeHittableInPageSource];
+    [FBLogger logFmt:@"Snapshot taken."];
+    [FBLogger logFmt:@"Restoring snapshot depth to original value: %d", [originalMaxDepth intValue]];
+    [FBConfiguration setSnapshotMaxDepth:[originalMaxDepth intValue]];
+    [FBLogger logFmt:@"Restored original snapshot max depth"];
   }
   @catch (NSException *exception) {
     caughtException = exception;
   }
-
-  [FBConfiguration setSnapshotMaxDepth:[originalMaxDepth intValue]];
 
   if (caughtException) {
       return [QAWSnapshotResult resultWithException:caughtException];
