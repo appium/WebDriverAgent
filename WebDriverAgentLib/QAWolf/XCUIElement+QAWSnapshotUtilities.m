@@ -6,6 +6,7 @@
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement.h"
 #import "FBElementHelpers.h"
+#import "FBLogger.h"
 
 @implementation XCUIElement (QAWSnapshotUtilities)
 
@@ -42,9 +43,12 @@
 - (void)waitUntilStableWithElement:(id<FBElement>)root
 {
   if ([root isKindOfClass:XCUIElement.class]) {
+    [FBLogger logFmt:@"Element is of XCUIElement type. Waiting for element stability. Timeout: %f", FBConfiguration.animationCoolOffTimeout];
     // If the app is not idle state while we retrieve the visiblity state
     // then the snapshot retrieval operation might freeze and time out
     [[(XCUIElement *)root application] fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  } else {
+    [FBLogger logFmt:@"Element is not of XCUIElement type. Skipping stability wait."];
   }
 }
 
@@ -54,16 +58,24 @@
 - (id<FBXCElementSnapshot>)snapshotWithRoot:(id<FBElement>)root
                                   useNative:(BOOL)useNative
 {
+  [FBLogger logFmt:@"Started snapshot process."];
   if (![root isKindOfClass:XCUIElement.class]) {
+    [FBLogger logFmt:@"Element is already a snapshot.It has type FBXCElementSnapshot, skipping."];
     return (id<FBXCElementSnapshot>)root;
   }
 
   if (useNative) {
+    [FBLogger logFmt:@"useNative is true, taking native snapshot."];
     return [(XCUIElement *)root fb_nativeSnapshot];
   }
-  return [root isKindOfClass:XCUIApplication.class]
-    ? [(XCUIElement *)root fb_standardSnapshot]
-    : [(XCUIElement *)root fb_customSnapshot];
+  
+  if ([root isKindOfClass:XCUIApplication.class]) {
+    [FBLogger logFmt:@"Taking standard snapshot"];
+    return [(XCUIElement *)root fb_standardSnapshot];
+  }
+  
+  [FBLogger logFmt:@"Taking custom snapshot"];
+  return [(XCUIElement *)root fb_customSnapshot];
 }
 
 @end
