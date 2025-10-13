@@ -24,12 +24,12 @@
     [self waitUntilStableWithElement:root];
     [FBLogger logFmt:@"Element is stable."];
     [FBLogger logFmt:@"Updating snapshot depth to: %d", [maxDepth intValue]];
-    [FBConfiguration setSnapshotMaxDepth:[maxDepth intValue]];
+    //[FBConfiguration setSnapshotMaxDepth:[maxDepth intValue]];
     [FBLogger logFmt:@"Taking snapshot..."];
     snapshot = [self snapshotWithRoot:root
                           useNative:FBConfiguration.includeHittableInPageSource];
     [FBLogger logFmt:@"Snapshot taken."];
-    [FBLogger logFmt:@"Restoring snapshot depth to original value: %d", [originalMaxDepth intValue]];
+    //[FBLogger logFmt:@"Restoring snapshot depth to original value: %d", [originalMaxDepth intValue]];
     [FBConfiguration setSnapshotMaxDepth:[originalMaxDepth intValue]];
     [FBLogger logFmt:@"Restored original snapshot max depth"];
   }
