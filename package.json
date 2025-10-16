@@ -65,7 +65,7 @@
     "node-simctl": "^8.0.0",
     "mocha": "^11.0.1",
     "prettier": "^3.0.0",
-    "semantic-release": "^24.0.0",
+    "semantic-release": "^25.0.0",
     "semver": "^7.3.7",
     "sinon": "^21.0.0",
     "ts-node": "^10.9.1",
