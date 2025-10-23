@@ -6,7 +6,12 @@ import _ from 'lodash';
 import sinon from 'sinon';
 
 const fakeConstructorArgs = {
-  device: 'some sim',
+  device: {
+    udid: 'some-sim-udid',
+    simctl: {},
+    devicectl: {},
+    idb: null
+  },
   platformVersion: '9',
   host: 'me',
   port: '5000',
@@ -186,7 +191,7 @@ describe('setupCaching()', function () {
   const getTimestampStub = sinon.stub(utils, 'getWDAUpgradeTimestamp');
 
   beforeEach(function () {
-    wda = new WebDriverAgent('1');
+    wda = new WebDriverAgent('1', fakeConstructorArgs);
     wdaStub = sinon.stub(wda, 'getStatus');
     wdaStubUninstall = sinon.stub(wda, 'uninstall');
   });
@@ -249,7 +254,7 @@ describe('setupCaching()', function () {
   });
 
   it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
-    wda = new WebDriverAgent('1', { updatedWDABundleId: 'com.example.WebDriverAgent' });
+    wda = new WebDriverAgent('1', { ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
     wdaStub = sinon.stub(wda, 'getStatus');
     wdaStubUninstall = sinon.stub(wda, 'uninstall');
 
