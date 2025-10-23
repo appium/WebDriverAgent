@@ -91,9 +91,9 @@ export interface WebDriverAgentArgs {
 
 export interface AppleDevice {
   udid: string;
-  simctl: any;
-  devicectl: any;
-  idb: any;
+  simctl?: any;
+  devicectl?: any;
+  idb?: any;
   [key: string]: any;
 }
 
