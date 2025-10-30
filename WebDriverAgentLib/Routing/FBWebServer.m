@@ -92,6 +92,12 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [self registerServerKeyRouteHandlers];
 
   NSRange serverPortRange = FBConfiguration.bindingPortRange;
+  NSString *bindingIP = FBConfiguration.bindingIPAddress;
+  if (bindingIP != nil) {
+    [self.server setInterface:bindingIP];
+    [FBLogger logFmt:@"Using custom binding IP address: %@", bindingIP];
+  }
+  
   NSError *error;
   BOOL serverStarted = NO;
 

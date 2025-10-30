@@ -20,6 +20,7 @@
 {
   [super setUp];
   unsetenv("USE_PORT");
+  unsetenv("USE_IP");
   unsetenv("VERBOSE_LOGGING");
 }
 
@@ -43,6 +44,17 @@
 {
   setenv("VERBOSE_LOGGING", "YES", 1);
   XCTAssertTrue([FBConfiguration verboseLoggingEnabled]);
+}
+
+- (void)testBindingIPDefault
+{
+  XCTAssertNil([FBConfiguration bindingIPAddress]);
+}
+
+- (void)testBindingIPEnvironmentOverwrite
+{
+  setenv("USE_IP", "192.168.1.100", 1);
+  XCTAssertEqualObjects([FBConfiguration bindingIPAddress], @"192.168.1.100");
 }
 
 @end

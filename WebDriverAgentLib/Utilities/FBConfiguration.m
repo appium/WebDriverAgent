@@ -137,6 +137,17 @@ static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
   return NSMakeRange(DefaultStartingPort, DefaultPortRange);
 }
 
++ (NSString *)bindingIPAddress
+{
+  // Existence of USE_IP in the environment allows specifying which interface to bind to
+  if (NSProcessInfo.processInfo.environment[@"USE_IP"] &&
+      [NSProcessInfo.processInfo.environment[@"USE_IP"] length] > 0) {
+    return NSProcessInfo.processInfo.environment[@"USE_IP"];
+  }
+
+  return nil;
+}
+
 + (NSInteger)mjpegServerPort
 {
   if (self.mjpegServerPortFromArguments != NSNotFound) {

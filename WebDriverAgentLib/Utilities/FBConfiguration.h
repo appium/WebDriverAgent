@@ -125,6 +125,12 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (NSRange)bindingPortRange;
 
 /**
+ The IP address that the HTTP Server should bind to on launch.
+ Returns nil if not specified, which causes the server to listen on all interfaces.
+ */
++ (NSString * _Nullable)bindingIPAddress;
+
+/**
  The port number where the background screenshots broadcaster is supposed to run
  */
 + (NSInteger)mjpegServerPort;

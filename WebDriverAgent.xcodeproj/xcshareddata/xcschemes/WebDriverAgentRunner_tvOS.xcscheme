@@ -76,6 +76,11 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "USE_IP"
+            value = "$(USE_IP)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "UPGRADE_TIMESTAMP"
             value = "$(UPGRADE_TIMESTAMP)"
             isEnabled = "YES">
