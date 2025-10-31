@@ -64,6 +64,7 @@ export interface WebDriverAgentArgs {
   wdaLocalPort?: number;
   wdaRemotePort?: number;
   wdaBaseUrl?: string;
+  wdaBindingIP?: string;
   prebuildWDA?: boolean;
   webDriverAgentUrl?: string;
   wdaConnectionTimeout?: number;
@@ -116,6 +117,7 @@ export interface XcodeBuildArgs {
   useXctestrunFile?: boolean;
   launchTimeout?: number;
   wdaRemotePort?: number;
+  wdaBindingIP?: string;
   updatedWDABundleId?: string;
   derivedDataPath?: string;
   mjpegServerPort?: number;
