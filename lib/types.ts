@@ -94,6 +94,7 @@ export interface AppleDevice {
   udid: string;
   simctl?: any;
   devicectl?: any;
+  /** @deprecated We'll stop supporting idb */
   idb?: any;
   [key: string]: any;
 }
