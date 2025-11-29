@@ -25,7 +25,7 @@ jobs:
       DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:

@@ -28,7 +28,7 @@ jobs:
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
     runs-on: ${{matrix.test_targets.HOST_OS}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
