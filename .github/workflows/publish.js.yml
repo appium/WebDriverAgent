@@ -25,15 +25,18 @@ jobs:
       DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: lts/*
+    - uses: SocketDev/action@v1
+      with:
+        mode: firewall-free
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: "${{ env.XCODE_VERSION }}"
-    - run: npm install --no-package-lock
+    - run: sfw npm install --no-package-lock
       name: Install dev dependencies
     - run: npm run build
       name: Run build

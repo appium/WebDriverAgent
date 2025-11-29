@@ -4,28 +4,25 @@ on: [pull_request, push]
 
 
 jobs:
-  prepare_matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      versions: ${{ steps.generate-matrix.outputs.lts }}
-    steps:
-    - name: Select all current LTS versions of Node.js
-      id: generate-matrix
-      uses: msimerson/node-lts-versions@v1
+  node_matrix:
+    uses: appium/appium-workflows/.github/workflows/node-lts-matrix.yml@main
 
-  test:
+  node_test:
     needs:
-    - prepare_matrix
+    - node_matrix
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.prepare_matrix.outputs.versions) }}
+        node-version: ${{ fromJSON(needs.node_matrix.outputs.versions) }}
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install --no-package-lock
+    - uses: SocketDev/action@v1
+      with:
+        mode: firewall-free
+    - run: sfw npm install --no-package-lock
       name: Install dev dependencies
     - run: npm run lint
       name: Run linter

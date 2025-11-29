@@ -28,10 +28,11 @@ jobs:
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
     runs-on: ${{matrix.test_targets.HOST_OS}}
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+        check-latest: true
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{matrix.test_targets.XCODE_VERSION}}
