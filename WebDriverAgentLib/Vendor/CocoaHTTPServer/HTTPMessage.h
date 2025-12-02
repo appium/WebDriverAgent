@@ -1,21 +1,26 @@
 /**
- * The HTTPMessage class is a simple Objective-C wrapper around Apple's CFHTTPMessage class.
+ * The HTTPMessage class is a simple Objective-C wrapper for HTTP message parsing.
+ * Migrated from CFHTTPMessage to use Foundation and Network framework.
  **/
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
-// Note: You may need to add the CFNetwork Framework to your project
-#import <CFNetwork/CFNetwork.h>
-#endif
-
-#define HTTPVersion1_0  ((NSString *)kCFHTTPVersion1_0)
-#define HTTPVersion1_1  ((NSString *)kCFHTTPVersion1_1)
+#define HTTPVersion1_0  @"HTTP/1.0"
+#define HTTPVersion1_1  @"HTTP/1.1"
 
 
 @interface HTTPMessage : NSObject
 {
-  CFHTTPMessageRef message;
+  NSMutableDictionary *_headers;
+  NSMutableData *_body;
+  NSString *_version;
+  NSString *_method;
+  NSURL *_url;
+  NSInteger _statusCode;
+  NSString *_statusDescription;
+  BOOL _isRequest;
+  BOOL _headerComplete;
+  NSMutableData *_rawData;
 }
 
 - (id)initEmptyRequest;

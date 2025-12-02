@@ -515,6 +515,7 @@ static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
       return @"landscapeLeft";
     case UIInterfaceOrientationUnknown:
       return @"auto";
+    default: break;
   }
 }
 #endif
