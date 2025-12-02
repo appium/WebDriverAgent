@@ -10,8 +10,8 @@ on:
 env:
   HOST: macos-15
   XCODE_VERSION: 16.3
-  DESTINATION_SIM: platform=iOS Simulator,name=iPhone 16 Plus
-  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+  DESTINATION_SIM: platform=iOS Simulator,name=Any iOS Simulator Device
+  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Any tvOS Simulator Device
 
 jobs:
   host_machine:
