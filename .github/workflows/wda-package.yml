@@ -10,8 +10,8 @@ on:
 env:
   HOST: macos-15
   XCODE_VERSION: 16.3
-  DESTINATION_SIM: platform=iOS Simulator,name=Any iOS Simulator Device
-  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Any tvOS Simulator Device
+  DESTINATION_SIM: platform=iOS Simulator,name=Any iOS Simulator Device,id=id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder
+  DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Any tvOS Simulator Device,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-appletvsimulator:placeholder
 
 jobs:
   host_machine:
