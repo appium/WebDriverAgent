@@ -112,13 +112,24 @@
 
 - (void)parseHeaders:(NSString *)headerString
 {
-  NSArray *lines = [headerString componentsSeparatedByString:@"\r\n"];
-  if ([lines count] == 0)
+  NSArray *lines;
+
+  // Try splitting by "\r\n" first (standard HTTP line ending)
+  // Check if the string actually contains "\r\n" delimiter
+  if ([headerString rangeOfString:@"\r\n"].location != NSNotFound)
   {
+    // Found "\r\n" delimiter, use this split
+    lines = [headerString componentsSeparatedByString:@"\r\n"];
+  }
+  else
+  {
+    // No "\r\n" found, try "\n" (some clients use just LF)
     lines = [headerString componentsSeparatedByString:@"\n"];
   }
 
-  if ([lines count] == 0)
+  // componentsSeparatedByString: always returns at least one element,
+  // so check if we have meaningful content (non-empty first line)
+  if ([lines count] == 0 || [[lines objectAtIndex:0] length] == 0)
   {
     return;
   }
@@ -130,23 +141,37 @@
   if (_isRequest && [firstLineParts count] >= 3)
   {
     // Request line: METHOD URL VERSION
-    _method = [firstLineParts objectAtIndex:0];
+    _method = [[firstLineParts objectAtIndex:0] copy];
     NSString *urlString = [firstLineParts objectAtIndex:1];
-    _url = [NSURL URLWithString:urlString];
+
+    // Handle both absolute URLs and relative paths
+    // Try absolute URL first
+    NSURL *parsedURL = [NSURL URLWithString:urlString];
+
+    // If that fails (nil), it's likely a relative path like "/endpoint"
+    // Create a URL with a base URL to handle relative paths
+    if (!parsedURL)
+    {
+      // Use a dummy base URL to allow relative path parsing
+      NSURL *baseURL = [NSURL URLWithString:@"http://localhost"];
+      parsedURL = [NSURL URLWithString:urlString relativeToURL:baseURL];
+    }
+
+    _url = [parsedURL copy];
     if ([firstLineParts count] >= 3)
     {
-      _version = [firstLineParts objectAtIndex:2];
+      _version = [[firstLineParts objectAtIndex:2] copy];
     }
   }
   else if (!_isRequest && [firstLineParts count] >= 3)
   {
     // Status line: VERSION CODE DESCRIPTION
-    _version = [firstLineParts objectAtIndex:0];
+    _version = [[firstLineParts objectAtIndex:0] copy];
     _statusCode = [[firstLineParts objectAtIndex:1] integerValue];
     NSMutableArray *descParts = [NSMutableArray arrayWithArray:firstLineParts];
     [descParts removeObjectAtIndex:0];
     [descParts removeObjectAtIndex:0];
-    _statusDescription = [descParts componentsJoinedByString:@" "];
+    _statusDescription = [[descParts componentsJoinedByString:@" "] copy];
   }
 
   // Parse header fields
@@ -244,10 +269,26 @@
   if (_isRequest)
   {
     // Request line
-    NSString *urlString = [_url absoluteString];
-    if (!urlString)
+    // For relative URLs, use the path component; for absolute URLs, use absoluteString
+    NSString *urlString = nil;
+    if (_url)
     {
-      urlString = [_url path];
+      // If it's a relative URL (has a base), use the relative path
+      // Otherwise use absoluteString or path
+      if ([_url baseURL])
+      {
+        // Relative URL - use the relative portion
+        urlString = [_url relativeString];
+      }
+      else
+      {
+        // Absolute URL
+        urlString = [_url absoluteString];
+        if (!urlString)
+        {
+          urlString = [_url path];
+        }
+      }
     }
     [messageString appendFormat:@"%@ %@ %@\r\n", _method ?: @"GET", urlString ?: @"/", _version ?: HTTPVersion1_1];
   }
@@ -293,6 +334,24 @@
   {
     _body = [[NSMutableData alloc] init];
   }
+}
+
+- (void)dealloc
+{
+  // ARC automatically releases all instance variables, but we include this
+  // for clarity and to match the pattern of the original CFNetwork implementation.
+  // All Objective-C objects (_headers, _body, _rawData, _version, _method, _url, _statusDescription)
+  // will be automatically released by ARC when this object is deallocated.
+#if ! __has_feature(objc_arc)
+  [_headers release];
+  [_body release];
+  [_rawData release];
+  [_version release];
+  [_method release];
+  [_url release];
+  [_statusDescription release];
+  [super dealloc];
+#endif
 }
 
 @end
