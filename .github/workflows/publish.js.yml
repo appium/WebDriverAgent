@@ -21,7 +21,7 @@ jobs:
     env:
       XCODE_VERSION: 16.3
       # Available destination for simulators depend on Xcode version.
-      DESTINATION_SIM: platform=iOS Simulator,name=iPhone 16 Plus
+      DESTINATION_SIM: platform=iOS Simulator,name=iPhone 17
       DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
     steps:
