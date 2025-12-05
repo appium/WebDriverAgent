@@ -7,8 +7,14 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <UserNotifications/UserNotifications.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, UNUserNotificationCenterDelegate>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
+
+@property (strong, nonatomic) UIWindow *window;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
