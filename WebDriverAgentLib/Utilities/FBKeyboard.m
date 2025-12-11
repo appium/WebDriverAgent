@@ -34,7 +34,7 @@
 
     NSPredicate *keySearchPredicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot,
                                                                             NSDictionary *bindings) {
-      return snapshot.label.length > 0;
+      return snapshot.label.length > 0 && !CGRectIsEmpty(snapshot.frame);
     }];
     XCUIElement *firstKey = [[keyboard descendantsMatchingType:XCUIElementTypeKey]
                              matchingPredicate:keySearchPredicate].allElementsBoundByIndex.firstObject;
