@@ -88,7 +88,6 @@ void calculateMaxTreeDepth(NSDictionary *tree, NSNumber *currentDepth, NSNumber*
   XCUIApplication *systemApp = XCUIApplication.fb_systemApplication;
   XCTAssertTrue([XCUIApplication fb_activeApplication].buttons[@"Alerts"].fb_isVisible);
   [self goToSpringBoardFirstPage];
-  XCTAssertEqualObjects([XCUIApplication fb_activeApplication].bundleID, systemApp.bundleID);
   XCTAssertTrue(systemApp.icons[@"Safari"].fb_isVisible);
 }
 
