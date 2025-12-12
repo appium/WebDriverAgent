@@ -24,14 +24,10 @@
 - (void)setUp
 {
   [super setUp];
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self resetPermissions];
-    [self launchApplication];
-    [self goToAlertsPage];
-    [FBConfiguration disableApplicationUIInterruptionsHandling];
-  });
-  [self clearAlert];
+  [self resetPermissions];
+  [self launchApplication];
+  [self goToAlertsPage];
+  [FBConfiguration disableApplicationUIInterruptionsHandling];
 }
 
 - (void)resetPermissions
