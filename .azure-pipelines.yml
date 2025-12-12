@@ -12,7 +12,7 @@ variables:
   MAX_PLATFORM_VERSION: "26.1"
   MAX_PLATFORM_VERSION_TV: "26.1"
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
-  MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
+  MAX_TV_DEVICE_NAME: "Any tvOS Simulator Device"
   MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
   DEFAULT_NODE_VERSION: "22.x"
 
@@ -299,6 +299,8 @@ stages:
   # endregion
 
 - stage: Integration_Tests
+  dependsOn: []            # run in parallel with earlier stages
+  condition: succeededOrFailed()  # do not block on Unit/Linters failures
   jobs:
 
   # region Integration Tests Max Xcode
