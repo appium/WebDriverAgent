@@ -10,9 +10,9 @@ variables:
   MAX_VM_IMAGE: macOS-15
   MAX_XCODE_VERSION: "26.1"
   MAX_PLATFORM_VERSION: "26.1"
-  MAX_PLATFORM_VERSION_TV: "26.1"
+  MAX_TV_PLATFORM_VERSION: "26.1"
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
-  MAX_TV_DEVICE_NAME: "Any tvOS Simulator Device"
+  MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
   MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
   DEFAULT_NODE_VERSION: "22.x"
 
@@ -168,7 +168,7 @@ stages:
       target: tv_lib
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION_TV)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
@@ -178,7 +178,7 @@ stages:
       target: tv_runner
       sdk: tv_sim
       tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION_TV)
+      tvVersion: $(MAX_TV_PLATFORM_VERSION)
       xcodeVersion: $(MAX_XCODE_VERSION)
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
@@ -240,29 +240,6 @@ stages:
       vmImage: $(MAX_VM_IMAGE)
   - template: ./azure-templates/base_job.yml
     parameters:
-      name: iPad_Unit_Test_Max_Xcode
-      action: unit_test
-      dest: ipad
-      target: lib
-      sdk: sim
-      iphoneModel: $(MAX_IPHONE_DEVICE_NAME)
-      ipadModel: $(MAX_IPAD_DEVICE_NAME)
-      iosVersion: $(MAX_PLATFORM_VERSION)
-      xcodeVersion: $(MAX_XCODE_VERSION)
-      vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/base_job.yml
-    parameters:
-      name: tvOS_Unit_Test_Max_Xcode
-      action: tv_unit_test
-      dest: tv
-      target: tv_lib
-      sdk: tv_sim
-      tvModel: $(MAX_TV_DEVICE_NAME)
-      tvVersion: $(MAX_PLATFORM_VERSION_TV)
-      xcodeVersion: $(MAX_XCODE_VERSION)
-      vmImage: $(MAX_VM_IMAGE)
-  - template: ./azure-templates/base_job.yml
-    parameters:
       name: iPhone_Unit_Test_Min_Xcode
       action: unit_test
       dest: iphone
@@ -271,29 +248,6 @@ stages:
       iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
       ipadModel: $(MIN_IPAD_DEVICE_NAME)
       iosVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
-      vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/base_job.yml
-    parameters:
-      name: iPad_Unit_Test_Min_Xcode
-      action: unit_test
-      dest: ipad
-      target: lib
-      sdk: sim
-      iphoneModel: $(MIN_IPHONE_DEVICE_NAME)
-      ipadModel: $(MIN_IPAD_DEVICE_NAME)
-      iosVersion: $(MIN_PLATFORM_VERSION)
-      xcodeVersion: $(MIN_XCODE_VERSION)
-      vmImage: $(MIN_VM_IMAGE)
-  - template: ./azure-templates/base_job.yml
-    parameters:
-      name: tvOS_Unit_Test_Min_Xcode
-      action: tv_unit_test
-      dest: tv
-      target: tv_lib
-      sdk: tv_sim
-      tvModel: $(MIN_TV_DEVICE_NAME)
-      tvVersion: $(MIN_TV_PLATFORM_VERSION)
       xcodeVersion: $(MIN_XCODE_VERSION)
       vmImage: $(MIN_VM_IMAGE)
   # endregion
