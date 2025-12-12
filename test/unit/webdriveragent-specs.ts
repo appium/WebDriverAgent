@@ -1,11 +1,16 @@
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { BOOTSTRAP_PATH } from '../../lib/utils';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import * as utils from '../../lib/utils';
 import path from 'path';
 import _ from 'lodash';
 import sinon from 'sinon';
+import type { WebDriverAgentArgs, AppleDevice } from '../../lib/types';
 
-const fakeConstructorArgs = {
+chai.use(chaiAsPromised);
+
+const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {
     udid: 'some-sim-udid',
     simctl: {},
@@ -14,7 +19,6 @@ const fakeConstructorArgs = {
   },
   platformVersion: '9',
   host: 'me',
-  port: '5000',
   realDevice: false
 };
 
@@ -23,42 +27,37 @@ const customBootstrapPath = '/path/to/wda';
 const customAgentPath = '/path/to/some/agent/WebDriverAgent.xcodeproj';
 const customDerivedDataPath = '/path/to/some/agent/DerivedData/';
 
-describe('Constructor', function () {
-  let chai;
+describe('WebDriverAgent', function () {
 
-  before(async function() {
-    chai = await import('chai');
-    const chaiAsPromised = await import('chai-as-promised');
-
-    chai.should();
-    chai.use(chaiAsPromised.default);
-  });
+  describe('Constructor', function () {
 
   it('should have a default wda agent if not specified', function () {
-    let agent = new WebDriverAgent({}, fakeConstructorArgs);
-    agent.bootstrapPath.should.eql(BOOTSTRAP_PATH);
-    agent.agentPath.should.eql(defaultAgentPath);
+    const agent = new WebDriverAgent(undefined, fakeConstructorArgs);
+    expect(agent.bootstrapPath).to.eql(BOOTSTRAP_PATH);
+    expect(agent.agentPath).to.eql(defaultAgentPath);
   });
   it('should have custom wda bootstrap and default agent if only bootstrap specified', function () {
-    let agent = new WebDriverAgent({}, _.defaults({
+    const agent = new WebDriverAgent(undefined, _.defaults({
       bootstrapPath: customBootstrapPath,
     }, fakeConstructorArgs));
-    agent.bootstrapPath.should.eql(customBootstrapPath);
-    agent.agentPath.should.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
+    expect(agent.bootstrapPath).to.eql(customBootstrapPath);
+    expect(agent.agentPath).to.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
   });
   it('should have custom wda bootstrap and agent if both specified', function () {
-    let agent = new WebDriverAgent({}, _.defaults({
+    const agent = new WebDriverAgent(undefined, _.defaults({
       bootstrapPath: customBootstrapPath,
       agentPath: customAgentPath,
     }, fakeConstructorArgs));
-    agent.bootstrapPath.should.eql(customBootstrapPath);
-    agent.agentPath.should.eql(customAgentPath);
+    expect(agent.bootstrapPath).to.eql(customBootstrapPath);
+    expect(agent.agentPath).to.eql(customAgentPath);
   });
   it('should have custom derivedDataPath if specified', function () {
-    let agent = new WebDriverAgent({}, _.defaults({
+    const agent = new WebDriverAgent(undefined, _.defaults({
       derivedDataPath: customDerivedDataPath
     }, fakeConstructorArgs));
-    agent.xcodebuild.derivedDataPath.should.eql(customDerivedDataPath);
+    if (agent.xcodebuild) {
+      expect(agent.xcodebuild.derivedDataPath).to.eql(customDerivedDataPath);
+    }
   });
 });
 
@@ -67,22 +66,26 @@ describe('launch', function () {
     const override = 'http://mockurl:8100/';
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
-    const agent = new WebDriverAgent({}, args);
+    const agent = new WebDriverAgent(undefined, args);
     const wdaStub = sinon.stub(agent, 'getStatus');
     wdaStub.callsFake(function () {
       return {build: 'data'};
     });
 
-    await agent.launch('sessionId').should.eventually.eql({build: 'data'});
-    agent.url.href.should.eql(override);
-    agent.jwproxy.server.should.eql('mockurl');
-    agent.jwproxy.port.should.eql(8100);
-    agent.jwproxy.base.should.eql('');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.server.should.eql('mockurl');
-    agent.noSessionProxy.port.should.eql(8100);
-    agent.noSessionProxy.base.should.eql('');
-    agent.noSessionProxy.scheme.should.eql('http');
+    await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
+    expect(agent.url.href).to.eql(override);
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.server).to.eql('mockurl');
+      expect(agent.jwproxy.port).to.eql(8100);
+      expect(agent.jwproxy.base).to.eql('');
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.server).to.eql('mockurl');
+      expect(agent.noSessionProxy.port).to.eql(8100);
+      expect(agent.noSessionProxy.base).to.eql('');
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
     wdaStub.reset();
   });
 });
@@ -92,36 +95,44 @@ describe('use wda proxy url', function () {
     const override = 'http://127.0.0.1:8100/aabbccdd';
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
-    const agent = new WebDriverAgent({}, args);
+    const agent = new WebDriverAgent(undefined, args);
     const wdaStub = sinon.stub(agent, 'getStatus');
     wdaStub.callsFake(function () {
       return {build: 'data'};
     });
 
-    await agent.launch('sessionId').should.eventually.eql({build: 'data'});
+    await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
 
-    agent.url.port.should.eql('8100');
-    agent.url.hostname.should.eql('127.0.0.1');
-    agent.url.path.should.eql('/aabbccdd');
-    agent.jwproxy.server.should.eql('127.0.0.1');
-    agent.jwproxy.port.should.eql(8100);
-    agent.jwproxy.base.should.eql('/aabbccdd');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.server.should.eql('127.0.0.1');
-    agent.noSessionProxy.port.should.eql(8100);
-    agent.noSessionProxy.base.should.eql('/aabbccdd');
-    agent.noSessionProxy.scheme.should.eql('http');
+    expect(agent.url.port).to.eql('8100');
+    expect(agent.url.hostname).to.eql('127.0.0.1');
+    expect(agent.url.path).to.eql('/aabbccdd');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.server).to.eql('127.0.0.1');
+      expect(agent.jwproxy.port).to.eql(8100);
+      expect(agent.jwproxy.base).to.eql('/aabbccdd');
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.server).to.eql('127.0.0.1');
+      expect(agent.noSessionProxy.port).to.eql(8100);
+      expect(agent.noSessionProxy.base).to.eql('/aabbccdd');
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
   });
 });
 
 describe('get url', function () {
   it('should use default WDA listening url', function () {
     const args = Object.assign({}, fakeConstructorArgs);
-    const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://127.0.0.1:8100/');
+    const agent = new WebDriverAgent(undefined, args);
+    expect(agent.url.href).to.eql('http://127.0.0.1:8100/');
     agent.setupProxies('mysession');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.scheme.should.eql('http');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
   });
   it('should use default WDA listening url with emply base url', function () {
     const wdaLocalPort = '9100';
@@ -129,13 +140,17 @@ describe('get url', function () {
 
     const args = Object.assign({}, fakeConstructorArgs);
     args.wdaBaseUrl = wdaBaseUrl;
-    args.wdaLocalPort = wdaLocalPort;
+    args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://127.0.0.1:9100/');
+    const agent = new WebDriverAgent(undefined, args);
+    expect(agent.url.href).to.eql('http://127.0.0.1:9100/');
     agent.setupProxies('mysession');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.scheme.should.eql('http');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
   });
   it('should use customised WDA listening url', function () {
     const wdaLocalPort = '9100';
@@ -143,13 +158,17 @@ describe('get url', function () {
 
     const args = Object.assign({}, fakeConstructorArgs);
     args.wdaBaseUrl = wdaBaseUrl;
-    args.wdaLocalPort = wdaLocalPort;
+    args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://mockurl:9100/');
+    const agent = new WebDriverAgent(undefined, args);
+    expect(agent.url.href).to.eql('http://mockurl:9100/');
     agent.setupProxies('mysession');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.scheme.should.eql('http');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
   });
   it('should use customised WDA listening url with slash', function () {
     const wdaLocalPort = '9100';
@@ -157,41 +176,49 @@ describe('get url', function () {
 
     const args = Object.assign({}, fakeConstructorArgs);
     args.wdaBaseUrl = wdaBaseUrl;
-    args.wdaLocalPort = wdaLocalPort;
+    args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('http://mockurl:9100/');
+    const agent = new WebDriverAgent(undefined, args);
+    expect(agent.url.href).to.eql('http://mockurl:9100/');
     agent.setupProxies('mysession');
-    agent.jwproxy.scheme.should.eql('http');
-    agent.noSessionProxy.scheme.should.eql('http');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.scheme).to.eql('http');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.scheme).to.eql('http');
+    }
   });
   it('should use the given webDriverAgentUrl and ignore other params', function () {
     const args = Object.assign({}, fakeConstructorArgs);
     args.wdaBaseUrl = 'http://mockurl/';
-    args.wdaLocalPort = '9100';
+    args.wdaLocalPort = 9100;
     args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
 
-    const agent = new WebDriverAgent({}, args);
-    agent.url.href.should.eql('https://127.0.0.1:8100/');
+    const agent = new WebDriverAgent(undefined, args);
+    expect(agent.url.href).to.eql('https://127.0.0.1:8100/');
   });
   it('should set scheme to https for https webDriverAgentUrl', function () {
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
-    const agent = new WebDriverAgent({}, args);
+    const agent = new WebDriverAgent(undefined, args);
     agent.setupProxies('mysession');
-    agent.jwproxy.scheme.should.eql('https');
-    agent.noSessionProxy.scheme.should.eql('https');
+    if (agent.jwproxy) {
+      expect(agent.jwproxy.scheme).to.eql('https');
+    }
+    if (agent.noSessionProxy) {
+      expect(agent.noSessionProxy.scheme).to.eql('https');
+    }
   });
 });
 
 describe('setupCaching()', function () {
-  let wda;
-  let wdaStub;
-  let wdaStubUninstall;
+  let wda: WebDriverAgent;
+  let wdaStub: sinon.SinonStub;
+  let wdaStubUninstall: sinon.SinonStub;
   const getTimestampStub = sinon.stub(utils, 'getWDAUpgradeTimestamp');
 
   beforeEach(function () {
-    wda = new WebDriverAgent('1', fakeConstructorArgs);
+    wda = new WebDriverAgent(undefined, fakeConstructorArgs);
     wdaStub = sinon.stub(wda, 'getStatus');
     wdaStubUninstall = sinon.stub(wda, 'uninstall');
   });
@@ -211,9 +238,9 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
-    _.isUndefined(wda.webDriverAgentUrl).should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
+    expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
   });
 
   it('should not call uninstall since running WDA has only time', async function () {
@@ -223,9 +250,9 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
-    wda.webDriverAgentUrl.should.equal('http://127.0.0.1:8100/');
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
+    expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
   });
 
   it('should call uninstall once since bundle id is not default without updatedWDABundleId capability', async function () {
@@ -235,9 +262,9 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.calledOnce.should.be.true;
-    _.isUndefined(wda.webDriverAgentUrl).should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.calledOnce).to.be.true;
+    expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
   });
 
   it('should call uninstall once since bundle id is different with updatedWDABundleId capability', async function () {
@@ -248,13 +275,13 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.calledOnce.should.be.true;
-    _.isUndefined(wda.webDriverAgentUrl).should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.calledOnce).to.be.true;
+    expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
   });
 
   it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
-    wda = new WebDriverAgent('1', { ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
+    wda = new WebDriverAgent(undefined, { ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
     wdaStub = sinon.stub(wda, 'getStatus');
     wdaStubUninstall = sinon.stub(wda, 'uninstall');
 
@@ -265,9 +292,9 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
-    wda.webDriverAgentUrl.should.equal('http://127.0.0.1:8100/');
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
+    expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
   });
 
   it('should call uninstall if current revision differs from the bundled one', async function () {
@@ -278,8 +305,8 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.calledOnce.should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.calledOnce).to.be.true;
   });
 
   it('should not call uninstall if current revision is the same as the bundled one', async function () {
@@ -290,8 +317,8 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
   });
 
   it('should not call uninstall if current revision cannot be retrieved from WDA status', async function () {
@@ -302,8 +329,8 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
   });
 
   it('should not call uninstall if current revision cannot be retrieved from the file system', async function () {
@@ -314,22 +341,22 @@ describe('setupCaching()', function () {
     wdaStubUninstall.callsFake(_.noop);
 
     await wda.setupCaching();
-    wdaStub.calledOnce.should.be.true;
-    wdaStubUninstall.notCalled.should.be.true;
+    expect(wdaStub.calledOnce).to.be.true;
+    expect(wdaStubUninstall.notCalled).to.be.true;
   });
 
   describe('uninstall', function () {
-    let device;
-    let wda;
-    let deviceGetBundleIdsStub;
-    let deviceRemoveAppStub;
+    let device: AppleDevice;
+    let wda: WebDriverAgent;
+    let deviceGetBundleIdsStub: sinon.SinonStub;
+    let deviceRemoveAppStub: sinon.SinonStub;
 
     beforeEach(function () {
       device = {
         getUserInstalledBundleIdsByBundleName: () => {},
         removeApp: () => {}
-      };
-      wda = new WebDriverAgent('1', {device});
+      } as any;
+      wda = new WebDriverAgent(undefined, {device} as WebDriverAgentArgs);
       deviceGetBundleIdsStub = sinon.stub(device, 'getUserInstalledBundleIdsByBundleName');
       deviceRemoveAppStub = sinon.stub(device, 'removeApp');
     });
@@ -346,30 +373,30 @@ describe('setupCaching()', function () {
       deviceGetBundleIdsStub.callsFake(() => []);
 
       await wda.uninstall();
-      deviceGetBundleIdsStub.calledOnce.should.be.true;
-      deviceRemoveAppStub.notCalled.should.be.true;
+      expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
+      expect(deviceRemoveAppStub.notCalled).to.be.true;
     });
 
     it('should call uninstall once', async function () {
-      const uninstalledBundIds = [];
+      const uninstalledBundIds: string[] = [];
       deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1']);
-      deviceRemoveAppStub.callsFake((id) => uninstalledBundIds.push(id));
+      deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
 
       await wda.uninstall();
-      deviceGetBundleIdsStub.calledOnce.should.be.true;
-      deviceRemoveAppStub.calledOnce.should.be.true;
-      uninstalledBundIds.should.eql(['com.appium.WDA1']);
+      expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
+      expect(deviceRemoveAppStub.calledOnce).to.be.true;
+      expect(uninstalledBundIds).to.eql(['com.appium.WDA1']);
     });
 
     it('should call uninstall twice', async function () {
-      const uninstalledBundIds = [];
+      const uninstalledBundIds: string[] = [];
       deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1', 'com.appium.WDA2']);
-      deviceRemoveAppStub.callsFake((id) => uninstalledBundIds.push(id));
+      deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
 
       await wda.uninstall();
-      deviceGetBundleIdsStub.calledOnce.should.be.true;
-      deviceRemoveAppStub.calledTwice.should.be.true;
-      uninstalledBundIds.should.eql(['com.appium.WDA1', 'com.appium.WDA2']);
+      expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
+      expect(deviceRemoveAppStub.calledTwice).to.be.true;
+      expect(uninstalledBundIds).to.eql(['com.appium.WDA1', 'com.appium.WDA2']);
     });
   });
 });
@@ -380,38 +407,40 @@ describe('usePreinstalledWDA related functions', function () {
     it('should have xctrunner automatically', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
-      const agent = new WebDriverAgent({}, args);
-      agent.bundleIdForXctest.should.equal('io.appium.wda.xctrunner');
+      const agent = new WebDriverAgent(undefined, args);
+      expect(agent.bundleIdForXctest).to.equal('io.appium.wda.xctrunner');
     });
 
     it('should have xctrunner automatically with default bundle id', function () {
       const args = Object.assign({}, fakeConstructorArgs);
-      const agent = new WebDriverAgent({}, args);
-      agent.bundleIdForXctest.should.equal('com.facebook.WebDriverAgentRunner.xctrunner');
+      const agent = new WebDriverAgent(undefined, args);
+      expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner.xctrunner');
     });
 
     it('should allow an empty string as xctrunner suffix', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
       args.updatedWDABundleIdSuffix = '';
-      const agent = new WebDriverAgent({}, args);
-      agent.bundleIdForXctest.should.equal('io.appium.wda');
+      const agent = new WebDriverAgent(undefined, args);
+      expect(agent.bundleIdForXctest).to.equal('io.appium.wda');
     });
 
     it('should allow an empty string as xctrunner suffix with default bundle id', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleIdSuffix = '';
-      const agent = new WebDriverAgent({}, args);
-      agent.bundleIdForXctest.should.equal('com.facebook.WebDriverAgentRunner');
+      const agent = new WebDriverAgent(undefined, args);
+      expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner');
     });
 
     it('should have an arbitrary xctrunner suffix', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
       args.updatedWDABundleIdSuffix = '.customsuffix';
-      const agent = new WebDriverAgent({}, args);
-      agent.bundleIdForXctest.should.equal('io.appium.wda.customsuffix');
+      const agent = new WebDriverAgent(undefined, args);
+      expect(agent.bundleIdForXctest).to.equal('io.appium.wda.customsuffix');
     });
 
   });
+});
+
 });

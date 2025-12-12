@@ -5,11 +5,12 @@
     "strict": false,  // TODO: make this flag true
     "esModuleInterop": true,
     "outDir": "build",
-    "types": ["node"],
+    "types": ["node", "mocha"],
     "checkJs": true
   },
   "include": [
     "index.ts",
-    "lib"
+    "lib",
+    "test"
   ]
 }

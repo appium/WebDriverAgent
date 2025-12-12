@@ -1,5 +1,8 @@
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { Simctl } from 'node-simctl';
 import { getVersion } from 'appium-xcode';
+import type { XcodeVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
 import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
 import { SubProcess } from 'teen_process';
@@ -7,15 +10,18 @@ import { PLATFORM_VERSION, DEVICE_NAME } from './desired';
 import { retryInterval } from 'asyncbox';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import axios from 'axios';
+import type { AppleDevice } from '../../lib/types';
+
+chai.use(chaiAsPromised);
 
 const MOCHA_TIMEOUT_MS = 60 * 1000 * 5;
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
 const SIM_STARTUP_TIMEOUT_MS = MOCHA_TIMEOUT_MS;
 
-let testUrl = 'http://localhost:8100/tree';
+const testUrl = 'http://localhost:8100/tree';
 
-function getStartOpts (device) {
+function getStartOpts (device: AppleDevice) {
   return {
     device,
     platformVersion: PLATFORM_VERSION,
@@ -30,16 +36,9 @@ function getStartOpts (device) {
 
 describe('WebDriverAgent', function () {
   this.timeout(MOCHA_TIMEOUT_MS);
-  let chai;
-  let xcodeVersion;
+  let xcodeVersion: XcodeVersion | undefined;
 
   before(async function () {
-    chai = await import('chai');
-    const chaiAsPromised = await import('chai-as-promised');
-
-    chai.should();
-    chai.use(chaiAsPromised.default);
-
     // Don't do these tests on Sauce Labs
     if (process.env.CLOUD) {
       this.skip();
@@ -48,8 +47,8 @@ describe('WebDriverAgent', function () {
     xcodeVersion = await getVersion(true);
   });
   describe('with fresh sim', function () {
-    let device;
-    let simctl;
+    let device: AppleDevice;
+    let simctl: Simctl;
 
     before(async function () {
       simctl = new Simctl();
@@ -67,7 +66,9 @@ describe('WebDriverAgent', function () {
         showXcodeLog: true,
         device,
       });
-      await wda.xcodebuild.start(true);
+      if (wda.xcodebuild) {
+        await wda.xcodebuild.start(true);
+      }
     });
 
     after(async function () {
@@ -96,7 +97,7 @@ describe('WebDriverAgent', function () {
         const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
 
         await agent.launch('sessionId');
-        await axios({url: testUrl}).should.be.eventually.rejected;
+        await expect(axios({url: testUrl})).to.be.rejected;
         await agent.quit();
       });
 
@@ -106,8 +107,11 @@ describe('WebDriverAgent', function () {
 
         const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
 
+        if (!agent.xcodebuild) {
+          throw new Error('xcodebuild is null');
+        }
         agent.xcodebuild.createSubProcess = async function () {
-          let args = [
+          const args = [
             '-workspace',
             `${this.agentPath}dfgs`,
             // '-scheme',
@@ -119,11 +123,12 @@ describe('WebDriverAgent', function () {
           return new SubProcess('xcodebuild', args, {detached: true});
         };
 
-        await agent.launch('sessionId')
-          .should.eventually.be.rejectedWith('xcodebuild failed');
+        await expect(agent.launch('sessionId'))
+          .to.be.rejectedWith('xcodebuild failed');
 
         await agent.quit();
       });
     });
   });
 });
+

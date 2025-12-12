@@ -1,3 +1,5 @@
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName } from '../../lib/utils';
 import { PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS } from '../../lib/constants';
 import { fs } from '@appium/support';
@@ -5,21 +7,15 @@ import path from 'path';
 import { fail } from 'assert';
 import { arch } from 'os';
 import sinon from 'sinon';
+import type { DeviceInfo } from '../../lib/types';
 
-function get_arch() {
+chai.use(chaiAsPromised);
+
+function get_arch(): string {
   return arch() === 'arm64' ? 'arm64' : 'x86_64';
 }
 
 describe('utils', function () {
-  let chai;
-
-  before(async function() {
-    chai = await import('chai');
-    const chaiAsPromised = await import('chai-as-promised');
-
-    chai.should();
-    chai.use(chaiAsPromised.default);
-  });
 
   describe('#getXctestrunFilePath', function () {
     const platformVersion = '12.0';
@@ -27,7 +23,7 @@ describe('utils', function () {
     const udid = 'xxxxxyyyyyyzzzzzz';
     const bootstrapPath = 'path/to/data';
     const platformName = PLATFORM_NAME_IOS;
-    let sandbox;
+    let sandbox: sinon.SinonSandbox;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
@@ -42,9 +38,9 @@ describe('utils', function () {
         .withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
         .resolves(true);
       sandbox.stub(fs, 'copyFile');
-      const deviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
-      await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)
-        .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
+      const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
+      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath))
+        .to.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
       sandbox.assert.notCalled(fs.copyFile);
     });
 
@@ -58,9 +54,9 @@ describe('utils', function () {
           path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`)
         )
         .resolves();
-      const deviceInfo = {isRealDevice: true, udid, platformVersion};
-      await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)
-        .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
+      const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName: PLATFORM_NAME_IOS};
+      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath))
+        .to.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`));
     });
 
     it('should return platform based path', async function () {
@@ -69,9 +65,9 @@ describe('utils', function () {
       existsStub.withArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`)).resolves(false);
       existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`)).resolves(true);
       sandbox.stub(fs, 'copyFile');
-      const deviceInfo = {isRealDevice: false, udid, platformVersion};
-      await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)
-        .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`));
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName: PLATFORM_NAME_IOS};
+      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath))
+        .to.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`));
       sandbox.assert.notCalled(fs.copyFile);
     });
 
@@ -88,21 +84,21 @@ describe('utils', function () {
         )
         .resolves();
 
-      const deviceInfo = {isRealDevice: false, udid, platformVersion};
-      await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)
-        .should.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`));
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName: PLATFORM_NAME_IOS};
+      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath))
+        .to.eventually.equal(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`));
     });
 
     it('should raise an exception because of no files', async function () {
       const expected = path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`);
       sandbox.stub(fs, 'exists').resolves(false);
 
-      const deviceInfo = {isRealDevice: false, udid, platformVersion};
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName: PLATFORM_NAME_IOS};
       try {
         await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
         fail();
-      } catch (err) {
-        err.message.should.equal(`If you are using 'useXctestrunFile' capability then you need to have a xctestrun file (expected: '${expected}')`);
+      } catch (err: any) {
+        expect(err.message).to.equal(`If you are using 'useXctestrunFile' capability then you need to have a xctestrun file (expected: '${expected}')`);
       }
     });
   });
@@ -110,16 +106,14 @@ describe('utils', function () {
   describe('#getAdditionalRunContent', function () {
     it('should return ios format', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000);
-      wdaPort.WebDriverAgentRunner
-        .EnvironmentVariables.USE_PORT
-        .should.equal('8000');
+      expect(wdaPort.WebDriverAgentRunner
+        .EnvironmentVariables.USE_PORT).to.equal('8000');
     });
 
     it('should return tvos format', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_TVOS, '9000');
-      wdaPort.WebDriverAgentRunner_tvOS
-        .EnvironmentVariables.USE_PORT
-        .should.equal('9000');
+      expect(wdaPort.WebDriverAgentRunner_tvOS
+        .EnvironmentVariables.USE_PORT).to.equal('9000');
     });
   });
 
@@ -129,34 +123,35 @@ describe('utils', function () {
 
     it('should return ios format, real device', function () {
       const platformName = 'iOs';
-      const deviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
+      const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
 
-      getXctestrunFileName(deviceInfo, '10.2.0').should.equal(
+      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
         'WebDriverAgentRunner_iphoneos10.2.0-arm64.xctestrun');
     });
 
     it('should return ios format, simulator', function () {
       const platformName = 'ios';
-      const deviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
 
-      getXctestrunFileName(deviceInfo, '10.2.0').should.equal(
+      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
         `WebDriverAgentRunner_iphonesimulator10.2.0-${get_arch()}.xctestrun`);
     });
 
     it('should return tvos format, real device', function () {
       const platformName = 'tVos';
-      const deviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
+      const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
 
-      getXctestrunFileName(deviceInfo, '10.2.0').should.equal(
+      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
         'WebDriverAgentRunner_tvOS_appletvos10.2.0-arm64.xctestrun');
     });
 
     it('should return tvos format, simulator', function () {
       const platformName = 'tvOS';
-      const deviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
 
-      getXctestrunFileName(deviceInfo, '10.2.0').should.equal(
+      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
         `WebDriverAgentRunner_tvOS_appletvsimulator10.2.0-${get_arch()}.xctestrun`);
     });
   });
 });
+

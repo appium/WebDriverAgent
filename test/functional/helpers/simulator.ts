@@ -3,9 +3,9 @@ import { Simctl } from 'node-simctl';
 import { retryInterval } from 'asyncbox';
 import { killAllSimulators as simKill } from 'appium-ios-simulator';
 import { resetTestProcesses } from '../../../lib/utils';
+import type { AppleDevice } from '../../../lib/types';
 
-
-async function killAllSimulators () {
+export async function killAllSimulators (): Promise<void> {
   if (process.env.CLOUD) {
     return;
   }
@@ -24,18 +24,15 @@ async function killAllSimulators () {
   await simKill();
 }
 
-async function shutdownSimulator (device) {
+export async function shutdownSimulator (device: AppleDevice): Promise<void> {
   // stop XCTest processes if running to avoid unexpected side effects
   await resetTestProcesses(device.udid, true);
   await device.shutdown();
 }
 
-async function deleteDeviceWithRetry (udid) {
+export async function deleteDeviceWithRetry (udid: string): Promise<void> {
   const simctl = new Simctl({udid});
   try {
     await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl));
   } catch {}
 }
-
-
-export { killAllSimulators, shutdownSimulator, deleteDeviceWithRetry };

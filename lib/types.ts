@@ -99,6 +99,16 @@ export interface AppleDevice {
   [key: string]: any;
 }
 
+/**
+ * Information of the device under test
+ */
+export interface DeviceInfo {
+  isRealDevice: boolean;
+  udid: string;
+  platformVersion: string;
+  platformName: string;
+}
+
 export interface XcodeBuildArgs {
   realDevice: boolean; // Required
   agentPath: string; // Required
