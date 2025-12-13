@@ -81,7 +81,6 @@
     "axios": "^1.4.0",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
-    "source-map-support": "^0.x",
     "teen_process": "^3.0.0"
   },
   "files": [
