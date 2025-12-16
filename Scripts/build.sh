@@ -21,9 +21,9 @@ function define_xc_macros() {
   esac
 
   case "${DEST:-}" in
-    "iphone" ) XC_DESTINATION="name=`echo $IPHONE_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
-    "ipad" ) XC_DESTINATION="name=`echo $IPAD_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
-    "tv" ) XC_DESTINATION="name=`echo $TV_MODEL | tr -d "'"`,OS=$TV_VERSION";;
+    "iphone" ) XC_DESTINATION="platform=iOS Simulator,name=`echo $IPHONE_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
+    "ipad" ) XC_DESTINATION="platform=iOS Simulator,name=`echo $IPAD_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
+    "tv" ) XC_DESTINATION="platform=tvOS Simulator,name=`echo $TV_MODEL | tr -d "'"`,OS=$TV_VERSION";;
     "generic" ) XC_DESTINATION="generic/platform=iOS";;
     "tv_generic" ) XC_DESTINATION="generic/platform=tvOS" XC_MACROS="${XC_MACROS} ARCHS=arm64";; # tvOS only supports arm64
   esac
@@ -85,13 +85,31 @@ function xcbuild() {
 }
 
 function fastlane_test() {
-  bundle install
-
-  if [[ -n "$XC_DESTINATION" ]]; then
-    SDK="$XC_SDK" DEST="$XC_DESTINATION" SCHEME="$1" bundle exec fastlane test
-  else
-    SDK="$XC_SDK" SCHEME="$1" bundle exec fastlane test
+  # Skip bundle install if already installed (CI already does this)
+  if ! bundle check &>/dev/null; then
+    bundle install
   fi
+
+  case "${DEST:-}" in
+    "iphone" )
+      FASTLANE_DEVICE=$(echo $IPHONE_MODEL | tr -d "'")
+      FASTLANE_OS_VERSION="$IOS_VERSION"
+      ;;
+    "ipad" )
+      FASTLANE_DEVICE=$(echo $IPAD_MODEL | tr -d "'")
+      FASTLANE_OS_VERSION="$IOS_VERSION"
+      ;;
+    "tv" )
+      FASTLANE_DEVICE=$(echo $TV_MODEL | tr -d "'")
+      FASTLANE_OS_VERSION="$TV_VERSION"
+      ;;
+    * )
+      echo "Error: Unknown DEST value '${DEST:-}'. DEST must be one of: iphone, ipad, tv"
+      exit 1
+      ;;
+  esac
+
+  SDK="$XC_SDK" DEVICE="$FASTLANE_DEVICE" OS_VERSION="$FASTLANE_OS_VERSION" SCHEME="$1" bundle exec fastlane test
 }
 
 define_xc_macros

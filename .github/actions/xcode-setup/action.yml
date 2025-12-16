@@ -2,9 +2,6 @@ name: 'Setup Xcode Test Environment'
 description: 'Common setup steps for Xcode tests'
 
 inputs:
-  node_version:
-    description: 'Node.js version to use'
-    required: true
   xcode_version:
     description: 'Xcode version to use'
     required: true
@@ -18,7 +15,7 @@ runs:
   steps:
     - uses: actions/setup-node@v6
       with:
-        node-version: ${{ inputs.node_version }}
+        node-version: lts/*
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ inputs.xcode_version }}

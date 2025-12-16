@@ -21,7 +21,6 @@ env:
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
   MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
   MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
-  DEFAULT_NODE_VERSION: "22.x"
 
 jobs:
   build_matrix:
@@ -118,7 +117,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/xcode-setup
         with:
-          node_version: ${{ env.DEFAULT_NODE_VERSION }}
           xcode_version: ${{ matrix.config.xcode_version }}
       - name: Build
         run: ./Scripts/build.sh
@@ -146,7 +144,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/xcode-setup
         with:
-          node_version: ${{ env.DEFAULT_NODE_VERSION }}
           xcode_version: ${{ matrix.config.xcode_version }}
       - name: Analyze
         run: ./Scripts/build.sh
@@ -172,7 +169,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/xcode-setup
         with:
-          node_version: ${{ env.DEFAULT_NODE_VERSION }}
           xcode_version: ${{ matrix.config.xcode_version }}
       - name: Run unit tests
         run: ./Scripts/build.sh
@@ -197,7 +193,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/xcode-setup
         with:
-          node_version: ${{ env.DEFAULT_NODE_VERSION }}
           xcode_version: ${{ matrix.config.xcode_version }}
       - name: Start iOS Simulator UI
         run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
