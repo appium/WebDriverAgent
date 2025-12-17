@@ -185,6 +185,7 @@ jobs:
     needs: integration_test_matrix
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.vm_image }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -194,18 +195,18 @@ jobs:
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
-      - name: Start iOS Simulator UI
-        run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
-      - name: Prepare iOS simulator
-        id: prepareSimulator
-        uses: futureware-tech/simulator-action@v4
-        with:
-          model: "${{ matrix.config.dest == 'iphone' && matrix.config.iphone_model || matrix.config.ipad_model }}"
-          os_version: "${{ matrix.config.ios_version }}"
-          shutdown_after_job: false
-          wait_for_boot: true
-      - name: Finalize iOS simulator boot
-        run: xcrun --sdk iphonesimulator --show-sdk-version
+      # - name: Start iOS Simulator UI
+      #   run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+      # - name: Prepare iOS simulator
+      #   id: prepareSimulator
+      #   uses: futureware-tech/simulator-action@v4
+      #   with:
+      #     model: "${{ matrix.config.dest == 'iphone' && matrix.config.iphone_model || matrix.config.ipad_model }}"
+      #     os_version: "${{ matrix.config.ios_version }}"
+      #     shutdown_after_job: false
+      #     wait_for_boot: true
+      # - name: Finalize iOS simulator boot
+      #   run: xcrun --sdk iphonesimulator --show-sdk-version
       - name: Run integration test
         run: ./Scripts/build.sh
         env:
@@ -216,5 +217,5 @@ jobs:
           IPHONE_MODEL: ${{ matrix.config.iphone_model }}
           IPAD_MODEL: ${{ matrix.config.ipad_model }}
           IOS_VERSION: ${{ matrix.config.ios_version }}
-          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 240
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 600
           FASTLANE_XCODEBUILD_SETTINGS_RETRIES: 2
