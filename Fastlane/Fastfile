@@ -7,7 +7,7 @@ lane :test do
     fail_build: true,
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
-    destination: ENV['DESTINATION'],
+    device: ENV['DEVICE'],
     number_of_retries: 3
   )
 end
