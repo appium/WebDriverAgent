@@ -92,24 +92,33 @@ function fastlane_test() {
 
   case "${DEST:-}" in
     "iphone" )
-      FASTLANE_DEVICE=$(echo $IPHONE_MODEL | tr -d "'")
-      FASTLANE_OS_VERSION="$IOS_VERSION"
+      DEVICE_NAME=$(echo $IPHONE_MODEL | tr -d "'")
+      OS_VERSION="$IOS_VERSION"
+      PLATFORM="iOS Simulator"
       ;;
     "ipad" )
-      FASTLANE_DEVICE=$(echo $IPAD_MODEL | tr -d "'")
-      FASTLANE_OS_VERSION="$IOS_VERSION"
+      DEVICE_NAME=$(echo $IPAD_MODEL | tr -d "'")
+      OS_VERSION="$IOS_VERSION"
+      PLATFORM="iOS Simulator"
       ;;
     "tv" )
-      FASTLANE_DEVICE=$(echo $TV_MODEL | tr -d "'")
-      FASTLANE_OS_VERSION="$TV_VERSION"
+      DEVICE_NAME=$(echo $TV_MODEL | tr -d "'")
+      OS_VERSION="$TV_VERSION"
+      PLATFORM="tvOS Simulator"
       ;;
     * )
       echo "Error: Unknown DEST value '${DEST:-}'. DEST must be one of: iphone, ipad, tv"
       exit 1
       ;;
   esac
+  DESTINATION="platform=$PLATFORM,name=$DEVICE_NAME,OS=$OS_VERSION"
 
-  SDK="$XC_SDK" DEVICE="$FASTLANE_DEVICE" OS_VERSION="$FASTLANE_OS_VERSION" SCHEME="$1" bundle exec fastlane test
+  echo "Fastlane environment variables:"
+  echo "  DESTINATION=$DESTINATION"
+  echo "  SCHEME=$1"
+  echo "  SDK=$XC_SDK"
+
+  SDK="$XC_SDK" DESTINATION="$DESTINATION" SCHEME="$1" bundle exec fastlane test
 }
 
 define_xc_macros
