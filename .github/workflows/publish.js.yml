@@ -54,14 +54,18 @@ jobs:
       with:
         xcode-version: "${{ env.XCODE_VERSION }}"
     - name: ${{ matrix.config.name }}
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/${{ matrix.config.build_script }}
-      env:
-        DERIVED_DATA_PATH: ${{ matrix.config.derived_data_path }}
-        SCHEME: ${{ matrix.config.scheme }}
-        DESTINATION: ${{ matrix.config.destination }}
-        WD: ${{ matrix.config.wd }}
-        ZIP_PKG_NAME: ${{ matrix.config.zip_name }}
-        ARCHS: ${{ matrix.config.archs || '' }}
+      uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          export DERIVED_DATA_PATH="${{ matrix.config.derived_data_path }}"
+          export SCHEME="${{ matrix.config.scheme }}"
+          export DESTINATION="${{ matrix.config.destination }}"
+          export WD="${{ matrix.config.wd }}"
+          export ZIP_PKG_NAME="${{ matrix.config.zip_name }}"
+          export ARCHS="${{ matrix.config.archs || '' }}"
+          sh $GITHUB_WORKSPACE/Scripts/ci/${{ matrix.config.build_script }}
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
