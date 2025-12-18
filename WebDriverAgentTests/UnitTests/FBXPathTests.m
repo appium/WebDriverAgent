@@ -14,6 +14,7 @@
 #import "XCUIElementDouble.h"
 #import "XCElementSnapshotDouble.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
+#import "XCTestPrivateSymbols.h"
 
 @interface FBXPathTests : XCTestCase
 @end
@@ -68,7 +69,7 @@
   XCTAssertTrue([resultXml isEqualToString: expectedXml]);
 }
 
-- (void)testtXPathPresentationWithSomeAttributesExcluded
+- (void)testXPathPresentationWithSomeAttributesExcluded
 {
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
@@ -85,12 +86,14 @@
   XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
   snapshot.value = @"йоло<>&\"";
   snapshot.label = @"a\nb";
+  NSString *testCustomActions = @"Custom Action 1, Custom Action 2";
+  snapshot.additionalAttributes[FB_XCAXACustomActionsAttribute] = testCustomActions;
   id<FBElement> element = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
   NSString *resultXml = [self xmlStringWithElement:(id<FBXCElementSnapshot>)element
                                         xpathQuery:[NSString stringWithFormat:@"//%@[@*]", element.wdType]
                                excludingAttributes:@[@"visible"]];
-  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" hittable=\"%@\" traits=\"%@\" nativeFrame=\"%@\" private_indexPath=\"top\"/>\n",
-                           element.wdType, element.wdType, @"йоло&lt;&gt;&amp;&quot;", element.wdName, @"a&#10;b", FBBoolToString(element.wdEnabled), FBBoolToString(element.wdVisible), FBBoolToString(element.wdAccessible), element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex, FBBoolToString(element.wdHittable), element.wdTraits, NSStringFromCGRect(element.wdNativeFrame)];
+  NSString *expectedXml = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@ type=\"%@\" value=\"%@\" name=\"%@\" label=\"%@\" enabled=\"%@\" visible=\"%@\" accessible=\"%@\" x=\"%@\" y=\"%@\" width=\"%@\" height=\"%@\" index=\"%lu\" hittable=\"%@\" traits=\"%@\" nativeFrame=\"%@\" customActions=\"%@\" private_indexPath=\"top\"/>\n",
+                           element.wdType, element.wdType, @"йоло&lt;&gt;&amp;&quot;", element.wdName, @"a&#10;b", FBBoolToString(element.wdEnabled), FBBoolToString(element.wdVisible), FBBoolToString(element.wdAccessible), element.wdRect[@"x"], element.wdRect[@"y"], element.wdRect[@"width"], element.wdRect[@"height"], element.wdIndex, FBBoolToString(element.wdHittable), element.wdTraits, NSStringFromCGRect(element.wdNativeFrame), element.wdCustomActions];
   XCTAssertEqualObjects(expectedXml, resultXml);
 }
 

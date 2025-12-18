@@ -22,6 +22,8 @@ NSNumber *FB_XCAXACustomMinValueAttribute;
 NSString *FB_XCAXACustomMinValueAttributeName = @"XC_kAXXCAttributeMinValue";
 NSNumber *FB_XCAXACustomMaxValueAttribute;
 NSString *FB_XCAXACustomMaxValueAttributeName = @"XC_kAXXCAttributeMaxValue";
+NSNumber *FB_XCAXACustomActionsAttribute;
+NSString *FB_XCAXACustomActionsAttributeName = @"XC_kAXXCAttributeCustomActions";
 
 void (*XCSetDebugLogger)(id <XCDebugLogDelegate>);
 id<XCDebugLogDelegate> (*XCDebugLogger)(void);
@@ -49,12 +51,20 @@ __attribute__((constructor)) void FBLoadXCTestSymbols(void)
   NSString *XC_kAXXCAttributeMinValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMinValueAttributeName UTF8String]);
   NSString *XC_kAXXCAttributeMaxValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMaxValueAttributeName UTF8String]);
   
-  NSArray<NSNumber *> *minMaxAttrs = XCAXAccessibilityAttributesForStringAttributes(@[XC_kAXXCAttributeMinValue, XC_kAXXCAttributeMaxValue]);
-  FB_XCAXACustomMinValueAttribute = minMaxAttrs[0];
-  FB_XCAXACustomMaxValueAttribute = minMaxAttrs[1];
+  NSString *XC_kAXXCAttributeCustomActions = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomActionsAttributeName UTF8String]);
+  
+  NSArray<NSNumber *> *customAttrs = XCAXAccessibilityAttributesForStringAttributes(@[
+    XC_kAXXCAttributeMinValue,
+    XC_kAXXCAttributeMaxValue,
+    XC_kAXXCAttributeCustomActions
+  ]);
+  FB_XCAXACustomMinValueAttribute = customAttrs[0];
+  FB_XCAXACustomMaxValueAttribute = customAttrs[1];
+  FB_XCAXACustomActionsAttribute = customAttrs[2];
   
   NSCAssert(FB_XCAXACustomMinValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMinValueAttribute", FB_XCAXACustomMinValueAttribute);
   NSCAssert(FB_XCAXACustomMaxValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMaxValueAttribute", FB_XCAXACustomMaxValueAttribute);
+  NSCAssert(FB_XCAXACustomActionsAttribute != nil, @"Failed to retrieve FB_XCAXACustomActionsAttribute", FB_XCAXACustomActionsAttribute);
 }
 
 void *FBRetrieveXCTestSymbol(const char *name)
@@ -89,7 +99,8 @@ NSArray<NSString*> *FBCustomAttributeNames(void)
       FB_XCAXAIsVisibleAttributeName,
       FB_XCAXAIsElementAttributeName,
       FB_XCAXACustomMinValueAttributeName,
-      FB_XCAXACustomMaxValueAttributeName
+      FB_XCAXACustomMaxValueAttributeName,
+      FB_XCAXACustomActionsAttributeName
     ];
   });
   return customNames;

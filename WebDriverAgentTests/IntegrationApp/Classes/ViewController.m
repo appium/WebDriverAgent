@@ -10,9 +10,31 @@
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *orentationLabel;
+@property (weak, nonatomic) IBOutlet UIButton *button;
 @end
 
 @implementation ViewController
+
+- (void)viewDidLoad
+{
+  [super viewDidLoad];
+  
+  UIAccessibilityCustomAction *action1 =
+  [[UIAccessibilityCustomAction alloc] initWithName:@"Custom Action 1"
+                                             target:self
+                                           selector:@selector(handleCustomAction:)];
+  UIAccessibilityCustomAction *action2 =
+  [[UIAccessibilityCustomAction alloc] initWithName:@"Custom Action 2"
+                                             target:self
+                                           selector:@selector(handleCustomAction:)];
+  self.button.accessibilityCustomActions = @[action1, action2];
+}
+
+- (BOOL)handleCustomAction:(UIAccessibilityCustomAction *)action
+{
+  // Custom action handler - just return YES to indicate success
+  return YES;
+}
 
 - (IBAction)deadlockApp:(id)sender
 {

@@ -29,6 +29,10 @@ extern NSString   *FB_XCAXACustomMinValueAttributeName;
 extern NSNumber   *FB_XCAXACustomMaxValueAttribute;
 extern NSString   *FB_XCAXACustomMaxValueAttributeName;
 
+/*! Accessibility identifier for custom actions attribute */
+extern NSNumber   *FB_XCAXACustomActionsAttribute;
+extern NSString   *FB_XCAXACustomActionsAttributeName;
+
 /*! Getter for  XCTest logger */
 extern id<XCDebugLogDelegate> (*XCDebugLogger)(void);
 

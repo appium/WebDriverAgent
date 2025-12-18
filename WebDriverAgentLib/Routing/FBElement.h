@@ -76,6 +76,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Element's maximum value */
 @property (nonatomic, readonly, strong, nullable) NSNumber *wdMaxValue;
 
+/*! Element's custom actions */
+@property (nonatomic, readonly, strong, nullable) NSString *wdCustomActions;
+
 /**
  Returns value of given property specified in WebDriver Spec
  Check the FBElement protocol to get list of supported attributes.

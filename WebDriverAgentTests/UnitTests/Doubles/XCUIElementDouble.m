@@ -25,6 +25,7 @@
     self.wdValue = @"magicValue";
     self.wdPlaceholderValue = @"testPlaceholderValue";
     self.wdTraits = @"testTraits";
+    self.wdCustomActions = nil;
     self.wdVisible = YES;
     self.wdAccessible = YES;
     self.wdEnabled = YES;

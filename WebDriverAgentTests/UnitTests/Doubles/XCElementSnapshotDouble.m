@@ -19,6 +19,7 @@
   self = [super init];
   self->_value = @"magicValue";
   self->_label = @"testLabel";
+  self->_additionalAttributes = [NSMutableDictionary dictionary];
   return self;
 }
 
@@ -70,11 +71,6 @@
 - (BOOL)hasFocus
 {
   return YES;
-}
-
-- (NSDictionary *)additionalAttributes
-{
-  return @{};
 }
 
 - (id<FBXCAccessibilityElement>)accessibilityElement
