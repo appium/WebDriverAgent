@@ -2883,7 +2883,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Create the socket(s) if needed
 
-        if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSocket4:useIPv4 socket6:useIPv6 error:&err])
 			{
@@ -2897,7 +2897,7 @@ enum GCDAsyncUdpSocketConfig
 
 		if (useIPv4)
 		{
-            int status = bind(self->socket4FD, (const struct sockaddr *)[interface4 bytes], (socklen_t)[interface4 length]);
+			int status = bind(self->socket4FD, (const struct sockaddr *)[interface4 bytes], (socklen_t)[interface4 length]);
 			if (status == -1)
 			{
 				[self closeSockets];
@@ -2911,7 +2911,7 @@ enum GCDAsyncUdpSocketConfig
 
 		if (useIPv6)
 		{
-            int status = bind(self->socket6FD, (const struct sockaddr *)[interface6 bytes], (socklen_t)[interface6 length]);
+			int status = bind(self->socket6FD, (const struct sockaddr *)[interface6 bytes], (socklen_t)[interface6 length]);
 			if (status == -1)
 			{
 				[self closeSockets];
@@ -2925,10 +2925,10 @@ enum GCDAsyncUdpSocketConfig
 
 		// Update flags
 
-        self->flags |= kDidBind;
+		self->flags |= kDidBind;
 
-        if (!useIPv4) self->flags |= kIPv4Deactivated;
-        if (!useIPv6) self->flags |= kIPv6Deactivated;
+		if (!useIPv4) self->flags |= kIPv4Deactivated;
+		if (!useIPv6) self->flags |= kIPv6Deactivated;
 
 		result = YES;
 
@@ -3238,9 +3238,9 @@ enum GCDAsyncUdpSocketConfig
 
 		// Updates flags, add connect packet to send queue, and pump send queue
 
-        self->flags |= kConnecting;
+		self->flags |= kConnecting;
 
-        [self->sendQueue addObject:packet];
+		[self->sendQueue addObject:packet];
 		[self maybeDequeueSend];
 
 		result = YES;
