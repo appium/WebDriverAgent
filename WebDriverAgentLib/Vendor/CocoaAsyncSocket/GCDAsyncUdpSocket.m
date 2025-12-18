@@ -3003,7 +3003,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Create the socket(s) if needed
 
-        if ((self->flags & kDidCreateSockets) == 0)
+    if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSocket4:useIPv4 socket6:useIPv6 error:&err])
 			{
@@ -3013,30 +3013,28 @@ enum GCDAsyncUdpSocketConfig
 
 		// Bind the socket(s)
 
-		if (useIPv4)
+		if (useIPv4 || useIPv6)
 		{
-			LogVerbose(@"Binding socket to address(%@:%hu)",
-					   [[self class] hostFromAddress:localAddr4],
-					   [[self class] portFromAddress:localAddr4]);
+			NSData *addressData = useIPv4 ? localAddr4 : localAddr6;
+			int socketFD = useIPv4 ? self->socket4FD : self->socket6FD;
+			NSString *protocol = useIPv4 ? @"IPv4" : @"IPv6";
 
-            int status = bind(self->socket4FD, (const struct sockaddr *)[localAddr4 bytes], (socklen_t)[localAddr4 length]);
-			if (status == -1)
+			LogVerbose(@"Binding socket to address(%@:%hu)",
+					   [[self class] hostFromAddress:addressData],
+					   [[self class] portFromAddress:addressData]);
+
+			const struct sockaddr *addr = (const struct sockaddr *)[addressData bytes];
+			if (addr == NULL)
 			{
 				[self closeSockets];
 
-				NSString *reason = @"Error in bind() function";
-				err = [self errnoErrorWithReason:reason];
+				NSString *reason = [NSString stringWithFormat:@"Invalid address data for %@ bind", protocol];
+				err = [self badParamError:reason];
 
 				return_from_block;
 			}
-		}
-		else
-		{
-			LogVerbose(@"Binding socket to address(%@:%hu)",
-					   [[self class] hostFromAddress:localAddr6],
-					   [[self class] portFromAddress:localAddr6]);
 
-            int status = bind(self->socket6FD, (const struct sockaddr *)[localAddr6 bytes], (socklen_t)[localAddr6 length]);
+			int status = bind(socketFD, addr, (socklen_t)[addressData length]);
 			if (status == -1)
 			{
 				[self closeSockets];
@@ -3050,10 +3048,10 @@ enum GCDAsyncUdpSocketConfig
 
 		// Update flags
 
-        self->flags |= kDidBind;
+		self->flags |= kDidBind;
 
-        if (!useIPv4) self->flags |= kIPv4Deactivated;
-        if (!useIPv6) self->flags |= kIPv6Deactivated;
+		if (!useIPv4) self->flags |= kIPv4Deactivated;
+		if (!useIPv6) self->flags |= kIPv6Deactivated;
 
 		result = YES;
 
