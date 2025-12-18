@@ -61,7 +61,7 @@ jobs:
         DESTINATION: ${{ matrix.config.destination }}
         WD: ${{ matrix.config.wd }}
         ZIP_PKG_NAME: ${{ matrix.config.zip_name }}
-        ARCHS: ${{ matrix.config.archs }}
+        ARCHS: ${{ matrix.config.archs || '' }}
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
