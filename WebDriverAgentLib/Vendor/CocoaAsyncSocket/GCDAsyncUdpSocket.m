@@ -3003,7 +3003,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Create the socket(s) if needed
 
-    if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSocket4:useIPv4 socket6:useIPv6 error:&err])
 			{
@@ -3219,7 +3219,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Create the socket(s) if needed
 
-        if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSockets:&err])
 			{
@@ -3471,7 +3471,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Perform join
 
-        if ((self->socket4FD != SOCKET_NULL) && groupAddr4 && interfaceAddr4)
+    if ((self->socket4FD != SOCKET_NULL) && groupAddr4 && interfaceAddr4)
 		{
 			const struct sockaddr_in *nativeGroup = (const struct sockaddr_in *)[groupAddr4 bytes];
 			const struct sockaddr_in *nativeIface = (const struct sockaddr_in *)[interfaceAddr4 bytes];
@@ -3493,7 +3493,7 @@ enum GCDAsyncUdpSocketConfig
 
 			result = YES;
 		}
-        else if ((self->socket6FD != SOCKET_NULL) && groupAddr6 && interfaceAddr6)
+    else if ((self->socket6FD != SOCKET_NULL) && groupAddr6 && interfaceAddr6)
 		{
 			const struct sockaddr_in6 *nativeGroup = (const struct sockaddr_in6 *)[groupAddr6 bytes];
 
@@ -3580,7 +3580,7 @@ enum GCDAsyncUdpSocketConfig
           }
         }
 
-     }};
+		}};
 
     if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
         block();
@@ -3635,9 +3635,9 @@ enum GCDAsyncUdpSocketConfig
                 return_from_block;
             }
             result = YES;
-       }
+				}
 
-     }};
+		}};
 
     if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
         block();
@@ -3666,7 +3666,7 @@ enum GCDAsyncUdpSocketConfig
 			return_from_block;
 		}
 
-        if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSockets:&err])
 			{
@@ -3675,9 +3675,9 @@ enum GCDAsyncUdpSocketConfig
 		}
 
 		int value = flag ? 1 : 0;
-        if (self->socket4FD != SOCKET_NULL)
+    if (self->socket4FD != SOCKET_NULL)
 		{
-            int error = setsockopt(self->socket4FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
+      int error = setsockopt(self->socket4FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
 
 			if (error)
 			{
@@ -3688,9 +3688,9 @@ enum GCDAsyncUdpSocketConfig
 			result = YES;
 		}
 
-        if (self->socket6FD != SOCKET_NULL)
+		if (self->socket6FD != SOCKET_NULL)
 		{
-            int error = setsockopt(self->socket6FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
+      int error = setsockopt(self->socket6FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
 
 			if (error)
 			{
@@ -3730,7 +3730,7 @@ enum GCDAsyncUdpSocketConfig
 			return_from_block;
 		}
 
-        if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSockets:&err])
 			{
@@ -3738,10 +3738,10 @@ enum GCDAsyncUdpSocketConfig
 			}
 		}
 
-        if (self->socket4FD != SOCKET_NULL)
+		if (self->socket4FD != SOCKET_NULL)
 		{
 			int value = flag ? 1 : 0;
-            int error = setsockopt(self->socket4FD, SOL_SOCKET, SO_BROADCAST, (const void *)&value, sizeof(value));
+      int error = setsockopt(self->socket4FD, SOL_SOCKET, SO_BROADCAST, (const void *)&value, sizeof(value));
 
 			if (error)
 			{
