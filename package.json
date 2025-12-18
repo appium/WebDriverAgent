@@ -77,7 +77,7 @@
     "appium-ios-device": "^3.0.0",
     "appium-ios-simulator": "^8.0.0",
     "async-lock": "^1.0.0",
-    "asyncbox": "^3.0.0",
+    "asyncbox": "^4.0.1",
     "axios": "^1.4.0",
     "bluebird": "^3.5.5",
     "lodash": "^4.17.11",
