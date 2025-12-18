@@ -14,16 +14,63 @@ permissions:
   issues: write
   id-token: write # to enable use of OIDC for trusted publishing and npm provenance
 
+env:
+  XCODE_VERSION: '16.4'
+  # Available destination for simulators depend on Xcode version.
+  DESTINATION_SIM: platform=iOS Simulator,name=iPhone 17
+  DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+
 jobs:
-  build:
+  build_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          cat <<MATRIX_JSON | jq -c . > matrix.json
+          [
+            {"name": "iOS Real Device", "build_script": "build-real.sh", "scheme": "WebDriverAgentRunner", "destination": "generic/platform=iOS", "derived_data_path": "appium_wda_ios", "wd": "appium_wda_ios/Build/Products/Debug-iphoneos", "zip_name": "WebDriverAgentRunner-Runner.zip", "artifact_name": "WebDriverAgentRunner-Runner"},
+            {"name": "tvOS Real Device", "build_script": "build-real.sh", "scheme": "WebDriverAgentRunner_tvOS", "destination": "generic/platform=tvOS", "derived_data_path": "appium_wda_tvos", "wd": "appium_wda_tvos/Build/Products/Debug-appletvos", "zip_name": "WebDriverAgentRunner_tvOS-Runner.zip", "artifact_name": "WebDriverAgentRunner_tvOS-Runner"},
+            {"name": "iOS Simulator arm64", "build_script": "build-sim.sh", "scheme": "WebDriverAgentRunner", "destination": "${{ env.DESTINATION_SIM }}", "derived_data_path": "appium_wda_ios_sim_arm64", "simulator_name": "Debug-iphonesimulator", "wd": "appium_wda_ios_sim_arm64/Build/Products/Debug-iphonesimulator", "zip_name": "WebDriverAgentRunner-Build-Sim-arm64.zip", "artifact_name": "WebDriverAgentRunner-Build-Sim-arm64", "archs": "arm64"},
+            {"name": "iOS Simulator x86_64", "build_script": "build-sim.sh", "scheme": "WebDriverAgentRunner", "destination": "${{ env.DESTINATION_SIM }}", "derived_data_path": "appium_wda_ios_sim_x86_64", "simulator_name": "Debug-iphonesimulator", "wd": "appium_wda_ios_sim_x86_64/Build/Products/Debug-iphonesimulator", "zip_name": "WebDriverAgentRunner-Build-Sim-x86_64.zip", "artifact_name": "WebDriverAgentRunner-Build-Sim-x86_64", "archs": "x86_64"},
+            {"name": "tvOS Simulator arm64", "build_script": "build-sim.sh", "scheme": "WebDriverAgentRunner_tvOS", "destination": "${{ env.DESTINATION_SIM_TVOS }}", "derived_data_path": "appium_wda_tvos_sim_arm64", "simulator_name": "Debug-appletvsimulator", "wd": "appium_wda_tvos_sim_arm64/Build/Products/Debug-appletvsimulator", "zip_name": "WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip", "artifact_name": "WebDriverAgentRunner_tvOS-Build-Sim-arm64", "archs": "arm64"},
+            {"name": "tvOS Simulator x86_64", "build_script": "build-sim.sh", "scheme": "WebDriverAgentRunner_tvOS", "destination": "${{ env.DESTINATION_SIM_TVOS }}", "derived_data_path": "appium_wda_tvos_sim_x86_64", "simulator_name": "Debug-appletvsimulator", "wd": "appium_wda_tvos_sim_x86_64/Build/Products/Debug-appletvsimulator", "zip_name": "WebDriverAgentRunner_tvOS-Build-Sim-x86_64.zip", "artifact_name": "WebDriverAgentRunner_tvOS-Build-Sim-x86_64", "archs": "x86_64"}
+          ]
+          MATRIX_JSON
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+
+  build-wda:
+    needs: build_matrix
+    name: ${{ matrix.config.name }}
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJSON(needs.build_matrix.outputs.matrix) }}
+    steps:
+    - uses: actions/checkout@v6
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: "${{ env.XCODE_VERSION }}"
+    - name: ${{ matrix.config.name }}
+      run: sh $GITHUB_WORKSPACE/Scripts/ci/${{ matrix.config.build_script }}
+      env:
+        DERIVED_DATA_PATH: ${{ matrix.config.derived_data_path }}
+        SCHEME: ${{ matrix.config.scheme }}
+        DESTINATION: ${{ matrix.config.destination }}
+        WD: ${{ matrix.config.wd }}
+        ZIP_PKG_NAME: ${{ matrix.config.zip_name }}
+        ARCHS: ${{ matrix.config.archs }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.config.artifact_name }}
+        path: ${{ matrix.config.zip_name }}
 
-    env:
-      XCODE_VERSION: 16.3
-      # Available destination for simulators depend on Xcode version.
-      DESTINATION_SIM: platform=iOS Simulator,name=iPhone 17
-      DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
-
+  release:
+    needs: build-wda
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v6
     - name: Use Node.js
@@ -39,62 +86,10 @@ jobs:
       name: Run build
     - run: npm run test
       name: Run test
-
-    # building WDA packages
-    - name: Building iOS
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-real.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_ios
-        SCHEME: WebDriverAgentRunner
-        DESTINATION: generic/platform=iOS
-        WD: appium_wda_ios/Build/Products/Debug-iphoneos
-        ZIP_PKG_NAME: WebDriverAgentRunner-Runner.zip
-    - name: Building tvOS
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-real.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_tvos
-        SCHEME: WebDriverAgentRunner_tvOS
-        DESTINATION: generic/platform=tvOS
-        WD: appium_wda_tvos/Build/Products/Debug-appletvos
-        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Runner.zip
-    - name: Building iOS sim arm64
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_ios_sim_arm64
-        SCHEME: WebDriverAgentRunner
-        DESTINATION: ${{ env.DESTINATION_SIM }}
-        WD: appium_wda_ios_sim_arm64/Build/Products/Debug-iphonesimulator
-        ZIP_PKG_NAME: WebDriverAgentRunner-Build-Sim-arm64.zip
-        ARCHS: arm64
-    - name: Building iOS sim x86_64
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_ios_sim_x86_64
-        SCHEME: WebDriverAgentRunner
-        DESTINATION: ${{ env.DESTINATION_SIM }}
-        WD: appium_wda_ios_sim_x86_64/Build/Products/Debug-iphonesimulator
-        ZIP_PKG_NAME: WebDriverAgentRunner-Build-Sim-x86_64.zip
-        ARCHS: x86_64
-    - name: Building tvOS sim arm64
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_tvos_sim_arm64
-        SCHEME: WebDriverAgentRunner_tvOS
-        DESTINATION: ${{ env.DESTINATION_SIM_TVOS }}
-        WD: appium_wda_tvos_sim_arm64/Build/Products/Debug-appletvsimulator
-        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip
-        ARCHS: arm64
-    - name: Building tvOS sim x86_64
-      run: sh $GITHUB_WORKSPACE/Scripts/ci/build-sim.sh
-      env:
-        DERIVED_DATA_PATH: appium_wda_tvos_sim_x86_64
-        SCHEME: WebDriverAgentRunner_tvOS
-        DESTINATION: ${{ env.DESTINATION_SIM_TVOS }}
-        WD: appium_wda_tvos_sim_x86_64/Build/Products/Debug-appletvsimulator
-        ZIP_PKG_NAME: WebDriverAgentRunner_tvOS-Build-Sim-x86_64.zip
-        ARCHS: x86_64
-
-    # release tasks
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./
     - run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
