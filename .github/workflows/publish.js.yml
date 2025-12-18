@@ -93,7 +93,11 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: ./
+        path: ${{ runner.temp }}/artifacts-temp
+    - name: Move artifacts to root for release
+      run: |
+        find ${{ runner.temp }}/artifacts-temp -name "*.zip" -type f -exec mv {} . \;
+        rm -rf ${{ runner.temp }}/artifacts-temp
     - run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
