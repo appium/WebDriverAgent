@@ -63,6 +63,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 static BOOL FBShouldIncludeHittableInPageSource = NO;
 static BOOL FBShouldIncludeNativeFrameInPageSource = NO;
 static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
+static BOOL FBShouldEnforceCustomSnapshots = NO;
 
 @implementation FBConfiguration
 
@@ -153,7 +154,7 @@ static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
   if (self.mjpegServerPortFromArguments != NSNotFound) {
     return self.mjpegServerPortFromArguments;
   }
-  
+
   if (NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] &&
       [NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] length] > 0) {
     return [NSProcessInfo.processInfo.environment[@"MJPEG_SERVER_PORT"] integerValue];
@@ -235,7 +236,7 @@ static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
   if (nil == FBMaxTypingFrequency) {
     return [self defaultTypingFrequency];
   }
-  return FBMaxTypingFrequency.integerValue <= 0 
+  return FBMaxTypingFrequency.integerValue <= 0
     ? [self defaultTypingFrequency]
     : FBMaxTypingFrequency.integerValue;
 }
@@ -684,6 +685,16 @@ static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
 + (BOOL)includeMinMaxValueInPageSource
 {
   return FBShouldIncludeMinMaxValueInPageSource;
+}
+
++ (void)setEnforceCustomSnapshots:(BOOL)enabled
+{
+  FBShouldEnforceCustomSnapshots = enabled;
+}
+
++ (BOOL)enforceCustomSnapshots
+{
+  return FBShouldEnforceCustomSnapshots;
 }
 
 @end

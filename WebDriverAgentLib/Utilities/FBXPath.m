@@ -567,10 +567,12 @@ static NSString *const topNodeIndexPath = @"top";
     return (id<FBXCElementSnapshot>)root;
   }
 
+  // https://github.com/appium/appium-xcuitest-driver/pull/2565
   if (useNative) {
     return [(XCUIElement *)root fb_nativeSnapshot];
   }
-  return [root isKindOfClass:XCUIApplication.class]
+  // https://github.com/appium/WebDriverAgent/issues/1085
+  return [root isKindOfClass:XCUIApplication.class] && !FBConfiguration.enforceCustomSnapshots
     ? [(XCUIElement *)root fb_standardSnapshot]
     : [(XCUIElement *)root fb_customSnapshot];
 }

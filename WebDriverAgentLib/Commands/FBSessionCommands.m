@@ -355,6 +355,7 @@
       FB_SETTING_INCLUDE_HITTABLE_IN_PAGE_SOURCE: @([FBConfiguration includeHittableInPageSource]),
       FB_SETTING_INCLUDE_NATIVE_FRAME_IN_PAGE_SOURCE: @([FBConfiguration includeNativeFrameInPageSource]),
       FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE: @([FBConfiguration includeMinMaxValueInPageSource]),
+      FB_SETTING_ENFORCE_CUSTOM_SNAPSHOTS: @([FBConfiguration enforceCustomSnapshots]),
       FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE: @([FBConfiguration limitXpathContextScope]),
 #if !TARGET_OS_TV
       FB_SETTING_SCREENSHOT_ORIENTATION: [FBConfiguration humanReadableScreenshotOrientation],
@@ -466,6 +467,9 @@
   if (nil != [settings objectForKey:FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE]) {
     [FBConfiguration setIncludeMinMaxValueInPageSource:[[settings objectForKey:FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE] boolValue]];
   }
+  if (nil != [settings objectForKey:FB_SETTING_ENFORCE_CUSTOM_SNAPSHOTS]) {
+    [FBConfiguration setEnforceCustomSnapshots:[[settings objectForKey:FB_SETTING_ENFORCE_CUSTOM_SNAPSHOTS] boolValue]];
+  }
   if (nil != [settings objectForKey:FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE]) {
     [FBConfiguration setLimitXpathContextScope:[[settings objectForKey:FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE] boolValue]];
   }
@@ -542,7 +546,7 @@
   }
   // CarPlay, Mac, Vision UI or unknown are possible
   return @"Unknown";
-  
+
 }
 
 + (NSDictionary *)currentCapabilities

@@ -8,6 +8,7 @@
 
 #import "XCUIElement+FBWebDriverAttributes.h"
 
+#import "FBConfiguration.h"
 #import "FBElementTypeTransformer.h"
 #import "FBElementHelpers.h"
 #import "FBLogger.h"
@@ -33,6 +34,10 @@
   // https://github.com/appium/appium-xcuitest-driver/pull/2565
   if ([name isEqualToString:FBStringify(XCUIElement, isWDHittable)]) {
     return [self fb_nativeSnapshot];
+  }
+  // https://github.com/appium/WebDriverAgent/issues/1085
+  if (FBConfiguration.enforceCustomSnapshots) {
+    return [self fb_customSnapshot];
   }
   // https://github.com/appium/appium-xcuitest-driver/issues/2552
   BOOL isValueRequest = [name isEqualToString:FBStringify(XCUIElement, wdValue)];
@@ -177,7 +182,7 @@
  characteristics of the element such as Button, Link, Image, etc.
  You can find the list of possible traits in the Apple documentation:
  https://developer.apple.com/documentation/uikit/uiaccessibilitytraits?language=objc
- 
+
  @return A comma-separated string of accessibility traits, or an empty string if no traits are set
  */
 - (NSString *)wdTraits

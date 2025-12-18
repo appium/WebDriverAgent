@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  - Memory-friedly
  - `children` property is set to `nil` if not taken from XCUIApplication
  - `value` property is cut off to max 512 bytes
+ - Sometimes `frame` properties may be off.
 
  @return The recent snapshot of the element
  @throws FBStaleElementException if the element is not present in DOM and thus no snapshot could be made
@@ -55,7 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
  The maximum snapshot tree depth is set by `FBConfiguration.snapshotMaxDepth`
 
  Snapshot specifics:
- - Less performant in comparison to the standard one
+ - Less performant in comparison to the custom one. Internally, it calls same APIs
+ that fb_customSnapshot does, although this one has some additional logic to ensure
+ the snapshot is valid. It also may make retries, which slows the call down significantly.
  - The `hittable` property calculation is aligned with the native calculation logic
 
  @return The recent snapshot of the element

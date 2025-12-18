@@ -376,6 +376,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (void)setIncludeMinMaxValueInPageSource:(BOOL)enabled;
 + (BOOL)includeMinMaxValueInPageSource;
 
+/**
+ * Whether to enforce the use of custom snapshots instead of standard snapshots.
+ * When enabled, fb_customSnapshot is always invoked instead of fb_standardSnapshot
+ * for XPath tree building and element attributes fetching.
+ * Disabled by default.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setEnforceCustomSnapshots:(BOOL)enabled;
++ (BOOL)enforceCustomSnapshots;
+
 @end
 
 NS_ASSUME_NONNULL_END
