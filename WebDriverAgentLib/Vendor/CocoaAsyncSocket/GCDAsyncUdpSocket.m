@@ -3138,7 +3138,7 @@ enum GCDAsyncUdpSocketConfig
 
 		// Create the socket(s) if needed
 
-        if ((self->flags & kDidCreateSockets) == 0)
+		if ((self->flags & kDidCreateSockets) == 0)
 		{
 			if (![self createSockets:&err])
 			{
@@ -3171,9 +3171,9 @@ enum GCDAsyncUdpSocketConfig
 
 		// Updates flags, add connect packet to send queue, and pump send queue
 
-        self->flags |= kConnecting;
+    self->flags |= kConnecting;
 
-        [self->sendQueue addObject:packet];
+    [self->sendQueue addObject:packet];
 		[self maybeDequeueSend];
 
 		result = YES;
