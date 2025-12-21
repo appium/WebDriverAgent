@@ -95,10 +95,6 @@ describe('WebDriverAgent', function () {
         this.timeout(35 * 1000);
 
         const agent = new WebDriverAgent(getStartOpts(device));
-
-        if (!agent.xcodebuild) {
-          throw new Error('xcodebuild is null');
-        }
         (agent.xcodebuild as any).createSubProcess = async function () {
           const args = [
             '-workspace',

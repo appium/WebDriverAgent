@@ -281,7 +281,7 @@ describe('setupCaching()', function () {
   });
 
   it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
-      wda = new WebDriverAgent({ ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
+    wda = new WebDriverAgent({ ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
     wdaStub = sinon.stub(wda, 'getStatus');
     wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
 
