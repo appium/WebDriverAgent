@@ -16,10 +16,10 @@
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.ts\"",
     "e2e-test": "mocha --exit --timeout 10m \"./test/functional/**/*-specs.ts\"",
     "bundle": "npm run bundle:ios && npm run bundle:tv",
-    "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.js",
-    "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.js",
-    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.js",
-    "sync-wda-version": "node ./scripts/update-wda-version.js --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
+    "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
+    "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.mjs",
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.mjs",
+    "sync-wda-version": "node ./Scripts/update-wda-version.mjs --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
   },
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
@@ -86,11 +86,9 @@
   "files": [
     "index.ts",
     "lib",
-    "build/index.*",
-    "build/lib",
+    "build",
     "Scripts/build.sh",
-    "Scripts/fetch-prebuilt-wda.js",
-    "Scripts/build-webdriveragent.js",
+    "Scripts/*.mjs",
     "Configurations",
     "PrivateHeaders",
     "WebDriverAgent.xcodeproj",

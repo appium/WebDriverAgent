@@ -5,9 +5,9 @@ import {
   WDA_SCHEME, SDK_SIMULATOR, WDA_RUNNER_APP
 } from './constants';
 import { BOOTSTRAP_PATH } from './utils';
-import log from './logger';
+import type { XcodeBuild } from './xcodebuild';
 
-async function buildWDASim () {
+async function buildWDASim (): Promise<void> {
   const args = [
     '-project', path.join(BOOTSTRAP_PATH, 'WebDriverAgent.xcodeproj'),
     '-scheme', WDA_SCHEME,
@@ -19,17 +19,7 @@ async function buildWDASim () {
   await exec('xcodebuild', args);
 }
 
-export async function checkForDependencies () {
-  log.debug('Dependencies are up to date');
-  return false;
-}
-
-/**
- *
- * @param {import('./xcodebuild').XcodeBuild} xcodebuild
- * @returns {Promise<string>}
- */
-export async function bundleWDASim (xcodebuild) {
+export async function bundleWDASim (xcodebuild: XcodeBuild): Promise<string> {
   const derivedDataPath = await xcodebuild.retrieveDerivedDataPath();
   if (!derivedDataPath) {
     throw new Error('Cannot retrieve the path to the Xcode derived data folder');
@@ -41,3 +31,4 @@ export async function bundleWDASim (xcodebuild) {
   await buildWDASim();
   return wdaBundlePath;
 }
+

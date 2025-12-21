@@ -1,12 +1,13 @@
 import { JWProxy } from '@appium/base-driver';
+import type { ProxyOptions } from '@appium/types';
 
 
-class NoSessionProxy extends JWProxy {
-  constructor (opts = {}) {
+export class NoSessionProxy extends JWProxy {
+  constructor (opts: ProxyOptions = {}) {
     super(opts);
   }
 
-  getUrlForProxy (url) {
+  override getUrlForProxy (url: string): string {
     if (url === '') {
       url = '/';
     }
@@ -22,5 +23,3 @@ class NoSessionProxy extends JWProxy {
   }
 }
 
-export { NoSessionProxy };
-export default NoSessionProxy;

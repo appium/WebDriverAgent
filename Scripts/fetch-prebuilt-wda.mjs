@@ -1,14 +1,21 @@
-const path = require('path');
-const axios = require('axios');
-const { asyncify } = require('asyncbox');
-const { logger, fs, mkdirp, net } = require('@appium/support');
-const _ = require('lodash');
-const B = require('bluebird');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import axios from 'axios';
+import { asyncify } from 'asyncbox';
+import { logger, fs, mkdirp, net } from '@appium/support';
+import _ from 'lodash';
+import B from 'bluebird';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 const log = logger.getLogger('WDA');
 
 async function fetchPrebuiltWebDriverAgentAssets () {
-  const tag = require('../package.json').version;
+  const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, '..', 'package.json'), 'utf8'));
+  const tag = packageJson.version;
   log.info(`Getting links to webdriveragent release ${tag}`);
   const downloadUrl = `https://api.github.com/repos/appium/webdriveragent/releases/tags/v${tag}`;
   log.info(`Getting WDA release ${downloadUrl}`);
@@ -54,8 +61,9 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   return await B.all(agentsDownloading);
 }
 
-if (require.main === module) {
+if (isMainModule) {
   asyncify(fetchPrebuiltWebDriverAgentAssets);
 }
 
-module.exports = fetchPrebuiltWebDriverAgentAssets;
+export default fetchPrebuiltWebDriverAgentAssets;
+

@@ -32,19 +32,19 @@ describe('WebDriverAgent', function () {
   describe('Constructor', function () {
 
   it('should have a default wda agent if not specified', function () {
-    const agent = new WebDriverAgent(undefined, fakeConstructorArgs);
+    const agent = new WebDriverAgent(fakeConstructorArgs);
     expect(agent.bootstrapPath).to.eql(BOOTSTRAP_PATH);
     expect(agent.agentPath).to.eql(defaultAgentPath);
   });
   it('should have custom wda bootstrap and default agent if only bootstrap specified', function () {
-    const agent = new WebDriverAgent(undefined, _.defaults({
+    const agent = new WebDriverAgent(_.defaults({
       bootstrapPath: customBootstrapPath,
     }, fakeConstructorArgs));
     expect(agent.bootstrapPath).to.eql(customBootstrapPath);
     expect(agent.agentPath).to.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
   });
   it('should have custom wda bootstrap and agent if both specified', function () {
-    const agent = new WebDriverAgent(undefined, _.defaults({
+    const agent = new WebDriverAgent(_.defaults({
       bootstrapPath: customBootstrapPath,
       agentPath: customAgentPath,
     }, fakeConstructorArgs));
@@ -52,7 +52,7 @@ describe('WebDriverAgent', function () {
     expect(agent.agentPath).to.eql(customAgentPath);
   });
   it('should have custom derivedDataPath if specified', function () {
-    const agent = new WebDriverAgent(undefined, _.defaults({
+    const agent = new WebDriverAgent(_.defaults({
       derivedDataPath: customDerivedDataPath
     }, fakeConstructorArgs));
     if (agent.xcodebuild) {
@@ -66,8 +66,8 @@ describe('launch', function () {
     const override = 'http://mockurl:8100/';
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
-    const agent = new WebDriverAgent(undefined, args);
-    const wdaStub = sinon.stub(agent, 'getStatus');
+    const agent = new WebDriverAgent(args);
+    const wdaStub = sinon.stub(agent as any, 'getStatus');
     wdaStub.callsFake(function () {
       return {build: 'data'};
     });
@@ -95,8 +95,8 @@ describe('use wda proxy url', function () {
     const override = 'http://127.0.0.1:8100/aabbccdd';
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = override;
-    const agent = new WebDriverAgent(undefined, args);
-    const wdaStub = sinon.stub(agent, 'getStatus');
+    const agent = new WebDriverAgent(args);
+    const wdaStub = sinon.stub(agent as any, 'getStatus');
     wdaStub.callsFake(function () {
       return {build: 'data'};
     });
@@ -124,9 +124,9 @@ describe('use wda proxy url', function () {
 describe('get url', function () {
   it('should use default WDA listening url', function () {
     const args = Object.assign({}, fakeConstructorArgs);
-    const agent = new WebDriverAgent(undefined, args);
+    const agent = new WebDriverAgent(args);
     expect(agent.url.href).to.eql('http://127.0.0.1:8100/');
-    agent.setupProxies('mysession');
+    (agent as any).setupProxies('mysession');
     if (agent.jwproxy) {
       expect(agent.jwproxy.scheme).to.eql('http');
     }
@@ -142,9 +142,9 @@ describe('get url', function () {
     args.wdaBaseUrl = wdaBaseUrl;
     args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent(undefined, args);
+    const agent = new WebDriverAgent(args);
     expect(agent.url.href).to.eql('http://127.0.0.1:9100/');
-    agent.setupProxies('mysession');
+    (agent as any).setupProxies('mysession');
     if (agent.jwproxy) {
       expect(agent.jwproxy.scheme).to.eql('http');
     }
@@ -160,9 +160,9 @@ describe('get url', function () {
     args.wdaBaseUrl = wdaBaseUrl;
     args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent(undefined, args);
+    const agent = new WebDriverAgent(args);
     expect(agent.url.href).to.eql('http://mockurl:9100/');
-    agent.setupProxies('mysession');
+    (agent as any).setupProxies('mysession');
     if (agent.jwproxy) {
       expect(agent.jwproxy.scheme).to.eql('http');
     }
@@ -178,9 +178,9 @@ describe('get url', function () {
     args.wdaBaseUrl = wdaBaseUrl;
     args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
-    const agent = new WebDriverAgent(undefined, args);
+    const agent = new WebDriverAgent(args);
     expect(agent.url.href).to.eql('http://mockurl:9100/');
-    agent.setupProxies('mysession');
+    (agent as any).setupProxies('mysession');
     if (agent.jwproxy) {
       expect(agent.jwproxy.scheme).to.eql('http');
     }
@@ -194,14 +194,14 @@ describe('get url', function () {
     args.wdaLocalPort = 9100;
     args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
 
-    const agent = new WebDriverAgent(undefined, args);
+    const agent = new WebDriverAgent(args);
     expect(agent.url.href).to.eql('https://127.0.0.1:8100/');
   });
   it('should set scheme to https for https webDriverAgentUrl', function () {
     const args = Object.assign({}, fakeConstructorArgs);
     args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
-    const agent = new WebDriverAgent(undefined, args);
-    agent.setupProxies('mysession');
+    const agent = new WebDriverAgent(args);
+    (agent as any).setupProxies('mysession');
     if (agent.jwproxy) {
       expect(agent.jwproxy.scheme).to.eql('https');
     }
@@ -218,9 +218,9 @@ describe('setupCaching()', function () {
   const getTimestampStub = sinon.stub(utils, 'getWDAUpgradeTimestamp');
 
   beforeEach(function () {
-    wda = new WebDriverAgent(undefined, fakeConstructorArgs);
+    wda = new WebDriverAgent(fakeConstructorArgs);
     wdaStub = sinon.stub(wda, 'getStatus');
-    wdaStubUninstall = sinon.stub(wda, 'uninstall');
+    wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
   });
 
   afterEach(function () {
@@ -281,9 +281,9 @@ describe('setupCaching()', function () {
   });
 
   it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
-    wda = new WebDriverAgent(undefined, { ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
+      wda = new WebDriverAgent({ ...fakeConstructorArgs, updatedWDABundleId: 'com.example.WebDriverAgent' });
     wdaStub = sinon.stub(wda, 'getStatus');
-    wdaStubUninstall = sinon.stub(wda, 'uninstall');
+    wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
 
     wdaStub.callsFake(function () {
       return {build: { time: 'Jun 24 2018 17:08:21', productBundleIdentifier: 'com.example.WebDriverAgent' }};
@@ -356,7 +356,7 @@ describe('setupCaching()', function () {
         getUserInstalledBundleIdsByBundleName: () => {},
         removeApp: () => {}
       } as any;
-      wda = new WebDriverAgent(undefined, {device} as WebDriverAgentArgs);
+      wda = new WebDriverAgent({device} as WebDriverAgentArgs);
       deviceGetBundleIdsStub = sinon.stub(device, 'getUserInstalledBundleIdsByBundleName');
       deviceRemoveAppStub = sinon.stub(device, 'removeApp');
     });
@@ -372,7 +372,7 @@ describe('setupCaching()', function () {
     it('should not call uninstall', async function () {
       deviceGetBundleIdsStub.callsFake(() => []);
 
-      await wda.uninstall();
+      await (wda as any).uninstall();
       expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
       expect(deviceRemoveAppStub.notCalled).to.be.true;
     });
@@ -382,7 +382,7 @@ describe('setupCaching()', function () {
       deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1']);
       deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
 
-      await wda.uninstall();
+      await (wda as any).uninstall();
       expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
       expect(deviceRemoveAppStub.calledOnce).to.be.true;
       expect(uninstalledBundIds).to.eql(['com.appium.WDA1']);
@@ -393,7 +393,7 @@ describe('setupCaching()', function () {
       deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1', 'com.appium.WDA2']);
       deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
 
-      await wda.uninstall();
+      await (wda as any).uninstall();
       expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
       expect(deviceRemoveAppStub.calledTwice).to.be.true;
       expect(uninstalledBundIds).to.eql(['com.appium.WDA1', 'com.appium.WDA2']);
@@ -407,13 +407,13 @@ describe('usePreinstalledWDA related functions', function () {
     it('should have xctrunner automatically', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
-      const agent = new WebDriverAgent(undefined, args);
+      const agent = new WebDriverAgent(args);
       expect(agent.bundleIdForXctest).to.equal('io.appium.wda.xctrunner');
     });
 
     it('should have xctrunner automatically with default bundle id', function () {
       const args = Object.assign({}, fakeConstructorArgs);
-      const agent = new WebDriverAgent(undefined, args);
+      const agent = new WebDriverAgent(args);
       expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner.xctrunner');
     });
 
@@ -421,14 +421,14 @@ describe('usePreinstalledWDA related functions', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
       args.updatedWDABundleIdSuffix = '';
-      const agent = new WebDriverAgent(undefined, args);
+      const agent = new WebDriverAgent(args);
       expect(agent.bundleIdForXctest).to.equal('io.appium.wda');
     });
 
     it('should allow an empty string as xctrunner suffix with default bundle id', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleIdSuffix = '';
-      const agent = new WebDriverAgent(undefined, args);
+      const agent = new WebDriverAgent(args);
       expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner');
     });
 
@@ -436,7 +436,7 @@ describe('usePreinstalledWDA related functions', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.updatedWDABundleId = 'io.appium.wda';
       args.updatedWDABundleIdSuffix = '.customsuffix';
-      const agent = new WebDriverAgent(undefined, args);
+      const agent = new WebDriverAgent(args);
       expect(agent.bundleIdForXctest).to.equal('io.appium.wda.customsuffix');
     });
 

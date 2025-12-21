@@ -1,8 +1,6 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { Simctl } from 'node-simctl';
-import { getVersion } from 'appium-xcode';
-import type { XcodeVersion } from 'appium-xcode';
 import { getSimulator } from 'appium-ios-simulator';
 import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
 import { SubProcess } from 'teen_process';
@@ -36,16 +34,7 @@ function getStartOpts (device: AppleDevice) {
 
 describe('WebDriverAgent', function () {
   this.timeout(MOCHA_TIMEOUT_MS);
-  let xcodeVersion: XcodeVersion | undefined;
 
-  before(async function () {
-    // Don't do these tests on Sauce Labs
-    if (process.env.CLOUD) {
-      this.skip();
-    }
-
-    xcodeVersion = await getVersion(true);
-  });
   describe('with fresh sim', function () {
     let device: AppleDevice;
     let simctl: Simctl;
@@ -60,7 +49,7 @@ describe('WebDriverAgent', function () {
       device = await getSimulator(simctl.udid);
 
       // Prebuild WDA
-      const wda = new WebDriverAgent(xcodeVersion, {
+      const wda = new WebDriverAgent({
         iosSdkVersion: PLATFORM_VERSION,
         platformVersion: PLATFORM_VERSION,
         showXcodeLog: true,
@@ -94,7 +83,7 @@ describe('WebDriverAgent', function () {
       });
 
       it('should launch agent on a sim', async function () {
-        const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
+        const agent = new WebDriverAgent(getStartOpts(device));
 
         await agent.launch('sessionId');
         await expect(axios({url: testUrl})).to.be.rejected;
@@ -105,12 +94,12 @@ describe('WebDriverAgent', function () {
         // short timeout
         this.timeout(35 * 1000);
 
-        const agent = new WebDriverAgent(xcodeVersion, getStartOpts(device));
+        const agent = new WebDriverAgent(getStartOpts(device));
 
         if (!agent.xcodebuild) {
           throw new Error('xcodebuild is null');
         }
-        agent.xcodebuild.createSubProcess = async function () {
+        (agent.xcodebuild as any).createSubProcess = async function () {
           const args = [
             '-workspace',
             `${this.agentPath}dfgs`,

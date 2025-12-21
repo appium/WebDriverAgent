@@ -6,10 +6,6 @@ import { resetTestProcesses } from '../../../lib/utils';
 import type { AppleDevice } from '../../../lib/types';
 
 export async function killAllSimulators (): Promise<void> {
-  if (process.env.CLOUD) {
-    return;
-  }
-
   const simctl = new Simctl();
   const allDevices = _.flatMap(_.values(await simctl.getDevices()));
   const bootedDevices = allDevices.filter((device) => device.state === 'Booted');

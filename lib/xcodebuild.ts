@@ -1,7 +1,8 @@
 import { retryInterval } from 'asyncbox';
 import { SubProcess, exec } from 'teen_process';
 import { logger, timing } from '@appium/support';
-import defaultLogger from './logger';
+import type { AppiumLogger, StringRecord } from '@appium/types';
+import { log as defaultLogger } from './logger';
 import B from 'bluebird';
 import {
   setRealDeviceSecurity, setXctestrunFile,
@@ -11,6 +12,8 @@ import {
 import _ from 'lodash';
 import path from 'path';
 import { WDA_RUNNER_BUNDLE_ID } from './constants';
+import type { AppleDevice, XcodeBuildArgs } from './types';
+import type { NoSessionProxy } from './no-session-proxy';
 
 
 const DEFAULT_SIGNING_ID = 'iPhone Developer';
@@ -42,18 +45,48 @@ const xcodeLog = logger.getLogger('Xcode');
 
 
 export class XcodeBuild {
-  /** @type {SubProcess} */
-  xcodebuild;
+  xcodebuild?: SubProcess;
+  readonly device: AppleDevice;
+  private readonly log: AppiumLogger;
+  readonly realDevice: boolean;
+  readonly agentPath: string;
+  readonly bootstrapPath: string;
+  readonly platformVersion?: string;
+  readonly platformName?: string;
+  readonly iosSdkVersion?: string;
+  private readonly showXcodeLog?: boolean;
+  private readonly xcodeConfigFile?: string;
+  private readonly xcodeOrgId?: string;
+  readonly xcodeSigningId: string;
+  private readonly keychainPath?: string;
+  private readonly keychainPassword?: string;
+  usePrebuiltWDA?: boolean;
+  private readonly useSimpleBuildTest?: boolean;
+  private readonly useXctestrunFile?: boolean;
+  private readonly launchTimeout?: number;
+  private readonly wdaRemotePort?: number;
+  private readonly wdaBindingIP?: string;
+  private readonly updatedWDABundleId?: string;
+  derivedDataPath?: string;
+  private readonly mjpegServerPort?: number;
+  private readonly prebuildDelay: number;
+  private readonly allowProvisioningDeviceRegistration?: boolean;
+  private readonly resultBundlePath?: string;
+  private readonly resultBundleVersion?: string;
+  private _didBuildFail: boolean;
+  private _didProcessExit: boolean;
+  private _derivedDataPathPromise?: Promise<string | undefined>;
+  private noSessionProxy?: NoSessionProxy;
+  private xctestrunFilePath?: string;
+  agentUrl?: string;
 
   /**
-   * @param {import('appium-xcode').XcodeVersion | undefined} xcodeVersion @deprecated Will be removed as no actual usage.
-   * @param {import('./types').AppleDevice} device
-   * @param {import('./types').XcodeBuildArgs} args
-   * @param {import('@appium/types').AppiumLogger | null} [log=null]
+   * Creates a new XcodeBuild instance.
+   * @param device - The Apple device to build for
+   * @param args - Configuration arguments for xcodebuild
+   * @param log - Optional logger instance
    */
-  constructor (xcodeVersion, device, args, log = null) {
-    this.xcodeVersion = xcodeVersion;
-
+  constructor (device: AppleDevice, args: XcodeBuildArgs, log: AppiumLogger | null = null) {
     this.device = device;
     this.log = log ?? defaultLogger;
 
@@ -74,7 +107,6 @@ export class XcodeBuild {
     this.keychainPath = args.keychainPath;
     this.keychainPassword = args.keychainPassword;
 
-    this.prebuildWDA = args.prebuildWDA;
     this.usePrebuiltWDA = args.usePrebuiltWDA;
     this.useSimpleBuildTest = args.useSimpleBuildTest;
 
@@ -102,15 +134,14 @@ export class XcodeBuild {
   }
 
   /**
-   *
-   * @param {any} noSessionProxy
-   * @returns {Promise<void>}
+   * Initializes the XcodeBuild instance with a no-session proxy.
+   * Sets up xctestrun file if needed, or updates project bundle ID for real devices.
+   * @param noSessionProxy - The proxy instance for WDA communication
    */
-  async init (noSessionProxy) {
+  async init (noSessionProxy: NoSessionProxy): Promise<void> {
     this.noSessionProxy = noSessionProxy;
 
     if (this.useXctestrunFile) {
-      /** @type {import('./types').DeviceInfo} */
       const deviceInfo = {
         isRealDevice: !!this.realDevice,
         udid: this.device.udid,
@@ -142,9 +173,11 @@ export class XcodeBuild {
   }
 
   /**
-   * @returns {Promise<string|undefined>}
+   * Retrieves the Xcode derived data path for the build.
+   * Uses cached value if available, otherwise queries xcodebuild for BUILD_DIR.
+   * @returns The derived data path, or `undefined` if it cannot be determined
    */
-  async retrieveDerivedDataPath () {
+  async retrieveDerivedDataPath (): Promise<string | undefined> {
     if (this.derivedDataPath) {
       return this.derivedDataPath;
     }
@@ -155,10 +188,10 @@ export class XcodeBuild {
     }
 
     this._derivedDataPathPromise = (async () => {
-      let stdout;
+      let stdout: string;
       try {
         ({stdout} = await exec('xcodebuild', ['-project', this.agentPath, '-showBuildSettings']));
-      } catch (err) {
+      } catch (err: any) {
         this.log.warn(`Cannot retrieve WDA build settings. Original error: ${err.message}`);
         return;
       }
@@ -179,9 +212,10 @@ export class XcodeBuild {
   }
 
   /**
-   * @returns {Promise<void>}
+   * Resets the project file to its original state.
+   * Restores the bundle ID to the original value for real devices if it was modified.
    */
-  async reset () {
+  async reset (): Promise<void> {
     // if necessary, reset the bundleId to original value
     if (this.realDevice && this.updatedWDABundleId) {
       await resetProjectFile(this.agentPath);
@@ -189,9 +223,10 @@ export class XcodeBuild {
   }
 
   /**
-   * @returns {Promise<void>}
+   * Pre-builds WebDriverAgent before launching tests.
+   * Performs a build-only operation and sets usePrebuiltWDA flag.
    */
-  async prebuild () {
+  async prebuild (): Promise<void> {
     // first do a build phase
     this.log.debug('Pre-building WDA before launching test');
     this.usePrebuiltWDA = true;
@@ -204,9 +239,10 @@ export class XcodeBuild {
   }
 
   /**
-   * @returns {Promise<void>}
+   * Cleans the Xcode project to remove leftovers from previous installs.
+   * Cleans both the library and runner schemes for the appropriate platform.
    */
-  async cleanProject () {
+  async cleanProject (): Promise<void> {
     const libScheme = isTvOS(this.platformName || '') ? LIB_SCHEME_TV : LIB_SCHEME_IOS;
     const runnerScheme = isTvOS(this.platformName || '') ? RUNNER_SCHEME_TV : RUNNER_SCHEME_IOS;
 
@@ -221,14 +257,74 @@ export class XcodeBuild {
   }
 
   /**
-   *
-   * @param {boolean} [buildOnly=false]
-   * @returns {{cmd: string, args: string[]}}
+   * Starts the xcodebuild process to build and/or test WebDriverAgent.
+   * @param buildOnly - If `true`, only builds without running tests. Defaults to `false`.
+   * @returns The WDA status record if tests are run, `void` if build-only
+   * @throws Error if xcodebuild fails or cannot start
    */
-  getCommand (buildOnly = false) {
+  async start (buildOnly: boolean = false): Promise<StringRecord | void> {
+    this.xcodebuild = await this.createSubProcess(buildOnly);
+
+    // wrap the start procedure in a promise so that we can catch, and report,
+    // any startup errors that are thrown as events
+    if (!this.xcodebuild) {
+      throw new Error('xcodebuild subprocess was not created');
+    }
+    const xcodebuild = this.xcodebuild;
+    return await new B((resolve, reject) => {
+        xcodebuild.once('exit', (code, signal) => {
+        xcodeLog.error(`xcodebuild exited with code '${code}' and signal '${signal}'`);
+        xcodebuild.removeAllListeners();
+        this._didProcessExit = true;
+        if (this._didBuildFail || (!signal && code !== 0)) {
+          let errorMessage = `xcodebuild failed with code ${code}.` +
+            ` This usually indicates an issue with the local Xcode setup or WebDriverAgent` +
+            ` project configuration or the driver-to-platform version mismatch.`;
+          if (!this.showXcodeLog) {
+            errorMessage += ` Consider setting 'showXcodeLog' capability to true in` +
+              ` order to check the Appium server log for build-related error messages.`;
+          } else if (this.realDevice) {
+            errorMessage += ` Consider checking the WebDriverAgent configuration guide` +
+              ` for real iOS devices at ${REAL_DEVICES_CONFIG_DOCS_LINK}.`;
+          }
+          return reject(new Error(errorMessage));
+        }
+        // in the case of just building, the process will exit and that is our finish
+        if (buildOnly) {
+          return resolve();
+        }
+      });
+
+      return (async () => {
+        try {
+          const timer = new timing.Timer().start();
+          if (!xcodebuild) {
+            throw new Error('xcodebuild subprocess was not created');
+          }
+          await xcodebuild.start(true);
+          if (!buildOnly) {
+            const result = await this.waitForStart(timer);
+            resolve(result ?? undefined);
+          }
+        } catch (err: any) {
+          const msg = `Unable to start WebDriverAgent: ${err}`;
+          this.log.error(msg);
+          reject(new Error(msg));
+        }
+      })();
+    });
+  }
+
+  /**
+   * Stops the xcodebuild process and cleans up resources.
+   */
+  async quit (): Promise<void> {
+    await killProcess('xcodebuild', this.xcodebuild);
+  }
+
+  private getCommand (buildOnly: boolean = false): {cmd: string; args: string[]} {
     const cmd = 'xcodebuild';
-    /** @type {string[]} */
-    const args = [];
+    const args: string[] = [];
 
     // figure out the targets for xcodebuild
     const [buildCmd, testCmd] = this.useSimpleBuildTest ? ['build', 'test'] : ['build-for-testing', 'test-without-building'];
@@ -301,11 +397,7 @@ export class XcodeBuild {
     return {cmd, args};
   }
 
-  /**
-   * @param {boolean} [buildOnly=false]
-   * @returns {Promise<SubProcess>}
-   */
-  async createSubProcess (buildOnly = false) {
+  private async createSubProcess (buildOnly: boolean = false): Promise<SubProcess> {
     if (!this.useXctestrunFile && this.realDevice) {
       if (this.keychainPath && this.keychainPassword) {
         await setRealDeviceSecurity(this.keychainPath, this.keychainPassword);
@@ -315,8 +407,7 @@ export class XcodeBuild {
     const {cmd, args} = this.getCommand(buildOnly);
     this.log.debug(`Beginning ${buildOnly ? 'build' : 'test'} with command '${cmd} ${args.join(' ')}' ` +
       `in directory '${this.bootstrapPath}'`);
-    /** @type {Record<string, any>} */
-    const env = Object.assign({}, process.env, {
+    const env: Record<string, any> = Object.assign({}, process.env, {
       USE_PORT: this.wdaRemotePort,
       WDA_PRODUCT_BUNDLE_IDENTIFIER: this.updatedWDABundleId || WDA_RUNNER_BUNDLE_ID,
     });
@@ -345,7 +436,7 @@ export class XcodeBuild {
       : 'Output from xcodebuild will only be logged if any errors are present there';
     this.log.debug(`${logMsg}. To change this, use 'showXcodeLog' desired capability`);
 
-    const onStreamLine = (/** @type {string} */ line) => {
+    const onStreamLine = (line: string) => {
       if (this.showXcodeLog === false || IGNORED_ERRORS_PATTERN.test(line)) {
         return;
       }
@@ -368,87 +459,36 @@ export class XcodeBuild {
     return xcodebuild;
   }
 
-
-  /**
-   * @param {boolean} [buildOnly=false]
-   * @returns {Promise<import('@appium/types').StringRecord>}
-   */
-  async start (buildOnly = false) {
-    this.xcodebuild = await this.createSubProcess(buildOnly);
-
-    // wrap the start procedure in a promise so that we can catch, and report,
-    // any startup errors that are thrown as events
-    return await new B((resolve, reject) => {
-      this.xcodebuild.once('exit', (code, signal) => {
-        xcodeLog.error(`xcodebuild exited with code '${code}' and signal '${signal}'`);
-        this.xcodebuild.removeAllListeners();
-        this.didProcessExit = true;
-        if (this._didBuildFail || (!signal && code !== 0)) {
-          let errorMessage = `xcodebuild failed with code ${code}.` +
-            ` This usually indicates an issue with the local Xcode setup or WebDriverAgent` +
-            ` project configuration or the driver-to-platform version mismatch.`;
-          if (!this.showXcodeLog) {
-            errorMessage += ` Consider setting 'showXcodeLog' capability to true in` +
-              ` order to check the Appium server log for build-related error messages.`;
-          } else if (this.realDevice) {
-            errorMessage += ` Consider checking the WebDriverAgent configuration guide` +
-              ` for real iOS devices at ${REAL_DEVICES_CONFIG_DOCS_LINK}.`;
-          }
-          return reject(new Error(errorMessage));
-        }
-        // in the case of just building, the process will exit and that is our finish
-        if (buildOnly) {
-          return resolve();
-        }
-      });
-
-      return (async () => {
-        try {
-          const timer = new timing.Timer().start();
-          await this.xcodebuild.start(true);
-          if (!buildOnly) {
-            resolve(/** @type {import('@appium/types').StringRecord} */ (await this.waitForStart(timer)));
-          }
-        } catch (err) {
-          let msg = `Unable to start WebDriverAgent: ${err}`;
-          this.log.error(msg);
-          reject(new Error(msg));
-        }
-      })();
-    });
-  }
-
-  /**
-   *
-   * @param {any} timer
-   * @returns {Promise<import('@appium/types').StringRecord?>}
-   */
-  async waitForStart (timer) {
+  private async waitForStart (timer: timing.Timer): Promise<StringRecord | null> {
     // try to connect once every 0.5 seconds, until `launchTimeout` is up
     const timeout = this.launchTimeout || 60000; // Default to 60 seconds if not set
     this.log.debug(`Waiting up to ${timeout}ms for WebDriverAgent to start`);
-    let currentStatus = null;
+    let currentStatus: StringRecord | null = null;
     try {
       const retries = Math.trunc(timeout / 500);
+      if (!this.noSessionProxy) {
+        throw new Error('noSessionProxy was not initialized');
+      }
+      const noSessionProxy = this.noSessionProxy;
       await retryInterval(retries, 1000, async () => {
         if (this._didProcessExit) {
           // there has been an error elsewhere and we need to short-circuit
           return currentStatus;
         }
 
-        const proxyTimeout = this.noSessionProxy.timeout;
-        this.noSessionProxy.timeout = 1000;
+        const proxyTimeout = noSessionProxy.timeout;
+        noSessionProxy.timeout = 1000;
         try {
-          currentStatus = await this.noSessionProxy.command('/status', 'GET');
-          if (currentStatus && currentStatus.ios && currentStatus.ios.ip) {
-            this.agentUrl = currentStatus.ios.ip;
+          currentStatus = await noSessionProxy.command('/status', 'GET') as StringRecord;
+          if (currentStatus && currentStatus.ios && (currentStatus.ios as any).ip) {
+            this.agentUrl = (currentStatus.ios as any).ip;
           }
           this.log.debug(`WebDriverAgent information:`);
           this.log.debug(JSON.stringify(currentStatus, null, 2));
-        } catch (err) {
+        } catch (err: any) {
           throw new Error(`Unable to connect to running WebDriverAgent: ${err.message}`);
         } finally {
-          this.noSessionProxy.timeout = proxyTimeout;
+          noSessionProxy.timeout = proxyTimeout;
         }
       });
 
@@ -458,7 +498,7 @@ export class XcodeBuild {
       }
 
       this.log.debug(`WebDriverAgent successfully started after ${timer.getDuration().asMilliSeconds.toFixed(0)}ms`);
-    } catch (err) {
+    } catch (err: any) {
       this.log.debug(err.stack);
       throw new Error(
         `We were not able to retrieve the /status response from the WebDriverAgent server after ${timeout}ms timeout.` +
@@ -467,13 +507,4 @@ export class XcodeBuild {
     }
     return currentStatus;
   }
-
-  /**
-   * @returns {Promise<void>}
-   */
-  async quit () {
-    await killProcess('xcodebuild', this.xcodebuild);
-  }
 }
-
-export default XcodeBuild;
