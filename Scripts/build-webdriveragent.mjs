@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { asyncify } from 'asyncbox';
 import { logger, fs } from '@appium/support';
 import { exec } from 'teen_process';
-import xcode from 'appium-xcode';
+import * as xcode from 'appium-xcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

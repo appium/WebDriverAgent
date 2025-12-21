@@ -1,17 +1,25 @@
 import { fs, plist } from '@appium/support';
 import { exec, SubProcess } from 'teen_process';
-import path from 'path';
+import path, { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { log } from './logger';
 import _ from 'lodash';
 import { WDA_RUNNER_BUNDLE_ID, PLATFORM_NAME_TVOS } from './constants';
 import B from 'bluebird';
-import _fs from 'fs';
+import _fs from 'node:fs';
 import { waitForCondition } from 'asyncbox';
-import { arch } from 'os';
+import { arch } from 'node:os';
 import type { DeviceInfo } from './types';
-import { fileURLToPath } from 'url';
 
 const PROJECT_FILE = 'project.pbxproj';
+
+// Get current filename - works in both CommonJS and ESM
+const currentFilename =
+  typeof __filename !== 'undefined'
+    ? __filename
+    : fileURLToPath(new Function('return import.meta.url')());
+
+const currentDirname = dirname(currentFilename);
 
 /**
  * Calculates the path to the current module's root folder
@@ -20,10 +28,7 @@ const PROJECT_FILE = 'project.pbxproj';
  * @throws {Error} If the current module root folder cannot be determined
  */
 const getModuleRoot = _.memoize(function getModuleRoot (): string {
-  // In TypeScript/ESM, we need to use import.meta.url to get the current file path
-  // @ts-ignore - __filename may be available in CommonJS context
-  const currentFile = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
-  let currentDir = path.dirname(path.resolve(currentFile));
+  let currentDir = currentDirname;
   let isAtFsRoot = false;
   while (!isAtFsRoot) {
     const manifestPath = path.join(currentDir, 'package.json');
@@ -41,24 +46,7 @@ const getModuleRoot = _.memoize(function getModuleRoot (): string {
 
 export const BOOTSTRAP_PATH = getModuleRoot();
 
-async function getPIDsUsingPattern (pattern: string): Promise<string[]> {
-  const args = [
-    '-if', // case insensitive, full cmdline match
-    pattern,
-  ];
-  try {
-    const {stdout} = await exec('pgrep', args);
-    return stdout.split(/\s+/)
-      .map((x) => parseInt(x, 10))
-      .filter(_.isInteger)
-      .map((x) => `${x}`);
-  } catch (err: any) {
-    log.debug(`'pgrep ${args.join(' ')}' didn't detect any matching processes. Return code: ${err.code}`);
-    return [];
-  }
-}
-
-async function killAppUsingPattern (pgrepPattern: string): Promise<void> {
+export async function killAppUsingPattern (pgrepPattern: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
     const matchedPids = await getPIDsUsingPattern(pgrepPattern);
@@ -102,17 +90,8 @@ async function killAppUsingPattern (pgrepPattern: string): Promise<void> {
  * @param platformName The name of the platorm
  * @returns Return true if the platformName is tvOS
  */
-function isTvOS (platformName: string): boolean {
+export function isTvOS (platformName: string): boolean {
   return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
-}
-
-async function replaceInFile (file: string, find: string | RegExp, replace: string): Promise<void> {
-  const contents = await fs.readFile(file, 'utf8');
-
-  const newContents = contents.replace(find, replace);
-  if (newContents !== contents) {
-    await fs.writeFile(file, newContents, 'utf8');
-  }
 }
 
 /**
@@ -121,7 +100,7 @@ async function replaceInFile (file: string, find: string | RegExp, replace: stri
  * @param agentPath - Path to the .xcodeproj directory.
  * @param newBundleId the new bundle ID used to update.
  */
-async function updateProjectFile (agentPath: string, newBundleId: string): Promise<void> {
+export async function updateProjectFile (agentPath: string, newBundleId: string): Promise<void> {
   const projectFilePath = path.resolve(agentPath, PROJECT_FILE);
   try {
     // Assuming projectFilePath is in the correct state, create .old from projectFilePath
@@ -139,7 +118,7 @@ async function updateProjectFile (agentPath: string, newBundleId: string): Promi
  * Reset WebDriverAgentRunner project bundle ID to correct state.
  * @param agentPath - Path to the .xcodeproj directory.
  */
-async function resetProjectFile (agentPath: string): Promise<void> {
+export async function resetProjectFile (agentPath: string): Promise<void> {
   const projectFilePath = path.join(agentPath, PROJECT_FILE);
   try {
     // restore projectFilePath from .old file
@@ -156,7 +135,7 @@ async function resetProjectFile (agentPath: string): Promise<void> {
   }
 }
 
-async function setRealDeviceSecurity (keychainPath: string, keychainPassword: string): Promise<void> {
+export async function setRealDeviceSecurity (keychainPath: string, keychainPassword: string): Promise<void> {
   log.debug('Setting security for iOS device');
   await exec('security', ['-v', 'list-keychains', '-s', keychainPath]);
   await exec('security', ['-v', 'unlock-keychain', '-p', keychainPassword, keychainPath]);
@@ -188,7 +167,7 @@ export interface XctestrunFileArgs {
  * or WebDriverAgentRunner_iphonesimulator${sdkVersion|platformVersion}-x86_64.xctestrun for simulator is not found @bootstrapPath,
  * then it will throw a file not found exception
  */
-async function setXctestrunFile (args: XctestrunFileArgs): Promise<string> {
+export async function setXctestrunFile (args: XctestrunFileArgs): Promise<string> {
   const {deviceInfo, sdkVersion, bootstrapPath, wdaRemotePort, wdaBindingIP} = args;
   const xctestrunFilePath = await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
   const xctestRunContent = await plist.parsePlistFile(xctestrunFilePath);
@@ -206,7 +185,7 @@ async function setXctestrunFile (args: XctestrunFileArgs): Promise<string> {
  * @param wdaBindingIP - The IP address to bind to. If not given, it binds to all interfaces.
  * @return returns a runner object which has USE_PORT and optionally USE_IP
  */
-function getAdditionalRunContent (platformName: string, wdaRemotePort: number | string, wdaBindingIP?: string): Record<string, any> {
+export function getAdditionalRunContent (platformName: string, wdaRemotePort: number | string, wdaBindingIP?: string): Record<string, any> {
   const runner = `WebDriverAgentRunner${isTvOS(platformName) ? '_tvOS' : ''}`;
   return {
     [runner]: {
@@ -225,7 +204,7 @@ function getAdditionalRunContent (platformName: string, wdaRemotePort: number | 
  * @param sdkVersion - The Xcode SDK version of OS.
  * @param bootstrapPath - The folder path containing xctestrun file.
  */
-async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: string, bootstrapPath: string): Promise<string> {
+export async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: string, bootstrapPath: string): Promise<string> {
   // First try the SDK path, for Xcode 10 (at least)
   const sdkBased: [string, string] = [
     path.resolve(bootstrapPath, `${deviceInfo.udid}_${sdkVersion}.xctestrun`),
@@ -266,7 +245,7 @@ async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: string,
  * @param version - The Xcode SDK version of OS.
  * @return returns xctestrunFilePath for given device
  */
-function getXctestrunFileName (deviceInfo: DeviceInfo, version: string): string {
+export function getXctestrunFileName (deviceInfo: DeviceInfo, version: string): string {
   const archSuffix = deviceInfo.isRealDevice
     ? `os${version}-arm64`
     : `simulator${version}-${arch() === 'arm64' ? 'arm64' : 'x86_64'}`;
@@ -276,7 +255,7 @@ function getXctestrunFileName (deviceInfo: DeviceInfo, version: string): string 
 /**
  * Ensures the process is killed after the timeout
  */
-async function killProcess (name: string, proc: SubProcess | null | undefined): Promise<void> {
+export async function killProcess (name: string, proc: SubProcess | null | undefined): Promise<void> {
   if (!proc || !proc.isRunning) {
     return;
   }
@@ -309,14 +288,14 @@ async function killProcess (name: string, proc: SubProcess | null | undefined): 
 /**
  * Generate a random integer in range [low, high). `low` is inclusive and `high` is exclusive.
  */
-function randomInt (low: number, high: number): number {
+export function randomInt (low: number, high: number): number {
   return Math.floor(Math.random() * (high - low) + low);
 }
 
 /**
  * Retrieves WDA upgrade timestamp. The manifest only gets modified on package upgrade.
  */
-async function getWDAUpgradeTimestamp (): Promise<number | null> {
+export async function getWDAUpgradeTimestamp (): Promise<number | null> {
   const packageManifest = path.resolve(getModuleRoot(), 'package.json');
   if (!await fs.exists(packageManifest)) {
     return null;
@@ -328,7 +307,7 @@ async function getWDAUpgradeTimestamp (): Promise<number | null> {
 /**
  * Kills running XCTest processes for the particular device.
  */
-async function resetTestProcesses (udid: string, isSimulator: boolean): Promise<void> {
+export async function resetTestProcesses (udid: string, isSimulator: boolean): Promise<void> {
   const processPatterns = [`xcodebuild.*${udid}`];
   if (isSimulator) {
     processPatterns.push(`${udid}.*XCTRunner`);
@@ -352,7 +331,7 @@ async function resetTestProcesses (udid: string, isSimulator: boolean): Promise<
  *                                    from the resulting array.
  * @returns - the list of matched process ids.
  */
-async function getPIDsListeningOnPort (port: string | number, filteringFunc: ((cmdline: string) => boolean | Promise<boolean>) | null = null): Promise<string[]> {
+export async function getPIDsListeningOnPort (port: string | number, filteringFunc: ((cmdline: string) => boolean | Promise<boolean>) | null = null): Promise<string[]> {
   const result: string[] = [];
   try {
     // This only works since Mac OS X El Capitan
@@ -384,10 +363,31 @@ async function getPIDsListeningOnPort (port: string | number, filteringFunc: ((c
   });
 }
 
-export { updateProjectFile, resetProjectFile, setRealDeviceSecurity,
-  getAdditionalRunContent, getXctestrunFileName,
-  setXctestrunFile, getXctestrunFilePath, killProcess, randomInt,
-  getWDAUpgradeTimestamp, resetTestProcesses,
-  getPIDsListeningOnPort, killAppUsingPattern, isTvOS
-};
+// Private functions
+
+async function getPIDsUsingPattern (pattern: string): Promise<string[]> {
+  const args = [
+    '-if', // case insensitive, full cmdline match
+    pattern,
+  ];
+  try {
+    const {stdout} = await exec('pgrep', args);
+    return stdout.split(/\s+/)
+      .map((x) => parseInt(x, 10))
+      .filter(_.isInteger)
+      .map((x) => `${x}`);
+  } catch (err: any) {
+    log.debug(`'pgrep ${args.join(' ')}' didn't detect any matching processes. Return code: ${err.code}`);
+    return [];
+  }
+}
+
+async function replaceInFile (file: string, find: string | RegExp, replace: string): Promise<void> {
+  const contents = await fs.readFile(file, 'utf8');
+
+  const newContents = contents.replace(find, replace);
+  if (newContents !== contents) {
+    await fs.writeFile(file, newContents, 'utf8');
+  }
+}
 
