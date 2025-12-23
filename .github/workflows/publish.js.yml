@@ -67,7 +67,7 @@ jobs:
           export ARCHS="${{ matrix.config.archs || '' }}"
           sh $GITHUB_WORKSPACE/Scripts/ci/${{ matrix.config.build_script }}
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.config.artifact_name }}
         path: ${{ matrix.config.zip_name }}
