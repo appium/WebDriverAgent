@@ -89,7 +89,7 @@
       NSLog(@"[FBCustomActions] Custom action title: %@", title);
     }
     
-    NSString *joined = [stringified componentsJoinedByString:[FBConfiguration customActionsDelimiter]];
+    NSString *joined = [stringified componentsJoinedByString:@","];
     NSMutableDictionary *updated =
       (self.additionalAttributes ?: @{}).mutableCopy;
     updated[symbol] = joined;

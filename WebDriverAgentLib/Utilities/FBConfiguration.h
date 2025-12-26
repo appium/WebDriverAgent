@@ -388,15 +388,6 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)includeCustomActionsInPageSource;
 
 /**
- * Sets the delimiter string used when joining custom action names.
- * Defaults to ", " (comma followed by space).
- *
- * @param delimiter The delimiter string to use when joining custom actions
- */
-+ (void)setCustomActionsDelimiter:(NSString *)delimiter;
-+ (NSString *)customActionsDelimiter;
-
-/**
  * Whether to enforce the use of custom snapshots instead of standard snapshots.
  * When enabled, fb_customSnapshot is always invoked instead of fb_standardSnapshot
  * for XPath tree building and element attributes fetching.

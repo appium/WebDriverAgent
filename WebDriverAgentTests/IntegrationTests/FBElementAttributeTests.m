@@ -258,7 +258,7 @@
   XCTAssertTrue(buttonElement.exists);
   NSString *customActions = buttonElement.wdCustomActions;
   XCTAssertNotNil(customActions, @"Button should have custom actions");
-  XCTAssertEqualObjects(customActions, @"Custom Action 1, Custom Action 2");
+  XCTAssertEqualObjects(customActions, @"Custom Action 1,Custom Action 2");
 }
 
 @end

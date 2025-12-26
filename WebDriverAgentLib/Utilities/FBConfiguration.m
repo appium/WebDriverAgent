@@ -65,7 +65,6 @@ static BOOL FBShouldIncludeNativeFrameInPageSource = NO;
 static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
 static BOOL FBShouldIncludeCustomActionsInPageSource = NO;
 static BOOL FBShouldEnforceCustomSnapshots = NO;
-static NSString *FBCustomActionsDelimiter;
 
 @implementation FBConfiguration
 
@@ -544,7 +543,6 @@ static NSString *FBCustomActionsDelimiter;
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
   FBUseClearTextShortcut = YES;
   FBLimitXpathContextScope = YES;
-  FBCustomActionsDelimiter = @", ";
 #if !TARGET_OS_TV
   FBScreenshotOrientation = UIInterfaceOrientationUnknown;
 #endif
@@ -698,16 +696,6 @@ static NSString *FBCustomActionsDelimiter;
 + (BOOL)includeCustomActionsInPageSource
 {
   return FBShouldIncludeCustomActionsInPageSource;
-}
-
-+ (void)setCustomActionsDelimiter:(NSString *)delimiter
-{
-  FBCustomActionsDelimiter = delimiter ?: @", ";
-}
-
-+ (NSString *)customActionsDelimiter
-{
-  return FBCustomActionsDelimiter ?: @", ";
 }
 
 + (void)setEnforceCustomSnapshots:(BOOL)enabled

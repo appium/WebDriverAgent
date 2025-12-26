@@ -39,5 +39,4 @@ NSString* const FB_SETTING_INCLUDE_HITTABLE_IN_PAGE_SOURCE = @"includeHittableIn
 NSString* const FB_SETTING_INCLUDE_NATIVE_FRAME_IN_PAGE_SOURCE = @"includeNativeFrameInPageSource";
 NSString* const FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE = @"includeMinMaxValueInPageSource";
 NSString* const FB_SETTING_INCLUDE_CUSTOM_ACTIONS_IN_PAGE_SOURCE = @"includeCustomActionsInPageSource";
-NSString* const FB_SETTING_CUSTOM_ACTIONS_DELIMITER = @"customActionsDelimiter";
 NSString* const FB_SETTING_ENFORCE_CUSTOM_SNAPSHOTS = @"enforceCustomSnapshots";
