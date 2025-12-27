@@ -100,7 +100,7 @@
     }
     
     [stringified addObject:title ?: @"<null>"];
-    NSLog(@"[FBCustomActions] Custom action title: %@", title);
+    [FBLogger logFmt: @"[FBCustomActions] Custom action title: %@", title];
   }
   
   NSString *joined = [stringified componentsJoinedByString:@","];
