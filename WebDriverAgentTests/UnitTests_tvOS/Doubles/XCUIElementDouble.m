@@ -28,6 +28,7 @@
     self.wdSelected = YES;
     self.wdHittable = YES;
     self.wdIndex = 0;
+    self.wdCustomActions = nil;
 #if TARGET_OS_TV
     self.wdFocused = YES;
 #endif

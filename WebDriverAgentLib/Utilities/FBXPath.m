@@ -131,6 +131,10 @@
 
 @end
 
+@interface FBCustomActionsAttribute : FBElementAttribute
+
+@end
+
 #if TARGET_OS_TV
 
 @interface FBFocusedAttribute : FBElementAttribute
@@ -397,6 +401,10 @@ static NSString *const topNodeIndexPath = @"top";
       [includedAttributes removeObject:FBMinValueAttribute.class];
       [includedAttributes removeObject:FBMaxValueAttribute.class];
     }
+    if (!FBConfiguration.includeCustomActionsInPageSource) {
+      // customActions are retrieved from accessibility attributes and may be slow on deep trees
+      [includedAttributes removeObject:FBCustomActionsAttribute.class];
+    }
     if (nil != excludedAttributes) {
       for (NSString *excludedAttributeName in excludedAttributes) {
         for (Class supportedAttribute in FBElementAttribute.supportedAttributes) {
@@ -660,6 +668,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBNativeFrameAttribute.class,
            FBMinValueAttribute.class,
            FBMaxValueAttribute.class,
+           FBCustomActionsAttribute.class,
           ];
 }
 
@@ -951,6 +960,20 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 + (NSString *)valueForElement:(id<FBElement>)element
 {
   return [element.wdMaxValue stringValue];
+}
+
+@end
+
+@implementation FBCustomActionsAttribute
+
++ (NSString *)name
+{
+  return @"customActions";
+}
+
++ (NSString *)valueForElement:(id<FBElement>)element
+{
+  return element.wdCustomActions;
 }
 
 @end

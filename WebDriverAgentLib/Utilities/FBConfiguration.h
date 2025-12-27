@@ -377,6 +377,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)includeMinMaxValueInPageSource;
 
 /**
+ * Whether to include `customActions` attribute in the XML page source.
+ * Custom actions represent accessibility actions available on UI elements.
+ * This may affect performance if used on many elements.
+ * Disabled by default.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setIncludeCustomActionsInPageSource:(BOOL)enabled;
++ (BOOL)includeCustomActionsInPageSource;
+
+/**
  * Whether to enforce the use of custom snapshots instead of standard snapshots.
  * When enabled, fb_customSnapshot is always invoked instead of fb_standardSnapshot
  * for XPath tree building and element attributes fetching.

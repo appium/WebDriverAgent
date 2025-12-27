@@ -12,4 +12,5 @@
 @property (readwrite, nullable) id value;
 @property (readwrite, nullable, copy) NSString *label;
 @property (nonatomic, assign) UIAccessibilityTraits traits;
+@property (readwrite, nullable) NSMutableDictionary *additionalAttributes;
 @end

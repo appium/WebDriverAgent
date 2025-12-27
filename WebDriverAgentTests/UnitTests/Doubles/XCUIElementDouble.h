@@ -38,6 +38,7 @@
 @property (nonatomic, readwrite, assign) XCUIElementType elementType;
 @property (nonatomic, readwrite, getter=isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 @property (nonatomic, copy, readwrite, nullable) NSString *wdTraits;
+@property (nonatomic, strong, readwrite, nullable) NSString *wdCustomActions;
 
 - (void)resolve;
 - (id _Nonnull)fb_standardSnapshot;

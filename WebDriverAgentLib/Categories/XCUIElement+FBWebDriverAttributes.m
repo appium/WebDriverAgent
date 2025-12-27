@@ -24,6 +24,7 @@
 #import "XCUIHitPointResult.h"
 #import "FBAccessibilityTraits.h"
 #import "XCUIElement+FBMinMax.h"
+#import "XCUIElement+FBCustomActions.h"
 
 #define BROKEN_RECT CGRectMake(-1, -1, 0, 0)
 
@@ -284,5 +285,10 @@
     @"height": @(CGRectGetHeight(frame)),
   };
  }
+
+- (NSString *)wdCustomActions
+{
+    return self.fb_customActions;
+}
 
 @end
