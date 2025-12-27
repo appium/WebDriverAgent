@@ -60,44 +60,59 @@
   
   // Case 1: Already a string
   if ([raw isKindOfClass:[NSString class]]) {
-    NSMutableDictionary *updated =
-    (self.additionalAttributes ?: @{}).mutableCopy;
-    updated[symbol] = raw;
-    self.snapshot.additionalAttributes = updated.copy;
-    return raw;
+    return [self retrieveCustomActionsFromString:raw forSymbol:symbol];
   }
   
   // Case 2: Array of custom actions
   if ([raw isKindOfClass:[NSArray class]]) {
-    NSMutableArray *stringified = [NSMutableArray array];
-    for (id action in (NSArray *)raw) {
-      NSString *title = nil;
-      
-      if ([action isKindOfClass:[NSDictionary class]]) {
-        title = ((NSDictionary *)action)[@"CustomActionName"];
-      }
-      
-      if (!title || ![title isKindOfClass:[NSString class]]) {
-        @try {
-          title = [action valueForKey:@"title"];
-        } @catch (__unused NSException * e) {
-          title = @"<unknown>";
-        }
-      }
-      
-      [stringified addObject:title ?: @"<null>"];
-      NSLog(@"[FBCustomActions] Custom action title: %@", title);
-    }
-    
-    NSString *joined = [stringified componentsJoinedByString:@","];
-    NSMutableDictionary *updated =
-      (self.additionalAttributes ?: @{}).mutableCopy;
-    updated[symbol] = joined;
-    self.snapshot.additionalAttributes = updated.copy;
-    return joined;
+    return [self retrieveCustomActionsFromArray:raw forSymbol:symbol];
   }
   
   // Fallback: Try to cast to string
+  return [self retrieveCustomActionsByCastingToString:raw forSymbol:symbol];
+}
+
+- (NSString *)retrieveCustomActionsFromString:(NSString *)stringValue
+                                    forSymbol:(NSNumber *)symbol {
+  NSMutableDictionary *updated =
+  (self.additionalAttributes ?: @{}).mutableCopy;
+  updated[symbol] = stringValue;
+  self.snapshot.additionalAttributes = updated.copy;
+  return stringValue;
+}
+
+- (NSString *)retrieveCustomActionsFromArray:(NSArray *)arrayValue
+                                   forSymbol:(NSNumber *)symbol {
+  NSMutableArray *stringified = [NSMutableArray array];
+  for (id action in arrayValue) {
+    NSString *title = nil;
+    
+    if ([action isKindOfClass:[NSDictionary class]]) {
+      title = ((NSDictionary *)action)[@"CustomActionName"];
+    }
+    
+    if (!title || ![title isKindOfClass:[NSString class]]) {
+      @try {
+        title = [action valueForKey:@"title"];
+      } @catch (__unused NSException * e) {
+        title = @"<unknown>";
+      }
+    }
+    
+    [stringified addObject:title ?: @"<null>"];
+    NSLog(@"[FBCustomActions] Custom action title: %@", title);
+  }
+  
+  NSString *joined = [stringified componentsJoinedByString:@","];
+  NSMutableDictionary *updated =
+  (self.additionalAttributes ?: @{}).mutableCopy;
+  updated[symbol] = joined;
+  self.snapshot.additionalAttributes = updated.copy;
+  return joined;
+}
+
+- (NSString *)retrieveCustomActionsByCastingToString:(id)raw
+                                           forSymbol:(NSNumber *)symbol {
   NSString *stringValue = [NSString stringWithFormat:@"%@", raw];
   NSMutableDictionary *updated = (self.additionalAttributes ?: @{}).mutableCopy;
   updated[symbol] = stringValue;
