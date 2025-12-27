@@ -73,7 +73,8 @@
 }
 
 - (NSString *)retrieveCustomActionsFromString:(NSString *)stringValue
-                                    forSymbol:(NSNumber *)symbol {
+                                    forSymbol:(NSNumber *)symbol
+{
   NSMutableDictionary *updated =
   (self.additionalAttributes ?: @{}).mutableCopy;
   updated[symbol] = stringValue;
@@ -82,7 +83,8 @@
 }
 
 - (NSString *)retrieveCustomActionsFromArray:(NSArray *)arrayValue
-                                   forSymbol:(NSNumber *)symbol {
+                                   forSymbol:(NSNumber *)symbol
+{
   NSMutableArray *stringified = [NSMutableArray array];
   for (id action in arrayValue) {
     NSString *title = nil;
@@ -112,7 +114,8 @@
 }
 
 - (NSString *)retrieveCustomActionsByCastingToString:(id)raw
-                                           forSymbol:(NSNumber *)symbol {
+                                           forSymbol:(NSNumber *)symbol
+{
   NSString *stringValue = [NSString stringWithFormat:@"%@", raw];
   NSMutableDictionary *updated = (self.additionalAttributes ?: @{}).mutableCopy;
   updated[symbol] = stringValue;
