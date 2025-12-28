@@ -117,7 +117,8 @@
                                            forSymbol:(NSNumber *)symbol
 {
   NSString *stringValue = [NSString stringWithFormat:@"%@", raw];
-  NSMutableDictionary *updated = (self.additionalAttributes ?: @{}).mutableCopy;
+  NSMutableDictionary *updated =
+  (self.additionalAttributes ?: @{}).mutableCopy;
   updated[symbol] = stringValue;
   self.snapshot.additionalAttributes = updated.copy;
   return stringValue;
