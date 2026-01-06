@@ -74,7 +74,7 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/XCUIElement.h>
 #import <WebDriverAgentLib/XCUIElement+FBAccessibility.h>
 #import <WebDriverAgentLib/XCUIElement+FBFind.h>
-#import <WebDriverAgentLib/XCUIElement+FBIsVisible.h>
+#import <WebDriverAgentLib/XCUIElement+FBIsVisible.h>WebDriverAgentLib
 #import <WebDriverAgentLib/XCUIElement+FBScrolling.h>
 #import <WebDriverAgentLib/XCUIElement+FBForceTouch.h>
 #import <WebDriverAgentLib/XCUIElement+FBUtilities.h>
@@ -88,3 +88,4 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/QAWSnapshotResult.h>
 #import <WebDriverAgentLib/XCUIElementSnapshotParser.h>
 #import <WebDriverAgentLib/QAWXML.h>
+#import <WebDriverAgentLib/QAWObjCExceptionHandler.h>
