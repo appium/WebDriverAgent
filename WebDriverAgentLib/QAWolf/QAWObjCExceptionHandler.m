@@ -8,7 +8,8 @@
 
 @implementation QAWObjCExceptionHandler
 
-+ (id _Nullable)tryBlock:(ObjCExceptionBlock)block error:(NSError **)error {
++ (id _Nullable)tryBlock:(ObjCExceptionBlock)block
+                    error:(NSError * _Nullable * _Nullable)error {
     @try {
         return block();
     }

@@ -20,7 +20,8 @@ typedef id _Nullable (^ObjCExceptionBlock)(void);
  @param error Output parameter for any exception that occurs
  @return The return value from the block, or nil if an exception occurred
  */
-+ (id _Nullable)tryBlock:(ObjCExceptionBlock)block error:(NSError **)error;
++ (id _Nullable)tryBlock:(ObjCExceptionBlock)block
+                    error:(NSError * _Nullable * _Nullable)error;
 
 @end
 
