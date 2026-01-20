@@ -198,14 +198,6 @@ export class XcodeBuild {
   }
 
   /**
-   * Resets the XcodeBuild instance.
-   * No-op since we no longer modify project files.
-   */
-  async reset (): Promise<void> {
-    // No longer needed since we pass PRODUCT_BUNDLE_IDENTIFIER via command line
-  }
-
-  /**
    * Pre-builds WebDriverAgent before launching tests.
    * Performs a build-only operation and sets usePrebuiltWDA flag.
    */

@@ -355,7 +355,6 @@ export class WebDriverAgent {
       this.log.info('Shutting down sub-processes');
       if (this._xcodebuild) {
         await this.xcodebuild.quit();
-        await this.xcodebuild.reset();
       }
     } else {
       this.log.debug('Do not stop xcodebuild nor XCTest session ' +
