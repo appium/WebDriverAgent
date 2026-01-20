@@ -6,8 +6,7 @@ import { log as defaultLogger } from './logger';
 import B from 'bluebird';
 import {
   setRealDeviceSecurity, setXctestrunFile,
-  updateProjectFile, resetProjectFile, killProcess,
-  getWDAUpgradeTimestamp, isTvOS
+  killProcess, getWDAUpgradeTimestamp, isTvOS
 } from './utils';
 import _ from 'lodash';
 import path from 'path';
@@ -135,7 +134,7 @@ export class XcodeBuild {
 
   /**
    * Initializes the XcodeBuild instance with a no-session proxy.
-   * Sets up xctestrun file if needed, or updates project bundle ID for real devices.
+   * Sets up xctestrun file if needed.
    * @param noSessionProxy - The proxy instance for WDA communication
    */
   async init (noSessionProxy: NoSessionProxy): Promise<void> {
@@ -156,19 +155,6 @@ export class XcodeBuild {
           wdaBindingIP: this.wdaBindingIP
         });
       return;
-    }
-
-    // if necessary, update the bundleId to user's specification
-    if (this.realDevice) {
-      // In case the project still has the user specific bundle ID, reset the project file first.
-      // - We do this reset even if updatedWDABundleId is not specified,
-      //   since the previous updatedWDABundleId test has generated the user specific bundle ID project file.
-      // - We don't call resetProjectFile for simulator,
-      //   since simulator test run will work with any user specific bundle ID.
-      await resetProjectFile(this.agentPath);
-      if (this.updatedWDABundleId) {
-        await updateProjectFile(this.agentPath, this.updatedWDABundleId);
-      }
     }
   }
 
@@ -212,14 +198,11 @@ export class XcodeBuild {
   }
 
   /**
-   * Resets the project file to its original state.
-   * Restores the bundle ID to the original value for real devices if it was modified.
+   * Resets the XcodeBuild instance.
+   * No-op since we no longer modify project files.
    */
   async reset (): Promise<void> {
-    // if necessary, reset the bundleId to original value
-    if (this.realDevice && this.updatedWDABundleId) {
-      await resetProjectFile(this.agentPath);
-    }
+    // No longer needed since we pass PRODUCT_BUNDLE_IDENTIFIER via command line
   }
 
   /**
@@ -360,7 +343,7 @@ export class XcodeBuild {
     }
     args.push('-destination', `id=${this.device.udid}`);
 
-    let versionMatch;
+    let versionMatch: RegExpMatchArray | null = null;
     if (this.platformVersion && (versionMatch = new RegExp(/^(\d+)\.(\d+)/).exec(this.platformVersion))) {
       args.push(
         `${isTvOS(this.platformName || '') ? 'TV' : 'IPHONE'}OS_DEPLOYMENT_TARGET=${versionMatch[1]}.${versionMatch[2]}`
@@ -382,6 +365,9 @@ export class XcodeBuild {
           `DEVELOPMENT_TEAM=${this.xcodeOrgId}`,
           `CODE_SIGN_IDENTITY=${this.xcodeSigningId}`,
         );
+      }
+      if (this.updatedWDABundleId) {
+        args.push(`PRODUCT_BUNDLE_IDENTIFIER=${this.updatedWDABundleId}`);
       }
     }
 

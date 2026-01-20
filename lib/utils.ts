@@ -4,14 +4,12 @@ import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { log } from './logger';
 import _ from 'lodash';
-import { WDA_RUNNER_BUNDLE_ID, PLATFORM_NAME_TVOS } from './constants';
+import { PLATFORM_NAME_TVOS } from './constants';
 import B from 'bluebird';
 import _fs from 'node:fs';
 import { waitForCondition } from 'asyncbox';
 import { arch } from 'node:os';
 import type { DeviceInfo } from './types';
-
-const PROJECT_FILE = 'project.pbxproj';
 
 // Get current filename - works in both CommonJS and ESM
 const currentFilename =
@@ -92,47 +90,6 @@ export async function killAppUsingPattern (pgrepPattern: string): Promise<void> 
  */
 export function isTvOS (platformName: string): boolean {
   return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
-}
-
-/**
- * Update WebDriverAgentRunner project bundle ID with newBundleId.
- * This method assumes project file is in the correct state.
- * @param agentPath - Path to the .xcodeproj directory.
- * @param newBundleId the new bundle ID used to update.
- */
-export async function updateProjectFile (agentPath: string, newBundleId: string): Promise<void> {
-  const projectFilePath = path.resolve(agentPath, PROJECT_FILE);
-  try {
-    // Assuming projectFilePath is in the correct state, create .old from projectFilePath
-    await fs.copyFile(projectFilePath, `${projectFilePath}.old`);
-    await replaceInFile(projectFilePath, new RegExp(_.escapeRegExp(WDA_RUNNER_BUNDLE_ID), 'g'), newBundleId);
-    log.debug(`Successfully updated '${projectFilePath}' with bundle id '${newBundleId}'`);
-  } catch (err: any) {
-    log.debug(`Error updating project file: ${err.message}`);
-    log.warn(`Unable to update project file '${projectFilePath}' with ` +
-      `bundle id '${newBundleId}'. WebDriverAgent may not start`);
-  }
-}
-
-/**
- * Reset WebDriverAgentRunner project bundle ID to correct state.
- * @param agentPath - Path to the .xcodeproj directory.
- */
-export async function resetProjectFile (agentPath: string): Promise<void> {
-  const projectFilePath = path.join(agentPath, PROJECT_FILE);
-  try {
-    // restore projectFilePath from .old file
-    if (!await fs.exists(`${projectFilePath}.old`)) {
-      return; // no need to reset
-    }
-    await fs.mv(`${projectFilePath}.old`, projectFilePath);
-    log.debug(`Successfully reset '${projectFilePath}' with bundle id '${WDA_RUNNER_BUNDLE_ID}'`);
-  } catch (err: any) {
-    log.debug(`Error resetting project file: ${err.message}`);
-    log.warn(`Unable to reset project file '${projectFilePath}' with ` +
-      `bundle id '${WDA_RUNNER_BUNDLE_ID}'. WebDriverAgent has been ` +
-      `modified and not returned to the original state.`);
-  }
 }
 
 export async function setRealDeviceSecurity (keychainPath: string, keychainPassword: string): Promise<void> {
@@ -382,12 +339,4 @@ async function getPIDsUsingPattern (pattern: string): Promise<string[]> {
   }
 }
 
-async function replaceInFile (file: string, find: string | RegExp, replace: string): Promise<void> {
-  const contents = await fs.readFile(file, 'utf8');
-
-  const newContents = contents.replace(find, replace);
-  if (newContents !== contents) {
-    await fs.writeFile(file, newContents, 'utf8');
-  }
-}
 
