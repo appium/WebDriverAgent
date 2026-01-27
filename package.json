@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "devDependencies": {
-    "@appium/eslint-config-appium-ts": "^2.0.0-rc.1",
+    "@appium/eslint-config-appium-ts": "^3.0.0",
     "@appium/tsconfig": "^1.0.0-rc.1",
     "@appium/types": "^1.0.0-rc.1",
     "@semantic-release/changelog": "^6.0.1",
