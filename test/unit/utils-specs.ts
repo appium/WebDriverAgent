@@ -3,9 +3,9 @@ import chaiAsPromised from 'chai-as-promised';
 import { getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName } from '../../lib/utils';
 import { PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS } from '../../lib/constants';
 import { fs } from '@appium/support';
-import path from 'path';
-import { fail } from 'assert';
-import { arch } from 'os';
+import path from 'node:path';
+import { fail } from 'node:assert';
+import { arch } from 'node:os';
 import sinon from 'sinon';
 import type { DeviceInfo } from '../../lib/types';
 

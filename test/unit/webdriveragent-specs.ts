@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { BOOTSTRAP_PATH } from '../../lib/utils';
 import { WebDriverAgent } from '../../lib/webdriveragent';
 import * as utils from '../../lib/utils';
-import path from 'path';
+import path from 'node:path';
 import _ from 'lodash';
 import sinon from 'sinon';
 import type { WebDriverAgentArgs, AppleDevice } from '../../lib/types';

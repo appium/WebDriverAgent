@@ -9,7 +9,7 @@ import {
   killProcess, getWDAUpgradeTimestamp, isTvOS
 } from './utils';
 import _ from 'lodash';
-import path from 'path';
+import path from 'node:path';
 import { WDA_RUNNER_BUNDLE_ID } from './constants';
 import type { AppleDevice, XcodeBuildArgs } from './types';
 import type { NoSessionProxy } from './no-session-proxy';
