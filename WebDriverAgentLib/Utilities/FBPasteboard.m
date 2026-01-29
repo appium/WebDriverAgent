@@ -14,6 +14,7 @@
 #import "FBMacros.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBAlert.h"
+#import "NSRunLoop+Monotonic.h"
 
 #define ALERT_TIMEOUT_SEC 30
 // Must not be less than FB_MONTORING_INTERVAL in FBAlertsMonitor
@@ -95,7 +96,7 @@
   });
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   while (!didFinishGetPasteboard) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:ALERT_CHECK_INTERVAL_SEC]];
+    [[NSRunLoop currentRunLoop] runForMonotonicInterval:ALERT_CHECK_INTERVAL_SEC];
     if (didFinishGetPasteboard) {
       break;
     }
