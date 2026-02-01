@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { asyncify } from 'asyncbox';
 import { logger, fs } from '@appium/support';
 import { exec } from 'teen_process';
 import * as xcode from 'appium-xcode';
@@ -78,7 +77,10 @@ async function buildWebDriverAgent (xcodeVersion) {
 }
 
 if (isMainModule) {
-  asyncify(buildWebDriverAgent);
+  buildWebDriverAgent().catch((e) => {
+    LOG.error(e);
+    process.exit(1);
+  });
 }
 
 export default buildWebDriverAgent;

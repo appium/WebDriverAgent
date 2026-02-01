@@ -2,7 +2,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import axios from 'axios';
-import { asyncify } from 'asyncbox';
 import { logger, fs, mkdirp, net } from '@appium/support';
 import _ from 'lodash';
 import B from 'bluebird';
@@ -62,7 +61,10 @@ async function fetchPrebuiltWebDriverAgentAssets () {
 }
 
 if (isMainModule) {
-  asyncify(fetchPrebuiltWebDriverAgentAssets);
+  fetchPrebuiltWebDriverAgentAssets().catch((e) => {
+    log.error(e);
+    process.exit(1);
+  });
 }
 
 export default fetchPrebuiltWebDriverAgentAssets;
