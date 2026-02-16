@@ -1,15 +1,15 @@
-import { fs, plist } from '@appium/support';
-import { exec, SubProcess } from 'teen_process';
-import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { log } from './logger';
+import {fs, plist} from '@appium/support';
+import {exec, SubProcess} from 'teen_process';
+import path, {dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {log} from './logger';
 import _ from 'lodash';
-import { PLATFORM_NAME_TVOS } from './constants';
+import {PLATFORM_NAME_TVOS} from './constants';
 import B from 'bluebird';
 import _fs from 'node:fs';
-import { waitForCondition } from 'asyncbox';
-import { arch } from 'node:os';
-import type { DeviceInfo } from './types';
+import {waitForCondition} from 'asyncbox';
+import {arch} from 'node:os';
+import type {DeviceInfo} from './types';
 
 // Get current filename - works in both CommonJS and ESM
 const currentFilename =
@@ -25,14 +25,16 @@ const currentDirname = dirname(currentFilename);
  * @returns {string} The full path to module root
  * @throws {Error} If the current module root folder cannot be determined
  */
-const getModuleRoot = _.memoize(function getModuleRoot (): string {
+const getModuleRoot = _.memoize(function getModuleRoot(): string {
   let currentDir = currentDirname;
   let isAtFsRoot = false;
   while (!isAtFsRoot) {
     const manifestPath = path.join(currentDir, 'package.json');
     try {
-      if (_fs.existsSync(manifestPath) &&
-          JSON.parse(_fs.readFileSync(manifestPath, 'utf8')).name === 'appium-webdriveragent') {
+      if (
+        _fs.existsSync(manifestPath) &&
+        JSON.parse(_fs.readFileSync(manifestPath, 'utf8')).name === 'appium-webdriveragent'
+      ) {
         return currentDir;
       }
     } catch {}
@@ -44,7 +46,7 @@ const getModuleRoot = _.memoize(function getModuleRoot (): string {
 
 export const BOOTSTRAP_PATH = getModuleRoot();
 
-export async function killAppUsingPattern (pgrepPattern: string): Promise<void> {
+export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
     const matchedPids = await getPIDsUsingPattern(pgrepPattern);
@@ -62,20 +64,22 @@ export async function killAppUsingPattern (pgrepPattern: string): Promise<void> 
       return;
     }
     try {
-      await waitForCondition(async () => {
-        const pidCheckPromises = matchedPids
-          .map((pid) => exec('kill', ['-0', pid])
-            // the process is still alive
-            .then(() => false)
-            // the process is dead
-            .catch(() => true)
+      await waitForCondition(
+        async () => {
+          const pidCheckPromises = matchedPids.map((pid) =>
+            exec('kill', ['-0', pid])
+              // the process is still alive
+              .then(() => false)
+              // the process is dead
+              .catch(() => true),
           );
-        return (await B.all(pidCheckPromises))
-          .every((x) => x === true);
-      }, {
-        waitMs: 1000,
-        intervalMs: 100,
-      });
+          return (await B.all(pidCheckPromises)).every((x) => x === true);
+        },
+        {
+          waitMs: 1000,
+          intervalMs: 100,
+        },
+      );
       return;
     } catch {
       // try the next signal
@@ -88,11 +92,14 @@ export async function killAppUsingPattern (pgrepPattern: string): Promise<void> 
  * @param platformName The name of the platorm
  * @returns Return true if the platformName is tvOS
  */
-export function isTvOS (platformName: string): boolean {
+export function isTvOS(platformName: string): boolean {
   return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
 }
 
-export async function setRealDeviceSecurity (keychainPath: string, keychainPassword: string): Promise<void> {
+export async function setRealDeviceSecurity(
+  keychainPath: string,
+  keychainPassword: string,
+): Promise<void> {
   log.debug('Setting security for iOS device');
   await exec('security', ['-v', 'list-keychains', '-s', keychainPath]);
   await exec('security', ['-v', 'unlock-keychain', '-p', keychainPassword, keychainPath]);
@@ -124,11 +131,15 @@ export interface XctestrunFileArgs {
  * or WebDriverAgentRunner_iphonesimulator${sdkVersion|platformVersion}-x86_64.xctestrun for simulator is not found @bootstrapPath,
  * then it will throw a file not found exception
  */
-export async function setXctestrunFile (args: XctestrunFileArgs): Promise<string> {
+export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string> {
   const {deviceInfo, sdkVersion, bootstrapPath, wdaRemotePort, wdaBindingIP} = args;
   const xctestrunFilePath = await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
   const xctestRunContent = await plist.parsePlistFile(xctestrunFilePath);
-  const updateWDAPort = getAdditionalRunContent(deviceInfo.platformName, wdaRemotePort, wdaBindingIP);
+  const updateWDAPort = getAdditionalRunContent(
+    deviceInfo.platformName,
+    wdaRemotePort,
+    wdaBindingIP,
+  );
   const newXctestRunContent = _.merge(xctestRunContent, updateWDAPort);
   await plist.updatePlistFile(xctestrunFilePath, newXctestRunContent, true);
 
@@ -142,16 +153,20 @@ export async function setXctestrunFile (args: XctestrunFileArgs): Promise<string
  * @param wdaBindingIP - The IP address to bind to. If not given, it binds to all interfaces.
  * @return returns a runner object which has USE_PORT and optionally USE_IP
  */
-export function getAdditionalRunContent (platformName: string, wdaRemotePort: number | string, wdaBindingIP?: string): Record<string, any> {
+export function getAdditionalRunContent(
+  platformName: string,
+  wdaRemotePort: number | string,
+  wdaBindingIP?: string,
+): Record<string, any> {
   const runner = `WebDriverAgentRunner${isTvOS(platformName) ? '_tvOS' : ''}`;
   return {
     [runner]: {
       EnvironmentVariables: {
         // USE_PORT must be 'string'
         USE_PORT: `${wdaRemotePort}`,
-        ...(wdaBindingIP ? { USE_IP: wdaBindingIP } : {}),
-      }
-    }
+        ...(wdaBindingIP ? {USE_IP: wdaBindingIP} : {}),
+      },
+    },
   };
 }
 
@@ -161,7 +176,11 @@ export function getAdditionalRunContent (platformName: string, wdaRemotePort: nu
  * @param sdkVersion - The Xcode SDK version of OS.
  * @param bootstrapPath - The folder path containing xctestrun file.
  */
-export async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: string, bootstrapPath: string): Promise<string> {
+export async function getXctestrunFilePath(
+  deviceInfo: DeviceInfo,
+  sdkVersion: string,
+  bootstrapPath: string,
+): Promise<string> {
   // First try the SDK path, for Xcode 10 (at least)
   const sdkBased: [string, string] = [
     path.resolve(bootstrapPath, `${deviceInfo.udid}_${sdkVersion}.xctestrun`),
@@ -178,7 +197,10 @@ export async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: 
       log.info(`Using '${filePath}' as xctestrun file`);
       return filePath;
     }
-    const originalXctestrunFile = path.resolve(bootstrapPath, getXctestrunFileName(deviceInfo, version));
+    const originalXctestrunFile = path.resolve(
+      bootstrapPath,
+      getXctestrunFileName(deviceInfo, version),
+    );
     if (await fs.exists(originalXctestrunFile)) {
       // If this is first time run for given device, then first generate xctestrun file for device.
       // We need to have a xctestrun file **per device** because we cant not have same wda port for all devices.
@@ -190,11 +212,10 @@ export async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: 
 
   throw new Error(
     `If you are using 'useXctestrunFile' capability then you ` +
-    `need to have a xctestrun file (expected: ` +
-    `'${path.resolve(bootstrapPath, getXctestrunFileName(deviceInfo, sdkVersion))}')`
+      `need to have a xctestrun file (expected: ` +
+      `'${path.resolve(bootstrapPath, getXctestrunFileName(deviceInfo, sdkVersion))}')`,
   );
 }
-
 
 /**
  * Return the name of xctestrun file
@@ -202,7 +223,7 @@ export async function getXctestrunFilePath (deviceInfo: DeviceInfo, sdkVersion: 
  * @param version - The Xcode SDK version of OS.
  * @return returns xctestrunFilePath for given device
  */
-export function getXctestrunFileName (deviceInfo: DeviceInfo, version: string): string {
+export function getXctestrunFileName(deviceInfo: DeviceInfo, version: string): string {
   const archSuffix = deviceInfo.isRealDevice
     ? `os${version}-arm64`
     : `simulator${version}-${arch() === 'arm64' ? 'arm64' : 'x86_64'}`;
@@ -212,7 +233,10 @@ export function getXctestrunFileName (deviceInfo: DeviceInfo, version: string): 
 /**
  * Ensures the process is killed after the timeout
  */
-export async function killProcess (name: string, proc: SubProcess | null | undefined): Promise<void> {
+export async function killProcess(
+  name: string,
+  proc: SubProcess | null | undefined,
+): Promise<void> {
   if (!proc || !proc.isRunning) {
     return;
   }
@@ -245,16 +269,16 @@ export async function killProcess (name: string, proc: SubProcess | null | undef
 /**
  * Generate a random integer in range [low, high). `low` is inclusive and `high` is exclusive.
  */
-export function randomInt (low: number, high: number): number {
+export function randomInt(low: number, high: number): number {
   return Math.floor(Math.random() * (high - low) + low);
 }
 
 /**
  * Retrieves WDA upgrade timestamp. The manifest only gets modified on package upgrade.
  */
-export async function getWDAUpgradeTimestamp (): Promise<number | null> {
+export async function getWDAUpgradeTimestamp(): Promise<number | null> {
   const packageManifest = path.resolve(getModuleRoot(), 'package.json');
-  if (!await fs.exists(packageManifest)) {
+  if (!(await fs.exists(packageManifest))) {
     return null;
   }
   const {mtime} = await fs.stat(packageManifest);
@@ -264,7 +288,7 @@ export async function getWDAUpgradeTimestamp (): Promise<number | null> {
 /**
  * Kills running XCTest processes for the particular device.
  */
-export async function resetTestProcesses (udid: string, isSimulator: boolean): Promise<void> {
+export async function resetTestProcesses(udid: string, isSimulator: boolean): Promise<void> {
   const processPatterns = [`xcodebuild.*${udid}`];
   if (isSimulator) {
     processPatterns.push(`${udid}.*XCTRunner`);
@@ -288,12 +312,15 @@ export async function resetTestProcesses (udid: string, isSimulator: boolean): P
  *                                    from the resulting array.
  * @returns - the list of matched process ids.
  */
-export async function getPIDsListeningOnPort (port: string | number, filteringFunc: ((cmdline: string) => boolean | Promise<boolean>) | null = null): Promise<string[]> {
+export async function getPIDsListeningOnPort(
+  port: string | number,
+  filteringFunc: ((cmdline: string) => boolean | Promise<boolean>) | null = null,
+): Promise<string[]> {
   const result: string[] = [];
   try {
     // This only works since Mac OS X El Capitan
     const {stdout} = await exec('lsof', ['-ti', `tcp:${port}`]);
-    result.push(...(stdout.trim().split(/\n+/)));
+    result.push(...stdout.trim().split(/\n+/));
   } catch (e: any) {
     if (e.code !== 1) {
       // code 1 means no processes. Other errors need reporting
@@ -322,21 +349,22 @@ export async function getPIDsListeningOnPort (port: string | number, filteringFu
 
 // Private functions
 
-async function getPIDsUsingPattern (pattern: string): Promise<string[]> {
+async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
   const args = [
     '-if', // case insensitive, full cmdline match
     pattern,
   ];
   try {
     const {stdout} = await exec('pgrep', args);
-    return stdout.split(/\s+/)
+    return stdout
+      .split(/\s+/)
       .map((x) => parseInt(x, 10))
       .filter(_.isInteger)
       .map((x) => `${x}`);
   } catch (err: any) {
-    log.debug(`'pgrep ${args.join(' ')}' didn't detect any matching processes. Return code: ${err.code}`);
+    log.debug(
+      `'pgrep ${args.join(' ')}' didn't detect any matching processes. Return code: ${err.code}`,
+    );
     return [];
   }
 }
-
-

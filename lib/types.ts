@@ -21,7 +21,12 @@ export interface WDASettings {
   defaultAlertAction?: 'accept' | 'dismiss';
   acceptAlertButtonSelector?: string;
   dismissAlertButtonSelector?: string;
-  screenshotOrientation?: 'auto' | 'portrait' | 'portraitUpsideDown' | 'landscapeRight' | 'landscapeLeft'
+  screenshotOrientation?:
+    | 'auto'
+    | 'portrait'
+    | 'portraitUpsideDown'
+    | 'landscapeRight'
+    | 'landscapeLeft';
   waitForIdleTimeout?: number;
   animationCoolOffTimeout?: number;
   maxTypingFrequency?: number;

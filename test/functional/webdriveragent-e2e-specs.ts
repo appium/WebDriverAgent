@@ -1,14 +1,14 @@
-import chai, { expect } from 'chai';
+import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { Simctl } from 'node-simctl';
-import { getSimulator } from 'appium-ios-simulator';
-import { killAllSimulators, shutdownSimulator } from './helpers/simulator';
-import { SubProcess } from 'teen_process';
-import { PLATFORM_VERSION, DEVICE_NAME } from './desired';
-import { retryInterval } from 'asyncbox';
-import { WebDriverAgent } from '../../lib/webdriveragent';
+import {Simctl} from 'node-simctl';
+import {getSimulator} from 'appium-ios-simulator';
+import {killAllSimulators, shutdownSimulator} from './helpers/simulator';
+import {SubProcess} from 'teen_process';
+import {PLATFORM_VERSION, DEVICE_NAME} from './desired';
+import {retryInterval} from 'asyncbox';
+import {WebDriverAgent} from '../../lib/webdriveragent';
 import axios from 'axios';
-import type { AppleDevice } from '../../lib/types';
+import type {AppleDevice} from '../../lib/types';
 
 chai.use(chaiAsPromised);
 
@@ -19,7 +19,7 @@ const SIM_STARTUP_TIMEOUT_MS = MOCHA_TIMEOUT_MS;
 
 const testUrl = 'http://localhost:8100/tree';
 
-function getStartOpts (device: AppleDevice) {
+function getStartOpts(device: AppleDevice) {
   return {
     device,
     platformVersion: PLATFORM_VERSION,
@@ -31,7 +31,6 @@ function getStartOpts (device: AppleDevice) {
   };
 }
 
-
 describe('WebDriverAgent', function () {
   this.timeout(MOCHA_TIMEOUT_MS);
 
@@ -41,11 +40,7 @@ describe('WebDriverAgent', function () {
 
     before(async function () {
       simctl = new Simctl();
-      simctl.udid = await simctl.createDevice(
-        SIM_DEVICE_NAME,
-        DEVICE_NAME,
-        PLATFORM_VERSION
-      );
+      simctl.udid = await simctl.createDevice(SIM_DEVICE_NAME, DEVICE_NAME, PLATFORM_VERSION);
       device = await getSimulator(simctl.udid);
 
       // Prebuild WDA
@@ -108,12 +103,10 @@ describe('WebDriverAgent', function () {
           return new SubProcess('xcodebuild', args, {detached: true});
         };
 
-        await expect(agent.launch('sessionId'))
-          .to.be.rejectedWith('xcodebuild failed');
+        await expect(agent.launch('sessionId')).to.be.rejectedWith('xcodebuild failed');
 
         await agent.quit();
       });
     });
   });
 });
-

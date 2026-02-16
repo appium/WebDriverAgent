@@ -1,27 +1,33 @@
-import { waitForCondition } from 'asyncbox';
+import {waitForCondition} from 'asyncbox';
 import _ from 'lodash';
 import path from 'node:path';
 import url from 'node:url';
 import B from 'bluebird';
-import { JWProxy } from '@appium/base-driver';
-import { fs, util, plist } from '@appium/support';
-import type { AppiumLogger, StringRecord } from '@appium/types';
-import { log as defaultLogger } from './logger';
-import { NoSessionProxy } from './no-session-proxy';
+import {JWProxy} from '@appium/base-driver';
+import {fs, util, plist} from '@appium/support';
+import type {AppiumLogger, StringRecord} from '@appium/types';
+import {log as defaultLogger} from './logger';
+import {NoSessionProxy} from './no-session-proxy';
 import {
-  getWDAUpgradeTimestamp, resetTestProcesses, getPIDsListeningOnPort, BOOTSTRAP_PATH
+  getWDAUpgradeTimestamp,
+  resetTestProcesses,
+  getPIDsListeningOnPort,
+  BOOTSTRAP_PATH,
 } from './utils';
 import {XcodeBuild} from './xcodebuild';
 import AsyncLock from 'async-lock';
-import { exec } from 'teen_process';
-import { bundleWDASim } from './check-dependencies';
+import {exec} from 'teen_process';
+import {bundleWDASim} from './check-dependencies';
 import {
-  WDA_RUNNER_BUNDLE_ID, WDA_RUNNER_APP,
-  WDA_BASE_URL, WDA_UPGRADE_TIMESTAMP_PATH, DEFAULT_TEST_BUNDLE_SUFFIX
+  WDA_RUNNER_BUNDLE_ID,
+  WDA_RUNNER_APP,
+  WDA_BASE_URL,
+  WDA_UPGRADE_TIMESTAMP_PATH,
+  DEFAULT_TEST_BUNDLE_SUFFIX,
 } from './constants';
 import {Xctest} from 'appium-ios-device';
 import {strongbox} from '@appium/strongbox';
-import type { WebDriverAgentArgs, AppleDevice } from './types';
+import type {WebDriverAgentArgs, AppleDevice} from './types';
 
 const WDA_LAUNCH_TIMEOUT = 60 * 1000;
 const WDA_AGENT_PORT = 8100;
@@ -69,7 +75,7 @@ export class WebDriverAgent {
    * @param args - Configuration arguments for WebDriverAgent
    * @param log - Optional logger instance
    */
-  constructor (args: WebDriverAgentArgs, log: AppiumLogger | null = null) {
+  constructor(args: WebDriverAgentArgs, log: AppiumLogger | null = null) {
     this.args = _.clone(args);
     this.log = log ?? defaultLogger;
 
@@ -84,8 +90,8 @@ export class WebDriverAgent {
     this.setWDAPaths(args.bootstrapPath, args.agentPath);
 
     this.wdaLocalPort = args.wdaLocalPort;
-    this.wdaRemotePort = ((this.isRealDevice ? args.wdaRemotePort : null) ?? args.wdaLocalPort)
-      || WDA_AGENT_PORT;
+    this.wdaRemotePort =
+      ((this.isRealDevice ? args.wdaRemotePort : null) ?? args.wdaLocalPort) || WDA_AGENT_PORT;
     this.wdaBaseUrl = args.wdaBaseUrl || WDA_BASE_URL;
     this.wdaBindingIP = args.wdaBindingIP;
     this.prebuildWDA = args.prebuildWDA;
@@ -112,40 +118,44 @@ export class WebDriverAgent {
     this.updatedWDABundleIdSuffix = args.updatedWDABundleIdSuffix ?? DEFAULT_TEST_BUNDLE_SUFFIX;
 
     this._xcodebuild = this.canSkipXcodebuild
-    ? null
-    : new XcodeBuild(this.device, {
-        platformVersion: this.platformVersion,
-        platformName: this.platformName,
-        iosSdkVersion: this.iosSdkVersion,
-        agentPath: this.agentPath,
-        bootstrapPath: this.bootstrapPath,
-        realDevice: this.isRealDevice,
-        showXcodeLog: args.showXcodeLog,
-        xcodeConfigFile: args.xcodeConfigFile,
-        xcodeOrgId: args.xcodeOrgId,
-        xcodeSigningId: args.xcodeSigningId,
-        keychainPath: args.keychainPath,
-        keychainPassword: args.keychainPassword,
-        useSimpleBuildTest: args.useSimpleBuildTest,
-        usePrebuiltWDA: args.usePrebuiltWDA,
-        updatedWDABundleId: this.updatedWDABundleId,
-        launchTimeout: this.wdaLaunchTimeout,
-        wdaRemotePort: this.wdaRemotePort,
-        wdaBindingIP: this.wdaBindingIP,
-        useXctestrunFile: this.useXctestrunFile,
-        derivedDataPath: args.derivedDataPath,
-        mjpegServerPort: this.mjpegServerPort,
-        allowProvisioningDeviceRegistration: args.allowProvisioningDeviceRegistration,
-        resultBundlePath: args.resultBundlePath,
-        resultBundleVersion: args.resultBundleVersion,
-      }, this.log);
+      ? null
+      : new XcodeBuild(
+          this.device,
+          {
+            platformVersion: this.platformVersion,
+            platformName: this.platformName,
+            iosSdkVersion: this.iosSdkVersion,
+            agentPath: this.agentPath,
+            bootstrapPath: this.bootstrapPath,
+            realDevice: this.isRealDevice,
+            showXcodeLog: args.showXcodeLog,
+            xcodeConfigFile: args.xcodeConfigFile,
+            xcodeOrgId: args.xcodeOrgId,
+            xcodeSigningId: args.xcodeSigningId,
+            keychainPath: args.keychainPath,
+            keychainPassword: args.keychainPassword,
+            useSimpleBuildTest: args.useSimpleBuildTest,
+            usePrebuiltWDA: args.usePrebuiltWDA,
+            updatedWDABundleId: this.updatedWDABundleId,
+            launchTimeout: this.wdaLaunchTimeout,
+            wdaRemotePort: this.wdaRemotePort,
+            wdaBindingIP: this.wdaBindingIP,
+            useXctestrunFile: this.useXctestrunFile,
+            derivedDataPath: args.derivedDataPath,
+            mjpegServerPort: this.mjpegServerPort,
+            allowProvisioningDeviceRegistration: args.allowProvisioningDeviceRegistration,
+            resultBundlePath: args.resultBundlePath,
+            resultBundleVersion: args.resultBundleVersion,
+          },
+          this.log,
+        );
   }
 
   /**
    * Return true if the session does not need xcodebuild.
    * @returns Whether the session needs/has xcodebuild.
    */
-  get canSkipXcodebuild (): boolean {
+  get canSkipXcodebuild(): boolean {
     // Use this.args.webDriverAgentUrl to guarantee
     // the capabilities set gave the `appium:webDriverAgentUrl`.
     return this.usePreinstalledWDA || !!this.args.webDriverAgentUrl;
@@ -156,7 +166,7 @@ export class WebDriverAgent {
    * @returns The XcodeBuild instance
    * @throws Error if xcodebuild is not available
    */
-  get xcodebuild (): XcodeBuild {
+  get xcodebuild(): XcodeBuild {
     if (!this._xcodebuild) {
       throw new Error('xcodebuild is not available');
     }
@@ -171,7 +181,7 @@ export class WebDriverAgent {
    *
    * @returns Bundle ID for Xctest.
    */
-  get bundleIdForXctest (): string {
+  get bundleIdForXctest(): string {
     return `${this.updatedWDABundleId ? this.updatedWDABundleId : WDA_RUNNER_BUNDLE_ID}${this.updatedWDABundleIdSuffix}`;
   }
 
@@ -179,24 +189,33 @@ export class WebDriverAgent {
    * Cleans up obsolete cached processes from previous WDA sessions
    * that are listening on the same port but belong to different devices.
    */
-  async cleanupObsoleteProcesses (): Promise<void> {
-    const obsoletePids = await getPIDsListeningOnPort(this.url.port as string,
-      (cmdLine) => cmdLine.includes('/WebDriverAgentRunner') &&
-        !cmdLine.toLowerCase().includes(this.device.udid.toLowerCase()));
+  async cleanupObsoleteProcesses(): Promise<void> {
+    const obsoletePids = await getPIDsListeningOnPort(
+      this.url.port as string,
+      (cmdLine) =>
+        cmdLine.includes('/WebDriverAgentRunner') &&
+        !cmdLine.toLowerCase().includes(this.device.udid.toLowerCase()),
+    );
 
     if (_.isEmpty(obsoletePids)) {
-      this.log.debug(`No obsolete cached processes from previous WDA sessions ` +
-        `listening on port ${this.url.port} have been found`);
+      this.log.debug(
+        `No obsolete cached processes from previous WDA sessions ` +
+          `listening on port ${this.url.port} have been found`,
+      );
       return;
     }
 
-    this.log.info(`Detected ${obsoletePids.length} obsolete cached process${obsoletePids.length === 1 ? '' : 'es'} ` +
-      `from previous WDA sessions. Cleaning them up`);
+    this.log.info(
+      `Detected ${obsoletePids.length} obsolete cached process${obsoletePids.length === 1 ? '' : 'es'} ` +
+        `from previous WDA sessions. Cleaning them up`,
+    );
     try {
       await exec('kill', obsoletePids);
     } catch (e: any) {
-      this.log.warn(`Failed to kill obsolete cached process${obsoletePids.length === 1 ? '' : 'es'} '${obsoletePids}'. ` +
-        `Original error: ${e.message}`);
+      this.log.warn(
+        `Failed to kill obsolete cached process${obsoletePids.length === 1 ? '' : 'es'} '${obsoletePids}'. ` +
+          `Original error: ${e.message}`,
+      );
     }
   }
 
@@ -204,7 +223,7 @@ export class WebDriverAgent {
    * Gets the base path for the WebDriverAgent URL.
    * @returns The base path (empty string if root path)
    */
-  get basePath (): string {
+  get basePath(): string {
     if (this.url.path === '/') {
       return '';
     }
@@ -232,7 +251,7 @@ export class WebDriverAgent {
    *
    * @param sessionId Launch WDA and establish the session with this sessionId
    */
-  async launch (sessionId: string): Promise<StringRecord | null> {
+  async launch(sessionId: string): Promise<StringRecord | null> {
     if (this.webDriverAgentUrl) {
       this.log.info(`Using provided WebdriverAgent at '${this.webDriverAgentUrl}'`);
       this.url = this.webDriverAgentUrl;
@@ -248,9 +267,11 @@ export class WebDriverAgent {
 
     this.setupProxies(sessionId);
 
-    if (!this.useXctestrunFile && !await fs.exists(this.agentPath)) {
-      throw new Error(`Trying to use WebDriverAgent project at '${this.agentPath}' but the ` +
-                      'file does not exist');
+    if (!this.useXctestrunFile && !(await fs.exists(this.agentPath))) {
+      throw new Error(
+        `Trying to use WebDriverAgent project at '${this.agentPath}' but the ` +
+          'file does not exist',
+      );
     }
 
     // useXctestrunFile and usePrebuiltWDA use existing dependencies
@@ -259,8 +280,10 @@ export class WebDriverAgent {
       this.log.info('Skipped WDA project cleanup according to the provided capabilities');
     } else {
       const synchronizationKey = path.normalize(this.bootstrapPath);
-      await SHARED_RESOURCES_GUARD.acquire(synchronizationKey,
-        async () => await this._cleanupProjectIfFresh());
+      await SHARED_RESOURCES_GUARD.acquire(
+        synchronizationKey,
+        async () => await this._cleanupProjectIfFresh(),
+      );
     }
 
     // We need to provide WDA local port, because it might be occupied
@@ -275,7 +298,7 @@ export class WebDriverAgent {
     if (this.prebuildWDA) {
       await this.xcodebuild.prebuild();
     }
-    return await this.xcodebuild.start() as StringRecord | null;
+    return (await this.xcodebuild.start()) as StringRecord | null;
   }
 
   /**
@@ -283,15 +306,14 @@ export class WebDriverAgent {
    * that required resource files exist.
    * @returns `true` if source is fresh (all required files exist), `false` otherwise
    */
-  async isSourceFresh (): Promise<boolean> {
-    const existsPromises = [
-      'Resources',
-      `Resources${path.sep}WebDriverAgent.bundle`,
-    ].map((subPath) => fs.exists(path.resolve(this.bootstrapPath, subPath)));
+  async isSourceFresh(): Promise<boolean> {
+    const existsPromises = ['Resources', `Resources${path.sep}WebDriverAgent.bundle`].map(
+      (subPath) => fs.exists(path.resolve(this.bootstrapPath, subPath)),
+    );
     return (await B.all(existsPromises)).some((v) => v === false);
   }
 
-  private async parseBundleId (wdaBundlePath: string): Promise<string> {
+  private async parseBundleId(wdaBundlePath: string): Promise<string> {
     const infoPlistPath = path.join(wdaBundlePath, 'Info.plist');
     const infoPlist = await plist.parsePlist(await fs.readFile(infoPlistPath));
     if (!infoPlist.CFBundleIdentifier) {
@@ -300,7 +322,7 @@ export class WebDriverAgent {
     return infoPlist.CFBundleIdentifier as string;
   }
 
-  private async fetchWDABundle (): Promise<string> {
+  private async fetchWDABundle(): Promise<string> {
     if (!this.derivedDataPath) {
       return await bundleWDASim(this.xcodebuild);
     }
@@ -313,7 +335,7 @@ export class WebDriverAgent {
     return wdaBundlePaths[0];
   }
 
-  private setupProxies (sessionId: string): void {
+  private setupProxies(sessionId: string): void {
     const proxyOpts: any = {
       log: this.log,
       server: this.url.hostname ?? undefined,
@@ -338,7 +360,7 @@ export class WebDriverAgent {
    * Stops the WebDriverAgent session and cleans up resources.
    * Handles both preinstalled WDA and xcodebuild-based sessions.
    */
-  async quit (): Promise<void> {
+  async quit(): Promise<void> {
     if (this.usePreinstalledWDA) {
       this.log.info('Stopping the XCTest session');
       if (this.xctestApiClient) {
@@ -357,8 +379,10 @@ export class WebDriverAgent {
         await this.xcodebuild.quit();
       }
     } else {
-      this.log.debug('Do not stop xcodebuild nor XCTest session ' +
-        'since the WDA session is managed by outside this driver.');
+      this.log.debug(
+        'Do not stop xcodebuild nor XCTest session ' +
+          'since the WDA session is managed by outside this driver.',
+      );
     }
 
     if (this.jwproxy) {
@@ -380,7 +404,7 @@ export class WebDriverAgent {
    * builds it from wdaBaseUrl, wdaBindingIP, and wdaLocalPort.
    * @returns The parsed URL object
    */
-  get url (): url.UrlWithStringQuery {
+  get url(): url.UrlWithStringQuery {
     if (!this._url) {
       if (this.webDriverAgentUrl) {
         this._url = url.parse(this.webDriverAgentUrl);
@@ -397,7 +421,7 @@ export class WebDriverAgent {
    * Sets the WebDriverAgent URL.
    * @param _url - The URL string to parse and set
    */
-  set url (_url: string) {
+  set url(_url: string) {
     this._url = url.parse(_url);
   }
 
@@ -405,7 +429,7 @@ export class WebDriverAgent {
    * Gets whether WebDriverAgent has fully started.
    * @returns `true` if WDA has started, `false` otherwise
    */
-  get fullyStarted (): boolean {
+  get fullyStarted(): boolean {
     return this.started;
   }
 
@@ -413,7 +437,7 @@ export class WebDriverAgent {
    * Sets whether WebDriverAgent has fully started.
    * @param started - `true` if WDA has started, `false` otherwise
    */
-  set fullyStarted (started: boolean) {
+  set fullyStarted(started: boolean) {
     this.started = started ?? false;
   }
 
@@ -421,7 +445,7 @@ export class WebDriverAgent {
    * Retrieves the Xcode derived data path for WebDriverAgent.
    * @returns The derived data path, or `undefined` if xcodebuild is skipped
    */
-  async retrieveDerivedDataPath (): Promise<string | undefined> {
+  async retrieveDerivedDataPath(): Promise<string | undefined> {
     if (this.canSkipXcodebuild) {
       return;
     }
@@ -433,53 +457,70 @@ export class WebDriverAgent {
    * Or reuse it if it has the default id without updatedWDABundleId.
    * Uninstall it if the method faces an exception for the above situation.
    */
-  async setupCaching (): Promise<void> {
+  async setupCaching(): Promise<void> {
     const status = await this.getStatus(0);
     if (!status || !status.build) {
       this.log.debug('WDA is currently not running. There is nothing to cache');
       return;
     }
 
-    const {
-      productBundleIdentifier,
-      upgradedAt,
-    } = status.build as any;
+    const {productBundleIdentifier, upgradedAt} = status.build as any;
     // for real device
-    if (util.hasValue(productBundleIdentifier) && util.hasValue(this.updatedWDABundleId) && this.updatedWDABundleId !== productBundleIdentifier) {
-      this.log.info(`Will uninstall running WDA since it has different bundle id. The actual value is '${productBundleIdentifier}'.`);
+    if (
+      util.hasValue(productBundleIdentifier) &&
+      util.hasValue(this.updatedWDABundleId) &&
+      this.updatedWDABundleId !== productBundleIdentifier
+    ) {
+      this.log.info(
+        `Will uninstall running WDA since it has different bundle id. The actual value is '${productBundleIdentifier}'.`,
+      );
       return await this.uninstall();
     }
     // for simulator
-    if (util.hasValue(productBundleIdentifier) && !util.hasValue(this.updatedWDABundleId) && WDA_RUNNER_BUNDLE_ID !== productBundleIdentifier) {
-      this.log.info(`Will uninstall running WDA since its bundle id is not equal to the default value ${WDA_RUNNER_BUNDLE_ID}`);
+    if (
+      util.hasValue(productBundleIdentifier) &&
+      !util.hasValue(this.updatedWDABundleId) &&
+      WDA_RUNNER_BUNDLE_ID !== productBundleIdentifier
+    ) {
+      this.log.info(
+        `Will uninstall running WDA since its bundle id is not equal to the default value ${WDA_RUNNER_BUNDLE_ID}`,
+      );
       return await this.uninstall();
     }
 
     const actualUpgradeTimestamp = await getWDAUpgradeTimestamp();
     this.log.debug(`Upgrade timestamp of the currently bundled WDA: ${actualUpgradeTimestamp}`);
     this.log.debug(`Upgrade timestamp of the WDA on the device: ${upgradedAt}`);
-    if (actualUpgradeTimestamp && upgradedAt && _.toLower(`${actualUpgradeTimestamp}`) !== _.toLower(`${upgradedAt}`)) {
-      this.log.info('Will uninstall running WDA since it has different version in comparison to the one ' +
-        `which is bundled with appium-xcuitest-driver module (${actualUpgradeTimestamp} != ${upgradedAt})`);
+    if (
+      actualUpgradeTimestamp &&
+      upgradedAt &&
+      _.toLower(`${actualUpgradeTimestamp}`) !== _.toLower(`${upgradedAt}`)
+    ) {
+      this.log.info(
+        'Will uninstall running WDA since it has different version in comparison to the one ' +
+          `which is bundled with appium-xcuitest-driver module (${actualUpgradeTimestamp} != ${upgradedAt})`,
+      );
       return await this.uninstall();
     }
 
     const message = util.hasValue(productBundleIdentifier)
       ? `Will reuse previously cached WDA instance at '${this.url.href}' with '${productBundleIdentifier}'`
       : `Will reuse previously cached WDA instance at '${this.url.href}'`;
-    this.log.info(`${message}. Set the wdaLocalPort capability to a value different from ${this.url.port} if this is an undesired behavior.`);
+    this.log.info(
+      `${message}. Set the wdaLocalPort capability to a value different from ${this.url.port} if this is an undesired behavior.`,
+    );
     this.webDriverAgentUrl = this.url.href;
   }
 
   /**
    * Quit and uninstall running WDA.
    */
-  async quitAndUninstall (): Promise<void> {
+  async quitAndUninstall(): Promise<void> {
     await this.quit();
     await this.uninstall();
   }
 
-  private setWDAPaths (bootstrapPath?: string, agentPath?: string): void {
+  private setWDAPaths(bootstrapPath?: string, agentPath?: string): void {
     // allow the user to specify a place for WDA. This is undocumented and
     // only here for the purposes of testing development of WDA
     this.bootstrapPath = bootstrapPath || BOOTSTRAP_PATH;
@@ -490,7 +531,7 @@ export class WebDriverAgent {
     this.log.info(`Using WDA agent: '${this.agentPath}'`);
   }
 
-  private async isRunning (): Promise<boolean> {
+  private async isRunning(): Promise<boolean> {
     return !!(await this.getStatus());
   }
 
@@ -515,7 +556,7 @@ export class WebDriverAgent {
    *
    * @param timeoutMs If zero or negative, returns immediately. Otherwise, waits up to timeoutMs.
    */
-  private async getStatus (timeoutMs: number = 0): Promise<StringRecord | null> {
+  private async getStatus(timeoutMs: number = 0): Promise<StringRecord | null> {
     const noSessionProxy = new NoSessionProxy({
       server: this.url.hostname ?? undefined,
       port: parseInt(this.url.port ?? '', 10) || undefined,
@@ -523,13 +564,16 @@ export class WebDriverAgent {
       timeout: 3000,
     });
 
-    const sendGetStatus = async () => await noSessionProxy.command('/status', 'GET') as StringRecord;
+    const sendGetStatus = async () =>
+      (await noSessionProxy.command('/status', 'GET')) as StringRecord;
 
     if (_.isNil(timeoutMs) || timeoutMs <= 0) {
       try {
         return await sendGetStatus();
       } catch (err: any) {
-        this.log.debug(`WDA is not listening at '${this.url.href}'. Original error:: ${err.message}`);
+        this.log.debug(
+          `WDA is not listening at '${this.url.href}'. Original error:: ${err.message}`,
+        );
         return null;
       }
     }
@@ -537,21 +581,26 @@ export class WebDriverAgent {
     let lastError: any = null;
     let status: StringRecord | null = null;
     try {
-      await waitForCondition(async () => {
-        try {
-          status = await sendGetStatus();
-          return true;
-        } catch (err) {
-          lastError = err;
-        }
-        return false;
-      }, {
-        waitMs: timeoutMs,
-        intervalMs: 300,
-      });
+      await waitForCondition(
+        async () => {
+          try {
+            status = await sendGetStatus();
+            return true;
+          } catch (err) {
+            lastError = err;
+          }
+          return false;
+        },
+        {
+          waitMs: timeoutMs,
+          intervalMs: 300,
+        },
+      );
     } catch (err: any) {
-      this.log.debug(`Failed to get the status endpoint in ${timeoutMs} ms. ` +
-        `The last error while accessing ${this.url.href}: ${lastError}. Original error:: ${err.message}.`);
+      this.log.debug(
+        `Failed to get the status endpoint in ${timeoutMs} ms. ` +
+          `The last error while accessing ${this.url.href}: ${lastError}. Original error:: ${err.message}.`,
+      );
       throw new Error(`WDA was not ready in ${timeoutMs} ms.`);
     }
     return status;
@@ -562,7 +611,7 @@ export class WebDriverAgent {
    * Over Xcode 11, multiple WDA can be in the device since Xcode 11 generates different WDA.
    * Appium does not expect multiple WDAs are running on a device.
    */
-  private async uninstall (): Promise<void> {
+  private async uninstall(): Promise<void> {
     try {
       const bundleIds = await this.device.getUserInstalledBundleIdsByBundleName(WDA_CF_BUNDLE_NAME);
       if (_.isEmpty(bundleIds)) {
@@ -576,17 +625,21 @@ export class WebDriverAgent {
       }
     } catch (e: any) {
       this.log.debug(e);
-      this.log.warn(`WebDriverAgent uninstall failed. Perhaps, it is already uninstalled? ` +
-        `Original error: ${e.message}`);
+      this.log.warn(
+        `WebDriverAgent uninstall failed. Perhaps, it is already uninstalled? ` +
+          `Original error: ${e.message}`,
+      );
     }
   }
 
-  private async _cleanupProjectIfFresh (): Promise<void> {
+  private async _cleanupProjectIfFresh(): Promise<void> {
     if (this.canSkipXcodebuild) {
       return;
     }
 
-    const packageInfo = JSON.parse(await fs.readFile(path.join(BOOTSTRAP_PATH, 'package.json'), 'utf8'));
+    const packageInfo = JSON.parse(
+      await fs.readFile(path.join(BOOTSTRAP_PATH, 'package.json'), 'utf8'),
+    );
     const box = strongbox(packageInfo.name);
     let boxItem = box.getItem(RECENT_MODULE_VERSION_ITEM_NAME);
     if (!boxItem) {
@@ -602,7 +655,9 @@ export class WebDriverAgent {
           return;
         }
       } else {
-        this.log.info('There is no need to perform the project cleanup. A fresh install has been detected');
+        this.log.info(
+          'There is no need to perform the project cleanup. A fresh install has been detected',
+        );
         try {
           await box.createItemWithValue(RECENT_MODULE_VERSION_ITEM_NAME, packageInfo.version);
         } catch (e: any) {
@@ -617,7 +672,9 @@ export class WebDriverAgent {
       recentModuleVersion = util.coerceVersion(recentModuleVersion, true);
     } catch (e: any) {
       this.log.warn(`The persisted module version string has been damaged: ${e.message}`);
-      this.log.info(`Updating it to '${packageInfo.version}' assuming the project clenup is not needed`);
+      this.log.info(
+        `Updating it to '${packageInfo.version}' assuming the project clenup is not needed`,
+      );
       await boxItem.write(packageInfo.version);
       return;
     }
@@ -625,14 +682,14 @@ export class WebDriverAgent {
     if (util.compareVersions(recentModuleVersion, '>=', packageInfo.version)) {
       this.log.info(
         `WebDriverAgent does not need a cleanup. The project sources are up to date ` +
-        `(${recentModuleVersion} >= ${packageInfo.version})`
+          `(${recentModuleVersion} >= ${packageInfo.version})`,
       );
       return;
     }
 
     this.log.info(
       `Cleaning up the WebDriverAgent project after the module upgrade has happened ` +
-      `(${recentModuleVersion} < ${packageInfo.version})`
+        `(${recentModuleVersion} < ${packageInfo.version})`,
     );
     try {
       await this.xcodebuild.cleanProject();
@@ -653,12 +710,12 @@ export class WebDriverAgent {
    *
    * @param opts launching WDA with devicectl command options.
    */
-  private async _launchViaDevicectl(opts: {env?: Record<string, string | number>} = {}): Promise<void> {
+  private async _launchViaDevicectl(
+    opts: {env?: Record<string, string | number>} = {},
+  ): Promise<void> {
     const {env} = opts;
 
-    await this.device.devicectl.launchApp(
-      this.bundleIdForXctest, { env, terminateExisting: true }
-    );
+    await this.device.devicectl.launchApp(this.bundleIdForXctest, {env, terminateExisting: true});
   }
 
   /**
@@ -668,7 +725,7 @@ export class WebDriverAgent {
   private async launchWithPreinstalledWDA(sessionId: string): Promise<StringRecord | null> {
     const xctestEnv: Record<string, string | number> = {
       USE_PORT: this.wdaLocalPort || WDA_AGENT_PORT,
-      WDA_PRODUCT_BUNDLE_IDENTIFIER: this.bundleIdForXctest
+      WDA_PRODUCT_BUNDLE_IDENTIFIER: this.bundleIdForXctest,
     };
     if (this.mjpegServerPort) {
       xctestEnv.MJPEG_SERVER_PORT = this.mjpegServerPort;
@@ -684,16 +741,14 @@ export class WebDriverAgent {
       if (this.platformVersion && util.compareVersions(this.platformVersion, '>=', '17.0')) {
         await this._launchViaDevicectl({env: xctestEnv});
       } else {
-        this.xctestApiClient = new Xctest(this.device.udid, this.bundleIdForXctest, null, {env: xctestEnv});
+        this.xctestApiClient = new Xctest(this.device.udid, this.bundleIdForXctest, null, {
+          env: xctestEnv,
+        });
         await this.xctestApiClient.start();
       }
     } else {
       await this.device.simctl.exec('launch', {
-        args: [
-          '--terminate-running-process',
-          this.device.udid,
-          this.bundleIdForXctest,
-        ],
+        args: ['--terminate-running-process', this.device.udid, this.bundleIdForXctest],
         env: xctestEnv,
       });
     }
@@ -705,8 +760,8 @@ export class WebDriverAgent {
     } catch {
       throw new Error(
         `Failed to start the preinstalled WebDriverAgent in ${this.wdaLaunchTimeout} ms. ` +
-        `The WebDriverAgent might not be properly built or the device might be locked. ` +
-        `The 'appium:wdaLaunchTimeout' capability modifies the timeout.`
+          `The WebDriverAgent might not be properly built or the device might be locked. ` +
+          `The 'appium:wdaLaunchTimeout' capability modifies the timeout.`,
       );
     }
     this.started = true;

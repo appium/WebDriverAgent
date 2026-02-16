@@ -15,4 +15,3 @@ export const SDK_SIMULATOR = 'iphonesimulator';
 export const SDK_DEVICE = 'iphoneos';
 
 export const WDA_UPGRADE_TIMESTAMP_PATH = path.join('.appium', 'webdriveragent', 'upgrade.time');
-
