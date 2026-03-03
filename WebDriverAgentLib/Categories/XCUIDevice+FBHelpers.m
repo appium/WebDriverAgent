@@ -297,14 +297,14 @@ static bool fb_isLocked;
   }
   [supportedButtonNames addObject:@"home"];
 
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"16.0")) {
-    if ([self hasHardwareButton:XCUIDeviceButtonAction]) {
-      if ([buttonName.lowercaseString isEqualToString:@"action"]) {
-        dstButton = XCUIDeviceButtonAction;
-      }
-      [supportedButtonNames addObject:@"action"];
+  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+  if (@available(iOS 16.0, *) && [self hasHardwareButton:XCUIDeviceButtonAction]) {
+    if ([buttonName.lowercaseString isEqualToString:@"action"]) {
+      dstButton = XCUIDeviceButtonAction;
     }
+    [supportedButtonNames addObject:@"action"];
   }
+  #endif
 #if !TARGET_OS_SIMULATOR
   if ([buttonName.lowercaseString isEqualToString:@"volumeup"]) {
     dstButton = XCUIDeviceButtonVolumeUp;
@@ -316,14 +316,14 @@ static bool fb_isLocked;
   }
   [supportedButtonNames addObject:@"volumeDown"];
 
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"16.0")) {
-    if ([self hasHardwareButton:XCUIDeviceButtonCamera]) {
-      if ([buttonName.lowercaseString isEqualToString:@"camera"]) {
-        dstButton = XCUIDeviceButtonCamera;
-      }
-      [supportedButtonNames addObject:@"camera"];
+  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+  if (@available(iOS 16.0, *) && [self hasHardwareButton:XCUIDeviceButtonCamera]) {
+    if ([buttonName.lowercaseString isEqualToString:@"camera"]) {
+      dstButton = XCUIDeviceButtonCamera;
     }
+    [supportedButtonNames addObject:@"camera"];
   }
+  #endif
 #endif
 
   if (dstButton == 0) {
