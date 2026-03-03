@@ -91,7 +91,7 @@ jobs:
     - run: npm run test
       name: Run test
     - name: Download all artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         path: ${{ runner.temp }}/artifacts-temp
     - name: Move artifacts to root for release
