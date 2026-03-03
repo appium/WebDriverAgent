@@ -268,6 +268,43 @@ static bool fb_isLocked;
   }
   [supportedButtonNames addObject:@"select"];
 
+  // since tvOS 14.3
+  if ([buttonName.lowercaseString isEqualToString:@"pageup"]) {
+    remoteButton = XCUIRemoteButtonPageUp;
+  }
+  [supportedButtonNames addObject:@"pageUp"];
+
+  // since tvOS 14.3
+  if ([buttonName.lowercaseString isEqualToString:@"pagedown"]) {
+    remoteButton = XCUIRemoteButtonPageDown;
+  }
+  [supportedButtonNames addObject:@"pageDown"];
+
+  // since tvOS 14.3
+  if ([buttonName.lowercaseString isEqualToString:@"guide"]) {
+    remoteButton = XCUIRemoteButtonGuide;
+  }
+  [supportedButtonNames addObject:@"guide"];
+
+  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+  if (@available(tvOS 18.1, *)) {
+    if ([buttonName.lowercaseString isEqualToString:@"fourcolors"]) {
+      remoteButton = XCUIRemoteButtonFourColors;
+    }
+    [supportedButtonNames addObject:@"fourColors"];
+
+    if ([buttonName.lowercaseString isEqualToString:@"onetwothree"]) {
+      remoteButton = XCUIRemoteButtonOneTwoThree;
+    }
+    [supportedButtonNames addObject:@"oneTwoThree"];
+
+    if ([buttonName.lowercaseString isEqualToString:@"tvprovider"]) {
+      remoteButton = XCUIRemoteButtonTVProvider;
+    }
+    [supportedButtonNames addObject:@"tvProvider"];
+  }
+  #endif
+
   if (remoteButton == -1) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
