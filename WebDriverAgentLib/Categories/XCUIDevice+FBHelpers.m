@@ -296,15 +296,34 @@ static bool fb_isLocked;
     dstButton = XCUIDeviceButtonHome;
   }
   [supportedButtonNames addObject:@"home"];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"16.0")) {
+    if ([self hasHardwareButton:XCUIDeviceButtonAction]) {
+      if ([buttonName.lowercaseString isEqualToString:@"action"]) {
+        dstButton = XCUIDeviceButtonAction;
+      }
+      [supportedButtonNames addObject:@"action"];
+    }
+  }
 #if !TARGET_OS_SIMULATOR
   if ([buttonName.lowercaseString isEqualToString:@"volumeup"]) {
     dstButton = XCUIDeviceButtonVolumeUp;
   }
+  [supportedButtonNames addObject:@"volumeUp"];
+
   if ([buttonName.lowercaseString isEqualToString:@"volumedown"]) {
     dstButton = XCUIDeviceButtonVolumeDown;
   }
-  [supportedButtonNames addObject:@"volumeUp"];
   [supportedButtonNames addObject:@"volumeDown"];
+
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"16.0")) {
+    if ([self hasHardwareButton:XCUIDeviceButtonCamera]) {
+      if ([buttonName.lowercaseString isEqualToString:@"camera"]) {
+        dstButton = XCUIDeviceButtonCamera;
+      }
+      [supportedButtonNames addObject:@"camera"];
+    }
+  }
 #endif
 
   if (dstButton == 0) {
