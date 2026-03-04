@@ -225,20 +225,22 @@ static bool fb_isLocked;
   }
 #endif
   
-#if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
   if (@available(iOS 16.0, *)) {
+#if defined(XCUIDeviceButtonAction)
     if ([buttonNameLC isEqualToString:@"action"]) {
       return [self hasHardwareButton:XCUIDeviceButtonAction];
     }
+#endif
+#if defined(XCUIDeviceButtonCamera)
 #if !TARGET_OS_SIMULATOR
     if ([buttonNameLC isEqualToString:@"camera"]) {
       return [self hasHardwareButton:XCUIDeviceButtonCamera];
     }
 #endif
+#endif
   }
 #endif
-#endif
-  
+
   return NO;
 }
 
@@ -338,11 +340,11 @@ static bool fb_isLocked;
   if ([buttonNameLC isEqualToString:@"home"]) {
     dstButton = XCUIDeviceButtonHome;
   }
-  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+#if defined(XCUIDeviceButtonAction)
   if ([buttonNameLC isEqualToString:@"action"] && [self fb_hasButton:@"action"]) {
     dstButton = XCUIDeviceButtonAction;
   }
-  #endif
+#endif
 #if !TARGET_OS_SIMULATOR
   if ([buttonNameLC isEqualToString:@"volumeup"]) {
     dstButton = XCUIDeviceButtonVolumeUp;
@@ -350,11 +352,11 @@ static bool fb_isLocked;
   if ([buttonNameLC isEqualToString:@"volumedown"]) {
     dstButton = XCUIDeviceButtonVolumeDown;
   }
-  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+#if defined(XCUIDeviceButtonCamera)
   if ([buttonNameLC isEqualToString:@"camera"] && [self fb_hasButton:@"camera"]) {
     dstButton = XCUIDeviceButtonCamera;
   }
-  #endif
+#endif
 #endif
 
   [self fb_addButtonsIfAvailable:@[@"home", @"action", @"volumeUp", @"volumeDown", @"camera"]
