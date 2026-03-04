@@ -26,6 +26,41 @@
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
 
+NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary *buttons = [NSMutableDictionary dictionary];
+    
+    // Home button is always available
+    buttons[@"home"] = @(XCUIDeviceButtonHome);
+    
+#if !TARGET_OS_TV
+#if !TARGET_OS_SIMULATOR
+    buttons[@"volumeup"] = @(XCUIDeviceButtonVolumeUp);
+    buttons[@"volumedown"] = @(XCUIDeviceButtonVolumeDown);
+#endif
+    
+    if (@available(iOS 16.0, *)) {
+#if defined(XCUIDeviceButtonAction)
+      if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonAction]) {
+        buttons[@"action"] = @(XCUIDeviceButtonAction);
+      }
+#endif
+#if defined(XCUIDeviceButtonCamera)
+#if !TARGET_OS_SIMULATOR
+      if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonCamera]) {
+        buttons[@"camera"] = @(XCUIDeviceButtonCamera);
+      }
+#endif
+#endif
+    }
+#endif
+    result = [buttons copy];
+  });
+  return result;
+}
+
 @implementation XCUIDevice (FBHelpers)
 
 static bool fb_isLocked;
@@ -212,36 +247,7 @@ static bool fb_isLocked;
 
 - (BOOL)fb_hasButton:(NSString *)buttonName
 {
-  NSString *buttonNameLC = buttonName.lowercaseString;
-  
-  if ([buttonNameLC isEqualToString:@"home"]) {
-    return YES;
-  }
-  
-#if !TARGET_OS_TV
-#if !TARGET_OS_SIMULATOR
-  if ([buttonNameLC isEqualToString:@"volumeup"] || [buttonNameLC isEqualToString:@"volumedown"]) {
-    return YES;
-  }
-#endif
-  
-  if (@available(iOS 16.0, *)) {
-#if defined(XCUIDeviceButtonAction)
-    if ([buttonNameLC isEqualToString:@"action"]) {
-      return [self hasHardwareButton:XCUIDeviceButtonAction];
-    }
-#endif
-#if defined(XCUIDeviceButtonCamera)
-#if !TARGET_OS_SIMULATOR
-    if ([buttonNameLC isEqualToString:@"camera"]) {
-      return [self hasHardwareButton:XCUIDeviceButtonCamera];
-    }
-#endif
-#endif
-  }
-#endif
-
-  return NO;
+  return availableButtonNames()[buttonName.lowercaseString] != nil;
 }
 
 - (BOOL)fb_pressButton:(NSString *)buttonName
@@ -304,7 +310,7 @@ static bool fb_isLocked;
 
   if (remoteButton == -1) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
+             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, supportedButtonNames]
             buildError:error];
   }
 
@@ -324,40 +330,15 @@ static bool fb_isLocked;
 - (BOOL)fb_pressButton:(NSString *)buttonName
                  error:(NSError **)error
 {
-  NSString *buttonNameLC = buttonName.lowercaseString;
-  NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
-  XCUIDeviceButton dstButton = 0;
-  if ([buttonNameLC isEqualToString:@"home"]) {
-    dstButton = XCUIDeviceButtonHome;
-  }
-#if defined(XCUIDeviceButtonAction)
-  if ([buttonNameLC isEqualToString:@"action"] && [self fb_hasButton:@"action"]) {
-    dstButton = XCUIDeviceButtonAction;
-  }
-#endif
-#if !TARGET_OS_SIMULATOR
-  if ([buttonNameLC isEqualToString:@"volumeup"]) {
-    dstButton = XCUIDeviceButtonVolumeUp;
-  }
-  if ([buttonNameLC isEqualToString:@"volumedown"]) {
-    dstButton = XCUIDeviceButtonVolumeDown;
-  }
-#if defined(XCUIDeviceButtonCamera)
-  if ([buttonNameLC isEqualToString:@"camera"] && [self fb_hasButton:@"camera"]) {
-    dstButton = XCUIDeviceButtonCamera;
-  }
-#endif
-#endif
-
-  [self fb_addButtonsIfAvailable:@[@"home", @"action", @"volumeUp", @"volumeDown", @"camera"]
-          toSupportedButtonNames:supportedButtonNames];
-
-  if (dstButton == 0) {
+  NSDictionary<NSString *, NSNumber *> *availableButtons = availableButtonNames();
+  NSNumber *buttonValue = availableButtons[buttonName.lowercaseString];
+  
+  if (!buttonValue) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The button '%@' is unknown. Only the following button names are supported: %@", buttonName, supportedButtonNames]
+             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, availableButtons.allKeys]
             buildError:error];
   }
-  [self pressButton:dstButton];
+  [self pressButton:(XCUIDeviceButton)[buttonValue unsignedIntegerValue]];
   return YES;
 }
 #endif
@@ -429,15 +410,5 @@ static bool fb_isLocked;
   return [FBXCTestDaemonsProxy clearSimulatedLocation:error];
 }
 #endif
-
-- (void)fb_addButtonsIfAvailable:(NSArray<NSString *> *)buttonNames
-          toSupportedButtonNames:(NSMutableArray<NSString *> *)supportedButtonNames
-{
-  for (NSString *buttonName in buttonNames) {
-    if ([self fb_hasButton:buttonName]) {
-      [supportedButtonNames addObject:buttonName];
-    }
-  }
-}
 
 @end
