@@ -210,6 +210,48 @@ static bool fb_isLocked;
   }
 }
 
+- (BOOL)fb_hasButton:(NSString *)buttonName
+{
+  NSString *buttonNameLC = buttonName.lowercaseString;
+  
+  if ([buttonNameLC isEqualToString:@"home"]) {
+    return YES;
+  }
+  
+#if !TARGET_OS_TV
+#if !TARGET_OS_SIMULATOR
+  if ([buttonNameLC isEqualToString:@"volumeup"] || [buttonNameLC isEqualToString:@"volumedown"]) {
+    return YES;
+  }
+#endif
+  
+#if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
+  if (@available(iOS 16.0, *)) {
+    if ([buttonNameLC isEqualToString:@"action"]) {
+      return [self hasHardwareButton:XCUIDeviceButtonAction];
+    }
+#if !TARGET_OS_SIMULATOR
+    if ([buttonNameLC isEqualToString:@"camera"]) {
+      return [self hasHardwareButton:XCUIDeviceButtonCamera];
+    }
+#endif
+  }
+#endif
+#endif
+  
+  return NO;
+}
+
+- (void)fb_addButtonsIfAvailable:(NSArray<NSString *> *)buttonNames
+          toSupportedButtonNames:(NSMutableArray<NSString *> *)supportedButtonNames
+{
+  for (NSString *buttonName in buttonNames) {
+    if ([self fb_hasButton:buttonName]) {
+      [supportedButtonNames addObject:buttonName];
+    }
+  }
+}
+
 - (BOOL)fb_pressButton:(NSString *)buttonName
            forDuration:(nullable NSNumber *)duration
                  error:(NSError **)error
@@ -290,41 +332,33 @@ static bool fb_isLocked;
 - (BOOL)fb_pressButton:(NSString *)buttonName
                  error:(NSError **)error
 {
+  NSString *buttonNameLC = buttonName.lowercaseString;
   NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
   XCUIDeviceButton dstButton = 0;
-  if ([buttonName.lowercaseString isEqualToString:@"home"]) {
+  if ([buttonNameLC isEqualToString:@"home"]) {
     dstButton = XCUIDeviceButtonHome;
   }
-  [supportedButtonNames addObject:@"home"];
-
   #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
-  if (@available(iOS 16.0, *) && [self hasHardwareButton:XCUIDeviceButtonAction]) {
-    if ([buttonName.lowercaseString isEqualToString:@"action"]) {
-      dstButton = XCUIDeviceButtonAction;
-    }
-    [supportedButtonNames addObject:@"action"];
+  if ([buttonNameLC isEqualToString:@"action"] && [self fb_hasButton:@"action"]) {
+    dstButton = XCUIDeviceButtonAction;
   }
   #endif
 #if !TARGET_OS_SIMULATOR
-  if ([buttonName.lowercaseString isEqualToString:@"volumeup"]) {
+  if ([buttonNameLC isEqualToString:@"volumeup"]) {
     dstButton = XCUIDeviceButtonVolumeUp;
   }
-  [supportedButtonNames addObject:@"volumeUp"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"volumedown"]) {
+  if ([buttonNameLC isEqualToString:@"volumedown"]) {
     dstButton = XCUIDeviceButtonVolumeDown;
   }
-  [supportedButtonNames addObject:@"volumeDown"];
-
   #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
-  if (@available(iOS 16.0, *) && [self hasHardwareButton:XCUIDeviceButtonCamera]) {
-    if ([buttonName.lowercaseString isEqualToString:@"camera"]) {
-      dstButton = XCUIDeviceButtonCamera;
-    }
-    [supportedButtonNames addObject:@"camera"];
+  if ([buttonNameLC isEqualToString:@"camera"] && [self fb_hasButton:@"camera"]) {
+    dstButton = XCUIDeviceButtonCamera;
   }
   #endif
 #endif
+
+  [self fb_addButtonsIfAvailable:@[@"home", @"action", @"volumeUp", @"volumeDown", @"camera"]
+          toSupportedButtonNames:supportedButtonNames];
 
   if (dstButton == 0) {
     return [[[FBErrorBuilder builder]

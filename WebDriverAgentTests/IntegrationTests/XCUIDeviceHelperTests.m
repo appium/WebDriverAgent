@@ -186,12 +186,10 @@
   XCTAssertNil(error);
 }
 
-#if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
 - (void)testPressingDeviceSpecificButton
 {
   NSError *error;
-  BOOL hasActionButton = @available(iOS 16.0, *)
-    && [XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonAction];
+  BOOL hasActionButton = [XCUIDevice.sharedDevice fb_hasButton:@"action"];
   BOOL didPressButton = [XCUIDevice.sharedDevice fb_pressButton:@"action"
                                                      forDuration:nil
                                                            error:&error];
@@ -203,7 +201,6 @@
     XCTAssertNotNil(error);
   }
 }
-#endif
 
 - (void)testPressingSupportedButtonNumber
 {
