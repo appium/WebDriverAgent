@@ -96,14 +96,6 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 - (BOOL)fb_openUrl:(NSString *)url withApplication:(NSString *)bundleId error:(NSError **)error;
 
 /**
- Checks if the device has a specific hardware button available.
-
- @param buttonName The name of the button to check (e.g., "home", "volumeUp", "volumeDown", "action", "camera")
- @return YES if the button is available on the device, otherwise NO
- */
-- (BOOL)fb_hasButton:(NSString *)buttonName;
-
-/**
  Presses the corresponding hardware button on the device with duration.
 
  @param buttonName One of the supported button names: volumeUp (real devices only), volumeDown (real device only),
