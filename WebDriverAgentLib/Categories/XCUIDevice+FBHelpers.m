@@ -244,16 +244,6 @@ static bool fb_isLocked;
   return NO;
 }
 
-- (void)fb_addButtonsIfAvailable:(NSArray<NSString *> *)buttonNames
-          toSupportedButtonNames:(NSMutableArray<NSString *> *)supportedButtonNames
-{
-  for (NSString *buttonName in buttonNames) {
-    if ([self fb_hasButton:buttonName]) {
-      [supportedButtonNames addObject:buttonName];
-    }
-  }
-}
-
 - (BOOL)fb_pressButton:(NSString *)buttonName
            forDuration:(nullable NSNumber *)duration
                  error:(NSError **)error
@@ -439,5 +429,15 @@ static bool fb_isLocked;
   return [FBXCTestDaemonsProxy clearSimulatedLocation:error];
 }
 #endif
+
+- (void)fb_addButtonsIfAvailable:(NSArray<NSString *> *)buttonNames
+          toSupportedButtonNames:(NSMutableArray<NSString *> *)supportedButtonNames
+{
+  for (NSString *buttonName in buttonNames) {
+    if ([self fb_hasButton:buttonName]) {
+      [supportedButtonNames addObject:buttonName];
+    }
+  }
+}
 
 @end
