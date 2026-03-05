@@ -186,6 +186,22 @@
   XCTAssertNil(error);
 }
 
+- (void)testPressingDeviceSpecificButton
+{
+  NSError *error;
+  BOOL hasActionButton = [XCUIDevice.sharedDevice fb_hasButton:@"action"];
+  BOOL didPressButton = [XCUIDevice.sharedDevice fb_pressButton:@"action"
+                                                     forDuration:nil
+                                                           error:&error];
+  if (hasActionButton) {
+    XCTAssertTrue(didPressButton);
+    XCTAssertNil(error);
+  } else {
+    XCTAssertFalse(didPressButton);
+    XCTAssertNotNil(error);
+  }
+}
+
 - (void)testPressingSupportedButtonNumber
 {
   NSError *error;

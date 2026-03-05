@@ -1,3 +1,9 @@
+## [11.2.0](https://github.com/appium/WebDriverAgent/compare/v11.1.7...v11.2.0) (2026-03-04)
+
+### Features
+
+* add `action` and `camera` values for `mobile: pressButton` ([#1115](https://github.com/appium/WebDriverAgent/issues/1115)) ([3df0284](https://github.com/appium/WebDriverAgent/commit/3df0284d741f8b4a36a9e12e130ecf0711b60366))
+
 ## [11.1.7](https://github.com/appium/WebDriverAgent/compare/v11.1.6...v11.1.7) (2026-03-03)
 
 ### Miscellaneous Chores
