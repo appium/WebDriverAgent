@@ -41,26 +41,18 @@ NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
     buttons[@"menu"] = @(XCUIRemoteButtonMenu);                 // 5
     buttons[@"playpause"] = @(XCUIRemoteButtonPlayPause);       // 6
     buttons[@"home"] = @(XCUIRemoteButtonHome);                 // 7
-#if defined(XCUIRemoteButtonPageUp) // Xcode 15.3+
+#if __clang_major__ >= 15 // Xcode 15+
     buttons[@"pageup"] = @(XCUIRemoteButtonPageUp);             // 9
-#endif
-#if defined(XCUIRemoteButtonPageDown) // Xcode 15.3+
     buttons[@"pagedown"] = @(XCUIRemoteButtonPageDown);         // 10
-#endif
-#if defined(XCUIRemoteButtonGuide) // Xcode 15.3+
     buttons[@"guide"] = @(XCUIRemoteButtonGuide);               // 11
 #endif
+#if __clang_major__ >= 17 // likely Xcode 16.3+
     if (@available(tvOS 18.1, *)) {
-#if defined(XCUIRemoteButtonFourColors) // likely Xcode 16.3+
       buttons[@"fourcolors"] = @(XCUIRemoteButtonFourColors);   // 12
-#endif
-#if defined(XCUIRemoteButtonOneTwoThree) // likely Xcode 16.3+
       buttons[@"onetwothree"] = @(XCUIRemoteButtonOneTwoThree); // 13
-#endif
-#if defined(XCUIRemoteButtonTVProvider) // likely Xcode 16.3+
       buttons[@"tvprovider"] = @(XCUIRemoteButtonTVProvider);   // 14
-#endif
     }
+#endif
     result = [buttons copy];
   });
   return result;
@@ -77,17 +69,15 @@ NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
     buttons[@"volumedown"] = @(XCUIDeviceButtonVolumeDown); // 3
 #endif
     if (@available(iOS 16.0, *)) {
-#if defined(XCUIDeviceButtonAction) // likely Xcode 15+
+#if __clang_major__ >= 15 // likely Xcode 15+
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonAction]) {
         buttons[@"action"] = @(XCUIDeviceButtonAction);     // 4
       }
 #endif
-#if defined(XCUIDeviceButtonCamera) // likely Xcode 16+
-#if !TARGET_OS_SIMULATOR
+#if (!TARGET_OS_SIMULATOR && __clang_major__ >= 16) // likely Xcode 16+
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonCamera]) {
         buttons[@"camera"] = @(XCUIDeviceButtonCamera);
       }
-#endif
 #endif
     }
     result = [buttons copy];
