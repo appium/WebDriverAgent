@@ -26,28 +26,63 @@
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
 
+#if TARGET_OS_TV
 NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
   static dispatch_once_t onceToken;
   static NSDictionary *result;
   dispatch_once(&onceToken, ^{
     NSMutableDictionary *buttons = [NSMutableDictionary dictionary];
-    
-    // Home button is always available
-    buttons[@"home"] = @(XCUIDeviceButtonHome);
-    
-#if !TARGET_OS_TV
-#if !TARGET_OS_SIMULATOR
-    buttons[@"volumeup"] = @(XCUIDeviceButtonVolumeUp);
-    buttons[@"volumedown"] = @(XCUIDeviceButtonVolumeDown);
+    // https://developer.apple.com/design/human-interface-guidelines/remotes
+    buttons[@"up"] = @(XCUIRemoteButtonUp);                     // 0
+    buttons[@"down"] = @(XCUIRemoteButtonDown);                 // 1
+    buttons[@"left"] = @(XCUIRemoteButtonLeft);                 // 2
+    buttons[@"right"] = @(XCUIRemoteButtonRight);               // 3
+    buttons[@"select"] = @(XCUIRemoteButtonSelect);             // 4
+    buttons[@"menu"] = @(XCUIRemoteButtonMenu);                 // 5
+    buttons[@"playpause"] = @(XCUIRemoteButtonPlayPause);       // 6
+    buttons[@"home"] = @(XCUIRemoteButtonHome);                 // 7
+#if defined(XCUIRemoteButtonPageUp) // Xcode 15.3+
+    buttons[@"pageup"] = @(XCUIRemoteButtonPageUp);             // 9
 #endif
-    
+#if defined(XCUIRemoteButtonPageDown) // Xcode 15.3+
+    buttons[@"pagedown"] = @(XCUIRemoteButtonPageDown);         // 10
+#endif
+#if defined(XCUIRemoteButtonGuide) // Xcode 15.3+
+    buttons[@"guide"] = @(XCUIRemoteButtonGuide);               // 11
+#endif
+    if (@available(tvOS 18.1, *)) {
+#if defined(XCUIRemoteButtonFourColors) // likely Xcode 16.3+
+      buttons[@"fourcolors"] = @(XCUIRemoteButtonFourColors);   // 12
+#endif
+#if defined(XCUIRemoteButtonOneTwoThree) // likely Xcode 16.3+
+      buttons[@"onetwothree"] = @(XCUIRemoteButtonOneTwoThree); // 13
+#endif
+#if defined(XCUIRemoteButtonTVProvider) // likely Xcode 16.3+
+      buttons[@"tvprovider"] = @(XCUIRemoteButtonTVProvider);   // 14
+#endif
+    }
+    result = [buttons copy];
+  });
+  return result;
+}
+#else
+NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary *buttons = [NSMutableDictionary dictionary];
+    buttons[@"home"] = @(XCUIDeviceButtonHome);             // 1
+#if !TARGET_OS_SIMULATOR
+    buttons[@"volumeup"] = @(XCUIDeviceButtonVolumeUp);     // 2
+    buttons[@"volumedown"] = @(XCUIDeviceButtonVolumeDown); // 3
+#endif
     if (@available(iOS 16.0, *)) {
-#if defined(XCUIDeviceButtonAction)
+#if defined(XCUIDeviceButtonAction) // likely Xcode 15+
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonAction]) {
-        buttons[@"action"] = @(XCUIDeviceButtonAction);
+        buttons[@"action"] = @(XCUIDeviceButtonAction);     // 4
       }
 #endif
-#if defined(XCUIDeviceButtonCamera)
+#if defined(XCUIDeviceButtonCamera) // likely Xcode 16+
 #if !TARGET_OS_SIMULATOR
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonCamera]) {
         buttons[@"camera"] = @(XCUIDeviceButtonCamera);
@@ -55,11 +90,11 @@ NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
 #endif
 #endif
     }
-#endif
     result = [buttons copy];
   });
   return result;
 }
+#endif
 
 @implementation XCUIDevice (FBHelpers)
 
@@ -257,108 +292,22 @@ static bool fb_isLocked;
 #if !TARGET_OS_TV
   return [self fb_pressButton:buttonName error:error];
 #else
-  NSMutableArray<NSString *> *supportedButtonNames = [NSMutableArray array];
-  NSInteger remoteButton = -1; // no remote button
-  if ([buttonName.lowercaseString isEqualToString:@"home"]) {
-    //  XCUIRemoteButtonHome        = 7
-    remoteButton = XCUIRemoteButtonHome;
-  }
-  [supportedButtonNames addObject:@"home"];
 
-  // https://developer.apple.com/design/human-interface-guidelines/tvos/remote-and-controllers/remote/
-  if ([buttonName.lowercaseString isEqualToString:@"up"]) {
-    //  XCUIRemoteButtonUp          = 0,
-    remoteButton = XCUIRemoteButtonUp;
-  }
-  [supportedButtonNames addObject:@"up"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"down"]) {
-    //  XCUIRemoteButtonDown        = 1,
-    remoteButton = XCUIRemoteButtonDown;
-  }
-  [supportedButtonNames addObject:@"down"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"left"]) {
-    //  XCUIRemoteButtonLeft        = 2,
-    remoteButton = XCUIRemoteButtonLeft;
-  }
-  [supportedButtonNames addObject:@"left"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"right"]) {
-    //  XCUIRemoteButtonRight       = 3,
-    remoteButton = XCUIRemoteButtonRight;
-  }
-  [supportedButtonNames addObject:@"right"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"menu"]) {
-    //  XCUIRemoteButtonMenu        = 5,
-    remoteButton = XCUIRemoteButtonMenu;
-  }
-  [supportedButtonNames addObject:@"menu"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"playpause"]) {
-    //  XCUIRemoteButtonPlayPause   = 6,
-    remoteButton = XCUIRemoteButtonPlayPause;
-  }
-  [supportedButtonNames addObject:@"playpause"];
-
-  if ([buttonName.lowercaseString isEqualToString:@"select"]) {
-    //  XCUIRemoteButtonSelect      = 4,
-    remoteButton = XCUIRemoteButtonSelect;
-  }
-  [supportedButtonNames addObject:@"select"];
-
-  // since tvOS 14.3
-  if ([buttonName.lowercaseString isEqualToString:@"pageup"]) {
-    remoteButton = XCUIRemoteButtonPageUp;
-  }
-  [supportedButtonNames addObject:@"pageUp"];
-
-  // since tvOS 14.3
-  if ([buttonName.lowercaseString isEqualToString:@"pagedown"]) {
-    remoteButton = XCUIRemoteButtonPageDown;
-  }
-  [supportedButtonNames addObject:@"pageDown"];
-
-  // since tvOS 14.3
-  if ([buttonName.lowercaseString isEqualToString:@"guide"]) {
-    remoteButton = XCUIRemoteButtonGuide;
-  }
-  [supportedButtonNames addObject:@"guide"];
-
-  #if __clang_major__ >= 17 || (__clang_major__ == 16 && __clang_minor__ >= 3)
-  if (@available(tvOS 18.1, *)) {
-    if ([buttonName.lowercaseString isEqualToString:@"fourcolors"]) {
-      remoteButton = XCUIRemoteButtonFourColors;
-    }
-    [supportedButtonNames addObject:@"fourColors"];
-
-    if ([buttonName.lowercaseString isEqualToString:@"onetwothree"]) {
-      remoteButton = XCUIRemoteButtonOneTwoThree;
-    }
-    [supportedButtonNames addObject:@"oneTwoThree"];
-
-    if ([buttonName.lowercaseString isEqualToString:@"tvprovider"]) {
-      remoteButton = XCUIRemoteButtonTVProvider;
-    }
-    [supportedButtonNames addObject:@"tvProvider"];
-  }
-  #endif
-
-  if (remoteButton == -1) {
+  NSDictionary<NSString *, NSNumber *> *availableButtons = availableButtonNames();
+  NSNumber *buttonValue = availableButtons[buttonName.lowercaseString];
+  
+  if (!buttonValue) {
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, supportedButtonNames]
+             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, availableButtons.allKeys]
             buildError:error];
   }
-
   if (duration) {
-    // https://developer.apple.com/documentation/xctest/xcuiremote/1627475-pressbutton
-    [[XCUIRemote sharedRemote] pressButton:remoteButton forDuration:duration.doubleValue];
+    // https://developer.apple.com/documentation/xcuiautomation/xcuiremote/press(_:forduration:)
+    [[XCUIRemote sharedRemote] pressButton:(XCUIRemoteButton)[buttonValue unsignedIntegerValue] forDuration:duration.doubleValue];
   } else {
-    // https://developer.apple.com/documentation/xctest/xcuiremote/1627476-pressbutton
-    [[XCUIRemote sharedRemote] pressButton:remoteButton];
+    // https://developer.apple.com/documentation/xcuiautomation/xcuiremote/press(_:)
+    [[XCUIRemote sharedRemote] pressButton:(XCUIRemoteButton)[buttonValue unsignedIntegerValue]];
   }
-
   return YES;
 #endif
 }
