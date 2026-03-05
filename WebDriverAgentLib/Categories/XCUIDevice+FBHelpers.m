@@ -27,7 +27,7 @@ static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
 
 #if TARGET_OS_TV
-NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
+NSDictionary<NSString *, NSNumber *> *fb_availableButtonNames(void) {
   static dispatch_once_t onceToken;
   static NSDictionary *result;
   dispatch_once(&onceToken, ^{
@@ -58,7 +58,7 @@ NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
   return result;
 }
 #else
-NSDictionary<NSString *, NSNumber *> *availableButtonNames(void) {
+NSDictionary<NSString *, NSNumber *> *fb_availableButtonNames(void) {
   static dispatch_once_t onceToken;
   static NSDictionary *result;
   dispatch_once(&onceToken, ^{
@@ -272,7 +272,7 @@ static bool fb_isLocked;
 
 - (BOOL)fb_hasButton:(NSString *)buttonName
 {
-  return availableButtonNames()[buttonName.lowercaseString] != nil;
+  return fb_availableButtonNames()[buttonName.lowercaseString] != nil;
 }
 
 - (BOOL)fb_pressButton:(NSString *)buttonName
@@ -283,12 +283,13 @@ static bool fb_isLocked;
   return [self fb_pressButton:buttonName error:error];
 #else
 
-  NSDictionary<NSString *, NSNumber *> *availableButtons = availableButtonNames();
+  NSDictionary<NSString *, NSNumber *> *availableButtons = fb_availableButtonNames();
   NSNumber *buttonValue = availableButtons[buttonName.lowercaseString];
   
   if (!buttonValue) {
+    NSArray *sortedKeys = [availableButtons.allKeys sortedArrayUsingSelector:@selector(compare:)];
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, availableButtons.allKeys]
+             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, sortedKeys]
             buildError:error];
   }
   if (duration) {
@@ -306,12 +307,13 @@ static bool fb_isLocked;
 - (BOOL)fb_pressButton:(NSString *)buttonName
                  error:(NSError **)error
 {
-  NSDictionary<NSString *, NSNumber *> *availableButtons = availableButtonNames();
+  NSDictionary<NSString *, NSNumber *> *availableButtons = fb_availableButtonNames();
   NSNumber *buttonValue = availableButtons[buttonName.lowercaseString];
   
   if (!buttonValue) {
+    NSArray *sortedKeys = [availableButtons.allKeys sortedArrayUsingSelector:@selector(compare:)];
     return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, availableButtons.allKeys]
+             withDescriptionFormat:@"The button '%@' is not supported. The device under test only supports the following buttons: %@", buttonName, sortedKeys]
             buildError:error];
   }
   [self pressButton:(XCUIDeviceButton)[buttonValue unsignedIntegerValue]];
