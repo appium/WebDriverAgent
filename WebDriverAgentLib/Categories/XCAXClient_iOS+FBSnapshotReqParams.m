@@ -38,6 +38,9 @@ void FBSetCustomParameterForElementSnapshot (NSString *name, id value)
 
 void FBRemoveCustomParameterForElementSnapshot (NSString *name)
 {
+  if (name.length == 0 || customRequestParameters == nil) {
+    return;
+  }
   [customRequestParameters removeObjectForKey:name];
 }
 
@@ -86,3 +89,4 @@ static id swizzledSnapshotParameters(id self, SEL _cmd)
 #pragma clang diagnostic pop
 
 @end
+
