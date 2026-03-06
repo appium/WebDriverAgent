@@ -208,16 +208,18 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (int)snapshotMaxDepth;
 
 /**
- Sets maximum element children for traversing elements tree in each snapshot while requesting XCElementSnapshot.
- Used to set maxChildren value in a dictionary provided by XCAXClient_iOS's method defaultParams.
- The original XCAXClient_iOS maxChildren value is set to INT_MAX.
+ Sets the maximum number of element children to traverse in each snapshot
+ while requesting XCElementSnapshot.
+ Used to set the `maxChildren` value in a dictionary provided by
+ XCAXClient_iOS's `defaultParameters` method.
+ The original XCAXClient_iOS `maxChildren` value is `INT_MAX`.
 
  @param maxChildren The number of maximum element children for traversing elements tree
  */
 + (void)setSnapshotMaxChildren:(int)maxChildren;
 
 /**
-  @return The number of maximum depth for traversing elements tree
+  @return The maximum number of element children for traversing elements tree
  */
 + (int)snapshotMaxChildren;
 
