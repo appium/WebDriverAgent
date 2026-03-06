@@ -38,9 +38,7 @@ void FBSetCustomParameterForElementSnapshot (NSString *name, id value)
 
 void FBRemoveCustomParameterForElementSnapshot (NSString *name)
 {
-  if (customRequestParameters && [customRequestParameters objectForKey:name]) {
-      [customRequestParameters removeObjectForKey:name];
-  }
+  [customRequestParameters removeObjectForKey:name];
 }
 
 id FBGetCustomParameterForElementSnapshot (NSString *name)
