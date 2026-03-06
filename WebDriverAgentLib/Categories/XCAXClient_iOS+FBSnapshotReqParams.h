@@ -12,9 +12,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const FBSnapshotMaxChildrenKey;
 extern NSString *const FBSnapshotMaxDepthKey;
 
 void FBSetCustomParameterForElementSnapshot (NSString* name, id value);
+void FBRemoveCustomParameterForElementSnapshot (NSString* name);
 
 id __nullable FBGetCustomParameterForElementSnapshot (NSString *name);
 

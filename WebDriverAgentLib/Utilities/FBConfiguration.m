@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+#import <limits.h>
+
 #import "FBConfiguration.h"
 
 #import "AXSettings.h"
@@ -385,6 +387,17 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey) intValue];
 }
 
+
++ (void)setSnapshotMaxChildren:(int)maxChildren
+{
+  FBSetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey, @(maxChildren));
+}
+
++ (int)snapshotMaxChildren
+{
+  return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey) intValue];
+}
+
 + (void)setShouldRespectSystemAlerts:(BOOL)value
 {
   FBShouldRespectSystemAlerts = value;
@@ -541,6 +554,7 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   FBAnimationCoolOffTimeout = 2.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
+  FBRemoveCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey);
   FBUseClearTextShortcut = YES;
   FBLimitXpathContextScope = YES;
 #if !TARGET_OS_TV

@@ -19,6 +19,7 @@
   @"maxDepth" : (int)2147483647
  */
 NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
+NSString *const FBSnapshotMaxChildrenKey = @"maxChildren";
 
 static id (*original_defaultParameters)(id, SEL);
 static id (*original_snapshotParameters)(id, SEL);
@@ -33,6 +34,13 @@ void FBSetCustomParameterForElementSnapshot (NSString *name, id value)
     customRequestParameters = [NSMutableDictionary new];
   });
   customRequestParameters[name] = value;
+}
+
+void FBRemoveCustomParameterForElementSnapshot (NSString *name)
+{
+  if (customRequestParameters && [customRequestParameters objectForKey:name]) {
+      [customRequestParameters removeObjectForKey:name];
+  }
 }
 
 id FBGetCustomParameterForElementSnapshot (NSString *name)
