@@ -15,7 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FBSnapshotMaxChildrenKey;
 extern NSString *const FBSnapshotMaxDepthKey;
 
+/**
+ * Sets or overrides a custom snapshot request parameter by name.
+ */
 void FBSetCustomParameterForElementSnapshot (NSString* name, id value);
+
+/**
+ * Removes a previously configured custom snapshot request parameter by name.
+ */
 void FBRemoveCustomParameterForElementSnapshot (NSString* name);
 
 id __nullable FBGetCustomParameterForElementSnapshot (NSString *name);

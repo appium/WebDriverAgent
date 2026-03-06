@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#import <limits.h>
-
 #import "FBConfiguration.h"
 
 #import "AXSettings.h"
