@@ -385,7 +385,6 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey) intValue];
 }
 
-
 + (void)setSnapshotMaxChildren:(int)maxChildren
 {
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey, @(maxChildren));
