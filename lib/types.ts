@@ -12,6 +12,7 @@ export interface WDASettings {
   keyboardPrediction?: boolean;
   customSnapshotTimeout?: number;
   snapshotMaxDepth?: number;
+  snapshotMaxChildren?: number;
   useFirstMatch?: boolean;
   boundElementsByIndex?: boolean;
   reduceMotion?: boolean;
