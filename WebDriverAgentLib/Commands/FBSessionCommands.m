@@ -337,6 +337,7 @@
       FB_SETTING_KEYBOARD_AUTOCORRECTION: @([FBConfiguration keyboardAutocorrection]),
       FB_SETTING_KEYBOARD_PREDICTION: @([FBConfiguration keyboardPrediction]),
       FB_SETTING_SNAPSHOT_MAX_DEPTH: @([FBConfiguration snapshotMaxDepth]),
+      FB_SETTING_SNAPSHOT_MAX_CHILDREN: @([FBConfiguration snapshotMaxChildren]),
       FB_SETTING_USE_FIRST_MATCH: @([FBConfiguration useFirstMatch]),
       FB_SETTING_WAIT_FOR_IDLE_TIMEOUT: @([FBConfiguration waitForIdleTimeout]),
       FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT: @([FBConfiguration animationCoolOffTimeout]),
@@ -403,6 +404,9 @@
   }
   if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_MAX_DEPTH]) {
     [FBConfiguration setSnapshotMaxDepth:[[settings objectForKey:FB_SETTING_SNAPSHOT_MAX_DEPTH] intValue]];
+  }
+  if (nil != [settings objectForKey:FB_SETTING_SNAPSHOT_MAX_CHILDREN]) {
+    [FBConfiguration setSnapshotMaxChildren:[[settings objectForKey:FB_SETTING_SNAPSHOT_MAX_CHILDREN] intValue]];
   }
   if (nil != [settings objectForKey:FB_SETTING_USE_FIRST_MATCH]) {
     [FBConfiguration setUseFirstMatch:[[settings objectForKey:FB_SETTING_USE_FIRST_MATCH] boolValue]];

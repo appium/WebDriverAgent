@@ -10,6 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const FBSnapshotMaxChildrenKey;
 extern NSString *const FBSnapshotMaxDepthKey;
 
 /**
@@ -205,6 +206,22 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
   @return The number of maximum depth for traversing elements tree
  */
 + (int)snapshotMaxDepth;
+
+/**
+ Sets the maximum number of element children to traverse in each snapshot
+ while requesting XCElementSnapshot.
+ Used to set the `maxChildren` value in a dictionary provided by
+ XCAXClient_iOS's `defaultParameters` method.
+ The original XCAXClient_iOS `maxChildren` value is `INT_MAX`.
+
+ @param maxChildren The number of maximum element children for traversing elements tree
+ */
++ (void)setSnapshotMaxChildren:(int)maxChildren;
+
+/**
+  @return The maximum number of element children for traversing elements tree
+ */
++ (int)snapshotMaxChildren;
 
 /**
  * Whether to use fast search result matching while searching for elements.

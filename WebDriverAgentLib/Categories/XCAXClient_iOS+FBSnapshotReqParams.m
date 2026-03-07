@@ -19,6 +19,7 @@
   @"maxDepth" : (int)2147483647
  */
 NSString *const FBSnapshotMaxDepthKey = @"maxDepth";
+NSString *const FBSnapshotMaxChildrenKey = @"maxChildren";
 
 static id (*original_defaultParameters)(id, SEL);
 static id (*original_snapshotParameters)(id, SEL);
