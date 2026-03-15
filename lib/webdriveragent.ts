@@ -315,11 +315,13 @@ export class WebDriverAgent {
 
   private async parseBundleId(wdaBundlePath: string): Promise<string> {
     const infoPlistPath = path.join(wdaBundlePath, 'Info.plist');
-    const infoPlist = await plist.parsePlist(await fs.readFile(infoPlistPath));
+    const infoPlist = (await plist.parsePlist(await fs.readFile(infoPlistPath))) as {
+      CFBundleIdentifier?: string;
+    };
     if (!infoPlist.CFBundleIdentifier) {
       throw new Error(`Could not find bundle id in '${infoPlistPath}'`);
     }
-    return infoPlist.CFBundleIdentifier as string;
+    return infoPlist.CFBundleIdentifier;
   }
 
   private async fetchWDABundle(): Promise<string> {
