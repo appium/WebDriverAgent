@@ -21,6 +21,8 @@
 
 static const NSUInteger MAX_FPS = 60;
 static const NSTimeInterval FRAME_TIMEOUT = 1.;
+static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
+static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
 
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
@@ -32,6 +34,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 @property (nonatomic, readonly) NSMutableArray<GCDAsyncSocket *> *listeningClients;
 @property (nonatomic, readonly) FBImageProcessor *imageProcessor;
 @property (nonatomic, readonly) long long mainScreenID;
+@property (nonatomic, assign) NSUInteger consecutiveScreenshotFailures;
 
 @end
 
@@ -41,6 +44,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 - (instancetype)init
 {
   if ((self = [super init])) {
+    _consecutiveScreenshotFailures = 0;
     _listeningClients = [NSMutableArray array];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
@@ -91,9 +95,15 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
                                                                         error:&error];
   if (nil == screenshotData) {
     [FBLogger logFmt:@"%@", error.description];
-    [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
+    self.consecutiveScreenshotFailures++;
+    NSTimeInterval backoffSeconds = MIN(FAILURE_BACKOFF_MAX,
+                                        FAILURE_BACKOFF_MIN * (1 << MIN(self.consecutiveScreenshotFailures, 4)));
+    uint64_t backoffInterval = (uint64_t)(backoffSeconds * NSEC_PER_SEC);
+    [self scheduleNextScreenshotWithInterval:backoffInterval timeStarted:timeStarted];
     return;
   }
+
+  self.consecutiveScreenshotFailures = 0;
 
   CGFloat scalingFactor = FBConfiguration.mjpegScalingFactor / 100.0;
   [self.imageProcessor submitImageData:screenshotData
