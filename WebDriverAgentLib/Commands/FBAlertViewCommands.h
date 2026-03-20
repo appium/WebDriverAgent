@@ -14,6 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBAlertViewCommands : NSObject <FBCommandHandler>
 
++ (id<FBResponsePayload>)handleAlertGetTextCommand:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleAlertSetTextCommand:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleAlertAcceptCommand:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleAlertDismissCommand:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleGetAlertButtonsCommand:(FBRouteRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END

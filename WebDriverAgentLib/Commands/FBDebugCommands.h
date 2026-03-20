@@ -14,6 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBDebugCommands : NSObject <FBCommandHandler>
 
++ (id<FBResponsePayload>)handleGetSourceCommand:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleGetAccessibleSourceCommand:(FBRouteRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END

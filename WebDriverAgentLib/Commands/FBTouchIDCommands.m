@@ -17,14 +17,17 @@
 + (NSArray *)routes
 {
   return @[
-    [[FBRoute POST:@"/wda/touch_id"] respondWithBlock: ^ id<FBResponsePayload> (FBRouteRequest *request) {
-      BOOL isMatch = [request.arguments[@"match"] boolValue];
-      if (![[XCUIDevice sharedDevice] fb_fingerTouchShouldMatch:isMatch]) {
-        return FBResponseWithUnknownErrorFormat(@"Cannot perform Touch Id %@match", isMatch ? @"" : @"non-");
-      }
-      return FBResponseWithOK();
-    }],
+    [[FBRoute POST:@"/wda/touch_id"] respondWithTarget:self action:@selector(handleFingerTouchShouldMatch:)],
   ];
+}
+
++ (id<FBResponsePayload>)handleFingerTouchShouldMatch:(FBRouteRequest *)request
+{
+  BOOL isMatch = [request.arguments[@"match"] boolValue];
+  if (![[XCUIDevice sharedDevice] fb_fingerTouchShouldMatch:isMatch]) {
+    return FBResponseWithUnknownErrorFormat(@"Cannot perform Touch Id %@match", isMatch ? @"" : @"non-");
+  }
+  return FBResponseWithOK();
 }
 
 @end

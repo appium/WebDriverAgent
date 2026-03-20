@@ -7,7 +7,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "XCUIApplication.h"
+#import <WebDriverAgentLib/XCUIApplication.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

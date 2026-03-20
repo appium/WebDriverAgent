@@ -13,6 +13,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FBFindElementCommands : NSObject <FBCommandHandler>
+
++ (id<FBResponsePayload>)handleFindElement:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleFindElements:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleFindVisibleCells:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleFindSubElement:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleFindSubElements:(FBRouteRequest *)request;
+
+#if TARGET_OS_TV
++ (id<FBResponsePayload>)handleGetFocusedElement:(FBRouteRequest *)request;
+#else
++ (id<FBResponsePayload>)handleGetActiveElement:(FBRouteRequest *)request;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

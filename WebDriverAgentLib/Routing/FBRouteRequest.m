@@ -19,6 +19,16 @@
   return request;
 }
 
++ (instancetype)routeRequestWithURL:(NSURL *)URL
+                           parameters:(NSDictionary *)parameters
+                             arguments:(NSDictionary *)arguments
+                               session:(FBSession *)session
+{
+  FBRouteRequest *request = [self routeRequestWithURL:URL parameters:parameters arguments:arguments];
+  request.session = session;
+  return request;
+}
+
 - (NSString *)description
 {
   return [NSString stringWithFormat:

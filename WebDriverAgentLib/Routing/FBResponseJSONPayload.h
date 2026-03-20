@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FBResponseJSONPayload : NSObject <FBResponsePayload>
 
+// Raw JSON dictionary that will be serialised when the payload is dispatched.
+@property (nonatomic, copy, readonly) NSDictionary *dictionary;
+
 /**
  Initializer for JSON respond that converts given 'dictionary' to JSON
  */

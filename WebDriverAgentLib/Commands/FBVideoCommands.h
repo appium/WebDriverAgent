@@ -14,6 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBVideoCommands : NSObject <FBCommandHandler>
 
++ (id<FBResponsePayload>)handleStartVideoRecording:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleStopVideoRecording:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleGetVideoRecording:(FBRouteRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END

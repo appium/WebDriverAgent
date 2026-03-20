@@ -34,6 +34,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)routeRequestWithURL:(NSURL *)URL parameters:(NSDictionary *)parameters arguments:(NSDictionary *)arguments;
 
+/**
+ Convenience constructor for request that also sets the associated session.
+
+ @param URL Request URL
+ @param parameters Path/query parameters
+ @param arguments JSON body arguments
+ @param session The FBSession instance to associate with the request. May be nil.
+ */
++ (instancetype)routeRequestWithURL:(NSURL *)URL
+                          parameters:(NSDictionary *)parameters
+                            arguments:(NSDictionary *)arguments
+                              session:(nullable FBSession *)session;
+
 @end
 
 NS_ASSUME_NONNULL_END

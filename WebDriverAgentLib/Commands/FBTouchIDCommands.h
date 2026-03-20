@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBTouchIDCommands : NSObject <FBCommandHandler>
 
++ (id<FBResponsePayload>)handleFingerTouchShouldMatch:(FBRouteRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END

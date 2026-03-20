@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBScreenshotCommands : NSObject <FBCommandHandler>
 
++ (id<FBResponsePayload>)handleGetScreenshot:(FBRouteRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END
