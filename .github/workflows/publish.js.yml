@@ -54,7 +54,7 @@ jobs:
       with:
         xcode-version: "${{ env.XCODE_VERSION }}"
     - name: ${{ matrix.config.name }}
-      uses: nick-fields/retry@v3
+      uses: nick-fields/retry@v4
       with:
         timeout_minutes: 10
         max_attempts: 3
