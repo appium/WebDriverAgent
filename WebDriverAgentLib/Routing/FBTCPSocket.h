@@ -38,7 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBTCPSocket : NSObject
 
-@property (nullable, nonatomic) id<FBTCPSocketDelegate> delegate;
+#if __has_feature(objc_arc_weak)
+@property (nullable, nonatomic, weak) id<FBTCPSocketDelegate> delegate;
+#else
+@property (nullable, nonatomic, assign) id<FBTCPSocketDelegate> delegate;
+#endif
 
 /**
  Creates TCP socket isntance which is going to be started on the specified port

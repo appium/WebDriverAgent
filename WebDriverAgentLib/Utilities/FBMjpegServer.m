@@ -35,6 +35,9 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 @property (nonatomic, readonly) FBImageProcessor *imageProcessor;
 @property (nonatomic, readonly) long long mainScreenID;
 @property (nonatomic, assign) NSUInteger consecutiveScreenshotFailures;
+@property (atomic, assign) BOOL isStreaming;
+@property (nonatomic, assign) NSUInteger sentFramesCount;
+@property (nonatomic, assign) NSUInteger sentBytesCount;
 
 @end
 
@@ -45,11 +48,15 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 {
   if ((self = [super init])) {
     _consecutiveScreenshotFailures = 0;
+    _isStreaming = YES;
+    _sentFramesCount = 0;
+    _sentBytesCount = 0;
     _listeningClients = [NSMutableArray array];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_backgroundQueue, ^{
-      [self streamScreenshot];
+      [weakSelf streamScreenshot];
     });
     _imageProcessor = [[FBImageProcessor alloc] init];
     _mainScreenID = [XCUIScreen.mainScreen displayID];
@@ -59,22 +66,29 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
 - (void)scheduleNextScreenshotWithInterval:(uint64_t)timerInterval timeStarted:(uint64_t)timeStarted
 {
+  if (!self.isStreaming) {
+    return;
+  }
   uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
   int64_t nextTickDelta = timerInterval - timeElapsed;
+  __weak typeof(self) weakSelf = self;
   if (nextTickDelta > 0) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, nextTickDelta), self.backgroundQueue, ^{
-      [self streamScreenshot];
+      [weakSelf streamScreenshot];
     });
   } else {
     // Try to do our best to keep the FPS at a decent level
     dispatch_async(self.backgroundQueue, ^{
-      [self streamScreenshot];
+      [weakSelf streamScreenshot];
     });
   }
 }
 
 - (void)streamScreenshot
 {
+  if (!self.isStreaming) {
+    return;
+  }
   NSUInteger framerate = FBConfiguration.mjpegServerFramerate;
   uint64_t timerInterval = (uint64_t)(1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate) * NSEC_PER_SEC);
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
@@ -106,10 +120,11 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   self.consecutiveScreenshotFailures = 0;
 
   CGFloat scalingFactor = FBConfiguration.mjpegScalingFactor / 100.0;
+  __weak typeof(self) weakSelf = self;
   [self.imageProcessor submitImageData:screenshotData
                          scalingFactor:scalingFactor
                      completionHandler:^(NSData * _Nonnull scaled) {
-    [self sendScreenshot:scaled];
+    [weakSelf sendScreenshot:scaled];
   }];
 
   [self scheduleNextScreenshotWithInterval:timerInterval timeStarted:timeStarted];
@@ -122,7 +137,17 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   [chunk appendData:(id)[@"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
   @synchronized (self.listeningClients) {
     for (GCDAsyncSocket *client in self.listeningClients) {
-      [client writeData:chunk withTimeout:-1 tag:0];
+      // Slow clients should fail/close instead of buffering indefinitely.
+      [client writeData:chunk withTimeout:FRAME_TIMEOUT tag:0];
+    }
+    self.sentFramesCount++;
+    self.sentBytesCount += chunk.length * self.listeningClients.count;
+    NSUInteger framerate = MAX(1, MIN(MAX_FPS, FBConfiguration.mjpegServerFramerate));
+    if (0 == self.sentFramesCount % framerate) {
+      [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@",
+                            @(self.listeningClients.count),
+                            @(self.sentFramesCount),
+                            @(self.sentBytesCount)]];
     }
   }
 }
@@ -156,6 +181,24 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     [self.listeningClients removeObject:client];
   }
   [FBLogger log:@"Disconnected a client from screenshots broadcast"];
+}
+
+- (void)stopStreaming
+{
+  self.isStreaming = NO;
+  @synchronized (self.listeningClients) {
+    NSArray<GCDAsyncSocket *> *clients = self.listeningClients.copy;
+    [self.listeningClients removeAllObjects];
+    for (GCDAsyncSocket *client in clients) {
+      [client disconnect];
+    }
+  }
+}
+
+- (void)dealloc
+{
+  [self stopStreaming];
+  [FBLogger verboseLog:@"FBMjpegServer deallocated"];
 }
 
 @end
