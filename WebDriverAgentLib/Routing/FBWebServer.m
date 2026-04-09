@@ -149,7 +149,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   }
 
   id<FBTCPSocketDelegate> delegate = self.screenshotsBroadcaster.delegate;
-  if ([delegate respondsToSelector:@selector(stopStreaming)]) {
+  if ([(NSObject *)delegate respondsToSelector:@selector(stopStreaming)]) {
     [(FBMjpegServer *)delegate stopStreaming];
   }
   self.screenshotsBroadcaster.delegate = nil;
