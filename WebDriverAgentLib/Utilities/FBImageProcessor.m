@@ -85,7 +85,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                                           scalingFactor:scalingFactor
                                                                     uti:UTTypeJPEG
                                                      compressionQuality:recompressionQuality
-        // iOS always returns screnshots in portrait orientation, but puts the real value into the metadata
+        // iOS always returns screenshots in portrait orientation, but puts the real value into the metadata
         // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
                                                          fixOrientation:FBConfiguration.mjpegShouldFixOrientation
                                                      desiredOrientation:nil];
