@@ -47,6 +47,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 @property (nonatomic, strong) RoutingHTTPServer *server;
 @property (atomic, assign) BOOL keepAlive;
 @property (nonatomic, nullable) FBTCPSocket *screenshotsBroadcaster;
+@property (nonatomic, nullable, strong) FBMjpegServer *mjpegServer;
 @end
 
 @implementation FBWebServer
@@ -130,14 +131,15 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)initScreenshotsBroadcaster
 {
   [self readMjpegSettingsFromEnv];
-  FBMjpegServer *mjpegServer = [[FBMjpegServer alloc] init];
+  self.mjpegServer = [[FBMjpegServer alloc] init];
   self.screenshotsBroadcaster = [[FBTCPSocket alloc]
                                  initWithPort:(uint16_t)FBConfiguration.mjpegServerPort];
-  self.screenshotsBroadcaster.delegate = mjpegServer;
+  self.screenshotsBroadcaster.delegate = self.mjpegServer;
   NSError *error;
   if (![self.screenshotsBroadcaster startWithError:&error]) {
     [FBLogger logFmt:@"Cannot init screenshots broadcaster service on port %@. Original error: %@", @(FBConfiguration.mjpegServerPort), error.description];
-    [mjpegServer stopStreaming];
+    [self.mjpegServer stopStreaming];
+    self.mjpegServer = nil;
     self.screenshotsBroadcaster = nil;
   }
 }
@@ -145,6 +147,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)stopScreenshotsBroadcaster
 {
   if (nil == self.screenshotsBroadcaster) {
+    self.mjpegServer = nil;
     return;
   }
 
@@ -155,6 +158,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   self.screenshotsBroadcaster.delegate = nil;
   [self.screenshotsBroadcaster stop];
   self.screenshotsBroadcaster = nil;
+  self.mjpegServer = nil;
 }
 
 - (void)readMjpegSettingsFromEnv

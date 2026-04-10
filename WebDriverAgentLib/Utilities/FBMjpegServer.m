@@ -27,6 +27,11 @@ static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
 static NSString *const SERVER_NAME = @"WDA MJPEG Server";
 static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
 
+static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
+{
+  return (0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate;
+}
+
 
 @interface FBMjpegServer()
 
@@ -89,8 +94,8 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
   if (!self.isStreaming) {
     return;
   }
-  NSUInteger framerate = FBConfiguration.mjpegServerFramerate;
-  uint64_t timerInterval = (uint64_t)(1.0 / ((0 == framerate || framerate > MAX_FPS) ? MAX_FPS : framerate) * NSEC_PER_SEC);
+  NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
+  uint64_t timerInterval = (uint64_t)(1.0 / framerate * NSEC_PER_SEC);
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   @synchronized (self.listeningClients) {
     if (0 == self.listeningClients.count) {
@@ -142,7 +147,7 @@ static const char *QUEUE_NAME = "JPEG Screenshots Provider Queue";
     }
     self.sentFramesCount++;
     self.sentBytesCount += chunk.length * self.listeningClients.count;
-    NSUInteger framerate = MAX(1, MIN(MAX_FPS, FBConfiguration.mjpegServerFramerate));
+    NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
     if (0 == self.sentFramesCount % framerate) {
       [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@",
                             @(self.listeningClients.count),

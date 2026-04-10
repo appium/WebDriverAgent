@@ -66,29 +66,31 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 #pragma clang diagnostic ignored "-Wcompletion-handler"
   dispatch_async(self.scalingQueue, ^{
     while (YES) {
-      [self.nextImageLock lock];
-      NSData *nextImageData = self.nextImage;
-      self.nextImage = nil;
-      if (nextImageData == nil) {
-        self.isScalingScheduled = NO;
+      @autoreleasepool {
+        [self.nextImageLock lock];
+        NSData *nextImageData = self.nextImage;
+        self.nextImage = nil;
+        if (nextImageData == nil) {
+          self.isScalingScheduled = NO;
+          [self.nextImageLock unlock];
+          return;
+        }
         [self.nextImageLock unlock];
-        return;
-      }
-      [self.nextImageLock unlock];
 
-      // We do not want this value to be too high because then we get images larger in size than original ones
-      // Although, we also don't want to lose too much of the quality on recompression
-      CGFloat recompressionQuality = MAX(0.9,
-                                         MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0));
-      NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
-                                                        scalingFactor:scalingFactor
-                                                                  uti:UTTypeJPEG
-                                                   compressionQuality:recompressionQuality
-      // iOS always returns screnshots in portrait orientation, but puts the real value into the metadata
-      // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
-                                                       fixOrientation:FBConfiguration.mjpegShouldFixOrientation
-                                                   desiredOrientation:nil];
-      completionHandler(thumbnailData ?: nextImageData);
+        // We do not want this value to be too high because then we get images larger in size than original ones
+        // Although, we also don't want to lose too much of the quality on recompression
+        CGFloat recompressionQuality = MAX(0.9,
+                                           MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0));
+        NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
+                                                          scalingFactor:scalingFactor
+                                                                    uti:UTTypeJPEG
+                                                     compressionQuality:recompressionQuality
+        // iOS always returns screnshots in portrait orientation, but puts the real value into the metadata
+        // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
+                                                         fixOrientation:FBConfiguration.mjpegShouldFixOrientation
+                                                     desiredOrientation:nil];
+        completionHandler(thumbnailData ?: nextImageData);
+      }
     }
   });
 #pragma clang diagnostic pop
