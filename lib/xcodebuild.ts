@@ -461,7 +461,7 @@ export class XcodeBuild {
         }
 
         const proxyTimeout = noSessionProxy.timeout;
-        noSessionProxy.timeout = 1000;
+        (noSessionProxy as any).timeout = 1000;
         try {
           currentStatus = (await noSessionProxy.command('/status', 'GET')) as StringRecord;
           if (currentStatus && currentStatus.ios && (currentStatus.ios as any).ip) {
@@ -472,7 +472,7 @@ export class XcodeBuild {
         } catch (err: any) {
           throw new Error(`Unable to connect to running WebDriverAgent: ${err.message}`);
         } finally {
-          noSessionProxy.timeout = proxyTimeout;
+          (noSessionProxy as any).timeout = proxyTimeout;
         }
       });
 
