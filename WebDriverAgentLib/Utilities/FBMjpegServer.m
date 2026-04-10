@@ -57,14 +57,14 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     _sentFramesCount = 0;
     _sentBytesCount = 0;
     _listeningClients = [NSMutableArray array];
+    _imageProcessor = [[FBImageProcessor alloc] init];
+    _mainScreenID = [XCUIScreen.mainScreen displayID];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
     __weak typeof(self) weakSelf = self;
     dispatch_async(_backgroundQueue, ^{
       [weakSelf streamScreenshot];
     });
-    _imageProcessor = [[FBImageProcessor alloc] init];
-    _mainScreenID = [XCUIScreen.mainScreen displayID];
   }
   return self;
 }
