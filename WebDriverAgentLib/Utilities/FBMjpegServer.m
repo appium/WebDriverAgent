@@ -75,7 +75,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     return;
   }
   uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
-  int64_t nextTickDelta = timerInterval - timeElapsed;
+  int64_t nextTickDelta = (int64_t)timerInterval - (int64_t)timeElapsed;
   __weak typeof(self) weakSelf = self;
   if (nextTickDelta > 0) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, nextTickDelta), self.backgroundQueue, ^{
@@ -136,21 +136,28 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 }
 
 - (void)sendScreenshot:(NSData *)screenshotData {
+  if (!self.isStreaming) {
+    return;
+  }
   NSString *chunkHeader = [NSString stringWithFormat:@"--BoundaryString\r\nContent-type: image/jpeg\r\nContent-Length: %@\r\n\r\n", @(screenshotData.length)];
   NSMutableData *chunk = [[chunkHeader dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
   [chunk appendData:screenshotData];
   [chunk appendData:(id)[@"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
   @synchronized (self.listeningClients) {
+    if (!self.isStreaming || 0 == self.listeningClients.count) {
+      return;
+    }
+    NSUInteger clientCount = self.listeningClients.count;
     for (GCDAsyncSocket *client in self.listeningClients) {
       // Slow clients should fail/close instead of buffering indefinitely.
       [client writeData:chunk withTimeout:FRAME_TIMEOUT tag:0];
     }
     self.sentFramesCount++;
-    self.sentBytesCount += chunk.length * self.listeningClients.count;
+    self.sentBytesCount += chunk.length * clientCount;
     NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
     if (0 == self.sentFramesCount % framerate) {
       [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@",
-                            @(self.listeningClients.count),
+                            @(clientCount),
                             @(self.sentFramesCount),
                             @(self.sentBytesCount)]];
     }
