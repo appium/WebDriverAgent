@@ -49,6 +49,7 @@
 {
   @synchronized(self.connectedClients) {
     NSArray *clients = self.connectedClients.copy;
+    [self.connectedClients removeAllObjects];
     for (GCDAsyncSocket *client in clients) {
       [client disconnect];
     }

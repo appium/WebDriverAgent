@@ -465,7 +465,7 @@ export class XcodeBuild {
         try {
           currentStatus = (await noSessionProxy.command('/status', 'GET')) as StringRecord;
           if (currentStatus?.ios?.ip) {
-            this.agentUrl = currentStatus.ios.ip as string | undefined;
+            this.agentUrl = currentStatus.ios.ip as string;
           }
           this.log.debug(`WebDriverAgent information:`);
           this.log.debug(JSON.stringify(currentStatus, null, 2));
