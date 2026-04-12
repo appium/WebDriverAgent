@@ -2,8 +2,8 @@
   "name": "appium-webdriveragent",
   "version": "11.4.1",
   "description": "Package bundling WebDriverAgent",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "main": "./build/lib/index.js",
+  "types": "./build/lib/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "dev": "npm run build -- --watch",
@@ -85,9 +85,8 @@
     "teen_process": "^4.0.7"
   },
   "files": [
-    "index.ts",
     "lib",
-    "build",
+    "build/lib",
     "Scripts/build.sh",
     "Scripts/*.mjs",
     "Configurations",
@@ -97,7 +96,6 @@
     "WebDriverAgentRunner",
     "WebDriverAgentTests",
     "XCTWebDriverAgentLib",
-    "CHANGELOG.md",
-    "!build/test"
+    "CHANGELOG.md"
   ]
 }
