@@ -47,9 +47,15 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 @property (nonatomic, strong) RoutingHTTPServer *server;
 @property (atomic, assign) BOOL keepAlive;
 @property (nonatomic, nullable) FBTCPSocket *screenshotsBroadcaster;
+@property (nonatomic, nullable, strong) FBMjpegServer *mjpegServer;
 @end
 
 @implementation FBWebServer
+
+- (void)dealloc
+{
+  [self stopScreenshotsBroadcaster];
+}
 
 + (NSArray<Class<FBCommandHandler>> *)collectCommandHandlerClasses
 {
@@ -97,7 +103,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     [self.server setInterface:bindingIP];
     [FBLogger logFmt:@"Using custom binding IP address: %@", bindingIP];
   }
-  
+
   NSError *error;
   BOOL serverStarted = NO;
 
@@ -117,7 +123,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     [FBLogger logFmt:@"Last attempt to start web server failed with error %@", [error description]];
     abort();
   }
-  
+
   NSString *serverHost = bindingIP ?: ([XCUIDevice sharedDevice].fb_wifiIPAddress ?: @"127.0.0.1");
   [FBLogger logFmt:@"%@http://%@:%d%@", FBServerURLBeginMarker, serverHost, [self.server port], FBServerURLEndMarker];
 }
@@ -125,12 +131,15 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)initScreenshotsBroadcaster
 {
   [self readMjpegSettingsFromEnv];
+  self.mjpegServer = [[FBMjpegServer alloc] init];
   self.screenshotsBroadcaster = [[FBTCPSocket alloc]
                                  initWithPort:(uint16_t)FBConfiguration.mjpegServerPort];
-  self.screenshotsBroadcaster.delegate = [[FBMjpegServer alloc] init];
+  self.screenshotsBroadcaster.delegate = self.mjpegServer;
   NSError *error;
   if (![self.screenshotsBroadcaster startWithError:&error]) {
     [FBLogger logFmt:@"Cannot init screenshots broadcaster service on port %@. Original error: %@", @(FBConfiguration.mjpegServerPort), error.description];
+    [self.mjpegServer stopStreaming];
+    self.mjpegServer = nil;
     self.screenshotsBroadcaster = nil;
   }
 }
@@ -138,10 +147,18 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)stopScreenshotsBroadcaster
 {
   if (nil == self.screenshotsBroadcaster) {
+    self.mjpegServer = nil;
     return;
   }
 
+  id<FBTCPSocketDelegate> delegate = self.screenshotsBroadcaster.delegate;
+  if ([(NSObject *)delegate respondsToSelector:@selector(stopStreaming)]) {
+    [(FBMjpegServer *)delegate stopStreaming];
+  }
+  self.screenshotsBroadcaster.delegate = nil;
   [self.screenshotsBroadcaster stop];
+  self.screenshotsBroadcaster = nil;
+  self.mjpegServer = nil;
 }
 
 - (void)readMjpegSettingsFromEnv
@@ -164,6 +181,8 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   if (self.server.isRunning) {
     [self.server stop:NO];
   }
+  self.server = nil;
+  self.exceptionHandler = nil;
   self.keepAlive = NO;
 }
 
@@ -192,10 +211,15 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
 - (void)registerRouteHandlers:(NSArray *)commandHandlerClasses
 {
+  __weak typeof(self) weakSelf = self;
   for (Class<FBCommandHandler> commandHandler in commandHandlerClasses) {
     NSArray *routes = [commandHandler routes];
     for (FBRoute *route in routes) {
       [self.server handleMethod:route.verb withPath:route.path block:^(RouteRequest *request, RouteResponse *response) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (nil == strongSelf) {
+          return;
+        }
         NSDictionary *arguments = [NSJSONSerialization JSONObjectWithData:request.body options:NSJSONReadingMutableContainers error:NULL];
         FBRouteRequest *routeParams = [FBRouteRequest
           routeRequestWithURL:request.url
@@ -209,7 +233,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
           [route mountRequest:routeParams intoResponse:response];
         }
         @catch (NSException *exception) {
-          [self handleException:exception forResponse:response];
+          [strongSelf handleException:exception forResponse:response];
         }
       }];
     }
@@ -237,9 +261,14 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     [response respondWithString:calibrationPage];
   }];
 
+  __weak typeof(self) weakSelf = self;
   [self.server get:@"/wda/shutdown" withBlock:^(RouteRequest *request, RouteResponse *response) {
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    if (nil == strongSelf) {
+      return;
+    }
     [response respondWithString:@"Shutting down"];
-    [self.delegate webServerDidRequestShutdown:self];
+    [strongSelf.delegate webServerDidRequestShutdown:strongSelf];
   }];
 
   [self registerRouteHandlers:@[FBUnknownCommands.class]];

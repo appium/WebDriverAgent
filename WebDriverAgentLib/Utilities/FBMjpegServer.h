@@ -19,6 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)init;
 
+/**
+ Stops screenshot broadcasting and prevents future scheduling.
+ */
+- (void)stopStreaming;
+
 @end
 
 NS_ASSUME_NONNULL_END
