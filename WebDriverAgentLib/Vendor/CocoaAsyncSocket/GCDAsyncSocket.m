@@ -7367,21 +7367,12 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection,
   value = [tlsSettings objectForKey:GCDAsyncSocketSSLALPN];
   if ([value isKindOfClass:[NSArray class]])
   {
-    if (@available(iOS 11.0, macOS 10.13, tvOS 11.0, *))
+    CFArrayRef protocols = (__bridge CFArrayRef)((NSArray *) value);
+    status = SSLSetALPNProtocols(sslContext, protocols);
+    if (status != noErr)
     {
-      CFArrayRef protocols = (__bridge CFArrayRef)((NSArray *) value);
-      status = SSLSetALPNProtocols(sslContext, protocols);
-      if (status != noErr)
-      {
-        [self closeWithError:[self otherError:@"Error in SSLSetALPNProtocols"]];
-        return;
-      }
-    }
-    else
-    {
-      NSAssert(NO, @"Security option unavailable - GCDAsyncSocketSSLALPN"
-               @" - iOS 11.0, macOS 10.13 required");
-      [self closeWithError:[self otherError:@"Security option unavailable - GCDAsyncSocketSSLALPN"]];
+      [self closeWithError:[self otherError:@"Error in SSLSetALPNProtocols"]];
+      return;
     }
   }
   else if (value)
