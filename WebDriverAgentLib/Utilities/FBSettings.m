@@ -24,7 +24,6 @@ NSString* const FB_SETTING_BOUND_ELEMENTS_BY_INDEX = @"boundElementsByIndex";
 NSString* const FB_SETTING_REDUCE_MOTION = @"reduceMotion";
 NSString* const FB_SETTING_DEFAULT_ACTIVE_APPLICATION = @"defaultActiveApplication";
 NSString* const FB_SETTING_ACTIVE_APP_DETECTION_POINT = @"activeAppDetectionPoint";
-NSString* const FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS = @"includeNonModalElements";
 NSString* const FB_SETTING_DEFAULT_ALERT_ACTION = @"defaultAlertAction";
 NSString* const FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR = @"acceptAlertButtonSelector";
 NSString* const FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR = @"dismissAlertButtonSelector";

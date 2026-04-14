@@ -18,7 +18,6 @@ export interface WDASettings {
   reduceMotion?: boolean;
   defaultActiveApplication?: string;
   activeAppDetectionPoint?: string;
-  includeNonModalElements?: boolean;
   defaultAlertAction?: 'accept' | 'dismiss';
   acceptAlertButtonSelector?: string;
   dismissAlertButtonSelector?: string;
@@ -42,7 +41,6 @@ export interface WDACapabilities {
   environment?: Record<string, string>;
   eventloopIdleDelaySec?: number;
   shouldWaitForQuiescence?: boolean;
-  shouldUseTestManagerForVisibilityDetection?: boolean;
   maxTypingFrequency?: number;
   shouldUseSingletonTestManager?: boolean;
   waitForIdleTimeout?: number;
@@ -100,8 +98,6 @@ export interface AppleDevice {
   udid: string;
   simctl?: any;
   devicectl?: any;
-  /** @deprecated We'll stop supporting idb */
-  idb?: any;
   [key: string]: any;
 }
 

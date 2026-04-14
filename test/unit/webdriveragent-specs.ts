@@ -15,7 +15,6 @@ const fakeConstructorArgs: WebDriverAgentArgs = {
     udid: 'some-sim-udid',
     simctl: {},
     devicectl: {},
-    idb: null,
   },
   platformVersion: '9',
   host: 'me',

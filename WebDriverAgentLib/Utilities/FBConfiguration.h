@@ -18,10 +18,6 @@ extern NSString *const FBSnapshotMaxDepthKey;
  */
 @interface FBConfiguration : NSObject
 
-/*! If set to YES will ask TestManagerDaemon for element visibility */
-+ (void)setShouldUseTestManagerForVisibilityDetection:(BOOL)value;
-+ (BOOL)shouldUseTestManagerForVisibilityDetection;
-
 /*! If set to YES will use compact (standards-compliant) & faster responses */
 + (void)setShouldUseCompactResponses:(BOOL)value;
 + (BOOL)shouldUseCompactResponses;
@@ -275,17 +271,6 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  */
 + (void)setAnimationCoolOffTimeout:(NSTimeInterval)timeout;
 + (NSTimeInterval)animationCoolOffTimeout;
-
-/**
- Enforces the page hierarchy to include non modal elements,
- like Contacts. By default such elements are not present there.
- See https://github.com/appium/appium/issues/13227
-
- @param isEnabled Set to YES in order to enable non modal elements inclusion.
- Setting this value to YES will have no effect if the current iOS SDK does not support such feature.
- */
-+ (void)setIncludeNonModalElements:(BOOL)isEnabled;
-+ (BOOL)includeNonModalElements;
 
 /**
  Sets custom class chain locators for accept/dismiss alert buttons location.

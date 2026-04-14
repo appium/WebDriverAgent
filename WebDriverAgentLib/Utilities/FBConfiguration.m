@@ -33,7 +33,6 @@ static NSString *const FBKeyboardAutocorrectionKey = @"KeyboardAutocorrection";
 static NSString *const FBKeyboardPredictionKey = @"KeyboardPrediction";
 static NSString *const axSettingsClassName = @"AXSettings";
 
-static BOOL FBShouldUseTestManagerForVisibilityDetection = NO;
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldRespectSystemAlerts = NO;
 
@@ -48,7 +47,6 @@ static NSNumber* FBMaxTypingFrequency;
 static NSUInteger FBScreenshotQuality;
 static BOOL FBShouldUseFirstMatch;
 static BOOL FBShouldBoundElementsByIndex;
-static BOOL FBIncludeNonModalElements;
 static NSString *FBAcceptAlertButtonSelector;
 static NSString *FBDismissAlertButtonSelector;
 static NSString *FBAutoClickAlertSelector;
@@ -186,16 +184,6 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
 + (BOOL)verboseLoggingEnabled
 {
   return [NSProcessInfo.processInfo.environment[@"VERBOSE_LOGGING"] boolValue];
-}
-
-+ (void)setShouldUseTestManagerForVisibilityDetection:(BOOL)value
-{
-  FBShouldUseTestManagerForVisibilityDetection = value;
-}
-
-+ (BOOL)shouldUseTestManagerForVisibilityDetection
-{
-  return FBShouldUseTestManagerForVisibilityDetection;
 }
 
 + (void)setShouldUseCompactResponses:(BOOL)value
@@ -426,16 +414,6 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return FBShouldBoundElementsByIndex;
 }
 
-+ (void)setIncludeNonModalElements:(BOOL)isEnabled
-{
-  FBIncludeNonModalElements = isEnabled;
-}
-
-+ (BOOL)includeNonModalElements
-{
-  return FBIncludeNonModalElements;
-}
-
 + (void)setAcceptAlertButtonSelector:(NSString *)classChainSelector
 {
   FBAcceptAlertButtonSelector = classChainSelector;
@@ -542,9 +520,6 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   FBScreenshotQuality = 3;
   FBShouldUseFirstMatch = NO;
   FBShouldBoundElementsByIndex = NO;
-  // This is diabled by default because enabling it prevents the accessbility snapshot to be taken
-  // (it always errors with kxIllegalArgument error)
-  FBIncludeNonModalElements = NO;
   FBAcceptAlertButtonSelector = @"";
   FBDismissAlertButtonSelector = @"";
   FBAutoClickAlertSelector = @"";

@@ -101,7 +101,6 @@
   }
 
   [FBConfiguration resetSessionSettings];
-  [FBConfiguration setShouldUseTestManagerForVisibilityDetection:[capabilities[FB_CAP_USE_TEST_MANAGER_FOR_VISIBLITY_DETECTION] boolValue]];
   if (capabilities[FB_SETTING_USE_COMPACT_RESPONSES]) {
     [FBConfiguration setShouldUseCompactResponses:[capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
   }
@@ -345,7 +344,6 @@
       FB_SETTING_REDUCE_MOTION: @([FBConfiguration reduceMotionEnabled]),
       FB_SETTING_DEFAULT_ACTIVE_APPLICATION: request.session.defaultActiveApplication,
       FB_SETTING_ACTIVE_APP_DETECTION_POINT: FBActiveAppDetectionPoint.sharedInstance.stringCoordinates,
-      FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS: @([FBConfiguration includeNonModalElements]),
       FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR: FBConfiguration.acceptAlertButtonSelector,
       FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR: FBConfiguration.dismissAlertButtonSelector,
       FB_SETTING_AUTO_CLICK_ALERT_SELECTOR: FBConfiguration.autoClickAlertSelector,
@@ -426,13 +424,6 @@
                                                                       error:&error]) {
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
                                                                          traceback:nil]);
-    }
-  }
-  if (nil != [settings objectForKey:FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS]) {
-    if ([XCUIElement fb_supportsNonModalElementsInclusion]) {
-      [FBConfiguration setIncludeNonModalElements:[[settings objectForKey:FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS] boolValue]];
-    } else {
-      [FBLogger logFmt:@"'%@' settings value cannot be assigned, because non modal elements inclusion is not supported by the current iOS SDK", FB_SETTING_INCLUDE_NON_MODAL_ELEMENTS];
     }
   }
   if (nil != [settings objectForKey:FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR]) {

@@ -292,7 +292,7 @@ export async function resetTestProcesses(udid: string, isSimulator: boolean): Pr
   const processPatterns = [`xcodebuild.*${udid}`];
   if (isSimulator) {
     processPatterns.push(`${udid}.*XCTRunner`);
-    // The pattern to find in case idb was used
+    // Some XCTest launches might not include xcodebuild in their command line
     processPatterns.push(`xctest.*${udid}`);
   }
   log.debug(`Killing running processes '${processPatterns.join(', ')}' for the device ${udid}...`);

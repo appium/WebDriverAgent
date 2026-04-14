@@ -7104,23 +7104,6 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection,
       return;
     }
 
-#if !TARGET_OS_IPHONE && (__MAC_OS_X_VERSION_MIN_REQUIRED < 1080)
-
-    // Note from Apple's documentation:
-    //
-    // It is only necessary to call SSLSetEnableCertVerify on the Mac prior to OS X 10.8.
-    // On OS X 10.8 and later setting kSSLSessionOptionBreakOnServerAuth always disables the
-    // built-in trust evaluation. All versions of iOS behave like OS X 10.8 and thus
-    // SSLSetEnableCertVerify is not available on that platform at all.
-
-    status = SSLSetEnableCertVerify(sslContext, NO);
-    if (status != noErr)
-    {
-      [self closeWithError:[self otherError:@"Error in SSLSetEnableCertVerify"]];
-      return;
-    }
-
-#endif
   }
 
   // Configure SSLContext from given settings

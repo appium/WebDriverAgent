@@ -45,21 +45,9 @@
 
 @implementation XCUIElement (FBCompatibility)
 
-+ (BOOL)fb_supportsNonModalElementsInclusion
-{
-  static dispatch_once_t hasIncludingNonModalElements;
-  static BOOL result;
-  dispatch_once(&hasIncludingNonModalElements, ^{
-    result = [XCUIApplication.fb_systemApplication.query respondsToSelector:@selector(includingNonModalElements)];
-  });
-  return result;
-}
-
 - (XCUIElementQuery *)fb_query
 {
-  return FBConfiguration.includeNonModalElements && self.class.fb_supportsNonModalElementsInclusion
-    ? self.query.includingNonModalElements
-    : self.query;
+  return self.query;
 }
 
 @end
