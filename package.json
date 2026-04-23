@@ -72,7 +72,7 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
-    "@appium/base-driver": "^10.0.0-rc.1",
+    "@appium/base-driver": "^10.3.0",
     "@appium/strongbox": "^1.0.0-rc.1",
     "@appium/support": "^7.0.0-rc.1",
     "appium-ios-device": "^3.0.0",

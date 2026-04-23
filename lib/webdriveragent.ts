@@ -346,6 +346,7 @@ export class WebDriverAgent {
       timeout: this.wdaConnectionTimeout,
       keepAlive: true,
       scheme: this.url.protocol ? this.url.protocol.replace(':', '') : 'http',
+      headers: this.args.extraRequestHeaders,
     };
     if (this.args.reqBasePath) {
       proxyOpts.reqBasePath = this.args.reqBasePath;
@@ -560,10 +561,12 @@ export class WebDriverAgent {
    */
   private async getStatus(timeoutMs: number = 0): Promise<StringRecord | null> {
     const noSessionProxy = new NoSessionProxy({
+      scheme: this.url.protocol ? this.url.protocol.replace(':', '') : 'http',
       server: this.url.hostname ?? undefined,
       port: parseInt(this.url.port ?? '', 10) || undefined,
       base: this.basePath,
       timeout: 3000,
+      headers: this.args.extraRequestHeaders,
     });
 
     const sendGetStatus = async () =>

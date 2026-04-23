@@ -1,3 +1,5 @@
+import {type HTTPHeaders} from '@appium/types';
+
 // WebDriverAgentLib/Utilities/FBSettings.h
 export interface WDASettings {
   elementResponseAttribute?: string;
@@ -92,6 +94,7 @@ export interface WebDriverAgentArgs {
   resultBundleVersion?: string;
   reqBasePath?: string;
   launchTimeout?: number;
+  extraRequestHeaders?: HTTPHeaders;
 }
 
 export interface AppleDevice {
@@ -138,4 +141,5 @@ export interface XcodeBuildArgs {
   allowProvisioningDeviceRegistration?: boolean;
   resultBundlePath?: string;
   resultBundleVersion?: string;
+  extraRequestHeaders?: HTTPHeaders;
 }
