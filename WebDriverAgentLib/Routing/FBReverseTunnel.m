@@ -15,12 +15,22 @@
 /** Maximum allowed payload size (matches Appium HTTP server limit) */
 static const uint32_t FBReverseTunnelMaxPayloadSize = 1024 * 1024 * 1024; // 1 GB
 
-/** Delay before reconnecting after a connection failure */
-static const uint64_t FBReverseTunnelReconnectDelay = 5; // seconds
+/** Size of the frame header (4-byte length + 4-byte request ID) */
+static const uint32_t FBReverseTunnelHeaderSize = 8;
+
+/** Receive buffer size for local HTTP forwarding */
+static const size_t FBReverseTunnelRecvBufferSize = 65536; // 64 KB
+
+/** Initial delay before reconnecting after a connection failure */
+static const uint64_t FBReverseTunnelInitialReconnectDelay = 5; // seconds
+
+/** Maximum reconnect delay (exponential backoff cap) */
+static const uint64_t FBReverseTunnelMaxReconnectDelay = 60; // seconds
 
 static NSString *_relayHost;
 static NSInteger _relayPort;
 static NSUInteger _localPort;
+static uint64_t _currentReconnectDelay;
 
 @implementation FBReverseTunnel
 
@@ -33,6 +43,7 @@ static NSUInteger _localPort;
   _relayHost = host;
   _relayPort = port;
   _localPort = localPort;
+  _currentReconnectDelay = FBReverseTunnelInitialReconnectDelay;
   [self connect];
 }
 
@@ -57,6 +68,7 @@ static NSUInteger _localPort;
     switch (state) {
       case nw_connection_state_ready:
         [FBLogger logFmt:@"[ReverseTunnel] Connected to relay"];
+        _currentReconnectDelay = FBReverseTunnelInitialReconnectDelay; // reset backoff on success
         [self readFrameFromConnection:conn];
         break;
       case nw_connection_state_failed:
@@ -83,18 +95,22 @@ static NSUInteger _localPort;
 
 + (void)scheduleReconnect
 {
+  uint64_t delay = _currentReconnectDelay;
+  [FBLogger logFmt:@"[ReverseTunnel] Reconnecting in %llus (backoff)", delay];
   dispatch_after(
-    dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBReverseTunnelReconnectDelay * NSEC_PER_SEC)),
+    dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)),
     dispatch_get_global_queue(0, 0),
     ^{ [self connect]; }
   );
+  // Exponential backoff: double the delay, cap at max
+  _currentReconnectDelay = MIN(_currentReconnectDelay * 2, FBReverseTunnelMaxReconnectDelay);
 }
 
 #pragma mark - Frame Reading (8-byte header: 4-byte length + 4-byte request ID)
 
 + (void)readFrameFromConnection:(nw_connection_t)conn
 {
-  nw_connection_receive(conn, 8, 8, ^(dispatch_data_t hdrData, nw_content_context_t ctx,
+  nw_connection_receive(conn, FBReverseTunnelHeaderSize, FBReverseTunnelHeaderSize, ^(dispatch_data_t hdrData, nw_content_context_t ctx,
                                        bool isComplete, nw_error_t error) {
     if (error || !hdrData) {
       [FBLogger logFmt:@"[ReverseTunnel] Header read error, reconnecting"];
@@ -107,7 +123,7 @@ static NSUInteger _localPort;
     dispatch_data_apply(hdrData, ^bool(dispatch_data_t region, size_t offset,
                                         const void *buffer, size_t size) {
       const uint8_t *b = buffer;
-      if (size >= 8) {
+      if (size >= FBReverseTunnelHeaderSize) {
         payloadLen = (uint32_t)b[0]<<24 | (uint32_t)b[1]<<16 | (uint32_t)b[2]<<8 | b[3];
         reqId      = (uint32_t)b[4]<<24 | (uint32_t)b[5]<<16 | (uint32_t)b[6]<<8 | b[7];
       }
@@ -171,9 +187,9 @@ static NSUInteger _localPort;
     if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
       send(sock, httpRequest.bytes, httpRequest.length, 0);
 
-      uint8_t buf[65536];
+      uint8_t buf[FBReverseTunnelRecvBufferSize];
       while (1) {
-        ssize_t n = recv(sock, buf, sizeof(buf), 0);
+        ssize_t n = recv(sock, buf, FBReverseTunnelRecvBufferSize, 0);
         if (n <= 0) break;
         [response appendBytes:buf length:n];
       }
