@@ -8,40 +8,43 @@
 
 #import "FBReverseTunnel.h"
 #import <Network/Network.h>
-#import "FBConfiguration.h"
+#import <sys/socket.h>
+#import <netinet/in.h>
 #import "FBLogger.h"
 
-/** Maximum allowed payload size to guard against corrupted length headers */
-static const uint32_t FBReverseTunnelMaxPayloadSize = 10 * 1024 * 1024; // 10 MB
+/** Maximum allowed payload size (matches Appium HTTP server limit) */
+static const uint32_t FBReverseTunnelMaxPayloadSize = 1024 * 1024 * 1024; // 1 GB
 
 /** Delay before reconnecting after a connection failure */
 static const uint64_t FBReverseTunnelReconnectDelay = 5; // seconds
 
+static NSString *_relayHost;
+static NSInteger _relayPort;
 static NSUInteger _localPort;
 
 @implementation FBReverseTunnel
 
 #pragma mark - Public
 
-+ (void)startIfConfiguredWithLocalPort:(NSUInteger)localPort
++ (void)startWithHost:(NSString *)host
+                 port:(NSInteger)port
+            localPort:(NSUInteger)localPort
 {
-  NSString *relayHost = FBConfiguration.relayHost;
-  if (!relayHost) {
-    return;  // Reverse tunnel not configured — default behavior unchanged
-  }
+  _relayHost = host;
+  _relayPort = port;
   _localPort = localPort;
-  [self connectToRelayHost:relayHost port:FBConfiguration.relayPort];
+  [self connect];
 }
 
 #pragma mark - Connection Management
 
-+ (void)connectToRelayHost:(NSString *)host port:(NSInteger)port
++ (void)connect
 {
-  [FBLogger logFmt:@"[ReverseTunnel] Connecting to relay %@:%ld", host, (long)port];
+  [FBLogger logFmt:@"[ReverseTunnel] Connecting to relay %@:%ld", _relayHost, (long)_relayPort];
 
   nw_endpoint_t endpoint = nw_endpoint_create_host(
-    [host UTF8String],
-    [[NSString stringWithFormat:@"%ld", (long)port] UTF8String]
+    [_relayHost UTF8String],
+    [[NSString stringWithFormat:@"%ld", (long)_relayPort] UTF8String]
   );
   nw_parameters_t params = nw_parameters_create_secure_tcp(
     NW_PARAMETERS_DISABLE_PROTOCOL,
@@ -59,10 +62,16 @@ static NSUInteger _localPort;
       case nw_connection_state_failed:
         [FBLogger logFmt:@"[ReverseTunnel] Connection failed: %@, retrying in %llus",
          error, FBReverseTunnelReconnectDelay];
-        [self scheduleReconnectToHost:host port:port];
+        [self scheduleReconnect];
+        break;
+      case nw_connection_state_cancelled:
+        [FBLogger logFmt:@"[ReverseTunnel] Connection cancelled"];
         break;
       case nw_connection_state_waiting:
-        [FBLogger logFmt:@"[ReverseTunnel] Waiting for network path"];
+        [FBLogger logFmt:@"[ReverseTunnel] Waiting for network path: %@", error];
+        break;
+      case nw_connection_state_preparing:
+        [FBLogger logFmt:@"[ReverseTunnel] Preparing..."];
         break;
       default:
         break;
@@ -72,75 +81,65 @@ static NSUInteger _localPort;
   nw_connection_start(conn);
 }
 
-+ (void)scheduleReconnectToHost:(NSString *)host port:(NSInteger)port
++ (void)scheduleReconnect
 {
   dispatch_after(
     dispatch_time(DISPATCH_TIME_NOW, (int64_t)(FBReverseTunnelReconnectDelay * NSEC_PER_SEC)),
     dispatch_get_global_queue(0, 0),
-    ^{ [self connectToRelayHost:host port:port]; }
+    ^{ [self connect]; }
   );
 }
 
-+ (void)handleDisconnection:(nw_connection_t)conn
-{
-  nw_connection_cancel(conn);
-  NSString *host = FBConfiguration.relayHost;
-  if (host) {
-    [self scheduleReconnectToHost:host port:FBConfiguration.relayPort];
-  }
-}
-
-#pragma mark - Frame Reading (4-byte length-prefixed protocol)
+#pragma mark - Frame Reading (8-byte header: 4-byte length + 4-byte request ID)
 
 + (void)readFrameFromConnection:(nw_connection_t)conn
 {
-  // Read 4-byte big-endian length header
-  nw_connection_receive(conn, 4, 4, ^(dispatch_data_t lenData, nw_content_context_t ctx,
+  nw_connection_receive(conn, 8, 8, ^(dispatch_data_t hdrData, nw_content_context_t ctx,
                                        bool isComplete, nw_error_t error) {
-    if (error || !lenData) {
+    if (error || !hdrData) {
       [FBLogger logFmt:@"[ReverseTunnel] Header read error, reconnecting"];
-      [self handleDisconnection:conn];
+      nw_connection_cancel(conn);
+      [self scheduleReconnect];
       return;
     }
 
-    uint32_t payloadLen = [self parsePayloadLength:lenData];
+    __block uint32_t payloadLen = 0, reqId = 0;
+    dispatch_data_apply(hdrData, ^bool(dispatch_data_t region, size_t offset,
+                                        const void *buffer, size_t size) {
+      const uint8_t *b = buffer;
+      if (size >= 8) {
+        payloadLen = (uint32_t)b[0]<<24 | (uint32_t)b[1]<<16 | (uint32_t)b[2]<<8 | b[3];
+        reqId      = (uint32_t)b[4]<<24 | (uint32_t)b[5]<<16 | (uint32_t)b[6]<<8 | b[7];
+      }
+      return true;
+    });
+
     if (payloadLen == 0 || payloadLen > FBReverseTunnelMaxPayloadSize) {
       [FBLogger logFmt:@"[ReverseTunnel] Invalid payload length: %u, skipping", payloadLen];
       [self readFrameFromConnection:conn];
       return;
     }
 
-    [self readPayload:payloadLen fromConnection:conn];
+    [self readPayload:payloadLen requestId:reqId fromConnection:conn];
   });
 }
 
-+ (uint32_t)parsePayloadLength:(dispatch_data_t)data
-{
-  __block uint32_t length = 0;
-  dispatch_data_apply(data, ^bool(dispatch_data_t region, size_t offset,
-                                   const void *buffer, size_t size) {
-    if (size >= 4) {
-      memcpy(&length, buffer, 4);
-      length = ntohl(length);
-    }
-    return true;
-  });
-  return length;
-}
-
-+ (void)readPayload:(uint32_t)length fromConnection:(nw_connection_t)conn
++ (void)readPayload:(uint32_t)length
+           requestId:(uint32_t)reqId
+      fromConnection:(nw_connection_t)conn
 {
   nw_connection_receive(conn, length, length, ^(dispatch_data_t bodyData,
                                                  nw_content_context_t ctx,
                                                  bool isComplete, nw_error_t error) {
     if (error || !bodyData) {
       [FBLogger logFmt:@"[ReverseTunnel] Payload read error, reconnecting"];
-      [self handleDisconnection:conn];
+      nw_connection_cancel(conn);
+      [self scheduleReconnect];
       return;
     }
 
     NSData *requestData = [self extractData:bodyData];
-    [self forwardHTTPRequest:requestData throughConnection:conn];
+    [self forwardRequest:requestData requestId:reqId throughConnection:conn];
   });
 }
 
@@ -155,119 +154,61 @@ static NSUInteger _localPort;
   return result;
 }
 
-#pragma mark - HTTP Request Parsing
+#pragma mark - HTTP Forwarding (POSIX socket to localhost)
 
-+ (NSDictionary *)parseHTTPRequest:(NSData *)data
++ (void)forwardRequest:(NSData *)httpRequest
+             requestId:(uint32_t)reqId
+     throughConnection:(nw_connection_t)conn
 {
-  NSString *raw = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  if (!raw) return nil;
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in addr = {0};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons((uint16_t)_localPort);
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-  NSArray *lines = [raw componentsSeparatedByString:@"\r\n"];
-  if (lines.count == 0) return nil;
+    NSMutableData *response = [NSMutableData data];
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
+      send(sock, httpRequest.bytes, httpRequest.length, 0);
 
-  NSArray *requestLine = [lines[0] componentsSeparatedByString:@" "];
-  if (requestLine.count < 2) return nil;
-
-  NSString *method = requestLine[0];
-  NSString *path = requestLine[1];
-
-  // Extract body after \r\n\r\n
-  NSData *body = nil;
-  NSRange separator = [raw rangeOfString:@"\r\n\r\n"];
-  if (separator.location != NSNotFound) {
-    NSString *bodyStr = [raw substringFromIndex:separator.location + 4];
-    if (bodyStr.length > 0) {
-      body = [bodyStr dataUsingEncoding:NSUTF8StringEncoding];
+      uint8_t buf[65536];
+      while (1) {
+        ssize_t n = recv(sock, buf, sizeof(buf), 0);
+        if (n <= 0) break;
+        [response appendBytes:buf length:n];
+      }
+    } else {
+      const char *err = "HTTP/1.1 502 Bad Gateway\r\n\r\nLocal WDA unreachable";
+      [response appendBytes:err length:strlen(err)];
     }
-  }
+    close(sock);
 
-  NSMutableDictionary *result = [NSMutableDictionary dictionary];
-  result[@"method"] = method;
-  result[@"path"] = path;
-  if (body) result[@"body"] = body;
-  return result;
+    [self sendResponse:response requestId:reqId throughConnection:conn];
+  });
 }
 
-#pragma mark - HTTP Forwarding
+#pragma mark - Response Framing & Sending
 
-+ (void)forwardHTTPRequest:(NSData *)requestData throughConnection:(nw_connection_t)conn
++ (void)sendResponse:(NSData *)response
+            requestId:(uint32_t)reqId
+    throughConnection:(nw_connection_t)conn
 {
-  NSDictionary *parsed = [self parseHTTPRequest:requestData];
-  if (!parsed) {
-    [self readFrameFromConnection:conn];
-    return;
-  }
+  uint32_t rLen = (uint32_t)response.length;
+  uint8_t hdr[8] = {
+    (rLen>>24)&0xFF, (rLen>>16)&0xFF, (rLen>>8)&0xFF, rLen&0xFF,
+    (reqId>>24)&0xFF, (reqId>>16)&0xFF, (reqId>>8)&0xFF, reqId&0xFF
+  };
 
-  NSURLRequest *localRequest = [self buildLocalRequestWithMethod:parsed[@"method"]
-                                                           path:parsed[@"path"]
-                                                           body:parsed[@"body"]];
-  if (!localRequest) {
-    [self readFrameFromConnection:conn];
-    return;
-  }
+  dispatch_data_t hdrOut = dispatch_data_create(hdr, 8, NULL, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+  dispatch_data_t bodyOut = dispatch_data_create(response.bytes, response.length,
+                                                  NULL, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+  dispatch_data_t fullOut = dispatch_data_create_concat(hdrOut, bodyOut);
 
-  [[[NSURLSession sharedSession] dataTaskWithRequest:localRequest
-    completionHandler:^(NSData *data, NSURLResponse *response, NSError *err) {
-    NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
-    NSInteger statusCode = httpResp ? httpResp.statusCode : 500;
-
-    NSData *framedResponse = [self buildFramedResponse:data statusCode:statusCode];
-    [self sendData:framedResponse throughConnection:conn];
-  }] resume];
-}
-
-+ (NSURLRequest *)buildLocalRequestWithMethod:(NSString *)method
-                                         path:(NSString *)path
-                                         body:(NSData *)body
-{
-  NSString *urlStr = [NSString stringWithFormat:@"http://127.0.0.1:%lu%@",
-                      (unsigned long)_localPort, path];
-  NSURL *url = [NSURL URLWithString:urlStr];
-  if (!url) return nil;
-
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-  request.HTTPMethod = method;
-  request.timeoutInterval = 60;
-  if (body) {
-    request.HTTPBody = body;
-  }
-  return request;
-}
-
-#pragma mark - Response Building & Sending
-
-+ (NSData *)buildFramedResponse:(NSData *)body statusCode:(NSInteger)statusCode
-{
-  NSString *statusLine = [NSString stringWithFormat:@"HTTP/1.1 %ld OK\r\n", (long)statusCode];
-  NSMutableString *headers = [NSMutableString stringWithString:statusLine];
-  [headers appendString:@"Content-Type: application/json\r\n"];
-  [headers appendFormat:@"Content-Length: %lu\r\n", (unsigned long)(body ? body.length : 0)];
-  [headers appendString:@"\r\n"];
-
-  NSMutableData *httpResponse = [NSMutableData dataWithData:
-                                 [headers dataUsingEncoding:NSUTF8StringEncoding]];
-  if (body) {
-    [httpResponse appendData:body];
-  }
-
-  // Add 4-byte length prefix
-  uint32_t framedLen = htonl((uint32_t)httpResponse.length);
-  NSMutableData *framed = [NSMutableData dataWithBytes:&framedLen length:4];
-  [framed appendData:httpResponse];
-  return framed;
-}
-
-+ (void)sendData:(NSData *)data throughConnection:(nw_connection_t)conn
-{
-  dispatch_data_t sendData = dispatch_data_create(
-    data.bytes, data.length,
-    dispatch_get_global_queue(0, 0),
-    DISPATCH_DATA_DESTRUCTOR_DEFAULT
-  );
-  nw_connection_send(conn, sendData, NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT, true,
+  nw_connection_send(conn, fullOut, NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT, true,
                      ^(nw_error_t sendError) {
     if (sendError) {
       [FBLogger logFmt:@"[ReverseTunnel] Send error: %@", sendError];
+      return;
     }
     [self readFrameFromConnection:conn];
   });

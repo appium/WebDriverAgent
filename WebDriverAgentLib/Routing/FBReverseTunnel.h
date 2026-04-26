@@ -13,25 +13,29 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Optional reverse TCP tunnel for NAT-restricted environments.
 
- When WDA_RELAY_HOST is set, this module opens an outbound TCP connection
- to an external relay server, allowing WDA to be controlled in environments
- where inbound connections to port 8100 are not feasible (symmetric NAT,
- multi-layer firewalls, VPN tunnels, etc.).
+ When configured, this module opens an outbound TCP connection to an external
+ relay server, allowing WDA to be controlled in environments where inbound
+ connections to port 8100 are not feasible (symmetric NAT, multi-layer
+ firewalls, cellular networks, VPN tunnels, etc.).
 
- The tunnel uses a simple 4-byte big-endian length-prefixed framing protocol
- to multiplex HTTP request/response pairs over a single persistent connection.
+ The tunnel uses an 8-byte header framing protocol (4-byte payload length +
+ 4-byte request ID, both big-endian) to multiplex HTTP request/response pairs
+ over a single persistent connection with reliable request-response correlation.
 
- When WDA_RELAY_HOST is not set, this module is completely inactive.
+ Connection failures trigger automatic reconnection after a configurable delay.
  */
 @interface FBReverseTunnel : NSObject
 
 /**
- Starts the reverse tunnel if WDA_RELAY_HOST is configured.
- Does nothing if the environment variable is not set (default behavior unchanged).
+ Starts the reverse tunnel to the specified relay host and port.
 
+ @param host The relay server hostname or IP address
+ @param port The relay server port
  @param localPort The local WDA HTTP server port to forward requests to
  */
-+ (void)startIfConfiguredWithLocalPort:(NSUInteger)localPort;
++ (void)startWithHost:(NSString *)host
+                 port:(NSInteger)port
+            localPort:(NSUInteger)localPort;
 
 @end
 
