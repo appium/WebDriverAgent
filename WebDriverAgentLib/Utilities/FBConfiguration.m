@@ -181,6 +181,24 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   FBMjpegShouldFixOrientation = enabled;
 }
 
++ (NSString *)relayHost
+{
+  NSString *host = NSProcessInfo.processInfo.environment[@"WDA_RELAY_HOST"];
+  if (host && [host length] > 0) {
+    return host;
+  }
+  return nil;
+}
+
++ (NSInteger)relayPort
+{
+  NSString *port = NSProcessInfo.processInfo.environment[@"WDA_RELAY_PORT"];
+  if (port && [port length] > 0) {
+    return [port integerValue];
+  }
+  return 8201;
+}
+
 + (BOOL)verboseLoggingEnabled
 {
   return [NSProcessInfo.processInfo.environment[@"VERBOSE_LOGGING"] boolValue];

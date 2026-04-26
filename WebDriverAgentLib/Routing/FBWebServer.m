@@ -22,6 +22,7 @@
 #import "FBUnknownCommands.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBReverseTunnel.h"
 
 #import "XCUIDevice+FBHelpers.h"
 
@@ -78,6 +79,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   self.exceptionHandler = [FBExceptionHandler new];
   [self startHTTPServer];
   [self initScreenshotsBroadcaster];
+  [FBReverseTunnel startIfConfiguredWithLocalPort:FBConfiguration.bindingPortRange.location];
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
