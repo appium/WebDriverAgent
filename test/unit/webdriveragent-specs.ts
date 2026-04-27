@@ -4,7 +4,6 @@ import {BOOTSTRAP_PATH} from '../../lib/utils';
 import {WebDriverAgent} from '../../lib/webdriveragent';
 import * as utils from '../../lib/utils';
 import path from 'node:path';
-import _ from 'lodash';
 import sinon from 'sinon';
 import type {WebDriverAgentArgs, AppleDevice} from '../../lib/types';
 
@@ -35,37 +34,31 @@ describe('WebDriverAgent', function () {
     });
     it('should have custom wda bootstrap and default agent if only bootstrap specified', function () {
       const agent = new WebDriverAgent(
-        _.defaults(
-          {
-            bootstrapPath: customBootstrapPath,
-          },
-          fakeConstructorArgs,
-        ),
+        {
+          ...fakeConstructorArgs,
+          bootstrapPath: customBootstrapPath,
+        },
       );
       expect(agent.bootstrapPath).to.eql(customBootstrapPath);
       expect(agent.agentPath).to.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
     });
     it('should have custom wda bootstrap and agent if both specified', function () {
       const agent = new WebDriverAgent(
-        _.defaults(
-          {
-            bootstrapPath: customBootstrapPath,
-            agentPath: customAgentPath,
-          },
-          fakeConstructorArgs,
-        ),
+        {
+          ...fakeConstructorArgs,
+          bootstrapPath: customBootstrapPath,
+          agentPath: customAgentPath,
+        },
       );
       expect(agent.bootstrapPath).to.eql(customBootstrapPath);
       expect(agent.agentPath).to.eql(customAgentPath);
     });
     it('should have custom derivedDataPath if specified', function () {
       const agent = new WebDriverAgent(
-        _.defaults(
-          {
-            derivedDataPath: customDerivedDataPath,
-          },
-          fakeConstructorArgs,
-        ),
+        {
+          ...fakeConstructorArgs,
+          derivedDataPath: customDerivedDataPath,
+        },
       );
       if (agent.xcodebuild) {
         expect(agent.xcodebuild.derivedDataPath).to.eql(customDerivedDataPath);
@@ -117,7 +110,7 @@ describe('WebDriverAgent', function () {
 
       expect(agent.url.port).to.eql('8100');
       expect(agent.url.hostname).to.eql('127.0.0.1');
-      expect(agent.url.path).to.eql('/aabbccdd');
+      expect(agent.url.pathname).to.eql('/aabbccdd');
       if (agent.jwproxy) {
         expect(agent.jwproxy.server).to.eql('127.0.0.1');
         expect(agent.jwproxy.port).to.eql(8100);
@@ -247,19 +240,19 @@ describe('WebDriverAgent', function () {
       wdaStub.callsFake(function () {
         return null;
       });
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
       expect(wdaStubUninstall.notCalled).to.be.true;
-      expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
+      expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
     it('should not call uninstall since running WDA has only time', async function () {
       wdaStub.callsFake(function () {
         return {build: {time: 'Jun 24 2018 17:08:21'}};
       });
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
@@ -276,12 +269,12 @@ describe('WebDriverAgent', function () {
           },
         };
       });
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
       expect(wdaStubUninstall.calledOnce).to.be.true;
-      expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
+      expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
     it('should call uninstall once since bundle id is different with updatedWDABundleId capability', async function () {
@@ -294,12 +287,12 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
       expect(wdaStubUninstall.calledOnce).to.be.true;
-      expect(_.isUndefined(wda.webDriverAgentUrl)).to.be.true;
+      expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
     it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
@@ -319,7 +312,7 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
@@ -332,7 +325,7 @@ describe('WebDriverAgent', function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(() => '2');
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
@@ -344,7 +337,7 @@ describe('WebDriverAgent', function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(() => '1');
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
@@ -356,7 +349,7 @@ describe('WebDriverAgent', function () {
         return {build: {}};
       });
       getTimestampStub.callsFake(() => '1');
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
@@ -368,7 +361,7 @@ describe('WebDriverAgent', function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(() => null);
-      wdaStubUninstall.callsFake(_.noop);
+      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;

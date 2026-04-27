@@ -9,8 +9,9 @@ import {
   killProcess,
   getWDAUpgradeTimestamp,
   isTvOS,
+  escapeRegExp,
+  truncateString,
 } from './utils';
-import _ from 'lodash';
 import path from 'node:path';
 import {WDA_RUNNER_BUNDLE_ID} from './constants';
 import type {AppleDevice, XcodeBuildArgs} from './types';
@@ -29,7 +30,7 @@ const IGNORED_ERRORS = [
   'Failed to remove screenshot at path',
 ];
 const IGNORED_ERRORS_PATTERN = new RegExp(
-  '(' + IGNORED_ERRORS.map((errStr) => _.escapeRegExp(errStr)).join('|') + ')',
+  '(' + IGNORED_ERRORS.map((errStr) => escapeRegExp(errStr)).join('|') + ')',
 );
 
 const RUNNER_SCHEME_TV = 'WebDriverAgentRunner_tvOS';
@@ -118,7 +119,7 @@ export class XcodeBuild {
 
     this.mjpegServerPort = args.mjpegServerPort;
 
-    this.prebuildDelay = _.isNumber(args.prebuildDelay) ? args.prebuildDelay : PREBUILD_DELAY;
+    this.prebuildDelay = typeof args.prebuildDelay === 'number' ? args.prebuildDelay : PREBUILD_DELAY;
 
     this.allowProvisioningDeviceRegistration = args.allowProvisioningDeviceRegistration;
 
@@ -182,7 +183,7 @@ export class XcodeBuild {
       const pattern = /^\s*BUILD_DIR\s+=\s+(\/.*)/m;
       const match = pattern.exec(stdout);
       if (!match) {
-        this.log.warn(`Cannot parse WDA build dir from ${_.truncate(stdout, {length: 300})}`);
+        this.log.warn(`Cannot parse WDA build dir from ${truncateString(stdout, 300)}`);
         return;
       }
       this.log.debug(`Parsed BUILD_DIR configuration value: '${match[1]}'`);
@@ -414,7 +415,7 @@ export class XcodeBuild {
     });
 
     let logXcodeOutput = !!this.showXcodeLog;
-    const logMsg = _.isBoolean(this.showXcodeLog)
+    const logMsg = typeof this.showXcodeLog === 'boolean'
       ? `Output from xcodebuild ${this.showXcodeLog ? 'will' : 'will not'} be logged`
       : 'Output from xcodebuild will only be logged if any errors are present there';
     this.log.debug(`${logMsg}. To change this, use 'showXcodeLog' desired capability`);

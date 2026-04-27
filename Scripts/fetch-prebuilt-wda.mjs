@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import axios from 'axios';
 import { logger, fs, mkdirp, net } from '@appium/support';
-import _ from 'lodash';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +52,10 @@ async function fetchPrebuiltWebDriverAgentAssets () {
     const url = asset.browser_download_url;
     log.info(`Downloading: ${url}`);
     try {
-      const nameOfAgent = _.last(url.split('/'));
+      const nameOfAgent = url.split('/').at(-1);
+      if (!nameOfAgent) {
+        continue;
+      }
       agentsDownloading.push(downloadAgent(url, path.join(webdriveragentsDir, nameOfAgent)));
     } catch { }
   }

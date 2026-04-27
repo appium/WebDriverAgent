@@ -3,7 +3,6 @@ import {exec, SubProcess} from 'teen_process';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {log} from './logger';
-import _ from 'lodash';
 import {PLATFORM_NAME_TVOS} from './constants';
 import _fs from 'node:fs';
 import {waitForCondition} from 'asyncbox';
@@ -18,13 +17,18 @@ const currentFilename =
 
 const currentDirname = dirname(currentFilename);
 
+let moduleRootCache: string | undefined;
+
 /**
  * Calculates the path to the current module's root folder
  *
  * @returns {string} The full path to module root
  * @throws {Error} If the current module root folder cannot be determined
  */
-const getModuleRoot = _.memoize(function getModuleRoot(): string {
+const getModuleRoot = function getModuleRoot(): string {
+  if (moduleRootCache) {
+    return moduleRootCache;
+  }
   let currentDir = currentDirname;
   let isAtFsRoot = false;
   while (!isAtFsRoot) {
@@ -34,6 +38,7 @@ const getModuleRoot = _.memoize(function getModuleRoot(): string {
         _fs.existsSync(manifestPath) &&
         JSON.parse(_fs.readFileSync(manifestPath, 'utf8')).name === 'appium-webdriveragent'
       ) {
+        moduleRootCache = currentDir;
         return currentDir;
       }
     } catch {}
@@ -41,7 +46,7 @@ const getModuleRoot = _.memoize(function getModuleRoot(): string {
     isAtFsRoot = currentDir.length <= path.dirname(currentDir).length;
   }
   throw new Error('Cannot find the root folder of the appium-webdriveragent Node.js module');
-});
+};
 
 export const BOOTSTRAP_PATH = getModuleRoot();
 
@@ -63,7 +68,7 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
     const matchedPids = await getPIDsUsingPattern(pgrepPattern);
-    if (_.isEmpty(matchedPids)) {
+    if (matchedPids.length === 0) {
       return;
     }
     const args = [`-${signal}`, ...matchedPids];
@@ -72,7 +77,7 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
     } catch (err: any) {
       log.debug(`kill ${args.join(' ')} -> ${err.message}`);
     }
-    if (signal === _.last(signals)) {
+    if (signal === signals[signals.length - 1]) {
       // there is no need to wait after SIGKILL
       return;
     }
@@ -109,7 +114,7 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
  * @returns Return true if the platformName is tvOS
  */
 export function isTvOS(platformName: string): boolean {
-  return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
+  return platformName?.toLowerCase() === PLATFORM_NAME_TVOS.toLowerCase();
 }
 
 /**
@@ -148,7 +153,7 @@ export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string>
     wdaRemotePort,
     wdaBindingIP,
   );
-  const newXctestRunContent = _.merge(xctestRunContent, updateWDAPort);
+  const newXctestRunContent = mergeObjects(xctestRunContent, updateWDAPort);
   await plist.updatePlistFile(xctestrunFilePath, newXctestRunContent, true);
 
   return xctestrunFilePath;
@@ -294,6 +299,23 @@ export async function getWDAUpgradeTimestamp(): Promise<number | null> {
 }
 
 /**
+ * Escape regular expression metacharacters in a string.
+ */
+export function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Truncate a string to the given length and append ellipsis if needed.
+ */
+export function truncateString(value: string, length: number): string {
+  if (value.length <= length) {
+    return value;
+  }
+  return `${value.slice(0, Math.max(0, length - 1))}…`;
+}
+
+/**
  * Kills running XCTest processes for the particular device.
  */
 export async function resetTestProcesses(udid: string, isSimulator: boolean): Promise<void> {
@@ -337,7 +359,7 @@ export async function getPIDsListeningOnPort(
     return result;
   }
 
-  if (!_.isFunction(filteringFunc)) {
+  if (typeof filteringFunc !== 'function') {
     return result;
   }
   const filtered = await Promise.all(
@@ -370,7 +392,7 @@ async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
     return stdout
       .split(/\s+/)
       .map((x) => parseInt(x, 10))
-      .filter(_.isInteger)
+      .filter(Number.isInteger)
       .map((x) => `${x}`);
   } catch (err: any) {
     log.debug(
@@ -378,4 +400,31 @@ async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
     );
     return [];
   }
+}
+
+function mergeObjects<T extends Record<string, any>, U extends Record<string, any>>(
+  target: T,
+  source: U,
+): T & U {
+  const output: Record<string, any> = {...target};
+  for (const [key, sourceValue] of Object.entries(source)) {
+    const targetValue = output[key];
+    if (
+      isPlainObject(targetValue) &&
+      isPlainObject(sourceValue)
+    ) {
+      output[key] = mergeObjects(targetValue, sourceValue);
+      continue;
+    }
+    output[key] = sourceValue;
+  }
+  return output as T & U;
+}
+
+function isPlainObject(value: unknown): value is Record<string, any> {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }

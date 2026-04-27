@@ -54,7 +54,6 @@
     "@appium/types": "^1.0.0-rc.1",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
-    "@types/lodash": "^4.14.196",
     "@types/mocha": "^10.0.1",
     "@types/node": "^25.0.0",
     "appium-xcode": "^6.0.0",
@@ -79,7 +78,6 @@
     "async-lock": "^1.0.0",
     "asyncbox": "^6.1.0",
     "axios": "^1.4.0",
-    "lodash": "^4.17.11",
     "teen_process": "^4.0.7"
   },
   "files": [

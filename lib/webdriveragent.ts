@@ -1,5 +1,4 @@
 import {waitForCondition} from 'asyncbox';
-import _ from 'lodash';
 import path from 'node:path';
 import {JWProxy} from '@appium/base-driver';
 import {fs, util, plist} from '@appium/support';
@@ -75,7 +74,7 @@ export class WebDriverAgent {
    * @param log - Optional logger instance
    */
   constructor(args: WebDriverAgentArgs, log: AppiumLogger | null = null) {
-    this.args = _.clone(args);
+    this.args = {...args};
     this.log = log ?? defaultLogger;
 
     this.device = args.device;
@@ -252,7 +251,7 @@ export class WebDriverAgent {
         !cmdLine.toLowerCase().includes(this.device.udid.toLowerCase()),
     );
 
-    if (_.isEmpty(obsoletePids)) {
+    if (obsoletePids.length === 0) {
       this.log.debug(
         `No obsolete cached processes from previous WDA sessions ` +
           `listening on port ${this.url.port} have been found`,
@@ -455,7 +454,7 @@ export class WebDriverAgent {
     if (
       actualUpgradeTimestamp &&
       upgradedAt &&
-      _.toLower(`${actualUpgradeTimestamp}`) !== _.toLower(`${upgradedAt}`)
+      `${actualUpgradeTimestamp}`.toLowerCase() !== `${upgradedAt}`.toLowerCase()
     ) {
       this.log.info(
         'Will uninstall running WDA since it has different version in comparison to the one ' +
@@ -499,7 +498,7 @@ export class WebDriverAgent {
     const wdaBundlePaths = await fs.glob(`${this.derivedDataPath}/**/*${WDA_RUNNER_APP}/`, {
       absolute: true,
     });
-    if (_.isEmpty(wdaBundlePaths)) {
+    if (wdaBundlePaths.length === 0) {
       throw new Error(`Could not find the WDA bundle in '${this.derivedDataPath}'`);
     }
     return wdaBundlePaths[0];
@@ -588,7 +587,7 @@ export class WebDriverAgent {
     const sendGetStatus = async () =>
       (await noSessionProxy.command('/status', 'GET')) as StringRecord;
 
-    if (_.isNil(timeoutMs) || timeoutMs <= 0) {
+    if (timeoutMs == null || timeoutMs <= 0) {
       try {
         return await sendGetStatus();
       } catch (err: any) {
@@ -635,7 +634,7 @@ export class WebDriverAgent {
   private async uninstall(): Promise<void> {
     try {
       const bundleIds = await this.device.getUserInstalledBundleIdsByBundleName(WDA_CF_BUNDLE_NAME);
-      if (_.isEmpty(bundleIds)) {
+      if (bundleIds.length === 0) {
         this.log.debug('No WDAs on the device.');
         return;
       }
