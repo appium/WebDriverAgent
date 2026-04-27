@@ -3,7 +3,6 @@ import {SubProcess, exec} from 'teen_process';
 import {logger, timing} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
 import {log as defaultLogger} from './logger';
-import B from 'bluebird';
 import {
   setRealDeviceSecurity,
   setXctestrunFile,
@@ -207,7 +206,7 @@ export class XcodeBuild {
 
     if (this.prebuildDelay > 0) {
       // pause a moment
-      await B.delay(this.prebuildDelay);
+      await new Promise((resolve) => setTimeout(resolve, this.prebuildDelay));
     }
   }
 
@@ -242,7 +241,7 @@ export class XcodeBuild {
       throw new Error('xcodebuild subprocess was not created');
     }
     const xcodebuild = this.xcodebuild;
-    return await new B((resolve, reject) => {
+    return await new Promise<StringRecord | void>((resolve, reject) => {
       xcodebuild.once('exit', (code, signal) => {
         xcodeLog.error(`xcodebuild exited with code '${code}' and signal '${signal}'`);
         xcodebuild.removeAllListeners();

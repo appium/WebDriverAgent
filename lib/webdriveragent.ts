@@ -1,7 +1,6 @@
 import {waitForCondition} from 'asyncbox';
 import _ from 'lodash';
 import path from 'node:path';
-import B from 'bluebird';
 import {JWProxy} from '@appium/base-driver';
 import {fs, util, plist} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
@@ -358,7 +357,7 @@ export class WebDriverAgent {
     const existsPromises = ['Resources', `Resources${path.sep}WebDriverAgent.bundle`].map(
       (subPath) => fs.exists(path.resolve(this.bootstrapPath, subPath)),
     );
-    return (await B.all(existsPromises)).some((v) => v === false);
+    return (await Promise.all(existsPromises)).some((v) => v === false);
   }
 
   /**

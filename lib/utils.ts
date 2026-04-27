@@ -5,7 +5,6 @@ import {fileURLToPath} from 'node:url';
 import {log} from './logger';
 import _ from 'lodash';
 import {PLATFORM_NAME_TVOS} from './constants';
-import B from 'bluebird';
 import _fs from 'node:fs';
 import {waitForCondition} from 'asyncbox';
 import {arch} from 'node:os';
@@ -90,7 +89,7 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
               return true;
             }
           });
-          return (await B.all(pidCheckPromises)).every((x) => x === true);
+          return (await Promise.all(pidCheckPromises)).every((x) => x === true);
         },
         {
           waitMs: 1000,
@@ -305,7 +304,7 @@ export async function resetTestProcesses(udid: string, isSimulator: boolean): Pr
     processPatterns.push(`xctest.*${udid}`);
   }
   log.debug(`Killing running processes '${processPatterns.join(', ')}' for the device ${udid}...`);
-  await B.all(processPatterns.map(killAppUsingPattern));
+  await Promise.all(processPatterns.map(killAppUsingPattern));
 }
 
 /**
@@ -341,19 +340,22 @@ export async function getPIDsListeningOnPort(
   if (!_.isFunction(filteringFunc)) {
     return result;
   }
-  return await B.filter(result, async (pid) => {
-    let stdout: string;
-    try {
-      ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
-    } catch (e: any) {
-      if (e.code === 1) {
-        // The process does not exist anymore, there's nothing to filter
-        return false;
+  const filtered = await Promise.all(
+    result.map(async (pid) => {
+      let stdout: string;
+      try {
+        ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
+      } catch (e: any) {
+        if (e.code === 1) {
+          // The process does not exist anymore, there's nothing to filter
+          return null;
+        }
+        throw e;
       }
-      throw e;
-    }
-    return await filteringFunc(stdout);
-  });
+      return (await filteringFunc(stdout)) ? pid : null;
+    }),
+  );
+  return filtered.filter((pid): pid is string => Boolean(pid));
 }
 
 // Private functions

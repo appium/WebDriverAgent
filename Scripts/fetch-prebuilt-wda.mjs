@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs';
 import axios from 'axios';
 import { logger, fs, mkdirp, net } from '@appium/support';
 import _ from 'lodash';
-import B from 'bluebird';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +59,7 @@ async function fetchPrebuiltWebDriverAgentAssets () {
   }
 
   // Wait for them all to finish
-  return await B.all(agentsDownloading);
+  return await Promise.all(agentsDownloading);
 }
 
 if (isMainModule) {
