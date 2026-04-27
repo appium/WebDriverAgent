@@ -33,33 +33,27 @@ describe('WebDriverAgent', function () {
       expect(agent.agentPath).to.eql(defaultAgentPath);
     });
     it('should have custom wda bootstrap and default agent if only bootstrap specified', function () {
-      const agent = new WebDriverAgent(
-        {
-          ...fakeConstructorArgs,
-          bootstrapPath: customBootstrapPath,
-        },
-      );
+      const agent = new WebDriverAgent({
+        ...fakeConstructorArgs,
+        bootstrapPath: customBootstrapPath,
+      });
       expect(agent.bootstrapPath).to.eql(customBootstrapPath);
       expect(agent.agentPath).to.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
     });
     it('should have custom wda bootstrap and agent if both specified', function () {
-      const agent = new WebDriverAgent(
-        {
-          ...fakeConstructorArgs,
-          bootstrapPath: customBootstrapPath,
-          agentPath: customAgentPath,
-        },
-      );
+      const agent = new WebDriverAgent({
+        ...fakeConstructorArgs,
+        bootstrapPath: customBootstrapPath,
+        agentPath: customAgentPath,
+      });
       expect(agent.bootstrapPath).to.eql(customBootstrapPath);
       expect(agent.agentPath).to.eql(customAgentPath);
     });
     it('should have custom derivedDataPath if specified', function () {
-      const agent = new WebDriverAgent(
-        {
-          ...fakeConstructorArgs,
-          derivedDataPath: customDerivedDataPath,
-        },
-      );
+      const agent = new WebDriverAgent({
+        ...fakeConstructorArgs,
+        derivedDataPath: customDerivedDataPath,
+      });
       if (agent.xcodebuild) {
         expect(agent.xcodebuild.derivedDataPath).to.eql(customDerivedDataPath);
       }

@@ -409,10 +409,7 @@ function mergeObjects<T extends Record<string, any>, U extends Record<string, an
   const output: Record<string, any> = {...target};
   for (const [key, sourceValue] of Object.entries(source)) {
     const targetValue = output[key];
-    if (
-      isPlainObject(targetValue) &&
-      isPlainObject(sourceValue)
-    ) {
+    if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
       output[key] = mergeObjects(targetValue, sourceValue);
       continue;
     }

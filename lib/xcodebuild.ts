@@ -119,7 +119,8 @@ export class XcodeBuild {
 
     this.mjpegServerPort = args.mjpegServerPort;
 
-    this.prebuildDelay = typeof args.prebuildDelay === 'number' ? args.prebuildDelay : PREBUILD_DELAY;
+    this.prebuildDelay =
+      typeof args.prebuildDelay === 'number' ? args.prebuildDelay : PREBUILD_DELAY;
 
     this.allowProvisioningDeviceRegistration = args.allowProvisioningDeviceRegistration;
 
@@ -415,9 +416,10 @@ export class XcodeBuild {
     });
 
     let logXcodeOutput = !!this.showXcodeLog;
-    const logMsg = typeof this.showXcodeLog === 'boolean'
-      ? `Output from xcodebuild ${this.showXcodeLog ? 'will' : 'will not'} be logged`
-      : 'Output from xcodebuild will only be logged if any errors are present there';
+    const logMsg =
+      typeof this.showXcodeLog === 'boolean'
+        ? `Output from xcodebuild ${this.showXcodeLog ? 'will' : 'will not'} be logged`
+        : 'Output from xcodebuild will only be logged if any errors are present there';
     this.log.debug(`${logMsg}. To change this, use 'showXcodeLog' desired capability`);
 
     const onStreamLine = (line: string) => {
