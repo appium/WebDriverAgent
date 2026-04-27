@@ -8,7 +8,10 @@
 
 #import <WebDriverAgentLib/CDStructures.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 @class NSInvocation, XCTestCaseRun, XCTestContext, _XCTestCaseImplementation;
+#pragma clang diagnostic pop
 
 @interface XCTestCase()
 {

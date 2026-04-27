@@ -24,5 +24,8 @@ typedef struct {
     unsigned short _field3[1];
 } CDStruct_27a325c0;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 int _XCTSetApplicationStateTimeout(double timeout);
 double _XCTApplicationStateTimeout(void);
+#pragma clang diagnostic pop
