@@ -5,21 +5,9 @@ import {WDA_SCHEME, SDK_SIMULATOR, WDA_RUNNER_APP} from './constants';
 import {BOOTSTRAP_PATH} from './utils';
 import type {XcodeBuild} from './xcodebuild';
 
-async function buildWDASim(): Promise<void> {
-  const args = [
-    '-project',
-    path.join(BOOTSTRAP_PATH, 'WebDriverAgent.xcodeproj'),
-    '-scheme',
-    WDA_SCHEME,
-    '-sdk',
-    SDK_SIMULATOR,
-    'CODE_SIGN_IDENTITY=""',
-    'CODE_SIGNING_REQUIRED="NO"',
-    'GCC_TREAT_WARNINGS_AS_ERRORS=0',
-  ];
-  await exec('xcodebuild', args);
-}
-
+/**
+ * Ensure simulator WDA is built and return the resulting app bundle path.
+ */
 export async function bundleWDASim(xcodebuild: XcodeBuild): Promise<string> {
   const derivedDataPath = await xcodebuild.retrieveDerivedDataPath();
   if (!derivedDataPath) {
@@ -37,4 +25,19 @@ export async function bundleWDASim(xcodebuild: XcodeBuild): Promise<string> {
   }
   await buildWDASim();
   return wdaBundlePath;
+}
+
+async function buildWDASim(): Promise<void> {
+  const args = [
+    '-project',
+    path.join(BOOTSTRAP_PATH, 'WebDriverAgent.xcodeproj'),
+    '-scheme',
+    WDA_SCHEME,
+    '-sdk',
+    SDK_SIMULATOR,
+    'CODE_SIGN_IDENTITY=""',
+    'CODE_SIGNING_REQUIRED="NO"',
+    'GCC_TREAT_WARNINGS_AS_ERRORS=0',
+  ];
+  await exec('xcodebuild', args);
 }

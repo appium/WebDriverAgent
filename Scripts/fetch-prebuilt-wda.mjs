@@ -12,6 +12,9 @@ const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __file
 
 const log = logger.getLogger('WDA');
 
+/**
+ * Download all prebuilt WebDriverAgent archives for the current package version.
+ */
 async function fetchPrebuiltWebDriverAgentAssets () {
   const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, '..', 'package.json'), 'utf8'));
   const tag = packageJson.version;
@@ -61,10 +64,12 @@ async function fetchPrebuiltWebDriverAgentAssets () {
 }
 
 if (isMainModule) {
-  fetchPrebuiltWebDriverAgentAssets().catch((e) => {
+  try {
+    await fetchPrebuiltWebDriverAgentAssets();
+  } catch (e) {
     log.error(e);
     process.exit(1);
-  });
+  }
 }
 
 export default fetchPrebuiltWebDriverAgentAssets;

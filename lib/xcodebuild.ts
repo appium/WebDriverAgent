@@ -44,27 +44,28 @@ const xcodeLog = logger.getLogger('Xcode');
 export class XcodeBuild {
   xcodebuild?: SubProcess;
   readonly device: AppleDevice;
-  private readonly log: AppiumLogger;
   readonly realDevice: boolean;
   readonly agentPath: string;
   readonly bootstrapPath: string;
   readonly platformVersion?: string;
   readonly platformName?: string;
   readonly iosSdkVersion?: string;
+  readonly xcodeSigningId: string;
+  usePrebuiltWDA?: boolean;
+  derivedDataPath?: string;
+  agentUrl?: string;
+  private readonly log: AppiumLogger;
   private readonly showXcodeLog?: boolean;
   private readonly xcodeConfigFile?: string;
   private readonly xcodeOrgId?: string;
-  readonly xcodeSigningId: string;
   private readonly keychainPath?: string;
   private readonly keychainPassword?: string;
-  usePrebuiltWDA?: boolean;
   private readonly useSimpleBuildTest?: boolean;
   private readonly useXctestrunFile?: boolean;
   private readonly launchTimeout?: number;
   private readonly wdaRemotePort?: number;
   private readonly wdaBindingIP?: string;
   private readonly updatedWDABundleId?: string;
-  derivedDataPath?: string;
   private readonly mjpegServerPort?: number;
   private readonly prebuildDelay: number;
   private readonly allowProvisioningDeviceRegistration?: boolean;
@@ -75,7 +76,6 @@ export class XcodeBuild {
   private _derivedDataPathPromise?: Promise<string | undefined>;
   private noSessionProxy?: NoSessionProxy;
   private xctestrunFilePath?: string;
-  agentUrl?: string;
 
   /**
    * Creates a new XcodeBuild instance.

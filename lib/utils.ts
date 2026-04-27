@@ -46,6 +46,20 @@ const getModuleRoot = _.memoize(function getModuleRoot(): string {
 
 export const BOOTSTRAP_PATH = getModuleRoot();
 
+/**
+ * Arguments for setting xctestrun file
+ */
+export interface XctestrunFileArgs {
+  deviceInfo: DeviceInfo;
+  sdkVersion: string;
+  bootstrapPath: string;
+  wdaRemotePort: number | string;
+  wdaBindingIP?: string;
+}
+
+/**
+ * Find and terminate all processes matching the given pgrep pattern.
+ */
 export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
@@ -66,13 +80,16 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
     try {
       await waitForCondition(
         async () => {
-          const pidCheckPromises = matchedPids.map((pid) =>
-            exec('kill', ['-0', pid])
+          const pidCheckPromises = matchedPids.map(async (pid) => {
+            try {
+              await exec('kill', ['-0', pid]);
               // the process is still alive
-              .then(() => false)
+              return false;
+            } catch {
               // the process is dead
-              .catch(() => true),
-          );
+              return true;
+            }
+          });
           return (await B.all(pidCheckPromises)).every((x) => x === true);
         },
         {
@@ -96,6 +113,9 @@ export function isTvOS(platformName: string): boolean {
   return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
 }
 
+/**
+ * Configure keychain access required for real-device code signing.
+ */
 export async function setRealDeviceSecurity(
   keychainPath: string,
   keychainPassword: string,
@@ -104,17 +124,6 @@ export async function setRealDeviceSecurity(
   await exec('security', ['-v', 'list-keychains', '-s', keychainPath]);
   await exec('security', ['-v', 'unlock-keychain', '-p', keychainPassword, keychainPath]);
   await exec('security', ['set-keychain-settings', '-t', '3600', '-l', keychainPath]);
-}
-
-/**
- * Arguments for setting xctestrun file
- */
-export interface XctestrunFileArgs {
-  deviceInfo: DeviceInfo;
-  sdkVersion: string;
-  bootstrapPath: string;
-  wdaRemotePort: number | string;
-  wdaBindingIP?: string;
 }
 
 /**

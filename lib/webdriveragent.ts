@@ -1,7 +1,6 @@
 import {waitForCondition} from 'asyncbox';
 import _ from 'lodash';
 import path from 'node:path';
-import url from 'node:url';
 import B from 'bluebird';
 import {JWProxy} from '@appium/base-driver';
 import {fs, util, plist} from '@appium/support';
@@ -34,41 +33,42 @@ const WDA_AGENT_PORT = 8100;
 const WDA_CF_BUNDLE_NAME = 'WebDriverAgentRunner-Runner';
 const SHARED_RESOURCES_GUARD = new AsyncLock();
 const RECENT_MODULE_VERSION_ITEM_NAME = 'recentWdaModuleVersion';
+const URL_PROTOCOL_SEPARATOR = '://';
 
 export class WebDriverAgent {
   bootstrapPath: string;
   agentPath: string;
   readonly args: WebDriverAgentArgs;
-  private readonly log: AppiumLogger;
   readonly device: AppleDevice;
   readonly platformVersion?: string;
   readonly platformName?: string;
   readonly iosSdkVersion?: string;
   readonly host?: string;
   readonly isRealDevice: boolean;
-  private readonly wdaBundlePath?: string;
-  private readonly wdaLocalPort?: number;
   readonly wdaRemotePort: number;
   readonly wdaBaseUrl: string;
   readonly wdaBindingIP?: string;
-  private readonly prebuildWDA?: boolean;
   webDriverAgentUrl?: string;
   started: boolean;
+  updatedWDABundleId?: string;
+  noSessionProxy?: NoSessionProxy;
+  jwproxy?: JWProxy;
+  proxyReqRes?: any;
+  private readonly log: AppiumLogger;
+  private readonly wdaBundlePath?: string;
+  private readonly wdaLocalPort?: number;
+  private readonly prebuildWDA?: boolean;
   private readonly wdaConnectionTimeout?: number;
   private readonly useXctestrunFile?: boolean;
   private readonly usePrebuiltWDA?: boolean;
   private readonly derivedDataPath?: string;
   private readonly mjpegServerPort?: number;
-  updatedWDABundleId?: string;
   private readonly wdaLaunchTimeout: number;
   private readonly usePreinstalledWDA?: boolean;
-  private xctestApiClient?: Xctest | null;
   private readonly updatedWDABundleIdSuffix: string;
+  private xctestApiClient?: Xctest | null;
   private _xcodebuild?: XcodeBuild | null;
-  noSessionProxy?: NoSessionProxy;
-  jwproxy?: JWProxy;
-  proxyReqRes?: any;
-  private _url?: url.UrlWithStringQuery;
+  private _url?: URL;
 
   /**
    * Creates a new WebDriverAgent instance.
@@ -186,6 +186,62 @@ export class WebDriverAgent {
   }
 
   /**
+   * Gets the base path for the WebDriverAgent URL.
+   * @returns The base path (empty string if root path)
+   */
+  get basePath(): string {
+    if (this.url.pathname === '/') {
+      return '';
+    }
+    return this.url.pathname || '';
+  }
+
+  /**
+   * Gets the WebDriverAgent URL.
+   * Constructs the URL from webDriverAgentUrl if provided, otherwise
+   * builds it from wdaBaseUrl, wdaBindingIP, and wdaLocalPort.
+   * @returns The parsed URL object
+   */
+  get url(): URL {
+    if (!this._url) {
+      if (this.webDriverAgentUrl) {
+        this._url = this.toUrl(this.webDriverAgentUrl);
+      } else {
+        const port = this.wdaLocalPort || WDA_AGENT_PORT;
+        const parsedBaseUrl = this.toUrl(this.wdaBaseUrl || WDA_BASE_URL);
+        this._url = new URL(
+          `${parsedBaseUrl.protocol}//${this.wdaBindingIP || parsedBaseUrl.hostname}:${port}`,
+        );
+      }
+    }
+    return this._url;
+  }
+
+  /**
+   * Gets whether WebDriverAgent has fully started.
+   * @returns `true` if WDA has started, `false` otherwise
+   */
+  get fullyStarted(): boolean {
+    return this.started;
+  }
+
+  /**
+   * Sets whether WebDriverAgent has fully started.
+   * @param started - `true` if WDA has started, `false` otherwise
+   */
+  set fullyStarted(started: boolean) {
+    this.started = started ?? false;
+  }
+
+  /**
+   * Sets the WebDriverAgent URL.
+   * @param _url - The URL string to parse and set
+   */
+  set url(_url: string) {
+    this._url = this.toUrl(_url);
+  }
+
+  /**
    * Cleans up obsolete cached processes from previous WDA sessions
    * that are listening on the same port but belong to different devices.
    */
@@ -220,14 +276,6 @@ export class WebDriverAgent {
   }
 
   /**
-   * Gets the base path for the WebDriverAgent URL.
-   * @returns The base path (empty string if root path)
-   */
-  get basePath(): string {
-    if (this.url.path === '/') {
-      return '';
-    }
-    return this.url.path || '';
   }
 
   /**
@@ -313,52 +361,6 @@ export class WebDriverAgent {
     return (await B.all(existsPromises)).some((v) => v === false);
   }
 
-  private async parseBundleId(wdaBundlePath: string): Promise<string> {
-    const infoPlistPath = path.join(wdaBundlePath, 'Info.plist');
-    const infoPlist = (await plist.parsePlist(await fs.readFile(infoPlistPath))) as {
-      CFBundleIdentifier?: string;
-    };
-    if (!infoPlist.CFBundleIdentifier) {
-      throw new Error(`Could not find bundle id in '${infoPlistPath}'`);
-    }
-    return infoPlist.CFBundleIdentifier;
-  }
-
-  private async fetchWDABundle(): Promise<string> {
-    if (!this.derivedDataPath) {
-      return await bundleWDASim(this.xcodebuild);
-    }
-    const wdaBundlePaths = await fs.glob(`${this.derivedDataPath}/**/*${WDA_RUNNER_APP}/`, {
-      absolute: true,
-    });
-    if (_.isEmpty(wdaBundlePaths)) {
-      throw new Error(`Could not find the WDA bundle in '${this.derivedDataPath}'`);
-    }
-    return wdaBundlePaths[0];
-  }
-
-  private setupProxies(sessionId: string): void {
-    const proxyOpts: any = {
-      log: this.log,
-      server: this.url.hostname ?? undefined,
-      port: parseInt(this.url.port ?? '', 10) || undefined,
-      base: this.basePath,
-      timeout: this.wdaConnectionTimeout,
-      keepAlive: true,
-      scheme: this.url.protocol ? this.url.protocol.replace(':', '') : 'http',
-      headers: this.args.extraRequestHeaders,
-    };
-    if (this.args.reqBasePath) {
-      proxyOpts.reqBasePath = this.args.reqBasePath;
-    }
-
-    this.jwproxy = new JWProxy(proxyOpts);
-    this.jwproxy.sessionId = sessionId;
-    this.proxyReqRes = this.jwproxy.proxyReqRes.bind(this.jwproxy);
-
-    this.noSessionProxy = new NoSessionProxy(proxyOpts);
-  }
-
   /**
    * Stops the WebDriverAgent session and cleans up resources.
    * Handles both preinstalled WDA and xcodebuild-based sessions.
@@ -399,49 +401,6 @@ export class WebDriverAgent {
       // then clean that up. If the url was supplied, we want to keep it
       this.webDriverAgentUrl = undefined;
     }
-  }
-
-  /**
-   * Gets the WebDriverAgent URL.
-   * Constructs the URL from webDriverAgentUrl if provided, otherwise
-   * builds it from wdaBaseUrl, wdaBindingIP, and wdaLocalPort.
-   * @returns The parsed URL object
-   */
-  get url(): url.UrlWithStringQuery {
-    if (!this._url) {
-      if (this.webDriverAgentUrl) {
-        this._url = url.parse(this.webDriverAgentUrl);
-      } else {
-        const port = this.wdaLocalPort || WDA_AGENT_PORT;
-        const {protocol, hostname} = url.parse(this.wdaBaseUrl || WDA_BASE_URL);
-        this._url = url.parse(`${protocol}//${this.wdaBindingIP || hostname}:${port}`);
-      }
-    }
-    return this._url;
-  }
-
-  /**
-   * Sets the WebDriverAgent URL.
-   * @param _url - The URL string to parse and set
-   */
-  set url(_url: string) {
-    this._url = url.parse(_url);
-  }
-
-  /**
-   * Gets whether WebDriverAgent has fully started.
-   * @returns `true` if WDA has started, `false` otherwise
-   */
-  get fullyStarted(): boolean {
-    return this.started;
-  }
-
-  /**
-   * Sets whether WebDriverAgent has fully started.
-   * @param started - `true` if WDA has started, `false` otherwise
-   */
-  set fullyStarted(started: boolean) {
-    this.started = started ?? false;
   }
 
   /**
@@ -521,6 +480,64 @@ export class WebDriverAgent {
   async quitAndUninstall(): Promise<void> {
     await this.quit();
     await this.uninstall();
+  }
+
+  private async parseBundleId(wdaBundlePath: string): Promise<string> {
+    const infoPlistPath = path.join(wdaBundlePath, 'Info.plist');
+    const infoPlist = (await plist.parsePlist(await fs.readFile(infoPlistPath))) as {
+      CFBundleIdentifier?: string;
+    };
+    if (!infoPlist.CFBundleIdentifier) {
+      throw new Error(`Could not find bundle id in '${infoPlistPath}'`);
+    }
+    return infoPlist.CFBundleIdentifier;
+  }
+
+  private async fetchWDABundle(): Promise<string> {
+    if (!this.derivedDataPath) {
+      return await bundleWDASim(this.xcodebuild);
+    }
+    const wdaBundlePaths = await fs.glob(`${this.derivedDataPath}/**/*${WDA_RUNNER_APP}/`, {
+      absolute: true,
+    });
+    if (_.isEmpty(wdaBundlePaths)) {
+      throw new Error(`Could not find the WDA bundle in '${this.derivedDataPath}'`);
+    }
+    return wdaBundlePaths[0];
+  }
+
+  private setupProxies(sessionId: string): void {
+    const proxyOpts: any = {
+      log: this.log,
+      server: this.url.hostname ?? undefined,
+      port: parseInt(this.url.port ?? '', 10) || undefined,
+      base: this.basePath,
+      timeout: this.wdaConnectionTimeout,
+      keepAlive: true,
+      scheme: this.url.protocol ? this.url.protocol.replace(':', '') : 'http',
+      headers: this.args.extraRequestHeaders,
+    };
+    if (this.args.reqBasePath) {
+      proxyOpts.reqBasePath = this.args.reqBasePath;
+    }
+
+    this.jwproxy = new JWProxy(proxyOpts);
+    this.jwproxy.sessionId = sessionId;
+    this.proxyReqRes = this.jwproxy.proxyReqRes.bind(this.jwproxy);
+
+    this.noSessionProxy = new NoSessionProxy(proxyOpts);
+  }
+
+  private toUrl(value: string): URL {
+    try {
+      return new URL(value);
+    } catch (err) {
+      // Keep compatibility with legacy parser behavior for values like "localhost:8100".
+      if (!value.includes(URL_PROTOCOL_SEPARATOR)) {
+        return new URL(`http://${value}`);
+      }
+      throw err;
+    }
   }
 
   private setWDAPaths(bootstrapPath?: string, agentPath?: string): void {
