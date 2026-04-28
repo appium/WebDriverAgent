@@ -208,6 +208,24 @@ describe('WebDriverAgent', function () {
         expect(agent.noSessionProxy.scheme).to.eql('https');
       }
     });
+
+    it('should accept scheme-less webDriverAgentUrl values', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      args.webDriverAgentUrl = 'localhost:8100/aabbccdd';
+      const agent = new WebDriverAgent(args);
+      expect(agent.url.href).to.eql('http://localhost:8100/aabbccdd');
+      (agent as any).setupProxies('mysession');
+      if (agent.jwproxy) {
+        expect(agent.jwproxy.scheme).to.eql('http');
+      }
+    });
+
+    it('should throw for invalid webDriverAgentUrl with explicit scheme', function () {
+      const args = Object.assign({}, fakeConstructorArgs);
+      args.webDriverAgentUrl = 'http://';
+      const agent = new WebDriverAgent(args);
+      expect(() => agent.url).to.throw();
+    });
   });
 
   describe('setupCaching()', function () {

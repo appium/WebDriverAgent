@@ -353,10 +353,10 @@ export class WebDriverAgent {
    * @returns `true` if source is fresh (all required files exist), `false` otherwise
    */
   async isSourceFresh(): Promise<boolean> {
-    const existsPromises = ['Resources', `Resources${path.sep}WebDriverAgent.bundle`].map(
+    const existsPromises = ['Resources', path.join('Resources', 'WebDriverAgent.bundle')].map(
       (subPath) => fs.exists(path.resolve(this.bootstrapPath, subPath)),
     );
-    return (await Promise.all(existsPromises)).some((v) => v === false);
+    return (await Promise.all(existsPromises)).every((v) => v === true);
   }
 
   /**
@@ -527,14 +527,14 @@ export class WebDriverAgent {
   }
 
   private toUrl(value: string): URL {
+    // Treat values without `://` as host/path inputs and normalize to http.
+    if (!value.includes(URL_PROTOCOL_SEPARATOR)) {
+      return new URL(`http://${value}`);
+    }
     try {
       return new URL(value);
-    } catch (err) {
-      // Keep compatibility with legacy parser behavior for values like "localhost:8100".
-      if (!value.includes(URL_PROTOCOL_SEPARATOR)) {
-        return new URL(`http://${value}`);
-      }
-      throw err;
+    } catch {
+      throw new Error(`Invalid URL: ${value}`);
     }
   }
 
