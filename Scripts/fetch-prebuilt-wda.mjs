@@ -3,8 +3,6 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import axios from 'axios';
 import { logger, fs, mkdirp, net } from '@appium/support';
-import _ from 'lodash';
-import B from 'bluebird';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +10,9 @@ const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __file
 
 const log = logger.getLogger('WDA');
 
+/**
+ * Download all prebuilt WebDriverAgent archives for the current package version.
+ */
 async function fetchPrebuiltWebDriverAgentAssets () {
   const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, '..', 'package.json'), 'utf8'));
   const tag = packageJson.version;
@@ -51,20 +52,25 @@ async function fetchPrebuiltWebDriverAgentAssets () {
     const url = asset.browser_download_url;
     log.info(`Downloading: ${url}`);
     try {
-      const nameOfAgent = _.last(url.split('/'));
+      const nameOfAgent = url.split('/').at(-1);
+      if (!nameOfAgent) {
+        continue;
+      }
       agentsDownloading.push(downloadAgent(url, path.join(webdriveragentsDir, nameOfAgent)));
     } catch { }
   }
 
   // Wait for them all to finish
-  return await B.all(agentsDownloading);
+  return await Promise.all(agentsDownloading);
 }
 
 if (isMainModule) {
-  fetchPrebuiltWebDriverAgentAssets().catch((e) => {
+  try {
+    await fetchPrebuiltWebDriverAgentAssets();
+  } catch (e) {
     log.error(e);
     process.exit(1);
-  });
+  }
 }
 
 export default fetchPrebuiltWebDriverAgentAssets;

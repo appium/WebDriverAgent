@@ -3,15 +3,15 @@ import {SubProcess, exec} from 'teen_process';
 import {logger, timing} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
 import {log as defaultLogger} from './logger';
-import B from 'bluebird';
 import {
   setRealDeviceSecurity,
   setXctestrunFile,
   killProcess,
   getWDAUpgradeTimestamp,
   isTvOS,
+  escapeRegExp,
+  truncateString,
 } from './utils';
-import _ from 'lodash';
 import path from 'node:path';
 import {WDA_RUNNER_BUNDLE_ID} from './constants';
 import type {AppleDevice, XcodeBuildArgs} from './types';
@@ -30,7 +30,7 @@ const IGNORED_ERRORS = [
   'Failed to remove screenshot at path',
 ];
 const IGNORED_ERRORS_PATTERN = new RegExp(
-  '(' + IGNORED_ERRORS.map((errStr) => _.escapeRegExp(errStr)).join('|') + ')',
+  '(' + IGNORED_ERRORS.map((errStr) => escapeRegExp(errStr)).join('|') + ')',
 );
 
 const RUNNER_SCHEME_TV = 'WebDriverAgentRunner_tvOS';
@@ -44,27 +44,28 @@ const xcodeLog = logger.getLogger('Xcode');
 export class XcodeBuild {
   xcodebuild?: SubProcess;
   readonly device: AppleDevice;
-  private readonly log: AppiumLogger;
   readonly realDevice: boolean;
   readonly agentPath: string;
   readonly bootstrapPath: string;
   readonly platformVersion?: string;
   readonly platformName?: string;
   readonly iosSdkVersion?: string;
+  readonly xcodeSigningId: string;
+  usePrebuiltWDA?: boolean;
+  derivedDataPath?: string;
+  agentUrl?: string;
+  private readonly log: AppiumLogger;
   private readonly showXcodeLog?: boolean;
   private readonly xcodeConfigFile?: string;
   private readonly xcodeOrgId?: string;
-  readonly xcodeSigningId: string;
   private readonly keychainPath?: string;
   private readonly keychainPassword?: string;
-  usePrebuiltWDA?: boolean;
   private readonly useSimpleBuildTest?: boolean;
   private readonly useXctestrunFile?: boolean;
   private readonly launchTimeout?: number;
   private readonly wdaRemotePort?: number;
   private readonly wdaBindingIP?: string;
   private readonly updatedWDABundleId?: string;
-  derivedDataPath?: string;
   private readonly mjpegServerPort?: number;
   private readonly prebuildDelay: number;
   private readonly allowProvisioningDeviceRegistration?: boolean;
@@ -75,7 +76,6 @@ export class XcodeBuild {
   private _derivedDataPathPromise?: Promise<string | undefined>;
   private noSessionProxy?: NoSessionProxy;
   private xctestrunFilePath?: string;
-  agentUrl?: string;
 
   /**
    * Creates a new XcodeBuild instance.
@@ -119,7 +119,8 @@ export class XcodeBuild {
 
     this.mjpegServerPort = args.mjpegServerPort;
 
-    this.prebuildDelay = _.isNumber(args.prebuildDelay) ? args.prebuildDelay : PREBUILD_DELAY;
+    this.prebuildDelay =
+      typeof args.prebuildDelay === 'number' ? args.prebuildDelay : PREBUILD_DELAY;
 
     this.allowProvisioningDeviceRegistration = args.allowProvisioningDeviceRegistration;
 
@@ -183,7 +184,7 @@ export class XcodeBuild {
       const pattern = /^\s*BUILD_DIR\s+=\s+(\/.*)/m;
       const match = pattern.exec(stdout);
       if (!match) {
-        this.log.warn(`Cannot parse WDA build dir from ${_.truncate(stdout, {length: 300})}`);
+        this.log.warn(`Cannot parse WDA build dir from ${truncateString(stdout, 300)}`);
         return;
       }
       this.log.debug(`Parsed BUILD_DIR configuration value: '${match[1]}'`);
@@ -207,7 +208,7 @@ export class XcodeBuild {
 
     if (this.prebuildDelay > 0) {
       // pause a moment
-      await B.delay(this.prebuildDelay);
+      await new Promise((resolve) => setTimeout(resolve, this.prebuildDelay));
     }
   }
 
@@ -242,7 +243,7 @@ export class XcodeBuild {
       throw new Error('xcodebuild subprocess was not created');
     }
     const xcodebuild = this.xcodebuild;
-    return await new B((resolve, reject) => {
+    return await new Promise<StringRecord | void>((resolve, reject) => {
       xcodebuild.once('exit', (code, signal) => {
         xcodeLog.error(`xcodebuild exited with code '${code}' and signal '${signal}'`);
         xcodebuild.removeAllListeners();
@@ -415,9 +416,10 @@ export class XcodeBuild {
     });
 
     let logXcodeOutput = !!this.showXcodeLog;
-    const logMsg = _.isBoolean(this.showXcodeLog)
-      ? `Output from xcodebuild ${this.showXcodeLog ? 'will' : 'will not'} be logged`
-      : 'Output from xcodebuild will only be logged if any errors are present there';
+    const logMsg =
+      typeof this.showXcodeLog === 'boolean'
+        ? `Output from xcodebuild ${this.showXcodeLog ? 'will' : 'will not'} be logged`
+        : 'Output from xcodebuild will only be logged if any errors are present there';
     this.log.debug(`${logMsg}. To change this, use 'showXcodeLog' desired capability`);
 
     const onStreamLine = (line: string) => {

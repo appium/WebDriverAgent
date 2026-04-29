@@ -3,9 +3,7 @@ import {exec, SubProcess} from 'teen_process';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {log} from './logger';
-import _ from 'lodash';
 import {PLATFORM_NAME_TVOS} from './constants';
-import B from 'bluebird';
 import _fs from 'node:fs';
 import {waitForCondition} from 'asyncbox';
 import {arch} from 'node:os';
@@ -19,13 +17,18 @@ const currentFilename =
 
 const currentDirname = dirname(currentFilename);
 
+let moduleRootCache: string | undefined;
+
 /**
  * Calculates the path to the current module's root folder
  *
  * @returns {string} The full path to module root
  * @throws {Error} If the current module root folder cannot be determined
  */
-const getModuleRoot = _.memoize(function getModuleRoot(): string {
+const getModuleRoot = function getModuleRoot(): string {
+  if (moduleRootCache) {
+    return moduleRootCache;
+  }
   let currentDir = currentDirname;
   let isAtFsRoot = false;
   while (!isAtFsRoot) {
@@ -35,6 +38,7 @@ const getModuleRoot = _.memoize(function getModuleRoot(): string {
         _fs.existsSync(manifestPath) &&
         JSON.parse(_fs.readFileSync(manifestPath, 'utf8')).name === 'appium-webdriveragent'
       ) {
+        moduleRootCache = currentDir;
         return currentDir;
       }
     } catch {}
@@ -42,15 +46,29 @@ const getModuleRoot = _.memoize(function getModuleRoot(): string {
     isAtFsRoot = currentDir.length <= path.dirname(currentDir).length;
   }
   throw new Error('Cannot find the root folder of the appium-webdriveragent Node.js module');
-});
+};
 
 export const BOOTSTRAP_PATH = getModuleRoot();
 
+/**
+ * Arguments for setting xctestrun file
+ */
+export interface XctestrunFileArgs {
+  deviceInfo: DeviceInfo;
+  sdkVersion: string;
+  bootstrapPath: string;
+  wdaRemotePort: number | string;
+  wdaBindingIP?: string;
+}
+
+/**
+ * Find and terminate all processes matching the given pgrep pattern.
+ */
 export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
     const matchedPids = await getPIDsUsingPattern(pgrepPattern);
-    if (_.isEmpty(matchedPids)) {
+    if (matchedPids.length === 0) {
       return;
     }
     const args = [`-${signal}`, ...matchedPids];
@@ -59,21 +77,24 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
     } catch (err: any) {
       log.debug(`kill ${args.join(' ')} -> ${err.message}`);
     }
-    if (signal === _.last(signals)) {
+    if (signal === signals[signals.length - 1]) {
       // there is no need to wait after SIGKILL
       return;
     }
     try {
       await waitForCondition(
         async () => {
-          const pidCheckPromises = matchedPids.map((pid) =>
-            exec('kill', ['-0', pid])
+          const pidCheckPromises = matchedPids.map(async (pid) => {
+            try {
+              await exec('kill', ['-0', pid]);
               // the process is still alive
-              .then(() => false)
+              return false;
+            } catch {
               // the process is dead
-              .catch(() => true),
-          );
-          return (await B.all(pidCheckPromises)).every((x) => x === true);
+              return true;
+            }
+          });
+          return (await Promise.all(pidCheckPromises)).every((x) => x === true);
         },
         {
           waitMs: 1000,
@@ -93,9 +114,12 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
  * @returns Return true if the platformName is tvOS
  */
 export function isTvOS(platformName: string): boolean {
-  return _.toLower(platformName) === _.toLower(PLATFORM_NAME_TVOS);
+  return platformName?.toLowerCase() === PLATFORM_NAME_TVOS.toLowerCase();
 }
 
+/**
+ * Configure keychain access required for real-device code signing.
+ */
 export async function setRealDeviceSecurity(
   keychainPath: string,
   keychainPassword: string,
@@ -104,17 +128,6 @@ export async function setRealDeviceSecurity(
   await exec('security', ['-v', 'list-keychains', '-s', keychainPath]);
   await exec('security', ['-v', 'unlock-keychain', '-p', keychainPassword, keychainPath]);
   await exec('security', ['set-keychain-settings', '-t', '3600', '-l', keychainPath]);
-}
-
-/**
- * Arguments for setting xctestrun file
- */
-export interface XctestrunFileArgs {
-  deviceInfo: DeviceInfo;
-  sdkVersion: string;
-  bootstrapPath: string;
-  wdaRemotePort: number | string;
-  wdaBindingIP?: string;
 }
 
 /**
@@ -140,7 +153,7 @@ export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string>
     wdaRemotePort,
     wdaBindingIP,
   );
-  const newXctestRunContent = _.merge(xctestRunContent, updateWDAPort);
+  const newXctestRunContent = mergeObjects(xctestRunContent, updateWDAPort);
   await plist.updatePlistFile(xctestrunFilePath, newXctestRunContent, true);
 
   return xctestrunFilePath;
@@ -286,6 +299,23 @@ export async function getWDAUpgradeTimestamp(): Promise<number | null> {
 }
 
 /**
+ * Escape regular expression metacharacters in a string.
+ */
+export function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Truncate a string to the given length and append ellipsis if needed.
+ */
+export function truncateString(value: string, length: number): string {
+  if (value.length <= length) {
+    return value;
+  }
+  return `${value.slice(0, Math.max(0, length - 1))}…`;
+}
+
+/**
  * Kills running XCTest processes for the particular device.
  */
 export async function resetTestProcesses(udid: string, isSimulator: boolean): Promise<void> {
@@ -296,7 +326,7 @@ export async function resetTestProcesses(udid: string, isSimulator: boolean): Pr
     processPatterns.push(`xctest.*${udid}`);
   }
   log.debug(`Killing running processes '${processPatterns.join(', ')}' for the device ${udid}...`);
-  await B.all(processPatterns.map(killAppUsingPattern));
+  await Promise.all(processPatterns.map(killAppUsingPattern));
 }
 
 /**
@@ -329,22 +359,25 @@ export async function getPIDsListeningOnPort(
     return result;
   }
 
-  if (!_.isFunction(filteringFunc)) {
+  if (typeof filteringFunc !== 'function') {
     return result;
   }
-  return await B.filter(result, async (pid) => {
-    let stdout: string;
-    try {
-      ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
-    } catch (e: any) {
-      if (e.code === 1) {
-        // The process does not exist anymore, there's nothing to filter
-        return false;
+  const filtered = await Promise.all(
+    result.map(async (pid) => {
+      let stdout: string;
+      try {
+        ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
+      } catch (e: any) {
+        if (e.code === 1) {
+          // The process does not exist anymore, there's nothing to filter
+          return null;
+        }
+        throw e;
       }
-      throw e;
-    }
-    return await filteringFunc(stdout);
-  });
+      return (await filteringFunc(stdout)) ? pid : null;
+    }),
+  );
+  return filtered.filter((pid): pid is string => Boolean(pid));
 }
 
 // Private functions
@@ -359,7 +392,7 @@ async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
     return stdout
       .split(/\s+/)
       .map((x) => parseInt(x, 10))
-      .filter(_.isInteger)
+      .filter(Number.isInteger)
       .map((x) => `${x}`);
   } catch (err: any) {
     log.debug(
@@ -367,4 +400,28 @@ async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
     );
     return [];
   }
+}
+
+function mergeObjects<T extends Record<string, any>, U extends Record<string, any>>(
+  target: T,
+  source: U,
+): T & U {
+  const output: Record<string, any> = {...target};
+  for (const [key, sourceValue] of Object.entries(source)) {
+    const targetValue = output[key];
+    if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
+      output[key] = mergeObjects(targetValue, sourceValue);
+      continue;
+    }
+    output[key] = sourceValue;
+  }
+  return output as T & U;
+}
+
+function isPlainObject(value: unknown): value is Record<string, any> {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }
