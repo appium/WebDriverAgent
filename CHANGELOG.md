@@ -1,3 +1,9 @@
+## [12.2.0](https://github.com/appium/WebDriverAgent/compare/v12.1.1...v12.2.0) (2026-04-29)
+
+### Features
+
+* Ditch bluebird and lodash ([#1130](https://github.com/appium/WebDriverAgent/issues/1130)) ([8899895](https://github.com/appium/WebDriverAgent/commit/88998951f004daed1d22ce2c06eec89a08129e4f))
+
 ## [12.1.1](https://github.com/appium/WebDriverAgent/compare/v12.1.0...v12.1.1) (2026-04-27)
 
 ### Miscellaneous Chores
