@@ -22,6 +22,9 @@
 #import "FBUnknownCommands.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBReverseTunnel.h"
+#import <Network/Network.h>
+#import <signal.h>
 
 #import "XCUIDevice+FBHelpers.h"
 
@@ -48,6 +51,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 @property (atomic, assign) BOOL keepAlive;
 @property (nonatomic, nullable) FBTCPSocket *screenshotsBroadcaster;
 @property (nonatomic, nullable, strong) FBMjpegServer *mjpegServer;
+@property (nonatomic, strong) nw_path_monitor_t pathMonitor;
 @end
 
 @implementation FBWebServer
@@ -74,10 +78,53 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
 - (void)startServing
 {
+  // Ignore SIGTERM/SIGHUP to survive IDE disconnection (enables wireless operation)
+  signal(SIGTERM, SIG_IGN);
+  signal(SIGHUP, SIG_IGN);
+  [FBLogger logFmt:@"[WDA] SIGTERM/SIGHUP ignored - will survive IDE disconnect"];
+
   [FBLogger logFmt:@"Built at %s %s", __DATE__, __TIME__];
   self.exceptionHandler = [FBExceptionHandler new];
   [self startHTTPServer];
   [self initScreenshotsBroadcaster];
+
+  // Start reverse tunnel if configured
+  NSString *relayHost = FBConfiguration.relayHost;
+  if (relayHost) {
+    [FBReverseTunnel startWithHost:relayHost
+                             port:FBConfiguration.relayPort
+                        localPort:FBConfiguration.bindingPortRange.location];
+  }
+
+  // Network change monitor - restart HTTP server on interface changes
+  self.pathMonitor = nw_path_monitor_create();
+  nw_path_monitor_set_queue(self.pathMonitor,
+    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+  __block BOOL firstUpdate = YES;
+  __weak typeof(self) weakSelf = self;
+  nw_path_monitor_set_update_handler(self.pathMonitor, ^(nw_path_t path) {
+    if (firstUpdate) {
+      firstUpdate = NO;
+      return;
+    }
+    if (nw_path_get_status(path) == nw_path_status_satisfied) {
+      [FBLogger logFmt:@"[WDA] Network changed, restarting HTTP server in 2s..."];
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC),
+        dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf && strongSelf.server) {
+          if (strongSelf.server.isRunning) {
+            [strongSelf.server stop:NO];
+          }
+          strongSelf.server = nil;
+          [FBLogger logFmt:@"[WDA] Restarting HTTP server..."];
+          [strongSelf startHTTPServer];
+        }
+      });
+    }
+  });
+  nw_path_monitor_start(self.pathMonitor);
+  [FBLogger logFmt:@"[WDA] Network path monitor started"];
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
