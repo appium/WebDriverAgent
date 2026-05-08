@@ -236,7 +236,7 @@ describe('WebDriverAgent', function () {
 
     beforeEach(function () {
       wda = new WebDriverAgent(fakeConstructorArgs);
-      wdaStub = sinon.stub(wda, 'getStatus');
+      wdaStub = sinon.stub(wda as any, 'getStatus');
       wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
     });
 
@@ -312,7 +312,7 @@ describe('WebDriverAgent', function () {
         ...fakeConstructorArgs,
         updatedWDABundleId: 'com.example.WebDriverAgent',
       });
-      wdaStub = sinon.stub(wda, 'getStatus');
+      wdaStub = sinon.stub(wda as any, 'getStatus');
       wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
 
       wdaStub.callsFake(function () {
@@ -336,7 +336,7 @@ describe('WebDriverAgent', function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
-      getTimestampStub.callsFake(() => '2');
+      getTimestampStub.callsFake(async () => 2);
       wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
@@ -348,7 +348,7 @@ describe('WebDriverAgent', function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
-      getTimestampStub.callsFake(() => '1');
+      getTimestampStub.callsFake(async () => 1);
       wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
@@ -360,7 +360,7 @@ describe('WebDriverAgent', function () {
       wdaStub.callsFake(function () {
         return {build: {}};
       });
-      getTimestampStub.callsFake(() => '1');
+      getTimestampStub.callsFake(async () => 1);
       wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
@@ -372,7 +372,7 @@ describe('WebDriverAgent', function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
-      getTimestampStub.callsFake(() => null);
+      getTimestampStub.callsFake(async () => null);
       wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();

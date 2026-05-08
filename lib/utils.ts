@@ -1,5 +1,6 @@
 import {fs, plist} from '@appium/support';
-import {exec, SubProcess} from 'teen_process';
+import {exec} from 'teen_process';
+import type {SubProcess} from 'teen_process';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {log} from './logger';

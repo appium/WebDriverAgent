@@ -11,13 +11,9 @@ export class NoSessionProxy extends JWProxy {
       url = '/';
     }
     const proxyBase = `${this.scheme}://${this.server}:${this.port}${this.base}`;
-    let remainingUrl = '';
     if (new RegExp('^/').test(url)) {
-      remainingUrl = url;
-    } else {
-      throw new Error(`Did not know what to do with url '${url}'`);
+      return proxyBase + url.replace(/\/$/, ''); // can't have trailing slashes
     }
-    remainingUrl = remainingUrl.replace(/\/$/, ''); // can't have trailing slashes
-    return proxyBase + remainingUrl;
+    throw new Error(`Did not know what to do with url '${url}'`);
   }
 }

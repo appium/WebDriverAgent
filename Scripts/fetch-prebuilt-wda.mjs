@@ -29,7 +29,7 @@ async function fetchPrebuiltWebDriverAgentAssets () {
       },
     })).data;
   } catch (e) {
-    throw new Error(`Could not fetch endpoint ${downloadUrl}. Reason: ${e.message}`);
+    throw new Error(`Could not fetch endpoint ${downloadUrl}. Reason: ${e.message}`, {cause: e});
   }
 
   const webdriveragentsDir = path.resolve(__dirname, '..', 'prebuilt-agents');
@@ -42,7 +42,9 @@ async function fetchPrebuiltWebDriverAgentAssets () {
     try {
       await net.downloadFile(url, targetPath);
     } catch (err) {
-      throw new Error(`Problem downloading webdriveragent from url ${url}: ${err.message}`);
+      throw new Error(`Problem downloading webdriveragent from url ${url}: ${err.message}`, {
+        cause: err,
+      });
     }
   }
 

@@ -42,7 +42,7 @@ describe('utils', function () {
       await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
         path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`),
       );
-      sandbox.assert.notCalled(fs.copyFile);
+      sandbox.assert.notCalled(fs.copyFile as any);
     });
 
     it('should return sdk based path without udid, copy them', async function () {
@@ -102,7 +102,7 @@ describe('utils', function () {
       await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
         path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`),
       );
-      sandbox.assert.notCalled(fs.copyFile);
+      sandbox.assert.notCalled(fs.copyFile as any);
     });
 
     it('should return platform based path without udid, copy them', async function () {

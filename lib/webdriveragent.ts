@@ -34,8 +34,8 @@ const RECENT_MODULE_VERSION_ITEM_NAME = 'recentWdaModuleVersion';
 const URL_PROTOCOL_SEPARATOR = '://';
 
 export class WebDriverAgent {
-  bootstrapPath: string;
-  agentPath: string;
+  bootstrapPath!: string;
+  agentPath!: string;
   readonly args: WebDriverAgentArgs;
   readonly device: AppleDevice;
   readonly platformVersion?: string;
@@ -621,7 +621,7 @@ export class WebDriverAgent {
         `Failed to get the status endpoint in ${timeoutMs} ms. ` +
           `The last error while accessing ${this.url.href}: ${lastError}. Original error:: ${err.message}.`,
       );
-      throw new Error(`WDA was not ready in ${timeoutMs} ms.`);
+      throw new Error(`WDA was not ready in ${timeoutMs} ms.`, {cause: err});
     }
     return status;
   }

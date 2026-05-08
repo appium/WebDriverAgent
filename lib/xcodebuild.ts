@@ -337,11 +337,10 @@ export class XcodeBuild {
     }
     args.push('-destination', `id=${this.device.udid}`);
 
-    let versionMatch: RegExpMatchArray | null = null;
-    if (
-      this.platformVersion &&
-      (versionMatch = new RegExp(/^(\d+)\.(\d+)/).exec(this.platformVersion))
-    ) {
+    const versionMatch = this.platformVersion
+      ? new RegExp(/^(\d+)\.(\d+)/).exec(this.platformVersion)
+      : null;
+    if (versionMatch) {
       args.push(
         `${isTvOS(this.platformName || '') ? 'TV' : 'IPHONE'}OS_DEPLOYMENT_TARGET=${versionMatch[1]}.${versionMatch[2]}`,
       );
@@ -472,7 +471,9 @@ export class XcodeBuild {
           this.log.debug(`WebDriverAgent information:`);
           this.log.debug(JSON.stringify(currentStatus, null, 2));
         } catch (err: any) {
-          throw new Error(`Unable to connect to running WebDriverAgent: ${err.message}`);
+          throw new Error(`Unable to connect to running WebDriverAgent: ${err.message}`, {
+            cause: err,
+          });
         } finally {
           (noSessionProxy as any).timeout = proxyTimeout;
         }
@@ -491,6 +492,7 @@ export class XcodeBuild {
       throw new Error(
         `We were not able to retrieve the /status response from the WebDriverAgent server after ${timeout}ms timeout.` +
           `Try to increase the value of 'appium:wdaLaunchTimeout' capability as a possible workaround.`,
+        {cause: err},
       );
     }
     return currentStatus;
