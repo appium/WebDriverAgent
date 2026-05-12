@@ -15,8 +15,12 @@ permissions:
   id-token: write # to enable use of OIDC for trusted publishing and npm provenance
 
 env:
+  # DO NOT USE 26.4+ for a while since it could drop lower iOS versions forcefully 
+  # while the project config allows such lower versions.
+  # (at least WDA failed to start on iOS 15)
+  # Xcode 26.3 looks like it's working as expected.
   XCODE_VERSION: '16.4'
-  # Available destination for simulators depend on Xcode version.
+  # Available destination for simulators depends on Xcode version.
   DESTINATION_SIM: platform=iOS Simulator,name=iPhone 17
   DESTINATION_SIM_TVOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
 
