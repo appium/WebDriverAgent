@@ -404,12 +404,14 @@ export class WebDriverAgent {
   /**
    * Reuse running WDA if it has the same bundle id with updatedWDABundleId.
    * Or reuse it if it has the default id without updatedWDABundleId.
+   *
+   * @returns The WDA URL used for caching on success, or `undefined` if caching was skipped.
    */
-  async setupCaching(): Promise<void> {
+  async setupCaching(): Promise<string | undefined> {
     const status = await this.getStatus(0);
     if (!status || !status.build) {
       this.log.debug('WDA is currently not running. There is nothing to cache');
-      return;
+      return undefined;
     }
 
     const {productBundleIdentifier, upgradedAt} = status.build as any;
@@ -422,7 +424,7 @@ export class WebDriverAgent {
       this.log.info(
         `Will not reuse running WDA since it has different bundle id. The actual value is '${productBundleIdentifier}'.`,
       );
-      return;
+      return undefined;
     }
     // for simulator
     if (
@@ -433,7 +435,7 @@ export class WebDriverAgent {
       this.log.info(
         `Will not reuse running WDA since its bundle id is not equal to the default value ${WDA_RUNNER_BUNDLE_ID}`,
       );
-      return;
+      return undefined;
     }
 
     const actualUpgradeTimestamp = await getWDAUpgradeTimestamp();
@@ -448,16 +450,18 @@ export class WebDriverAgent {
         'Will not reuse running WDA since it has different version in comparison to the one ' +
           `which is bundled with appium-xcuitest-driver module (${actualUpgradeTimestamp} != ${upgradedAt})`,
       );
-      return;
+      return undefined;
     }
 
+    const cachedUrl = this.url.href;
     const message = util.hasValue(productBundleIdentifier)
-      ? `Will reuse previously cached WDA instance at '${this.url.href}' with '${productBundleIdentifier}'`
-      : `Will reuse previously cached WDA instance at '${this.url.href}'`;
+      ? `Will reuse previously cached WDA instance at '${cachedUrl}' with '${productBundleIdentifier}'`
+      : `Will reuse previously cached WDA instance at '${cachedUrl}'`;
     this.log.info(
       `${message}. Set the wdaLocalPort capability to a value different from ${this.url.port} if this is an undesired behavior.`,
     );
-    this.webDriverAgentUrl = this.url.href;
+    this.webDriverAgentUrl = cachedUrl;
+    return cachedUrl;
   }
 
   private setupProxies(sessionId: string): void {

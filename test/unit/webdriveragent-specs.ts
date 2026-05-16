@@ -251,7 +251,7 @@ describe('WebDriverAgent', function () {
         return null;
       });
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.be.undefined;
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
@@ -261,7 +261,7 @@ describe('WebDriverAgent', function () {
         return {build: {time: 'Jun 24 2018 17:08:21'}};
       });
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
@@ -276,7 +276,7 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.be.undefined;
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
@@ -291,7 +291,7 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.be.undefined;
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
@@ -312,7 +312,7 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
@@ -323,7 +323,7 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 2);
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.be.undefined;
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
@@ -334,7 +334,7 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 1);
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
@@ -345,7 +345,7 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 1);
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
@@ -356,7 +356,7 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => null);
 
-      await wda.setupCaching();
+      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
       expect(wdaStub.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
