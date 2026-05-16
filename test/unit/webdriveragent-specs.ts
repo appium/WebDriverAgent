@@ -5,7 +5,7 @@ import {WebDriverAgent} from '../../lib/webdriveragent';
 import * as utils from '../../lib/utils';
 import path from 'node:path';
 import sinon from 'sinon';
-import type {WebDriverAgentArgs, AppleDevice} from '../../lib/types';
+import type {WebDriverAgentArgs} from '../../lib/types';
 
 chai.use(chaiAsPromised);
 
@@ -231,48 +231,42 @@ describe('WebDriverAgent', function () {
   describe('setupCaching()', function () {
     let wda: WebDriverAgent;
     let wdaStub: sinon.SinonStub;
-    let wdaStubUninstall: sinon.SinonStub;
     const getTimestampStub = sinon.stub(utils, 'getWDAUpgradeTimestamp');
 
     beforeEach(function () {
       wda = new WebDriverAgent(fakeConstructorArgs);
       wdaStub = sinon.stub(wda as any, 'getStatus');
-      wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
     });
 
     afterEach(function () {
-      for (const stub of [wdaStub, wdaStubUninstall, getTimestampStub]) {
+      for (const stub of [wdaStub, getTimestampStub]) {
         if (stub) {
           stub.reset();
         }
       }
     });
 
-    it('should not call uninstall since no Running WDA', async function () {
+    it('should not cache when no WDA is running', async function () {
       wdaStub.callsFake(function () {
         return null;
       });
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
-    it('should not call uninstall since running WDA has only time', async function () {
+    it('should cache when running WDA has only time', async function () {
       wdaStub.callsFake(function () {
         return {build: {time: 'Jun 24 2018 17:08:21'}};
       });
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
 
-    it('should call uninstall once since bundle id is not default without updatedWDABundleId capability', async function () {
+    it('should not cache when bundle id is not default without updatedWDABundleId capability', async function () {
       wdaStub.callsFake(function () {
         return {
           build: {
@@ -281,15 +275,13 @@ describe('WebDriverAgent', function () {
           },
         };
       });
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
-    it('should call uninstall once since bundle id is different with updatedWDABundleId capability', async function () {
+    it('should not cache when bundle id is different with updatedWDABundleId capability', async function () {
       wdaStub.callsFake(function () {
         return {
           build: {
@@ -299,21 +291,17 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      wdaStubUninstall.callsFake(() => {});
-
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.calledOnce).to.be.true;
       expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
-    it('should not call uninstall since bundle id is equal to updatedWDABundleId capability', async function () {
+    it('should cache when bundle id is equal to updatedWDABundleId capability', async function () {
       wda = new WebDriverAgent({
         ...fakeConstructorArgs,
         updatedWDABundleId: 'com.example.WebDriverAgent',
       });
       wdaStub = sinon.stub(wda as any, 'getStatus');
-      wdaStubUninstall = sinon.stub(wda as any, 'uninstall');
 
       wdaStub.callsFake(function () {
         return {
@@ -324,115 +312,53 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      wdaStubUninstall.callsFake(() => {});
-
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
       expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
 
-    it('should call uninstall if current revision differs from the bundled one', async function () {
+    it('should not cache if current revision differs from the bundled one', async function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(async () => 2);
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.calledOnce).to.be.true;
+      expect(wda.webDriverAgentUrl === undefined).to.be.true;
     });
 
-    it('should not call uninstall if current revision is the same as the bundled one', async function () {
+    it('should cache if current revision is the same as the bundled one', async function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(async () => 1);
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
+      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
 
-    it('should not call uninstall if current revision cannot be retrieved from WDA status', async function () {
+    it('should cache if current revision cannot be retrieved from WDA status', async function () {
       wdaStub.callsFake(function () {
         return {build: {}};
       });
       getTimestampStub.callsFake(async () => 1);
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
+      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
 
-    it('should not call uninstall if current revision cannot be retrieved from the file system', async function () {
+    it('should cache if current revision cannot be retrieved from the file system', async function () {
       wdaStub.callsFake(function () {
         return {build: {upgradedAt: '1'}};
       });
       getTimestampStub.callsFake(async () => null);
-      wdaStubUninstall.callsFake(() => {});
 
       await wda.setupCaching();
       expect(wdaStub.calledOnce).to.be.true;
-      expect(wdaStubUninstall.notCalled).to.be.true;
-    });
-
-    describe('uninstall', function () {
-      let device: AppleDevice;
-      let wda: WebDriverAgent;
-      let deviceGetBundleIdsStub: sinon.SinonStub;
-      let deviceRemoveAppStub: sinon.SinonStub;
-
-      beforeEach(function () {
-        device = {
-          getUserInstalledBundleIdsByBundleName: () => {},
-          removeApp: () => {},
-        } as any;
-        wda = new WebDriverAgent({device} as WebDriverAgentArgs);
-        deviceGetBundleIdsStub = sinon.stub(device, 'getUserInstalledBundleIdsByBundleName');
-        deviceRemoveAppStub = sinon.stub(device, 'removeApp');
-      });
-
-      afterEach(function () {
-        for (const stub of [deviceGetBundleIdsStub, deviceRemoveAppStub]) {
-          if (stub) {
-            stub.reset();
-          }
-        }
-      });
-
-      it('should not call uninstall', async function () {
-        deviceGetBundleIdsStub.callsFake(() => []);
-
-        await (wda as any).uninstall();
-        expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
-        expect(deviceRemoveAppStub.notCalled).to.be.true;
-      });
-
-      it('should call uninstall once', async function () {
-        const uninstalledBundIds: string[] = [];
-        deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1']);
-        deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
-
-        await (wda as any).uninstall();
-        expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
-        expect(deviceRemoveAppStub.calledOnce).to.be.true;
-        expect(uninstalledBundIds).to.eql(['com.appium.WDA1']);
-      });
-
-      it('should call uninstall twice', async function () {
-        const uninstalledBundIds: string[] = [];
-        deviceGetBundleIdsStub.callsFake(() => ['com.appium.WDA1', 'com.appium.WDA2']);
-        deviceRemoveAppStub.callsFake((id: string) => uninstalledBundIds.push(id));
-
-        await (wda as any).uninstall();
-        expect(deviceGetBundleIdsStub.calledOnce).to.be.true;
-        expect(deviceRemoveAppStub.calledTwice).to.be.true;
-        expect(uninstalledBundIds).to.eql(['com.appium.WDA1', 'com.appium.WDA2']);
-      });
+      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
     });
   });
 
