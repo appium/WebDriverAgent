@@ -6,14 +6,16 @@ import * as utils from '../../lib/utils';
 import path from 'node:path';
 import sinon from 'sinon';
 import type {WebDriverAgentArgs} from '../../lib/types';
+import type {Simctl} from 'node-simctl';
+import type {Devicectl} from 'node-devicectl';
 
 chai.use(chaiAsPromised);
 
 const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {
     udid: 'some-sim-udid',
-    simctl: {},
-    devicectl: {},
+    simctl: {} as Simctl,
+    devicectl: {} as Devicectl,
   },
   platformVersion: '9',
   host: 'me',

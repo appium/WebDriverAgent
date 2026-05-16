@@ -22,6 +22,8 @@ import {
 } from './constants';
 import {strongbox} from '@appium/strongbox';
 import type {WebDriverAgentArgs, AppleDevice} from './types';
+import type {Simctl} from 'node-simctl';
+import type {Devicectl} from 'node-devicectl';
 
 const WDA_LAUNCH_TIMEOUT = 60 * 1000;
 const WDA_AGENT_PORT = 8100;
@@ -361,7 +363,11 @@ export class WebDriverAgent {
     if (this.usePreinstalledWDA) {
       this.log.info('Stopping the XCTest session');
       try {
-        await this.device.simctl.terminateApp(this.bundleIdForXctest);
+        if (this.device.simctl) {
+          await this.device.simctl.terminateApp(this.bundleIdForXctest);
+        } else if (this.device.devicectl) {
+          await this.device.devicectl.terminateApp(this.bundleIdForXctest);
+        }
       } catch (e: any) {
         this.log.warn(e.message);
       }
@@ -372,8 +378,7 @@ export class WebDriverAgent {
       }
     } else {
       this.log.debug(
-        'Do not stop xcodebuild nor XCTest session ' +
-          'since the WDA session is managed by outside this driver.',
+        'Stopping neither xcodebuild nor XCTest session since WDA lifecycle is not managed by this driver',
       );
     }
 
@@ -662,7 +667,7 @@ export class WebDriverAgent {
   ): Promise<void> {
     const {env} = opts;
 
-    await this.device.devicectl.launchApp(this.bundleIdForXctest, {env, terminateExisting: true});
+    await (this.device.devicectl as Devicectl).launchApp(this.bundleIdForXctest, {env, terminateExisting: true});
   }
 
   /**
@@ -684,7 +689,7 @@ export class WebDriverAgent {
     if (this.isRealDevice) {
       await this._launchViaDevicectl({env: xctestEnv});
     } else {
-      await this.device.simctl.exec('launch', {
+      await (this.device.simctl as Simctl).exec('launch', {
         args: ['--terminate-running-process', this.device.udid, this.bundleIdForXctest],
         env: xctestEnv,
       });

@@ -1,4 +1,6 @@
 import {type HTTPHeaders} from '@appium/types';
+import type {Simctl} from 'node-simctl';
+import type {Devicectl} from 'node-devicectl';
 
 // WebDriverAgentLib/Utilities/FBSettings.h
 export interface WDASettings {
@@ -99,8 +101,8 @@ export interface WebDriverAgentArgs {
 
 export interface AppleDevice {
   udid: string;
-  simctl?: any;
-  devicectl?: any;
+  simctl?: Simctl;
+  devicectl?: Devicectl;
   [key: string]: any;
 }
 
