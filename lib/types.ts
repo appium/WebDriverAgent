@@ -103,7 +103,6 @@ export interface AppleDevice {
   udid: string;
   simctl?: Simctl;
   devicectl?: Devicectl;
-  [key: string]: any;
 }
 
 /**

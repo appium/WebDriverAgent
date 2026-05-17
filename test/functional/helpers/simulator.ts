@@ -22,7 +22,7 @@ export async function killAllSimulators(): Promise<void> {
 export async function shutdownSimulator(device: AppleDevice): Promise<void> {
   // stop XCTest processes if running to avoid unexpected side effects
   await resetTestProcesses(device.udid, true);
-  await device.shutdown();
+  await (device.simctl as Simctl).shutdownDevice();
 }
 
 export async function deleteDeviceWithRetry(udid: string): Promise<void> {

@@ -67,7 +67,10 @@ describe('WebDriverAgent', function () {
       this.timeout(6 * 60 * 1000);
       beforeEach(async function () {
         await killAllSimulators();
-        await device.run({startupTimeout: SIM_STARTUP_TIMEOUT_MS});
+        await (device.simctl as Simctl).startBootMonitor({
+          shouldPreboot: true,
+          timeout: SIM_STARTUP_TIMEOUT_MS
+        });
       });
       afterEach(async function () {
         try {
