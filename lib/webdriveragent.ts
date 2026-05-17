@@ -667,7 +667,10 @@ export class WebDriverAgent {
   ): Promise<void> {
     const {env} = opts;
 
-    await (this.device.devicectl as Devicectl).launchApp(this.bundleIdForXctest, {env, terminateExisting: true});
+    await (this.device.devicectl as Devicectl).launchApp(this.bundleIdForXctest, {
+      env,
+      terminateExisting: true,
+    });
   }
 
   /**
