@@ -69,7 +69,7 @@ describe('WebDriverAgent', function () {
         await killAllSimulators();
         await (device.simctl as Simctl).startBootMonitor({
           shouldPreboot: true,
-          timeout: SIM_STARTUP_TIMEOUT_MS
+          timeout: SIM_STARTUP_TIMEOUT_MS,
         });
       });
       afterEach(async function () {
