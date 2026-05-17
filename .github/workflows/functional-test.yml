@@ -18,7 +18,7 @@ jobs:
             IOS_MODEL: 'iPhone 17'
           - HOST_OS: 'macos-15'
             XCODE_VERSION: '16.4'
-            IOS_VERSION: '18.4'
+            IOS_VERSION: '18.5'
             IOS_MODEL: 'iPhone 16 Plus'
           - HOST_OS: 'macos-14'
             XCODE_VERSION: '15.4'
@@ -46,6 +46,7 @@ jobs:
         DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
         PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
       run: |
+        xcrun simctl list devices available
         open -Fn "$(xcode-select -p)/Applications/Simulator.app"
         udid=$(xcrun simctl list devices available -j | \
           node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
