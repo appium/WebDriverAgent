@@ -826,6 +826,7 @@
 		F59CD6D52EF16E5E00F91287 /* XCUIElement+FBCustomActions.m in Sources */ = {isa = PBXBuildFile; fileRef = F59CD6D32EF16E5E00F91287 /* XCUIElement+FBCustomActions.m */; };
 		F59CD6D62EF16E5E00F91287 /* XCUIElement+FBCustomActions.h in Headers */ = {isa = PBXBuildFile; fileRef = F59CD6D22EF16E5E00F91287 /* XCUIElement+FBCustomActions.h */; };
 		F59CD6D72EF16E5E00F91287 /* XCUIElement+FBCustomActions.m in Sources */ = {isa = PBXBuildFile; fileRef = F59CD6D32EF16E5E00F91287 /* XCUIElement+FBCustomActions.m */; };
+		A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001A /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1368,6 +1369,7 @@
 		EE9AB7921CAEDF0C008C271F /* FBRuntimeUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRuntimeUtils.m; sourceTree = "<group>"; };
 		EE9AB7FC1CAEE048008C271F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WebDriverAgentRunner/Info.plist; sourceTree = SOURCE_ROOT; };
 		EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UITestingUITests.m; path = WebDriverAgentRunner/UITestingUITests.m; sourceTree = SOURCE_ROOT; };
+		A1B2C3D4E5F600000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WebDriverAgentRunner/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		EE9AB8031CAEE182008C271F /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		EE9B75D41CF7956C00275851 /* IntegrationApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntegrationApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE9B75EC1CF7956C00275851 /* IntegrationTests_1.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_1.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2294,6 +2296,7 @@
 			children = (
 				EE9AB7FC1CAEE048008C271F /* Info.plist */,
 				EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */,
+				A1B2C3D4E5F600000000001A /* Assets.xcassets */,
 			);
 			name = WebDriverAgentRunner;
 			path = XCTUITestRunner;
@@ -3110,6 +3113,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4346,6 +4350,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
@@ -4399,6 +4404,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
