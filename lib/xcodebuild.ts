@@ -564,5 +564,5 @@ function buildSettingsArgsFromOptions(options?: RetrieveBuildSettingsOptions): s
 }
 
 function buildSettingsCacheKey(options?: RetrieveBuildSettingsOptions): string {
-  return JSON.stringify(options ?? {});
+  return buildSettingsArgsFromOptions(options).join('\0');
 }
