@@ -51,13 +51,13 @@ describe('WebDriverAgent', function () {
       expect(agent.bootstrapPath).to.eql(customBootstrapPath);
       expect(agent.agentPath).to.eql(customAgentPath);
     });
-    it('should have custom derivedDataPath if specified', function () {
+    it('should have custom derivedDataPath if specified', async function () {
       const agent = new WebDriverAgent({
         ...fakeConstructorArgs,
         derivedDataPath: customDerivedDataPath,
       });
       if (agent.xcodebuild) {
-        expect(agent.xcodebuild.derivedDataPath).to.eql(customDerivedDataPath);
+        expect(await agent.retrieveDerivedDataPath()).to.eql(customDerivedDataPath);
       }
     });
   });

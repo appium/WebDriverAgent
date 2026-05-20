@@ -21,7 +21,12 @@ import {
   DEFAULT_TEST_BUNDLE_SUFFIX,
 } from './constants';
 import {strongbox} from '@appium/strongbox';
-import type {WebDriverAgentArgs, AppleDevice} from './types';
+import type {
+  WebDriverAgentArgs,
+  AppleDevice,
+  XcodeBuildSettings,
+  RetrieveBuildSettingsOptions,
+} from './types';
 import type {Simctl} from 'node-simctl';
 import type {Devicectl} from 'node-devicectl';
 
@@ -51,13 +56,11 @@ export class WebDriverAgent {
   jwproxy?: JWProxy;
   proxyReqRes?: any;
   private readonly log: AppiumLogger;
-  private readonly wdaBundlePath?: string;
   private readonly wdaLocalPort?: number;
   private readonly prebuildWDA?: boolean;
   private readonly wdaConnectionTimeout?: number;
   private readonly useXctestrunFile?: boolean;
   private readonly usePrebuiltWDA?: boolean;
-  private readonly derivedDataPath?: string;
   private readonly mjpegServerPort?: number;
   private readonly wdaLaunchTimeout: number;
   private readonly usePreinstalledWDA?: boolean;
@@ -80,7 +83,6 @@ export class WebDriverAgent {
     this.iosSdkVersion = args.iosSdkVersion;
     this.host = args.host;
     this.isRealDevice = !!args.realDevice;
-    this.wdaBundlePath = args.wdaBundlePath;
 
     this.setWDAPaths(args.bootstrapPath, args.agentPath);
 
@@ -102,7 +104,6 @@ export class WebDriverAgent {
 
     this.useXctestrunFile = args.useXctestrunFile;
     this.usePrebuiltWDA = args.usePrebuiltWDA;
-    this.derivedDataPath = args.derivedDataPath;
     this.mjpegServerPort = args.mjpegServerPort;
 
     this.updatedWDABundleId = args.updatedWDABundleId;
@@ -396,7 +397,21 @@ export class WebDriverAgent {
   }
 
   /**
-   * Retrieves the Xcode derived data path for WebDriverAgent.
+   * Retrieves Xcode build settings.
+   * @param options - Optional scheme, SDK, configuration, or destination
+   * @returns Build settings, or `undefined` if xcodebuild is skipped or settings cannot be determined
+   */
+  async retrieveBuildSettings(
+    options?: RetrieveBuildSettingsOptions,
+  ): Promise<XcodeBuildSettings | undefined> {
+    if (this.canSkipXcodebuild) {
+      return;
+    }
+    return await this.xcodebuild.retrieveBuildSettings(options);
+  }
+
+  /**
+   * @deprecated Use {@link retrieveBuildSettings} instead. Will be removed in a future release.
    * @returns The derived data path, or `undefined` if xcodebuild is skipped
    */
   async retrieveDerivedDataPath(): Promise<string | undefined> {

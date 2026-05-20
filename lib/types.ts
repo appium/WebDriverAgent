@@ -115,6 +115,35 @@ export interface DeviceInfo {
   platformName: string;
 }
 
+/** Xcode build setting key/value pairs from `xcodebuild -showBuildSettings -json`. */
+export type XcodeBuildSettings = Record<string, string>;
+
+/** A single target entry returned by `xcodebuild -showBuildSettings -json`. */
+export interface XcodeShowBuildSettingsEntry {
+  action: string;
+  buildSettings: XcodeBuildSettings;
+  target: string;
+}
+
+export type WdaScheme =
+  | 'WebDriverAgentRunner'
+  | 'WebDriverAgentLib'
+  | 'WebDriverAgentRunner_tvOS'
+  | 'WebDriverAgentLib_tvOS';
+
+export type WdaSdk = 'iphonesimulator' | 'iphoneos' | 'appletvsimulator' | 'appletvos';
+
+export type WdaBuildConfiguration = 'Debug' | 'Release';
+
+/** Options passed to {@link XcodeBuild.retrieveBuildSettings}. */
+export interface RetrieveBuildSettingsOptions {
+  scheme?: WdaScheme;
+  sdk?: WdaSdk;
+  configuration?: WdaBuildConfiguration;
+  /** `-destination` value (e.g. `id=<udid>` or a full destination specifier). */
+  destination?: string;
+}
+
 export interface XcodeBuildArgs {
   realDevice: boolean; // Required
   agentPath: string; // Required

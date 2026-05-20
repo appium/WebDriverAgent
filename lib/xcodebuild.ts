@@ -14,7 +14,13 @@ import {
 } from './utils';
 import path from 'node:path';
 import {WDA_RUNNER_BUNDLE_ID} from './constants';
-import type {AppleDevice, XcodeBuildArgs} from './types';
+import type {
+  AppleDevice,
+  RetrieveBuildSettingsOptions,
+  XcodeBuildArgs,
+  XcodeBuildSettings,
+  XcodeShowBuildSettingsEntry,
+} from './types';
 import type {NoSessionProxy} from './no-session-proxy';
 
 const DEFAULT_SIGNING_ID = 'iPhone Developer';
@@ -42,7 +48,6 @@ const REAL_DEVICES_CONFIG_DOCS_LINK =
 const xcodeLog = logger.getLogger('Xcode');
 
 export class XcodeBuild {
-  xcodebuild?: SubProcess;
   readonly device: AppleDevice;
   readonly realDevice: boolean;
   readonly agentPath: string;
@@ -51,9 +56,9 @@ export class XcodeBuild {
   readonly platformName?: string;
   readonly iosSdkVersion?: string;
   readonly xcodeSigningId: string;
-  usePrebuiltWDA?: boolean;
-  derivedDataPath?: string;
-  agentUrl?: string;
+  private xcodebuild?: SubProcess;
+  private usePrebuiltWDA?: boolean;
+  private derivedDataPath?: string;
   private readonly log: AppiumLogger;
   private readonly showXcodeLog?: boolean;
   private readonly xcodeConfigFile?: string;
@@ -73,7 +78,10 @@ export class XcodeBuild {
   private readonly resultBundleVersion?: string;
   private _didBuildFail: boolean;
   private _didProcessExit: boolean;
-  private _derivedDataPathPromise?: Promise<string | undefined>;
+  private readonly _buildSettingsPromises = new Map<
+    string,
+    Promise<XcodeBuildSettings | undefined>
+  >();
   private noSessionProxy?: NoSessionProxy;
   private xctestrunFilePath?: string;
 
@@ -158,8 +166,23 @@ export class XcodeBuild {
   }
 
   /**
-   * Retrieves the Xcode derived data path for the build.
-   * Uses cached value if available, otherwise queries xcodebuild for BUILD_DIR.
+   * Retrieves Xcode build settings via `xcodebuild -showBuildSettings -json`.
+   * @param options - Optional scheme, SDK, configuration, or destination
+   * @returns Build settings for the `build` action, or `undefined` if they cannot be determined
+   */
+  async retrieveBuildSettings(
+    options?: RetrieveBuildSettingsOptions,
+  ): Promise<XcodeBuildSettings | undefined> {
+    const cacheKey = buildSettingsCacheKey(options);
+    let promise = this._buildSettingsPromises.get(cacheKey);
+    if (!promise) {
+      promise = this.fetchBuildSettings(options);
+      this._buildSettingsPromises.set(cacheKey, promise);
+    }
+    return await promise;
+  }
+
+  /**
    * @returns The derived data path, or `undefined` if it cannot be determined
    */
   async retrieveDerivedDataPath(): Promise<string | undefined> {
@@ -167,33 +190,18 @@ export class XcodeBuild {
       return this.derivedDataPath;
     }
 
-    // avoid race conditions
-    if (this._derivedDataPathPromise) {
-      return await this._derivedDataPathPromise;
+    const buildSettings = await this.retrieveBuildSettings();
+    const buildDir = buildSettings?.BUILD_DIR;
+    if (!buildDir) {
+      this.log.warn('Cannot parse WDA BUILD_DIR from build settings');
+      return;
     }
 
-    this._derivedDataPathPromise = (async () => {
-      let stdout: string;
-      try {
-        ({stdout} = await exec('xcodebuild', ['-project', this.agentPath, '-showBuildSettings']));
-      } catch (err: any) {
-        this.log.warn(`Cannot retrieve WDA build settings. Original error: ${err.message}`);
-        return;
-      }
-
-      const pattern = /^\s*BUILD_DIR\s+=\s+(\/.*)/m;
-      const match = pattern.exec(stdout);
-      if (!match) {
-        this.log.warn(`Cannot parse WDA build dir from ${truncateString(stdout, 300)}`);
-        return;
-      }
-      this.log.debug(`Parsed BUILD_DIR configuration value: '${match[1]}'`);
-      // Derived data root is two levels higher over the build dir
-      this.derivedDataPath = path.dirname(path.dirname(path.normalize(match[1])));
-      this.log.debug(`Got derived data root: '${this.derivedDataPath}'`);
-      return this.derivedDataPath;
-    })();
-    return await this._derivedDataPathPromise;
+    this.log.debug(`Parsed BUILD_DIR configuration value: '${buildDir}'`);
+    // Derived data root is two levels higher over the build dir
+    this.derivedDataPath = path.dirname(path.dirname(path.normalize(buildDir)));
+    this.log.debug(`Got derived data root: '${this.derivedDataPath}'`);
+    return this.derivedDataPath;
   }
 
   /**
@@ -295,6 +303,45 @@ export class XcodeBuild {
    */
   async quit(): Promise<void> {
     await killProcess('xcodebuild', this.xcodebuild);
+  }
+
+  private async fetchBuildSettings(
+    options?: RetrieveBuildSettingsOptions,
+  ): Promise<XcodeBuildSettings | undefined> {
+    const schemeLabel = options?.scheme ?? 'default';
+    let stdout: string;
+    try {
+      ({stdout} = await exec('xcodebuild', [
+        '-project',
+        this.agentPath,
+        '-showBuildSettings',
+        '-json',
+        ...buildSettingsArgsFromOptions(options),
+      ]));
+    } catch (err: any) {
+      this.log.warn(
+        `Cannot retrieve WDA build settings for scheme '${schemeLabel}'. Original error: ${err.message}`,
+      );
+      return;
+    }
+
+    let entries: XcodeShowBuildSettingsEntry[];
+    try {
+      entries = JSON.parse(stdout) as XcodeShowBuildSettingsEntry[];
+    } catch (err: any) {
+      this.log.warn(
+        `Cannot parse WDA build settings for scheme '${schemeLabel}' from ${truncateString(stdout, 300)}. ` +
+          `Original error: ${err.message}`,
+      );
+      return;
+    }
+
+    const entry = entries.find(({action}) => action === 'build') ?? entries[0];
+    if (!entry?.buildSettings) {
+      this.log.warn(`Cannot find build settings for scheme '${schemeLabel}'`);
+      return;
+    }
+    return entry.buildSettings;
   }
 
   private getCommand(buildOnly: boolean = false): {cmd: string; args: string[]} {
@@ -465,9 +512,6 @@ export class XcodeBuild {
         (noSessionProxy as any).timeout = 1000;
         try {
           currentStatus = (await noSessionProxy.command('/status', 'GET')) as StringRecord;
-          if (currentStatus?.ios?.ip) {
-            this.agentUrl = currentStatus.ios.ip as string;
-          }
           this.log.debug(`WebDriverAgent information:`);
           this.log.debug(JSON.stringify(currentStatus, null, 2));
         } catch (err: any) {
@@ -497,4 +541,28 @@ export class XcodeBuild {
     }
     return currentStatus;
   }
+}
+
+function buildSettingsArgsFromOptions(options?: RetrieveBuildSettingsOptions): string[] {
+  const args: string[] = [];
+  if (!options) {
+    return args;
+  }
+  if (options.scheme) {
+    args.push('-scheme', options.scheme);
+  }
+  if (options.sdk) {
+    args.push('-sdk', options.sdk);
+  }
+  if (options.configuration) {
+    args.push('-configuration', options.configuration);
+  }
+  if (options.destination) {
+    args.push('-destination', options.destination);
+  }
+  return args;
+}
+
+function buildSettingsCacheKey(options?: RetrieveBuildSettingsOptions): string {
+  return JSON.stringify(options ?? {});
 }
