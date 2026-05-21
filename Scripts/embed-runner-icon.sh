@@ -62,10 +62,19 @@ PLIST="$RUNNER_APP/Info.plist"
 # In a scheme post-action context Xcode's CODE_SIGN_* env vars are not exposed,
 # so discover the existing signing identity from the already-signed bundle.
 if [ -d "$RUNNER_APP/_CodeSignature" ]; then
+    # Capture the signature info once. Piping codesign straight into
+    # `awk ... exit` makes awk close the pipe early, killing codesign with
+    # SIGPIPE -- which `set -o pipefail` turns into a fatal error. That trips
+    # only when an Authority line exists, i.e. on every real-device build.
+    SIGN_INFO=$(codesign -dvv "$RUNNER_APP" 2>&1 || true)
     EXISTING_IDENT="${EXPANDED_CODE_SIGN_IDENTITY:-}"
     if [ -z "$EXISTING_IDENT" ]; then
-        EXISTING_IDENT=$(codesign -dvv "$RUNNER_APP" 2>&1 \
-            | awk -F'=' '/^Authority/ {print $2; exit}')
+        EXISTING_IDENT=$(awk -F'=' '/^Authority/ {print $2; exit}' <<< "$SIGN_INFO")
+    fi
+    # Simulator builds are ad-hoc signed: there is no Authority line, but the
+    # bundle can still be re-signed ad-hoc with an identity of "-".
+    if [ -z "$EXISTING_IDENT" ] && grep -q '^Signature=adhoc' <<< "$SIGN_INFO"; then
+        EXISTING_IDENT="-"
     fi
     if [ -n "$EXISTING_IDENT" ]; then
         codesign --force --sign "$EXISTING_IDENT" \
