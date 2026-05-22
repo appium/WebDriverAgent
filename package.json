@@ -88,6 +88,7 @@
     "lib",
     "build/lib",
     "Scripts/build.sh",
+    "Scripts/embed-runner-icon.sh",
     "Scripts/*.mjs",
     "Configurations",
     "PrivateHeaders",
