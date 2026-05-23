@@ -35,11 +35,9 @@ NSArray<NSNumber *> *(*XCAXAccessibilityAttributesForStringAttributes)(id);
 
 @implementation FBXCTestSymbolsLoader
 
-+ (void)initialize
++ (void)load
 {
-  if (self == FBXCTestSymbolsLoader.class) {
-    FBLoadXCTestSymbols();
-  }
+  FBLoadXCTestSymbols();
 }
 
 @end
