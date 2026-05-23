@@ -5,27 +5,21 @@
 
 DDRange DDUnionRange(DDRange range1, DDRange range2)
 {
-  DDRange result;
-  
-  result.location = MIN(range1.location, range2.location);
-  result.length   = MAX(DDMaxRange(range1), DDMaxRange(range2)) - result.location;
-  
-  return result;
+  UInt64 location = MIN(range1.location, range2.location);
+  UInt64 length = MAX(DDMaxRange(range1), DDMaxRange(range2)) - location;
+
+  return DDMakeRange(location, length);
 }
 
 DDRange DDIntersectionRange(DDRange range1, DDRange range2)
 {
-  DDRange result;
-  
   if((DDMaxRange(range1) < range2.location) || (DDMaxRange(range2) < range1.location))
   {
     return DDMakeRange(0, 0);
   }
   
-  result.location = MAX(range1.location, range2.location);
-  result.length   = MIN(DDMaxRange(range1), DDMaxRange(range2)) - result.location;
-  
-  return result;
+  return DDMakeRange(MAX(range1.location, range2.location),
+                   MIN(DDMaxRange(range1), DDMaxRange(range2)) - MAX(range1.location, range2.location));
 }
 
 NSString *DDStringFromRange(DDRange range)

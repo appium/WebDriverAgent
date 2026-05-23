@@ -92,18 +92,18 @@ static const int logLevel = GCDAsyncSocketLogLevel;
 
 // Logging Disabled
 
-#define LogError(frmt, ...)     {}
-#define LogWarn(frmt, ...)      {}
-#define LogInfo(frmt, ...)      {}
-#define LogVerbose(frmt, ...)   {}
+#define LogError(frmt, ...)     do {} while (0)
+#define LogWarn(frmt, ...)      do {} while (0)
+#define LogInfo(frmt, ...)      do {} while (0)
+#define LogVerbose(frmt, ...)   do {} while (0)
 
-#define LogCError(frmt, ...)    {}
-#define LogCWarn(frmt, ...)     {}
-#define LogCInfo(frmt, ...)     {}
-#define LogCVerbose(frmt, ...)  {}
+#define LogCError(frmt, ...)    do {} while (0)
+#define LogCWarn(frmt, ...)     do {} while (0)
+#define LogCInfo(frmt, ...)     do {} while (0)
+#define LogCVerbose(frmt, ...)  do {} while (0)
 
-#define LogTrace()              {}
-#define LogCTrace(frmt, ...)    {}
+#define LogTrace()              do {} while (0)
+#define LogCTrace(frmt, ...)    do {} while (0)
 
 #endif
 
@@ -251,7 +251,7 @@ static dispatch_queue_t cfstreamThreadSetupQueue; // setup & teardown
   if ((self = [super init]))
   {
     preBufferSize = numBytes;
-    preBuffer = malloc(preBufferSize);
+    preBuffer = (uint8_t *)malloc(preBufferSize);
 
     readPointer = preBuffer;
     writePointer = preBuffer;
@@ -274,7 +274,7 @@ static dispatch_queue_t cfstreamThreadSetupQueue; // setup & teardown
     size_t additionalBytes = numBytes - availableSpace;
 
     size_t newPreBufferSize = preBufferSize + additionalBytes;
-    uint8_t *newPreBuffer = realloc(preBuffer, newPreBufferSize);
+    uint8_t *newPreBuffer = (uint8_t *)realloc(preBuffer, newPreBufferSize);
 
     size_t readPointerOffset = readPointer - preBuffer;
     size_t writePointerOffset = writePointer - preBuffer;
@@ -794,7 +794,7 @@ static dispatch_queue_t cfstreamThreadSetupQueue; // setup & teardown
   // The implementation of this method is very similar to the above method.
   // See the above method for a discussion of the algorithm used here.
 
-  uint8_t *buff = [buffer mutableBytes];
+  uint8_t *buff = (uint8_t *)[buffer mutableBytes];
   NSUInteger buffLength = bytesDone + numBytes;
 
   const void *termBuff = [term bytes];
@@ -8693,7 +8693,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream,
 {
   if ([address length] >= sizeof(struct sockaddr))
   {
-    const struct sockaddr *sockaddrX = [address bytes];
+    const struct sockaddr *sockaddrX = (const struct sockaddr *)(const void *)[address bytes];
 
     if (sockaddrX->sa_family == AF_INET) {
       return YES;
@@ -8707,7 +8707,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream,
 {
   if ([address length] >= sizeof(struct sockaddr))
   {
-    const struct sockaddr *sockaddrX = [address bytes];
+    const struct sockaddr *sockaddrX = (const struct sockaddr *)(const void *)[address bytes];
 
     if (sockaddrX->sa_family == AF_INET6) {
       return YES;
@@ -8726,7 +8726,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream,
 {
   if ([address length] >= sizeof(struct sockaddr))
   {
-    const struct sockaddr *sockaddrX = [address bytes];
+    const struct sockaddr *sockaddrX = (const struct sockaddr *)(const void *)[address bytes];
 
     if (sockaddrX->sa_family == AF_INET)
     {

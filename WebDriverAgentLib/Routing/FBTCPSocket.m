@@ -39,7 +39,7 @@
 - (BOOL)startWithError:(NSError **)error
 {
   if (![self.listeningSocket acceptOnPort:self.port error:error]) {
-    return NO;;
+    return NO;
   }
 
   return YES;

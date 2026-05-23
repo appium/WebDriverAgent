@@ -232,7 +232,7 @@ static bool fb_isLocked;
   NSString *description = [NSString stringWithFormat:@"Cannot open '%@' with the default application assigned for it. Consider upgrading to Xcode 14.3+/iOS 16.4+", url];
   return [[[FBErrorBuilder builder]
            withDescriptionFormat:@"%@", description]
-          buildError:error];;
+          buildError:error];
 }
 
 - (BOOL)fb_openUrl:(NSString *)url withApplication:(NSString *)bundleId error:(NSError **)error

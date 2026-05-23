@@ -70,18 +70,18 @@ static const int logLevel = LOG_LEVEL_VERBOSE;
 
 // Logging Disabled
 
-#define LogError(frmt, ...)     {}
-#define LogWarn(frmt, ...)      {}
-#define LogInfo(frmt, ...)      {}
-#define LogVerbose(frmt, ...)   {}
+#define LogError(frmt, ...)     do {} while (0)
+#define LogWarn(frmt, ...)      do {} while (0)
+#define LogInfo(frmt, ...)      do {} while (0)
+#define LogVerbose(frmt, ...)   do {} while (0)
 
-#define LogCError(frmt, ...)    {}
-#define LogCWarn(frmt, ...)     {}
-#define LogCInfo(frmt, ...)     {}
-#define LogCVerbose(frmt, ...)  {}
+#define LogCError(frmt, ...)    do {} while (0)
+#define LogCWarn(frmt, ...)     do {} while (0)
+#define LogCInfo(frmt, ...)     do {} while (0)
+#define LogCVerbose(frmt, ...)  do {} while (0)
 
-#define LogTrace()              {}
-#define LogCTrace(frmt, ...)    {}
+#define LogTrace()              do {} while (0)
+#define LogCTrace(frmt, ...)    do {} while (0)
 
 #endif
 
@@ -4310,12 +4310,12 @@ enum GCDAsyncUdpSocketConfig
 
     if (currentSend->addressFamily == AF_INET)
     {
-      result = sendto(socket4FD, buffer, length, 0, dst, dstSize);
+      result = sendto(socket4FD, buffer, length, 0, (const struct sockaddr *)dst, dstSize);
       LogVerbose(@"sendto(socket4FD) = %d", result);
     }
     else
     {
-      result = sendto(socket6FD, buffer, length, 0, dst, dstSize);
+      result = sendto(socket6FD, buffer, length, 0, (const struct sockaddr *)dst, dstSize);
       LogVerbose(@"sendto(socket6FD) = %d", result);
     }
   }

@@ -574,7 +574,7 @@
                                                                                 traceback:nil]);
       }
     }
-    NSString *screenshot = [screenshotData base64EncodedStringWithOptions:0];
+    NSString *screenshot = [screenshotData base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0];
     screenshotData = nil;
     return FBResponseWithObject(screenshot);
   }

@@ -50,8 +50,8 @@ extern NSArray<NSNumber *> *(*XCAXAccessibilityAttributesForStringAttributes)(id
  */
 void *FBRetrieveXCTestSymbol(const char *name);
 
-/*! Static constructor that will retrieve XCTest private symbols */
-__attribute__((constructor)) void FBLoadXCTestSymbols(void);
+/*! Loads XCTest private symbols. Safe to call multiple times. */
+void FBLoadXCTestSymbols(void);
 
 /**
  Method is used to tranform attribute names into the format, which

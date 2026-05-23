@@ -29,13 +29,19 @@
 {
   CGRect thisVisibleFrame = [self visibleFrame];
   if (!CGRectIsEmpty(thisVisibleFrame)) {
-    return thisVisibleFrame;
+    return CGRectMake(CGRectGetMinX(thisVisibleFrame),
+                      CGRectGetMinY(thisVisibleFrame),
+                      CGRectGetWidth(thisVisibleFrame),
+                      CGRectGetHeight(thisVisibleFrame));
   }
 
   NSDictionary *visibleFrameDict = [self fb_attributeValue:FB_XCAXAVisibleFrameAttributeName
                                                      error:nil];
   if (nil == visibleFrameDict) {
-    return thisVisibleFrame;
+    return CGRectMake(CGRectGetMinX(thisVisibleFrame),
+                      CGRectGetMinY(thisVisibleFrame),
+                      CGRectGetWidth(thisVisibleFrame),
+                      CGRectGetHeight(thisVisibleFrame));
   }
 
   id x = [visibleFrameDict objectForKey:@"X"];
@@ -46,7 +52,10 @@
     return CGRectMake([x doubleValue], [y doubleValue], [width doubleValue], [height doubleValue]);
   }
 
-  return thisVisibleFrame;
+  return CGRectMake(CGRectGetMinX(thisVisibleFrame),
+                    CGRectGetMinY(thisVisibleFrame),
+                    CGRectGetWidth(thisVisibleFrame),
+                    CGRectGetHeight(thisVisibleFrame));
 }
 
 @end

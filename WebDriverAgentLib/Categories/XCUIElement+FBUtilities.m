@@ -113,7 +113,7 @@
   XCUIElementType type = XCUIElementTypeAny;
   NSArray<NSNumber *> *uniqueTypes = [snapshots valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", FBStringify(XCUIElement, elementType)]];
   if (uniqueTypes && [uniqueTypes count] == 1) {
-    type = [uniqueTypes.firstObject intValue];
+    type = (XCUIElementType)[uniqueTypes.firstObject intValue];
   }
   XCUIElementQuery *query = onlyChildren
     ? [self.fb_query childrenMatchingType:type]

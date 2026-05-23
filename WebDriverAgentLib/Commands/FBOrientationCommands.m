@@ -139,7 +139,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
   if (orientationValue == nil) {
     return NO;
   }
-  return [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientationValue.integerValue];
+  return [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:(UIDeviceOrientation)orientationValue.integerValue];
 }
 
 + (NSDictionary *)_orientationsMapping

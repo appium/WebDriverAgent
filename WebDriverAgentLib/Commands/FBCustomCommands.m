@@ -253,7 +253,7 @@
   if (nil == result) {
     return FBResponseWithUnknownError(error);
   }
-  return FBResponseWithObject([result base64EncodedStringWithOptions:0]);
+  return FBResponseWithObject([result base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0]);
 }
 
 + (id<FBResponsePayload>)handleGetBatteryInfo:(FBRouteRequest *)request
@@ -599,7 +599,7 @@
         modifierFlags = [(NSNumber *)modifiers unsignedIntValue];
       }
       NSString *keyValue = [FBKeyboard keyValueForName:item] ?: key;
-      [destination typeKey:keyValue modifierFlags:modifierFlags];
+      [destination typeKey:keyValue modifierFlags:(XCUIKeyModifierFlags)modifierFlags];
     } else {
       NSString *message = @"All items of the 'keys' array must be either dictionaries or strings";
       return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:message

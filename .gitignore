@@ -9,6 +9,7 @@
 build/
 clang/
 DerivedData
+wdaBuild/
 
 ## Various settings
 *.pbxuser
