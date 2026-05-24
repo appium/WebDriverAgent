@@ -209,25 +209,30 @@
 
   xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label and @name and @value]"];
 
-  XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'Hello.*')" document:doc]);
-  XCTAssertFalse([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*')" document:doc]);
-  XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*', 'i')" document:doc]);
-  XCTAssertTrue([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Name')" document:doc]);
-  XCTAssertFalse([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Foo')" document:doc]);
-  XCTAssertEqualObjects([self xpathStringResultForQuery:@"lower-case(//XCUIElementTypeOther/@label)" document:doc], @"hello world");
-  XCTAssertEqualObjects([self xpathStringResultForQuery:@"upper-case(//XCUIElementTypeOther/@name)" document:doc], @"TESTNAME");
-  XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace(//XCUIElementTypeOther/@value, '-', '_')" document:doc], @"One_Two_Three");
-  XCTAssertEqualObjects([self xpathStringResultForQuery:@"string-join(tokenize(//XCUIElementTypeOther/@value, '-'), '|')" document:doc], @"One|Two|Three");
-
-  xmlFreeDoc(doc);
+  @try {
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'Hello.*')" document:doc]);
+    XCTAssertFalse([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*', 'i')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Name')" document:doc]);
+    XCTAssertFalse([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Foo')" document:doc]);
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"lower-case(//XCUIElementTypeOther/@label)" document:doc], @"hello world");
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"upper-case(//XCUIElementTypeOther/@name)" document:doc], @"TESTNAME");
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace(//XCUIElementTypeOther/@value, '-', '_')" document:doc], @"One_Two_Three");
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"string-join(tokenize(//XCUIElementTypeOther/@value, '-'), '|')" document:doc], @"One|Two|Three");
+  } @finally {
+    xmlFreeDoc(doc);
+  }
 }
 
 - (void)assertXPathEvaluationFailsForQuery:(NSString *)query document:(xmlDocPtr)doc
 {
   xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];
-  XCTAssertEqual(NULL, queryResult);
-  if (NULL != queryResult) {
-    xmlXPathFreeObject(queryResult);
+  @try {
+    XCTAssertEqual(NULL, queryResult);
+  } @finally {
+    if (NULL != queryResult) {
+      xmlXPathFreeObject(queryResult);
+    }
   }
 }
 
@@ -239,16 +244,18 @@
 
   xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label and @name and @value]"];
 
-  [self assertXPathEvaluationFailsForQuery:@"matches(//XCUIElementTypeOther/@label)" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"lower-case()" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"string-join(//XCUIElementTypeOther/@label)" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"replace(//XCUIElementTypeOther/@label, '-')" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[matches(@label)]" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[lower-case()]" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[string-join(@label)]" document:doc];
-  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[replace(@label, '-')]" document:doc];
-
-  xmlFreeDoc(doc);
+  @try {
+    [self assertXPathEvaluationFailsForQuery:@"matches(//XCUIElementTypeOther/@label)" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"lower-case()" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"string-join(//XCUIElementTypeOther/@label)" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"replace(//XCUIElementTypeOther/@label, '-')" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[matches(@label)]" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[lower-case()]" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[string-join(@label)]" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[replace(@label, '-')]" document:doc];
+  } @finally {
+    xmlFreeDoc(doc);
+  }
 }
 
 @end
