@@ -126,7 +126,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
         withDescription:timeoutMsg]
        buildError:error];
     }
-  };
+  }
   if (nil != error && nil != innerError) {
     *error = innerError;
   }

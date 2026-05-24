@@ -149,16 +149,16 @@
     NSRegularExpression *regex = nil;
     
     // Escape regex characters
-    regex = [NSRegularExpression regularExpressionWithPattern:@"[.+()]" options:0 error:nil];
-    path = [regex stringByReplacingMatchesInString:path options:0 range:NSMakeRange(0, path.length) withTemplate:@"\\\\$0"];
+    regex = [NSRegularExpression regularExpressionWithPattern:@"[.+()]" options:(NSRegularExpressionOptions)0 error:nil];
+    path = [regex stringByReplacingMatchesInString:path options:(NSMatchingOptions)0 range:NSMakeRange(0, path.length) withTemplate:@"\\\\$0"];
     
     // Parse any :parameters and * in the path
     regex = [NSRegularExpression regularExpressionWithPattern:@"(:(\\w+)|\\*)"
-                                                      options:0
+                                                      options:(NSRegularExpressionOptions)0
                                                         error:nil];
     NSMutableString *regexPath = [NSMutableString stringWithString:path];
     __block NSInteger diff = 0;
-    [regex enumerateMatchesInString:path options:0 range:NSMakeRange(0, path.length)
+    [regex enumerateMatchesInString:path options:(NSMatchingOptions)0 range:NSMakeRange(0, path.length)
                          usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
       NSRange replacementRange = NSMakeRange(diff + result.range.location, result.range.length);
       NSString *replacementString;
@@ -219,7 +219,7 @@
     return nil;
   
   for (Route *route in methodRoutes) {
-    NSTextCheckingResult *result = [route.regex firstMatchInString:path options:0 range:NSMakeRange(0, path.length)];
+    NSTextCheckingResult *result = [route.regex firstMatchInString:path options:(NSMatchingOptions)0 range:NSMakeRange(0, path.length)];
     if (!result)
       continue;
     

@@ -1,3 +1,9 @@
+## [13.1.2](https://github.com/appium/WebDriverAgent/compare/v13.1.1...v13.1.2) (2026-05-23)
+
+### Bug Fixes
+
+* Address compilation warnings ([#1143](https://github.com/appium/WebDriverAgent/issues/1143)) ([f1f9976](https://github.com/appium/WebDriverAgent/commit/f1f9976f4a0a0fb8a8aa3ee1f2483b25275600e6))
+
 ## [13.1.1](https://github.com/appium/WebDriverAgent/compare/v13.1.0...v13.1.1) (2026-05-22)
 
 ### Bug Fixes

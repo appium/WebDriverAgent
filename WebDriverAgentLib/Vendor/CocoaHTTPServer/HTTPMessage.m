@@ -68,13 +68,13 @@
   {
     // Look for the end of headers (CRLF CRLF or LF LF)
     NSData *headerEndMarker = [@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-    NSRange headerEndRange = [_rawData rangeOfData:headerEndMarker options:0 range:NSMakeRange(0, [_rawData length])];
+    NSRange headerEndRange = [_rawData rangeOfData:headerEndMarker options:(NSDataSearchOptions)0 range:NSMakeRange(0, [_rawData length])];
 
     if (headerEndRange.location == NSNotFound)
     {
       // Also check for LF LF (some clients use this)
       NSData *lfMarker = [@"\n\n" dataUsingEncoding:NSASCIIStringEncoding];
-      headerEndRange = [_rawData rangeOfData:lfMarker options:0 range:NSMakeRange(0, [_rawData length])];
+      headerEndRange = [_rawData rangeOfData:lfMarker options:(NSDataSearchOptions)0 range:NSMakeRange(0, [_rawData length])];
     }
 
     if (headerEndRange.location != NSNotFound)

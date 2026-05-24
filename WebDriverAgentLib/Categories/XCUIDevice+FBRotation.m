@@ -30,19 +30,38 @@
   if (keysForRotationObj.count == 0) {
     return NO;
   }
-  NSInteger orientation = keysForRotationObj.firstObject.integerValue;
+  UIDeviceOrientation orientation = (UIDeviceOrientation)keysForRotationObj.firstObject.integerValue;
   XCUIApplication *application = XCUIApplication.fb_activeApplication;
   [XCUIDevice sharedDevice].orientation = orientation;
   return [self waitUntilInterfaceIsAtOrientation:orientation application:application];
 }
 
-- (BOOL)waitUntilInterfaceIsAtOrientation:(NSInteger)orientation application:(XCUIApplication *)application
+static UIInterfaceOrientation FBInterfaceOrientationFromDeviceOrientation(UIDeviceOrientation orientation)
+{
+  switch (orientation) {
+    case UIDeviceOrientationPortrait:
+      return UIInterfaceOrientationPortrait;
+    case UIDeviceOrientationPortraitUpsideDown:
+      return UIInterfaceOrientationPortraitUpsideDown;
+    case UIDeviceOrientationLandscapeLeft:
+      return UIInterfaceOrientationLandscapeRight;
+    case UIDeviceOrientationLandscapeRight:
+      return UIInterfaceOrientationLandscapeLeft;
+    case UIDeviceOrientationUnknown:
+    case UIDeviceOrientationFaceUp:
+    case UIDeviceOrientationFaceDown:
+    default:
+      return UIInterfaceOrientationUnknown;
+  }
+}
+
+- (BOOL)waitUntilInterfaceIsAtOrientation:(UIDeviceOrientation)orientation application:(XCUIApplication *)application
 {
   // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
   // We should wait till UI cools off, before continuing
   [application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
 
-  return application.interfaceOrientation == orientation;
+  return application.interfaceOrientation == FBInterfaceOrientationFromDeviceOrientation(orientation);
 }
 
 - (NSDictionary *)fb_rotationMapping

@@ -30,41 +30,56 @@ id<XCDebugLogDelegate> (*XCDebugLogger)(void);
 
 NSArray<NSNumber *> *(*XCAXAccessibilityAttributesForStringAttributes)(id);
 
-__attribute__((constructor)) void FBLoadXCTestSymbols(void)
+@interface FBXCTestSymbolsLoader : NSObject
+@end
+
+@implementation FBXCTestSymbolsLoader
+
++ (void)load
 {
-  NSString *XC_kAXXCAttributeIsVisible = *(NSString*__autoreleasing*)FBRetrieveXCTestSymbol([FB_XCAXAIsVisibleAttributeName UTF8String]);
-  NSString *XC_kAXXCAttributeIsElement = *(NSString*__autoreleasing*)FBRetrieveXCTestSymbol([FB_XCAXAIsElementAttributeName UTF8String]);
+  FBLoadXCTestSymbols();
+}
 
-  XCAXAccessibilityAttributesForStringAttributes =
-  (NSArray<NSNumber *> *(*)(id))FBRetrieveXCTestSymbol("XCAXAccessibilityAttributesForStringAttributes");
+@end
 
-  XCSetDebugLogger = (void (*)(id <XCDebugLogDelegate>))FBRetrieveXCTestSymbol("XCSetDebugLogger");
-  XCDebugLogger = (id<XCDebugLogDelegate>(*)(void))FBRetrieveXCTestSymbol("XCDebugLogger");
+void FBLoadXCTestSymbols(void)
+{
+  static dispatch_once_t loadOnceToken;
+  dispatch_once(&loadOnceToken, ^{
+    NSString *XC_kAXXCAttributeIsVisible = *(NSString*__autoreleasing*)FBRetrieveXCTestSymbol([FB_XCAXAIsVisibleAttributeName UTF8String]);
+    NSString *XC_kAXXCAttributeIsElement = *(NSString*__autoreleasing*)FBRetrieveXCTestSymbol([FB_XCAXAIsElementAttributeName UTF8String]);
 
-  NSArray<NSNumber *> *accessibilityAttributes = XCAXAccessibilityAttributesForStringAttributes(@[XC_kAXXCAttributeIsVisible, XC_kAXXCAttributeIsElement]);
-  FB_XCAXAIsVisibleAttribute = accessibilityAttributes[0];
-  FB_XCAXAIsElementAttribute = accessibilityAttributes[1];
+    XCAXAccessibilityAttributesForStringAttributes =
+    (NSArray<NSNumber *> *(*)(id))FBRetrieveXCTestSymbol("XCAXAccessibilityAttributesForStringAttributes");
 
-  NSCAssert(FB_XCAXAIsVisibleAttribute != nil , @"Failed to retrieve FB_XCAXAIsVisibleAttribute", FB_XCAXAIsVisibleAttribute);
-  NSCAssert(FB_XCAXAIsElementAttribute != nil , @"Failed to retrieve FB_XCAXAIsElementAttribute", FB_XCAXAIsElementAttribute);
-  
-  NSString *XC_kAXXCAttributeMinValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMinValueAttributeName UTF8String]);
-  NSString *XC_kAXXCAttributeMaxValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMaxValueAttributeName UTF8String]);
-  
-  NSString *XC_kAXXCAttributeCustomActions = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomActionsAttributeName UTF8String]);
-  
-  NSArray<NSNumber *> *customAttrs = XCAXAccessibilityAttributesForStringAttributes(@[
-    XC_kAXXCAttributeMinValue,
-    XC_kAXXCAttributeMaxValue,
-    XC_kAXXCAttributeCustomActions
-  ]);
-  FB_XCAXACustomMinValueAttribute = customAttrs[0];
-  FB_XCAXACustomMaxValueAttribute = customAttrs[1];
-  FB_XCAXACustomActionsAttribute = customAttrs[2];
-  
-  NSCAssert(FB_XCAXACustomMinValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMinValueAttribute", FB_XCAXACustomMinValueAttribute);
-  NSCAssert(FB_XCAXACustomMaxValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMaxValueAttribute", FB_XCAXACustomMaxValueAttribute);
-  NSCAssert(FB_XCAXACustomActionsAttribute != nil, @"Failed to retrieve FB_XCAXACustomActionsAttribute", FB_XCAXACustomActionsAttribute);
+    XCSetDebugLogger = (void (*)(id <XCDebugLogDelegate>))FBRetrieveXCTestSymbol("XCSetDebugLogger");
+    XCDebugLogger = (id<XCDebugLogDelegate>(*)(void))FBRetrieveXCTestSymbol("XCDebugLogger");
+
+    NSArray<NSNumber *> *accessibilityAttributes = XCAXAccessibilityAttributesForStringAttributes(@[XC_kAXXCAttributeIsVisible, XC_kAXXCAttributeIsElement]);
+    FB_XCAXAIsVisibleAttribute = accessibilityAttributes[0];
+    FB_XCAXAIsElementAttribute = accessibilityAttributes[1];
+
+    NSCAssert(FB_XCAXAIsVisibleAttribute != nil , @"Failed to retrieve FB_XCAXAIsVisibleAttribute", FB_XCAXAIsVisibleAttribute);
+    NSCAssert(FB_XCAXAIsElementAttribute != nil , @"Failed to retrieve FB_XCAXAIsElementAttribute", FB_XCAXAIsElementAttribute);
+
+    NSString *XC_kAXXCAttributeMinValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMinValueAttributeName UTF8String]);
+    NSString *XC_kAXXCAttributeMaxValue = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomMaxValueAttributeName UTF8String]);
+
+    NSString *XC_kAXXCAttributeCustomActions = *(NSString *__autoreleasing *)FBRetrieveXCTestSymbol([FB_XCAXACustomActionsAttributeName UTF8String]);
+
+    NSArray<NSNumber *> *customAttrs = XCAXAccessibilityAttributesForStringAttributes(@[
+      XC_kAXXCAttributeMinValue,
+      XC_kAXXCAttributeMaxValue,
+      XC_kAXXCAttributeCustomActions
+    ]);
+    FB_XCAXACustomMinValueAttribute = customAttrs[0];
+    FB_XCAXACustomMaxValueAttribute = customAttrs[1];
+    FB_XCAXACustomActionsAttribute = customAttrs[2];
+
+    NSCAssert(FB_XCAXACustomMinValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMinValueAttribute", FB_XCAXACustomMinValueAttribute);
+    NSCAssert(FB_XCAXACustomMaxValueAttribute != nil, @"Failed to retrieve FB_XCAXACustomMaxValueAttribute", FB_XCAXACustomMaxValueAttribute);
+    NSCAssert(FB_XCAXACustomActionsAttribute != nil, @"Failed to retrieve FB_XCAXACustomActionsAttribute", FB_XCAXACustomActionsAttribute);
+  });
 }
 
 void *FBRetrieveXCTestSymbol(const char *name)

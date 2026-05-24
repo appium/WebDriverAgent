@@ -95,28 +95,28 @@
 
 // Define logging primitives.
 
-#define HTTPLogError(...) { }
+#define HTTPLogError(...) do {} while (0)
 
-#define HTTPLogWarn(...) { }
+#define HTTPLogWarn(...) do {} while (0)
 
-#define HTTPLogInfo(...) { }
+#define HTTPLogInfo(...) do {} while (0)
 
-#define HTTPLogVerbose(...) { }
+#define HTTPLogVerbose(...) do {} while (0)
 
-#define HTTPLogTrace() { }
+#define HTTPLogTrace() do {} while (0)
 
-#define HTTPLogTrace2(...) { }
+#define HTTPLogTrace2(...) do {} while (0)
 
 
-#define HTTPLogCError(...) { }
+#define HTTPLogCError(...) do {} while (0)
 
-#define HTTPLogCWarn(...) { }
+#define HTTPLogCWarn(...) do {} while (0)
 
-#define HTTPLogCInfo(...) { }
+#define HTTPLogCInfo(...) do {} while (0)
 
-#define HTTPLogCVerbose(...) { }
+#define HTTPLogCVerbose(...) do {} while (0)
 
-#define HTTPLogCTrace() { }
+#define HTTPLogCTrace() do {} while (0)
 
-#define HTTPLogCTrace2(...) { }
+#define HTTPLogCTrace2(...) do {} while (0)
 

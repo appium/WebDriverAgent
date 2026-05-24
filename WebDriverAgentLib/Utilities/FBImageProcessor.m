@@ -25,6 +25,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 @interface FBImageProcessor ()
 
 @property (nonatomic) NSData *nextImage;
+@property (nonatomic) NSMutableArray<void (^)(NSData *)> *pendingCompletionHandlers;
 @property (nonatomic, readonly) NSLock *nextImageLock;
 @property (nonatomic, readonly) dispatch_queue_t scalingQueue;
 @property (atomic, assign) BOOL isScalingScheduled;
@@ -38,6 +39,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
   self = [super init];
   if (self) {
     _nextImageLock = [[NSLock alloc] init];
+    _pendingCompletionHandlers = [NSMutableArray array];
     _scalingQueue = dispatch_queue_create("image.scaling.queue", NULL);
     _isScalingScheduled = NO;
   }
@@ -53,6 +55,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     [FBLogger verboseLog:@"Discarding screenshot"];
   }
   self.nextImage = image;
+  [self.pendingCompletionHandlers addObject:[completionHandler copy]];
   BOOL shouldSchedule = !self.isScalingScheduled;
   if (shouldSchedule) {
     self.isScalingScheduled = YES;
@@ -62,14 +65,14 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     return;
   }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcompletion-handler"
   dispatch_async(self.scalingQueue, ^{
     while (YES) {
       @autoreleasepool {
         [self.nextImageLock lock];
         NSData *nextImageData = self.nextImage;
         self.nextImage = nil;
+        NSArray<void (^)(NSData *)> *handlers = [self.pendingCompletionHandlers copy];
+        [self.pendingCompletionHandlers removeAllObjects];
         if (nextImageData == nil) {
           self.isScalingScheduled = NO;
           [self.nextImageLock unlock];
@@ -80,7 +83,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
         // We do not want this value to be too high because then we get images larger in size than original ones
         // Although, we also don't want to lose too much of the quality on recompression
         CGFloat recompressionQuality = MAX(0.9,
-                                           MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0));
+                                           MIN(FBMaxCompressionQuality, (double)FBConfiguration.mjpegServerScreenshotQuality / 100.0));
         NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
                                                           scalingFactor:scalingFactor
                                                                     uti:UTTypeJPEG
@@ -89,11 +92,13 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
         // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
                                                          fixOrientation:FBConfiguration.mjpegShouldFixOrientation
                                                      desiredOrientation:nil];
-        completionHandler(thumbnailData ?: nextImageData);
+        NSData *processedImageData = thumbnailData ?: nextImageData;
+        for (void (^handler)(NSData *) in handlers) {
+          handler(processedImageData);
+        }
       }
     }
   });
-#pragma clang diagnostic pop
 }
 
 + (nullable NSData *)fixedImageDataWithImageData:(NSData *)imageData

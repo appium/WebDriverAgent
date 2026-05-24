@@ -117,7 +117,7 @@ NS_ASSUME_NONNULL_END
 {
   NSMutableString *value = [NSMutableString stringWithString:self.asString];
   [value appendFormat:@"%C", character];
-  self.asString = value.copy;;
+  self.asString = value.copy;
 }
 
 - (nullable FBBaseClassChainToken*)followingTokenBasedOn:(unichar)character

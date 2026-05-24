@@ -46,7 +46,7 @@
   [videoEncodingInitInvocation setSelector:videoEncodingConstructorSelector];
   long long codec = self.codec;
   [videoEncodingInitInvocation setArgument:&codec atIndex:2];
-  double frameRate = self.fps;
+  double frameRate = (double)self.fps;
   [videoEncodingInitInvocation setArgument:&frameRate atIndex:3];
   [videoEncodingInitInvocation invokeWithTarget:videoEncodingAllocated];
   id __unsafe_unretained result;

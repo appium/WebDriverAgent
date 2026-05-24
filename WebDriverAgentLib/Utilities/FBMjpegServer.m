@@ -95,7 +95,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     return;
   }
   NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
-  uint64_t timerInterval = (uint64_t)(1.0 / framerate * NSEC_PER_SEC);
+  uint64_t timerInterval = (uint64_t)(1.0 / (double)framerate * NSEC_PER_SEC);
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   @synchronized (self.listeningClients) {
     if (0 == self.listeningClients.count) {
@@ -106,7 +106,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 
   NSError *error;
   CGFloat compressionQuality = MAX(FBMinCompressionQuality,
-                                   MIN(FBMaxCompressionQuality, FBConfiguration.mjpegServerScreenshotQuality / 100.0));
+                                   MIN(FBMaxCompressionQuality, (double)FBConfiguration.mjpegServerScreenshotQuality / 100.0));
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
                                                            compressionQuality:compressionQuality
                                                                           uti:UTTypeJPEG
