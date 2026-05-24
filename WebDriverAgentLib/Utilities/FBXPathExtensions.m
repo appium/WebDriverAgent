@@ -186,7 +186,7 @@ static NSArray<NSString *> *FBXPathPartsFromXPathObject(xmlXPathObjectPtr sequen
   return @[value];
 }
 
-static void fbXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 2 || nargs > 3) {
     FBXPathSetInvalidArityError(ctxt);
@@ -212,7 +212,7 @@ static void fbXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
   xmlXPathReturnBoolean(ctxt, nil != match);
 }
 
-static void fbXPathEndsWithFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathEndsWithFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 2) {
     FBXPathSetInvalidArityError(ctxt);
@@ -228,7 +228,7 @@ static void fbXPathEndsWithFunction(xmlXPathParserContextPtr ctxt, int nargs)
   xmlXPathReturnBoolean(ctxt, [input hasSuffix:suffix]);
 }
 
-static void fbXPathLowerCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathLowerCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 1) {
     FBXPathSetInvalidArityError(ctxt);
@@ -243,7 +243,7 @@ static void fbXPathLowerCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
   FBXPathReturnNSString(ctxt, input.lowercaseString);
 }
 
-static void fbXPathUpperCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathUpperCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 1) {
     FBXPathSetInvalidArityError(ctxt);
@@ -258,7 +258,7 @@ static void fbXPathUpperCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
   FBXPathReturnNSString(ctxt, input.uppercaseString);
 }
 
-static void fbXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 3 || nargs > 4) {
     FBXPathSetInvalidArityError(ctxt);
@@ -288,7 +288,7 @@ static void fbXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
   FBXPathReturnNSString(ctxt, result);
 }
 
-static void fbXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 1 || nargs > 2) {
     FBXPathSetInvalidArityError(ctxt);
@@ -305,7 +305,7 @@ static void fbXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
   FBXPathReturnNSString(ctxt, [tokens componentsJoinedByString:FBXPathTokenSequenceSeparator]);
 }
 
-static void fbXPathStringJoinFunction(xmlXPathParserContextPtr ctxt, int nargs)
+static void FBXPathStringJoinFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 2) {
     FBXPathSetInvalidArityError(ctxt);
@@ -339,11 +339,11 @@ static void fbXPathStringJoinFunction(xmlXPathParserContextPtr ctxt, int nargs)
 
 static void FBRegisterXPathExtensions(xmlXPathContextPtr xpathCtx)
 {
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "matches", fbXPathMatchesFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "ends-with", fbXPathEndsWithFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "lower-case", fbXPathLowerCaseFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "upper-case", fbXPathUpperCaseFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "replace", fbXPathReplaceFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "tokenize", fbXPathTokenizeFunction);
-  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "string-join", fbXPathStringJoinFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "matches", FBXPathMatchesFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "ends-with", FBXPathEndsWithFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "lower-case", FBXPathLowerCaseFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "upper-case", FBXPathUpperCaseFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "replace", FBXPathReplaceFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "tokenize", FBXPathTokenizeFunction);
+  xmlXPathRegisterFunc(xpathCtx, BAD_CAST "string-join", FBXPathStringJoinFunction);
 }
