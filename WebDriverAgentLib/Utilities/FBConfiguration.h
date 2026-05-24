@@ -142,6 +142,22 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (void)setMjpegScalingFactor:(CGFloat)scalingFactor;
 
 /**
+ The host address of an external relay server for reverse TCP tunnel.
+ When set via WDA_RELAY_HOST environment variable, WDA will actively connect
+ outbound to this relay instead of only listening for inbound connections.
+ This enables WDA control in NAT-restricted environments (symmetric NAT,
+ multi-layer firewalls, VPN tunnels) where inbound connections to the device
+ are not feasible. Returns nil if not configured (default behavior unchanged).
+ */
++ (NSString * _Nullable)relayHost;
+
+/**
+ The port of the external relay server.
+ Configured via WDA_RELAY_PORT environment variable. Defaults to 8201.
+ */
++ (NSInteger)relayPort;
+
+/**
  YES if verbose logging is enabled. NO otherwise.
  */
 + (BOOL)verboseLoggingEnabled;

@@ -26,6 +26,7 @@
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
 static NSUInteger const DefaultPortRange = 100;
+static NSUInteger const DefaultRelayPort = 8201;
 
 static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
 static NSString *const controllerClassName = @"TIPreferencesController";
@@ -179,6 +180,24 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
 
 + (void)setMjpegShouldFixOrientation:(BOOL)enabled {
   FBMjpegShouldFixOrientation = enabled;
+}
+
++ (NSString *)relayHost
+{
+  NSString *host = NSProcessInfo.processInfo.environment[@"WDA_RELAY_HOST"];
+  if (host && [host length] > 0) {
+    return host;
+  }
+  return nil;
+}
+
++ (NSInteger)relayPort
+{
+  NSString *port = NSProcessInfo.processInfo.environment[@"WDA_RELAY_PORT"];
+  if (port && [port length] > 0) {
+    return [port integerValue];
+  }
+  return DefaultRelayPort;
 }
 
 + (BOOL)verboseLoggingEnabled
