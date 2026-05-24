@@ -21,22 +21,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBXPathEvaluationContext : NSObject
-
-- (void)cleanup;
-
-@end
-
 @interface FBXPathExtensions : NSObject
 
 /**
- Registers XPath 2-compatible extension functions on the given libxml2 context
- and attaches an evaluation context used to manage temporary documents.
-
- @param xpathCtx libxml2 XPath context
- @return evaluation context that must be cleaned up after expression evaluation
+ Registers XPath 2-compatible extension functions on the given libxml2 context.
  */
-+ (FBXPathEvaluationContext *)configureXPathContext:(xmlXPathContextPtr)xpathCtx;
++ (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx;
 
 @end
 

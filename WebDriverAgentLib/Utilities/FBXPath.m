@@ -444,10 +444,9 @@ static NSString *const topNodeIndexPath = @"top";
   }
   xpathCtx->node = NULL == contextNode ? doc->children : contextNode;
 
-  FBXPathEvaluationContext *evalContext = [FBXPathExtensions configureXPathContext:xpathCtx];
+  [FBXPathExtensions registerFunctionsWithContext:xpathCtx];
 
   xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression((const xmlChar *)[xpathQuery UTF8String], xpathCtx);
-  [evalContext cleanup];
   if (NULL == xpathObj) {
     xmlXPathFreeContext(xpathCtx);
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathEvalExpression for XPath query \"%@\"", xpathQuery];

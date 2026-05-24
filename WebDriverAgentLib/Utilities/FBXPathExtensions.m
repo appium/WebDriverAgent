@@ -8,55 +8,36 @@
 
 #import "FBXPathExtensions.h"
 
-#import <libxml/tree.h>
 #import <libxml/xpathInternals.h>
 
 static void FBRegisterXPathExtensions(xmlXPathContextPtr xpathCtx);
 
-@interface FBXPathEvaluationContext ()
+static NSString *const FBXPathTokenSequenceSeparator = @"\x1E";
+static const NSRegularExpressionOptions FBXPathNoRegexOptions = (NSRegularExpressionOptions)0;
+static const NSMatchingOptions FBXPathNoMatchingOptions = (NSMatchingOptions)0;
 
-@property (nonatomic, strong) NSMutableArray<NSValue *> *temporaryDocuments;
-
-- (void)registerTemporaryDocument:(xmlDocPtr)doc;
-
-@end
-
-@implementation FBXPathEvaluationContext
-
-- (instancetype)init
+static void FBXPathSetInvalidArityError(xmlXPathParserContextPtr ctxt)
 {
-  self = [super init];
-  if (self) {
-    _temporaryDocuments = [NSMutableArray array];
+  if (NULL == ctxt) {
+    return;
   }
-  return self;
+  xmlXPatherror(ctxt, __FILE__, __LINE__, XPATH_INVALID_ARITY);
+  ctxt->error = XPATH_INVALID_ARITY;
 }
 
-- (void)registerTemporaryDocument:(xmlDocPtr)doc
+static NSString *FBXPathStringFromUTF8Bytes(const xmlChar *bytes)
 {
-  if (NULL != doc) {
-    [self.temporaryDocuments addObject:[NSValue valueWithPointer:doc]];
+  if (NULL == bytes) {
+    return nil;
   }
+  return [NSString stringWithUTF8String:(const char *)bytes];
 }
-
-- (void)cleanup
-{
-  for (NSValue *value in self.temporaryDocuments) {
-    xmlFreeDoc((xmlDocPtr)value.pointerValue);
-  }
-  [self.temporaryDocuments removeAllObjects];
-}
-
-@end
 
 @implementation FBXPathExtensions
 
-+ (FBXPathEvaluationContext *)configureXPathContext:(xmlXPathContextPtr)xpathCtx
++ (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx
 {
-  FBXPathEvaluationContext *evalContext = [FBXPathEvaluationContext new];
-  xpathCtx->userData = (__bridge void *)evalContext;
   FBRegisterXPathExtensions(xpathCtx);
-  return evalContext;
 }
 
 @end
@@ -74,7 +55,7 @@ static NSString *FBXPathPopNSString(xmlXPathParserContextPtr ctxt)
 
 static NSRegularExpressionOptions FBXPathRegexOptionsFromFlags(NSString *flags)
 {
-  NSRegularExpressionOptions options = 0;
+  NSRegularExpressionOptions options = FBXPathNoRegexOptions;
   if (nil != flags && [flags rangeOfString:@"i"].location != NSNotFound) {
     options |= NSRegularExpressionCaseInsensitive;
   }
@@ -99,34 +80,8 @@ static void FBXPathReturnNSString(xmlXPathParserContextPtr ctxt, NSString *value
     xmlXPathReturnEmptyString(ctxt);
     return;
   }
+  // xmlXPathWrapString takes ownership of the buffer passed to xmlXPathReturnString.
   xmlXPathReturnString(ctxt, copiedValue);
-  xmlFree(copiedValue);
-}
-
-static xmlXPathObjectPtr FBXPathCreateTokenNodeSet(xmlXPathParserContextPtr ctxt, NSArray<NSString *> *tokens)
-{
-  xmlDocPtr container = xmlNewDoc(BAD_CAST "1.0");
-  xmlNodePtr rootNode = xmlNewNode(NULL, BAD_CAST "tokens");
-  xmlDocSetRootElement(container, rootNode);
-
-  xmlXPathObjectPtr result = xmlXPathNewNodeSet(NULL);
-  if (NULL == result || NULL == result->nodesetval) {
-    xmlFreeDoc(container);
-    return result;
-  }
-
-  for (NSString *token in tokens) {
-    xmlChar *tokenContent = xmlStrdup((const xmlChar *)[token UTF8String]);
-    xmlNodePtr tokenNode = xmlNewNode(NULL, BAD_CAST "token");
-    xmlNodeSetContent(tokenNode, tokenContent);
-    xmlFree(tokenContent);
-    xmlAddChild(rootNode, tokenNode);
-    xmlXPathNodeSetAdd(result->nodesetval, tokenNode);
-  }
-
-  FBXPathEvaluationContext *evalContext = (__bridge FBXPathEvaluationContext *)ctxt->context->userData;
-  [evalContext registerTemporaryDocument:container];
-  return result;
 }
 
 static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pattern)
@@ -137,14 +92,14 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
 
   if (nil == pattern) {
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\S+"
-                                                                           options:0
+                                                                           options:FBXPathNoRegexOptions
                                                                              error:nil];
     if (nil == regex) {
       return @[];
     }
     NSMutableArray<NSString *> *tokens = [NSMutableArray array];
     [regex enumerateMatchesInString:input
-                            options:0
+                            options:FBXPathNoMatchingOptions
                               range:NSMakeRange(0, input.length)
                          usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
       if (nil != result) {
@@ -167,7 +122,7 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
   }
 
   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                                         options:0
+                                                                         options:FBXPathNoRegexOptions
                                                                            error:nil];
   if (nil == regex) {
     return @[];
@@ -176,7 +131,7 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
   NSMutableArray<NSString *> *tokens = [NSMutableArray array];
   __block NSUInteger lastIndex = 0;
   [regex enumerateMatchesInString:input
-                          options:0
+                          options:FBXPathNoMatchingOptions
                             range:NSMakeRange(0, input.length)
                        usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
     if (nil == result) {
@@ -199,10 +154,42 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
   return tokens.copy;
 }
 
+static NSArray<NSString *> *FBXPathPartsFromXPathObject(xmlXPathObjectPtr sequence)
+{
+  if (sequence->type == XPATH_NODESET && NULL != sequence->nodesetval) {
+    NSMutableArray<NSString *> *parts = [NSMutableArray array];
+    for (int index = 0; index < sequence->nodesetval->nodeNr; index++) {
+      xmlChar *content = xmlNodeGetContent(sequence->nodesetval->nodeTab[index]);
+      if (NULL != content) {
+        NSString *part = FBXPathStringFromUTF8Bytes(content);
+        xmlFree(content);
+        if (nil != part) {
+          [parts addObject:part];
+        }
+      }
+    }
+    return parts.copy;
+  }
+
+  xmlChar *asString = xmlXPathCastToString(sequence);
+  if (NULL == asString) {
+    return @[];
+  }
+  NSString *value = FBXPathStringFromUTF8Bytes(asString);
+  xmlFree(asString);
+  if (nil == value || 0 == value.length) {
+    return @[];
+  }
+  if ([value rangeOfString:FBXPathTokenSequenceSeparator].location != NSNotFound) {
+    return [value componentsSeparatedByString:FBXPathTokenSequenceSeparator];
+  }
+  return @[value];
+}
+
 static void fbXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 2 || nargs > 3) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -221,14 +208,14 @@ static void fbXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
   }
 
   NSRange range = NSMakeRange(0, input.length);
-  NSTextCheckingResult *match = [regex firstMatchInString:input options:0 range:range];
+  NSTextCheckingResult *match = [regex firstMatchInString:input options:FBXPathNoMatchingOptions range:range];
   xmlXPathReturnBoolean(ctxt, nil != match);
 }
 
 static void fbXPathEndsWithFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 2) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -244,7 +231,7 @@ static void fbXPathEndsWithFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void fbXPathLowerCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 1) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -259,7 +246,7 @@ static void fbXPathLowerCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void fbXPathUpperCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 1) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -274,7 +261,7 @@ static void fbXPathUpperCaseFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void fbXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 3 || nargs > 4) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -295,7 +282,7 @@ static void fbXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
 
   NSRange range = NSMakeRange(0, input.length);
   NSString *result = [regex stringByReplacingMatchesInString:input
-                                                     options:0
+                                                     options:FBXPathNoMatchingOptions
                                                        range:range
                                                 withTemplate:replacement];
   FBXPathReturnNSString(ctxt, result);
@@ -304,7 +291,7 @@ static void fbXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
 static void fbXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs < 1 || nargs > 2) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -315,18 +302,13 @@ static void fbXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
   }
 
   NSArray<NSString *> *tokens = FBXPathTokenizeString(input, pattern);
-  xmlXPathObjectPtr result = FBXPathCreateTokenNodeSet(ctxt, tokens);
-  if (NULL == result) {
-    xmlXPathReturnEmptyNodeSet(ctxt);
-    return;
-  }
-  valuePush(ctxt, result);
+  FBXPathReturnNSString(ctxt, [tokens componentsJoinedByString:FBXPathTokenSequenceSeparator]);
 }
 
 static void fbXPathStringJoinFunction(xmlXPathParserContextPtr ctxt, int nargs)
 {
   if (nargs != 2) {
-    xmlXPathSetArityError(ctxt);
+    FBXPathSetInvalidArityError(ctxt);
     return;
   }
 
@@ -342,25 +324,14 @@ static void fbXPathStringJoinFunction(xmlXPathParserContextPtr ctxt, int nargs)
     return;
   }
 
-  NSString *separator = [NSString stringWithUTF8String:(const char *)separatorChars];
+  NSString *separator = FBXPathStringFromUTF8Bytes(separatorChars);
   xmlFree(separatorChars);
-
-  NSMutableArray<NSString *> *parts = [NSMutableArray array];
-  if (sequence->type == XPATH_NODESET && NULL != sequence->nodesetval) {
-    for (int index = 0; index < sequence->nodesetval->nodeNr; index++) {
-      xmlChar *content = xmlNodeGetContent(sequence->nodesetval->nodeTab[index]);
-      if (NULL != content) {
-        [parts addObject:[NSString stringWithUTF8String:(const char *)content]];
-        xmlFree(content);
-      }
-    }
-  } else {
-    xmlChar *asString = xmlXPathCastToString(sequence);
-    if (NULL != asString) {
-      [parts addObject:[NSString stringWithUTF8String:(const char *)asString]];
-      xmlFree(asString);
-    }
+  if (nil == separator) {
+    xmlXPathFreeObject(sequence);
+    return;
   }
+
+  NSArray<NSString *> *parts = FBXPathPartsFromXPathObject(sequence);
   xmlXPathFreeObject(sequence);
 
   FBXPathReturnNSString(ctxt, [parts componentsJoinedByString:separator]);
