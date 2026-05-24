@@ -243,4 +243,18 @@
                                FBInvalidXPathException);
 }
 
+- (void)testInvalidXPathExtensionRegexpViaElementLookup
+{
+  NSException *exception = nil;
+  @try {
+    [self.testedView fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeButton[matches(@label, '[')]"
+                             shouldReturnAfterFirstMatch:NO];
+  } @catch (NSException *caughtException) {
+    exception = caughtException;
+  }
+  XCTAssertEqualObjects(exception.name, FBInvalidXPathException);
+  XCTAssertTrue([exception.reason containsString:@"Cannot evaluate results for XPath expression"]);
+  XCTAssertTrue([exception.reason rangeOfString:@"invalid" options:NSCaseInsensitiveSearch].location != NSNotFound);
+}
+
 @end

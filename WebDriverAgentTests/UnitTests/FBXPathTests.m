@@ -224,6 +224,25 @@
   }
 }
 
+- (void)testInvalidXPathExtensionRegexp
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"Hello World";
+  snapshot.value = @"One-Two-Three";
+
+  xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label and @name and @value]"];
+
+  @try {
+    [self assertXPathEvaluationFailsForQuery:@"matches(//XCUIElementTypeOther/@label, '[')" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"replace(//XCUIElementTypeOther/@label, '[', '')" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"tokenize(//XCUIElementTypeOther/@value, '[')" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"matches(//XCUIElementTypeOther/@label, 'a', 'z')" document:doc];
+    [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[matches(@label, '[')]" document:doc];
+  } @finally {
+    xmlFreeDoc(doc);
+  }
+}
+
 - (void)assertXPathEvaluationFailsForQuery:(NSString *)query document:(xmlDocPtr)doc
 {
   xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];

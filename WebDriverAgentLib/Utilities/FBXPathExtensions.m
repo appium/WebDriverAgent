@@ -8,6 +8,8 @@
 
 #import "FBXPathExtensions.h"
 
+#import "FBLogger.h"
+
 #import <libxml/xpathInternals.h>
 
 static void FBRegisterXPathExtensions(xmlXPathContextPtr xpathCtx);
@@ -16,6 +18,30 @@ static NSString *const FBXPathTokenSequenceSeparator = @"\x1E";
 static const NSRegularExpressionOptions FBXPathNoRegexOptions = (NSRegularExpressionOptions)0;
 static const NSMatchingOptions FBXPathNoMatchingOptions = (NSMatchingOptions)0;
 
+@interface FBXPathExtensions ()
+@property (nonatomic, nullable, readwrite, copy) NSString *lastEvaluationError;
+@end
+
+static FBXPathExtensions *FBXPathExtensionsFromParserContext(xmlXPathParserContextPtr ctxt)
+{
+  if (NULL == ctxt || NULL == ctxt->context || NULL == ctxt->context->userData) {
+    return nil;
+  }
+  return (__bridge FBXPathExtensions *)ctxt->context->userData;
+}
+
+static void FBXPathSetEvaluationError(xmlXPathParserContextPtr ctxt, int xpathErrorCode, NSString *message)
+{
+  FBXPathExtensions *extensions = FBXPathExtensionsFromParserContext(ctxt);
+  extensions.lastEvaluationError = message;
+  [FBLogger logFmt:@"XPath extension evaluation error: %@", message];
+  if (NULL == ctxt) {
+    return;
+  }
+  xmlXPatherror(ctxt, __FILE__, __LINE__, xpathErrorCode);
+  ctxt->error = xpathErrorCode;
+}
+
 static void FBXPathSetInvalidArityError(xmlXPathParserContextPtr ctxt)
 {
   if (NULL == ctxt) {
@@ -23,6 +49,22 @@ static void FBXPathSetInvalidArityError(xmlXPathParserContextPtr ctxt)
   }
   xmlXPatherror(ctxt, __FILE__, __LINE__, XPATH_INVALID_ARITY);
   ctxt->error = XPATH_INVALID_ARITY;
+}
+
+static BOOL FBXPathFlagsAreValid(NSString *flags, BOOL allowsQFlag)
+{
+  if (nil == flags || 0 == flags.length) {
+    return YES;
+  }
+
+  NSString *validFlags = allowsQFlag ? @"imsxq" : @"imsx";
+  for (NSUInteger index = 0; index < flags.length; index++) {
+    unichar flag = [flags characterAtIndex:index];
+    if ([validFlags rangeOfString:[NSString stringWithCharacters:&flag length:1]].location == NSNotFound) {
+      return NO;
+    }
+  }
+  return YES;
 }
 
 static NSString *FBXPathStringFromUTF8Bytes(const xmlChar *bytes)
@@ -35,8 +77,9 @@ static NSString *FBXPathStringFromUTF8Bytes(const xmlChar *bytes)
 
 @implementation FBXPathExtensions
 
-+ (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx
+- (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx
 {
+  xpathCtx->userData = (__bridge void *)self;
   FBRegisterXPathExtensions(xpathCtx);
 }
 
@@ -62,32 +105,36 @@ static NSRegularExpressionOptions FBXPathRegexOptionsFromFlags(NSString *flags)
   return options;
 }
 
-static NSRegularExpression *FBXPathRegexWithPattern(NSString *pattern, NSString *flags, NSError **error)
+static NSRegularExpression *FBXPathRegexWithPattern(NSString *pattern,
+                                                  NSString *flags,
+                                                  BOOL allowsQFlag,
+                                                  xmlXPathParserContextPtr ctxt)
 {
-  return [NSRegularExpression regularExpressionWithPattern:pattern
-                                                   options:FBXPathRegexOptionsFromFlags(flags)
-                                                     error:error];
+  if (!FBXPathFlagsAreValid(flags, allowsQFlag)) {
+    FBXPathSetEvaluationError(ctxt, XPATH_EXPR_ERROR, @"Invalid regular expression flags");
+    return nil;
+  }
+
+  NSError *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                         options:FBXPathRegexOptionsFromFlags(flags)
+                                                                           error:&error];
+  if (nil == regex) {
+    NSString *message = error.localizedDescription ?: @"Invalid regular expression";
+    FBXPathSetEvaluationError(ctxt, XPATH_EXPR_ERROR, message);
+    return nil;
+  }
+  return regex;
 }
 
-static void FBXPathReturnNSString(xmlXPathParserContextPtr ctxt, NSString *value)
-{
-  if (nil == value) {
-    xmlXPathReturnEmptyString(ctxt);
-    return;
-  }
-  xmlChar *copiedValue = xmlStrdup((const xmlChar *)[value UTF8String]);
-  if (NULL == copiedValue) {
-    xmlXPathReturnEmptyString(ctxt);
-    return;
-  }
-  // xmlXPathWrapString takes ownership of the buffer passed to xmlXPathReturnString.
-  xmlXPathReturnString(ctxt, copiedValue);
-}
-
-static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pattern)
+static BOOL FBXPathTokenizeString(NSString *input,
+                                  NSString *pattern,
+                                  xmlXPathParserContextPtr ctxt,
+                                  NSArray<NSString *> **outTokens)
 {
   if (0 == input.length) {
-    return @[];
+    *outTokens = @[];
+    return YES;
   }
 
   if (nil == pattern) {
@@ -95,7 +142,8 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
                                                                            options:FBXPathNoRegexOptions
                                                                              error:nil];
     if (nil == regex) {
-      return @[];
+      FBXPathSetEvaluationError(ctxt, XPATH_EXPR_ERROR, @"Invalid regular expression");
+      return NO;
     }
     NSMutableArray<NSString *> *tokens = [NSMutableArray array];
     [regex enumerateMatchesInString:input
@@ -106,7 +154,8 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
         [tokens addObject:[input substringWithRange:result.range]];
       }
     }];
-    return tokens.copy;
+    *outTokens = tokens.copy;
+    return YES;
   }
 
   if (0 == pattern.length) {
@@ -118,14 +167,18 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
         [tokens addObject:substring];
       }
     }];
-    return tokens.copy;
+    *outTokens = tokens.copy;
+    return YES;
   }
 
+  NSError *error = nil;
   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
                                                                          options:FBXPathNoRegexOptions
-                                                                           error:nil];
+                                                                           error:&error];
   if (nil == regex) {
-    return @[];
+    NSString *message = error.localizedDescription ?: @"Invalid regular expression";
+    FBXPathSetEvaluationError(ctxt, XPATH_EXPR_ERROR, message);
+    return NO;
   }
 
   NSMutableArray<NSString *> *tokens = [NSMutableArray array];
@@ -151,7 +204,23 @@ static NSArray<NSString *> *FBXPathTokenizeString(NSString *input, NSString *pat
       [tokens addObject:token];
     }
   }
-  return tokens.copy;
+  *outTokens = tokens.copy;
+  return YES;
+}
+
+static void FBXPathReturnNSString(xmlXPathParserContextPtr ctxt, NSString *value)
+{
+  if (nil == value) {
+    xmlXPathReturnEmptyString(ctxt);
+    return;
+  }
+  xmlChar *copiedValue = xmlStrdup((const xmlChar *)[value UTF8String]);
+  if (NULL == copiedValue) {
+    xmlXPathReturnEmptyString(ctxt);
+    return;
+  }
+  // xmlXPathWrapString takes ownership of the buffer passed to xmlXPathReturnString.
+  xmlXPathReturnString(ctxt, copiedValue);
 }
 
 static NSArray<NSString *> *FBXPathPartsFromXPathObject(xmlXPathObjectPtr sequence)
@@ -200,10 +269,8 @@ static void FBXPathMatchesFunction(xmlXPathParserContextPtr ctxt, int nargs)
     return;
   }
 
-  NSError *error = nil;
-  NSRegularExpression *regex = FBXPathRegexWithPattern(pattern, flags, &error);
+  NSRegularExpression *regex = FBXPathRegexWithPattern(pattern, flags, NO, ctxt);
   if (nil == regex) {
-    xmlXPathReturnBoolean(ctxt, 0);
     return;
   }
 
@@ -273,10 +340,8 @@ static void FBXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
     return;
   }
 
-  NSError *error = nil;
-  NSRegularExpression *regex = FBXPathRegexWithPattern(pattern, flags, &error);
+  NSRegularExpression *regex = FBXPathRegexWithPattern(pattern, flags, YES, ctxt);
   if (nil == regex) {
-    FBXPathReturnNSString(ctxt, input);
     return;
   }
 
@@ -301,7 +366,11 @@ static void FBXPathTokenizeFunction(xmlXPathParserContextPtr ctxt, int nargs)
     return;
   }
 
-  NSArray<NSString *> *tokens = FBXPathTokenizeString(input, pattern);
+  NSArray<NSString *> *tokens = nil;
+  if (!FBXPathTokenizeString(input, pattern, ctxt, &tokens)) {
+    return;
+  }
+
   FBXPathReturnNSString(ctxt, [tokens componentsJoinedByString:FBXPathTokenSequenceSeparator]);
 }
 

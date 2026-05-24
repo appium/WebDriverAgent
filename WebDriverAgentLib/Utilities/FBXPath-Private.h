@@ -51,6 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
                      document:(xmlDocPtr)doc
                   contextNode:(nullable xmlNodePtr)contextNode;
 
++ (xmlXPathObjectPtr)evaluate:(NSString *)xpathQuery
+                     document:(xmlDocPtr)doc
+                  contextNode:(nullable xmlNodePtr)contextNode
+                 errorMessage:(NSString * _Nullable * _Nullable)errorMessage;
+
 @end
 
 NS_ASSUME_NONNULL_END

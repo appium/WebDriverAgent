@@ -26,7 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Registers XPath 2-compatible extension functions on the given libxml2 context.
  */
-+ (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx;
+- (void)registerFunctionsWithContext:(xmlXPathContextPtr)xpathCtx;
+
+/**
+ Human-readable message for the most recent XPath extension evaluation failure on this instance,
+ for example an invalid regular expression pattern or flags. Nil when no extension error has occurred.
+ Scoped to the libxml2 context this instance is registered with; each evaluation should use its own instance.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *lastEvaluationError;
 
 @end
 
