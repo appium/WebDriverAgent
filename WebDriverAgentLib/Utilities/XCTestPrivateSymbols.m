@@ -35,10 +35,15 @@ NSArray<NSNumber *> *(*XCAXAccessibilityAttributesForStringAttributes)(id);
 
 @implementation FBXCTestSymbolsLoader
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-load-method"
+
 + (void)load
 {
   FBLoadXCTestSymbols();
 }
+
+#pragma clang diagnostic pop
 
 @end
 

@@ -22,9 +22,7 @@
   return 0;
 }
 
-- (void)setOffset:(UInt64)offset {
-  ;
-}
+- (void)setOffset:(UInt64)offset {}
 
 - (NSData*) readDataOfLength:(NSUInteger)length {
   return nil;

@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBExceptions.h"
 #import "FBMacros.h"
 #import "FBTestMacros.h"
 #import "FBXPath.h"
@@ -232,6 +233,14 @@
 {
   [self assertXPathQuery:@"//XCUIElementTypeButton[matches(@label, '.*')]"
        findsButtonLabels:@[@"Alerts", @"Deadlock app", @"Attributes", @"Scrolling", @"Touch"]];
+}
+
+- (void)testInvalidXPathExtensionFunctionViaElementLookup
+{
+  XCTAssertThrowsSpecificNamed([self.testedView fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeButton[matches(@label)]"
+                                                      shouldReturnAfterFirstMatch:NO],
+                               NSException,
+                               FBInvalidXPathException);
 }
 
 @end

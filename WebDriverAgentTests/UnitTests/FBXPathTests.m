@@ -222,4 +222,33 @@
   xmlFreeDoc(doc);
 }
 
+- (void)assertXPathEvaluationFailsForQuery:(NSString *)query document:(xmlDocPtr)doc
+{
+  xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];
+  XCTAssertEqual(NULL, queryResult);
+  if (NULL != queryResult) {
+    xmlXPathFreeObject(queryResult);
+  }
+}
+
+- (void)testInvalidXPathExtensionFunctionArity
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"Hello World";
+  snapshot.value = @"One-Two-Three";
+
+  xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label and @name and @value]"];
+
+  [self assertXPathEvaluationFailsForQuery:@"matches(//XCUIElementTypeOther/@label)" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"lower-case()" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"string-join(//XCUIElementTypeOther/@label)" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"replace(//XCUIElementTypeOther/@label, '-')" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[matches(@label)]" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[lower-case()]" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[string-join(@label)]" document:doc];
+  [self assertXPathEvaluationFailsForQuery:@"//XCUIElementTypeOther[replace(@label, '-')]" document:doc];
+
+  xmlFreeDoc(doc);
+}
+
 @end
