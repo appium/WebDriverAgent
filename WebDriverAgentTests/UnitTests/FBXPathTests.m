@@ -152,4 +152,74 @@
   XCTAssertEqual(1, [matchingSnapshots count]);
 }
 
+- (NSString *)xpathStringResultForQuery:(NSString *)query document:(xmlDocPtr)doc
+{
+  xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];
+  if (NULL == queryResult) {
+    return nil;
+  }
+  xmlChar *stringValue = xmlXPathCastToString(queryResult);
+  xmlXPathFreeObject(queryResult);
+  if (NULL == stringValue) {
+    return nil;
+  }
+  NSString *result = [NSString stringWithUTF8String:(const char *)stringValue];
+  xmlFree(stringValue);
+  return result;
+}
+
+- (BOOL)xpathBooleanResultForQuery:(NSString *)query document:(xmlDocPtr)doc
+{
+  xmlXPathObjectPtr queryResult = [FBXPath evaluate:query document:doc contextNode:NULL];
+  if (NULL == queryResult) {
+    return NO;
+  }
+  BOOL result = queryResult->boolval;
+  xmlXPathFreeObject(queryResult);
+  return result;
+}
+
+- (xmlDocPtr)documentForSnapshot:(XCElementSnapshotDouble *)snapshot query:(NSString *)query
+{
+  xmlDocPtr doc;
+  xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
+  NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
+  id<FBElement> root = (id<FBElement>)[FBXCElementSnapshotWrapper ensureWrapped:(id)snapshot];
+  int rc = xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL);
+  if (rc >= 0) {
+    rc = [FBXPath xmlRepresentationWithRootElement:(id<FBXCElementSnapshot>)root
+                                            writer:writer
+                                      elementStore:elementStore
+                                             query:query
+                               excludingAttributes:nil];
+    if (rc >= 0) {
+      rc = xmlTextWriterEndDocument(writer);
+    }
+  }
+  xmlFreeTextWriter(writer);
+  XCTAssertTrue(rc >= 0);
+  return doc;
+}
+
+- (void)testXPathExtensionFunctions
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"Hello World";
+  snapshot.value = @"One-Two-Three";
+
+  xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label and @name and @value]"];
+
+  XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'Hello.*')" document:doc]);
+  XCTAssertFalse([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*')" document:doc]);
+  XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//XCUIElementTypeOther/@label, 'hello.*', 'i')" document:doc]);
+  XCTAssertTrue([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Name')" document:doc]);
+  XCTAssertFalse([self xpathBooleanResultForQuery:@"ends-with(//XCUIElementTypeOther/@name, 'Foo')" document:doc]);
+  XCTAssertEqualObjects([self xpathStringResultForQuery:@"lower-case(//XCUIElementTypeOther/@label)" document:doc], @"hello world");
+  XCTAssertEqualObjects([self xpathStringResultForQuery:@"upper-case(//XCUIElementTypeOther/@name)" document:doc], @"TESTNAME");
+  XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace(//XCUIElementTypeOther/@value, '-', '_')" document:doc], @"One_Two_Three");
+  XCTAssertEqualObjects([self xpathStringResultForQuery:@"string-join(tokenize(//XCUIElementTypeOther/@value, '-'), '|')" document:doc], @"One|Two|Three");
+
+  xmlFreeDoc(doc);
+}
+
 @end

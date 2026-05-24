@@ -52,6 +52,7 @@
 		641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7136A4781E8918E60024FC3D /* XCUIElement+FBPickerWheel.m */; };
 		641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */ = {isa = PBXBuildFile; fileRef = 6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */; };
 		641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
+		71B2E0042733FB970074B004 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
 		641EE5DC2240C5CA00173FCB /* XCUIApplication+FBAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 719CD8FB2126C88B00C7D0C2 /* XCUIApplication+FBAlert.m */; };
 		641EE5DE2240C5CA00173FCB /* XCUIApplication+FBTouchAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BD20721F86116100B36EC2 /* XCUIApplication+FBTouchAction.m */; };
 		641EE5DF2240C5CA00173FCB /* FBWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB78D1CAEDF0C008C271F /* FBWebServer.m */; };
@@ -316,6 +317,7 @@
 		64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
+		71B2E0062733FB970074B006 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
 		7119097C2152580600BA3C7E /* XCUIScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 7119097B2152580600BA3C7E /* XCUIScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7119E1EC1E891F8600D0B125 /* FBPickerWheelSelectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */; };
 		711CD03425ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */; };
@@ -976,6 +978,8 @@
 		64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FBTVNavigationTracker-Private.h"; sourceTree = "<group>"; };
 		711084421DA3AA7500F913D6 /* FBXPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBXPath.h; sourceTree = "<group>"; };
 		711084431DA3AA7500F913D6 /* FBXPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPath.m; sourceTree = "<group>"; };
+		71B2E0012733FB970074B001 /* FBXPathExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXPathExtensions.h; sourceTree = "<group>"; };
+		71B2E0022733FB970074B002 /* FBXPathExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXPathExtensions.m; sourceTree = "<group>"; };
 		7119097B2152580600BA3C7E /* XCUIScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCUIScreen.h; sourceTree = "<group>"; };
 		7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPickerWheelSelectTests.m; sourceTree = "<group>"; };
 		711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIScreenDataSource-Protocol.h"; sourceTree = "<group>"; };
@@ -2000,9 +2004,11 @@
 				714D88CA2733FB970074A925 /* FBXMLGenerationOptions.h */,
 				714D88CB2733FB970074A925 /* FBXMLGenerationOptions.m */,
 				712A0C861DA3E55D007D02E5 /* FBXPath-Private.h */,
-				711084421DA3AA7500F913D6 /* FBXPath.h */,
-				711084431DA3AA7500F913D6 /* FBXPath.m */,
-				EE6B64FB1D0F86EF00E85F5D /* XCTestPrivateSymbols.h */,
+		711084421DA3AA7500F913D6 /* FBXPath.h */,
+		711084431DA3AA7500F913D6 /* FBXPath.m */,
+		71B2E0012733FB970074B001 /* FBXPathExtensions.h */,
+		71B2E0022733FB970074B002 /* FBXPathExtensions.m */,
+		EE6B64FB1D0F86EF00E85F5D /* XCTestPrivateSymbols.h */,
 				EE6B64FC1D0F86EF00E85F5D /* XCTestPrivateSymbols.m */,
 				633E904A220DEE7F007CADF9 /* XCUIApplicationProcessDelay.h */,
 				6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */,
@@ -3156,6 +3162,7 @@
 				641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */,
 				641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */,
 				641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */,
+				71B2E0042733FB970074B004 /* FBXPathExtensions.m in Sources */,
 				71C8E55425399A6B008572C1 /* XCUIApplication+FBQuiescence.m in Sources */,
 				641EE5DC2240C5CA00173FCB /* XCUIApplication+FBAlert.m in Sources */,
 				641EE70F2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,
@@ -3277,6 +3284,7 @@
 				6385F4A7220A40760095BBDB /* XCUIApplicationProcessDelay.m in Sources */,
 				71A5C67529A4F39600421C37 /* XCTIssue+FBPatcher.m in Sources */,
 				711084451DA3AA7500F913D6 /* FBXPath.m in Sources */,
+				71B2E0062733FB970074B006 /* FBXPathExtensions.m in Sources */,
 				719CD8FD2126C88B00C7D0C2 /* XCUIApplication+FBAlert.m in Sources */,
 				13DE7A45287C2A8D003243C6 /* FBXCAccessibilityElement.m in Sources */,
 				641EE70E2240CE4800173FCB /* FBTVNavigationTracker.m in Sources */,

@@ -14,6 +14,7 @@
 #import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBXMLGenerationOptions.h"
+#import "FBXPathExtensions.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "NSString+FBXMLSafeString.h"
 #import "XCUIApplication.h"
@@ -443,7 +444,10 @@ static NSString *const topNodeIndexPath = @"top";
   }
   xpathCtx->node = NULL == contextNode ? doc->children : contextNode;
 
+  FBXPathEvaluationContext *evalContext = [FBXPathExtensions configureXPathContext:xpathCtx];
+
   xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression((const xmlChar *)[xpathQuery UTF8String], xpathCtx);
+  [evalContext cleanup];
   if (NULL == xpathObj) {
     xmlXPathFreeContext(xpathCtx);
     [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathEvalExpression for XPath query \"%@\"", xpathQuery];
