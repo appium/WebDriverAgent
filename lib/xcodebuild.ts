@@ -190,6 +190,7 @@ export class XcodeBuild {
       return this.derivedDataPath;
     }
 
+    // iOS/tvOS share the same derived data path
     const buildSettings = await this.retrieveBuildSettings({
       scheme: 'WebDriverAgentRunner',
     });
