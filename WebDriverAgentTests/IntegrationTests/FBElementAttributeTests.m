@@ -41,6 +41,15 @@
   XCTAssertFalse(buttonElement.isWDAccessibilityContainer);
 }
 
+- (void)testNativeAccessibleAttribute
+{
+  // wdNativeAccessible must expose the raw, native isAccessibilityElement flag
+  // without WebDriverAgent's custom computation applied by wdAccessible
+  XCUIElement *buttonElement = self.testedApplication.buttons[@"Button"];
+  XCTAssertTrue(buttonElement.exists);
+  XCTAssertEqual(buttonElement.wdNativeAccessible, buttonElement.fb_isAccessibilityElement);
+}
+
 - (void)testContainerAccessibilityAttributes
 {
   // "not_accessible" isn't accessibility element, but contains accessibility elements, so it is accessibility container

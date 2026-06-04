@@ -28,6 +28,7 @@
     self.wdCustomActions = nil;
     self.wdVisible = YES;
     self.wdAccessible = YES;
+    self.wdNativeAccessible = YES;
     self.wdEnabled = YES;
     self.wdSelected = YES;
     self.wdFocused = YES;

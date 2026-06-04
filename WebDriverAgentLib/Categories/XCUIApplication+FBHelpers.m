@@ -44,6 +44,8 @@ static NSString* const FBExclusionAttributeFrame = @"frame";
 static NSString* const FBExclusionAttributeEnabled = @"enabled";
 static NSString* const FBExclusionAttributeVisible = @"visible";
 static NSString* const FBExclusionAttributeAccessible = @"accessible";
+static NSString* const FBExclusionAttributeNativeAccessible = @"nativeAccessible";
+static NSString* const FBJsonAttributeNativeAccessible = @"isNativeAccessible";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
@@ -222,6 +224,9 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([nonPrefixedKeys containsObject:key]) {
               info[key] = value;
+          } else if ([key isEqualToString:FBExclusionAttributeNativeAccessible]) {
+              // capitalizedString turns "nativeAccessible" into "Nativeaccessible"
+              info[FBJsonAttributeNativeAccessible] = value;
           } else {
               info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
           }
@@ -268,6 +273,9 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   },
     FBExclusionAttributeAccessible: ^{
     return [@([wrappedSnapshot isWDAccessible]) stringValue];
+  },
+    FBExclusionAttributeNativeAccessible: ^{
+    return [@([wrappedSnapshot isWDNativeAccessible]) stringValue];
   },
     FBExclusionAttributeFocused: ^{
     return [@([wrappedSnapshot isWDFocused]) stringValue];
