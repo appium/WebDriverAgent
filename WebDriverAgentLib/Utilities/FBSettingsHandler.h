@@ -17,8 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Applies the given settings dictionary to FBConfiguration and the active session.
- * JSON null values are normalized to nil before being passed to individual setters.
- * Unknown keys are skipped.
+ * JSON null values are normalized to nil. Nil is applied only for settings that
+ * support clearing (e.g. alert action and selectors); other keys are skipped so
+ * null does not get coerced to NO/0. Unknown keys are skipped.
  *
  * @return nil on success, or an FBCommandStatus describing the validation error.
  */

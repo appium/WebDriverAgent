@@ -23,6 +23,21 @@ static id FBNormalizedSettingValue(id value)
   return value == NSNull.null ? nil : value;
 }
 
+static NSSet<NSString *> *FBNilClearableSettingKeys(void)
+{
+  static NSSet<NSString *> *keys;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keys = [NSSet setWithObjects:
+      FB_SETTING_DEFAULT_ALERT_ACTION,
+      FB_SETTING_ACCEPT_ALERT_BUTTON_SELECTOR,
+      FB_SETTING_DISMISS_ALERT_BUTTON_SELECTOR,
+      FB_SETTING_AUTO_CLICK_ALERT_SELECTOR,
+      nil];
+  });
+  return keys;
+}
+
 @implementation FBSettingsHandler
 
 + (NSDictionary<NSString *, FBSettingApplyBlock> *)settersMap
@@ -300,12 +315,17 @@ static id FBNormalizedSettingValue(id value)
 + (nullable FBCommandStatus *)applySettings:(NSDictionary *)settings toSession:(FBSession *)session
 {
   NSDictionary<NSString *, FBSettingApplyBlock> *settersMap = [self settersMap];
+  NSSet<NSString *> *nilClearableKeys = FBNilClearableSettingKeys();
   for (NSString *key in settings) {
     FBSettingApplyBlock handler = settersMap[key];
     if (nil == handler) {
       continue;
     }
-    FBCommandStatus *status = handler(session, FBNormalizedSettingValue(settings[key]));
+    id value = FBNormalizedSettingValue(settings[key]);
+    if (nil == value && ![nilClearableKeys containsObject:key]) {
+      continue;
+    }
+    FBCommandStatus *status = handler(session, value);
     if (status.hasError) {
       return status;
     }
