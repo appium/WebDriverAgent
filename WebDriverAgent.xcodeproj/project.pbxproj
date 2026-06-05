@@ -522,6 +522,10 @@
 		71F3E7D525417FF400E0C22B /* FBSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F3E7D225417FF400E0C22B /* FBSettings.h */; };
 		71F3E7D625417FF400E0C22B /* FBSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F3E7D325417FF400E0C22B /* FBSettings.m */; };
 		71F3E7D725417FF400E0C22B /* FBSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F3E7D325417FF400E0C22B /* FBSettings.m */; };
+		71F3E7D825417FF400E0C22C /* FBSettingsHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F3E7D625417FF400E0C22C /* FBSettingsHandler.h */; };
+		71F3E7D925417FF400E0C22C /* FBSettingsHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F3E7D625417FF400E0C22C /* FBSettingsHandler.h */; };
+		71F3E7DA25417FF400E0C22C /* FBSettingsHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F3E7D725417FF400E0C22C /* FBSettingsHandler.m */; };
+		71F3E7DB25417FF400E0C22C /* FBSettingsHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F3E7D725417FF400E0C22C /* FBSettingsHandler.m */; };
 		71F5BE23252E576C00EE9EBA /* XCUIElement+FBSwiping.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F5BE21252E576C00EE9EBA /* XCUIElement+FBSwiping.h */; };
 		71F5BE24252E576C00EE9EBA /* XCUIElement+FBSwiping.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F5BE21252E576C00EE9EBA /* XCUIElement+FBSwiping.h */; };
 		71F5BE25252E576C00EE9EBA /* XCUIElement+FBSwiping.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE22252E576C00EE9EBA /* XCUIElement+FBSwiping.m */; };
@@ -1114,6 +1118,8 @@
 		71E75E6C254824230099FC87 /* XCUIElementQuery+FBHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElementQuery+FBHelpers.m"; sourceTree = "<group>"; };
 		71F3E7D225417FF400E0C22B /* FBSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBSettings.h; sourceTree = "<group>"; };
 		71F3E7D325417FF400E0C22B /* FBSettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSettings.m; sourceTree = "<group>"; };
+		71F3E7D625417FF400E0C22C /* FBSettingsHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBSettingsHandler.h; sourceTree = "<group>"; };
+		71F3E7D725417FF400E0C22C /* FBSettingsHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBSettingsHandler.m; sourceTree = "<group>"; };
 		71F5BE21252E576C00EE9EBA /* XCUIElement+FBSwiping.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBSwiping.h"; sourceTree = "<group>"; };
 		71F5BE22252E576C00EE9EBA /* XCUIElement+FBSwiping.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBSwiping.m"; sourceTree = "<group>"; };
 		71F5BE33252E5B2200EE9EBA /* FBElementSwipingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBElementSwipingTests.m; sourceTree = "<group>"; };
@@ -1982,6 +1988,8 @@
 				EE9AB7921CAEDF0C008C271F /* FBRuntimeUtils.m */,
 				71F3E7D225417FF400E0C22B /* FBSettings.h */,
 				71F3E7D325417FF400E0C22B /* FBSettings.m */,
+				71F3E7D625417FF400E0C22C /* FBSettingsHandler.h */,
+				71F3E7D725417FF400E0C22C /* FBSettingsHandler.m */,
 				715AFABF1FFA29180053896D /* FBScreen.h */,
 				715AFAC01FFA29180053896D /* FBScreen.m */,
 				71C9EAAA25E8415A00470CD8 /* FBScreenshot.h */,
@@ -2333,6 +2341,7 @@
 				13DE7A50287C46BB003243C6 /* FBXCElementSnapshot.h in Headers */,
 				13DE7A56287CA1EC003243C6 /* FBXCElementSnapshotWrapper.h in Headers */,
 				71F3E7D525417FF400E0C22B /* FBSettings.h in Headers */,
+				71F3E7D825417FF400E0C22C /* FBSettingsHandler.h in Headers */,
 				641EE63A2240C5CA00173FCB /* XCTest.h in Headers */,
 				641EE63B2240C5CA00173FCB /* FBAlertsMonitor.h in Headers */,
 				641EE63D2240C5CA00173FCB /* FBSession.h in Headers */,
@@ -2746,6 +2755,7 @@
 				719DCF152601EAFB000E765F /* FBNotificationsHelper.h in Headers */,
 				EE35AD4A1E3B77D600A02D78 /* XCTestExpectationDelegate-Protocol.h in Headers */,
 				71F3E7D425417FF400E0C22B /* FBSettings.h in Headers */,
+				71F3E7D925417FF400E0C22C /* FBSettingsHandler.h in Headers */,
 				EE35AD641E3B77D600A02D78 /* XCTUIApplicationMonitor-Protocol.h in Headers */,
 				EE35AD591E3B77D600A02D78 /* XCTKVOExpectation.h in Headers */,
 				13DE7A43287C2A8D003243C6 /* FBXCAccessibilityElement.h in Headers */,
@@ -3159,6 +3169,7 @@
 				E444DCD624917A5E0060D7EB /* DDRange.m in Sources */,
 				641EE5D72240C5CA00173FCB /* FBScreenshotCommands.m in Sources */,
 				71F3E7D725417FF400E0C22B /* FBSettings.m in Sources */,
+				71F3E7DA25417FF400E0C22C /* FBSettingsHandler.m in Sources */,
 				641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */,
 				641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */,
 				641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */,
@@ -3374,6 +3385,7 @@
 				EE158AB91CBD456F00A3E3F0 /* FBAlertViewCommands.m in Sources */,
 				71BB58F12B96511800CB9BFE /* FBVideoCommands.m in Sources */,
 				71F3E7D625417FF400E0C22B /* FBSettings.m in Sources */,
+				71F3E7DB25417FF400E0C22C /* FBSettingsHandler.m in Sources */,
 				13DE7A57287CA1EC003243C6 /* FBXCElementSnapshotWrapper.m in Sources */,
 				71BB58F82B96531900CB9BFE /* FBScreenRecordingContainer.m in Sources */,
 				EE158AB31CBD456F00A3E3F0 /* XCUIElement+FBScrolling.m in Sources */,
