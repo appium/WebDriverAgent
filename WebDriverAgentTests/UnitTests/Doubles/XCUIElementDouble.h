@@ -31,7 +31,7 @@
 @property (nonatomic, readwrite) NSUInteger wdIndex;
 @property (nonatomic, readwrite, getter=isWDVisible) BOOL wdVisible;
 @property (nonatomic, readwrite, getter=isWDAccessible) BOOL wdAccessible;
-@property (nonatomic, readwrite, getter=isWDNativeAccessible) BOOL wdNativeAccessible;
+@property (nonatomic, readwrite, getter=isWDNativeAccessibilityElement) BOOL wdNativeAccessibilityElement;
 @property (nonatomic, readwrite, getter = isWDFocused) BOOL wdFocused;
 @property (nonatomic, readwrite, getter = isWDHittable) BOOL wdHittable;
 @property (nonatomic, copy, readwrite, nullable) NSString *wdPlaceholderValue;

@@ -120,7 +120,7 @@
 
 @end
 
-@interface FBNativeAccessibleAttribute : FBElementAttribute
+@interface FBNativeAccessibilityElementAttribute : FBElementAttribute
 
 @end
 
@@ -413,9 +413,9 @@ static NSString *const topNodeIndexPath = @"top";
       // Include nativeFrame only when requested
       [includedAttributes removeObject:FBNativeFrameAttribute.class];
     }
-    if (!FBConfiguration.includeNativeAccessibleInPageSource) {
+    if (!FBConfiguration.includeNativeAccessibilityElementInPageSource) {
       // Include the raw native accessibility flag only when requested
-      [includedAttributes removeObject:FBNativeAccessibleAttribute.class];
+      [includedAttributes removeObject:FBNativeAccessibilityElementAttribute.class];
     }
     if (!FBConfiguration.includeMinMaxValueInPageSource) {
       // minValue/maxValue are retrieved from private APIs and may be slow on deep trees
@@ -694,7 +694,7 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
            FBEnabledAttribute.class,
            FBVisibleAttribute.class,
            FBAccessibleAttribute.class,
-           FBNativeAccessibleAttribute.class,
+           FBNativeAccessibilityElementAttribute.class,
 #if TARGET_OS_TV
            FBFocusedAttribute.class,
 #endif
@@ -963,16 +963,16 @@ static NSString *const FBAbstractMethodInvocationException = @"AbstractMethodInv
 }
 @end
 
-@implementation FBNativeAccessibleAttribute
+@implementation FBNativeAccessibilityElementAttribute
 
 + (NSString *)name
 {
-  return @"nativeAccessible";
+  return @"nativeAccessibilityElement";
 }
 
 + (NSString *)valueForElement:(id<FBElement>)element
 {
-  return FBBoolToString(element.wdNativeAccessible);
+  return FBBoolToString(element.wdNativeAccessibilityElement);
 }
 @end
 

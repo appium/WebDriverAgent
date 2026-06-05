@@ -24,7 +24,7 @@
     self.wdValue = @"magicValue";
     self.wdVisible = YES;
     self.wdAccessible = YES;
-    self.wdNativeAccessible = YES;
+    self.wdNativeAccessibilityElement = YES;
     self.wdEnabled = YES;
     self.wdSelected = YES;
     self.wdHittable = YES;

@@ -367,7 +367,7 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)includeNativeFrameInPageSource;
 
 /**
- * Whether to include the `nativeAccessible` attribute in the XML page source.
+ * Whether to include the `nativeAccessibilityElement` attribute in the XML page source.
  *
  * When enabled, the XML representation will contain the raw, native
  * `isAccessibilityElement` value as reported by the accessibility framework,
@@ -381,8 +381,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  *
  * @param enabled Either YES or NO
  */
-+ (void)setIncludeNativeAccessibleInPageSource:(BOOL)enabled;
-+ (BOOL)includeNativeAccessibleInPageSource;
++ (void)setIncludeNativeAccessibilityElementInPageSource:(BOOL)enabled;
++ (BOOL)includeNativeAccessibilityElementInPageSource;
 
 /**
  * Whether to include `minValue`/`maxValue` attributes in the page source.

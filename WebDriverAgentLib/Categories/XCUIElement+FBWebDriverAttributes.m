@@ -202,7 +202,7 @@
   return self.hasFocus;
 }
 
-- (BOOL)isWDNativeAccessible
+- (BOOL)isWDNativeAccessibilityElement
 {
   return self.fb_isAccessibilityElement;
 }

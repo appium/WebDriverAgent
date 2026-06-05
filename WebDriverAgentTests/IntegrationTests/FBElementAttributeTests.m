@@ -41,13 +41,13 @@
   XCTAssertFalse(buttonElement.isWDAccessibilityContainer);
 }
 
-- (void)testNativeAccessibleAttribute
+- (void)testNativeAccessibilityElementAttribute
 {
-  // wdNativeAccessible must expose the raw, native isAccessibilityElement flag
+  // wdNativeAccessibilityElement must expose the raw, native isAccessibilityElement flag
   // without WebDriverAgent's custom computation applied by wdAccessible
   XCUIElement *buttonElement = self.testedApplication.buttons[@"Button"];
   XCTAssertTrue(buttonElement.exists);
-  XCTAssertEqual(buttonElement.wdNativeAccessible, buttonElement.fb_isAccessibilityElement);
+  XCTAssertEqual(buttonElement.wdNativeAccessibilityElement, buttonElement.fb_isAccessibilityElement);
 }
 
 - (void)testContainerAccessibilityAttributes

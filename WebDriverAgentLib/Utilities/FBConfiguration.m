@@ -61,7 +61,7 @@ static UIInterfaceOrientation FBScreenshotOrientation;
 #endif
 static BOOL FBShouldIncludeHittableInPageSource = NO;
 static BOOL FBShouldIncludeNativeFrameInPageSource = NO;
-static BOOL FBShouldIncludeNativeAccessibleInPageSource = NO;
+static BOOL FBShouldIncludeNativeAccessibilityElementInPageSource = NO;
 static BOOL FBShouldIncludeMinMaxValueInPageSource = NO;
 static BOOL FBShouldIncludeCustomActionsInPageSource = NO;
 static BOOL FBShouldEnforceCustomSnapshots = NO;
@@ -666,14 +666,14 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return FBShouldIncludeNativeFrameInPageSource;
 }
 
-+ (void)setIncludeNativeAccessibleInPageSource:(BOOL)enabled
++ (void)setIncludeNativeAccessibilityElementInPageSource:(BOOL)enabled
 {
-  FBShouldIncludeNativeAccessibleInPageSource = enabled;
+  FBShouldIncludeNativeAccessibilityElementInPageSource = enabled;
 }
 
-+ (BOOL)includeNativeAccessibleInPageSource
++ (BOOL)includeNativeAccessibilityElementInPageSource
 {
-  return FBShouldIncludeNativeAccessibleInPageSource;
+  return FBShouldIncludeNativeAccessibilityElementInPageSource;
 }
 
 + (void)setIncludeMinMaxValueInPageSource:(BOOL)enabled
