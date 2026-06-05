@@ -18,6 +18,11 @@
 typedef FBCommandStatus * _Nullable (^FBSettingApplyBlock)(FBSession *session, id value);
 typedef id _Nonnull (^FBSettingGetBlock)(FBSession *session);
 
+static id FBNormalizedSettingValue(id value)
+{
+  return value == NSNull.null ? nil : value;
+}
+
 @implementation FBSettingsHandler
 
 + (NSDictionary<NSString *, FBSettingApplyBlock> *)settersMap
@@ -119,7 +124,9 @@ typedef id _Nonnull (^FBSettingGetBlock)(FBSession *session);
       return nil;
     };
     map[FB_SETTING_DEFAULT_ALERT_ACTION] = ^FBCommandStatus *(FBSession *session, id value) {
-      if ([value isKindOfClass:NSString.class]) {
+      if (nil == value) {
+        session.defaultAlertAction = nil;
+      } else if ([value isKindOfClass:NSString.class]) {
         session.defaultAlertAction = [(NSString *)value lowercaseString];
       }
       return nil;
@@ -290,23 +297,15 @@ typedef id _Nonnull (^FBSettingGetBlock)(FBSession *session);
   return settings.copy;
 }
 
-+ (nullable FBCommandStatus *)applySettings:(nullable NSDictionary *)settings toSession:(FBSession *)session
++ (nullable FBCommandStatus *)applySettings:(NSDictionary *)settings toSession:(FBSession *)session
 {
-  if (nil == settings) {
-    return nil;
-  }
-
   NSDictionary<NSString *, FBSettingApplyBlock> *settersMap = [self settersMap];
   for (NSString *key in settings) {
-    id value = settings[key];
-    if (nil == value) {
-      continue;
-    }
     FBSettingApplyBlock handler = settersMap[key];
     if (nil == handler) {
       continue;
     }
-    FBCommandStatus *status = handler(session, value);
+    FBCommandStatus *status = handler(session, FBNormalizedSettingValue(settings[key]));
     if (status.hasError) {
       return status;
     }

@@ -17,10 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Applies the given settings dictionary to FBConfiguration and the active session.
+ * JSON null values are normalized to nil before being passed to individual setters.
+ * Unknown keys are skipped.
  *
  * @return nil on success, or an FBCommandStatus describing the validation error.
  */
-+ (nullable FBCommandStatus *)applySettings:(nullable NSDictionary *)settings toSession:(FBSession *)session;
++ (nullable FBCommandStatus *)applySettings:(NSDictionary *)settings toSession:(FBSession *)session;
 
 /**
  * Returns the current values for all known settings.

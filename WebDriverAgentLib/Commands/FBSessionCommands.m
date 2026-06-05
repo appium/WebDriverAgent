@@ -328,7 +328,13 @@
 
 + (id<FBResponsePayload>)handleSetSettings:(FBRouteRequest *)request
 {
-  FBCommandStatus *status = [FBSettingsHandler applySettings:request.arguments[@"settings"]
+  id settingsArgument = request.arguments[@"settings"];
+  if (nil != settingsArgument && ![settingsArgument isKindOfClass:NSDictionary.class]) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"settings must be a dictionary"
+                                                                       traceback:nil]);
+  }
+  NSDictionary *settings = settingsArgument ?: @{};
+  FBCommandStatus *status = [FBSettingsHandler applySettings:settings
                                                    toSession:request.session];
   if (status.hasError) {
     return FBResponseWithStatus(status);
