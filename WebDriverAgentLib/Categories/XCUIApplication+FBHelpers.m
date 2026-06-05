@@ -45,13 +45,22 @@ static NSString* const FBExclusionAttributeEnabled = @"enabled";
 static NSString* const FBExclusionAttributeVisible = @"visible";
 static NSString* const FBExclusionAttributeAccessible = @"accessible";
 static NSString* const FBExclusionAttributeNativeAccessibilityElement = @"nativeAccessibilityElement";
-static NSString* const FBJsonAttributeNativeAccessibilityElement = @"isNativeAccessibilityElement";
 static NSString* const FBExclusionAttributeFocused = @"focused";
 static NSString* const FBExclusionAttributePlaceholderValue = @"placeholderValue";
 static NSString* const FBExclusionAttributeNativeFrame = @"nativeFrame";
 static NSString* const FBExclusionAttributeTraits = @"traits";
 static NSString* const FBExclusionAttributeMinValue = @"minValue";
 static NSString* const FBExclusionAttributeMaxValue = @"maxValue";
+
+static NSString *FBJsonPrefixedAttributeKey(NSString *key)
+{
+  if (0 == key.length) {
+    return @"is";
+  }
+  return [NSString stringWithFormat:@"is%@%@",
+          [[key substringToIndex:1] uppercaseString],
+          [key substringFromIndex:1]];
+}
 
 _Nullable id extractIssueProperty(id issue, NSString *propertyName) {
   SEL selector = NSSelectorFromString(propertyName);
@@ -224,11 +233,8 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
           NSString *value = ((NSString * (^)(void))attributeBlocks[key])();
           if ([nonPrefixedKeys containsObject:key]) {
               info[key] = value;
-          } else if ([key isEqualToString:FBExclusionAttributeNativeAccessibilityElement]) {
-              // capitalizedString would turn "nativeAccessibilityElement" into "Nativeaccessibilityelement"
-              info[FBJsonAttributeNativeAccessibilityElement] = value;
           } else {
-              info[[NSString stringWithFormat:@"is%@", [key capitalizedString]]] = value;
+              info[FBJsonPrefixedAttributeKey(key)] = value;
           }
       }
   }
