@@ -15,6 +15,10 @@
 
 static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
 
+// The iOS 18+ limited access permission prompt runs in a dedicated process that
+// is not reported by fb_activeApplications. See https://github.com/appium/appium/issues/20591
+static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.ContactsUI.LimitedAccessPromptView";
+
 @interface FBAlertsMonitor()
 
 @property (atomic) BOOL isMonitoring;
@@ -48,13 +52,14 @@ static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
+    id<FBAlertsMonitorDelegate> delegate = self.delegate;
     NSArray<XCUIApplication *> *activeApps = XCUIApplication.fb_activeApplications;
+    XCUIElement *alertElement = nil;
     for (XCUIApplication *activeApp in activeApps) {
-      XCUIElement *alertElement = nil;
       @try {
         alertElement = activeApp.fb_alertElement;
         if (nil != alertElement) {
-          [self.delegate didDetectAlert:[FBAlert alertWithElement:alertElement]];
+          [delegate didDetectAlert:[FBAlert alertWithElement:alertElement]];
         }
       } @catch (NSException *e) {
         [FBLogger logFmt:@"Got an unexpected exception while monitoring alerts: %@\n%@", e.reason, e.callStackSymbols];
@@ -64,12 +69,31 @@ static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
       }
     }
 
+    if (nil == alertElement) {
+      alertElement = [self fb_alertElementFromLimitedAccessPrompt];
+      if (nil != alertElement) {
+        [delegate didDetectAlert:[FBAlert alertWithElement:alertElement]];
+      }
+    }
+
     if (self.isMonitoring) {
       dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delta), dispatch_get_main_queue(), ^{
         [self scheduleNextTick];
       });
     }
   });
+}
+
+- (XCUIElement *)fb_alertElementFromLimitedAccessPrompt
+{
+  @try {
+    XCUIApplication *promptApp = [[XCUIApplication alloc]
+                                  initWithBundleIdentifier:FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID];
+    return promptApp.fb_alertElement;
+  } @catch (NSException *e) {
+    [FBLogger logFmt:@"Got an unexpected exception while monitoring the limited access prompt: %@\n%@", e.reason, e.callStackSymbols];
+    return nil;
+  }
 }
 
 - (void)enable
