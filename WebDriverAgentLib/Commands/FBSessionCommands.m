@@ -90,134 +90,35 @@
   }
 
   NSDictionary<NSString *, id> *capabilities;
-  NSError *error;
-  if (![request.arguments[@"capabilities"] isKindOfClass:NSDictionary.class]) {
-    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:@"'capabilities' is mandatory to create a new session"
-                                                              traceback:nil]);
-  }
-  if (nil == (capabilities = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error))) {
-    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.localizedDescription traceback:nil]);
+  id<FBResponsePayload> errorResponse = [self capabilitiesFromCreateSessionRequest:request
+                                                                    capabilitiesOut:&capabilities];
+  if (nil != errorResponse) {
+    return errorResponse;
   }
 
-  [FBConfiguration resetSessionSettings];
-  if (capabilities[FB_SETTING_USE_COMPACT_RESPONSES]) {
-    [FBConfiguration setShouldUseCompactResponses:[capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
-  }
-  NSString *elementResponseAttributes = capabilities[FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES];
-  if (elementResponseAttributes) {
-    [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
-  }
-  if (capabilities[FB_CAP_MAX_TYPING_FREQUENCY]) {
-    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
-  }
-  if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
-    [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];
-  }
-  if (capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS]) {
-    if ([capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS] boolValue]) {
-      [FBConfiguration disableScreenshots];
-    } else {
-      [FBConfiguration enableScreenshots];
-    }
-  }
-  if (capabilities[FB_CAP_SHOULD_TERMINATE_APP]) {
-    [FBConfiguration setShouldTerminateApp:[capabilities[FB_CAP_SHOULD_TERMINATE_APP] boolValue]];
-  }
-  NSNumber *delay = capabilities[FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC];
-  if ([delay doubleValue] > 0.0) {
-    [XCUIApplicationProcessDelay setEventLoopHasIdledDelay:[delay doubleValue]];
-  } else {
-    [XCUIApplicationProcessDelay disableEventLoopDelay];
-  }
-
-  if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
-    FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
-  }
-
-  if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
-      [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
-    [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
-  }
+  [self applyConfigurationFromCapabilities:capabilities];
 
   NSString *bundleID = capabilities[FB_CAP_BUNDLE_ID];
   NSString *initialUrl = capabilities[FB_CAP_INITIAL_URL];
   XCUIApplication *app = nil;
-  if (bundleID != nil) {
-    app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
-    BOOL forceAppLaunch = YES;
-    if (nil != capabilities[FB_CAP_FORCE_APP_LAUNCH]) {
-      forceAppLaunch = [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
-    }
-    XCUIApplicationState appState = app.state;
-    BOOL isAppRunning = appState >= XCUIApplicationStateRunningBackground;
-    if (!isAppRunning || (isAppRunning && forceAppLaunch)) {
-      app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
-        || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
-      app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
-      app.launchEnvironment = (NSDictionary <NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
-      if (nil != initialUrl) {
-        if (app.running) {
-          [app terminate];
-        }
-        id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
-                                                 withApplication:bundleID
-                                                         timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
-        if (nil != errorResponse) {
-          return errorResponse;
-        }
-      } else {
-        NSTimeInterval defaultTimeout = _XCTApplicationStateTimeout();
-        if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
-          _XCTSetApplicationStateTimeout([capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]);
-        }
-        @try {
-          [app launch];
-        } @catch (NSException *e) {
-          return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:e.reason traceback:nil]);
-        } @finally {
-          if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
-            _XCTSetApplicationStateTimeout(defaultTimeout);
-          }
-        }
-      }
-      if (!app.running) {
-        NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
-        return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg
-                                                                  traceback:nil]);
-      }
-    } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
-      if (nil != initialUrl) {
-        id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
-                                                 withApplication:bundleID
-                                                         timeout:nil];
-        if (nil != errorResponse) {
-          return errorResponse;
-        }
-      } else {
-        [app activate];
-      }
-    }
+  errorResponse = [self prepareApplicationForSessionWithBundleID:bundleID
+                                                      initialUrl:initialUrl
+                                                    capabilities:capabilities
+                                                     application:&app];
+  if (nil != errorResponse) {
+    return errorResponse;
   }
 
   if (nil != initialUrl && nil == bundleID) {
-    id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
-                                             withApplication:nil
-                                                     timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+    errorResponse = [self openDeepLink:initialUrl
+                       withApplication:nil
+                               timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
     if (nil != errorResponse) {
       return errorResponse;
     }
   }
 
-  if (capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]) {
-    [FBSession initWithApplication:app
-                defaultAlertAction:(id)capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]];
-  } else {
-    [FBSession initWithApplication:app];
-  }
-
-  if (nil != capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY]) {
-    FBSession.activeSession.useNativeCachingStrategy = [capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY] boolValue];
-  }
+  [self initializeSessionWithApplication:app capabilities:capabilities];
 
   return FBResponseWithObject(FBSessionCommands.sessionInformation);
 }
@@ -342,6 +243,170 @@
   return [self handleGetSettings:request];
 }
 
+
+#pragma mark - Session Creation Helpers
+
++ (nullable id<FBResponsePayload>)capabilitiesFromCreateSessionRequest:(FBRouteRequest *)request
+                                                         capabilitiesOut:(NSDictionary<NSString *, id> *_Nonnull *_Nonnull)capabilitiesOut
+{
+  if (![request.arguments[@"capabilities"] isKindOfClass:NSDictionary.class]) {
+    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:@"'capabilities' is mandatory to create a new session"
+                                                              traceback:nil]);
+  }
+  NSError *error;
+  NSDictionary<NSString *, id> *capabilities = FBParseCapabilities((NSDictionary *)request.arguments[@"capabilities"], &error);
+  if (nil == capabilities) {
+    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:error.localizedDescription traceback:nil]);
+  }
+  *capabilitiesOut = capabilities;
+  return nil;
+}
+
++ (void)applyConfigurationFromCapabilities:(NSDictionary<NSString *, id> *)capabilities
+{
+  [FBConfiguration resetSessionSettings];
+  if (capabilities[FB_SETTING_USE_COMPACT_RESPONSES]) {
+    [FBConfiguration setShouldUseCompactResponses:[capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
+  }
+  NSString *elementResponseAttributes = capabilities[FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES];
+  if (elementResponseAttributes) {
+    [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
+  }
+  if (capabilities[FB_CAP_MAX_TYPING_FREQUENCY]) {
+    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
+  }
+  if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
+    [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];
+  }
+  if (capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS]) {
+    if ([capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS] boolValue]) {
+      [FBConfiguration disableScreenshots];
+    } else {
+      [FBConfiguration enableScreenshots];
+    }
+  }
+  if (capabilities[FB_CAP_SHOULD_TERMINATE_APP]) {
+    [FBConfiguration setShouldTerminateApp:[capabilities[FB_CAP_SHOULD_TERMINATE_APP] boolValue]];
+  }
+  NSNumber *delay = capabilities[FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC];
+  if ([delay doubleValue] > 0.0) {
+    [XCUIApplicationProcessDelay setEventLoopHasIdledDelay:[delay doubleValue]];
+  } else {
+    [XCUIApplicationProcessDelay disableEventLoopDelay];
+  }
+  if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
+    FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
+  }
+  if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
+      [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
+    [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
+  }
+}
+
++ (nullable id<FBResponsePayload>)prepareApplicationForSessionWithBundleID:(nullable NSString *)bundleID
+                                                                initialUrl:(nullable NSString *)initialUrl
+                                                            capabilities:(NSDictionary<NSString *, id> *)capabilities
+                                                             application:(XCUIApplication *_Nullable *_Nonnull)applicationOut
+{
+  if (nil == bundleID) {
+    *applicationOut = nil;
+    return nil;
+  }
+
+  XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
+  BOOL forceAppLaunch = nil == capabilities[FB_CAP_FORCE_APP_LAUNCH]
+    || [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
+  XCUIApplicationState appState = app.state;
+  BOOL isAppRunning = appState >= XCUIApplicationStateRunningBackground;
+
+  if (!isAppRunning || (isAppRunning && forceAppLaunch)) {
+    id<FBResponsePayload> errorResponse = [self launchApplication:app
+                                                         bundleID:bundleID
+                                                       initialUrl:initialUrl
+                                                     capabilities:capabilities];
+    if (nil != errorResponse) {
+      return errorResponse;
+    }
+  } else if (appState == XCUIApplicationStateRunningBackground && !forceAppLaunch) {
+    id<FBResponsePayload> errorResponse = [self activateBackgroundApplication:app
+                                                                     bundleID:bundleID
+                                                                   initialUrl:initialUrl];
+    if (nil != errorResponse) {
+      return errorResponse;
+    }
+  }
+
+  *applicationOut = app;
+  return nil;
+}
+
++ (nullable id<FBResponsePayload>)launchApplication:(XCUIApplication *)app
+                                           bundleID:(NSString *)bundleID
+                                         initialUrl:(nullable NSString *)initialUrl
+                                       capabilities:(NSDictionary<NSString *, id> *)capabilities
+{
+  app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
+    || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
+  app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
+  app.launchEnvironment = (NSDictionary<NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
+
+  if (nil != initialUrl) {
+    if (app.running) {
+      [app terminate];
+    }
+    id<FBResponsePayload> errorResponse = [self openDeepLink:initialUrl
+                                               withApplication:bundleID
+                                                       timeout:capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]];
+    if (nil != errorResponse) {
+      return errorResponse;
+    }
+  } else {
+    NSTimeInterval defaultTimeout = _XCTApplicationStateTimeout();
+    if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
+      _XCTSetApplicationStateTimeout([capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]);
+    }
+    @try {
+      [app launch];
+    } @catch (NSException *e) {
+      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:e.reason traceback:nil]);
+    } @finally {
+      if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
+        _XCTSetApplicationStateTimeout(defaultTimeout);
+      }
+    }
+  }
+
+  if (!app.running) {
+    NSString *errorMsg = [NSString stringWithFormat:@"Cannot launch %@ application. Make sure the correct bundle identifier has been provided in capabilities and check the device log for possible crash report occurrences", bundleID];
+    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
+  }
+  return nil;
+}
+
++ (nullable id<FBResponsePayload>)activateBackgroundApplication:(XCUIApplication *)app
+                                                       bundleID:(NSString *)bundleID
+                                                     initialUrl:(nullable NSString *)initialUrl
+{
+  if (nil != initialUrl) {
+    return [self openDeepLink:initialUrl withApplication:bundleID timeout:nil];
+  }
+  [app activate];
+  return nil;
+}
+
++ (void)initializeSessionWithApplication:(nullable XCUIApplication *)app
+                          capabilities:(NSDictionary<NSString *, id> *)capabilities
+{
+  if (capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]) {
+    [FBSession initWithApplication:app
+                defaultAlertAction:(id)capabilities[FB_SETTING_DEFAULT_ALERT_ACTION]];
+  } else {
+    [FBSession initWithApplication:app];
+  }
+  if (nil != capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY]) {
+    FBSession.activeSession.useNativeCachingStrategy = [capabilities[FB_CAP_USE_NATIVE_CACHING_STRATEGY] boolValue];
+  }
+}
 
 #pragma mark - Helpers
 
