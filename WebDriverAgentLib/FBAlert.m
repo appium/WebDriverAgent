@@ -267,6 +267,9 @@
     } else {
       self.element = systemApp.fb_alertElement ?: self.application.fb_alertElement;
     }
+    if (nil == self.element) {
+      self.element = [XCUIApplication fb_limitedAccessPromptAlertElement];
+    }
   }
   return self.element;
 }

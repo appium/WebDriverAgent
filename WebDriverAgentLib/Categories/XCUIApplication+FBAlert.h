@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface XCUIApplication (FBAlert)
 
 /* The accessiblity label used for Safari app */
@@ -18,6 +20,16 @@ extern NSString *const FB_SAFARI_APP_NAME;
 
  @return Alert element instance
  */
-- (XCUIElement *)fb_alertElement;
+- (nullable XCUIElement *)fb_alertElement;
+
+/**
+ Retrieve an alert element hosted by the iOS 18+ limited access permission prompt
+ process. See https://github.com/appium/appium/issues/20591
+
+ @return Alert element instance if the prompt is present, otherwise nil
+ */
++ (nullable XCUIElement *)fb_limitedAccessPromptAlertElement;
 
 @end
+
+NS_ASSUME_NONNULL_END

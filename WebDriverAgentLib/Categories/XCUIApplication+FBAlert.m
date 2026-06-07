@@ -17,8 +17,21 @@
 
 NSString *const FB_SAFARI_APP_NAME = @"Safari";
 
+// The iOS 18+ limited access permission prompt (e.g. the "Select Contacts" view)
+// runs in a dedicated process that is not reported by fb_activeApplications.
+static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.ContactsUI.LimitedAccessPromptView";
+
 
 @implementation XCUIApplication (FBAlert)
+
++ (nullable XCUIElement *)fb_limitedAccessPromptAlertElement
+{
+  XCUIApplication *promptApp = [[XCUIApplication alloc] initWithBundleIdentifier:FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID];
+  if (promptApp.state < XCUIApplicationStateRunningForeground) {
+    return nil;
+  }
+  return promptApp.fb_alertElement;
+}
 
 - (nullable XCUIElement *)fb_alertElementFromSafariWithScrollView:(XCUIElement *)scrollView
                                                      viewSnapshot:(id<FBXCElementSnapshot>)viewSnapshot
