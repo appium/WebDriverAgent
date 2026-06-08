@@ -149,8 +149,19 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
                      codec:(FBVideoCodec *)codec
               errorMessage:(NSString **)errorMessage
 {
-  NSString *codecName = arguments[@"codec"];
-  if (nil == codecName || codecName.length == 0) {
+  id codecValue = arguments[@"codec"];
+  if (nil == codecValue) {
+    *codec = FBVideoCodecH264;
+    return YES;
+  }
+  if (![codecValue isKindOfClass:[NSString class]]) {
+    if (errorMessage) {
+      *errorMessage = @"'codec' must be a string ('h264' or 'h265')";
+    }
+    return NO;
+  }
+  NSString *codecName = (NSString *)codecValue;
+  if (codecName.length == 0) {
     *codec = FBVideoCodecH264;
     return YES;
   }
