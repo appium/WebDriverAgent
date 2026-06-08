@@ -22,6 +22,7 @@
 #import "FBUnknownCommands.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
+#import "FBVideoStreamManager.h"
 
 #import "XCUIDevice+FBHelpers.h"
 
@@ -177,6 +178,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 - (void)stopServing
 {
   [FBSession.activeSession kill];
+  [FBVideoStreamManager.sharedInstance stopAllSessions];
   [self stopScreenshotsBroadcaster];
   if (self.server.isRunning) {
     [self.server stop:NO];

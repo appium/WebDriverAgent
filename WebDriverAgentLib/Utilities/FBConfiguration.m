@@ -25,6 +25,7 @@
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
+static NSUInteger const DefaultScreenCaptureServerPort = 9200;
 static NSUInteger const DefaultPortRange = 100;
 
 static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
@@ -161,6 +162,16 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   }
 
   return DefaultMjpegServerPort;
+}
+
++ (NSInteger)screenCaptureServerPort
+{
+  if (NSProcessInfo.processInfo.environment[@"SCREEN_CAPTURE_SERVER_PORT"] &&
+      [NSProcessInfo.processInfo.environment[@"SCREEN_CAPTURE_SERVER_PORT"] length] > 0) {
+    return [NSProcessInfo.processInfo.environment[@"SCREEN_CAPTURE_SERVER_PORT"] integerValue];
+  }
+
+  return DefaultScreenCaptureServerPort;
 }
 
 + (CGFloat)mjpegScalingFactor
