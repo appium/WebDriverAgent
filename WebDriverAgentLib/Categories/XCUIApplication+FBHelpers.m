@@ -54,9 +54,6 @@ static NSString* const FBExclusionAttributeMaxValue = @"maxValue";
 
 static NSString *FBJsonPrefixedAttributeKey(NSString *key)
 {
-  if (0 == key.length) {
-    return @"is";
-  }
   return [NSString stringWithFormat:@"is%@%@",
           [[key substringToIndex:1] uppercaseString],
           [key substringFromIndex:1]];
