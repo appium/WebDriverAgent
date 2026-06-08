@@ -34,6 +34,9 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 @property (nonatomic) long long mainScreenID;
 @property (nonatomic) NSUInteger consecutiveScreenshotFailures;
 @property (atomic) BOOL isStreaming;
+// Identifies the current capture-loop run. Callbacks scheduled by a previous run carry a stale
+// generation and refuse to proceed, so a stop/start cycle cannot leave duplicate loops running.
+@property (atomic) NSUInteger loopGeneration;
 
 @end
 
@@ -88,21 +91,24 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     return nil;
   }
 
+  NSUInteger generation = 0;
   @synchronized (self.sessions) {
     self.sessions[@(identifier)] = session;
     self.nextSessionIdentifier += 1;
     self.mainScreenID = [XCUIScreen.mainScreen displayID];
     if (!self.isStreaming) {
       self.isStreaming = YES;
+      self.loopGeneration += 1;
       shouldStartLoop = YES;
     }
+    generation = self.loopGeneration;
   }
 
   if (shouldStartLoop) {
     self.consecutiveScreenshotFailures = 0;
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.backgroundQueue, ^{
-      [weakSelf captureFrame];
+      [weakSelf captureFrameWithGeneration:generation];
     });
   }
   [FBLogger logFmt:@"Started screen capture session %@ (%@ %@x%@) on port %@",
@@ -190,9 +196,11 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 
 #pragma mark - Shared capture loop
 
-- (void)scheduleNextFrameWithInterval:(uint64_t)timerInterval timeStarted:(uint64_t)timeStarted
+- (void)scheduleNextFrameWithInterval:(uint64_t)timerInterval
+                          timeStarted:(uint64_t)timeStarted
+                           generation:(NSUInteger)generation
 {
-  if (!self.isStreaming) {
+  if (!self.isStreaming || generation != self.loopGeneration) {
     return;
   }
   uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
@@ -200,18 +208,19 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   __weak typeof(self) weakSelf = self;
   if (nextTickDelta > 0) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, nextTickDelta), self.backgroundQueue, ^{
-      [weakSelf captureFrame];
+      [weakSelf captureFrameWithGeneration:generation];
     });
   } else {
     dispatch_async(self.backgroundQueue, ^{
-      [weakSelf captureFrame];
+      [weakSelf captureFrameWithGeneration:generation];
     });
   }
 }
 
-- (void)captureFrame
+- (void)captureFrameWithGeneration:(NSUInteger)generation
 {
-  if (!self.isStreaming) {
+  // Ignore callbacks left over from a previous capture-loop run.
+  if (!self.isStreaming || generation != self.loopGeneration) {
     return;
   }
 
@@ -236,7 +245,7 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
 
   if (!anyClients) {
-    [self scheduleNextFrameWithInterval:timerInterval timeStarted:timeStarted];
+    [self scheduleNextFrameWithInterval:timerInterval timeStarted:timeStarted generation:generation];
     return;
   }
 
@@ -251,7 +260,7 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     self.consecutiveScreenshotFailures++;
     NSTimeInterval backoffSeconds = MIN(FAILURE_BACKOFF_MAX,
                                         FAILURE_BACKOFF_MIN * (1 << MIN(self.consecutiveScreenshotFailures, 4)));
-    [self scheduleNextFrameWithInterval:(uint64_t)(backoffSeconds * NSEC_PER_SEC) timeStarted:timeStarted];
+    [self scheduleNextFrameWithInterval:(uint64_t)(backoffSeconds * NSEC_PER_SEC) timeStarted:timeStarted generation:generation];
     return;
   }
   self.consecutiveScreenshotFailures = 0;
@@ -268,7 +277,7 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     [FBLogger log:@"Cannot decode the captured screenshot"];
   }
 
-  [self scheduleNextFrameWithInterval:timerInterval timeStarted:timeStarted];
+  [self scheduleNextFrameWithInterval:timerInterval timeStarted:timeStarted generation:generation];
 }
 
 + (nullable CGImageRef)decodeImage:(NSData *)imageData CF_RETURNS_RETAINED

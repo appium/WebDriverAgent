@@ -65,8 +65,15 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
   NSNumber *fps = request.arguments[@"fps"];
   configuration.fps = (nil != fps && fps.integerValue > 0) ? fps.unsignedIntegerValue : DEFAULT_CAPTURE_FPS;
   NSNumber *port = request.arguments[@"port"];
-  // A zero port asks the manager to auto-assign the next free port.
-  configuration.port = (nil != port && port.integerValue > 0) ? (uint16_t)port.integerValue : 0;
+  if (nil != port) {
+    NSInteger portValue = port.integerValue;
+    // 0 asks the manager to auto-assign the next free port; anything outside the TCP port range
+    // would silently wrap when cast to uint16_t, so reject it explicitly.
+    if (portValue < 0 || portValue > UINT16_MAX) {
+      return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"'port' must be an integer in the range 0..65535 (0 auto-assigns the next free port)" traceback:nil]);
+    }
+    configuration.port = (uint16_t)portValue;
+  }
 
   NSError *error;
   FBVideoStreamSession *session = [FBVideoStreamManager.sharedInstance startSessionWithConfiguration:configuration
