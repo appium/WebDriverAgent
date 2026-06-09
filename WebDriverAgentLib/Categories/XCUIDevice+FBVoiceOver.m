@@ -20,20 +20,19 @@ static BOOL FBVoiceOverBuildSDKUnsupportedError(NSError **error)
           buildError:error];
 }
 
-static BOOL isVoiceOverServiceAvailable = NO;
-static dispatch_once_t voiceOverServiceOnceToken;
-
-static void FBInitializeVoiceOverServiceAvailability(void)
+static BOOL FBIsVoiceOverServiceAvailable(void)
 {
-  dispatch_once(&voiceOverServiceOnceToken, ^{
-    isVoiceOverServiceAvailable = [XCUIDevice.sharedDevice respondsToSelector:NSSelectorFromString(@"voiceOverService")];
+  static BOOL isAvailable = NO;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    isAvailable = [XCUIDevice.sharedDevice respondsToSelector:NSSelectorFromString(@"voiceOverService")];
   });
+  return isAvailable;
 }
 
 static id FBVoiceOverService(NSError **error)
 {
-  FBInitializeVoiceOverServiceAvailability();
-  if (!isVoiceOverServiceAvailable) {
+  if (!FBIsVoiceOverServiceAvailable()) {
     FBVoiceOverBuildSDKUnsupportedError(error);
     return nil;
   }
@@ -148,8 +147,7 @@ static NSDictionary<NSString *, NSString *> *FBVoiceOverMoveSelectors(void)
 
 - (BOOL)fb_isVoiceOverServiceAvailable
 {
-  FBInitializeVoiceOverServiceAvailability();
-  return isVoiceOverServiceAvailable;
+  return FBIsVoiceOverServiceAvailable();
 }
 
 - (BOOL)fb_enableVoiceOver:(NSError **)error
