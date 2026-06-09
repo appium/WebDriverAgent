@@ -26,6 +26,7 @@
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBVoiceOver.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
@@ -80,6 +81,24 @@
     [[FBRoute POST:@"/wda/simulatedLocation"].withoutSession respondWithTarget:self action:@selector(handleSetSimulatedLocation:)],
     [[FBRoute DELETE:@"/wda/simulatedLocation"] respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
     [[FBRoute DELETE:@"/wda/simulatedLocation"].withoutSession respondWithTarget:self action:@selector(handleClearSimulatedLocation:)],
+#endif
+    [[FBRoute POST:@"/wda/voiceOver/enable"] respondWithTarget:self action:@selector(handleVoiceOverEnable:)],
+    [[FBRoute POST:@"/wda/voiceOver/enable"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverEnable:)],
+    [[FBRoute POST:@"/wda/voiceOver/disable"] respondWithTarget:self action:@selector(handleVoiceOverDisable:)],
+    [[FBRoute POST:@"/wda/voiceOver/disable"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverDisable:)],
+    [[FBRoute GET:@"/wda/voiceOver/enabled"] respondWithTarget:self action:@selector(handleVoiceOverEnabled:)],
+    [[FBRoute GET:@"/wda/voiceOver/enabled"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverEnabled:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveForward"] respondWithTarget:self action:@selector(handleVoiceOverMoveForward:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveForward"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverMoveForward:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveBackward"] respondWithTarget:self action:@selector(handleVoiceOverMoveBackward:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveBackward"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverMoveBackward:)],
+    [[FBRoute GET:@"/wda/voiceOver/currentSpeech"] respondWithTarget:self action:@selector(handleVoiceOverCurrentSpeech:)],
+    [[FBRoute GET:@"/wda/voiceOver/currentSpeech"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverCurrentSpeech:)],
+#if TARGET_OS_IOS
+    [[FBRoute POST:@"/wda/voiceOver/moveIn"] respondWithTarget:self action:@selector(handleVoiceOverMoveIn:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveIn"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverMoveIn:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveOut"] respondWithTarget:self action:@selector(handleVoiceOverMoveOut:)],
+    [[FBRoute POST:@"/wda/voiceOver/moveOut"].withoutSession respondWithTarget:self action:@selector(handleVoiceOverMoveOut:)],
 #endif
     [[FBRoute OPTIONS:@"/*"].withoutSession respondWithTarget:self action:@selector(handlePingCommand:)],
   ];
@@ -609,6 +628,86 @@
   return FBResponseWithOK();
 }
 #endif
+#endif
+
++ (id<FBResponsePayload>)fb_handleVoiceOverSpeechResponse:(nullable NSString *)utterance
+                                                      error:(NSError *)error
+{
+  if (nil != error) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithObject(@{
+    @"utterance": utterance ?: NSNull.null,
+  });
+}
+
++ (id<FBResponsePayload>)handleVoiceOverEnable:(FBRouteRequest *)request
+{
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_enableVoiceOver:&error]) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleVoiceOverDisable:(FBRouteRequest *)request
+{
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_disableVoiceOver:&error]) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handleVoiceOverEnabled:(FBRouteRequest *)request
+{
+  NSError *error;
+  BOOL isEnabled = [XCUIDevice.sharedDevice fb_isVoiceOverEnabled:&error];
+  if (nil != error) {
+    return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
+                                                               traceback:nil]);
+  }
+  return FBResponseWithObject(@{@"enabled": @(isEnabled)});
+}
+
++ (id<FBResponsePayload>)handleVoiceOverMoveForward:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveForward:&error];
+  return [self fb_handleVoiceOverSpeechResponse:utterance error:error];
+}
+
++ (id<FBResponsePayload>)handleVoiceOverMoveBackward:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveBackward:&error];
+  return [self fb_handleVoiceOverSpeechResponse:utterance error:error];
+}
+
++ (id<FBResponsePayload>)handleVoiceOverCurrentSpeech:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverCurrentSpeech:&error];
+  return [self fb_handleVoiceOverSpeechResponse:utterance error:error];
+}
+
+#if TARGET_OS_IOS
++ (id<FBResponsePayload>)handleVoiceOverMoveIn:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveIn:&error];
+  return [self fb_handleVoiceOverSpeechResponse:utterance error:error];
+}
+
++ (id<FBResponsePayload>)handleVoiceOverMoveOut:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveOut:&error];
+  return [self fb_handleVoiceOverSpeechResponse:utterance error:error];
+}
 #endif
 
 + (id<FBResponsePayload>)handlePerformAccessibilityAudit:(FBRouteRequest *)request

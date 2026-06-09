@@ -1,0 +1,200 @@
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+#import "XCUIDevice+FBVoiceOver.h"
+
+#import "FBErrorBuilder.h"
+
+static NSString *const FBVoiceOverSDKUnsupportedError =
+@"The current Xcode SDK does not support VoiceOver control. Consider upgrading to Xcode 27+/iOS 27+";
+
+static BOOL FBVoiceOverBuildSDKUnsupportedError(NSError **error)
+{
+  return [[[FBErrorBuilder builder]
+           withDescription:FBVoiceOverSDKUnsupportedError]
+          buildError:error];
+}
+
+static BOOL isVoiceOverServiceAvailable = NO;
+static dispatch_once_t voiceOverServiceOnceToken;
+
+static void FBInitializeVoiceOverServiceAvailability(void)
+{
+  dispatch_once(&voiceOverServiceOnceToken, ^{
+    isVoiceOverServiceAvailable = [XCUIDevice.sharedDevice respondsToSelector:NSSelectorFromString(@"voiceOverService")];
+  });
+}
+
+static id FBVoiceOverService(NSError **error)
+{
+  FBInitializeVoiceOverServiceAvailability();
+  if (!isVoiceOverServiceAvailable) {
+    FBVoiceOverBuildSDKUnsupportedError(error);
+    return nil;
+  }
+  return [XCUIDevice.sharedDevice valueForKey:@"voiceOverService"];
+}
+
+static BOOL FBInvokeVoiceOverBoolMethod(id voiceOverService,
+                                        SEL selector,
+                                        NSError **error)
+{
+  if (![voiceOverService respondsToSelector:selector]) {
+    return FBVoiceOverBuildSDKUnsupportedError(error);
+  }
+
+  NSMethodSignature *signature = [voiceOverService methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setTarget:voiceOverService];
+  NSError *invokeError = nil;
+  [invocation setArgument:&invokeError atIndex:2];
+  [invocation invoke];
+  if (nil != invokeError) {
+    if (error) {
+      *error = invokeError;
+    }
+    return NO;
+  }
+
+  BOOL result = NO;
+  [invocation getReturnValue:&result];
+  return result;
+}
+
+static id FBInvokeVoiceOverOutputMethod(id voiceOverService,
+                                        SEL selector,
+                                        NSError **error)
+{
+  if (![voiceOverService respondsToSelector:selector]) {
+    FBVoiceOverBuildSDKUnsupportedError(error);
+    return nil;
+  }
+
+  NSMethodSignature *signature = [voiceOverService methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setTarget:voiceOverService];
+  NSError *invokeError = nil;
+  [invocation setArgument:&invokeError atIndex:2];
+  [invocation invoke];
+  if (nil != invokeError) {
+    if (error) {
+      *error = invokeError;
+    }
+    return nil;
+  }
+
+  id __unsafe_unretained output = nil;
+  [invocation getReturnValue:&output];
+  return output;
+}
+
+static NSString *FBUtteranceFromVoiceOverOutput(id output, NSError **error)
+{
+  if (nil == output) {
+    return nil;
+  }
+
+  if (![output respondsToSelector:NSSelectorFromString(@"utterance")]) {
+    [[[FBErrorBuilder builder]
+      withDescription:@"VoiceOver output does not provide an utterance"]
+     buildError:error];
+    return nil;
+  }
+
+  id utterance = [output valueForKey:@"utterance"];
+  return [utterance isKindOfClass:NSString.class] ? utterance : nil;
+}
+
+static NSString *FBVoiceOverSpeechFromSelector(SEL selector, NSError **error)
+{
+  id service = FBVoiceOverService(error);
+  if (nil == service) {
+    return nil;
+  }
+
+  id output = FBInvokeVoiceOverOutputMethod(service, selector, error);
+  if (nil != error && nil != *error) {
+    return nil;
+  }
+  return FBUtteranceFromVoiceOverOutput(output, error);
+}
+
+@implementation XCUIDevice (FBVoiceOver)
+
+- (BOOL)fb_isVoiceOverServiceAvailable
+{
+  FBInitializeVoiceOverServiceAvailability();
+  return isVoiceOverServiceAvailable;
+}
+
+- (BOOL)fb_enableVoiceOver:(NSError **)error
+{
+  id service = FBVoiceOverService(error);
+  if (nil == service) {
+    return NO;
+  }
+  return FBInvokeVoiceOverBoolMethod(service,
+                                     NSSelectorFromString(@"enableAndReturnError:"),
+                                     error);
+}
+
+- (BOOL)fb_disableVoiceOver:(NSError **)error
+{
+  id service = FBVoiceOverService(error);
+  if (nil == service) {
+    return NO;
+  }
+  return FBInvokeVoiceOverBoolMethod(service,
+                                     NSSelectorFromString(@"disableAndReturnError:"),
+                                     error);
+}
+
+- (BOOL)fb_isVoiceOverEnabled:(NSError **)error
+{
+  id service = FBVoiceOverService(error);
+  if (nil == service) {
+    return NO;
+  }
+
+  if (![service respondsToSelector:NSSelectorFromString(@"isEnabled")]) {
+    return FBVoiceOverBuildSDKUnsupportedError(error);
+  }
+
+  return [[service valueForKey:@"enabled"] boolValue];
+}
+
+- (nullable NSString *)fb_voiceOverMoveForward:(NSError **)error
+{
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveForwardAndReturnError:"), error);
+}
+
+- (nullable NSString *)fb_voiceOverMoveBackward:(NSError **)error
+{
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveBackwardAndReturnError:"), error);
+}
+
+- (nullable NSString *)fb_voiceOverCurrentSpeech:(NSError **)error
+{
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"currentSpeechAndReturnError:"), error);
+}
+
+#if TARGET_OS_IOS
+- (nullable NSString *)fb_voiceOverMoveIn:(NSError **)error
+{
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveInAndReturnError:"), error);
+}
+
+- (nullable NSString *)fb_voiceOverMoveOut:(NSError **)error
+{
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveOutAndReturnError:"), error);
+}
+#endif
+
+@end
