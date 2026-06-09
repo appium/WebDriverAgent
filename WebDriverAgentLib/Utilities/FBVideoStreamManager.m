@@ -20,6 +20,9 @@
 static const NSUInteger MAX_FPS = 60;
 static const NSUInteger DEFAULT_LOOP_FPS = 30;
 static const NSUInteger MAX_SESSIONS = 8;
+// How many successive ports to try when auto-assigning, so a default port already bound by
+// another process (e.g. a stale WDA) does not block startup.
+static const NSUInteger PORT_SCAN_RANGE = 64;
 static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
@@ -70,6 +73,7 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 {
   NSUInteger identifier;
   BOOL shouldStartLoop = NO;
+  BOOL autoAssignPort = (0 == configuration.port);
   @synchronized (self.sessions) {
     if (self.sessions.count >= MAX_SESSIONS) {
       if (error) {
@@ -79,15 +83,17 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
       }
       return nil;
     }
-    if (0 == configuration.port) {
+    if (autoAssignPort) {
       configuration.port = [self nextAutoPortLocked];
     }
     identifier = self.nextSessionIdentifier;
   }
 
-  FBVideoStreamSession *session = [[FBVideoStreamSession alloc] initWithIdentifier:identifier
-                                                                    configuration:configuration];
-  if (![session startWithError:error]) {
+  FBVideoStreamSession *session = [self startBoundSessionWithIdentifier:identifier
+                                                         configuration:configuration
+                                                        autoAssignPort:autoAssignPort
+                                                                 error:error];
+  if (nil == session) {
     return nil;
   }
 
@@ -128,6 +134,32 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     port += 1;
   }
   return port;
+}
+
+- (nullable FBVideoStreamSession *)startBoundSessionWithIdentifier:(NSUInteger)identifier
+                                                    configuration:(FBScreenCaptureConfiguration *)configuration
+                                                   autoAssignPort:(BOOL)autoAssignPort
+                                                            error:(NSError **)error
+{
+  // For an explicit port we try exactly once and surface any bind failure. For auto-assignment
+  // we scan forward so a default port already held by another process does not block startup.
+  NSUInteger maxAttempts = autoAssignPort ? PORT_SCAN_RANGE : 1;
+  NSError *lastError = nil;
+  for (NSUInteger attempt = 0; attempt < maxAttempts; attempt++) {
+    FBVideoStreamSession *session = [[FBVideoStreamSession alloc] initWithIdentifier:identifier
+                                                                      configuration:configuration];
+    if ([session startWithError:&lastError]) {
+      return session;
+    }
+    if (!autoAssignPort || configuration.port >= UINT16_MAX) {
+      break;
+    }
+    configuration.port += 1;
+  }
+  if (error) {
+    *error = lastError;
+  }
+  return nil;
 }
 
 - (BOOL)stopSessionWithIdentifier:(NSUInteger)identifier
