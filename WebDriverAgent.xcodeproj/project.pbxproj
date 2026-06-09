@@ -52,7 +52,6 @@
 		641EE5D92240C5CA00173FCB /* XCUIElement+FBPickerWheel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7136A4781E8918E60024FC3D /* XCUIElement+FBPickerWheel.m */; };
 		641EE5DA2240C5CA00173FCB /* XCUIApplicationProcessDelay.m in Sources */ = {isa = PBXBuildFile; fileRef = 6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */; };
 		641EE5DB2240C5CA00173FCB /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
-		71B2E0042733FB970074B004 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
 		641EE5DC2240C5CA00173FCB /* XCUIApplication+FBAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 719CD8FB2126C88B00C7D0C2 /* XCUIApplication+FBAlert.m */; };
 		641EE5DE2240C5CA00173FCB /* XCUIApplication+FBTouchAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BD20721F86116100B36EC2 /* XCUIApplication+FBTouchAction.m */; };
 		641EE5DF2240C5CA00173FCB /* FBWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB78D1CAEDF0C008C271F /* FBWebServer.m */; };
@@ -317,7 +316,6 @@
 		64E3502F2AC0B6FE005F3ACB /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		711084451DA3AA7500F913D6 /* FBXPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 711084431DA3AA7500F913D6 /* FBXPath.m */; };
-		71B2E0062733FB970074B006 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
 		7119097C2152580600BA3C7E /* XCUIScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 7119097B2152580600BA3C7E /* XCUIScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7119E1EC1E891F8600D0B125 /* FBPickerWheelSelectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */; };
 		711CD03425ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */; };
@@ -469,6 +467,8 @@
 		71B155DC230711E900646AFB /* FBCommandStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DB230711E900646AFB /* FBCommandStatus.m */; };
 		71B155DF23080CA600646AFB /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
 		71B155E123080CA600646AFB /* FBProtocolHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B155DE23080CA600646AFB /* FBProtocolHelpers.m */; };
+		71B2E0042733FB970074B004 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
+		71B2E0062733FB970074B006 /* FBXPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B2E0022733FB970074B002 /* FBXPathExtensions.m */; };
 		71B49EC71ED1A58100D51AD6 /* XCUIElement+FBUID.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B49EC51ED1A58100D51AD6 /* XCUIElement+FBUID.h */; };
 		71B49EC81ED1A58100D51AD6 /* XCUIElement+FBUID.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B49EC61ED1A58100D51AD6 /* XCUIElement+FBUID.m */; };
 		71BB58DE2B9631B700CB9BFE /* FBVideoRecordingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BB58DD2B9631B700CB9BFE /* FBVideoRecordingTests.m */; };
@@ -535,6 +535,7 @@
 		71F5BE50252F14EB00EE9EBA /* FBExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */; };
 		71F5BE51252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
 		71F5BE52252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
+		A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001A /* Assets.xcassets */; };
 		AABBCCDDEEFF001122334457 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF001122334456 /* SceneDelegate.m */; };
 		AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = EE158A991CBD452B00A3E3F0 /* WebDriverAgentLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD6C26941CF2379700F8B5FF /* FBAlert.h in Headers */ = {isa = PBXBuildFile; fileRef = AD6C26921CF2379700F8B5FF /* FBAlert.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -832,7 +833,6 @@
 		F59CD6D52EF16E5E00F91287 /* XCUIElement+FBCustomActions.m in Sources */ = {isa = PBXBuildFile; fileRef = F59CD6D32EF16E5E00F91287 /* XCUIElement+FBCustomActions.m */; };
 		F59CD6D62EF16E5E00F91287 /* XCUIElement+FBCustomActions.h in Headers */ = {isa = PBXBuildFile; fileRef = F59CD6D22EF16E5E00F91287 /* XCUIElement+FBCustomActions.h */; };
 		F59CD6D72EF16E5E00F91287 /* XCUIElement+FBCustomActions.m in Sources */ = {isa = PBXBuildFile; fileRef = F59CD6D32EF16E5E00F91287 /* XCUIElement+FBCustomActions.m */; };
-		A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001A /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -982,8 +982,6 @@
 		64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FBTVNavigationTracker-Private.h"; sourceTree = "<group>"; };
 		711084421DA3AA7500F913D6 /* FBXPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBXPath.h; sourceTree = "<group>"; };
 		711084431DA3AA7500F913D6 /* FBXPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPath.m; sourceTree = "<group>"; };
-		71B2E0012733FB970074B001 /* FBXPathExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXPathExtensions.h; sourceTree = "<group>"; };
-		71B2E0022733FB970074B002 /* FBXPathExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXPathExtensions.m; sourceTree = "<group>"; };
 		7119097B2152580600BA3C7E /* XCUIScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCUIScreen.h; sourceTree = "<group>"; };
 		7119E1EB1E891F8600D0B125 /* FBPickerWheelSelectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPickerWheelSelectTests.m; sourceTree = "<group>"; };
 		711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIScreenDataSource-Protocol.h"; sourceTree = "<group>"; };
@@ -1090,6 +1088,8 @@
 		71B155DB230711E900646AFB /* FBCommandStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBCommandStatus.m; sourceTree = "<group>"; };
 		71B155DD23080CA600646AFB /* FBProtocolHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBProtocolHelpers.h; sourceTree = "<group>"; };
 		71B155DE23080CA600646AFB /* FBProtocolHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBProtocolHelpers.m; sourceTree = "<group>"; };
+		71B2E0012733FB970074B001 /* FBXPathExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXPathExtensions.h; sourceTree = "<group>"; };
+		71B2E0022733FB970074B002 /* FBXPathExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXPathExtensions.m; sourceTree = "<group>"; };
 		71B49EC51ED1A58100D51AD6 /* XCUIElement+FBUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBUID.h"; sourceTree = "<group>"; };
 		71B49EC61ED1A58100D51AD6 /* XCUIElement+FBUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBUID.m"; sourceTree = "<group>"; };
 		71BB58DD2B9631B700CB9BFE /* FBVideoRecordingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBVideoRecordingTests.m; sourceTree = "<group>"; };
@@ -1125,6 +1125,7 @@
 		71F5BE33252E5B2200EE9EBA /* FBElementSwipingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBElementSwipingTests.m; sourceTree = "<group>"; };
 		71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBExceptions.h; sourceTree = "<group>"; };
 		71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBExceptions.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WebDriverAgentRunner/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		AABBCCDDEEFF001122334455 /* SceneDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
 		AABBCCDDEEFF001122334456 /* SceneDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		AD42DD2A1CF121E600806E5D /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
@@ -1379,7 +1380,6 @@
 		EE9AB7921CAEDF0C008C271F /* FBRuntimeUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRuntimeUtils.m; sourceTree = "<group>"; };
 		EE9AB7FC1CAEE048008C271F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WebDriverAgentRunner/Info.plist; sourceTree = SOURCE_ROOT; };
 		EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UITestingUITests.m; path = WebDriverAgentRunner/UITestingUITests.m; sourceTree = SOURCE_ROOT; };
-		A1B2C3D4E5F600000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WebDriverAgentRunner/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		EE9AB8031CAEE182008C271F /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		EE9B75D41CF7956C00275851 /* IntegrationApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntegrationApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE9B75EC1CF7956C00275851 /* IntegrationTests_1.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_1.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2012,11 +2012,11 @@
 				714D88CA2733FB970074A925 /* FBXMLGenerationOptions.h */,
 				714D88CB2733FB970074A925 /* FBXMLGenerationOptions.m */,
 				712A0C861DA3E55D007D02E5 /* FBXPath-Private.h */,
-		711084421DA3AA7500F913D6 /* FBXPath.h */,
-		711084431DA3AA7500F913D6 /* FBXPath.m */,
-		71B2E0012733FB970074B001 /* FBXPathExtensions.h */,
-		71B2E0022733FB970074B002 /* FBXPathExtensions.m */,
-		EE6B64FB1D0F86EF00E85F5D /* XCTestPrivateSymbols.h */,
+				711084421DA3AA7500F913D6 /* FBXPath.h */,
+				711084431DA3AA7500F913D6 /* FBXPath.m */,
+				71B2E0012733FB970074B001 /* FBXPathExtensions.h */,
+				71B2E0022733FB970074B002 /* FBXPathExtensions.m */,
+				EE6B64FB1D0F86EF00E85F5D /* XCTestPrivateSymbols.h */,
 				EE6B64FC1D0F86EF00E85F5D /* XCTestPrivateSymbols.m */,
 				633E904A220DEE7F007CADF9 /* XCUIApplicationProcessDelay.h */,
 				6385F4A5220A40760095BBDB /* XCUIApplicationProcessDelay.m */,
@@ -3976,13 +3976,13 @@
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(SRCROOT)/Modules",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 				VALIDATE_WORKSPACE = NO;
 			};
 			name = Debug;
@@ -4039,12 +4039,12 @@
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(SRCROOT)/Modules",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 				VALIDATE_PRODUCT = YES;
 				VALIDATE_WORKSPACE = NO;
 			};
