@@ -472,11 +472,6 @@
 		71B49EC71ED1A58100D51AD6 /* XCUIElement+FBUID.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B49EC51ED1A58100D51AD6 /* XCUIElement+FBUID.h */; };
 		71B49EC81ED1A58100D51AD6 /* XCUIElement+FBUID.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B49EC61ED1A58100D51AD6 /* XCUIElement+FBUID.m */; };
 		71BB58DE2B9631B700CB9BFE /* FBVideoRecordingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BB58DD2B9631B700CB9BFE /* FBVideoRecordingTests.m */; };
-		A1B2C3D41F001A00A1B0004 /* XCUIDevice+FBVoiceOver.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1B2C3D41F001A00A1B0005 /* XCUIDevice+FBVoiceOver.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */; };
-		A1B2C3D41F001A00A1B0006 /* XCUIDevice+FBVoiceOver.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A1B2C3D41F001A00A1B0007 /* XCUIDevice+FBVoiceOver.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */; };
-		A1B2C3D41F001A00A1B0008 /* FBVoiceOverTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0003 /* FBVoiceOverTests.m */; };
 		71BB58E12B9631F100CB9BFE /* FBScreenRecordingPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = 71BB58DF2B9631F100CB9BFE /* FBScreenRecordingPromise.h */; };
 		71BB58E22B9631F100CB9BFE /* FBScreenRecordingPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = 71BB58DF2B9631F100CB9BFE /* FBScreenRecordingPromise.h */; };
 		71BB58E32B9631F100CB9BFE /* FBScreenRecordingPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = 71BB58E02B9631F100CB9BFE /* FBScreenRecordingPromise.m */; };
@@ -540,6 +535,11 @@
 		71F5BE50252F14EB00EE9EBA /* FBExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */; };
 		71F5BE51252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
 		71F5BE52252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
+		A1B2C3D41F001A00A1B0004 /* XCUIDevice+FBVoiceOver.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1B2C3D41F001A00A1B0005 /* XCUIDevice+FBVoiceOver.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */; };
+		A1B2C3D41F001A00A1B0006 /* XCUIDevice+FBVoiceOver.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A1B2C3D41F001A00A1B0007 /* XCUIDevice+FBVoiceOver.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */; };
+		A1B2C3D41F001A00A1B0008 /* FBVoiceOverTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0003 /* FBVoiceOverTests.m */; };
 		A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001A /* Assets.xcassets */; };
 		AABBCCDDEEFF001122334457 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF001122334456 /* SceneDelegate.m */; };
 		AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = EE158A991CBD452B00A3E3F0 /* WebDriverAgentLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1130,15 +1130,15 @@
 		71F5BE33252E5B2200EE9EBA /* FBElementSwipingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBElementSwipingTests.m; sourceTree = "<group>"; };
 		71F5BE4D252F14EB00EE9EBA /* FBExceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBExceptions.h; sourceTree = "<group>"; };
 		71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBExceptions.m; sourceTree = "<group>"; };
+		A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIDevice+FBVoiceOver.h"; sourceTree = "<group>"; };
+		A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIDevice+FBVoiceOver.m"; sourceTree = "<group>"; };
+		A1B2C3D41F001A00A1B0003 /* FBVoiceOverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVoiceOverTests.m; sourceTree = "<group>"; };
 		A1B2C3D4E5F600000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WebDriverAgentRunner/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		AABBCCDDEEFF001122334455 /* SceneDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
 		AABBCCDDEEFF001122334456 /* SceneDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		AD42DD2A1CF121E600806E5D /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		AD6C26921CF2379700F8B5FF /* FBAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBAlert.h; path = WebDriverAgentLib/FBAlert.h; sourceTree = SOURCE_ROOT; };
 		AD6C26931CF2379700F8B5FF /* FBAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = FBAlert.m; path = WebDriverAgentLib/FBAlert.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIDevice+FBVoiceOver.h"; sourceTree = "<group>"; };
-		A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIDevice+FBVoiceOver.m"; sourceTree = "<group>"; };
-		A1B2C3D41F001A00A1B0003 /* FBVoiceOverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVoiceOverTests.m; sourceTree = "<group>"; };
 		AD6C26961CF2481700F8B5FF /* XCUIDevice+FBHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIDevice+FBHelpers.h"; sourceTree = "<group>"; };
 		AD6C26971CF2481700F8B5FF /* XCUIDevice+FBHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIDevice+FBHelpers.m"; sourceTree = "<group>"; };
 		AD6C269A1CF2494200F8B5FF /* XCUIApplication+FBHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIApplication+FBHelpers.h"; sourceTree = "<group>"; };
@@ -4316,7 +4316,7 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4333,7 +4333,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				INFOPLIST_FILE = WebDriverAgentTests/IntegrationApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
