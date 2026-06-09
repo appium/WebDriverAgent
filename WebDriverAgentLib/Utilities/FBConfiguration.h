@@ -133,6 +133,13 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (NSInteger)mjpegServerPort;
 
 /**
+ The default port number where the raw H.264/H.265 screen capture broadcaster is supposed to run.
+ The default value is 9200. It can be overridden via the SCREEN_CAPTURE_SERVER_PORT environment
+ variable or per request via the 'port' argument of /wda/screencapture/start.
+ */
++ (NSInteger)screenCaptureServerPort;
+
+/**
  The scaling factor for frames of the mjpeg stream. The default (and maximum) value is 100,
  which does not perform any scaling. The minimum value must be greater than zero.
  ! Setting this to a value less than 100, especially together with orientation fixing enabled

@@ -8,6 +8,8 @@
 
 #import "FBImageUtils.h"
 
+#import <ImageIO/ImageIO.h>
+
 #import "FBMacros.h"
 #import "FBConfiguration.h"
 
@@ -77,4 +79,50 @@ NSData *FBToJpegData(NSData *imageData, CGFloat compressionQuality) {
   
   UIImage *image = [UIImage imageWithData:imageData];
   return nil == image ? nil : (NSData *)UIImageJPEGRepresentation(image, compressionQuality);
+}
+
+CGImageRef FBCreateOrientedCGImageFromData(NSData *imageData) {
+  if (nil == imageData) {
+    return NULL;
+  }
+  CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+  if (NULL == source) {
+    return NULL;
+  }
+
+  NSInteger orientation = 1;
+  size_t maxPixelSize = 0;
+  NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
+  if (nil != properties) {
+    NSNumber *orientationValue = properties[(__bridge NSString *)kCGImagePropertyOrientation];
+    if (nil != orientationValue) {
+      orientation = orientationValue.integerValue;
+    }
+    NSNumber *pixelWidth = properties[(__bridge NSString *)kCGImagePropertyPixelWidth];
+    NSNumber *pixelHeight = properties[(__bridge NSString *)kCGImagePropertyPixelHeight];
+    maxPixelSize = MAX(pixelWidth.unsignedLongValue, pixelHeight.unsignedLongValue);
+  }
+
+  CGImageRef image;
+  if (orientation <= 1) {
+    // Already upright (or unknown orientation): decode the pixels as-is.
+    image = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+  } else {
+    // Bake the EXIF orientation into the pixels. A raw H.264/H.265 stream cannot carry the
+    // orientation tag, so landscape screenshots would otherwise be delivered rotated.
+    NSMutableDictionary *options = [@{
+      (__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform: @YES,
+      (__bridge NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @YES,
+    } mutableCopy];
+    if (maxPixelSize > 0) {
+      // Match the original resolution so the "thumbnail" is full size, just reoriented.
+      options[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = @(maxPixelSize);
+    }
+    image = CGImageSourceCreateThumbnailAtIndex(source, 0, (__bridge CFDictionaryRef)options);
+    if (NULL == image) {
+      image = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+    }
+  }
+  CFRelease(source);
+  return image;
 }

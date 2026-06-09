@@ -22,4 +22,12 @@ BOOL FBIsJpegImage(NSData *imageData);
 /*! Converts the given image data to a JPG representation if necessary */
 NSData *_Nullable FBToJpegData(NSData *imageData, CGFloat compressionQuality);
 
+/*!
+ Decodes the given encoded image into a CGImage with its EXIF orientation baked into the pixels
+ (i.e. upright). This is required before feeding screenshots into a raw video encoder, which has
+ no way to carry the orientation metadata that XCTest stores for landscape screenshots.
+ The caller owns the returned image and must call CGImageRelease.
+ */
+CGImageRef _Nullable FBCreateOrientedCGImageFromData(NSData *imageData) CF_RETURNS_RETAINED;
+
 NS_ASSUME_NONNULL_END
