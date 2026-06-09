@@ -42,6 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)fb_accessibilityTree;
 
 /**
+ Returns a compact accessibility state tailored for mobilerun: a recursive
+ accessibility tree (Android-style `A11YNode` shape) plus a `phone_state`
+ summary. It is built from a single standard snapshot and only reads
+ snapshot-resident attributes, so it deliberately avoids the expensive
+ visibility/accessibility/hittable resolution performed by `fb_tree`.
+
+ @param scale The screen scale factor used to convert logical points to device
+ pixels for the element bounds.
+ @return Dictionary with `a11y_tree` (nested `A11YNode` dictionaries) and
+ `phone_state` entries.
+ */
+- (NSDictionary *)fb_mobilerunA11yStateWithScale:(CGFloat)scale;
+
+/**
  Return application elements tree in a form of xml string
  with default options.
 

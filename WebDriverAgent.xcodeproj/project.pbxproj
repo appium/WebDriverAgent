@@ -16,6 +16,10 @@
 		FBCAFE000000000000000003 /* FBScreenCaptureCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */; };
 		FBCAFE000000000000000005 /* FBScreenCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */; };
 		FBCAFE000000000000000006 /* FBScreenCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */; };
+		FBCAFE000000000000003002 /* FBMobilerunA11yCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */; };
+		FBCAFE000000000000003003 /* FBMobilerunA11yCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */; };
+		FBCAFE000000000000003005 /* FBMobilerunA11yCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */; };
+		FBCAFE000000000000003006 /* FBMobilerunA11yCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */; };
 		FBCAFE000000000000000008 /* FBPixelBufferConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000007 /* FBPixelBufferConverter.h */; };
 		FBCAFE000000000000000009 /* FBPixelBufferConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000007 /* FBPixelBufferConverter.h */; };
 		FBCAFE00000000000000000B /* FBPixelBufferConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE00000000000000000A /* FBPixelBufferConverter.m */; };
@@ -962,6 +966,8 @@
 		FBCAFE000000000000001004 /* FBVideoStreamSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSession.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBScreenCaptureCommands.h; sourceTree = "<group>"; };
 		FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBScreenCaptureCommands.m; sourceTree = "<group>"; };
+		FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBMobilerunA11yCommands.h; sourceTree = "<group>"; };
+		FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBMobilerunA11yCommands.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000007 /* FBPixelBufferConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBPixelBufferConverter.h; sourceTree = "<group>"; };
 		FBCAFE00000000000000000A /* FBPixelBufferConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPixelBufferConverter.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000000D /* FBVideoEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBVideoEncoder.h; sourceTree = "<group>"; };
@@ -1910,6 +1916,8 @@
 				71BB58EE2B96511800CB9BFE /* FBVideoCommands.m */,
 				FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */,
 				FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */,
+				FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */,
+				FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */,
 			);
 			name = Commands;
 			path = WebDriverAgentLib/Commands;
@@ -2609,6 +2617,7 @@
 				641EE6EE2240C5CA00173FCB /* XCKeyMappingPath.h in Headers */,
 				71C8E55225399A6B008572C1 /* XCUIApplication+FBQuiescence.h in Headers */,
 				FBCAFE000000000000000003 /* FBScreenCaptureCommands.h in Headers */,
+				FBCAFE000000000000003003 /* FBMobilerunA11yCommands.h in Headers */,
 				FBCAFE000000000000000009 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000F /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000015 /* FBVideoStreamManager.h in Headers */,
@@ -2860,6 +2869,7 @@
 				712A0C871DA3E55D007D02E5 /* FBXPath-Private.h in Headers */,
 				EE35AD321E3B77D600A02D78 /* XCKeyMappingPath.h in Headers */,
 				FBCAFE000000000000000002 /* FBScreenCaptureCommands.h in Headers */,
+				FBCAFE000000000000003002 /* FBMobilerunA11yCommands.h in Headers */,
 				FBCAFE000000000000000008 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000E /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000014 /* FBVideoStreamManager.h in Headers */,
@@ -3332,6 +3342,7 @@
 				641EE6262240C5CA00173FCB /* FBMathUtils.m in Sources */,
 				641EE6272240C5CA00173FCB /* FBXCAXClientProxy.m in Sources */,
 				FBCAFE000000000000000006 /* FBScreenCaptureCommands.m in Sources */,
+				FBCAFE000000000000003006 /* FBMobilerunA11yCommands.m in Sources */,
 				FBCAFE00000000000000000C /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000012 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000018 /* FBVideoStreamManager.m in Sources */,
@@ -3478,6 +3489,7 @@
 				EE18883B1DA661C400307AA8 /* FBMathUtils.m in Sources */,
 				7157B292221DADD2001C348C /* FBXCAXClientProxy.m in Sources */,
 				FBCAFE000000000000000005 /* FBScreenCaptureCommands.m in Sources */,
+				FBCAFE000000000000003005 /* FBMobilerunA11yCommands.m in Sources */,
 				FBCAFE00000000000000000B /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000011 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000017 /* FBVideoStreamManager.m in Sources */,

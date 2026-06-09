@@ -336,6 +336,166 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
   return info;
 }
 
+#pragma mark - mobilerun accessibility state
+
+// Converts a logical-point frame into integer device-pixel bounds matching the
+// `A11YBounds` shape (left/top/right/bottom) expected by mobilerun.
+static NSDictionary *FBMobilerunBoundsFromFrame(CGRect frame, CGFloat scale)
+{
+  return @{
+    @"left": @((NSInteger)lround(CGRectGetMinX(frame) * scale)),
+    @"top": @((NSInteger)lround(CGRectGetMinY(frame) * scale)),
+    @"right": @((NSInteger)lround(CGRectGetMaxX(frame) * scale)),
+    @"bottom": @((NSInteger)lround(CGRectGetMaxY(frame) * scale)),
+  };
+}
+
+// Element types that are tappable/actionable, mapped onto Android's `isClickable`.
+static BOOL FBMobilerunIsClickableType(XCUIElementType type)
+{
+  switch (type) {
+    case XCUIElementTypeButton:
+    case XCUIElementTypeLink:
+    case XCUIElementTypeMenuItem:
+    case XCUIElementTypeMenuButton:
+    case XCUIElementTypePopUpButton:
+    case XCUIElementTypeRadioButton:
+    case XCUIElementTypeToolbarButton:
+    case XCUIElementTypeCell:
+    case XCUIElementTypeTab:
+    case XCUIElementTypeSwitch:
+    case XCUIElementTypeToggle:
+    case XCUIElementTypeSegmentedControl:
+      return YES;
+    default:
+      return NO;
+  }
+}
+
+// Scrollable container types, mapped onto Android's `isScrollable`.
+static BOOL FBMobilerunIsScrollableType(XCUIElementType type)
+{
+  switch (type) {
+    case XCUIElementTypeScrollView:
+    case XCUIElementTypeTable:
+    case XCUIElementTypeCollectionView:
+    case XCUIElementTypeWebView:
+      return YES;
+    default:
+      return NO;
+  }
+}
+
+// Two-state control types, mapped onto Android's `isCheckable`.
+static BOOL FBMobilerunIsCheckableType(XCUIElementType type)
+{
+  switch (type) {
+    case XCUIElementTypeSwitch:
+    case XCUIElementTypeToggle:
+    case XCUIElementTypeRadioButton:
+      return YES;
+    default:
+      return NO;
+  }
+}
+
+- (NSDictionary *)fb_mobilerunA11yStateWithScale:(CGFloat)scale
+{
+  id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
+  NSString *bundleId = self.bundleID ?: @"";
+
+  // Side-channel populated during the single tree walk so `phone_state` needs no
+  // extra snapshots or attribute queries.
+  NSMutableDictionary *context = [NSMutableDictionary dictionary];
+  NSDictionary *tree = [self.class fb_a11yNodeForSnapshot:snapshot
+                                                    scale:scale
+                                              packageName:bundleId
+                                                  context:context];
+
+  NSMutableDictionary *phoneState = [NSMutableDictionary dictionary];
+  NSDictionary *focusedElement = context[@"focusedElement"];
+  if (nil != focusedElement) {
+    phoneState[@"focusedElement"] = focusedElement;
+  }
+  phoneState[@"keyboardVisible"] = @([context[@"keyboardVisible"] boolValue]);
+  phoneState[@"packageName"] = bundleId;
+  NSString *appName = self.label;
+  if (appName.length > 0) {
+    phoneState[@"currentApp"] = appName;
+  }
+  phoneState[@"isEditable"] = @([context[@"isEditable"] boolValue]);
+
+  return @{
+    @"a11y_tree": tree ?: [NSNull null],
+    @"phone_state": phoneState.copy,
+  };
+}
+
++ (NSDictionary *)fb_a11yNodeForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                   scale:(CGFloat)scale
+                             packageName:(NSString *)bundleId
+                                 context:(NSMutableDictionary *)context
+{
+  FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
+  XCUIElementType elementType = snapshot.elementType;
+  unsigned long long traits = snapshot.traits;
+  NSString *className = [FBElementTypeTransformer stringWithElementType:elementType];
+  NSString *identifier = snapshot.identifier ?: @"";
+
+  BOOL isCheckable = FBMobilerunIsCheckableType(elementType);
+  BOOL isChecked = isCheckable
+    && ([snapshot.value boolValue]
+        || snapshot.isSelected
+        || (traits & UIAccessibilityTraitSelected) != 0);
+  BOOL isClickable = FBMobilerunIsClickableType(elementType)
+    || (traits & (UIAccessibilityTraitButton | UIAccessibilityTraitLink)) != 0;
+  BOOL isPassword = (elementType == XCUIElementTypeSecureTextField);
+
+  NSMutableDictionary *node = [NSMutableDictionary dictionary];
+  node[@"boundsInScreen"] = FBMobilerunBoundsFromFrame(wrappedSnapshot.wdFrame, scale);
+  node[@"className"] = className ?: @"";
+  node[@"resourceId"] = identifier;
+  node[@"text"] = wrappedSnapshot.wdValue ?: @"";
+  node[@"contentDescription"] = wrappedSnapshot.wdLabel ?: @"";
+  node[@"packageName"] = bundleId;
+  node[@"isCheckable"] = @(isCheckable);
+  node[@"isChecked"] = @(isChecked);
+  node[@"isClickable"] = @(isClickable);
+  node[@"isEnabled"] = @(snapshot.isEnabled);
+  node[@"isFocusable"] = @(FBDoesElementSupportInnerText(elementType));
+  node[@"isFocused"] = @(snapshot.hasFocus);
+  node[@"isScrollable"] = @(FBMobilerunIsScrollableType(elementType));
+  node[@"isLongClickable"] = @(NO);
+  node[@"isPassword"] = @(isPassword);
+  node[@"isSelected"] = @(snapshot.isSelected);
+
+  // Capture phone_state hints while we are already on this node.
+  if (elementType == XCUIElementTypeKeyboard) {
+    context[@"keyboardVisible"] = @YES;
+  }
+  if (snapshot.hasFocus && nil == context[@"focusedElement"]) {
+    context[@"focusedElement"] = @{
+      @"text": wrappedSnapshot.wdValue ?: @"",
+      @"className": className ?: @"",
+      @"resourceId": identifier,
+    };
+    context[@"isEditable"] = @(FBDoesElementSupportInnerText(elementType));
+  }
+
+  NSArray *childElements = snapshot.children;
+  NSMutableArray *children = [NSMutableArray arrayWithCapacity:childElements.count];
+  for (id<FBXCElementSnapshot> childSnapshot in childElements) {
+    @autoreleasepool {
+      [children addObject:[self fb_a11yNodeForSnapshot:childSnapshot
+                                                 scale:scale
+                                           packageName:bundleId
+                                               context:context]];
+    }
+  }
+  node[@"children"] = children;
+  return node;
+}
+
 - (NSString *)fb_xmlRepresentation
 {
   return [self fb_xmlRepresentationWithOptions:nil];
