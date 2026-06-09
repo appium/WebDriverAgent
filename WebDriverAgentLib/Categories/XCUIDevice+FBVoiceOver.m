@@ -126,6 +126,24 @@ static NSString *FBVoiceOverSpeechFromSelector(SEL selector, NSError **error)
   return FBUtteranceFromVoiceOverOutput(output, error);
 }
 
+static NSDictionary<NSString *, NSString *> *FBVoiceOverMoveSelectors(void)
+{
+  static NSDictionary<NSString *, NSString *> *selectors = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary<NSString *, NSString *> *mapping = [@{
+      @"forward": @"moveForwardAndReturnError:",
+      @"backward": @"moveBackwardAndReturnError:",
+    } mutableCopy];
+#if TARGET_OS_IOS
+    mapping[@"in"] = @"moveInAndReturnError:";
+    mapping[@"out"] = @"moveOutAndReturnError:";
+#endif
+    selectors = mapping.copy;
+  });
+  return selectors;
+}
+
 @implementation XCUIDevice (FBVoiceOver)
 
 - (BOOL)fb_isVoiceOverServiceAvailable
@@ -170,31 +188,30 @@ static NSString *FBVoiceOverSpeechFromSelector(SEL selector, NSError **error)
   return [[service valueForKey:@"enabled"] boolValue];
 }
 
-- (nullable NSString *)fb_voiceOverMoveForward:(NSError **)error
+- (nullable NSString *)fb_voiceOverMove:(NSString *)direction error:(NSError **)error
 {
-  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveForwardAndReturnError:"), error);
-}
+  if (![direction isKindOfClass:NSString.class] || 0 == direction.length) {
+    return [[[FBErrorBuilder builder]
+             withDescription:@"VoiceOver move direction must be a non-empty string"]
+            buildError:error], nil;
+  }
 
-- (nullable NSString *)fb_voiceOverMoveBackward:(NSError **)error
-{
-  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveBackwardAndReturnError:"), error);
+  NSString *normalizedDirection = direction.lowercaseString;
+  NSString *selectorName = FBVoiceOverMoveSelectors()[normalizedDirection];
+  if (nil == selectorName) {
+    NSArray *supportedDirections = [FBVoiceOverMoveSelectors().allKeys sortedArrayUsingSelector:@selector(compare:)];
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"Unsupported VoiceOver move direction '%@'. Supported directions: %@",
+             direction, supportedDirections]
+            buildError:error], nil;
+  }
+
+  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(selectorName), error);
 }
 
 - (nullable NSString *)fb_voiceOverCurrentSpeech:(NSError **)error
 {
   return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"currentSpeechAndReturnError:"), error);
 }
-
-#if TARGET_OS_IOS
-- (nullable NSString *)fb_voiceOverMoveIn:(NSError **)error
-{
-  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveInAndReturnError:"), error);
-}
-
-- (nullable NSString *)fb_voiceOverMoveOut:(NSError **)error
-{
-  return FBVoiceOverSpeechFromSelector(NSSelectorFromString(@"moveOutAndReturnError:"), error);
-}
-#endif
 
 @end

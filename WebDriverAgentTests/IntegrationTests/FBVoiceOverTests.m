@@ -58,7 +58,7 @@
   XCTAssertTrue([XCUIDevice.sharedDevice fb_isVoiceOverEnabled:&error]);
   XCTAssertNil(error);
 
-  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveForward:&error];
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMove:@"forward" error:&error];
   XCTAssertNil(error);
   XCTAssertNotNil(utterance);
   XCTAssertTrue(utterance.length > 0);
@@ -90,10 +90,10 @@
   XCTAssertTrue([XCUIDevice.sharedDevice fb_enableVoiceOver:&error]);
   XCTAssertNil(error);
 
-  XCTAssertNotNil([XCUIDevice.sharedDevice fb_voiceOverMoveForward:&error]);
+  XCTAssertNotNil([XCUIDevice.sharedDevice fb_voiceOverMove:@"forward" error:&error]);
   XCTAssertNil(error);
 
-  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMoveBackward:&error];
+  NSString *utterance = [XCUIDevice.sharedDevice fb_voiceOverMove:@"backward" error:&error];
   XCTAssertNil(error);
   XCTAssertNotNil(utterance);
   XCTAssertTrue(utterance.length > 0);

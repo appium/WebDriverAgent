@@ -44,20 +44,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_isVoiceOverEnabled:(NSError **)error;
 
 /**
- Move VoiceOver to the next element and return its speech. Only works since Xcode 27/iOS 27.
+ Move VoiceOver focus and return speech for the newly focused element.
+ Only works since Xcode 27/iOS 27.
 
+ @param direction One of: forward, backward, in (iOS only), out (iOS only)
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return The spoken utterance or nil in case of failure
  */
-- (nullable NSString *)fb_voiceOverMoveForward:(NSError **)error;
-
-/**
- Move VoiceOver to the previous element and return its speech. Only works since Xcode 27/iOS 27.
-
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return The spoken utterance or nil in case of failure
- */
-- (nullable NSString *)fb_voiceOverMoveBackward:(NSError **)error;
+- (nullable NSString *)fb_voiceOverMove:(NSString *)direction error:(NSError **)error;
 
 /**
  Return the speech for the currently focused element. Only works since Xcode 27/iOS 27.
@@ -66,24 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
  @return The spoken utterance or nil in case of failure
  */
 - (nullable NSString *)fb_voiceOverCurrentSpeech:(NSError **)error;
-
-#if TARGET_OS_IOS
-/**
- Move VoiceOver into the current container and return its speech. Only works since Xcode 27/iOS 27.
-
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return The spoken utterance or nil in case of failure
- */
-- (nullable NSString *)fb_voiceOverMoveIn:(NSError **)error;
-
-/**
- Move VoiceOver out of the current container and return its speech. Only works since Xcode 27/iOS 27.
-
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return The spoken utterance or nil in case of failure
- */
-- (nullable NSString *)fb_voiceOverMoveOut:(NSError **)error;
-#endif
 
 @end
 
