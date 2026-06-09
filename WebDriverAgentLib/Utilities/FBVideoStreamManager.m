@@ -13,6 +13,7 @@
 @import UniformTypeIdentifiers;
 
 #import "FBConfiguration.h"
+#import "FBImageUtils.h"
 #import "FBLogger.h"
 #import "FBScreenshot.h"
 #import "XCUIScreen.h"
@@ -297,8 +298,9 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   }
   self.consecutiveScreenshotFailures = 0;
 
-  // Decode the screenshot once and fan the shared image out to every session.
-  CGImageRef image = [self.class decodeImage:screenshotData];
+  // Decode the screenshot once (applying its EXIF orientation so landscape frames are upright)
+  // and fan the shared image out to every session.
+  CGImageRef image = FBCreateOrientedCGImageFromData(screenshotData);
   if (NULL != image) {
     uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
     for (FBVideoStreamSession *session in snapshot) {
@@ -310,17 +312,6 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   }
 
   [self scheduleNextFrameWithInterval:timerInterval timeStarted:timeStarted generation:generation];
-}
-
-+ (nullable CGImageRef)decodeImage:(NSData *)imageData CF_RETURNS_RETAINED
-{
-  CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
-  if (NULL == source) {
-    return NULL;
-  }
-  CGImageRef image = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-  CFRelease(source);
-  return image;
 }
 
 @end

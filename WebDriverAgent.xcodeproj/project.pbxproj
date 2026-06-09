@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FBCAFE000000000000002002 /* FBImageUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000002001 /* FBImageUtilsTests.m */; };
 		FBCAFE000000000000001002 /* FBVideoStreamSession.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000001001 /* FBVideoStreamSession.h */; };
 		FBCAFE000000000000001003 /* FBVideoStreamSession.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000001001 /* FBVideoStreamSession.h */; };
 		FBCAFE000000000000001005 /* FBVideoStreamSession.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000001004 /* FBVideoStreamSession.m */; };
@@ -956,6 +957,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FBCAFE000000000000002001 /* FBImageUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBImageUtilsTests.m; sourceTree = "<group>"; };
 		FBCAFE000000000000001001 /* FBVideoStreamSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBVideoStreamSession.h; sourceTree = "<group>"; };
 		FBCAFE000000000000001004 /* FBVideoStreamSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSession.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBScreenCaptureCommands.h; sourceTree = "<group>"; };
@@ -2160,6 +2162,7 @@
 				713914591DF01989005896C2 /* XCUIElementHelpersTests.m */,
 				FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */,
 				FBCAFE00000000000000001B /* FBVideoEncoderTests.m */,
+				FBCAFE000000000000002001 /* FBImageUtilsTests.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -3555,6 +3558,7 @@
 				EE18883D1DA663EB00307AA8 /* FBMathUtilsTests.m in Sources */,
 				FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */,
 				FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */,
+				FBCAFE000000000000002002 /* FBImageUtilsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
