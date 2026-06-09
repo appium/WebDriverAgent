@@ -202,6 +202,11 @@
   return self.hasFocus;
 }
 
+- (BOOL)isWDNativeAccessibilityElement
+{
+  return self.fb_isAccessibilityElement;
+}
+
 - (BOOL)isWDAccessible
 {
   XCUIElementType elementType = self.elementType;

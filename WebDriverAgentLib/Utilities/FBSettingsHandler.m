@@ -162,6 +162,10 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
       [FBConfiguration setIncludeNativeFrameInPageSource:[value boolValue]];
       return nil;
     };
+    map[FB_SETTING_INCLUDE_NATIVE_ACCESSIBILITY_ELEMENT_IN_PAGE_SOURCE] = ^FBCommandStatus *(FBSession *session, id value) {
+      [FBConfiguration setIncludeNativeAccessibilityElementInPageSource:[value boolValue]];
+      return nil;
+    };
     map[FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE] = ^FBCommandStatus *(FBSession *session, id value) {
       [FBConfiguration setIncludeMinMaxValueInPageSource:[value boolValue]];
       return nil;
@@ -279,6 +283,9 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
     };
     map[FB_SETTING_INCLUDE_NATIVE_FRAME_IN_PAGE_SOURCE] = ^id(FBSession *session) {
       return @([FBConfiguration includeNativeFrameInPageSource]);
+    };
+    map[FB_SETTING_INCLUDE_NATIVE_ACCESSIBILITY_ELEMENT_IN_PAGE_SOURCE] = ^id(FBSession *session) {
+      return @([FBConfiguration includeNativeAccessibilityElementInPageSource]);
     };
     map[FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE] = ^id(FBSession *session) {
       return @([FBConfiguration includeMinMaxValueInPageSource]);

@@ -55,6 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Whether element is accessible */
 @property (nonatomic, readonly, getter = isWDAccessible) BOOL wdAccessible;
 
+/*! The raw, native `isAccessibilityElement` value reported by the accessibility framework, without WebDriverAgent's custom computation applied by `wdAccessible` */
+@property (nonatomic, readonly, getter = isWDNativeAccessibilityElement) BOOL wdNativeAccessibilityElement;
+
 /*! Whether element is an accessibility container (contains children of any depth that are accessible) */
 @property (nonatomic, readonly, getter = isWDAccessibilityContainer) BOOL wdAccessibilityContainer;
 

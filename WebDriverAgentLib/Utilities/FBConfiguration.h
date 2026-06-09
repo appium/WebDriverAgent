@@ -374,6 +374,24 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 + (BOOL)includeNativeFrameInPageSource;
 
 /**
+ * Whether to include the `nativeAccessibilityElement` attribute in the XML page source.
+ *
+ * When enabled, the XML representation will contain the raw, native
+ * `isAccessibilityElement` value as reported by the accessibility framework,
+ * without the custom computation that WebDriverAgent applies to the
+ * `accessible` attribute (cell/text field special cases and parent absorption).
+ *
+ * This is useful for consumers that need to reason about the unmodified
+ * accessibility flag alongside the computed `accessible` value.
+ *
+ * The value is disabled by default to keep the default page source stable.
+ *
+ * @param enabled Either YES or NO
+ */
++ (void)setIncludeNativeAccessibilityElementInPageSource:(BOOL)enabled;
++ (BOOL)includeNativeAccessibilityElementInPageSource;
+
+/**
  * Whether to include `minValue`/`maxValue` attributes in the page source.
  * These attributes are retrieved from native element snapshots and represent
  * value boundaries for elements like sliders or progress indicators.
