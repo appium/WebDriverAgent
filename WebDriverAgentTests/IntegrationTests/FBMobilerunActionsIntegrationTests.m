@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBScreen.h"
 #import "FBTestMacros.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement.h"
@@ -44,13 +45,16 @@
 
 - (void)testTapShowsAlert
 {
+  // Coordinates are passed in device pixels (center point * scale); the fast path divides by the
+  // same scale before dispatch, so the tap must land on the button regardless of screen scale.
+  CGFloat scale = (CGFloat)[FBScreen scale];
   CGPoint p = [self alertButtonCenter];
   NSArray *actions = @[
-    @{@"type": @"pointerDown", @"x": @(p.x), @"y": @(p.y)},
-    @{@"type": @"pointerUp", @"x": @(p.x), @"y": @(p.y)},
+    @{@"type": @"pointerDown", @"x": @(p.x * scale), @"y": @(p.y * scale)},
+    @{@"type": @"pointerUp", @"x": @(p.x * scale), @"y": @(p.y * scale)},
   ];
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_performMobilerunActions:actions error:&error]);
+  XCTAssertTrue([self.testedApplication fb_performMobilerunActions:actions scale:scale error:&error]);
   XCTAssertNil(error);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
@@ -59,14 +63,15 @@
 {
   // W3C-style sequence: position with a leading pointerMove, then pointerDown/up. The leading
   // move already presses the touch down, so the following pointerDown must not double-press.
+  CGFloat scale = (CGFloat)[FBScreen scale];
   CGPoint p = [self alertButtonCenter];
   NSArray *actions = @[
-    @{@"type": @"pointerMove", @"x": @(p.x), @"y": @(p.y)},
-    @{@"type": @"pointerDown", @"x": @(p.x), @"y": @(p.y)},
-    @{@"type": @"pointerUp", @"x": @(p.x), @"y": @(p.y)},
+    @{@"type": @"pointerMove", @"x": @(p.x * scale), @"y": @(p.y * scale)},
+    @{@"type": @"pointerDown", @"x": @(p.x * scale), @"y": @(p.y * scale)},
+    @{@"type": @"pointerUp", @"x": @(p.x * scale), @"y": @(p.y * scale)},
   ];
   NSError *error;
-  XCTAssertTrue([self.testedApplication fb_performMobilerunActions:actions error:&error]);
+  XCTAssertTrue([self.testedApplication fb_performMobilerunActions:actions scale:scale error:&error]);
   XCTAssertNil(error);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
@@ -74,11 +79,11 @@
 - (void)testRejectsNonArrayAndEmpty
 {
   NSError *error;
-  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:@[] error:&error]);
+  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:@[] scale:1.0 error:&error]);
   XCTAssertNotNil(error);
 
   error = nil;
-  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:(NSArray *)@{@"type": @"pointerDown"} error:&error]);
+  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:(NSArray *)@{@"type": @"pointerDown"} scale:1.0 error:&error]);
   XCTAssertNotNil(error);
 }
 
@@ -86,7 +91,7 @@
 {
   NSError *error;
   NSArray *actions = @[@{@"type": @"pointerUp", @"x": @100, @"y": @100}];
-  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:actions error:&error]);
+  XCTAssertFalse([self.testedApplication fb_performMobilerunActions:actions scale:1.0 error:&error]);
   XCTAssertNotNil(error);
 }
 

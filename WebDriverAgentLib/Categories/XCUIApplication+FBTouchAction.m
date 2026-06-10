@@ -70,7 +70,7 @@
   return YES;
 }
 
-- (BOOL)fb_mobilerunPoint:(CGPoint *)outPoint fromItem:(NSDictionary *)item error:(NSError **)error
+- (BOOL)fb_mobilerunPoint:(CGPoint *)outPoint fromItem:(NSDictionary *)item scale:(CGFloat)scale error:(NSError **)error
 {
   id x = item[@"x"];
   id y = item[@"y"];
@@ -79,11 +79,14 @@
              withDescriptionFormat:@"Action item requires numeric 'x' and 'y': %@", item]
             buildError:error];
   }
-  *outPoint = CGPointMake([x doubleValue], [y doubleValue]);
+  // mobilerun reports coordinates in device pixels (matching /mobilerun/state bounds and the
+  // screencapture stream); XCPointerEventPath expects logical points, so divide by the scale.
+  CGFloat s = scale > 0 ? scale : 1.0;
+  *outPoint = CGPointMake([x doubleValue] / s, [y doubleValue] / s);
   return YES;
 }
 
-- (XCSynthesizedEventRecord *)fb_mobilerunEventRecordFromActions:(NSArray *)items error:(NSError **)error
+- (XCSynthesizedEventRecord *)fb_mobilerunEventRecordFromActions:(NSArray *)items scale:(CGFloat)scale error:(NSError **)error
 {
   if (![items isKindOfClass:NSArray.class] || 0 == items.count) {
     [[[FBErrorBuilder builder]
@@ -128,7 +131,7 @@
       // No event; only advances this pointer's offset below.
     } else if ([type isEqualToString:@"pointerDown"]) {
       CGPoint point = CGPointZero;
-      if (![self fb_mobilerunPoint:&point fromItem:item error:error]) {
+      if (![self fb_mobilerunPoint:&point fromItem:item scale:scale error:error]) {
         return nil;
       }
       if (nil == path) {
@@ -141,7 +144,7 @@
       // else: a leading pointerMove already pressed the touch down; skip the redundant press.
     } else if ([type isEqualToString:@"pointerMove"]) {
       CGPoint point = CGPointZero;
-      if (![self fb_mobilerunPoint:&point fromItem:item error:error]) {
+      if (![self fb_mobilerunPoint:&point fromItem:item scale:scale error:error]) {
         return nil;
       }
       if (nil == path) {
@@ -191,9 +194,9 @@
   return eventRecord;
 }
 
-- (BOOL)fb_performMobilerunActions:(NSArray *)items error:(NSError **)error
+- (BOOL)fb_performMobilerunActions:(NSArray *)items scale:(CGFloat)scale error:(NSError **)error
 {
-  XCSynthesizedEventRecord *eventRecord = [self fb_mobilerunEventRecordFromActions:items error:error];
+  XCSynthesizedEventRecord *eventRecord = [self fb_mobilerunEventRecordFromActions:items scale:scale error:error];
   if (nil == eventRecord) {
     return NO;
   }

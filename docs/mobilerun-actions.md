@@ -14,7 +14,7 @@ A top-level JSON array of flat action items, replayed in array order:
 | field | type | notes |
 |-------|------|-------|
 | `type` | string | `pointerDown` \| `pointerMove` \| `pointerUp` \| `pause` |
-| `x`, `y` | int | screen coordinates; required for `pointerDown`/`pointerMove` |
+| `x`, `y` | int | device-pixel coordinates — same units as `/mobilerun/state` bounds and the screencapture stream; converted to logical points internally. Required for `pointerDown`/`pointerMove` |
 | `duration` | int | milliseconds; move time for `pointerMove`, wait for `pause` |
 | `button` | int | accepted for parity; ignored (touch) |
 | `pointerId` | int | optional, default 0; items sharing an id form one finger; distinct ids run concurrently |

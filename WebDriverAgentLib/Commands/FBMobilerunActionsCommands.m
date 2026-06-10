@@ -12,6 +12,7 @@
 #import "FBResponsePayload.h"
 #import "FBRoute.h"
 #import "FBRouteRequest.h"
+#import "FBScreen.h"
 #import "FBSession.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
@@ -42,9 +43,12 @@
   }
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSError *error;
+  // Action x/y are in device pixels (matching /mobilerun/state and the screencapture stream);
+  // the builder converts them to logical points using the same scale that state multiplies by.
+  CGFloat scale = (CGFloat)[FBScreen scale];
   // Validation failures are client errors (invalid argument); only a dispatch failure
   // is a server/runtime error (unknown error).
-  XCSynthesizedEventRecord *eventRecord = [app fb_mobilerunEventRecordFromActions:(NSArray *)items error:&error];
+  XCSynthesizedEventRecord *eventRecord = [app fb_mobilerunEventRecordFromActions:(NSArray *)items scale:scale error:&error];
   if (nil == eventRecord) {
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
                                                                        traceback:nil]);
