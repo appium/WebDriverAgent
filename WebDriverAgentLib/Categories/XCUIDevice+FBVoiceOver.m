@@ -179,7 +179,8 @@ static NSDictionary<NSString *, NSString *> *FBVoiceOverMoveSelectors(void)
     return NO;
   }
 
-  if (![service respondsToSelector:NSSelectorFromString(@"isEnabled")]) {
+  if (![service respondsToSelector:NSSelectorFromString(@"isEnabled")] &&
+      ![service respondsToSelector:NSSelectorFromString(@"enabled")]) {
     return FBVoiceOverBuildSDKUnsupportedError(error);
   }
 
