@@ -29,7 +29,7 @@
   [super tearDown];
 }
 
-- (void)testVoiceOverUnavailableOnOlderRuntime
+- (void)testVoiceOverUnavailableOnOlderSDK
 {
   if ([XCUIDevice.sharedDevice fb_isVoiceOverServiceAvailable]) {
     return;
