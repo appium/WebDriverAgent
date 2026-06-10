@@ -1,3 +1,9 @@
+## [14.1.0](https://github.com/appium/WebDriverAgent/compare/v14.0.0...v14.1.0) (2026-06-10)
+
+### Features
+
+* Add VoiceOver automation support ([#1153](https://github.com/appium/WebDriverAgent/issues/1153)) ([6b3631a](https://github.com/appium/WebDriverAgent/commit/6b3631aed7a95439b01a9a3bb87189df384dcf06))
+
 ## [14.0.0](https://github.com/appium/WebDriverAgent/compare/v13.3.0...v14.0.0) (2026-06-09)
 
 ### ⚠ BREAKING CHANGES
