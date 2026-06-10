@@ -11,6 +11,7 @@
 #import <ImageIO/ImageIO.h>
 
 NSErrorDomain const FBPixelBufferConverterErrorDomain = @"com.facebook.WebDriverAgent.FBPixelBufferConverter";
+static CFStringRef const FBPixelBufferBitmapContextAttachmentKey = CFSTR("com.facebook.WebDriverAgent.FBPixelBufferConverter.BitmapContext");
 
 static size_t FBEvenDimension(size_t value)
 {
@@ -23,6 +24,9 @@ static size_t FBEvenDimension(size_t value)
 @interface FBPixelBufferConverter ()
 @property (nonatomic) CVPixelBufferPoolRef pixelBufferPool;
 @property (nonatomic) CGColorSpaceRef colorSpace;
+
+- (nullable CGContextRef)copyBitmapContextForPixelBuffer:(CVPixelBufferRef)pixelBuffer
+                                                   error:(NSError **)error CF_RETURNS_RETAINED;
 @end
 
 @implementation FBPixelBufferConverter
@@ -107,28 +111,13 @@ static size_t FBEvenDimension(size_t value)
   }
 
   CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-  void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
-  CGContextRef context = CGBitmapContextCreate(baseAddress,
-                                               self.width,
-                                               self.height,
-                                               8,
-                                               CVPixelBufferGetBytesPerRow(pixelBuffer),
-                                               self.colorSpace,
-                                               kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little);
+  CGContextRef context = [self copyBitmapContextForPixelBuffer:pixelBuffer
+                                                         error:error];
   if (NULL == context) {
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     CVPixelBufferRelease(pixelBuffer);
-    if (error) {
-      *error = [NSError errorWithDomain:FBPixelBufferConverterErrorDomain
-                                   code:5
-                               userInfo:@{NSLocalizedDescriptionKey: @"Cannot create a bitmap context for the pixel buffer"}];
-    }
     return NULL;
   }
-
-  // Fill the whole frame with black to produce the letterbox/pillarbox padding.
-  CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
-  CGContextFillRect(context, CGRectMake(0, 0, self.width, self.height));
 
   // Scale to fit while preserving the aspect ratio and center the result.
   CGFloat imageWidth = (CGFloat)CGImageGetWidth(image);
@@ -139,12 +128,56 @@ static size_t FBEvenDimension(size_t value)
     CGFloat targetHeight = imageHeight * scale;
     CGFloat originX = ((CGFloat)self.width - targetWidth) / 2.0;
     CGFloat originY = ((CGFloat)self.height - targetHeight) / 2.0;
+    BOOL needsPadding = originX > 0.5
+      || originY > 0.5
+      || targetWidth < (CGFloat)self.width - 0.5
+      || targetHeight < (CGFloat)self.height - 0.5;
+    if (needsPadding) {
+      // Fill only when the frame needs letterbox/pillarbox padding; a full-frame draw overwrites
+      // every pixel and does not need the clear.
+      CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
+      CGContextFillRect(context, CGRectMake(0, 0, self.width, self.height));
+    }
     CGContextDrawImage(context, CGRectMake(originX, originY, targetWidth, targetHeight), image);
   }
 
   CGContextRelease(context);
   CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
   return pixelBuffer;
+}
+
+- (nullable CGContextRef)copyBitmapContextForPixelBuffer:(CVPixelBufferRef)pixelBuffer
+                                                   error:(NSError **)error
+{
+  CGContextRef cachedContext = (CGContextRef)CVBufferCopyAttachment(pixelBuffer,
+                                                                    FBPixelBufferBitmapContextAttachmentKey,
+                                                                    NULL);
+  if (NULL != cachedContext) {
+    return cachedContext;
+  }
+
+  void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
+  CGContextRef context = CGBitmapContextCreate(baseAddress,
+                                               self.width,
+                                               self.height,
+                                               8,
+                                               CVPixelBufferGetBytesPerRow(pixelBuffer),
+                                               self.colorSpace,
+                                               kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little);
+  if (NULL == context) {
+    if (error) {
+      *error = [NSError errorWithDomain:FBPixelBufferConverterErrorDomain
+                                   code:5
+                               userInfo:@{NSLocalizedDescriptionKey: @"Cannot create a bitmap context for the pixel buffer"}];
+    }
+    return NULL;
+  }
+
+  CVBufferSetAttachment(pixelBuffer,
+                        FBPixelBufferBitmapContextAttachmentKey,
+                        context,
+                        kCVAttachmentMode_ShouldNotPropagate);
+  return context;
 }
 
 - (void)dealloc
