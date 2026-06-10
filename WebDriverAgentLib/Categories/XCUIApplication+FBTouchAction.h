@@ -24,6 +24,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)fb_performW3CActions:(NSArray *)actions elementCache:(nullable FBElementCache *)elementCache error:(NSError * _Nullable*)error;
 
+/**
+ Performs a flat sequence of pointer events — the /mobilerun/actions fast path.
+ Items are grouped by their optional integer 'pointerId' (default 0) into concurrent
+ touch paths. Bypasses the W3C synthesizer, the element cache, and the post-gesture
+ stability wait.
+
+ @param items array of {type,x,y,duration,button,pointerId} dictionaries. 'type' is one
+        of pointerDown, pointerMove, pointerUp, pause. 'duration' is in milliseconds.
+ @param error populated on invalid input or synthesis failure.
+ @return YES if the event was dispatched, otherwise NO.
+ */
+- (BOOL)fb_performMobilerunActions:(NSArray *)items error:(NSError * _Nullable*)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
