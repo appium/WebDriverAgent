@@ -8,6 +8,8 @@
 
 #import "FBExtBroadcastClient.h"
 
+#include <time.h>
+
 #import "FBBroadcastProtocol.h"
 #import "FBExtLogging.h"
 #import "GCDAsyncSocket.h"
@@ -36,8 +38,17 @@ static NSString *const FBExtClientErrorDomain = @"com.facebook.WebDriverAgent.FB
 @property (atomic) BOOL connected;
 @property (nonatomic) size_t outstandingWriteBytes;
 @property (nonatomic) FBBroadcastMessageHeader pendingHeader;
+// Previous heartbeat totals used to derive per-second rates (queue-confined).
+@property (nonatomic, nullable) NSDictionary<NSString *, NSDictionary *> *previousPipelineTotals;
+@property (nonatomic) uint64_t previousFramesReceived;
+@property (nonatomic) uint64_t lastHeartbeatAtMs;
 
 @end
+
+static double FBExtRatePerSec(double delta, double intervalSec)
+{
+  return round(delta / intervalSec * 10) / 10;
+}
 
 @implementation FBExtBroadcastClient
 
@@ -157,13 +168,45 @@ static NSString *const FBExtClientErrorDomain = @"com.facebook.WebDriverAgent.FB
 
 - (void)sendHeartbeat
 {
-  NSData *message = FBBroadcastEncodeJSONMessage(FBBroadcastMessageTypeHeartbeat, 0, @{
+  uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
+  double intervalSec = self.lastHeartbeatAtMs > 0
+    ? MAX(0.001, (double)(nowMs - self.lastHeartbeatAtMs) / 1000.0)
+    : HEARTBEAT_INTERVAL;
+  uint64_t framesReceived = self.framesReceived;
+
+  NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:@{
     FBBroadcastKeyState: self.paused ? @"paused" : @"active",
-    FBBroadcastKeyFramesReceived: @(self.framesReceived),
+    FBBroadcastKeyFramesReceived: @(framesReceived),
     FBBroadcastKeyOrientation: @(self.currentOrientation),
     FBBroadcastKeyScreenWidth: @(self.screenWidth),
     FBBroadcastKeyScreenHeight: @(self.screenHeight),
-  });
+  }];
+  // ReplayKit delivery rate plus loopback backpressure, so a low consumer-side fps can be
+  // attributed to delivery, a pipeline stage (see the per-pipeline counters) or the socket.
+  payload[@"framesReceivedPerSec"] = @(FBExtRatePerSec((double)(framesReceived - self.previousFramesReceived), intervalSec));
+  payload[@"socketOutstandingBytes"] = @(self.outstandingWriteBytes);
+
+  NSMutableDictionary *pipelinesJson = [NSMutableDictionary dictionary];
+  NSMutableDictionary *newTotals = [NSMutableDictionary dictionary];
+  [self.pipelines enumerateKeysAndObjectsUsingBlock:^(NSNumber *sessionId, FBExtSessionPipeline *pipeline, BOOL *stop) {
+    NSDictionary<NSString *, NSNumber *> *metrics = [pipeline metricsSnapshot];
+    NSMutableDictionary *entry = [metrics mutableCopy];
+    NSDictionary *previous = self.previousPipelineTotals[sessionId.stringValue];
+    for (NSString *key in @[@"samplesIn", @"accepted", @"encoded"]) {
+      double delta = metrics[key].doubleValue - [previous[key] doubleValue];
+      entry[[key stringByAppendingString:@"PerSec"]] = @(FBExtRatePerSec(delta, intervalSec));
+    }
+    pipelinesJson[sessionId.stringValue] = entry;
+    newTotals[sessionId.stringValue] = metrics;
+  }];
+  if (pipelinesJson.count > 0) {
+    payload[@"pipelines"] = pipelinesJson;
+  }
+  self.previousPipelineTotals = newTotals;
+  self.previousFramesReceived = framesReceived;
+  self.lastHeartbeatAtMs = nowMs;
+
+  NSData *message = FBBroadcastEncodeJSONMessage(FBBroadcastMessageTypeHeartbeat, 0, payload);
   if (nil != message) {
     [self sendProtocolMessage:message isDroppable:NO];
   }

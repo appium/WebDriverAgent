@@ -35,6 +35,8 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 @property (nonatomic) NSUInteger height;
 @property (nonatomic) NSUInteger fps;
 @property (nonatomic) uint64_t lastSubmitTimeMs;
+/** The next monotonic timestamp at which a frame is due (fps gate accumulator). */
+@property (nonatomic) uint64_t nextDueMs;
 @property (nonatomic) BOOL inFlight;
 @property (nonatomic) uint64_t pendingSubmitTimeMs;
 @property (nonatomic) uint8_t pendingOrientation;
@@ -42,6 +44,17 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 @property (atomic) uint8_t currentOrientation;
 @property (nonatomic) BOOL directSourceEncodingDisabled;
 @property (nonatomic, nullable, copy) NSData *lastSentParameterSets;
+
+// Lightweight diagnostics, exposed via metricsSnapshot/the heartbeat. Increments are not
+// strictly atomic RMW, which is acceptable for metrics.
+@property (atomic) uint64_t samplesInCount;
+@property (atomic) uint64_t acceptedCount;
+@property (atomic) uint64_t encodedCount;
+@property (atomic) uint64_t droppedFpsGateCount;
+@property (atomic) uint64_t droppedReplacedCount;
+@property (atomic) uint64_t droppedPoolCount;
+@property (atomic) uint64_t lastEncodeLatencyMs;
+@property (atomic) double avgEncodeLatencyMs;
 
 - (void)replacePendingSampleBuffer:(CMSampleBufferRef)sampleBuffer
                            atTimeMs:(uint64_t)nowMs
@@ -148,17 +161,30 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 
 - (void)submitSampleBuffer:(CMSampleBufferRef)sampleBuffer orientation:(uint8_t)orientation
 {
+  self.samplesInCount += 1;
   if (!self.active) {
     return;
   }
 
-  // Respect this session's framerate even though ReplayKit may deliver faster.
+  // Respect this session's framerate even though ReplayKit may deliver faster. The gate is a
+  // due-time accumulator rather than a minimum gap from the last accepted frame: gap-based
+  // pacing beats against jittery ~30Hz delivery (a frame arriving 1ms early is dropped and the
+  // next accepted gap doubles), which measured ~22fps out of a 42fps input. The accumulator
+  // admits exactly one frame per interval on average regardless of arrival jitter.
   uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
   uint64_t minIntervalMs = self.fps > 0 ? (uint64_t)(1000 / self.fps) : 0;
   @synchronized (self) {
-    if (minIntervalMs > 1 && nowMs - self.lastSubmitTimeMs < minIntervalMs - 1) {
-      return;
+    if (minIntervalMs > 1) {
+      if (nowMs + 1 < self.nextDueMs) {
+        self.droppedFpsGateCount += 1;
+        return;
+      }
+      // Re-anchor after stalls so accumulated due time does not admit a burst.
+      self.nextDueMs = (self.nextDueMs == 0 || nowMs > self.nextDueMs + minIntervalMs)
+        ? nowMs + minIntervalMs
+        : self.nextDueMs + minIntervalMs;
     }
+    self.acceptedCount += 1;
 
     // Never block the ReplayKit sample queue. If a frame is already being scaled/submitted,
     // retain only the newest due sample and replace any older pending sample.
@@ -188,6 +214,7 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
   self.pendingOrientation = orientation;
   if (NULL != previous) {
     CFRelease(previous);
+    self.droppedReplacedCount += 1;
   }
 }
 
@@ -278,6 +305,7 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
                                                                             &scaledBuffer);
   if (poolStatus != kCVReturnSuccess || NULL == scaledBuffer) {
     // The pool is exhausted (encoder still holds the buffers) - drop the frame instead of growing.
+    self.droppedPoolCount += 1;
     return;
   }
 
@@ -298,6 +326,20 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 - (void)requestKeyFrame
 {
   [self.encoder requestKeyFrame];
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)metricsSnapshot
+{
+  return @{
+    @"samplesIn": @(self.samplesInCount),
+    @"accepted": @(self.acceptedCount),
+    @"encoded": @(self.encodedCount),
+    @"droppedFpsGate": @(self.droppedFpsGateCount),
+    @"droppedReplaced": @(self.droppedReplacedCount),
+    @"droppedPool": @(self.droppedPoolCount),
+    @"encodeLatencyMsLast": @(self.lastEncodeLatencyMs),
+    @"encodeLatencyMsAvg": @(round(self.avgEncodeLatencyMs * 10) / 10),
+  };
 }
 
 - (void)teardown
@@ -348,6 +390,18 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
            isKeyFrame:(BOOL)isKeyFrame
    presentationTimeUs:(uint64_t)presentationTimeUs
 {
+  self.encodedCount += 1;
+  // The frame pts is the monotonic submit time, so callback-time minus pts is the
+  // scale+encode latency.
+  uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
+  uint64_t submitMs = presentationTimeUs / 1000;
+  if (nowMs >= submitMs) {
+    uint64_t latencyMs = nowMs - submitMs;
+    self.lastEncodeLatencyMs = latencyMs;
+    double avg = self.avgEncodeLatencyMs;
+    self.avgEncodeLatencyMs = avg <= 0 ? (double)latencyMs : avg * 0.9 + (double)latencyMs * 0.1;
+  }
+
   if (!self.active || annexBPictureData.length == 0) {
     return;
   }
