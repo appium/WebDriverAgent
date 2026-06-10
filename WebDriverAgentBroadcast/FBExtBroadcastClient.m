@@ -192,7 +192,7 @@ static double FBExtRatePerSec(double delta, double intervalSec)
     NSDictionary<NSString *, NSNumber *> *metrics = [pipeline metricsSnapshot];
     NSMutableDictionary *entry = [metrics mutableCopy];
     NSDictionary *previous = self.previousPipelineTotals[sessionId.stringValue];
-    for (NSString *key in @[@"samplesIn", @"accepted", @"encoded"]) {
+    for (NSString *key in @[@"samplesIn", @"accepted", @"encoded", @"repeated"]) {
       double delta = metrics[key].doubleValue - [previous[key] doubleValue];
       entry[[key stringByAppendingString:@"PerSec"]] = @(FBExtRatePerSec(delta, intervalSec));
     }

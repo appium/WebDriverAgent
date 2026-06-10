@@ -24,6 +24,8 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 
 @interface FBExtSessionPipeline () <FBVideoEncoderDelegate> {
   CMSampleBufferRef _pendingSampleBuffer;
+  /** The most recently encoded (pool-owned) frame, re-encoded to fill delivery gaps (queue-confined). */
+  CVPixelBufferRef _repeatBuffer;
 }
 
 @property (nonatomic, weak) id<FBExtMessageSink> sink;
@@ -53,8 +55,14 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 @property (atomic) uint64_t droppedFpsGateCount;
 @property (atomic) uint64_t droppedReplacedCount;
 @property (atomic) uint64_t droppedPoolCount;
+@property (atomic) uint64_t repeatedCount;
 @property (atomic) uint64_t lastEncodeLatencyMs;
 @property (atomic) double avgEncodeLatencyMs;
+
+// Frame repeater state (queue-confined except the timer handle).
+@property (nonatomic, nullable) dispatch_source_t repeatTimer;
+@property (nonatomic) uint64_t frameIntervalMs;
+@property (nonatomic) uint64_t lastEncodeAtMs;
 
 - (void)replacePendingSampleBuffer:(CMSampleBufferRef)sampleBuffer
                            atTimeMs:(uint64_t)nowMs
@@ -155,8 +163,88 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
     // Open every session with an IDR: WDA only switches a stream onto the broadcast source once
     // a key frame (with parameter sets) has arrived.
     [encoder requestKeyFrame];
+
+    // ReplayKit delivers nothing while the screen is static and VideoToolbox has no
+    // Android-style repeat-previous-frame mode, so the last frame is re-encoded manually to
+    // keep the output cadence at the requested fps.
+    _frameIntervalMs = fps > 0 ? (uint64_t)(1000 / fps) : 0;
+    if (_frameIntervalMs > 1) {
+      [self startRepeatTimer];
+    }
   }
   return self;
+}
+
+- (void)startRepeatTimer
+{
+  dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
+  if (nil == timer) {
+    return;
+  }
+  uint64_t intervalNs = self.frameIntervalMs * NSEC_PER_MSEC;
+  dispatch_source_set_timer(timer,
+                            dispatch_time(DISPATCH_TIME_NOW, (int64_t)intervalNs),
+                            intervalNs,
+                            intervalNs / 4);
+  __weak typeof(self) weakSelf = self;
+  dispatch_source_set_event_handler(timer, ^{
+    [weakSelf repeatLastFrameIfIdle];
+  });
+  dispatch_resume(timer);
+  self.repeatTimer = timer;
+}
+
+- (void)repeatLastFrameIfIdle
+{
+  // Runs on self.queue, serialized with live encodes.
+  if (!self.active || NULL == _repeatBuffer || 0 == self.lastEncodeAtMs) {
+    return;
+  }
+  uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
+  if (nowMs - self.lastEncodeAtMs < self.frameIntervalMs) {
+    return;
+  }
+  NSError *error;
+  if ([self.encoder encodePixelBuffer:_repeatBuffer presentationTimeMs:nowMs error:&error]) {
+    self.repeatedCount += 1;
+    self.lastEncodeAtMs = nowMs;
+  } else {
+    FBExtLogError("Session %u: cannot re-encode the repeat frame: %{public}@",
+                  self.sessionId, error.description);
+  }
+}
+
+// Runs on self.queue. Retains the given pool-owned buffer as the repeat source.
+- (void)storeRepeatBuffer:(CVPixelBufferRef)buffer
+{
+  if (buffer == _repeatBuffer) {
+    return;
+  }
+  CVPixelBufferRef previous = _repeatBuffer;
+  _repeatBuffer = (CVPixelBufferRef)CFRetain(buffer);
+  if (NULL != previous) {
+    CVPixelBufferRelease(previous);
+  }
+}
+
+// Runs on self.queue. Copies a non-pool source (direct-encode path) into a pool buffer for the
+// repeater: ReplayKit recycles its sample buffers, so retaining one would stall its capture.
+- (void)refreshRepeatBufferWithCopyOf:(CVPixelBufferRef)sourceBuffer
+{
+  CVPixelBufferRef copyBuffer = NULL;
+  NSDictionary *auxAttributes = @{(id)kCVPixelBufferPoolAllocationThresholdKey: @(POOL_ALLOCATION_THRESHOLD)};
+  CVReturn poolStatus = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                            self.bufferPool,
+                                                                            (__bridge CFDictionaryRef)auxAttributes,
+                                                                            &copyBuffer);
+  if (poolStatus != kCVReturnSuccess || NULL == copyBuffer) {
+    // Keep the previous (slightly stale) repeat buffer instead of growing the pool.
+    return;
+  }
+  if (noErr == VTPixelTransferSessionTransferImage(self.transferSession, sourceBuffer, copyBuffer)) {
+    [self storeRepeatBuffer:copyBuffer];
+  }
+  CVPixelBufferRelease(copyBuffer);
 }
 
 - (void)submitSampleBuffer:(CMSampleBufferRef)sampleBuffer orientation:(uint8_t)orientation
@@ -289,6 +377,8 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
       && CVPixelBufferGetHeight(sourceBuffer) == self.height) {
     NSError *error;
     if ([self.encoder encodePixelBuffer:sourceBuffer presentationTimeMs:nowMs error:&error]) {
+      self.lastEncodeAtMs = nowMs;
+      [self refreshRepeatBufferWithCopyOf:sourceBuffer];
       return;
     }
     self.directSourceEncodingDisabled = YES;
@@ -317,7 +407,10 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
   }
 
   NSError *error;
-  if (![self.encoder encodePixelBuffer:scaledBuffer presentationTimeMs:nowMs error:&error]) {
+  if ([self.encoder encodePixelBuffer:scaledBuffer presentationTimeMs:nowMs error:&error]) {
+    self.lastEncodeAtMs = nowMs;
+    [self storeRepeatBuffer:scaledBuffer];
+  } else {
     FBExtLogError("Session %u: cannot encode a frame: %{public}@", self.sessionId, error.description);
   }
   CVPixelBufferRelease(scaledBuffer);
@@ -337,6 +430,7 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
     @"droppedFpsGate": @(self.droppedFpsGateCount),
     @"droppedReplaced": @(self.droppedReplacedCount),
     @"droppedPool": @(self.droppedPoolCount),
+    @"repeated": @(self.repeatedCount),
     @"encodeLatencyMsLast": @(self.lastEncodeLatencyMs),
     @"encodeLatencyMsAvg": @(round(self.avgEncodeLatencyMs * 10) / 10),
   };
@@ -348,7 +442,16 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
   @synchronized (self) {
     [self clearPendingSampleBufferLocked];
   }
+  dispatch_source_t timer = self.repeatTimer;
+  if (nil != timer) {
+    dispatch_source_cancel(timer);
+    self.repeatTimer = nil;
+  }
   dispatch_async(self.queue, ^{
+    if (NULL != self->_repeatBuffer) {
+      CVPixelBufferRelease(self->_repeatBuffer);
+      self->_repeatBuffer = NULL;
+    }
     if (nil != self.encoder) {
       self.encoder.delegate = nil;
       [self.encoder stop];
@@ -375,6 +478,13 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
 {
   @synchronized (self) {
     [self clearPendingSampleBufferLocked];
+  }
+  if (nil != _repeatTimer) {
+    dispatch_source_cancel(_repeatTimer);
+  }
+  if (NULL != _repeatBuffer) {
+    CVPixelBufferRelease(_repeatBuffer);
+    _repeatBuffer = NULL;
   }
   if (nil != _encoder) {
     _encoder.delegate = nil;

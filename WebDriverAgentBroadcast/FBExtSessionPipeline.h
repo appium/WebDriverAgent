@@ -61,8 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
  A point-in-time snapshot of this pipeline's counters, safe to call from any thread:
  samplesIn (frames offered by ReplayKit), accepted (passed the fps gate), encoded (encoder
  callbacks), droppedFpsGate, droppedReplaced (latched frame superseded before processing),
- droppedPool (scaled-buffer pool exhausted), encodeLatencyMsLast/encodeLatencyMsAvg
- (submit-to-encoder-callback time).
+ droppedPool (scaled-buffer pool exhausted), repeated (last frame re-encoded to fill a
+ delivery gap), encodeLatencyMsLast/encodeLatencyMsAvg (submit-to-encoder-callback time).
  */
 - (NSDictionary<NSString *, NSNumber *> *)metricsSnapshot;
 

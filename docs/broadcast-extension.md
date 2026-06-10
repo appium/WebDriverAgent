@@ -50,6 +50,9 @@ Notes:
 - Frames are encoded in the native ReplayKit orientation (not rotated upright like the
   screenshot path). The current `orientation` (CGImagePropertyOrientation 1-8) is exposed via
   the status endpoint and heartbeat.
+- ReplayKit only delivers frames while the screen changes; the extension re-encodes the last
+  frame to fill delivery gaps, so the stream holds the session's requested fps on static
+  screens too (`repeated` counter in the heartbeat).
 
 ## Environment variables
 
