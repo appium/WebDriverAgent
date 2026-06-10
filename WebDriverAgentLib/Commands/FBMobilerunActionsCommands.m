@@ -42,7 +42,14 @@
   }
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSError *error;
-  if (![app fb_performMobilerunActions:(NSArray *)items error:&error]) {
+  // Validation failures are client errors (invalid argument); only a dispatch failure
+  // is a server/runtime error (unknown error).
+  XCSynthesizedEventRecord *eventRecord = [app fb_mobilerunEventRecordFromActions:(NSArray *)items error:&error];
+  if (nil == eventRecord) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                       traceback:nil]);
+  }
+  if (![app fb_synthesizeEvent:eventRecord error:&error]) {
     return FBResponseWithUnknownError(error);
   }
   return FBResponseWithOK();

@@ -83,12 +83,13 @@
   return YES;
 }
 
-- (BOOL)fb_performMobilerunActions:(NSArray *)items error:(NSError **)error
+- (XCSynthesizedEventRecord *)fb_mobilerunEventRecordFromActions:(NSArray *)items error:(NSError **)error
 {
   if (![items isKindOfClass:NSArray.class] || 0 == items.count) {
-    return [[[FBErrorBuilder builder]
-             withDescription:@"Mobilerun actions must be a non-empty array"]
-            buildError:error];
+    [[[FBErrorBuilder builder]
+      withDescription:@"Mobilerun actions must be a non-empty array"]
+     buildError:error];
+    return nil;
   }
 
   // One touch path per pointerId, each with its own running offset (ms).
@@ -98,17 +99,19 @@
 
   for (id rawItem in items) {
     if (![rawItem isKindOfClass:NSDictionary.class]) {
-      return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"Each action item must be an object: %@", rawItem]
-              buildError:error];
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Each action item must be an object: %@", rawItem]
+       buildError:error];
+      return nil;
     }
     NSDictionary *item = (NSDictionary *)rawItem;
 
     id type = item[@"type"];
     if (![type isKindOfClass:NSString.class]) {
-      return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"Action item is missing a string 'type': %@", item]
-              buildError:error];
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Action item is missing a string 'type': %@", item]
+       buildError:error];
+      return nil;
     }
 
     NSNumber *pointerId = [item[@"pointerId"] isKindOfClass:NSNumber.class] ? item[@"pointerId"] : @0;
@@ -121,7 +124,7 @@
     } else if ([type isEqualToString:@"pointerDown"]) {
       CGPoint point = CGPointZero;
       if (![self fb_mobilerunPoint:&point fromItem:item error:error]) {
-        return NO;
+        return nil;
       }
       if (nil == path) {
         path = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:FBMillisToSeconds(offsetMs)];
@@ -133,7 +136,7 @@
     } else if ([type isEqualToString:@"pointerMove"]) {
       CGPoint point = CGPointZero;
       if (![self fb_mobilerunPoint:&point fromItem:item error:error]) {
-        return NO;
+        return nil;
       }
       if (nil == path) {
         path = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:FBMillisToSeconds(offsetMs + durationMs)];
@@ -144,24 +147,27 @@
       }
     } else if ([type isEqualToString:@"pointerUp"]) {
       if (nil == path) {
-        return [[[FBErrorBuilder builder]
-                 withDescriptionFormat:@"'pointerUp' for pointer %@ has no preceding 'pointerDown'", pointerId]
-                buildError:error];
+        [[[FBErrorBuilder builder]
+          withDescriptionFormat:@"'pointerUp' for pointer %@ has no preceding 'pointerDown'", pointerId]
+         buildError:error];
+        return nil;
       }
       [path liftUpAtOffset:FBMillisToSeconds(offsetMs)];
     } else {
-      return [[[FBErrorBuilder builder]
-               withDescriptionFormat:@"Unsupported action type '%@'. Supported: pointerDown, pointerMove, pointerUp, pause", type]
-              buildError:error];
+      [[[FBErrorBuilder builder]
+        withDescriptionFormat:@"Unsupported action type '%@'. Supported: pointerDown, pointerMove, pointerUp, pause", type]
+       buildError:error];
+      return nil;
     }
 
     offsets[pointerId] = @(offsetMs + durationMs);
   }
 
   if (0 == paths.count) {
-    return [[[FBErrorBuilder builder]
-             withDescription:@"No pointer events were produced by the actions"]
-            buildError:error];
+    [[[FBErrorBuilder builder]
+      withDescription:@"No pointer events were produced by the actions"]
+     buildError:error];
+    return nil;
   }
 
   XCSynthesizedEventRecord *eventRecord =
@@ -169,6 +175,15 @@
                               interfaceOrientation:self.interfaceOrientation];
   for (NSNumber *pointerId in order) {
     [eventRecord addPointerEventPath:paths[pointerId]];
+  }
+  return eventRecord;
+}
+
+- (BOOL)fb_performMobilerunActions:(NSArray *)items error:(NSError **)error
+{
+  XCSynthesizedEventRecord *eventRecord = [self fb_mobilerunEventRecordFromActions:items error:error];
+  if (nil == eventRecord) {
+    return NO;
   }
   return [self fb_synthesizeEvent:eventRecord error:error];
 }
