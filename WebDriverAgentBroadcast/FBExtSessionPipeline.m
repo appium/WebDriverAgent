@@ -101,6 +101,7 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
     }
     // Letterbox to preserve the aspect ratio, matching the WDA-side screenshot converter.
     VTSessionSetProperty(_transferSession, kVTPixelTransferPropertyKey_ScalingMode, kVTScalingMode_Letterbox);
+    VTSessionSetProperty(_transferSession, kVTPixelTransferPropertyKey_RealTime, kCFBooleanTrue);
 
     NSDictionary *pixelBufferAttributes = @{
       (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
@@ -108,7 +109,7 @@ static const int POOL_ALLOCATION_THRESHOLD = 4;
       (id)kCVPixelBufferHeightKey: @(height),
       (id)kCVPixelBufferIOSurfacePropertiesKey: @{},
     };
-    NSDictionary *poolAttributes = @{(id)kCVPixelBufferPoolMinimumBufferCountKey: @1};
+    NSDictionary *poolAttributes = @{(id)kCVPixelBufferPoolMinimumBufferCountKey: @(POOL_ALLOCATION_THRESHOLD)};
     CVReturn poolStatus = CVPixelBufferPoolCreate(kCFAllocatorDefault,
                                                   (__bridge CFDictionaryRef)poolAttributes,
                                                   (__bridge CFDictionaryRef)pixelBufferAttributes,
