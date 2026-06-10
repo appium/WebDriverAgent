@@ -17,8 +17,10 @@
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
+#import "FBScreen.h"
 #import "FBUnattachedAppLauncher.h"
 #import "FBVideoStreamManager.h"
+#import "XCUIApplication+FBTouchAction.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 
@@ -46,6 +48,15 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
 @property (atomic, nullable) NSDate *connectedAt;
 @property (atomic, nullable) NSDate *lastHeartbeatAt;
 @property (atomic) BOOL paused;
+/** YES while a start dance is driving the system UI (used to serialize concurrent starts). */
+@property (atomic) BOOL startInProgress;
+
+#if !TARGET_OS_SIMULATOR && !TARGET_OS_TV
+- (BOOL)performBroadcastStartWithTimeout:(NSTimeInterval)timeout
+                     confirmButtonLabels:(NSArray<NSString *> *)confirmButtonLabels
+                    restoreForegroundApp:(BOOL)restoreForegroundApp
+                                   error:(NSError **)error;
+#endif
 
 @end
 
@@ -143,6 +154,66 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     [self startListening];
   }
 
+  // Serialize concurrent starts: the dance below spins the main run loop, so another
+  // /broadcast/start request can be dispatched re-entrantly while the first one is still driving
+  // the system UI. Starting a second broadcast while one is launching makes iOS kill both, so
+  // followers just await the leader's outcome.
+  if (self.startInProgress) {
+    [FBLogger log:@"broadcast/start: another start attempt is already in progress; awaiting its outcome"];
+    [[[[FBRunLoopSpinner new] timeout:(timeout > 0 ? timeout : 30.0)] interval:0.3] spinUntilTrue:^BOOL{
+      return self.isExtensionConnected || !self.startInProgress;
+    }];
+    if (self.isExtensionConnected) {
+      return YES;
+    }
+    if (error) {
+      *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
+                                   code:FBBroadcastManagerErrorTimeout
+                               userInfo:@{NSLocalizedDescriptionKey: @"A concurrent broadcast start attempt finished without the extension connecting"}];
+    }
+    return NO;
+  }
+
+  self.startInProgress = YES;
+  @try {
+    return [self performBroadcastStartWithTimeout:timeout
+                              confirmButtonLabels:confirmButtonLabels
+                             restoreForegroundApp:restoreForegroundApp
+                                            error:error];
+  } @finally {
+    self.startInProgress = NO;
+  }
+#endif
+}
+
+#if !TARGET_OS_SIMULATOR && !TARGET_OS_TV
+- (BOOL)performBroadcastStartWithTimeout:(NSTimeInterval)timeout
+                     confirmButtonLabels:(NSArray<NSString *> *)confirmButtonLabels
+                    restoreForegroundApp:(BOOL)restoreForegroundApp
+                                   error:(NSError **)error
+{
+  // The screen may already be captured by a live broadcast even though the extension is not
+  // connected (it crashed, or it is between TCP reconnect attempts). Driving the picker on top
+  // of a live broadcast makes iOS kill both, so wait for the extension instead.
+  if (UIScreen.mainScreen.isCaptured) {
+    [FBLogger log:@"broadcast/start: the screen is already being captured; waiting for the extension to connect instead of starting another broadcast"];
+    [[[[FBRunLoopSpinner new] timeout:5.0] interval:0.2] spinUntilTrue:^BOOL{
+      return self.isExtensionConnected || !UIScreen.mainScreen.isCaptured;
+    }];
+    if (self.isExtensionConnected) {
+      return YES;
+    }
+    if (UIScreen.mainScreen.isCaptured) {
+      if (error) {
+        *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
+                                     code:FBBroadcastManagerErrorTimeout
+                                 userInfo:@{NSLocalizedDescriptionKey: @"The screen is already being captured (an active broadcast or recording), but the WebDriverAgent broadcast extension did not connect. Stop the existing capture (e.g. via the status bar pill) and retry"}];
+      }
+      return NO;
+    }
+    // The capture ended while waiting; fall through and start a fresh broadcast.
+  }
+
   uint64_t startedMs = FBBroadcastNowMs();
   XCUIApplication *runner = [[XCUIApplication alloc] initWithBundleIdentifier:(NSString *)NSBundle.mainBundle.bundleIdentifier];
   XCUIApplication *previousApp = nil;
@@ -201,20 +272,23 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
   // look for the confirm button in both the system app and the runner itself.
   NSArray<NSString *> *labels = confirmButtonLabels.count > 0 ? confirmButtonLabels : @[@"Start Broadcast"];
   NSArray<XCUIApplication *> *candidateApps = @[XCUIApplication.fb_systemApplication, runner];
-  __block XCUIElement *confirmButton = nil;
+  __block BOOL confirmButtonFound = NO;
+  __block CGRect confirmFrame = CGRectZero;
   __block uint64_t lastTriggerMs = FBBroadcastNowMs();
   [[[[FBRunLoopSpinner new] timeout:CONFIRM_BUTTON_TIMEOUT] interval:0.25] spinUntilTrue:^BOOL{
     for (XCUIApplication *app in candidateApps) {
       for (NSString *label in labels) {
         XCUIElement *candidate = app.buttons[label];
         if (candidate.exists) {
-          confirmButton = candidate;
+          confirmFrame = candidate.frame;
+          confirmButtonFound = YES;
           return YES;
         }
       }
       XCUIElement *prefixMatch = [app.buttons matchingPredicate:[NSPredicate predicateWithFormat:@"label BEGINSWITH[c] 'Start'"]].firstMatch;
       if (prefixMatch.exists) {
-        confirmButton = prefixMatch;
+        confirmFrame = prefixMatch.frame;
+        confirmButtonFound = YES;
         return YES;
       }
     }
@@ -226,7 +300,7 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     }
     return NO;
   }];
-  if (nil == confirmButton) {
+  if (!confirmButtonFound || CGRectIsEmpty(confirmFrame)) {
     [FBBroadcastPickerHost dismiss];
     if (error) {
       *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
@@ -235,7 +309,26 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     }
     return NO;
   }
-  [confirmButton tap];
+  // Tap via WDA's own event synthesis instead of XCUIElement.tap: a missed XCUIElement tap
+  // (e.g. the sheet dismissed in between) records an XCTest failure that tears down the whole
+  // test session, whereas a missed synthesized tap is harmless and surfaces as a connect timeout.
+  CGFloat scale = (CGFloat)[FBScreen scale];
+  CGPoint center = CGPointMake(CGRectGetMidX(confirmFrame) * scale, CGRectGetMidY(confirmFrame) * scale);
+  NSArray *tapActions = @[
+    @{@"type": @"pointerDown", @"x": @(center.x), @"y": @(center.y)},
+    @{@"type": @"pause", @"duration": @60},
+    @{@"type": @"pointerUp", @"x": @(center.x), @"y": @(center.y)},
+  ];
+  NSError *tapError;
+  if (![runner fb_performMobilerunActions:tapActions scale:scale error:&tapError]) {
+    [FBBroadcastPickerHost dismiss];
+    if (error) {
+      *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
+                                   code:FBBroadcastManagerErrorPicker
+                               userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Cannot tap the broadcast confirmation button: %@", tapError.localizedDescription]}];
+    }
+    return NO;
+  }
   [FBLogger logFmt:@"broadcast/start: confirmation tapped after %llums", FBBroadcastNowMs() - startedMs];
 
   // Cover the system's 3-2-1 countdown plus the extension's connect/HELLO round trip.
@@ -257,8 +350,8 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     [previousApp activate];
   }
   return YES;
-#endif
 }
+#endif
 
 - (BOOL)stopBroadcastWithError:(NSError **)error
 {
