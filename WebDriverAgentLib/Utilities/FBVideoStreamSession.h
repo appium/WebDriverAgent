@@ -13,6 +13,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The framing used for the broadcast byte stream. */
+typedef NS_ENUM(NSUInteger, FBVideoFraming) {
+  /** Raw Annex-B elementary stream (default): bare NAL units, parameter sets prepended to key frames. */
+  FBVideoFramingAnnexB,
+  /** scrcpy packet framing: each access unit wrapped as [8B pts+flags][4B size][Annex-B AU]. */
+  FBVideoFramingScrcpy,
+};
+
 /** Describes a single screen-capture streaming request. */
 @interface FBScreenCaptureConfiguration : NSObject
 
@@ -26,7 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger bitrate;
 /** The capture/encode framerate in frames per second. */
 @property (nonatomic) NSUInteger fps;
-/** The TCP port the raw Annex-B stream is broadcast on. */
+/** The framing of the broadcast byte stream (raw Annex-B by default). */
+@property (nonatomic) FBVideoFraming framing;
+/** The TCP port the encoded stream is broadcast on. */
 @property (nonatomic) uint16_t port;
 
 @end

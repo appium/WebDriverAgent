@@ -35,6 +35,10 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 @property (nonatomic) dispatch_queue_t backgroundQueue;
 @property (nonatomic) NSMutableDictionary<NSNumber *, FBVideoStreamSession *> *sessions;
 @property (nonatomic) NSUInteger nextSessionIdentifier;
+// Starts that reserved a slot under the lock but have not yet inserted their session (the
+// bind/encoder start happens outside the lock). Counted toward the cap so concurrent starts
+// cannot collectively exceed MAX_SESSIONS.
+@property (nonatomic) NSUInteger pendingStarts;
 @property (nonatomic) long long mainScreenID;
 @property (nonatomic) NSUInteger consecutiveScreenshotFailures;
 @property (atomic) BOOL isStreaming;
@@ -76,7 +80,10 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   BOOL shouldStartLoop = NO;
   BOOL autoAssignPort = (0 == configuration.port);
   @synchronized (self.sessions) {
-    if (self.sessions.count >= MAX_SESSIONS) {
+    // Count in-flight starts toward the cap: their sessions are not inserted until after the
+    // (slow) bind/encoder start, so without this two concurrent starts could both pass the check
+    // and exceed MAX_SESSIONS.
+    if (self.sessions.count + self.pendingStarts >= MAX_SESSIONS) {
       if (error) {
         *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.FBVideoStreamManager"
                                      code:1
@@ -87,7 +94,13 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     if (autoAssignPort) {
       configuration.port = [self nextAutoPortLocked];
     }
+    // Reserve the identifier and a slot under the lock. Otherwise two concurrent starts read the
+    // same id (it was previously incremented only after the slow socket/encoder bind, outside the
+    // lock) and the later insert overwrites the earlier session, orphaning its still-running
+    // server with no id to stop it by.
     identifier = self.nextSessionIdentifier;
+    self.nextSessionIdentifier += 1;
+    self.pendingStarts += 1;
   }
 
   FBVideoStreamSession *session = [self startBoundSessionWithIdentifier:identifier
@@ -95,13 +108,16 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
                                                         autoAssignPort:autoAssignPort
                                                                  error:error];
   if (nil == session) {
+    @synchronized (self.sessions) {
+      self.pendingStarts -= 1;
+    }
     return nil;
   }
 
   NSUInteger generation = 0;
   @synchronized (self.sessions) {
+    self.pendingStarts -= 1;
     self.sessions[@(identifier)] = session;
-    self.nextSessionIdentifier += 1;
     self.mainScreenID = [XCUIScreen.mainScreen displayID];
     if (!self.isStreaming) {
       self.isStreaming = YES;

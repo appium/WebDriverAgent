@@ -16,6 +16,14 @@
 		FBCAFE000000000000000003 /* FBScreenCaptureCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */; };
 		FBCAFE000000000000000005 /* FBScreenCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */; };
 		FBCAFE000000000000000006 /* FBScreenCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */; };
+		FBCAFE000000000000003002 /* FBMobilerunA11yCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */; };
+		FBCAFE000000000000003102 /* FBMobilerunActionsCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003101 /* FBMobilerunActionsCommands.h */; };
+		FBCAFE000000000000003003 /* FBMobilerunA11yCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */; };
+		FBCAFE000000000000003103 /* FBMobilerunActionsCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003101 /* FBMobilerunActionsCommands.h */; };
+		FBCAFE000000000000003005 /* FBMobilerunA11yCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */; };
+		FBCAFE000000000000003105 /* FBMobilerunActionsCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003104 /* FBMobilerunActionsCommands.m */; };
+		FBCAFE000000000000003006 /* FBMobilerunA11yCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */; };
+		FBCAFE000000000000003106 /* FBMobilerunActionsCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003104 /* FBMobilerunActionsCommands.m */; };
 		FBCAFE000000000000000008 /* FBPixelBufferConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000007 /* FBPixelBufferConverter.h */; };
 		FBCAFE000000000000000009 /* FBPixelBufferConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000007 /* FBPixelBufferConverter.h */; };
 		FBCAFE00000000000000000B /* FBPixelBufferConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE00000000000000000A /* FBPixelBufferConverter.m */; };
@@ -30,6 +38,7 @@
 		FBCAFE000000000000000018 /* FBVideoStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000016 /* FBVideoStreamManager.m */; };
 		FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */; };
 		FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE00000000000000001B /* FBVideoEncoderTests.m */; };
+		FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */; };
 		0E0413382DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E0413392DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E04133B2DF1E15900AF007C /* XCUIElement+FBMinMax.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */; };
@@ -346,6 +355,7 @@
 		71241D7B1FAE3D2500B9559F /* FBTouchActionCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 71241D791FAE3D2500B9559F /* FBTouchActionCommands.h */; };
 		71241D7C1FAE3D2500B9559F /* FBTouchActionCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = 71241D7A1FAE3D2500B9559F /* FBTouchActionCommands.m */; };
 		71241D7E1FAF084E00B9559F /* FBW3CTouchActionsIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71241D7D1FAF084E00B9559F /* FBW3CTouchActionsIntegrationTests.m */; };
+		FBCAFE000000000000003202 /* FBMobilerunActionsIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000003201 /* FBMobilerunActionsIntegrationTests.m */; };
 		71241D801FAF087500B9559F /* FBW3CMultiTouchActionsIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71241D7F1FAF087500B9559F /* FBW3CMultiTouchActionsIntegrationTests.m */; };
 		712A0C851DA3E459007D02E5 /* FBXPathTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 712A0C841DA3E459007D02E5 /* FBXPathTests.m */; };
 		712A0C871DA3E55D007D02E5 /* FBXPath-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 712A0C861DA3E55D007D02E5 /* FBXPath-Private.h */; };
@@ -962,6 +972,10 @@
 		FBCAFE000000000000001004 /* FBVideoStreamSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSession.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBScreenCaptureCommands.h; sourceTree = "<group>"; };
 		FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBScreenCaptureCommands.m; sourceTree = "<group>"; };
+		FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBMobilerunA11yCommands.h; sourceTree = "<group>"; };
+		FBCAFE000000000000003101 /* FBMobilerunActionsCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBMobilerunActionsCommands.h; sourceTree = "<group>"; };
+		FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBMobilerunA11yCommands.m; sourceTree = "<group>"; };
+		FBCAFE000000000000003104 /* FBMobilerunActionsCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBMobilerunActionsCommands.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000007 /* FBPixelBufferConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBPixelBufferConverter.h; sourceTree = "<group>"; };
 		FBCAFE00000000000000000A /* FBPixelBufferConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPixelBufferConverter.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000000D /* FBVideoEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBVideoEncoder.h; sourceTree = "<group>"; };
@@ -970,6 +984,7 @@
 		FBCAFE000000000000000016 /* FBVideoStreamManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamManager.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPixelBufferConverterTests.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000001B /* FBVideoEncoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoEncoderTests.m; sourceTree = "<group>"; };
+		FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSessionTests.m; sourceTree = "<group>"; };
 		0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBMinMax.m"; sourceTree = "<group>"; };
 		0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBMinMax.h"; sourceTree = "<group>"; };
 		1357E295233D05240054BDB8 /* XCUIHitPointResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIHitPointResult.h; sourceTree = "<group>"; };
@@ -1024,6 +1039,7 @@
 		71241D791FAE3D2500B9559F /* FBTouchActionCommands.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBTouchActionCommands.h; sourceTree = "<group>"; };
 		71241D7A1FAE3D2500B9559F /* FBTouchActionCommands.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTouchActionCommands.m; sourceTree = "<group>"; };
 		71241D7D1FAF084E00B9559F /* FBW3CTouchActionsIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBW3CTouchActionsIntegrationTests.m; sourceTree = "<group>"; };
+		FBCAFE000000000000003201 /* FBMobilerunActionsIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBMobilerunActionsIntegrationTests.m; sourceTree = "<group>"; };
 		71241D7F1FAF087500B9559F /* FBW3CMultiTouchActionsIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBW3CMultiTouchActionsIntegrationTests.m; sourceTree = "<group>"; };
 		712A0C841DA3E459007D02E5 /* FBXPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPathTests.m; sourceTree = "<group>"; };
 		712A0C861DA3E55D007D02E5 /* FBXPath-Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FBXPath-Private.h"; sourceTree = "<group>"; };
@@ -1910,6 +1926,10 @@
 				71BB58EE2B96511800CB9BFE /* FBVideoCommands.m */,
 				FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */,
 				FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */,
+				FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */,
+				FBCAFE000000000000003101 /* FBMobilerunActionsCommands.h */,
+				FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */,
+				FBCAFE000000000000003104 /* FBMobilerunActionsCommands.m */,
 			);
 			name = Commands;
 			path = WebDriverAgentLib/Commands;
@@ -2117,6 +2137,7 @@
 				714CA3C61DC23186000F12C9 /* FBXPathIntegrationTests.m */,
 				71BB58DD2B9631B700CB9BFE /* FBVideoRecordingTests.m */,
 				71241D7D1FAF084E00B9559F /* FBW3CTouchActionsIntegrationTests.m */,
+				FBCAFE000000000000003201 /* FBMobilerunActionsIntegrationTests.m */,
 				71241D7F1FAF087500B9559F /* FBW3CMultiTouchActionsIntegrationTests.m */,
 				7136C0F8243A182400921C76 /* FBW3CTypeActionsTests.m */,
 				EEBBDB9A1D1032F0000738CD /* XCElementSnapshotHelperTests.m */,
@@ -2162,6 +2183,7 @@
 				713914591DF01989005896C2 /* XCUIElementHelpersTests.m */,
 				FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */,
 				FBCAFE00000000000000001B /* FBVideoEncoderTests.m */,
+				FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */,
 				FBCAFE000000000000002001 /* FBImageUtilsTests.m */,
 			);
 			path = UnitTests;
@@ -2609,6 +2631,8 @@
 				641EE6EE2240C5CA00173FCB /* XCKeyMappingPath.h in Headers */,
 				71C8E55225399A6B008572C1 /* XCUIApplication+FBQuiescence.h in Headers */,
 				FBCAFE000000000000000003 /* FBScreenCaptureCommands.h in Headers */,
+				FBCAFE000000000000003003 /* FBMobilerunA11yCommands.h in Headers */,
+				FBCAFE000000000000003103 /* FBMobilerunActionsCommands.h in Headers */,
 				FBCAFE000000000000000009 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000F /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000015 /* FBVideoStreamManager.h in Headers */,
@@ -2860,6 +2884,8 @@
 				712A0C871DA3E55D007D02E5 /* FBXPath-Private.h in Headers */,
 				EE35AD321E3B77D600A02D78 /* XCKeyMappingPath.h in Headers */,
 				FBCAFE000000000000000002 /* FBScreenCaptureCommands.h in Headers */,
+				FBCAFE000000000000003002 /* FBMobilerunA11yCommands.h in Headers */,
+				FBCAFE000000000000003102 /* FBMobilerunActionsCommands.h in Headers */,
 				FBCAFE000000000000000008 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000E /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000014 /* FBVideoStreamManager.h in Headers */,
@@ -3332,6 +3358,8 @@
 				641EE6262240C5CA00173FCB /* FBMathUtils.m in Sources */,
 				641EE6272240C5CA00173FCB /* FBXCAXClientProxy.m in Sources */,
 				FBCAFE000000000000000006 /* FBScreenCaptureCommands.m in Sources */,
+				FBCAFE000000000000003006 /* FBMobilerunA11yCommands.m in Sources */,
+				FBCAFE000000000000003106 /* FBMobilerunActionsCommands.m in Sources */,
 				FBCAFE00000000000000000C /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000012 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000018 /* FBVideoStreamManager.m in Sources */,
@@ -3478,6 +3506,8 @@
 				EE18883B1DA661C400307AA8 /* FBMathUtils.m in Sources */,
 				7157B292221DADD2001C348C /* FBXCAXClientProxy.m in Sources */,
 				FBCAFE000000000000000005 /* FBScreenCaptureCommands.m in Sources */,
+				FBCAFE000000000000003005 /* FBMobilerunA11yCommands.m in Sources */,
+				FBCAFE000000000000003105 /* FBMobilerunActionsCommands.m in Sources */,
 				FBCAFE00000000000000000B /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000011 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000017 /* FBVideoStreamManager.m in Sources */,
@@ -3492,6 +3522,7 @@
 				71241D801FAF087500B9559F /* FBW3CMultiTouchActionsIntegrationTests.m in Sources */,
 				71BB58DE2B9631B700CB9BFE /* FBVideoRecordingTests.m in Sources */,
 				71241D7E1FAF084E00B9559F /* FBW3CTouchActionsIntegrationTests.m in Sources */,
+				FBCAFE000000000000003202 /* FBMobilerunActionsIntegrationTests.m in Sources */,
 				63FD950221F9D06100A3E356 /* FBImageProcessorTests.m in Sources */,
 				719CD8FF2126C90200C7D0C2 /* FBAutoAlertsHandlerTests.m in Sources */,
 				EE2202131ECC612200A29571 /* FBIntegrationTestCase.m in Sources */,
@@ -3558,6 +3589,7 @@
 				EE18883D1DA663EB00307AA8 /* FBMathUtilsTests.m in Sources */,
 				FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */,
 				FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */,
+				FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */,
 				FBCAFE000000000000002002 /* FBImageUtilsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

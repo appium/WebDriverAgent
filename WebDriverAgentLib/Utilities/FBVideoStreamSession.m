@@ -21,6 +21,11 @@
 
 static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 
+// scrcpy packet flags packed into the top two bits of the 8-byte presentation timestamp field.
+static const uint64_t FBScrcpyFlagConfig   = (uint64_t)1 << 63;
+static const uint64_t FBScrcpyFlagKeyFrame = (uint64_t)1 << 62;
+static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
+
 @implementation FBScreenCaptureConfiguration
 @end
 
@@ -33,6 +38,8 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 @property (nonatomic, nullable) FBTCPSocket *broadcaster;
 @property (nonatomic) uint64_t lastPresentationTimeMs;
 @property (nonatomic) uint64_t lastEncodeTimeMs;
+/** The parameter sets most recently broadcast as a scrcpy config packet (for change detection). */
+@property (nonatomic, nullable, copy) NSData *lastSentParameterSets;
 @property (atomic, getter=isActive) BOOL active;
 
 @end
@@ -155,18 +162,76 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 #pragma mark - <FBVideoEncoderDelegate>
 
 - (void)videoEncoder:(FBVideoEncoder *)encoder
-       didEncodeFrame:(NSData *)annexBData
+       didEncodeFrame:(NSData *)annexBPictureData
            isKeyFrame:(BOOL)isKeyFrame
+   presentationTimeUs:(uint64_t)presentationTimeUs
 {
-  if (annexBData.length == 0) {
+  if (annexBPictureData.length == 0) {
+    return;
+  }
+
+  if (self.configuration.framing == FBVideoFramingScrcpy) {
+    // The consumer caches config packets and prepends them to key frames itself, so the key-frame
+    // packet must carry picture data only. Emit a separate config packet whenever the parameter
+    // sets change.
+    if (isKeyFrame) {
+      NSData *parameterSets = encoder.parameterSetAnnexB;
+      if (parameterSets.length > 0 && ![parameterSets isEqualToData:self.lastSentParameterSets]) {
+        self.lastSentParameterSets = parameterSets;
+        [self broadcastData:[self.class scrcpyPacketWithPayload:parameterSets
+                                                          flags:FBScrcpyFlagConfig
+                                             presentationTimeUs:presentationTimeUs]];
+      }
+    }
+    uint64_t flags = isKeyFrame ? FBScrcpyFlagKeyFrame : 0;
+    [self broadcastData:[self.class scrcpyPacketWithPayload:annexBPictureData
+                                                      flags:flags
+                                         presentationTimeUs:presentationTimeUs]];
+    return;
+  }
+
+  // Annex-B mode: prepend the parameter sets to key frames so each IDR is independently decodable.
+  if (isKeyFrame) {
+    NSData *parameterSets = encoder.parameterSetAnnexB;
+    if (parameterSets.length > 0) {
+      NSMutableData *keyFrame = [NSMutableData dataWithCapacity:parameterSets.length + annexBPictureData.length];
+      [keyFrame appendData:parameterSets];
+      [keyFrame appendData:annexBPictureData];
+      [self broadcastData:keyFrame];
+      return;
+    }
+  }
+  [self broadcastData:annexBPictureData];
+}
+
+- (void)broadcastData:(NSData *)data
+{
+  if (data.length == 0) {
     return;
   }
   @synchronized (self.listeningClients) {
     for (GCDAsyncSocket *client in self.listeningClients) {
       // Slow clients should fail/close instead of buffering indefinitely.
-      [client writeData:annexBData withTimeout:FRAME_TIMEOUT tag:0];
+      [client writeData:data withTimeout:FRAME_TIMEOUT tag:0];
     }
   }
+}
+
++ (NSData *)scrcpyPacketWithPayload:(NSData *)payload
+                              flags:(uint64_t)flags
+                 presentationTimeUs:(uint64_t)presentationTimeUs
+{
+  uint64_t ptsAndFlags = flags | (presentationTimeUs & FBScrcpyPtsMask);
+  uint8_t header[12];
+  uint64_t bigPtsAndFlags = CFSwapInt64HostToBig(ptsAndFlags);
+  memcpy(header, &bigPtsAndFlags, sizeof(bigPtsAndFlags));
+  uint32_t bigSize = CFSwapInt32HostToBig((uint32_t)payload.length);
+  memcpy(header + sizeof(bigPtsAndFlags), &bigSize, sizeof(bigSize));
+
+  NSMutableData *packet = [NSMutableData dataWithCapacity:sizeof(header) + payload.length];
+  [packet appendBytes:header length:sizeof(header)];
+  [packet appendData:payload];
+  return packet;
 }
 
 #pragma mark - <FBTCPSocketDelegate>
@@ -183,10 +248,13 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
     }
   }
   // Hand the latest parameter sets to the new client and force a key frame so it can start
-  // decoding the raw Annex-B stream immediately.
+  // decoding immediately. In scrcpy mode the parameter sets are wrapped as a config packet.
   NSData *parameterSets = self.encoder.parameterSetAnnexB;
-  if (nil != parameterSets) {
-    [newClient writeData:parameterSets withTimeout:FRAME_TIMEOUT tag:0];
+  if (parameterSets.length > 0) {
+    NSData *payload = self.configuration.framing == FBVideoFramingScrcpy
+      ? [self.class scrcpyPacketWithPayload:parameterSets flags:FBScrcpyFlagConfig presentationTimeUs:0]
+      : parameterSets;
+    [newClient writeData:payload withTimeout:FRAME_TIMEOUT tag:0];
   }
   [self requestKeyFrame];
   // Keep reading (and discarding) any client bytes so disconnects are detected promptly.
@@ -218,6 +286,7 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
   return @{
     @"id": @(self.identifier),
     @"codec": self.configuration.codec == FBVideoCodecH265 ? @"h265" : @"h264",
+    @"framing": self.configuration.framing == FBVideoFramingScrcpy ? @"scrcpy" : @"annexb",
     @"width": @(self.configuration.width),
     @"height": @(self.configuration.height),
     @"fps": @(self.configuration.fps),

@@ -155,28 +155,40 @@ static void FBCompressionOutputCallback(void *outputCallbackRefCon,
 {
   BOOL isKeyFrame = [self.class isKeyFrameSampleBuffer:sampleBuffer];
 
-  NSMutableData *frameData = [NSMutableData data];
   if (isKeyFrame) {
     NSData *parameterSets = [self extractParameterSetsFromSampleBuffer:sampleBuffer];
     if (nil != parameterSets) {
       self.parameterSetAnnexB = parameterSets;
-      [frameData appendData:parameterSets];
     }
   }
 
+  // Deliver picture (VCL) NAL units only; the delegate decides where the parameter sets go.
   NSData *pictureData = [self annexBPictureDataFromSampleBuffer:sampleBuffer];
-  if (nil != pictureData) {
-    [frameData appendData:pictureData];
-  }
-
-  if (frameData.length == 0) {
+  if (nil == pictureData || pictureData.length == 0) {
     return;
   }
 
+  uint64_t presentationTimeUs = [self.class presentationTimeUsFromSampleBuffer:sampleBuffer];
   id<FBVideoEncoderDelegate> delegate = self.delegate;
   if (nil != delegate) {
-    [delegate videoEncoder:self didEncodeFrame:frameData isKeyFrame:isKeyFrame];
+    [delegate videoEncoder:self
+            didEncodeFrame:pictureData
+                isKeyFrame:isKeyFrame
+        presentationTimeUs:presentationTimeUs];
   }
+}
+
++ (uint64_t)presentationTimeUsFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
+{
+  CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  if (!CMTIME_IS_VALID(presentationTime)) {
+    return 0;
+  }
+  CMTime microseconds = CMTimeConvertScale(presentationTime, 1000000, kCMTimeRoundingMethod_Default);
+  if (microseconds.value < 0) {
+    return 0;
+  }
+  return (uint64_t)microseconds.value;
 }
 
 + (BOOL)isKeyFrameSampleBuffer:(CMSampleBufferRef)sampleBuffer

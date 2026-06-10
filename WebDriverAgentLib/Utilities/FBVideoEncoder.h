@@ -22,19 +22,22 @@ typedef NS_ENUM(NSUInteger, FBVideoCodec) {
 @protocol FBVideoEncoderDelegate <NSObject>
 
 /**
- Called whenever the encoder produces an encoded frame.
+ Called whenever the encoder produces an encoded picture.
 
- The data is a sequence of NAL units in Annex-B format (each prefixed with a
- 00 00 00 01 start code). For key frames the parameter sets (SPS/PPS, plus VPS for HEVC)
- are prepended ahead of the picture data, so the frame is independently decodable.
+ The data is a sequence of picture (VCL) NAL units in Annex-B format (each prefixed with a
+ 00 00 00 01 start code). Parameter sets (SPS/PPS, plus VPS for HEVC) are NOT prepended here;
+ the most recent ones are available via parameterSetAnnexB so the consumer can place them
+ according to its own wire format.
 
- @param encoder The encoder that produced the frame
- @param annexBData The encoded frame in Annex-B format
- @param isKeyFrame YES if the frame is a key (IDR) frame
+ @param encoder The encoder that produced the picture
+ @param annexBPictureData The encoded picture in Annex-B format (VCL NAL units only)
+ @param isKeyFrame YES if the picture is a key (IDR) frame
+ @param presentationTimeUs The frame presentation timestamp in microseconds
  */
 - (void)videoEncoder:(FBVideoEncoder *)encoder
-       didEncodeFrame:(NSData *)annexBData
-           isKeyFrame:(BOOL)isKeyFrame;
+       didEncodeFrame:(NSData *)annexBPictureData
+           isKeyFrame:(BOOL)isKeyFrame
+   presentationTimeUs:(uint64_t)presentationTimeUs;
 
 @end
 

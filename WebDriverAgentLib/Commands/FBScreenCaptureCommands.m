@@ -49,6 +49,12 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:codecError traceback:nil]);
   }
 
+  FBVideoFraming framing;
+  NSString *framingError = nil;
+  if (![self framingFromArguments:request.arguments framing:&framing errorMessage:&framingError]) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:framingError traceback:nil]);
+  }
+
   NSInteger width = [request.arguments[@"width"] integerValue];
   NSInteger height = [request.arguments[@"height"] integerValue];
   if (width <= 0 || height <= 0) {
@@ -57,6 +63,7 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
 
   FBScreenCaptureConfiguration *configuration = [[FBScreenCaptureConfiguration alloc] init];
   configuration.codec = codec;
+  configuration.framing = framing;
   // Most hardware encoders require even dimensions.
   configuration.width = (NSUInteger)(width - (width % 2));
   configuration.height = (NSUInteger)(height - (height % 2));
@@ -176,6 +183,41 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
   }
   if (errorMessage) {
     *errorMessage = [NSString stringWithFormat:@"Unsupported codec '%@'. Supported values are 'h264' and 'h265'", codecName];
+  }
+  return NO;
+}
+
++ (BOOL)framingFromArguments:(NSDictionary *)arguments
+                     framing:(FBVideoFraming *)framing
+                errorMessage:(NSString **)errorMessage
+{
+  id framingValue = arguments[@"framing"];
+  if (nil == framingValue) {
+    *framing = FBVideoFramingAnnexB;
+    return YES;
+  }
+  if (![framingValue isKindOfClass:[NSString class]]) {
+    if (errorMessage) {
+      *errorMessage = @"'framing' must be a string ('annexb' or 'scrcpy')";
+    }
+    return NO;
+  }
+  NSString *framingName = (NSString *)framingValue;
+  if (framingName.length == 0) {
+    *framing = FBVideoFramingAnnexB;
+    return YES;
+  }
+  NSString *normalized = framingName.lowercaseString;
+  if ([normalized isEqualToString:@"annexb"] || [normalized isEqualToString:@"annex-b"] || [normalized isEqualToString:@"raw"]) {
+    *framing = FBVideoFramingAnnexB;
+    return YES;
+  }
+  if ([normalized isEqualToString:@"scrcpy"] || [normalized isEqualToString:@"packet"] || [normalized isEqualToString:@"packetized"]) {
+    *framing = FBVideoFramingScrcpy;
+    return YES;
+  }
+  if (errorMessage) {
+    *errorMessage = [NSString stringWithFormat:@"Unsupported framing '%@'. Supported values are 'annexb' and 'scrcpy'", framingName];
   }
   return NO;
 }
