@@ -140,6 +140,20 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (NSInteger)screenCaptureServerPort;
 
 /**
+ The loopback TCP port the ReplayKit broadcast extension connects to. The default value is 9300.
+ It can be overridden via the BROADCAST_CONTROL_PORT environment variable (the extension itself
+ always uses the compile-time default, so overriding requires rebuilding the extension too).
+ */
++ (NSInteger)broadcastControlPort;
+
+/**
+ The bundle identifier of the embedded ReplayKit broadcast upload extension. Defaults to the
+ runner app's bundle identifier with a '.broadcast' suffix; can be overridden via the
+ BROADCAST_EXT_BUNDLE_ID environment variable.
+ */
++ (NSString *)broadcastExtensionBundleId;
+
+/**
  The scaling factor for frames of the mjpeg stream. The default (and maximum) value is 100,
  which does not perform any scaling. The minimum value must be greater than zero.
  ! Setting this to a value less than 100, especially together with orientation fixing enabled

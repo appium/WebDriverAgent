@@ -17,6 +17,7 @@
 #import <UIKit/UIKit.h>
 
 #include "TargetConditionals.h"
+#import "FBBroadcastProtocol.h"
 #import "FBXCodeCompatibility.h"
 #import "XCAXClient_iOS+FBSnapshotReqParams.h"
 #import "XCTestPrivateSymbols.h"
@@ -173,6 +174,25 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   }
 
   return DefaultScreenCaptureServerPort;
+}
+
++ (NSInteger)broadcastControlPort
+{
+  if (NSProcessInfo.processInfo.environment[@"BROADCAST_CONTROL_PORT"] &&
+      [NSProcessInfo.processInfo.environment[@"BROADCAST_CONTROL_PORT"] length] > 0) {
+    return [NSProcessInfo.processInfo.environment[@"BROADCAST_CONTROL_PORT"] integerValue];
+  }
+
+  return FBBroadcastDefaultControlPort;
+}
+
++ (NSString *)broadcastExtensionBundleId
+{
+  NSString *fromEnv = NSProcessInfo.processInfo.environment[@"BROADCAST_EXT_BUNDLE_ID"];
+  if (fromEnv.length > 0) {
+    return fromEnv;
+  }
+  return [NSBundle.mainBundle.bundleIdentifier stringByAppendingString:@".broadcast"];
 }
 
 + (CGFloat)mjpegScalingFactor

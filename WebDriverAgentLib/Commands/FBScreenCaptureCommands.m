@@ -8,6 +8,7 @@
 
 #import "FBScreenCaptureCommands.h"
 
+#import "FBBroadcastManager.h"
 #import "FBConfiguration.h"
 #import "FBRouteRequest.h"
 #import "FBVideoStreamManager.h"
@@ -23,6 +24,16 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
 {
   return
   @[
+    // The broadcast routes must be registered before the '/:id' routes: RoutingHTTPServer
+    // matches routes in registration order, so 'GET /mobilerun/screencapture/broadcast' would
+    // otherwise be swallowed by 'GET /mobilerun/screencapture/:id'.
+    [[FBRoute POST:@"/mobilerun/screencapture/broadcast/start"] respondWithTarget:self action:@selector(handleStartBroadcast:)],
+    [[FBRoute POST:@"/mobilerun/screencapture/broadcast/stop"] respondWithTarget:self action:@selector(handleStopBroadcast:)],
+    [[FBRoute GET:@"/mobilerun/screencapture/broadcast"] respondWithTarget:self action:@selector(handleGetBroadcastStatus:)],
+    [[FBRoute POST:@"/mobilerun/screencapture/broadcast/start"].withoutSession respondWithTarget:self action:@selector(handleStartBroadcast:)],
+    [[FBRoute POST:@"/mobilerun/screencapture/broadcast/stop"].withoutSession respondWithTarget:self action:@selector(handleStopBroadcast:)],
+    [[FBRoute GET:@"/mobilerun/screencapture/broadcast"].withoutSession respondWithTarget:self action:@selector(handleGetBroadcastStatus:)],
+
     [[FBRoute POST:@"/mobilerun/screencapture/start"] respondWithTarget:self action:@selector(handleStartScreenCapture:)],
     [[FBRoute POST:@"/mobilerun/screencapture/stop"] respondWithTarget:self action:@selector(handleStopAllScreenCapture:)],
     [[FBRoute GET:@"/mobilerun/screencapture"] respondWithTarget:self action:@selector(handleListScreenCapture:)],
@@ -40,6 +51,59 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
 }
 
 #pragma mark - Commands
+
++ (id<FBResponsePayload>)handleStartBroadcast:(FBRouteRequest *)request
+{
+  NSTimeInterval timeout = 30.0;
+  NSNumber *timeoutArg = request.arguments[@"timeout"];
+  if ([timeoutArg isKindOfClass:NSNumber.class] && timeoutArg.doubleValue > 0) {
+    timeout = timeoutArg.doubleValue;
+  }
+  NSMutableArray<NSString *> *confirmButtonLabels = [NSMutableArray array];
+  id labelsArg = request.arguments[@"confirmButtonLabels"];
+  if ([labelsArg isKindOfClass:NSArray.class]) {
+    for (id label in (NSArray *)labelsArg) {
+      if ([label isKindOfClass:NSString.class] && [(NSString *)label length] > 0) {
+        [confirmButtonLabels addObject:label];
+      }
+    }
+  }
+  NSNumber *restoreArg = request.arguments[@"restoreForegroundApp"];
+  BOOL restoreForegroundApp = [restoreArg isKindOfClass:NSNumber.class] ? restoreArg.boolValue : YES;
+
+  NSError *error;
+  if (![FBBroadcastManager.sharedInstance startBroadcastWithTimeout:timeout
+                                                confirmButtonLabels:confirmButtonLabels
+                                               restoreForegroundApp:restoreForegroundApp
+                                                              error:&error]) {
+    if ([error.domain isEqualToString:FBBroadcastManagerErrorDomain]) {
+      switch (error.code) {
+        case FBBroadcastManagerErrorUnsupported:
+          return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:error.localizedDescription traceback:nil]);
+        case FBBroadcastManagerErrorTimeout:
+          return FBResponseWithStatus([FBCommandStatus timeoutErrorWithMessage:error.localizedDescription traceback:nil]);
+        default:
+          break;
+      }
+    }
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithObject([FBBroadcastManager.sharedInstance statusDictionary]);
+}
+
++ (id<FBResponsePayload>)handleStopBroadcast:(FBRouteRequest *)request
+{
+  NSError *error;
+  if (![FBBroadcastManager.sharedInstance stopBroadcastWithError:&error]) {
+    return FBResponseWithStatus([FBCommandStatus timeoutErrorWithMessage:error.localizedDescription traceback:nil]);
+  }
+  return FBResponseWithObject([FBBroadcastManager.sharedInstance statusDictionary]);
+}
+
++ (id<FBResponsePayload>)handleGetBroadcastStatus:(FBRouteRequest *)request
+{
+  return FBResponseWithObject([FBBroadcastManager.sharedInstance statusDictionary]);
+}
 
 + (id<FBResponsePayload>)handleStartScreenCapture:(FBRouteRequest *)request
 {

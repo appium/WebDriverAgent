@@ -22,6 +22,22 @@
                </EnvironmentBuildable>
             </ActionContent>
          </ExecutionAction>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Embed broadcast extension into Runner.app"
+               scriptText = "&quot;${SRCROOT}/Scripts/embed-broadcast-extension.sh&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "EEF988291C486603005CA669"
+                     BuildableName = "WebDriverAgentRunner.xctest"
+                     BlueprintName = "WebDriverAgentRunner"
+                     ReferencedContainer = "container:WebDriverAgent.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
       </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
