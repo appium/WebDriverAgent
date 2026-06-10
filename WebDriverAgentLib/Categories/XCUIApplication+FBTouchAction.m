@@ -96,6 +96,10 @@
   NSMutableDictionary<NSNumber *, XCPointerEventPath *> *paths = [NSMutableDictionary dictionary];
   NSMutableDictionary<NSNumber *, NSNumber *> *offsets = [NSMutableDictionary dictionary];
   NSMutableArray<NSNumber *> *order = [NSMutableArray array];
+  // Pointers whose path was just created by a leading pointerMove. That move's
+  // initForTouchAtPoint already presses the touch down, so a pointerDown immediately after it is
+  // redundant — the W3C synthesizer no-ops that first down and we match it.
+  NSMutableSet<NSNumber *> *leadingMovePointers = [NSMutableSet set];
 
   for (id rawItem in items) {
     if (![rawItem isKindOfClass:NSDictionary.class]) {
@@ -118,6 +122,7 @@
     double offsetMs = offsets[pointerId] ? offsets[pointerId].doubleValue : 0.0;
     double durationMs = [item[@"duration"] isKindOfClass:NSNumber.class] ? [item[@"duration"] doubleValue] : 0.0;
     XCPointerEventPath *path = paths[pointerId];
+    BOOL afterLeadingMove = [leadingMovePointers containsObject:pointerId];
 
     if ([type isEqualToString:@"pause"]) {
       // No event; only advances this pointer's offset below.
@@ -130,9 +135,10 @@
         path = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:FBMillisToSeconds(offsetMs)];
         paths[pointerId] = path;
         [order addObject:pointerId];
-      } else {
+      } else if (!afterLeadingMove) {
         [path pressDownAtOffset:FBMillisToSeconds(offsetMs)];
       }
+      // else: a leading pointerMove already pressed the touch down; skip the redundant press.
     } else if ([type isEqualToString:@"pointerMove"]) {
       CGPoint point = CGPointZero;
       if (![self fb_mobilerunPoint:&point fromItem:item error:error]) {
@@ -142,6 +148,7 @@
         path = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:FBMillisToSeconds(offsetMs + durationMs)];
         paths[pointerId] = path;
         [order addObject:pointerId];
+        [leadingMovePointers addObject:pointerId];
       } else {
         [path moveToPoint:point atOffset:FBMillisToSeconds(offsetMs + durationMs)];
       }
@@ -158,6 +165,11 @@
         withDescriptionFormat:@"Unsupported action type '%@'. Supported: pointerDown, pointerMove, pointerUp, pause", type]
        buildError:error];
       return nil;
+    }
+
+    // The leading-move window only covers the single item immediately following the move.
+    if (afterLeadingMove) {
+      [leadingMovePointers removeObject:pointerId];
     }
 
     offsets[pointerId] = @(offsetMs + durationMs);

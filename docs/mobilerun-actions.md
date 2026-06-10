@@ -28,7 +28,9 @@ the concurrent moves matching `duration`s. `pointerDown` happens at `offset`,
 `pointerMove` completes at `offset + duration`, and `pointerUp` at `offset` — identical
 timing to the W3C path. A re-`pointerDown` on an existing path presses at the pointer's
 current location (same-spot double-tap); insert a `pointerMove` first to re-press
-elsewhere.
+elsewhere. A `pointerDown` immediately following a *leading* `pointerMove` (one that
+created the path) is a no-op — that move already pressed the touch down — so W3C-style
+`[pointerMove, pointerDown, pointerUp]` tap/swipe sequences work unchanged.
 
 ## Examples
 

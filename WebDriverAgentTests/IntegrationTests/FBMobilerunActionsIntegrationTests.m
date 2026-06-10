@@ -55,6 +55,22 @@
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
 }
 
+- (void)testLeadingMoveThenTapShowsAlert
+{
+  // W3C-style sequence: position with a leading pointerMove, then pointerDown/up. The leading
+  // move already presses the touch down, so the following pointerDown must not double-press.
+  CGPoint p = [self alertButtonCenter];
+  NSArray *actions = @[
+    @{@"type": @"pointerMove", @"x": @(p.x), @"y": @(p.y)},
+    @{@"type": @"pointerDown", @"x": @(p.x), @"y": @(p.y)},
+    @{@"type": @"pointerUp", @"x": @(p.x), @"y": @(p.y)},
+  ];
+  NSError *error;
+  XCTAssertTrue([self.testedApplication fb_performMobilerunActions:actions error:&error]);
+  XCTAssertNil(error);
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+}
+
 - (void)testRejectsNonArrayAndEmpty
 {
   NSError *error;
