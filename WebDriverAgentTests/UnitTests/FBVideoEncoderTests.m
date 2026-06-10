@@ -27,11 +27,12 @@
 }
 
 - (void)videoEncoder:(FBVideoEncoder *)encoder
-       didEncodeFrame:(NSData *)annexBData
+       didEncodeFrame:(NSData *)annexBPictureData
            isKeyFrame:(BOOL)isKeyFrame
+   presentationTimeUs:(uint64_t)presentationTimeUs
 {
   @synchronized (self.frames) {
-    [self.frames addObject:annexBData];
+    [self.frames addObject:annexBPictureData];
     [self.keyFrameFlags addObject:@(isKeyFrame)];
   }
   [self.frameExpectation fulfill];
@@ -95,7 +96,8 @@
   }
   XCTAssertGreaterThan(frames.count, 0u);
 
-  // Every emitted frame must be a sequence of Annex-B NAL units.
+  // Every emitted picture must be a sequence of Annex-B NAL units (parameter sets are exposed
+  // separately via parameterSetAnnexB and are no longer prepended to the picture data).
   const uint8_t startCode[4] = {0x00, 0x00, 0x00, 0x01};
   for (NSData *frame in frames) {
     XCTAssertGreaterThanOrEqual(frame.length, 4u);
@@ -110,7 +112,7 @@
     return;
   }
 
-  // The first frame is a key frame and must carry parameter sets.
+  // The first frame is a key frame, and the encoder must expose its parameter sets.
   XCTAssertTrue(flags.firstObject.boolValue, @"The first emitted frame should be a key frame");
   XCTAssertGreaterThan(encoder.parameterSetAnnexB.length, 4u);
   XCTAssertEqual(0, memcmp(encoder.parameterSetAnnexB.bytes, startCode, 4),

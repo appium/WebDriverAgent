@@ -34,6 +34,7 @@
 		FBCAFE000000000000000018 /* FBVideoStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000016 /* FBVideoStreamManager.m */; };
 		FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */; };
 		FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE00000000000000001B /* FBVideoEncoderTests.m */; };
+		FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */; };
 		0E0413382DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E0413392DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E04133B2DF1E15900AF007C /* XCUIElement+FBMinMax.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */; };
@@ -976,6 +977,7 @@
 		FBCAFE000000000000000016 /* FBVideoStreamManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamManager.m; sourceTree = "<group>"; };
 		FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPixelBufferConverterTests.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000001B /* FBVideoEncoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoEncoderTests.m; sourceTree = "<group>"; };
+		FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSessionTests.m; sourceTree = "<group>"; };
 		0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBMinMax.m"; sourceTree = "<group>"; };
 		0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBMinMax.h"; sourceTree = "<group>"; };
 		1357E295233D05240054BDB8 /* XCUIHitPointResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIHitPointResult.h; sourceTree = "<group>"; };
@@ -2170,6 +2172,7 @@
 				713914591DF01989005896C2 /* XCUIElementHelpersTests.m */,
 				FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */,
 				FBCAFE00000000000000001B /* FBVideoEncoderTests.m */,
+				FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */,
 				FBCAFE000000000000002001 /* FBImageUtilsTests.m */,
 			);
 			path = UnitTests;
@@ -3570,6 +3573,7 @@
 				EE18883D1DA663EB00307AA8 /* FBMathUtilsTests.m in Sources */,
 				FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */,
 				FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */,
+				FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */,
 				FBCAFE000000000000002002 /* FBImageUtilsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
