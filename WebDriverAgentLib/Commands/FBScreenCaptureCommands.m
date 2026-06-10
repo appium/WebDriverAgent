@@ -15,6 +15,7 @@
 
 static const NSUInteger DEFAULT_CAPTURE_FPS = 30;
 static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
+static const CGFloat DEFAULT_CAPTURE_QUALITY = 0.8;
 
 @implementation FBScreenCaptureCommands
 
@@ -133,6 +134,14 @@ static const NSUInteger DEFAULT_CAPTURE_BITRATE = 6000000;
   configuration.height = (NSUInteger)(height - (height % 2));
   NSNumber *bitrate = request.arguments[@"bitrate"];
   configuration.bitrate = (nil != bitrate && bitrate.integerValue > 0) ? bitrate.unsignedIntegerValue : DEFAULT_CAPTURE_BITRATE;
+  id quality = request.arguments[@"quality"];
+  if (nil == quality) {
+    configuration.quality = DEFAULT_CAPTURE_QUALITY;
+  } else if (![quality isKindOfClass:NSNumber.class] || ((NSNumber *)quality).doubleValue < 0.0 || ((NSNumber *)quality).doubleValue > 1.0) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"'quality' must be a number in the range 0.0..1.0" traceback:nil]);
+  } else {
+    configuration.quality = (CGFloat)((NSNumber *)quality).doubleValue;
+  }
   NSNumber *fps = request.arguments[@"fps"];
   configuration.fps = (nil != fps && fps.integerValue > 0) ? fps.unsignedIntegerValue : DEFAULT_CAPTURE_FPS;
   NSNumber *port = request.arguments[@"port"];

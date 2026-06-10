@@ -28,7 +28,6 @@ static const NSUInteger PORT_SCAN_RANGE = 64;
 static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
-static const CGFloat CAPTURE_COMPRESSION_QUALITY = 0.8;
 static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 
 @interface FBVideoStreamManager ()
@@ -317,8 +316,15 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   }
 
   NSError *error;
+  CGFloat captureQuality = 1.0;
+  for (FBVideoStreamSession *session in snapshot) {
+    if ([session requiresLocalFrames]) {
+      captureQuality = MIN(captureQuality, session.configuration.quality);
+    }
+  }
+
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
-                                                           compressionQuality:CAPTURE_COMPRESSION_QUALITY
+                                                           compressionQuality:captureQuality
                                                                           uti:UTTypeJPEG
                                                                       timeout:FRAME_TIMEOUT
                                                                         error:&error];

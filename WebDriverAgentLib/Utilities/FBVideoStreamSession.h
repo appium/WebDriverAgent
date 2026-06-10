@@ -40,6 +40,8 @@ typedef NS_ENUM(NSUInteger, FBVideoStreamSource) {
 @property (nonatomic) NSUInteger height;
 /** The target average bitrate in bits per second. */
 @property (nonatomic) NSUInteger bitrate;
+/** JPEG compression quality used when capturing XCTest screenshot frames before video encoding. */
+@property (nonatomic) CGFloat quality;
 /** The capture/encode framerate in frames per second. */
 @property (nonatomic) NSUInteger fps;
 /** The framing of the broadcast byte stream (raw Annex-B by default). */

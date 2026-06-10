@@ -42,6 +42,7 @@ not a WDA automation session is active.
 | `codec` | string | no | `"h264"` | `h264`/`avc` or `h265`/`hevc`. |
 | `framing` | string | no | `"annexb"` | `annexb`/`annex-b`/`raw`, or `scrcpy`/`packet`/`packetized`. See [Wire formats](#wire-formats). |
 | `bitrate` | int | no | `6000000` | Target average bits/sec. |
+| `quality` | float | no | `0.8` | JPEG quality (`0.0`–`1.0`) used for XCTest screenshot capture before local H.264/H.265 encoding. Lower values can reduce screenshot capture/decode cost. Does not affect ReplayKit/broadcast-source frames. |
 | `fps` | int | no | `30` | Capture/encode frame rate. |
 | `port` | int | no | auto | `0` or omitted → auto-assign from **9200** (env `SCREEN_CAPTURE_SERVER_PORT` overrides the base), scanning forward up to 64 ports. An explicit port (1–65535) is tried once and surfaces a bind failure. |
 
@@ -58,6 +59,7 @@ Returned by `start` and `GET …/:id`; also the array items of the list response
   "height": 1334,
   "fps": 30,
   "bitrate": 6000000,
+  "quality": 0.8,
   "port": 9200,
   "clients": 0
 }
@@ -100,7 +102,7 @@ Start (raw, default), against `http://<device>:8100`:
 ```bash
 curl -s -X POST http://localhost:8100/mobilerun/screencapture/start \
   -H 'Content-Type: application/json' \
-  -d '{"width":750,"height":1334,"codec":"h264","fps":30}'
+  -d '{"width":750,"height":1334,"codec":"h264","fps":30,"quality":0.5}'
 # → { "id":1, "framing":"annexb", "port":9200, ... }
 ```
 
@@ -132,5 +134,8 @@ curl -s -X POST http://localhost:8100/mobilerun/screencapture/1/stop
   than buffered (1 s write timeout), and `TCP_NODELAY` is on for low latency.
 - A late joiner won't decode until the next key frame — hit the `/keyframe` endpoint (connecting
   already forces one) if you need an immediate resync.
+- If multiple screenshot-source sessions request different `quality` values, WDA captures the
+  shared local screenshot frame at the lowest requested quality and fans it out to all local
+  encoders.
 - For `scrcpy` framing you must parse the 12-byte header yourself (or reuse `ReadFrame` from
   `h264reader.go`); you can't pipe it straight into ffmpeg the way you can with `annexb`.

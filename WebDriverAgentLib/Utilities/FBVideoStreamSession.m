@@ -25,8 +25,18 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 static const uint64_t FBScrcpyFlagConfig   = (uint64_t)1 << 63;
 static const uint64_t FBScrcpyFlagKeyFrame = (uint64_t)1 << 62;
 static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
+static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
 
 @implementation FBScreenCaptureConfiguration
+
+- (instancetype)init
+{
+  if ((self = [super init])) {
+    _quality = FBDefaultScreenCaptureQuality;
+  }
+  return self;
+}
+
 @end
 
 
@@ -386,6 +396,7 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
     @"height": @(self.configuration.height),
     @"fps": @(self.configuration.fps),
     @"bitrate": @(self.configuration.bitrate),
+    @"quality": @(self.configuration.quality),
     @"port": @(self.configuration.port),
     @"clients": @(clientCount),
     @"source": self.activeSource == FBVideoStreamSourceBroadcast ? @"replaykit" : @"screenshot",
