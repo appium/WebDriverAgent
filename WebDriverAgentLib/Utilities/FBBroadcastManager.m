@@ -8,12 +8,16 @@
 
 #import "FBBroadcastManager.h"
 
+#include <time.h>
+#import <UIKit/UIKit.h>
+
 #import "FBBroadcastControlServer.h"
 #import "FBBroadcastPickerHost.h"
 #import "FBBroadcastProtocol.h"
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBRunLoopSpinner.h"
+#import "FBUnattachedAppLauncher.h"
 #import "FBVideoStreamManager.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
@@ -23,6 +27,14 @@ NSErrorDomain const FBBroadcastManagerErrorDomain = @"com.facebook.WebDriverAgen
 #if !TARGET_OS_SIMULATOR && !TARGET_OS_TV
 static const NSTimeInterval FOREGROUND_TIMEOUT = 5.0;
 static const NSTimeInterval CONFIRM_BUTTON_TIMEOUT = 10.0;
+// The picker press is dropped silently by the system when it fires before the scene is fully
+// active, so it is re-fired periodically until the confirmation sheet shows up.
+static const uint64_t PICKER_RETRIGGER_INTERVAL_MS = 2000;
+
+static uint64_t FBBroadcastNowMs(void)
+{
+  return clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
+}
 #endif
 static const NSTimeInterval STOP_TIMEOUT = 5.0;
 
@@ -131,28 +143,47 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     [self startListening];
   }
 
+  uint64_t startedMs = FBBroadcastNowMs();
   XCUIApplication *runner = [[XCUIApplication alloc] initWithBundleIdentifier:(NSString *)NSBundle.mainBundle.bundleIdentifier];
   XCUIApplication *previousApp = nil;
-  if (restoreForegroundApp) {
+  BOOL runnerIsActive = UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
+  // When the runner is already frontmost there is neither an app to restore nor a need for the
+  // (slow) active-app lookup.
+  if (restoreForegroundApp && !runnerIsActive) {
     XCUIApplication *active = XCUIApplication.fb_activeApplication;
     if (nil != active && ![active.bundleID isEqualToString:runner.bundleID]) {
       previousApp = active;
     }
+    [FBLogger logFmt:@"broadcast/start: active-app lookup finished after %llums", FBBroadcastNowMs() - startedMs];
   }
 
-  // The picker can only present from a foreground app, so bring the runner up first.
-  [runner activate];
-  BOOL foregrounded = [[[[FBRunLoopSpinner new] timeout:FOREGROUND_TIMEOUT] interval:0.1] spinUntilTrue:^BOOL{
-    return runner.state == XCUIApplicationStateRunningForeground;
-  }];
-  if (!foregrounded) {
-    if (error) {
-      *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
-                                   code:FBBroadcastManagerErrorTimeout
-                               userInfo:@{NSLocalizedDescriptionKey: @"The runner app could not be brought to the foreground to present the broadcast picker"}];
+  // The picker can only present from a foreground app, so bring the runner up first. The
+  // LaunchServices route is used instead of XCUIApplication.activate because activating the
+  // runner from inside itself blocks on a self-quiescence wait that can only ever time out:
+  // the waiting thread is the very main thread whose idleness is being awaited.
+  if (!runnerIsActive) {
+    BOOL launched = [FBUnattachedAppLauncher launchAppWithBundleId:(NSString *)NSBundle.mainBundle.bundleIdentifier];
+    BOOL foregrounded = launched && [[[[FBRunLoopSpinner new] timeout:2.0] interval:0.05] spinUntilTrue:^BOOL{
+      return UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
+    }];
+    if (!foregrounded) {
+      // Reliable but slow fallback: XCTest's activation waits out its quiescence timeout.
+      [FBLogger log:@"broadcast/start: LaunchServices foregrounding failed; falling back to XCUIApplication.activate"];
+      [runner activate];
+      foregrounded = [[[[FBRunLoopSpinner new] timeout:FOREGROUND_TIMEOUT] interval:0.05] spinUntilTrue:^BOOL{
+        return UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
+      }];
     }
-    return NO;
+    if (!foregrounded) {
+      if (error) {
+        *error = [NSError errorWithDomain:FBBroadcastManagerErrorDomain
+                                     code:FBBroadcastManagerErrorTimeout
+                                 userInfo:@{NSLocalizedDescriptionKey: @"The runner app could not be brought to the foreground to present the broadcast picker"}];
+      }
+      return NO;
+    }
   }
+  [FBLogger logFmt:@"broadcast/start: runner foreground after %llums", FBBroadcastNowMs() - startedMs];
 
   NSError *pickerError;
   if (![FBBroadcastPickerHost triggerPickerWithPreferredExtension:FBConfiguration.broadcastExtensionBundleId
@@ -164,13 +195,16 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     }
     return NO;
   }
+  [FBLogger logFmt:@"broadcast/start: picker triggered after %llums", FBBroadcastNowMs() - startedMs];
 
   // The confirmation sheet is hosted by different processes depending on the iOS version, so
   // look for the confirm button in both the system app and the runner itself.
   NSArray<NSString *> *labels = confirmButtonLabels.count > 0 ? confirmButtonLabels : @[@"Start Broadcast"];
+  NSArray<XCUIApplication *> *candidateApps = @[XCUIApplication.fb_systemApplication, runner];
   __block XCUIElement *confirmButton = nil;
-  [[[[FBRunLoopSpinner new] timeout:CONFIRM_BUTTON_TIMEOUT] interval:0.3] spinUntilTrue:^BOOL{
-    for (XCUIApplication *app in @[XCUIApplication.fb_systemApplication, runner]) {
+  __block uint64_t lastTriggerMs = FBBroadcastNowMs();
+  [[[[FBRunLoopSpinner new] timeout:CONFIRM_BUTTON_TIMEOUT] interval:0.25] spinUntilTrue:^BOOL{
+    for (XCUIApplication *app in candidateApps) {
       for (NSString *label in labels) {
         XCUIElement *candidate = app.buttons[label];
         if (candidate.exists) {
@@ -184,6 +218,12 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
         return YES;
       }
     }
+    if (FBBroadcastNowMs() - lastTriggerMs >= PICKER_RETRIGGER_INTERVAL_MS) {
+      lastTriggerMs = FBBroadcastNowMs();
+      [FBLogger log:@"broadcast/start: confirmation sheet not visible yet; re-triggering the picker"];
+      [FBBroadcastPickerHost triggerPickerWithPreferredExtension:FBConfiguration.broadcastExtensionBundleId
+                                                           error:nil];
+    }
     return NO;
   }];
   if (nil == confirmButton) {
@@ -196,11 +236,13 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     return NO;
   }
   [confirmButton tap];
+  [FBLogger logFmt:@"broadcast/start: confirmation tapped after %llums", FBBroadcastNowMs() - startedMs];
 
   // Cover the system's 3-2-1 countdown plus the extension's connect/HELLO round trip.
   BOOL connected = [[[[FBRunLoopSpinner new] timeout:(timeout > 0 ? timeout : 30.0)] interval:0.3] spinUntilTrue:^BOOL{
     return self.isExtensionConnected;
   }];
+  [FBLogger logFmt:@"broadcast/start: %@ after %llums", connected ? @"extension connected" : @"extension connect timeout", FBBroadcastNowMs() - startedMs];
   [FBBroadcastPickerHost dismiss];
   if (!connected) {
     if (error) {
