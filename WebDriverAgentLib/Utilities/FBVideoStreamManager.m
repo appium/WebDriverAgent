@@ -87,7 +87,12 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     if (autoAssignPort) {
       configuration.port = [self nextAutoPortLocked];
     }
+    // Reserve the identifier under the lock. Otherwise two concurrent starts read the same
+    // value (it was previously incremented only after the slow socket/encoder bind, outside the
+    // lock) and the later insert overwrites the earlier session in self.sessions, orphaning its
+    // still-running server with no id to stop it by.
     identifier = self.nextSessionIdentifier;
+    self.nextSessionIdentifier += 1;
   }
 
   FBVideoStreamSession *session = [self startBoundSessionWithIdentifier:identifier
@@ -101,7 +106,6 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   NSUInteger generation = 0;
   @synchronized (self.sessions) {
     self.sessions[@(identifier)] = session;
-    self.nextSessionIdentifier += 1;
     self.mainScreenID = [XCUIScreen.mainScreen displayID];
     if (!self.isStreaming) {
       self.isStreaming = YES;
