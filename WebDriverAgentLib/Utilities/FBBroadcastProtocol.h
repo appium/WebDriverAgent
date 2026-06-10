@@ -126,6 +126,13 @@ NSData *FBBroadcastEncodeVideoFramePayload(uint64_t ptsUs,
                                            uint8_t orientation,
                                            NSData *annexBPictureData);
 
+/** Builds a complete VIDEO_FRAME wire message without first materializing a separate payload. */
+NSData *FBBroadcastEncodeVideoFrameMessage(uint32_t sessionId,
+                                           uint64_t ptsUs,
+                                           BOOL isKeyFrame,
+                                           uint8_t orientation,
+                                           NSData *annexBPictureData);
+
 /**
  Parses a VIDEO_FRAME payload.
 

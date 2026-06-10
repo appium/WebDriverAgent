@@ -125,6 +125,38 @@ NSData *FBBroadcastEncodeVideoFramePayload(uint64_t ptsUs,
   return payload;
 }
 
+NSData *FBBroadcastEncodeVideoFrameMessage(uint32_t sessionId,
+                                           uint64_t ptsUs,
+                                           BOOL isKeyFrame,
+                                           uint8_t orientation,
+                                           NSData *annexBPictureData)
+{
+  static const NSUInteger prefixLength = sizeof(uint64_t) + sizeof(uint8_t);
+  NSUInteger payloadLength = prefixLength + annexBPictureData.length;
+  NSMutableData *message = [NSMutableData dataWithCapacity:FBBroadcastHeaderLength + payloadLength];
+
+  uint32_t bigMagic = CFSwapInt32HostToBig(FBBroadcastProtocolMagic);
+  [message appendBytes:&bigMagic length:sizeof(bigMagic)];
+  uint8_t version = FBBroadcastProtocolVersion;
+  [message appendBytes:&version length:sizeof(version)];
+  uint8_t messageType = (uint8_t)FBBroadcastMessageTypeVideoFrame;
+  [message appendBytes:&messageType length:sizeof(messageType)];
+  uint16_t reserved = 0;
+  [message appendBytes:&reserved length:sizeof(reserved)];
+  uint32_t bigSessionId = CFSwapInt32HostToBig(sessionId);
+  [message appendBytes:&bigSessionId length:sizeof(bigSessionId)];
+  uint32_t bigPayloadLength = CFSwapInt32HostToBig((uint32_t)payloadLength);
+  [message appendBytes:&bigPayloadLength length:sizeof(bigPayloadLength)];
+
+  uint64_t bigPts = CFSwapInt64HostToBig(ptsUs);
+  [message appendBytes:&bigPts length:sizeof(bigPts)];
+  uint8_t flags = (isKeyFrame ? FBBroadcastFrameFlagKeyFrame : 0)
+    | (uint8_t)((orientation & FBBroadcastFrameOrientationMask) << FBBroadcastFrameOrientationShift);
+  [message appendBytes:&flags length:sizeof(flags)];
+  [message appendData:annexBPictureData];
+  return message;
+}
+
 BOOL FBBroadcastParseVideoFramePayload(NSData *payload,
                                        uint64_t *outPtsUs,
                                        BOOL *outIsKeyFrame,

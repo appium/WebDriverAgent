@@ -20,21 +20,35 @@
 static NSString *const FBExtPipelineErrorDomain = @"com.facebook.WebDriverAgent.FBExtSessionPipeline";
 
 // Bounds the scaled-buffer pool so a stuck consumer cannot grow the extension past its ~50MB cap.
-static const int POOL_ALLOCATION_THRESHOLD = 3;
+static const int POOL_ALLOCATION_THRESHOLD = 4;
 
-@interface FBExtSessionPipeline () <FBVideoEncoderDelegate>
+@interface FBExtSessionPipeline () <FBVideoEncoderDelegate> {
+  CMSampleBufferRef _pendingSampleBuffer;
+}
 
 @property (nonatomic, weak) id<FBExtMessageSink> sink;
 @property (nonatomic) dispatch_queue_t queue;
 @property (nonatomic, nullable) FBVideoEncoder *encoder;
 @property (nonatomic) VTPixelTransferSessionRef transferSession;
 @property (nonatomic) CVPixelBufferPoolRef bufferPool;
+@property (nonatomic) NSUInteger width;
+@property (nonatomic) NSUInteger height;
 @property (nonatomic) NSUInteger fps;
-@property (atomic) uint64_t lastSubmitTimeMs;
-@property (atomic) BOOL inFlight;
+@property (nonatomic) uint64_t lastSubmitTimeMs;
+@property (nonatomic) BOOL inFlight;
+@property (nonatomic) uint64_t pendingSubmitTimeMs;
+@property (nonatomic) uint8_t pendingOrientation;
 @property (atomic) BOOL active;
 @property (atomic) uint8_t currentOrientation;
+@property (nonatomic) BOOL directSourceEncodingDisabled;
 @property (nonatomic, nullable, copy) NSData *lastSentParameterSets;
+
+- (void)replacePendingSampleBuffer:(CMSampleBufferRef)sampleBuffer
+                           atTimeMs:(uint64_t)nowMs
+                        orientation:(uint8_t)orientation;
+- (nullable CMSampleBufferRef)copyPendingSampleBufferAtTimeMs:(uint64_t *)timeMs
+                                                  orientation:(uint8_t *)orientation;
+- (void)clearPendingSampleBufferLocked;
 
 @end
 
@@ -73,6 +87,8 @@ static const int POOL_ALLOCATION_THRESHOLD = 3;
       return nil;
     }
     _fps = fps;
+    _width = width;
+    _height = height;
 
     OSStatus status = VTPixelTransferSessionCreate(kCFAllocatorDefault, &_transferSession);
     if (status != noErr || NULL == _transferSession) {
@@ -134,38 +150,123 @@ static const int POOL_ALLOCATION_THRESHOLD = 3;
   if (!self.active) {
     return;
   }
-  self.currentOrientation = orientation;
 
   // Respect this session's framerate even though ReplayKit may deliver faster.
   uint64_t nowMs = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
   uint64_t minIntervalMs = self.fps > 0 ? (uint64_t)(1000 / self.fps) : 0;
-  if (minIntervalMs > 1 && nowMs - self.lastSubmitTimeMs < minIntervalMs - 1) {
-    return;
+  @synchronized (self) {
+    if (minIntervalMs > 1 && nowMs - self.lastSubmitTimeMs < minIntervalMs - 1) {
+      return;
+    }
+
+    // Never block the ReplayKit sample queue. If a frame is already being scaled/submitted,
+    // retain only the newest due sample and replace any older pending sample.
+    if (self.inFlight) {
+      [self replacePendingSampleBuffer:sampleBuffer atTimeMs:nowMs orientation:orientation];
+      return;
+    }
+    self.inFlight = YES;
+    self.lastSubmitTimeMs = nowMs;
   }
-  // Never queue and never block the ReplayKit sample queue: drop when the previous frame is
-  // still being scaled/submitted.
-  if (self.inFlight) {
-    return;
-  }
-  self.inFlight = YES;
-  self.lastSubmitTimeMs = nowMs;
 
   CFRetain(sampleBuffer);
   dispatch_async(self.queue, ^{
-    [self processRetainedSampleBuffer:sampleBuffer atTimeMs:nowMs];
+    [self drainRetainedSampleBuffer:sampleBuffer atTimeMs:nowMs orientation:orientation];
     CFRelease(sampleBuffer);
-    self.inFlight = NO;
   });
 }
 
-- (void)processRetainedSampleBuffer:(CMSampleBufferRef)sampleBuffer atTimeMs:(uint64_t)nowMs
+- (void)replacePendingSampleBuffer:(CMSampleBufferRef)sampleBuffer
+                           atTimeMs:(uint64_t)nowMs
+                        orientation:(uint8_t)orientation
+{
+  CMSampleBufferRef retainedSampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+  CMSampleBufferRef previous = _pendingSampleBuffer;
+  _pendingSampleBuffer = retainedSampleBuffer;
+  self.pendingSubmitTimeMs = nowMs;
+  self.pendingOrientation = orientation;
+  if (NULL != previous) {
+    CFRelease(previous);
+  }
+}
+
+- (nullable CMSampleBufferRef)copyPendingSampleBufferAtTimeMs:(uint64_t *)timeMs
+                                                  orientation:(uint8_t *)orientation
+{
+  @synchronized (self) {
+    if (!self.active) {
+      [self clearPendingSampleBufferLocked];
+      self.inFlight = NO;
+      return NULL;
+    }
+    CMSampleBufferRef pending = _pendingSampleBuffer;
+    if (NULL == pending) {
+      self.inFlight = NO;
+      return NULL;
+    }
+    _pendingSampleBuffer = NULL;
+    *timeMs = self.pendingSubmitTimeMs;
+    *orientation = self.pendingOrientation;
+    self.lastSubmitTimeMs = self.pendingSubmitTimeMs;
+    return pending;
+  }
+}
+
+- (void)clearPendingSampleBufferLocked
+{
+  CMSampleBufferRef pending = _pendingSampleBuffer;
+  _pendingSampleBuffer = NULL;
+  if (NULL != pending) {
+    CFRelease(pending);
+  }
+}
+
+- (void)drainRetainedSampleBuffer:(CMSampleBufferRef)sampleBuffer
+                         atTimeMs:(uint64_t)nowMs
+                      orientation:(uint8_t)orientation
+{
+  CMSampleBufferRef currentSampleBuffer = sampleBuffer;
+  uint64_t currentTimeMs = nowMs;
+  uint8_t currentOrientation = orientation;
+  BOOL shouldReleaseCurrentSampleBuffer = NO;
+
+  while (NULL != currentSampleBuffer) {
+    [self processRetainedSampleBuffer:currentSampleBuffer
+                             atTimeMs:currentTimeMs
+                          orientation:currentOrientation];
+    if (shouldReleaseCurrentSampleBuffer) {
+      CFRelease(currentSampleBuffer);
+    }
+    currentSampleBuffer = [self copyPendingSampleBufferAtTimeMs:&currentTimeMs
+                                                    orientation:&currentOrientation];
+    shouldReleaseCurrentSampleBuffer = (NULL != currentSampleBuffer);
+  }
+}
+
+- (void)processRetainedSampleBuffer:(CMSampleBufferRef)sampleBuffer
+                           atTimeMs:(uint64_t)nowMs
+                        orientation:(uint8_t)orientation
 {
   if (!self.active) {
     return;
   }
+  self.currentOrientation = orientation;
   CVPixelBufferRef sourceBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
   if (NULL == sourceBuffer) {
     return;
+  }
+
+  if (!self.directSourceEncodingDisabled
+      && CVPixelBufferGetWidth(sourceBuffer) == self.width
+      && CVPixelBufferGetHeight(sourceBuffer) == self.height) {
+    NSError *error;
+    if ([self.encoder encodePixelBuffer:sourceBuffer presentationTimeMs:nowMs error:&error]) {
+      return;
+    }
+    self.directSourceEncodingDisabled = YES;
+    FBExtLogError("Session %u: direct source encode failed; falling back to pixel transfer: %{public}@",
+                  self.sessionId,
+                  error.description);
   }
 
   CVPixelBufferRef scaledBuffer = NULL;
@@ -201,6 +302,9 @@ static const int POOL_ALLOCATION_THRESHOLD = 3;
 - (void)teardown
 {
   self.active = NO;
+  @synchronized (self) {
+    [self clearPendingSampleBufferLocked];
+  }
   dispatch_async(self.queue, ^{
     if (nil != self.encoder) {
       self.encoder.delegate = nil;
@@ -226,6 +330,9 @@ static const int POOL_ALLOCATION_THRESHOLD = 3;
 
 - (void)dealloc
 {
+  @synchronized (self) {
+    [self clearPendingSampleBufferLocked];
+  }
   if (nil != _encoder) {
     _encoder.delegate = nil;
     [_encoder stop];
@@ -261,11 +368,11 @@ static const int POOL_ALLOCATION_THRESHOLD = 3;
     }
   }
 
-  NSData *payload = FBBroadcastEncodeVideoFramePayload(presentationTimeUs,
-                                                       isKeyFrame,
-                                                       self.currentOrientation,
-                                                       annexBPictureData);
-  [sink sendProtocolMessage:FBBroadcastEncodeMessage(FBBroadcastMessageTypeVideoFrame, self.sessionId, payload)
+  [sink sendProtocolMessage:FBBroadcastEncodeVideoFrameMessage(self.sessionId,
+                                                               presentationTimeUs,
+                                                               isKeyFrame,
+                                                               self.currentOrientation,
+                                                               annexBPictureData)
                 isDroppable:!isKeyFrame];
 }
 
