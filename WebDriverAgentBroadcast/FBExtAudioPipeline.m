@@ -40,6 +40,18 @@ typedef struct {
   BOOL consumed;
 } FBExtAudioInputFeed;
 
+/** ReplayKit app audio is stereo at most; leave headroom for unexpected layouts. */
+#define FBExtAudioMaxBuffers 8
+
+/** The shape of a copied sample buffer's AudioBufferList — per-buffer sizes and channel
+    counts, so the (non-)interleaved layout survives the copy across to the pipeline queue
+    (a plain struct so a block can capture it by value). */
+typedef struct {
+  UInt32 count;
+  UInt32 sizes[FBExtAudioMaxBuffers];
+  UInt32 channels[FBExtAudioMaxBuffers];
+} FBExtAudioBufferLayout;
+
 static OSStatus FBExtAudioFeedInput(AudioConverterRef converter,
                                     UInt32 *ioNumberDataPackets,
                                     AudioBufferList *ioData,
@@ -129,6 +141,11 @@ static OSStatus FBExtAudioFeedRing(AudioConverterRef converter,
 @property (atomic) uint64_t encodeErrorsCount;
 @property (atomic) uint64_t ringFramesCount;
 @property (atomic) NSUInteger pendingBuffers;
+/** Failed AudioBufferList extractions, counted separately so their (rate-limited) log can
+    report the exact OSStatus — the counter alone proved too opaque to debug a silent stream. */
+@property (atomic) uint64_t extractFailuresCount;
+/** Whether the one-time buffer-list size probe (see submitAudioSampleBuffer) has logged. */
+@property (atomic) BOOL probedBufferList;
 
 @end
 
@@ -260,71 +277,164 @@ static OSStatus FBExtAudioFeedRing(AudioConverterRef converter,
     self.droppedQueueFullCount += 1;
     return;
   }
-  self.pendingBuffers += 1;
-  CFRetain(sampleBuffer);
-  dispatch_async(self.queue, ^{
-    self.pendingBuffers -= 1;
-    if (self.active) {
-      [self processRetainedSampleBuffer:sampleBuffer];
-    }
-    CFRelease(sampleBuffer);
-  });
-}
 
-- (void)processRetainedSampleBuffer:(CMSampleBufferRef)sampleBuffer
-{
+  // The PCM is extracted and copied HERE, synchronously on the ReplayKit callback, by reading
+  // the sample buffer's CMBlockBuffer directly. The obvious API —
+  // CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer — fails outright on replayd's
+  // app-audio buffers (kCMSampleBufferError_ArrayTooSmall even with an 8-buffer list for this
+  // single-buffer interleaved format: its no-copy path cannot represent their block-buffer
+  // layout), so the buffer-list shape is rebuilt from the format description instead and
+  // CMBlockBufferCopyDataBytes does the read — it handles non-contiguous block buffers.
+  // Copying on the callback also keeps us clear of replayd reusing the buffer's backing
+  // memory after the callback returns; only the copied bytes cross to the queue.
   CMAudioFormatDescriptionRef formatDescription =
     (CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(sampleBuffer);
-  const AudioStreamBasicDescription *asbd = NULL == formatDescription
+  const AudioStreamBasicDescription *asbdPtr = NULL == formatDescription
     ? NULL
     : CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription);
   CMItemCount frameCount = CMSampleBufferGetNumSamples(sampleBuffer);
-  if (NULL == asbd || frameCount <= 0) {
+  if (NULL == asbdPtr || frameCount <= 0) {
     return;
   }
-  if (![self ensureInputConverterForFormat:asbd]) {
-    return;
+  AudioStreamBasicDescription asbd = *asbdPtr;
+
+  // One-time diagnostic: ask the AudioBufferList API (size-query mode) how much buffer-list
+  // storage its zero-copy path would need for these buffers. It answered ArrayTooSmall to an
+  // 8-entry list for a single-buffer interleaved format, which only adds up if replayd hands
+  // the extension block buffers fragmented into many non-contiguous ranges (one AudioBuffer
+  // per range) — this log pins the actual number, documenting why the pipeline reads the
+  // block buffer directly instead.
+  if (!self.probedBufferList) {
+    self.probedBufferList = YES;
+    size_t needed = 0;
+    OSStatus probe = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer, &needed, NULL, 0,
+                                                                             NULL, NULL, 0, NULL);
+    long entries = needed >= sizeof(AudioBufferList)
+      ? (long)((needed - offsetof(AudioBufferList, mBuffers)) / sizeof(AudioBuffer))
+      : 0;
+    FBExtLogError("Audio session %u: buffer-list probe: zero-copy path wants %zu bytes (%ld AudioBuffers) for %ld frames (probe status %d); reading the block buffer directly",
+                  self.sessionId, needed, entries, (long)frameCount, (int)probe);
   }
 
-  // ReplayKit app audio is stereo at most; leave headroom for unexpected layouts.
-  struct {
-    AudioBufferList list;
-    AudioBuffer extra[7];
-  } bufferListStorage;
-  CMBlockBufferRef blockBuffer = NULL;
-  OSStatus status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer,
-                                                                            NULL,
-                                                                            &bufferListStorage.list,
-                                                                            sizeof(bufferListStorage),
-                                                                            kCFAllocatorDefault,
-                                                                            kCFAllocatorDefault,
-                                                                            0,
-                                                                            &blockBuffer);
-  if (status != noErr || NULL == blockBuffer) {
+  CMBlockBufferRef dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+  if (NULL == dataBuffer || asbd.mBytesPerFrame == 0) {
     self.encodeErrorsCount += 1;
+    [self logExtractFailure:kCMSampleBufferError_RequiredParameterMissing format:&asbd frameCount:frameCount];
     return;
   }
 
-  [self reanchorIfNeededForSampleBuffer:sampleBuffer frameCount:frameCount sampleRate:asbd->mSampleRate];
+  // Non-interleaved LPCM lays the planes out back-to-back in the block buffer, one per
+  // channel (the ASBD's mBytesPerFrame then describes a single plane); interleaved audio —
+  // what ReplayKit actually delivers — is one buffer. Derive the frame count from the bytes
+  // actually present so a short buffer can never make the converter read past the copy.
+  BOOL nonInterleaved = (asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) != 0;
+  UInt32 planes = nonInterleaved ? MAX(asbd.mChannelsPerFrame, 1u) : 1;
+  size_t dataLength = CMBlockBufferGetDataLength(dataBuffer);
+  size_t planeStride = dataLength / planes;
+  CMItemCount framesInData = (CMItemCount)(planeStride / asbd.mBytesPerFrame);
+  frameCount = MIN(frameCount, framesInData);
+  if (planes > FBExtAudioMaxBuffers || frameCount <= 0) {
+    self.encodeErrorsCount += 1;
+    [self logExtractFailure:kCMSampleBufferError_InvalidMediaFormat format:&asbd frameCount:frameCount];
+    return;
+  }
+  size_t planeBytes = (size_t)frameCount * asbd.mBytesPerFrame;
+
+  FBExtAudioBufferLayout layout = {0};
+  layout.count = planes;
+  NSMutableData *pcm = [NSMutableData dataWithLength:planes * planeBytes];
+  uint8_t *dst = pcm.mutableBytes;
+  for (UInt32 i = 0; i < planes; i++) {
+    layout.sizes[i] = (UInt32)planeBytes;
+    layout.channels[i] = nonInterleaved ? 1 : asbd.mChannelsPerFrame;
+    OSStatus status = CMBlockBufferCopyDataBytes(dataBuffer, i * planeStride, planeBytes, dst + i * planeBytes);
+    if (status != noErr) {
+      self.encodeErrorsCount += 1;
+      [self logExtractFailure:status format:&asbd frameCount:frameCount];
+      return;
+    }
+  }
+
+  CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  BOOL ptsValid = CMTIME_IS_NUMERIC(pts);
+  int64_t ptsUs = ptsValid ? (int64_t)(CMTimeGetSeconds(pts) * 1000000.0) : 0;
+
+  self.pendingBuffers += 1;
+  dispatch_async(self.queue, ^{
+    self.pendingBuffers -= 1;
+    if (self.active) {
+      [self processCopiedPCM:pcm layout:layout format:asbd frameCount:frameCount ptsUs:ptsUs ptsValid:ptsValid];
+    }
+  });
+}
+
+/** Logs a failed AudioBufferList extraction with its OSStatus and input format — the first few
+    and then a trickle, so a per-buffer failure mode (~50/s) cannot flood the log. */
+- (void)logExtractFailure:(OSStatus)status
+                   format:(const AudioStreamBasicDescription *)asbd
+               frameCount:(CMItemCount)frameCount
+{
+  uint64_t failures = self.extractFailuresCount + 1;
+  self.extractFailuresCount = failures;
+  if (failures > 5 && 0 != failures % 1000) {
+    return;
+  }
+  uint32_t formatID = (uint32_t)asbd->mFormatID;
+  FBExtLogError("Audio session %u: cannot extract the sample buffer's audio (failure %llu, status %d, fmt '%c%c%c%c', flags 0x%x, rate %.0f, %u ch, %u bit, %ld frames)",
+                self.sessionId, (unsigned long long)failures, (int)status,
+                (char)(formatID >> 24), (char)(formatID >> 16), (char)(formatID >> 8), (char)formatID,
+                (unsigned)asbd->mFormatFlags, asbd->mSampleRate,
+                (unsigned)asbd->mChannelsPerFrame, (unsigned)asbd->mBitsPerChannel, (long)frameCount);
+}
+
+- (void)processCopiedPCM:(NSData *)pcm
+                  layout:(FBExtAudioBufferLayout)layout
+                  format:(AudioStreamBasicDescription)asbd
+              frameCount:(CMItemCount)frameCount
+                   ptsUs:(int64_t)ptsUs
+                ptsValid:(BOOL)ptsValid
+{
+  if (layout.count == 0 || pcm.length == 0) {
+    return;
+  }
+  if (![self ensureInputConverterForFormat:&asbd]) {
+    return;
+  }
+
+  [self reanchorIfNeededForPtsUs:ptsUs valid:ptsValid frameCount:frameCount sampleRate:asbd.mSampleRate];
   self.framesInCount += (uint64_t)frameCount;
 
-  [self convertToRing:&bufferListStorage.list frameCount:(UInt32)frameCount];
-  CFRelease(blockBuffer);
+  // Rebuild the original (non-)interleaved AudioBufferList over the contiguous copy; pcm
+  // outlives the conversion, so the pointers stay valid for the converter feed.
+  struct {
+    AudioBufferList list;
+    AudioBuffer extra[FBExtAudioMaxBuffers - 1];
+  } bufferListStorage;
+  bufferListStorage.list.mNumberBuffers = layout.count;
+  const uint8_t *base = pcm.bytes;
+  size_t offset = 0;
+  for (UInt32 i = 0; i < layout.count; i++) {
+    AudioBuffer *buffer = &bufferListStorage.list.mBuffers[i];
+    buffer->mNumberChannels = layout.channels[i];
+    buffer->mDataByteSize = layout.sizes[i];
+    buffer->mData = (void *)(base + offset);
+    offset += layout.sizes[i];
+  }
 
+  [self convertToRing:&bufferListStorage.list frameCount:(UInt32)frameCount];
   [self encodePendingPackets];
 }
 
 #pragma mark - Timeline
 
-- (void)reanchorIfNeededForSampleBuffer:(CMSampleBufferRef)sampleBuffer
-                             frameCount:(CMItemCount)frameCount
-                             sampleRate:(Float64)sampleRate
+- (void)reanchorIfNeededForPtsUs:(int64_t)ptsUs
+                           valid:(BOOL)valid
+                      frameCount:(CMItemCount)frameCount
+                      sampleRate:(Float64)sampleRate
 {
-  CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-  if (!CMTIME_IS_NUMERIC(pts) || sampleRate <= 0) {
+  if (!valid || sampleRate <= 0) {
     return;
   }
-  int64_t ptsUs = (int64_t)(CMTimeGetSeconds(pts) * 1000000.0);
   if (self.hasAnchor && llabs(ptsUs - self.expectedInputPtsUs) <= FBExtAudioDiscontinuityUs) {
     self.expectedInputPtsUs += (int64_t)((double)frameCount / sampleRate * 1000000.0);
     return;
@@ -489,6 +599,7 @@ static OSStatus FBExtAudioFeedRing(AudioConverterRef converter,
     @"bytesEncoded": @(self.bytesEncodedCount),
     @"converterRebuilds": @(self.converterRebuildsCount),
     @"encodeErrors": @(self.encodeErrorsCount),
+    @"extractFailures": @(self.extractFailuresCount),
     @"ringFrames": @(self.ringFramesCount),
   };
 }
