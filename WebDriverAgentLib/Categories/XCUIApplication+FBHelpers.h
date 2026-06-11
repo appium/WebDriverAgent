@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  snapshot-resident attributes, so it deliberately avoids the expensive
  visibility/accessibility/hittable resolution performed by `fb_tree`.
 
- @param scale The screen scale factor used to convert logical points to device
- pixels for the element bounds.
+ @param scale The factor the logical-point element bounds are multiplied by.
+ Pass the native screen scale for device pixels or 1 for plain points.
  @return Dictionary with `a11y_tree` (nested `A11YNode` dictionaries) and
  `phone_state` entries.
  */

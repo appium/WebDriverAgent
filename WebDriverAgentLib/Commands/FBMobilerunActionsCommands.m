@@ -18,6 +18,26 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBTouchAction.h"
 
+// Parses the optional 'scale' query parameter shared by the mobilerun endpoints. Response/request
+// coordinates are logical points multiplied by this scale; it defaults to the native screen scale
+// (device pixels), and 'scale=1' yields plain points. Returns NO when the parameter is present but
+// is not a positive number. Keep in sync with the copy in FBMobilerunA11yCommands.m.
+static BOOL FBMobilerunScaleFromRequest(FBRouteRequest *request, CGFloat *scale)
+{
+  NSString *rawScale = request.parameters[@"scale"];
+  if (0 == rawScale.length) {
+    *scale = (CGFloat)[FBScreen scale];
+    return YES;
+  }
+  NSScanner *scanner = [NSScanner scannerWithString:rawScale];
+  double value = 0;
+  if (![scanner scanDouble:&value] || !scanner.isAtEnd || value <= 0) {
+    return NO;
+  }
+  *scale = (CGFloat)value;
+  return YES;
+}
+
 @implementation FBMobilerunActionsCommands
 
 #pragma mark - <FBCommandHandler>
@@ -43,9 +63,14 @@
   }
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
   NSError *error;
-  // Action x/y are in device pixels (matching /mobilerun/state and the screencapture stream);
-  // the builder converts them to logical points using the same scale that state multiplies by.
-  CGFloat scale = (CGFloat)[FBScreen scale];
+  // Action x/y are logical points multiplied by the request's scale, so they match what
+  // /mobilerun/state returns for the same 'scale' query parameter. Without the parameter both
+  // endpoints use the native screen scale (device pixels, matching the screencapture stream).
+  CGFloat scale;
+  if (!FBMobilerunScaleFromRequest(request, &scale)) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"'scale' must be a positive number"
+                                                                       traceback:nil]);
+  }
   // Validation failures are client errors (invalid argument); only a dispatch failure
   // is a server/runtime error (unknown error).
   XCSynthesizedEventRecord *eventRecord = [app fb_mobilerunEventRecordFromActions:(NSArray *)items scale:scale error:&error];
