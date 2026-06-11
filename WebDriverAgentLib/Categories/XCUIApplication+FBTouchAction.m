@@ -21,6 +21,8 @@
 #import "XCEventGenerator.h"
 #import "XCPointerEventPath.h"
 #import "XCSynthesizedEventRecord.h"
+#import "XCUIApplication+FBQuiescence.h"
+#import "XCUICoordinate.h"
 #import "XCUIElement+FBUtilities.h"
 
 #if !TARGET_OS_TV
@@ -202,6 +204,30 @@
     return NO;
   }
   return [self fb_synthesizeEvent:eventRecord error:error];
+}
+
+- (void)fb_mobilerunPressAndDragFromPoint:(CGPoint)from
+                                  toPoint:(CGPoint)to
+                            pressDuration:(double)pressDuration
+                                 velocity:(CGFloat)velocity
+                             holdDuration:(double)holdDuration
+{
+  XCUICoordinate *base = [self coordinateWithNormalizedOffset:CGVectorMake(0, 0)];
+  XCUICoordinate *start = [base coordinateWithOffset:CGVectorMake(from.x, from.y)];
+  XCUICoordinate *end = [base coordinateWithOffset:CGVectorMake(to.x, to.y)];
+  // The XCUICoordinate gesture engine waits for app quiescence around the gesture (the swizzle
+  // in XCUIApplicationProcess+FBQuiescence honours this flag); suppressing it for the duration
+  // of the call is what makes this path faster than /wda/pressAndDragWithVelocity.
+  BOOL previousQuiescence = self.fb_shouldWaitForQuiescence;
+  self.fb_shouldWaitForQuiescence = NO;
+  @try {
+    [start pressForDuration:pressDuration
+       thenDragToCoordinate:end
+               withVelocity:velocity
+        thenHoldForDuration:holdDuration];
+  } @finally {
+    self.fb_shouldWaitForQuiescence = previousQuiescence;
+  }
 }
 
 - (BOOL)fb_synthesizeEvent:(XCSynthesizedEventRecord *)event error:(NSError *__autoreleasing*)error
