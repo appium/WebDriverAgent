@@ -430,7 +430,11 @@ static BOOL FBMobilerunIsCheckableType(XCUIElementType type)
   }
   phoneState[@"keyboardVisible"] = @([context[@"keyboardVisible"] boolValue]);
   phoneState[@"packageName"] = bundleId;
-  NSString *appName = self.label;
+  // The root snapshot is the application element, so its label is the app name. Reading
+  // self.label instead would start another AX resolution without an error out-parameter,
+  // which stalls for several timeout rounds and raises a test failure when the app is
+  // unresponsive (e.g. while it is busy rendering a heavy hierarchy).
+  NSString *appName = snapshot.label;
   if (appName.length > 0) {
     phoneState[@"currentApp"] = appName;
   }
