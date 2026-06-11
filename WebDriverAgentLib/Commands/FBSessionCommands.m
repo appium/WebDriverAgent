@@ -345,8 +345,10 @@
                                          initialUrl:(nullable NSString *)initialUrl
                                        capabilities:(NSDictionary<NSString *, id> *)capabilities
 {
-  app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
-    || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
+  // Unlike upstream, a missing capability means NO: this fork keeps sessions fast by
+  // default and quiescence waiting is opt-in.
+  app.fb_shouldWaitForQuiescence = nil != capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
+    && [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
   app.launchArguments = (NSArray<NSString *> *)capabilities[FB_CAP_ARGUMENTS] ?: @[];
   app.launchEnvironment = (NSDictionary<NSString *, NSString *> *)capabilities[FB_CAP_ENVIRNOMENT] ?: @{};
 
