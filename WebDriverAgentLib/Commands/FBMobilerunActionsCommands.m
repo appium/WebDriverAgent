@@ -70,10 +70,15 @@ static BOOL FBMobilerunNumberFromBody(NSDictionary *body, NSString *key, BOOL re
 {
   return
   @[
+    // The XCUIApplication+FBTouchAction category backing these handlers is not compiled for
+    // tvOS, so registering the routes there would crash with an unrecognized selector instead
+    // of responding 404 like the guarded /wda touch routes.
+#if !TARGET_OS_TV
     [[FBRoute POST:@"/mobilerun/actions"] respondWithTarget:self action:@selector(handlePerformActions:)],
     [[FBRoute POST:@"/mobilerun/actions"].withoutSession respondWithTarget:self action:@selector(handlePerformActions:)],
     [[FBRoute POST:@"/mobilerun/pressAndDragWithVelocity"] respondWithTarget:self action:@selector(handlePressAndDragWithVelocity:)],
     [[FBRoute POST:@"/mobilerun/pressAndDragWithVelocity"].withoutSession respondWithTarget:self action:@selector(handlePressAndDragWithVelocity:)],
+#endif
   ];
 }
 

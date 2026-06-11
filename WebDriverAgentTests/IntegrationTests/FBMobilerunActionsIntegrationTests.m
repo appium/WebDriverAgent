@@ -129,6 +129,12 @@
   // The gesture suppresses quiescence waits only for its own duration and must restore the
   // previous value afterwards.
   CGPoint p = [self alertButtonCenter];
+  // The flag lives on the shared application process; put the original back even when an
+  // assertion fails so later tests keep their stability waits.
+  BOOL original = self.testedApplication.fb_shouldWaitForQuiescence;
+  [self addTeardownBlock:^{
+    self.testedApplication.fb_shouldWaitForQuiescence = original;
+  }];
   self.testedApplication.fb_shouldWaitForQuiescence = YES;
   [self.testedApplication fb_mobilerunPressAndDragFromPoint:p
                                                     toPoint:p
