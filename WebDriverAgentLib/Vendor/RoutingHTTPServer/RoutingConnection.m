@@ -8,7 +8,9 @@
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
 @implementation RoutingConnection {
-  __unsafe_unretained RoutingHTTPServer *http;
+  // Weak (was unsafe_unretained): replies run on connection queues and must not dereference a
+  // torn-down server; messaging nil is harmless, a dangling pointer crashes in objc_msgSend.
+  __weak RoutingHTTPServer *http;
   NSDictionary *headers;
 }
 
@@ -63,7 +65,8 @@
   
   RouteResponse *response = [http routeMethod:method withPath:path parameters:params request:request connection:self];
   if (response != nil) {
-    headers = response.headers;
+    // Snapshot instead of aliasing the route response's live (mutable) dictionary.
+    headers = [response.headers copy];
     return response.proxiedResponse;
   }
   

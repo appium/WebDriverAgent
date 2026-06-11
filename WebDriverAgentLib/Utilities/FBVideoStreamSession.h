@@ -21,6 +21,14 @@ typedef NS_ENUM(NSUInteger, FBVideoFraming) {
   FBVideoFramingScrcpy,
 };
 
+/** The origin of the encoded frames a session is currently serving. */
+typedef NS_ENUM(NSUInteger, FBVideoStreamSource) {
+  /** Frames are captured via XCTest screenshots and encoded locally (default). */
+  FBVideoStreamSourceScreenshot,
+  /** Pre-encoded frames are received from the ReplayKit broadcast extension. */
+  FBVideoStreamSourceBroadcast,
+};
+
 /** Describes a single screen-capture streaming request. */
 @interface FBScreenCaptureConfiguration : NSObject
 
@@ -32,6 +40,8 @@ typedef NS_ENUM(NSUInteger, FBVideoFraming) {
 @property (nonatomic) NSUInteger height;
 /** The target average bitrate in bits per second. */
 @property (nonatomic) NSUInteger bitrate;
+/** JPEG compression quality used when capturing XCTest screenshot frames before video encoding. */
+@property (nonatomic) CGFloat quality;
 /** The capture/encode framerate in frames per second. */
 @property (nonatomic) NSUInteger fps;
 /** The framing of the broadcast byte stream (raw Annex-B by default). */
@@ -53,6 +63,13 @@ typedef NS_ENUM(NSUInteger, FBVideoFraming) {
 @property (nonatomic, readonly) NSUInteger identifier;
 /** The configuration this session was started with. */
 @property (nonatomic, readonly) FBScreenCaptureConfiguration *configuration;
+/** The origin of the frames this session currently serves. */
+@property (atomic, readonly) FBVideoStreamSource activeSource;
+/**
+ Invoked (with the session identifier) when a key frame is needed while the session serves
+ broadcast frames, so the request can be forwarded to the extension's encoder.
+ */
+@property (nonatomic, nullable, copy) void (^onBroadcastKeyFrameNeeded)(NSUInteger sessionIdentifier);
 
 - (instancetype)initWithIdentifier:(NSUInteger)identifier
                      configuration:(FBScreenCaptureConfiguration *)configuration;
@@ -85,6 +102,29 @@ typedef NS_ENUM(NSUInteger, FBVideoFraming) {
  @param nowMs A monotonic timestamp in milliseconds
  */
 - (void)maybeEncodeCGImage:(CGImageRef)image atTimeMs:(uint64_t)nowMs;
+
+/**
+ YES while this session needs frames from the shared screenshot capture loop, i.e. it is active,
+ has at least one client and is not being fed by the broadcast extension.
+ */
+- (BOOL)requiresLocalFrames;
+
+/** Stores fresh Annex-B parameter sets received from the broadcast extension. */
+- (void)ingestBroadcastParameterSets:(NSData *)parameterSets;
+
+/**
+ Broadcasts a pre-encoded picture received from the broadcast extension. While the session is
+ still on the screenshot source it switches to the broadcast source on the first key frame that
+ has parameter sets available (delta frames before that are dropped, so clients always resync
+ at an IDR).
+ */
+- (void)ingestBroadcastFrame:(NSData *)annexBPictureData isKeyFrame:(BOOL)isKeyFrame;
+
+/**
+ Reverts the session to the local screenshot source (e.g. because the broadcast stopped) and
+ forces the local encoder to open with a key frame so clients can resync without reconnecting.
+ */
+- (void)detachBroadcastSourceAndForceKeyFrame;
 
 /** @return A dictionary describing this session. */
 - (NSDictionary *)toDictionary;

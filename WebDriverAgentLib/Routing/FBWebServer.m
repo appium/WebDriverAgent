@@ -11,6 +11,7 @@
 #import "RoutingConnection.h"
 #import "RoutingHTTPServer.h"
 
+#import "FBBroadcastManager.h"
 #import "FBCommandHandler.h"
 #import "FBErrorBuilder.h"
 #import "FBExceptionHandler.h"
@@ -79,6 +80,8 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   self.exceptionHandler = [FBExceptionHandler new];
   [self startHTTPServer];
   [self initScreenshotsBroadcaster];
+  // Listen permanently so broadcasts started from Control Center attach as well.
+  [FBBroadcastManager.sharedInstance startListening];
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
@@ -179,6 +182,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 {
   [FBSession.activeSession kill];
   [FBVideoStreamManager.sharedInstance stopAllSessions];
+  [FBBroadcastManager.sharedInstance stopListening];
   [self stopScreenshotsBroadcaster];
   if (self.server.isRunning) {
     [self.server stop:NO];

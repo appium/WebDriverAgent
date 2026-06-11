@@ -25,8 +25,18 @@ static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 static const uint64_t FBScrcpyFlagConfig   = (uint64_t)1 << 63;
 static const uint64_t FBScrcpyFlagKeyFrame = (uint64_t)1 << 62;
 static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
+static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
 
 @implementation FBScreenCaptureConfiguration
+
+- (instancetype)init
+{
+  if ((self = [super init])) {
+    _quality = FBDefaultScreenCaptureQuality;
+  }
+  return self;
+}
+
 @end
 
 
@@ -41,6 +51,9 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
 /** The parameter sets most recently broadcast as a scrcpy config packet (for change detection). */
 @property (nonatomic, nullable, copy) NSData *lastSentParameterSets;
 @property (atomic, getter=isActive) BOOL active;
+@property (atomic, readwrite) FBVideoStreamSource activeSource;
+/** The parameter sets most recently received from the broadcast extension. */
+@property (atomic, nullable, copy) NSData *broadcastParameterSets;
 
 @end
 
@@ -55,6 +68,7 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
     _configuration = configuration;
     _listeningClients = [NSMutableArray array];
     _active = NO;
+    _activeSource = FBVideoStreamSourceScreenshot;
   }
   return self;
 }
@@ -117,13 +131,30 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
 
 - (void)requestKeyFrame
 {
+  // While the broadcast extension feeds this session the local encoder is idle, so the request
+  // must reach the extension's encoder instead.
+  if (self.activeSource == FBVideoStreamSourceBroadcast) {
+    void (^onKeyFrameNeeded)(NSUInteger) = self.onBroadcastKeyFrameNeeded;
+    if (nil != onKeyFrameNeeded) {
+      onKeyFrameNeeded(self.identifier);
+      return;
+    }
+  }
   @synchronized (self) {
     [self.encoder requestKeyFrame];
   }
 }
 
+- (BOOL)requiresLocalFrames
+{
+  return self.isActive && self.activeSource == FBVideoStreamSourceScreenshot && [self hasClients];
+}
+
 - (void)maybeEncodeCGImage:(CGImageRef)image atTimeMs:(uint64_t)nowMs
 {
+  if (self.activeSource == FBVideoStreamSourceBroadcast) {
+    return;
+  }
   @synchronized (self) {
     if (!self.isActive || nil == self.encoder || ![self hasClients]) {
       return;
@@ -159,12 +190,88 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
   return candidate;
 }
 
+#pragma mark - Broadcast (ReplayKit) source
+
+- (void)ingestBroadcastParameterSets:(NSData *)parameterSets
+{
+  if (parameterSets.length > 0) {
+    self.broadcastParameterSets = parameterSets;
+  }
+}
+
+- (void)ingestBroadcastFrame:(NSData *)annexBPictureData isKeyFrame:(BOOL)isKeyFrame
+{
+  if (!self.isActive || annexBPictureData.length == 0) {
+    return;
+  }
+  uint64_t presentationTimeUs;
+  @synchronized (self) {
+    if (self.activeSource == FBVideoStreamSourceScreenshot) {
+      // Only take over at an IDR with parameter sets available, so connected clients can
+      // resync at the source switch without reconnecting.
+      if (!isKeyFrame || nil == self.broadcastParameterSets) {
+        return;
+      }
+      self.activeSource = FBVideoStreamSourceBroadcast;
+      // Force a fresh scrcpy config packet for the new elementary stream.
+      self.lastSentParameterSets = nil;
+      [FBLogger logFmt:@"Screen capture session %@: switched to the ReplayKit broadcast source", @(self.identifier)];
+    }
+    // Re-stamp with the session's own monotonic clock so one time base survives source switches;
+    // the extension's timestamp is intentionally ignored.
+    presentationTimeUs = [self nextPresentationTimeMs] * 1000;
+  }
+  [self emitEncodedPicture:annexBPictureData
+                isKeyFrame:isKeyFrame
+        presentationTimeUs:presentationTimeUs
+             parameterSets:self.broadcastParameterSets];
+}
+
+- (void)detachBroadcastSourceAndForceKeyFrame
+{
+  @synchronized (self) {
+    if (self.activeSource != FBVideoStreamSourceBroadcast) {
+      return;
+    }
+    self.activeSource = FBVideoStreamSourceScreenshot;
+    self.broadcastParameterSets = nil;
+    // Force a fresh config packet and an IDR from the local encoder so clients resync.
+    self.lastSentParameterSets = nil;
+    [self.encoder requestKeyFrame];
+  }
+  [FBLogger logFmt:@"Screen capture session %@: reverted to the screenshot source", @(self.identifier)];
+}
+
+/** The parameter sets of whichever source currently feeds this session. */
+- (nullable NSData *)currentParameterSets
+{
+  return self.activeSource == FBVideoStreamSourceBroadcast
+    ? self.broadcastParameterSets
+    : self.encoder.parameterSetAnnexB;
+}
+
 #pragma mark - <FBVideoEncoderDelegate>
 
 - (void)videoEncoder:(FBVideoEncoder *)encoder
        didEncodeFrame:(NSData *)annexBPictureData
            isKeyFrame:(BOOL)isKeyFrame
    presentationTimeUs:(uint64_t)presentationTimeUs
+{
+  // While the broadcast source is active the local encoder's (at most one in-flight) output is
+  // discarded; clients resync at the broadcast IDR that triggered the switch.
+  if (self.activeSource == FBVideoStreamSourceBroadcast) {
+    return;
+  }
+  [self emitEncodedPicture:annexBPictureData
+                isKeyFrame:isKeyFrame
+        presentationTimeUs:presentationTimeUs
+             parameterSets:encoder.parameterSetAnnexB];
+}
+
+- (void)emitEncodedPicture:(NSData *)annexBPictureData
+                isKeyFrame:(BOOL)isKeyFrame
+        presentationTimeUs:(uint64_t)presentationTimeUs
+             parameterSets:(nullable NSData *)parameterSets
 {
   if (annexBPictureData.length == 0) {
     return;
@@ -175,7 +282,6 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
     // packet must carry picture data only. Emit a separate config packet whenever the parameter
     // sets change.
     if (isKeyFrame) {
-      NSData *parameterSets = encoder.parameterSetAnnexB;
       if (parameterSets.length > 0 && ![parameterSets isEqualToData:self.lastSentParameterSets]) {
         self.lastSentParameterSets = parameterSets;
         [self broadcastData:[self.class scrcpyPacketWithPayload:parameterSets
@@ -192,7 +298,6 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
 
   // Annex-B mode: prepend the parameter sets to key frames so each IDR is independently decodable.
   if (isKeyFrame) {
-    NSData *parameterSets = encoder.parameterSetAnnexB;
     if (parameterSets.length > 0) {
       NSMutableData *keyFrame = [NSMutableData dataWithCapacity:parameterSets.length + annexBPictureData.length];
       [keyFrame appendData:parameterSets];
@@ -249,7 +354,7 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
   }
   // Hand the latest parameter sets to the new client and force a key frame so it can start
   // decoding immediately. In scrcpy mode the parameter sets are wrapped as a config packet.
-  NSData *parameterSets = self.encoder.parameterSetAnnexB;
+  NSData *parameterSets = [self currentParameterSets];
   if (parameterSets.length > 0) {
     NSData *payload = self.configuration.framing == FBVideoFramingScrcpy
       ? [self.class scrcpyPacketWithPayload:parameterSets flags:FBScrcpyFlagConfig presentationTimeUs:0]
@@ -291,8 +396,10 @@ static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
     @"height": @(self.configuration.height),
     @"fps": @(self.configuration.fps),
     @"bitrate": @(self.configuration.bitrate),
+    @"quality": @(self.configuration.quality),
     @"port": @(self.configuration.port),
     @"clients": @(clientCount),
+    @"source": self.activeSource == FBVideoStreamSourceBroadcast ? @"replaykit" : @"screenshot",
   };
 }
 

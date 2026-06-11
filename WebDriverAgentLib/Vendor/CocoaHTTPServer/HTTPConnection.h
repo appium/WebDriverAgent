@@ -15,7 +15,10 @@
 
 @interface HTTPConfig : NSObject
 {
-  HTTPServer __unsafe_unretained *server;
+  // Strong on purpose: connections reply on their own queues, so an unretained server is a
+  // use-after-free once the server is torn down (e.g. via /wda/shutdown) while replies are in
+  // flight. The server->connections->config->server cycle is broken when connections die.
+  HTTPServer __strong *server;
   NSString __strong *documentRoot;
   dispatch_queue_t queue;
 }
@@ -23,7 +26,7 @@
 - (id)initWithServer:(HTTPServer *)server documentRoot:(NSString *)documentRoot;
 - (id)initWithServer:(HTTPServer *)server documentRoot:(NSString *)documentRoot queue:(dispatch_queue_t)q;
 
-@property (nonatomic, unsafe_unretained, readonly) HTTPServer *server;
+@property (nonatomic, strong, readonly) HTTPServer *server;
 @property (nonatomic, strong, readonly) NSString *documentRoot;
 @property (nonatomic, readonly) dispatch_queue_t queue;
 

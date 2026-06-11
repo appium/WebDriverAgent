@@ -39,6 +39,28 @@
 		FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */; };
 		FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE00000000000000001B /* FBVideoEncoderTests.m */; };
 		FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */; };
+		FBCAFE000000000000005103 /* FBBroadcastSampleHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005102 /* FBBroadcastSampleHandler.m */; };
+		FBCAFE000000000000005106 /* FBExtBroadcastClient.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005105 /* FBExtBroadcastClient.m */; };
+		FBCAFE000000000000005109 /* FBExtSessionPipeline.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005108 /* FBExtSessionPipeline.m */; };
+		FBCAFE000000000000005201 /* FBVideoEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000000010 /* FBVideoEncoder.m */; };
+		FBCAFE000000000000005202 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 718226C82587443600661B83 /* GCDAsyncSocket.m */; };
+		FBCAFE000000000000005203 /* FBBroadcastProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005301 /* FBBroadcastProtocol.m */; };
+		FBCAFE000000000000005302 /* FBBroadcastProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005300 /* FBBroadcastProtocol.h */; };
+		FBCAFE000000000000005303 /* FBBroadcastProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005300 /* FBBroadcastProtocol.h */; };
+		FBCAFE000000000000005304 /* FBBroadcastProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005301 /* FBBroadcastProtocol.m */; };
+		FBCAFE000000000000005305 /* FBBroadcastProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005301 /* FBBroadcastProtocol.m */; };
+		FBCAFE000000000000005312 /* FBBroadcastControlServer.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005310 /* FBBroadcastControlServer.h */; };
+		FBCAFE000000000000005313 /* FBBroadcastControlServer.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005310 /* FBBroadcastControlServer.h */; };
+		FBCAFE000000000000005314 /* FBBroadcastControlServer.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005311 /* FBBroadcastControlServer.m */; };
+		FBCAFE000000000000005315 /* FBBroadcastControlServer.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005311 /* FBBroadcastControlServer.m */; };
+		FBCAFE000000000000005322 /* FBBroadcastManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005320 /* FBBroadcastManager.h */; };
+		FBCAFE000000000000005323 /* FBBroadcastManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005320 /* FBBroadcastManager.h */; };
+		FBCAFE000000000000005324 /* FBBroadcastManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005321 /* FBBroadcastManager.m */; };
+		FBCAFE000000000000005325 /* FBBroadcastManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005321 /* FBBroadcastManager.m */; };
+		FBCAFE000000000000005332 /* FBBroadcastPickerHost.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005330 /* FBBroadcastPickerHost.h */; };
+		FBCAFE000000000000005333 /* FBBroadcastPickerHost.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005330 /* FBBroadcastPickerHost.h */; };
+		FBCAFE000000000000005334 /* FBBroadcastPickerHost.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */; };
+		FBCAFE000000000000005335 /* FBBroadcastPickerHost.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */; };
 		0E0413382DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E0413392DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E04133B2DF1E15900AF007C /* XCUIElement+FBMinMax.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */; };
@@ -944,6 +966,13 @@
 			remoteGlobalIDString = EE158A981CBD452B00A3E3F0;
 			remoteInfo = WebDriverAgentLib;
 		};
+		FBCAFE000000000000005009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FBCAFE000000000000005001;
+			remoteInfo = WebDriverAgentBroadcast;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -990,6 +1019,23 @@
 		FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBPixelBufferConverterTests.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000001B /* FBVideoEncoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoEncoderTests.m; sourceTree = "<group>"; };
 		FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVideoStreamSessionTests.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005002 /* WebDriverAgentBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WebDriverAgentBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBCAFE00000000000000500C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FBCAFE000000000000005101 /* FBBroadcastSampleHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastSampleHandler.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005102 /* FBBroadcastSampleHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastSampleHandler.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005104 /* FBExtBroadcastClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtBroadcastClient.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005105 /* FBExtBroadcastClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBExtBroadcastClient.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005107 /* FBExtSessionPipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtSessionPipeline.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005108 /* FBExtSessionPipeline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBExtSessionPipeline.m; sourceTree = "<group>"; };
+		FBCAFE00000000000000510A /* FBExtLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtLogging.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005300 /* FBBroadcastProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastProtocol.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005301 /* FBBroadcastProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastProtocol.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005310 /* FBBroadcastControlServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastControlServer.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005311 /* FBBroadcastControlServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastControlServer.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005320 /* FBBroadcastManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastManager.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005321 /* FBBroadcastManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastManager.m; sourceTree = "<group>"; };
+		FBCAFE000000000000005330 /* FBBroadcastPickerHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastPickerHost.h; sourceTree = "<group>"; };
+		FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastPickerHost.m; sourceTree = "<group>"; };
 		0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBMinMax.m"; sourceTree = "<group>"; };
 		0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCUIElement+FBMinMax.h"; sourceTree = "<group>"; };
 		1357E295233D05240054BDB8 /* XCUIHitPointResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIHitPointResult.h; sourceTree = "<group>"; };
@@ -1573,6 +1619,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FBCAFE000000000000005007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1680,6 +1733,7 @@
 				EEC288F81BF0ED2500B4DC79 /* WebDriverAgentLib */,
 				EE9B75F91CF7964100275851 /* WebDriverAgentTests */,
 				EEF988341C486655005CA669 /* WebDriverAgentRunner */,
+				FBCAFE00000000000000500B /* WebDriverAgentBroadcast */,
 				EE9AB8021CAEE182008C271F /* Scripts */,
 				91F9DAEA1B99DBC2001349B2 /* Products */,
 				B6E83A410C45944B036B6B0F /* Frameworks */,
@@ -1703,6 +1757,7 @@
 				641EE2DA2240BBE300173FCB /* WebDriverAgentRunner_tvOS.xctest */,
 				641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */,
 				64B264F9228C50E0002A5025 /* UnitTests_tvOS.xctest */,
+				FBCAFE000000000000005002 /* WebDriverAgentBroadcast.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2096,6 +2151,14 @@
 				FBCAFE000000000000000010 /* FBVideoEncoder.m */,
 				FBCAFE000000000000000013 /* FBVideoStreamManager.h */,
 				FBCAFE000000000000000016 /* FBVideoStreamManager.m */,
+				FBCAFE000000000000005300 /* FBBroadcastProtocol.h */,
+				FBCAFE000000000000005301 /* FBBroadcastProtocol.m */,
+				FBCAFE000000000000005310 /* FBBroadcastControlServer.h */,
+				FBCAFE000000000000005311 /* FBBroadcastControlServer.m */,
+				FBCAFE000000000000005320 /* FBBroadcastManager.h */,
+				FBCAFE000000000000005321 /* FBBroadcastManager.m */,
+				FBCAFE000000000000005330 /* FBBroadcastPickerHost.h */,
+				FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */,
 				FBCAFE000000000000001001 /* FBVideoStreamSession.h */,
 				FBCAFE000000000000001004 /* FBVideoStreamSession.m */,
 			);
@@ -2398,6 +2461,21 @@
 			path = XCTUITestRunner;
 			sourceTree = SOURCE_ROOT;
 		};
+		FBCAFE00000000000000500B /* WebDriverAgentBroadcast */ = {
+			isa = PBXGroup;
+			children = (
+				FBCAFE00000000000000500C /* Info.plist */,
+				FBCAFE000000000000005101 /* FBBroadcastSampleHandler.h */,
+				FBCAFE000000000000005102 /* FBBroadcastSampleHandler.m */,
+				FBCAFE000000000000005104 /* FBExtBroadcastClient.h */,
+				FBCAFE000000000000005105 /* FBExtBroadcastClient.m */,
+				FBCAFE000000000000005107 /* FBExtSessionPipeline.h */,
+				FBCAFE000000000000005108 /* FBExtSessionPipeline.m */,
+				FBCAFE00000000000000510A /* FBExtLogging.h */,
+			);
+			path = WebDriverAgentBroadcast;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -2648,6 +2726,10 @@
 				FBCAFE000000000000000009 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000F /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000015 /* FBVideoStreamManager.h in Headers */,
+				FBCAFE000000000000005302 /* FBBroadcastProtocol.h in Headers */,
+				FBCAFE000000000000005312 /* FBBroadcastControlServer.h in Headers */,
+				FBCAFE000000000000005322 /* FBBroadcastManager.h in Headers */,
+				FBCAFE000000000000005332 /* FBBroadcastPickerHost.h in Headers */,
 				FBCAFE000000000000001003 /* FBVideoStreamSession.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2902,6 +2984,10 @@
 				FBCAFE000000000000000008 /* FBPixelBufferConverter.h in Headers */,
 				FBCAFE00000000000000000E /* FBVideoEncoder.h in Headers */,
 				FBCAFE000000000000000014 /* FBVideoStreamManager.h in Headers */,
+				FBCAFE000000000000005303 /* FBBroadcastProtocol.h in Headers */,
+				FBCAFE000000000000005313 /* FBBroadcastControlServer.h in Headers */,
+				FBCAFE000000000000005323 /* FBBroadcastManager.h in Headers */,
+				FBCAFE000000000000005333 /* FBBroadcastPickerHost.h in Headers */,
 				FBCAFE000000000000001002 /* FBVideoStreamSession.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3087,11 +3173,29 @@
 			);
 			dependencies = (
 				EE158B5C1CBD462500A3E3F0 /* PBXTargetDependency */,
+				FBCAFE00000000000000500A /* PBXTargetDependency */,
 			);
 			name = WebDriverAgentRunner;
 			productName = XCTUITestRunner;
 			productReference = EEF9882A1C486603005CA669 /* WebDriverAgentRunner.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		FBCAFE000000000000005001 /* WebDriverAgentBroadcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FBCAFE000000000000005003 /* Build configuration list for PBXNativeTarget "WebDriverAgentBroadcast" */;
+			buildPhases = (
+				FBCAFE000000000000005006 /* Sources */,
+				FBCAFE000000000000005007 /* Frameworks */,
+				FBCAFE000000000000005008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WebDriverAgentBroadcast;
+			productName = WebDriverAgentBroadcast;
+			productReference = FBCAFE000000000000005002 /* WebDriverAgentBroadcast.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -3129,6 +3233,9 @@
 					EEF988291C486603005CA669 = {
 						CreatedOnToolsVersion = 7.2;
 					};
+					FBCAFE000000000000005001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 				};
 			};
 			buildConfigurationList = 91F9DAE41B99DBC2001349B2 /* Build configuration list for PBXProject "WebDriverAgent" */;
@@ -3147,6 +3254,7 @@
 				EE158A981CBD452B00A3E3F0 /* WebDriverAgentLib */,
 				641EE5D52240C5CA00173FCB /* WebDriverAgentLib_tvOS */,
 				EEF988291C486603005CA669 /* WebDriverAgentRunner */,
+				FBCAFE000000000000005001 /* WebDriverAgentBroadcast */,
 				641EE2D92240BBE300173FCB /* WebDriverAgentRunner_tvOS */,
 				EE836C011C0F118600D87246 /* UnitTests */,
 				64B264F8228C50E0002A5025 /* UnitTests_tvOS */,
@@ -3228,6 +3336,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1B2C3D4E5F600000000001B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FBCAFE000000000000005008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3377,6 +3492,10 @@
 				FBCAFE00000000000000000C /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000012 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000018 /* FBVideoStreamManager.m in Sources */,
+				FBCAFE000000000000005304 /* FBBroadcastProtocol.m in Sources */,
+				FBCAFE000000000000005314 /* FBBroadcastControlServer.m in Sources */,
+				FBCAFE000000000000005324 /* FBBroadcastManager.m in Sources */,
+				FBCAFE000000000000005334 /* FBBroadcastPickerHost.m in Sources */,
 				FBCAFE000000000000001006 /* FBVideoStreamSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3526,6 +3645,10 @@
 				FBCAFE00000000000000000B /* FBPixelBufferConverter.m in Sources */,
 				FBCAFE000000000000000011 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000000017 /* FBVideoStreamManager.m in Sources */,
+				FBCAFE000000000000005305 /* FBBroadcastProtocol.m in Sources */,
+				FBCAFE000000000000005315 /* FBBroadcastControlServer.m in Sources */,
+				FBCAFE000000000000005325 /* FBBroadcastManager.m in Sources */,
+				FBCAFE000000000000005335 /* FBBroadcastPickerHost.m in Sources */,
 				FBCAFE000000000000001005 /* FBVideoStreamSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3655,6 +3778,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FBCAFE000000000000005006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FBCAFE000000000000005103 /* FBBroadcastSampleHandler.m in Sources */,
+				FBCAFE000000000000005106 /* FBExtBroadcastClient.m in Sources */,
+				FBCAFE000000000000005109 /* FBExtSessionPipeline.m in Sources */,
+				FBCAFE000000000000005201 /* FBVideoEncoder.m in Sources */,
+				FBCAFE000000000000005202 /* GCDAsyncSocket.m in Sources */,
+				FBCAFE000000000000005203 /* FBBroadcastProtocol.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3707,6 +3843,11 @@
 			isa = PBXTargetDependency;
 			target = EE158A981CBD452B00A3E3F0 /* WebDriverAgentLib */;
 			targetProxy = EE9B769E1CF79C0A00275851 /* PBXContainerItemProxy */;
+		};
+		FBCAFE00000000000000500A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FBCAFE000000000000005001 /* WebDriverAgentBroadcast */;
+			targetProxy = FBCAFE000000000000005009 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -4594,6 +4735,38 @@
 			};
 			name = Release;
 		};
+		FBCAFE000000000000005004 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				INFOPLIST_FILE = WebDriverAgentBroadcast/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.xctrunner.broadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FBCAFE000000000000005005 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				INFOPLIST_FILE = WebDriverAgentBroadcast/Info.plist;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.xctrunner.broadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -4692,6 +4865,15 @@
 			buildConfigurations = (
 				EEF988321C486604005CA669 /* Debug */,
 				EEF988331C486604005CA669 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FBCAFE000000000000005003 /* Build configuration list for PBXNativeTarget "WebDriverAgentBroadcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FBCAFE000000000000005004 /* Debug */,
+				FBCAFE000000000000005005 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

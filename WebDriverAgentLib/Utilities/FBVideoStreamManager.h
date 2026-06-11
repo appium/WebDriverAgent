@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** @return The session with the given id, or nil. */
 - (nullable FBVideoStreamSession *)sessionWithIdentifier:(NSUInteger)identifier;
 
+/** @return A snapshot of all active session objects. */
+- (NSArray<FBVideoStreamSession *> *)activeSessions;
+
 /** @return An array of dictionaries describing all active sessions, ordered by id. */
 - (NSArray<NSDictionary *> *)activeSessionsInfo;
 

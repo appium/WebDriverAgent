@@ -12,6 +12,7 @@
 #import <ImageIO/ImageIO.h>
 @import UniformTypeIdentifiers;
 
+#import "FBBroadcastManager.h"
 #import "FBConfiguration.h"
 #import "FBImageUtils.h"
 #import "FBLogger.h"
@@ -27,7 +28,6 @@ static const NSUInteger PORT_SCAN_RANGE = 64;
 static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
-static const CGFloat CAPTURE_COMPRESSION_QUALITY = 0.8;
 static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
 
 @interface FBVideoStreamManager ()
@@ -134,6 +134,12 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
       [weakSelf captureFrameWithGeneration:generation];
     });
   }
+  // Attach the session to the broadcast extension (if connected): the session keeps serving
+  // locally encoded screenshot frames until the extension's first key frame arrives.
+  session.onBroadcastKeyFrameNeeded = ^(NSUInteger sessionIdentifier) {
+    [FBBroadcastManager.sharedInstance requestKeyFrameForSession:sessionIdentifier];
+  };
+  [FBBroadcastManager.sharedInstance notifySessionAdded:session];
   [FBLogger logFmt:@"Started screen capture session %@ (%@ %@x%@) on port %@",
    @(identifier), session.toDictionary[@"codec"], @(configuration.width), @(configuration.height), @(configuration.port)];
   return session;
@@ -193,6 +199,7 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
     }
   }
   [session stop];
+  [FBBroadcastManager.sharedInstance notifySessionRemoved:identifier];
   [FBLogger logFmt:@"Stopped screen capture session %@", @(identifier)];
   return YES;
 }
@@ -240,6 +247,14 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   }
   for (FBVideoStreamSession *session in snapshot) {
     [session stop];
+    [FBBroadcastManager.sharedInstance notifySessionRemoved:session.identifier];
+  }
+}
+
+- (NSArray<FBVideoStreamSession *> *)activeSessions
+{
+  @synchronized (self.sessions) {
+    return self.sessions.allValues;
   }
 }
 
@@ -283,7 +298,9 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   BOOL anyClients = NO;
   for (FBVideoStreamSession *session in snapshot) {
     loopFps = MAX(loopFps, session.configuration.fps);
-    if ([session hasClients]) {
+    // Sessions fed by the broadcast extension do not need (expensive) XCTest screenshots; the
+    // loop keeps ticking cheaply so it picks the screenshot capture back up if they detach.
+    if ([session requiresLocalFrames]) {
       anyClients = YES;
     }
   }
@@ -299,8 +316,15 @@ static const char *QUEUE_NAME = "Screen Capture Encoder Queue";
   }
 
   NSError *error;
+  CGFloat captureQuality = 1.0;
+  for (FBVideoStreamSession *session in snapshot) {
+    if ([session requiresLocalFrames]) {
+      captureQuality = MIN(captureQuality, session.configuration.quality);
+    }
+  }
+
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
-                                                           compressionQuality:CAPTURE_COMPRESSION_QUALITY
+                                                           compressionQuality:captureQuality
                                                                           uti:UTTypeJPEG
                                                                       timeout:FRAME_TIMEOUT
                                                                         error:&error];

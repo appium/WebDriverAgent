@@ -88,6 +88,8 @@ static void FBCompressionOutputCallback(void *outputCallbackRefCon,
 {
   VTSessionSetProperty(self.session, kVTCompressionPropertyKey_RealTime, kCFBooleanTrue);
   VTSessionSetProperty(self.session, kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse);
+  CFNumberRef maxFrameDelayCount = (__bridge CFNumberRef)@(1);
+  VTSessionSetProperty(self.session, kVTCompressionPropertyKey_MaxFrameDelayCount, maxFrameDelayCount);
 
   CFStringRef profileLevel = (self.codec == FBVideoCodecH265)
     ? kVTProfileLevel_HEVC_Main_AutoLevel
@@ -254,27 +256,33 @@ static void FBCompressionOutputCallback(void *outputCallbackRefCon,
     return nil;
   }
 
-  NSMutableData *avccData = [NSMutableData dataWithLength:totalLength];
-  OSStatus status = CMBlockBufferCopyDataBytes(blockBuffer, 0, totalLength, avccData.mutableBytes);
-  if (status != kCMBlockBufferNoErr) {
-    return nil;
-  }
-
-  const uint8_t *bytes = (const uint8_t *)avccData.bytes;
   size_t headerLength = self.nalUnitHeaderLength == 0 ? 4 : self.nalUnitHeaderLength;
-  NSMutableData *annexBData = [NSMutableData data];
+  uint8_t headerBytes[8];
+  NSMutableData *annexBData = [NSMutableData dataWithCapacity:totalLength + sizeof(FBAnnexBStartCode)];
   size_t offset = 0;
   while (offset + headerLength <= totalLength) {
+    OSStatus status = CMBlockBufferCopyDataBytes(blockBuffer, offset, headerLength, headerBytes);
+    if (status != kCMBlockBufferNoErr) {
+      return nil;
+    }
     uint64_t nalLength = 0;
     for (size_t i = 0; i < headerLength; i++) {
-      nalLength = (nalLength << 8) | bytes[offset + i];
+      nalLength = (nalLength << 8) | headerBytes[i];
     }
     offset += headerLength;
     if (nalLength == 0 || offset + nalLength > totalLength) {
       break;
     }
     [annexBData appendBytes:FBAnnexBStartCode length:sizeof(FBAnnexBStartCode)];
-    [annexBData appendBytes:bytes + offset length:(NSUInteger)nalLength];
+    NSUInteger previousLength = annexBData.length;
+    [annexBData setLength:previousLength + (NSUInteger)nalLength];
+    status = CMBlockBufferCopyDataBytes(blockBuffer,
+                                        offset,
+                                        (size_t)nalLength,
+                                        (uint8_t *)annexBData.mutableBytes + previousLength);
+    if (status != kCMBlockBufferNoErr) {
+      return nil;
+    }
     offset += nalLength;
   }
   return annexBData.length > 0 ? annexBData : nil;
