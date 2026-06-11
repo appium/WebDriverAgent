@@ -33,6 +33,8 @@ static NSString *const FBExtClientErrorDomain = @"com.facebook.WebDriverAgent.FB
 @property (nonatomic, nullable) dispatch_source_t heartbeatTimer;
 @property (nonatomic) NSMutableDictionary<NSNumber *, FBExtSessionPipeline *> *pipelines;
 @property (atomic, copy, readwrite) NSDictionary<NSNumber *, FBExtSessionPipeline *> *activePipelines;
+@property (nonatomic) NSMutableDictionary<NSNumber *, FBExtAudioPipeline *> *audioPipelines;
+@property (atomic, copy, readwrite) NSDictionary<NSNumber *, FBExtAudioPipeline *> *activeAudioPipelines;
 @property (nonatomic) NSUInteger remainingConnectAttempts;
 @property (atomic) BOOL stopped;
 @property (atomic) BOOL connected;
@@ -40,7 +42,9 @@ static NSString *const FBExtClientErrorDomain = @"com.facebook.WebDriverAgent.FB
 @property (nonatomic) FBBroadcastMessageHeader pendingHeader;
 // Previous heartbeat totals used to derive per-second rates (queue-confined).
 @property (nonatomic, nullable) NSDictionary<NSString *, NSDictionary *> *previousPipelineTotals;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSDictionary *> *previousAudioPipelineTotals;
 @property (nonatomic) uint64_t previousFramesReceived;
+@property (nonatomic) uint64_t previousAudioSamplesReceived;
 @property (nonatomic) uint64_t lastHeartbeatAtMs;
 
 @end
@@ -58,6 +62,8 @@ static double FBExtRatePerSec(double delta, double intervalSec)
     _queue = dispatch_queue_create("wda.broadcast.client", DISPATCH_QUEUE_SERIAL);
     _pipelines = [NSMutableDictionary dictionary];
     _activePipelines = @{};
+    _audioPipelines = [NSMutableDictionary dictionary];
+    _activeAudioPipelines = @{};
     _remainingConnectAttempts = CONNECT_ATTEMPTS;
   }
   return self;
@@ -114,6 +120,11 @@ static double FBExtRatePerSec(double delta, double intervalSec)
     }
     [self.pipelines removeAllObjects];
     self.activePipelines = @{};
+    for (FBExtAudioPipeline *pipeline in self.audioPipelines.allValues) {
+      [pipeline teardown];
+    }
+    [self.audioPipelines removeAllObjects];
+    self.activeAudioPipelines = @{};
     self.socket.delegate = nil;
     [self.socket disconnect];
     self.socket = nil;
@@ -203,6 +214,30 @@ static double FBExtRatePerSec(double delta, double intervalSec)
     payload[@"pipelines"] = pipelinesJson;
   }
   self.previousPipelineTotals = newTotals;
+
+  uint64_t audioSamplesReceived = self.audioSamplesReceived;
+  if (self.audioPipelines.count > 0 || audioSamplesReceived > 0) {
+    payload[@"audioSamplesReceived"] = @(audioSamplesReceived);
+    payload[@"audioSamplesReceivedPerSec"] = @(FBExtRatePerSec((double)(audioSamplesReceived - self.previousAudioSamplesReceived), intervalSec));
+  }
+  NSMutableDictionary *audioPipelinesJson = [NSMutableDictionary dictionary];
+  NSMutableDictionary *newAudioTotals = [NSMutableDictionary dictionary];
+  [self.audioPipelines enumerateKeysAndObjectsUsingBlock:^(NSNumber *sessionId, FBExtAudioPipeline *pipeline, BOOL *stop) {
+    NSDictionary<NSString *, NSNumber *> *metrics = [pipeline metricsSnapshot];
+    NSMutableDictionary *entry = [metrics mutableCopy];
+    NSDictionary *previous = self.previousAudioPipelineTotals[sessionId.stringValue];
+    for (NSString *key in @[@"samplesIn", @"packetsEncoded"]) {
+      double delta = metrics[key].doubleValue - [previous[key] doubleValue];
+      entry[[key stringByAppendingString:@"PerSec"]] = @(FBExtRatePerSec(delta, intervalSec));
+    }
+    audioPipelinesJson[sessionId.stringValue] = entry;
+    newAudioTotals[sessionId.stringValue] = metrics;
+  }];
+  if (audioPipelinesJson.count > 0) {
+    payload[@"audioPipelines"] = audioPipelinesJson;
+  }
+  self.previousAudioPipelineTotals = newAudioTotals;
+  self.previousAudioSamplesReceived = audioSamplesReceived;
   self.previousFramesReceived = framesReceived;
   self.lastHeartbeatAtMs = nowMs;
 
@@ -247,18 +282,26 @@ static double FBExtRatePerSec(double delta, double intervalSec)
 {
   [self removeSession:sessionId];
   NSError *error;
+  if ([FBBroadcastMediaAudio isEqual:configuration[FBBroadcastKeyMedia]]) {
+    FBExtAudioPipeline *audioPipeline = [[FBExtAudioPipeline alloc] initWithSessionId:sessionId
+                                                                        configuration:configuration
+                                                                                 sink:self
+                                                                                error:&error];
+    if (nil == audioPipeline) {
+      [self reportSessionError:error forSession:sessionId];
+      return;
+    }
+    self.audioPipelines[@(sessionId)] = audioPipeline;
+    self.activeAudioPipelines = self.audioPipelines;
+    FBExtLogInfo("Session %u: audio pipeline created (%{public}@)", sessionId, configuration.description);
+    return;
+  }
   FBExtSessionPipeline *pipeline = [[FBExtSessionPipeline alloc] initWithSessionId:sessionId
                                                                      configuration:configuration
                                                                               sink:self
                                                                              error:&error];
   if (nil == pipeline) {
-    FBExtLogError("Session %u: cannot create a pipeline: %{public}@", sessionId, error.description);
-    NSData *message = FBBroadcastEncodeJSONMessage(FBBroadcastMessageTypeSessionError, sessionId, @{
-      FBBroadcastKeyMessage: error.localizedDescription ?: @"Cannot create the session pipeline",
-    });
-    if (nil != message) {
-      [self sendProtocolMessage:message isDroppable:NO];
-    }
+    [self reportSessionError:error forSession:sessionId];
     return;
   }
   self.pipelines[@(sessionId)] = pipeline;
@@ -266,8 +309,26 @@ static double FBExtRatePerSec(double delta, double intervalSec)
   FBExtLogInfo("Session %u: pipeline created (%{public}@)", sessionId, configuration.description);
 }
 
+- (void)reportSessionError:(nullable NSError *)error forSession:(uint32_t)sessionId
+{
+  FBExtLogError("Session %u: cannot create a pipeline: %{public}@", sessionId, error.description);
+  NSData *message = FBBroadcastEncodeJSONMessage(FBBroadcastMessageTypeSessionError, sessionId, @{
+    FBBroadcastKeyMessage: error.localizedDescription ?: @"Cannot create the session pipeline",
+  });
+  if (nil != message) {
+    [self sendProtocolMessage:message isDroppable:NO];
+  }
+}
+
 - (void)removeSession:(uint32_t)sessionId
 {
+  FBExtAudioPipeline *audioPipeline = self.audioPipelines[@(sessionId)];
+  if (nil != audioPipeline) {
+    [audioPipeline teardown];
+    [self.audioPipelines removeObjectForKey:@(sessionId)];
+    self.activeAudioPipelines = self.audioPipelines;
+    FBExtLogInfo("Session %u: audio pipeline removed", sessionId);
+  }
   FBExtSessionPipeline *pipeline = self.pipelines[@(sessionId)];
   if (nil == pipeline) {
     return;

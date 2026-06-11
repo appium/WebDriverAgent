@@ -63,6 +63,14 @@ typedef NS_ENUM(uint8_t, FBBroadcastMessageType) {
   FBBroadcastMessageTypeStatus = 0x85,
   /** JSON {message} for sessionId (e.g. the per-session encoder could not be created). */
   FBBroadcastMessageTypeSessionError = 0x86,
+  /**
+   The RFC 7845 OpusHead identification header (19 bytes, mapping family 0) for sessionId.
+   Sent right after the audio pipeline's encoder is created and again whenever its parameters
+   change. Sent before the first AUDIO_FRAME that uses it.
+   */
+  FBBroadcastMessageTypeAudioParams = 0x87,
+  /** Binary: [8B ptsUs BE][one Opus packet]; sessionId in the header. */
+  FBBroadcastMessageTypeAudioFrame = 0x88,
 };
 
 /** A parsed message header. */
@@ -78,6 +86,13 @@ extern const uint8_t FBBroadcastFrameFlagKeyFrame;
 /** VIDEO_FRAME flags bits 1-3: CGImagePropertyOrientation (1-8) of the captured frame. */
 extern const uint8_t FBBroadcastFrameOrientationShift;
 extern const uint8_t FBBroadcastFrameOrientationMask;
+
+/**
+ Bit 31 of the wire sessionId marks an audio session. SESSION_REMOVE and KEYFRAME_REQUEST carry
+ nothing but a sessionId, and the extension replaces same-id pipelines on SESSION_ADD, so audio
+ and video ids must stay disjoint on the wire. The HTTP-visible id is sessionId without the flag.
+ */
+extern const uint32_t FBBroadcastAudioSessionIdFlag;
 
 /** JSON keys for SESSION_ADD / HELLO / HEARTBEAT / STATUS payloads. */
 extern NSString *const FBBroadcastKeyWidth;
@@ -95,10 +110,18 @@ extern NSString *const FBBroadcastKeyScreenHeight;
 extern NSString *const FBBroadcastKeyEvent;
 extern NSString *const FBBroadcastKeyReason;
 extern NSString *const FBBroadcastKeyMessage;
+/** SESSION_ADD media discriminator: "audio" marks an audio session; absent means video. */
+extern NSString *const FBBroadcastKeyMedia;
+extern NSString *const FBBroadcastKeyChannels;
+extern NSString *const FBBroadcastKeySampleRate;
+
+/** The FBBroadcastKeyMedia value marking an audio session. */
+extern NSString *const FBBroadcastMediaAudio;
 
 /** Codec string values used in SESSION_ADD, matching the HTTP API. */
 extern NSString *const FBBroadcastCodecH264;
 extern NSString *const FBBroadcastCodecH265;
+extern NSString *const FBBroadcastCodecOpus;
 
 /** Builds a complete wire message (header + payload). */
 NSData *FBBroadcastEncodeMessage(FBBroadcastMessageType type,
@@ -143,5 +166,35 @@ BOOL FBBroadcastParseVideoFramePayload(NSData *payload,
                                        BOOL *outIsKeyFrame,
                                        uint8_t *outOrientation,
                                        NSData *_Nullable __autoreleasing *_Nonnull outAnnexB);
+
+/** Builds a complete AUDIO_FRAME wire message: header + [8B ptsUs BE][opusPacket]. */
+NSData *FBBroadcastEncodeAudioFrameMessage(uint32_t sessionId,
+                                           uint64_t ptsUs,
+                                           NSData *opusPacket);
+
+/**
+ Parses an AUDIO_FRAME payload.
+
+ @return NO when the payload is shorter than its fixed prefix.
+ */
+BOOL FBBroadcastParseAudioFramePayload(NSData *payload,
+                                       uint64_t *outPtsUs,
+                                       NSData *_Nullable __autoreleasing *_Nonnull outOpusPacket);
+
+/**
+ Builds the 19-byte RFC 7845 OpusHead identification header (channel mapping family 0).
+ Unlike the big-endian framing around it, the OpusHead's own fields are little-endian:
+
+   offset 0   8B  ASCII "OpusHead"
+   offset 8   1B  version = 1
+   offset 9   1B  channel count
+   offset 10  2B  pre-skip in 48 kHz samples (LE)
+   offset 12  4B  input sample rate in Hz, informational (LE)
+   offset 16  2B  output gain, Q7.8 (LE) = 0
+   offset 18  1B  channel mapping family = 0
+ */
+NSData *FBBroadcastCreateOpusHead(uint8_t channelCount,
+                                  uint16_t preSkip,
+                                  uint32_t inputSampleRate);
 
 NS_ASSUME_NONNULL_END

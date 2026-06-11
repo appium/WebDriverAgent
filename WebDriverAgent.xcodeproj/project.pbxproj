@@ -61,6 +61,24 @@
 		FBCAFE000000000000005333 /* FBBroadcastPickerHost.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005330 /* FBBroadcastPickerHost.h */; };
 		FBCAFE000000000000005334 /* FBBroadcastPickerHost.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */; };
 		FBCAFE000000000000005335 /* FBBroadcastPickerHost.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */; };
+		FBCAFE000000000000006002 /* FBScrcpyPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006000 /* FBScrcpyPacket.h */; };
+		FBCAFE000000000000006003 /* FBScrcpyPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006000 /* FBScrcpyPacket.h */; };
+		FBCAFE000000000000006004 /* FBScrcpyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006001 /* FBScrcpyPacket.m */; };
+		FBCAFE000000000000006005 /* FBScrcpyPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006001 /* FBScrcpyPacket.m */; };
+		FBCAFE000000000000006012 /* FBAudioStreamSession.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006010 /* FBAudioStreamSession.h */; };
+		FBCAFE000000000000006013 /* FBAudioStreamSession.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006010 /* FBAudioStreamSession.h */; };
+		FBCAFE000000000000006014 /* FBAudioStreamSession.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006011 /* FBAudioStreamSession.m */; };
+		FBCAFE000000000000006015 /* FBAudioStreamSession.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006011 /* FBAudioStreamSession.m */; };
+		FBCAFE000000000000006022 /* FBAudioStreamManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006020 /* FBAudioStreamManager.h */; };
+		FBCAFE000000000000006023 /* FBAudioStreamManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006020 /* FBAudioStreamManager.h */; };
+		FBCAFE000000000000006024 /* FBAudioStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006021 /* FBAudioStreamManager.m */; };
+		FBCAFE000000000000006025 /* FBAudioStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006021 /* FBAudioStreamManager.m */; };
+		FBCAFE000000000000006032 /* FBAudioCaptureCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006030 /* FBAudioCaptureCommands.h */; };
+		FBCAFE000000000000006033 /* FBAudioCaptureCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006030 /* FBAudioCaptureCommands.h */; };
+		FBCAFE000000000000006034 /* FBAudioCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006031 /* FBAudioCaptureCommands.m */; };
+		FBCAFE000000000000006035 /* FBAudioCaptureCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006031 /* FBAudioCaptureCommands.m */; };
+		FBCAFE000000000000006042 /* FBExtAudioPipeline.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006041 /* FBExtAudioPipeline.m */; };
+		FBCAFE000000000000006051 /* FBAudioStreamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBCAFE000000000000006050 /* FBAudioStreamTests.m */; };
 		0E0413382DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E0413392DF1E15100AF007C /* XCUIElement+FBMinMax.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */; };
 		0E04133B2DF1E15900AF007C /* XCUIElement+FBMinMax.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E04133A2DF1E15900AF007C /* XCUIElement+FBMinMax.h */; };
@@ -1028,6 +1046,17 @@
 		FBCAFE000000000000005105 /* FBExtBroadcastClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBExtBroadcastClient.m; sourceTree = "<group>"; };
 		FBCAFE000000000000005107 /* FBExtSessionPipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtSessionPipeline.h; sourceTree = "<group>"; };
 		FBCAFE000000000000005108 /* FBExtSessionPipeline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBExtSessionPipeline.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006000 /* FBScrcpyPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBScrcpyPacket.h; sourceTree = "<group>"; };
+		FBCAFE000000000000006001 /* FBScrcpyPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBScrcpyPacket.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006010 /* FBAudioStreamSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBAudioStreamSession.h; sourceTree = "<group>"; };
+		FBCAFE000000000000006011 /* FBAudioStreamSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAudioStreamSession.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006020 /* FBAudioStreamManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBAudioStreamManager.h; sourceTree = "<group>"; };
+		FBCAFE000000000000006021 /* FBAudioStreamManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAudioStreamManager.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006030 /* FBAudioCaptureCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBAudioCaptureCommands.h; sourceTree = "<group>"; };
+		FBCAFE000000000000006031 /* FBAudioCaptureCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAudioCaptureCommands.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006040 /* FBExtAudioPipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtAudioPipeline.h; sourceTree = "<group>"; };
+		FBCAFE000000000000006041 /* FBExtAudioPipeline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBExtAudioPipeline.m; sourceTree = "<group>"; };
+		FBCAFE000000000000006050 /* FBAudioStreamTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBAudioStreamTests.m; sourceTree = "<group>"; };
 		FBCAFE00000000000000510A /* FBExtLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBExtLogging.h; sourceTree = "<group>"; };
 		FBCAFE000000000000005300 /* FBBroadcastProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBroadcastProtocol.h; sourceTree = "<group>"; };
 		FBCAFE000000000000005301 /* FBBroadcastProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBroadcastProtocol.m; sourceTree = "<group>"; };
@@ -1993,6 +2022,8 @@
 				71BB58EE2B96511800CB9BFE /* FBVideoCommands.m */,
 				FBCAFE000000000000000001 /* FBScreenCaptureCommands.h */,
 				FBCAFE000000000000000004 /* FBScreenCaptureCommands.m */,
+				FBCAFE000000000000006030 /* FBAudioCaptureCommands.h */,
+				FBCAFE000000000000006031 /* FBAudioCaptureCommands.m */,
 				FBCAFE000000000000003001 /* FBMobilerunA11yCommands.h */,
 				FBCAFE000000000000003101 /* FBMobilerunActionsCommands.h */,
 				FBCAFE000000000000003004 /* FBMobilerunA11yCommands.m */,
@@ -2163,6 +2194,12 @@
 				FBCAFE000000000000005331 /* FBBroadcastPickerHost.m */,
 				FBCAFE000000000000001001 /* FBVideoStreamSession.h */,
 				FBCAFE000000000000001004 /* FBVideoStreamSession.m */,
+				FBCAFE000000000000006000 /* FBScrcpyPacket.h */,
+				FBCAFE000000000000006001 /* FBScrcpyPacket.m */,
+				FBCAFE000000000000006010 /* FBAudioStreamSession.h */,
+				FBCAFE000000000000006011 /* FBAudioStreamSession.m */,
+				FBCAFE000000000000006020 /* FBAudioStreamManager.h */,
+				FBCAFE000000000000006021 /* FBAudioStreamManager.m */,
 			);
 			name = Utilities;
 			path = WebDriverAgentLib/Utilities;
@@ -2261,6 +2298,7 @@
 				FBCAFE000000000000000019 /* FBPixelBufferConverterTests.m */,
 				FBCAFE00000000000000001B /* FBVideoEncoderTests.m */,
 				FBCAFE000000000000004001 /* FBVideoStreamSessionTests.m */,
+				FBCAFE000000000000006050 /* FBAudioStreamTests.m */,
 				FBCAFE000000000000002001 /* FBImageUtilsTests.m */,
 			);
 			path = UnitTests;
@@ -2474,6 +2512,8 @@
 				FBCAFE000000000000005105 /* FBExtBroadcastClient.m */,
 				FBCAFE000000000000005107 /* FBExtSessionPipeline.h */,
 				FBCAFE000000000000005108 /* FBExtSessionPipeline.m */,
+				FBCAFE000000000000006040 /* FBExtAudioPipeline.h */,
+				FBCAFE000000000000006041 /* FBExtAudioPipeline.m */,
 				FBCAFE00000000000000510A /* FBExtLogging.h */,
 			);
 			path = WebDriverAgentBroadcast;
@@ -2734,6 +2774,10 @@
 				FBCAFE000000000000005322 /* FBBroadcastManager.h in Headers */,
 				FBCAFE000000000000005332 /* FBBroadcastPickerHost.h in Headers */,
 				FBCAFE000000000000001003 /* FBVideoStreamSession.h in Headers */,
+				FBCAFE000000000000006003 /* FBScrcpyPacket.h in Headers */,
+				FBCAFE000000000000006013 /* FBAudioStreamSession.h in Headers */,
+				FBCAFE000000000000006023 /* FBAudioStreamManager.h in Headers */,
+				FBCAFE000000000000006033 /* FBAudioCaptureCommands.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2992,6 +3036,10 @@
 				FBCAFE000000000000005323 /* FBBroadcastManager.h in Headers */,
 				FBCAFE000000000000005333 /* FBBroadcastPickerHost.h in Headers */,
 				FBCAFE000000000000001002 /* FBVideoStreamSession.h in Headers */,
+				FBCAFE000000000000006002 /* FBScrcpyPacket.h in Headers */,
+				FBCAFE000000000000006012 /* FBAudioStreamSession.h in Headers */,
+				FBCAFE000000000000006022 /* FBAudioStreamManager.h in Headers */,
+				FBCAFE000000000000006032 /* FBAudioCaptureCommands.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3500,6 +3548,10 @@
 				FBCAFE000000000000005324 /* FBBroadcastManager.m in Sources */,
 				FBCAFE000000000000005334 /* FBBroadcastPickerHost.m in Sources */,
 				FBCAFE000000000000001006 /* FBVideoStreamSession.m in Sources */,
+				FBCAFE000000000000006005 /* FBScrcpyPacket.m in Sources */,
+				FBCAFE000000000000006015 /* FBAudioStreamSession.m in Sources */,
+				FBCAFE000000000000006025 /* FBAudioStreamManager.m in Sources */,
+				FBCAFE000000000000006035 /* FBAudioCaptureCommands.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3653,6 +3705,10 @@
 				FBCAFE000000000000005325 /* FBBroadcastManager.m in Sources */,
 				FBCAFE000000000000005335 /* FBBroadcastPickerHost.m in Sources */,
 				FBCAFE000000000000001005 /* FBVideoStreamSession.m in Sources */,
+				FBCAFE000000000000006004 /* FBScrcpyPacket.m in Sources */,
+				FBCAFE000000000000006014 /* FBAudioStreamSession.m in Sources */,
+				FBCAFE000000000000006024 /* FBAudioStreamManager.m in Sources */,
+				FBCAFE000000000000006034 /* FBAudioCaptureCommands.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3733,6 +3789,7 @@
 				FBCAFE00000000000000001A /* FBPixelBufferConverterTests.m in Sources */,
 				FBCAFE00000000000000001C /* FBVideoEncoderTests.m in Sources */,
 				FBCAFE000000000000004002 /* FBVideoStreamSessionTests.m in Sources */,
+				FBCAFE000000000000006051 /* FBAudioStreamTests.m in Sources */,
 				FBCAFE000000000000002002 /* FBImageUtilsTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3789,6 +3846,7 @@
 				FBCAFE000000000000005103 /* FBBroadcastSampleHandler.m in Sources */,
 				FBCAFE000000000000005106 /* FBExtBroadcastClient.m in Sources */,
 				FBCAFE000000000000005109 /* FBExtSessionPipeline.m in Sources */,
+				FBCAFE000000000000006042 /* FBExtAudioPipeline.m in Sources */,
 				FBCAFE000000000000005201 /* FBVideoEncoder.m in Sources */,
 				FBCAFE000000000000005202 /* GCDAsyncSocket.m in Sources */,
 				FBCAFE000000000000005203 /* FBBroadcastProtocol.m in Sources */,

@@ -1,6 +1,7 @@
 # mobilerun/screencapture
 
 H.264 / H.265 screen-capture streaming over a TCP socket, controlled by REST.
+For audio see [mobilerun-audiocapture.md](mobilerun-audiocapture.md).
 
 Source: [`FBScreenCaptureCommands.m`](../WebDriverAgentLib/Commands/FBScreenCaptureCommands.m),
 [`FBVideoStreamManager.m`](../WebDriverAgentLib/Utilities/FBVideoStreamManager.m),

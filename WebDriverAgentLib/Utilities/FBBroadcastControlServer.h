@@ -39,6 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
                            orientation:(uint8_t)orientation
                             forSession:(uint32_t)sessionId;
 
+/** A fresh OpusHead for the given audio session. */
+- (void)broadcastServerDidReceiveAudioParams:(NSData *)opusHead forSession:(uint32_t)sessionId;
+
+/** An encoded Opus packet for the given audio session. */
+- (void)broadcastServerDidReceiveAudioPacket:(NSData *)opusPacket
+                                       ptsUs:(uint64_t)ptsUs
+                                  forSession:(uint32_t)sessionId;
+
 /** The extension disconnected or went silent (watchdog). */
 - (void)broadcastServerDidDisconnect;
 

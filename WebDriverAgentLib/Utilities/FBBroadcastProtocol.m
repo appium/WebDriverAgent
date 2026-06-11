@@ -17,6 +17,8 @@ const uint8_t FBBroadcastFrameFlagKeyFrame = 1 << 0;
 const uint8_t FBBroadcastFrameOrientationShift = 1;
 const uint8_t FBBroadcastFrameOrientationMask = 0x07;
 
+const uint32_t FBBroadcastAudioSessionIdFlag = 0x80000000u;
+
 NSString *const FBBroadcastKeyWidth = @"width";
 NSString *const FBBroadcastKeyHeight = @"height";
 NSString *const FBBroadcastKeyCodec = @"codec";
@@ -32,9 +34,15 @@ NSString *const FBBroadcastKeyScreenHeight = @"screenHeight";
 NSString *const FBBroadcastKeyEvent = @"event";
 NSString *const FBBroadcastKeyReason = @"reason";
 NSString *const FBBroadcastKeyMessage = @"message";
+NSString *const FBBroadcastKeyMedia = @"media";
+NSString *const FBBroadcastKeyChannels = @"channels";
+NSString *const FBBroadcastKeySampleRate = @"sampleRate";
+
+NSString *const FBBroadcastMediaAudio = @"audio";
 
 NSString *const FBBroadcastCodecH264 = @"h264";
 NSString *const FBBroadcastCodecH265 = @"h265";
+NSString *const FBBroadcastCodecOpus = @"opus";
 
 NSData *FBBroadcastEncodeMessage(FBBroadcastMessageType type,
                                  uint32_t sessionId,
@@ -176,4 +184,65 @@ BOOL FBBroadcastParseVideoFramePayload(NSData *payload,
   *outOrientation = (flags >> FBBroadcastFrameOrientationShift) & FBBroadcastFrameOrientationMask;
   *outAnnexB = [payload subdataWithRange:NSMakeRange(prefixLength, payload.length - prefixLength)];
   return YES;
+}
+
+NSData *FBBroadcastEncodeAudioFrameMessage(uint32_t sessionId,
+                                           uint64_t ptsUs,
+                                           NSData *opusPacket)
+{
+  NSUInteger payloadLength = sizeof(uint64_t) + opusPacket.length;
+  NSMutableData *message = [NSMutableData dataWithCapacity:FBBroadcastHeaderLength + payloadLength];
+
+  uint32_t bigMagic = CFSwapInt32HostToBig(FBBroadcastProtocolMagic);
+  [message appendBytes:&bigMagic length:sizeof(bigMagic)];
+  uint8_t version = FBBroadcastProtocolVersion;
+  [message appendBytes:&version length:sizeof(version)];
+  uint8_t messageType = (uint8_t)FBBroadcastMessageTypeAudioFrame;
+  [message appendBytes:&messageType length:sizeof(messageType)];
+  uint16_t reserved = 0;
+  [message appendBytes:&reserved length:sizeof(reserved)];
+  uint32_t bigSessionId = CFSwapInt32HostToBig(sessionId);
+  [message appendBytes:&bigSessionId length:sizeof(bigSessionId)];
+  uint32_t bigPayloadLength = CFSwapInt32HostToBig((uint32_t)payloadLength);
+  [message appendBytes:&bigPayloadLength length:sizeof(bigPayloadLength)];
+
+  uint64_t bigPts = CFSwapInt64HostToBig(ptsUs);
+  [message appendBytes:&bigPts length:sizeof(bigPts)];
+  [message appendData:opusPacket];
+  return message;
+}
+
+BOOL FBBroadcastParseAudioFramePayload(NSData *payload,
+                                       uint64_t *outPtsUs,
+                                       NSData *_Nullable __autoreleasing *_Nonnull outOpusPacket)
+{
+  static const NSUInteger prefixLength = sizeof(uint64_t);
+  if (payload.length < prefixLength) {
+    return NO;
+  }
+  const uint8_t *bytes = (const uint8_t *)payload.bytes;
+  uint64_t bigPts;
+  memcpy(&bigPts, bytes, sizeof(bigPts));
+  *outPtsUs = CFSwapInt64BigToHost(bigPts);
+  *outOpusPacket = [payload subdataWithRange:NSMakeRange(prefixLength, payload.length - prefixLength)];
+  return YES;
+}
+
+NSData *FBBroadcastCreateOpusHead(uint8_t channelCount,
+                                  uint16_t preSkip,
+                                  uint32_t inputSampleRate)
+{
+  uint8_t head[19];
+  memcpy(head, "OpusHead", 8);
+  head[8] = 1; // version
+  head[9] = channelCount;
+  // The OpusHead's own fields are little-endian per RFC 7845.
+  uint16_t lePreSkip = CFSwapInt16HostToLittle(preSkip);
+  memcpy(head + 10, &lePreSkip, sizeof(lePreSkip));
+  uint32_t leSampleRate = CFSwapInt32HostToLittle(inputSampleRate);
+  memcpy(head + 12, &leSampleRate, sizeof(leSampleRate));
+  uint16_t leGain = 0;
+  memcpy(head + 16, &leGain, sizeof(leGain));
+  head[18] = 0; // channel mapping family
+  return [NSData dataWithBytes:head length:sizeof(head)];
 }

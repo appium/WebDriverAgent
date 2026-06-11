@@ -27,6 +27,7 @@
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
 static NSUInteger const DefaultScreenCaptureServerPort = 9200;
+static NSUInteger const DefaultAudioCaptureServerPort = 9400;
 static NSUInteger const DefaultPortRange = 100;
 
 static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
@@ -174,6 +175,16 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   }
 
   return DefaultScreenCaptureServerPort;
+}
+
++ (NSInteger)audioCaptureServerPort
+{
+  if (NSProcessInfo.processInfo.environment[@"AUDIO_CAPTURE_SERVER_PORT"] &&
+      [NSProcessInfo.processInfo.environment[@"AUDIO_CAPTURE_SERVER_PORT"] length] > 0) {
+    return [NSProcessInfo.processInfo.environment[@"AUDIO_CAPTURE_SERVER_PORT"] integerValue];
+  }
+
+  return DefaultAudioCaptureServerPort;
 }
 
 + (NSInteger)broadcastControlPort

@@ -140,6 +140,13 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (NSInteger)screenCaptureServerPort;
 
 /**
+ The default port number where the Opus audio capture broadcaster is supposed to run.
+ The default value is 9400. It can be overridden via the AUDIO_CAPTURE_SERVER_PORT environment
+ variable or per request via the 'port' argument of /mobilerun/audiocapture/start.
+ */
++ (NSInteger)audioCaptureServerPort;
+
+/**
  The loopback TCP port the ReplayKit broadcast extension connects to. The default value is 9300.
  It can be overridden via the BROADCAST_CONTROL_PORT environment variable (the extension itself
  always uses the compile-time default, so overriding requires rebuilding the extension too).

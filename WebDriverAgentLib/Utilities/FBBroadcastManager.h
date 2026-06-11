@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FBAudioStreamSession.h"
 #import "FBVideoStreamSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -77,6 +78,12 @@ typedef NS_ERROR_ENUM(FBBroadcastManagerErrorDomain, FBBroadcastManagerError) {
 
 /** Notifies the manager that a capture session stopped (sends SESSION_REMOVE when connected). */
 - (void)notifySessionRemoved:(NSUInteger)identifier;
+
+/** Notifies the manager that an audio capture session started (sends SESSION_ADD when connected). */
+- (void)notifyAudioSessionAdded:(FBAudioStreamSession *)session;
+
+/** Notifies the manager that an audio capture session stopped (sends SESSION_REMOVE when connected). */
+- (void)notifyAudioSessionRemoved:(NSUInteger)identifier;
 
 /** Forwards a key frame request for the given session to the extension. */
 - (void)requestKeyFrameForSession:(NSUInteger)identifier;
