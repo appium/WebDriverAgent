@@ -45,8 +45,10 @@ cp -R "$APPEX_SRC" "$APPEX_DST"
 HOST_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$RUNNER_APP/Info.plist")
 WANT_ID="${HOST_ID}.broadcast"
 CURRENT_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APPEX_DST/Info.plist")
+ID_REWRITTEN=0
 if [ "$CURRENT_ID" != "$WANT_ID" ]; then
     /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $WANT_ID" "$APPEX_DST/Info.plist"
+    ID_REWRITTEN=1
 fi
 
 # Re-codesign since we modified the bundle after Xcode signed it: the appex first (its bundle
@@ -69,8 +71,36 @@ if [ -d "$RUNNER_APP/_CodeSignature" ]; then
         EXISTING_IDENT="-"
     fi
     if [ -n "$EXISTING_IDENT" ]; then
-        codesign --force --sign "$EXISTING_IDENT" \
-                 --preserve-metadata=entitlements "$APPEX_DST"
+        if [ "$ID_REWRITTEN" = "1" ]; then
+            # The bundle id changed, so the signed entitlements' application-identifier must be
+            # regenerated to match it - preserving the stale entitlements makes installd reject
+            # the extension (identity no longer matches the bundle id). Rewrite the identifier in
+            # the extracted entitlements and re-sign with them.
+            ENTITLEMENTS_PLIST=$(mktemp -t broadcast-entitlements).plist
+            if codesign -d --entitlements - --xml "$APPEX_DST" > "$ENTITLEMENTS_PLIST" 2>/dev/null \
+                && [ -s "$ENTITLEMENTS_PLIST" ]; then
+                OLD_APP_ID=$(/usr/libexec/PlistBuddy -c "Print :application-identifier" "$ENTITLEMENTS_PLIST" 2>/dev/null || true)
+                TEAM_ID="${OLD_APP_ID%%.*}"
+                if [ -n "$TEAM_ID" ] && [ "$TEAM_ID" != "$OLD_APP_ID" ]; then
+                    /usr/libexec/PlistBuddy -c "Set :application-identifier ${TEAM_ID}.${WANT_ID}" "$ENTITLEMENTS_PLIST"
+                    codesign --force --sign "$EXISTING_IDENT" \
+                             --entitlements "$ENTITLEMENTS_PLIST" "$APPEX_DST"
+                else
+                    # No application-identifier (e.g. simulator ad-hoc signing): nothing to fix up.
+                    codesign --force --sign "$EXISTING_IDENT" \
+                             --preserve-metadata=entitlements "$APPEX_DST"
+                fi
+            else
+                codesign --force --sign "$EXISTING_IDENT" "$APPEX_DST"
+            fi
+            rm -f "$ENTITLEMENTS_PLIST"
+            echo "warning: appex bundle id was rewritten to $WANT_ID; the embedded provisioning" \
+                 "profile must cover that id (a wildcard development profile works), otherwise" \
+                 "re-sign with a matching profile - see docs/broadcast-extension.md"
+        else
+            codesign --force --sign "$EXISTING_IDENT" \
+                     --preserve-metadata=entitlements "$APPEX_DST"
+        fi
         codesign --force --sign "$EXISTING_IDENT" \
                  --preserve-metadata=identifier,entitlements "$RUNNER_APP"
     else

@@ -89,7 +89,10 @@ Pipelines that re-sign `WebDriverAgentRunner-Runner.app` must keep the nested ap
 2. The appex `CFBundleIdentifier` must remain `<host CFBundleIdentifier>.broadcast` — installd
    rejects extensions whose bundle id is not prefixed by the host app's, or whose team differs.
    If the pipeline changes the runner's bundle id, patch the appex id accordingly (the embed
-   script shows how) and set `BROADCAST_EXT_BUNDLE_ID` if the suffix differs.
+   script shows how) and set `BROADCAST_EXT_BUNDLE_ID` if the suffix differs. The signed
+   entitlements' `application-identifier` must match the (new) bundle id — when the embed
+   script rewrites the id it regenerates that entitlement automatically; custom re-signers
+   must do the same.
 3. Provisioning: the embedded profile must cover the appex bundle id; a wildcard development
    profile (`TEAM.*`) is the low-friction option. The extension needs no special entitlements
    (no app groups — IPC is loopback TCP).
