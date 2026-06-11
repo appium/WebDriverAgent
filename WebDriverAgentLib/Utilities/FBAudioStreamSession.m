@@ -173,12 +173,11 @@ static const NSUInteger FBAudioStreamSampleRate = 48000;
     }
   }
   // Hand the codec configuration to the new client so it can start decoding immediately.
+  // lastSentOpusHead is deliberately not updated: it tracks what was broadcast to the whole
+  // client set, and marking it sent here would skip the changed-config broadcast that earlier
+  // clients still need (the new client just receives the same config twice, which is harmless).
   if (self.configuration.framing == FBAudioFramingScrcpy) {
-    NSData *opusHead = self.currentOpusHead;
-    @synchronized (self) {
-      self.lastSentOpusHead = opusHead;
-    }
-    [newClient writeData:FBScrcpyPacketCreate(opusHead, FBScrcpyFlagConfig, 0)
+    [newClient writeData:FBScrcpyPacketCreate(self.currentOpusHead, FBScrcpyFlagConfig, 0)
              withTimeout:PACKET_TIMEOUT
                      tag:0];
   }
