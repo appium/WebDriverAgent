@@ -85,8 +85,23 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
-  while (self.keepAlive &&
-         [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+  while (self.keepAlive) {
+    @try {
+      if (![runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
+        break;
+      }
+    } @catch (NSException *exception) {
+      // Routed request handlers have their own exception protection. Anything caught here
+      // was raised by main-queue work outside of them (XCUIAutomation internals, monitor
+      // ticks, etc.) and would otherwise unwind through testRunner and end the session.
+      if ([exception.name isEqualToString:@"_XCTestCaseInterruptionException"]) {
+        // XCTest's own control-flow exception for legitimate test interruption
+        @throw;
+      }
+      [FBLogger logFmt:@"The main run loop recovered from an unexpected exception: %@\n%@",
+       exception.reason, exception.callStackSymbols];
+    }
+  }
 }
 
 - (void)startHTTPServer
