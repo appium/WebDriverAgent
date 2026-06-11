@@ -566,8 +566,11 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   FBAcceptAlertButtonSelector = @"";
   FBDismissAlertButtonSelector = @"";
   FBAutoClickAlertSelector = @"";
-  FBWaitForIdleTimeout = 10.;
-  FBAnimationCoolOffTimeout = 2.;
+  // Upstream defaults to 10s/2s, but mobilerun drives the device without quiescence waits:
+  // sessions should respond as fast as the sessionless endpoints do. Clients can still raise
+  // these per session via the settings API.
+  FBWaitForIdleTimeout = 0.;
+  FBAnimationCoolOffTimeout = 0.;
   // 50 should be enough for the majority of the cases. The performance is acceptable for values up to 100.
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxDepthKey, @50);
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey, @INT_MAX);
