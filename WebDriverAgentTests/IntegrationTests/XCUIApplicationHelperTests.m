@@ -16,6 +16,7 @@
 #import "FBTestMacros.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
 
@@ -45,6 +46,14 @@ void calculateMaxTreeDepth(NSDictionary *tree, NSNumber *currentDepth, NSNumber*
 {
   [super setUp];
   [self launchApplication];
+}
+
+- (void)testQuiescenceWaitsAreDisabledByDefault
+{
+  // Nothing in this test host configures the flag, so this asserts the process-level
+  // default. It must be NO to keep gestures and snapshots fast unless a session opts
+  // back in via the shouldWaitForQuiescence capability.
+  XCTAssertFalse(self.testedApplication.fb_shouldWaitForQuiescence);
 }
 
 - (void)testQueringSpringboard

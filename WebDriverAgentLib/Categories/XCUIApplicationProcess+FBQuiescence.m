@@ -91,7 +91,10 @@ static char XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE;
 {
   id result = objc_getAssociatedObject(self, &XCUIAPPLICATIONPROCESS_SHOULD_WAIT_FOR_QUIESCENCE);
   if (nil == result) {
-    return @(YES);
+    // This fork is fast by default: unconfigured app processes skip the quiescence/idle
+    // waits. Sessions opt back in via the shouldWaitForQuiescence capability, and
+    // fb_waitUntilStableWithTimeout still enforces its own wait regardless.
+    return @(NO);
   }
   return (NSNumber *)result;
 }
