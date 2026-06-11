@@ -11,6 +11,7 @@
 #import "FBIntegrationTestCase.h"
 #import "FBScreen.h"
 #import "FBTestMacros.h"
+#import "XCUIApplication+FBQuiescence.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement.h"
 
@@ -93,6 +94,57 @@
   NSArray *actions = @[@{@"type": @"pointerUp", @"x": @100, @"y": @100}];
   XCTAssertFalse([self.testedApplication fb_performMobilerunActions:actions scale:1.0 error:&error]);
   XCTAssertNotNil(error);
+}
+
+- (void)testPressDragZeroDistanceShowsAlert
+{
+  // A zero-distance press-and-drag is a plain long press; the touch lifts inside the button, so
+  // touch-up-inside must fire. Positive control for testPressDragAwaySuppressesAlert.
+  CGPoint p = [self alertButtonCenter];
+  [self.testedApplication fb_mobilerunPressAndDragFromPoint:p
+                                                    toPoint:p
+                                              pressDuration:0.3
+                                                   velocity:300
+                                               holdDuration:0.2];
+  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+}
+
+- (void)testPressDragAwaySuppressesAlert
+{
+  // Dragging off the button before lifting turns the touch into touch-up-outside; no alert may
+  // appear. Together with the zero-distance test this proves the drag actually moves the touch.
+  CGPoint from = [self alertButtonCenter];
+  CGPoint to = CGPointMake(from.x, from.y + 150);
+  [self.testedApplication fb_mobilerunPressAndDragFromPoint:from
+                                                    toPoint:to
+                                              pressDuration:0.3
+                                                   velocity:300
+                                               holdDuration:0.2];
+  [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+  XCTAssertEqual(self.testedApplication.alerts.count, 0);
+}
+
+- (void)testPressDragRestoresQuiescenceFlag
+{
+  // The gesture suppresses quiescence waits only for its own duration and must restore the
+  // previous value afterwards.
+  CGPoint p = [self alertButtonCenter];
+  self.testedApplication.fb_shouldWaitForQuiescence = YES;
+  [self.testedApplication fb_mobilerunPressAndDragFromPoint:p
+                                                    toPoint:p
+                                              pressDuration:0.1
+                                                   velocity:300
+                                               holdDuration:0];
+  XCTAssertTrue(self.testedApplication.fb_shouldWaitForQuiescence);
+  [self clearAlert];
+
+  self.testedApplication.fb_shouldWaitForQuiescence = NO;
+  [self.testedApplication fb_mobilerunPressAndDragFromPoint:p
+                                                    toPoint:p
+                                              pressDuration:0.1
+                                                   velocity:300
+                                               holdDuration:0];
+  XCTAssertFalse(self.testedApplication.fb_shouldWaitForQuiescence);
 }
 
 @end

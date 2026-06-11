@@ -7,6 +7,11 @@ resolution, and the post-gesture animation-stability wait.
 
 Available both with a session and session-less (`.withoutSession`).
 
+Note: the synthesized HID events may not be recognized as device/system gestures
+(e.g. the bottom-edge app-switcher swipe). For gestures that must go through the
+system's gesture recognition, use
+[`/mobilerun/pressAndDragWithVelocity`](mobilerun-press-and-drag.md) instead.
+
 ## Request body
 
 A top-level JSON array of flat action items, replayed in array order:
