@@ -34,8 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param items array of {type,x,y,duration,button,pointerId} dictionaries. 'type' is one
         of pointerDown, pointerMove, pointerUp, pause. 'duration' is in milliseconds. 'x'/'y'
-        are in device pixels (matching /mobilerun/state and the screencapture stream).
- @param scale device pixel scale used to convert 'x'/'y' to logical points (use [FBScreen scale]).
+        are logical points multiplied by the scale (matching /mobilerun/state for the same
+        scale; the native screen scale yields device pixels matching the screencapture stream).
+ @param scale factor used to convert 'x'/'y' back to logical points ([FBScreen scale] by default).
  @param error populated when the array is empty/non-array or an item is malformed.
  @return the event record, or nil if the input is invalid.
  */
@@ -46,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  dispatches it. Skips the post-gesture stability wait.
 
  @param items array of action item dictionaries (see -fb_mobilerunEventRecordFromActions:scale:error:).
- @param scale device pixel scale used to convert 'x'/'y' to logical points (use [FBScreen scale]).
+ @param scale factor used to convert 'x'/'y' back to logical points ([FBScreen scale] by default).
  @param error populated on invalid input or synthesis failure.
  @return YES if the event was dispatched, otherwise NO.
  */

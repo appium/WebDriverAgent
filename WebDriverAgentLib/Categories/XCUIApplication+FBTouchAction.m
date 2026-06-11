@@ -79,8 +79,9 @@
              withDescriptionFormat:@"Action item requires numeric 'x' and 'y': %@", item]
             buildError:error];
   }
-  // mobilerun reports coordinates in device pixels (matching /mobilerun/state bounds and the
-  // screencapture stream); XCPointerEventPath expects logical points, so divide by the scale.
+  // mobilerun coordinates are logical points multiplied by the request's scale (matching
+  // /mobilerun/state bounds for the same scale; the default native scale matches the
+  // screencapture stream); XCPointerEventPath expects logical points, so divide it back out.
   CGFloat s = scale > 0 ? scale : 1.0;
   *outPoint = CGPointMake([x doubleValue] / s, [y doubleValue] / s);
   return YES;
