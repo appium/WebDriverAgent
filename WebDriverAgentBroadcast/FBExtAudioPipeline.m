@@ -144,6 +144,8 @@ static OSStatus FBExtAudioFeedRing(AudioConverterRef converter,
 /** Failed AudioBufferList extractions, counted separately so their (rate-limited) log can
     report the exact OSStatus — the counter alone proved too opaque to debug a silent stream. */
 @property (atomic) uint64_t extractFailuresCount;
+/** Whether the one-time buffer-list size probe (see submitAudioSampleBuffer) has logged. */
+@property (atomic) BOOL probedBufferList;
 
 @end
 
@@ -295,6 +297,24 @@ static OSStatus FBExtAudioFeedRing(AudioConverterRef converter,
     return;
   }
   AudioStreamBasicDescription asbd = *asbdPtr;
+
+  // One-time diagnostic: ask the AudioBufferList API (size-query mode) how much buffer-list
+  // storage its zero-copy path would need for these buffers. It answered ArrayTooSmall to an
+  // 8-entry list for a single-buffer interleaved format, which only adds up if replayd hands
+  // the extension block buffers fragmented into many non-contiguous ranges (one AudioBuffer
+  // per range) — this log pins the actual number, documenting why the pipeline reads the
+  // block buffer directly instead.
+  if (!self.probedBufferList) {
+    self.probedBufferList = YES;
+    size_t needed = 0;
+    OSStatus probe = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer, &needed, NULL, 0,
+                                                                             NULL, NULL, 0, NULL);
+    long entries = needed >= sizeof(AudioBufferList)
+      ? (long)((needed - offsetof(AudioBufferList, mBuffers)) / sizeof(AudioBuffer))
+      : 0;
+    FBExtLogError("Audio session %u: buffer-list probe: zero-copy path wants %zu bytes (%ld AudioBuffers) for %ld frames (probe status %d); reading the block buffer directly",
+                  self.sessionId, needed, entries, (long)frameCount, (int)probe);
+  }
 
   CMBlockBufferRef dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
   if (NULL == dataBuffer || asbd.mBytesPerFrame == 0) {
