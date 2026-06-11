@@ -1,3 +1,9 @@
+## [14.1.1](https://github.com/appium/WebDriverAgent/compare/v14.1.0...v14.1.1) (2026-06-10)
+
+### Miscellaneous Chores
+
+* address runtime version rather than Xcode for selector based methods ([#1154](https://github.com/appium/WebDriverAgent/issues/1154)) ([6618b0b](https://github.com/appium/WebDriverAgent/commit/6618b0b6ccd06c69fc9e4a0947ef0c88c89b1e48))
+
 ## [14.1.0](https://github.com/appium/WebDriverAgent/compare/v14.0.0...v14.1.0) (2026-06-10)
 
 ### Features

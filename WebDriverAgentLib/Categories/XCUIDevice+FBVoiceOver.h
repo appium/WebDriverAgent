@@ -13,14 +13,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCUIDevice (FBVoiceOver)
 
 /**
- Whether VoiceOver control APIs are available in the current Xcode SDK.
+ Whether VoiceOver control APIs are available in the current OS runtime.
 
  @return YES if the VoiceOver service is exposed by XCUIDevice
  */
 - (BOOL)fb_isVoiceOverServiceAvailable;
 
 /**
- Enable VoiceOver. Only works since Xcode 27/iOS 27.
+ Enable VoiceOver. Only works since iOS 27 runtime.
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if VoiceOver has been successfully enabled
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_enableVoiceOver:(NSError **)error;
 
 /**
- Disable VoiceOver. Only works since Xcode 27/iOS 27.
+ Disable VoiceOver. Only works since iOS 27 runtime.
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if VoiceOver has been successfully disabled
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fb_disableVoiceOver:(NSError **)error;
 
 /**
- Whether VoiceOver is currently enabled. Only works since Xcode 27/iOS 27.
+ Whether VoiceOver is currently enabled. Only works since iOS 27 runtime.
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if VoiceOver is enabled
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Move VoiceOver focus and return speech for the newly focused element.
- Only works since Xcode 27/iOS 27.
+ Only works since iOS 27 runtime.
 
  @param direction One of: forward, backward, in (iOS only), out (iOS only)
  @param error If there is an error, upon return contains an NSError object that describes the problem.
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)fb_voiceOverMove:(NSString *)direction error:(NSError **)error;
 
 /**
- Return the speech for the currently focused element. Only works since Xcode 27/iOS 27.
+ Return the speech for the currently focused element. Only works since iOS 27 runtime.
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return The spoken utterance or nil in case of failure

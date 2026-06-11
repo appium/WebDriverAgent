@@ -11,7 +11,7 @@
 #import "FBErrorBuilder.h"
 
 static NSString *const FBVoiceOverSDKUnsupportedError =
-@"The current Xcode SDK does not support VoiceOver control. Consider upgrading to Xcode 27+/iOS 27+";
+@"The current OS runtime does not support VoiceOver control. This API requires an iOS 27+ runtime";
 
 static BOOL FBVoiceOverBuildSDKUnsupportedError(NSError **error)
 {

@@ -169,7 +169,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 #if !TARGET_OS_TV
 /**
  Allows to set a simulated geolocation coordinates.
- Only works since Xcode 14.3/iOS 16.4
+ Only works since iOS 16.4 runtime
 
  @param location The simlated location coordinates to set
  @param error If there is an error, upon return contains an NSError object that describes the problem.
@@ -179,7 +179,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 
 /**
  Allows to get a simulated geolocation coordinates.
- Only works since Xcode 14.3/iOS 16.4
+ Only works since iOS 16.4 runtime
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return The current simulated location or nil in case of failure or if no location has previously been seet
@@ -189,7 +189,7 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
 
 /**
  Allows to clear a previosuly set simulated geolocation coordinates.
- Only works since Xcode 14.3/iOS 16.4
+ Only works since iOS 16.4 runtime
 
  @param error If there is an error, upon return contains an NSError object that describes the problem.
  @return YES if the simulated location has been successfully cleared

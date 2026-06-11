@@ -38,7 +38,7 @@
   NSError *error = nil;
   XCTAssertFalse([XCUIDevice.sharedDevice fb_enableVoiceOver:&error]);
   XCTAssertNotNil(error);
-  XCTAssertTrue([error.localizedDescription containsString:@"Xcode 27"]);
+  XCTAssertTrue([error.localizedDescription containsString:@"iOS 27"]);
 }
 
 - (void)testVoiceOverEnableDisableAndNavigation
