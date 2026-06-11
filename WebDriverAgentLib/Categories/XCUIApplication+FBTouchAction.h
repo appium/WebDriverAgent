@@ -63,25 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)fb_synthesizeEvent:(XCSynthesizedEventRecord *)event error:(NSError * _Nullable*)error;
 
-/**
- Press-and-drag through the high-level XCUICoordinate gesture engine. Unlike the synthesized
- /mobilerun/actions records, gestures produced this way are recognized by the system (edge
- swipe-back, app-switcher swipe). The app's quiescence waits — the dominant latency of
- /wda/pressAndDragWithVelocity — are suppressed for the duration of the call and restored
- afterwards. Blocks until the gesture has been played.
-
- @param from start point in logical points (screen coordinates).
- @param to end point in logical points.
- @param pressDuration how long to hold at the start point before dragging, in seconds.
- @param velocity drag speed in logical points per second.
- @param holdDuration how long to hold at the end point before lifting, in seconds.
- */
-- (void)fb_mobilerunPressAndDragFromPoint:(CGPoint)from
-                                  toPoint:(CGPoint)to
-                            pressDuration:(double)pressDuration
-                                 velocity:(CGFloat)velocity
-                             holdDuration:(double)holdDuration;
-
 @end
 
 NS_ASSUME_NONNULL_END
