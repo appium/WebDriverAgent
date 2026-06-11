@@ -8,19 +8,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBVideoStreamSession.h"
+#import "FBScrcpyPacket.h"
 
 // Mirrors the wire constants consumed by ios-wired/cmd/scrcpy-bridge/h264reader.go.
 static const uint64_t kFlagConfig   = (uint64_t)1 << 63;
 static const uint64_t kFlagKeyFrame = (uint64_t)1 << 62;
 static const uint64_t kPtsMask      = ~(((uint64_t)1 << 63) | ((uint64_t)1 << 62));
-
-// Test-only surface for the scrcpy packetizer implemented in FBVideoStreamSession.m.
-@interface FBVideoStreamSession (Testing)
-+ (NSData *)scrcpyPacketWithPayload:(NSData *)payload
-                              flags:(uint64_t)flags
-                 presentationTimeUs:(uint64_t)presentationTimeUs;
-@end
 
 @interface FBVideoStreamSessionTests : XCTestCase
 @end
@@ -57,7 +50,7 @@ static const uint64_t kPtsMask      = ~(((uint64_t)1 << 63) | ((uint64_t)1 << 62
 - (void)testInterFramePacket
 {
   NSData *au = [@"picture-bytes" dataUsingEncoding:NSUTF8StringEncoding];
-  NSData *packet = [FBVideoStreamSession scrcpyPacketWithPayload:au flags:0 presentationTimeUs:123456];
+  NSData *packet = FBScrcpyPacketCreate(au, 0, 123456);
 
   BOOL isConfig = YES, isKeyFrame = YES;
   uint64_t pts = 0;
@@ -73,7 +66,7 @@ static const uint64_t kPtsMask      = ~(((uint64_t)1 << 63) | ((uint64_t)1 << 62
 - (void)testKeyFramePacket
 {
   NSData *au = [@"idr" dataUsingEncoding:NSUTF8StringEncoding];
-  NSData *packet = [FBVideoStreamSession scrcpyPacketWithPayload:au flags:kFlagKeyFrame presentationTimeUs:1000000];
+  NSData *packet = FBScrcpyPacketCreate(au, kFlagKeyFrame, 1000000);
 
   BOOL isConfig = YES, isKeyFrame = NO;
   uint64_t pts = 0;
@@ -90,7 +83,7 @@ static const uint64_t kPtsMask      = ~(((uint64_t)1 << 63) | ((uint64_t)1 << 62
 {
   const uint8_t sps[] = {0x00, 0x00, 0x00, 0x01, 0x67, 0x42, 0x00, 0x1f};
   NSData *parameterSets = [NSData dataWithBytes:sps length:sizeof(sps)];
-  NSData *packet = [FBVideoStreamSession scrcpyPacketWithPayload:parameterSets flags:kFlagConfig presentationTimeUs:0];
+  NSData *packet = FBScrcpyPacketCreate(parameterSets, kFlagConfig, 0);
 
   BOOL isConfig = NO, isKeyFrame = YES;
   uint64_t pts = 1;
@@ -108,9 +101,7 @@ static const uint64_t kPtsMask      = ~(((uint64_t)1 << 63) | ((uint64_t)1 << 62
 {
   uint64_t bigPts = ((uint64_t)1 << 62) - 1; // largest value that fits in the 62-bit PTS field
   NSData *au = [@"x" dataUsingEncoding:NSUTF8StringEncoding];
-  NSData *packet = [FBVideoStreamSession scrcpyPacketWithPayload:au
-                                                          flags:kFlagKeyFrame
-                                             presentationTimeUs:bigPts];
+  NSData *packet = FBScrcpyPacketCreate(au, kFlagKeyFrame, bigPts);
 
   BOOL isConfig = YES, isKeyFrame = NO;
   uint64_t pts = 0;

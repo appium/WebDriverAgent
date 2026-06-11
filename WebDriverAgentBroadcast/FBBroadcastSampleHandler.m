@@ -12,6 +12,7 @@
 #import <CoreVideo/CoreVideo.h>
 
 #import "FBBroadcastProtocol.h"
+#import "FBExtAudioPipeline.h"
 #import "FBExtBroadcastClient.h"
 #import "FBExtLogging.h"
 #import "FBExtSessionPipeline.h"
@@ -60,8 +61,19 @@ static NSString *const FBBroadcastSampleHandlerErrorDomain = @"com.facebook.WebD
 - (void)processSampleBuffer:(CMSampleBufferRef)sampleBuffer
                    withType:(RPSampleBufferType)sampleBufferType
 {
+  if (sampleBufferType == RPSampleBufferTypeAudioApp) {
+    FBExtBroadcastClient *audioClient = self.client;
+    if (nil == audioClient) {
+      return;
+    }
+    audioClient.audioSamplesReceived += 1;
+    for (FBExtAudioPipeline *pipeline in audioClient.activeAudioPipelines.allValues) {
+      [pipeline submitAudioSampleBuffer:sampleBuffer];
+    }
+    return;
+  }
   if (sampleBufferType != RPSampleBufferTypeVideo) {
-    // Audio capture is a planned follow-up.
+    // Microphone audio is intentionally ignored; only app audio is captured.
     return;
   }
   FBExtBroadcastClient *client = self.client;

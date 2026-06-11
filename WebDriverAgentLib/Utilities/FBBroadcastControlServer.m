@@ -192,6 +192,28 @@ static const NSTimeInterval STALENESS_TIMEOUT = 6.0;
     case FBBroadcastMessageTypeVideoParams:
       [delegate broadcastServerDidReceiveParameterSets:payload forSession:header.sessionId];
       return;
+    case FBBroadcastMessageTypeAudioParams: {
+      // The payload must be a plausible RFC 7845 identification header ("OpusHead" magic).
+      static const char opusHeadMagic[8] = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
+      if (payload.length < 19 || 0 != memcmp(payload.bytes, opusHeadMagic, sizeof(opusHeadMagic))) {
+        [FBLogger logFmt:@"Session %u: malformed AUDIO_PARAMS payload", header.sessionId];
+        return;
+      }
+      [delegate broadcastServerDidReceiveAudioParams:payload forSession:header.sessionId];
+      return;
+    }
+    case FBBroadcastMessageTypeAudioFrame: {
+      uint64_t audioPtsUs = 0;
+      NSData *opusPacket = nil;
+      if (!FBBroadcastParseAudioFramePayload(payload, &audioPtsUs, &opusPacket)) {
+        [FBLogger logFmt:@"Session %u: malformed AUDIO_FRAME payload", header.sessionId];
+        return;
+      }
+      [delegate broadcastServerDidReceiveAudioPacket:(NSData *)opusPacket
+                                               ptsUs:audioPtsUs
+                                          forSession:header.sessionId];
+      return;
+    }
     case FBBroadcastMessageTypeVideoFrame: {
       uint64_t ptsUs = 0;
       BOOL isKeyFrame = NO;

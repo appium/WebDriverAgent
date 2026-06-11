@@ -17,14 +17,11 @@
 #import "GCDAsyncSocket.h"
 #import "FBLogger.h"
 #import "FBPixelBufferConverter.h"
+#import "FBScrcpyPacket.h"
 #import "FBTCPSocket.h"
 
 static const NSTimeInterval FRAME_TIMEOUT = 1.0;
 
-// scrcpy packet flags packed into the top two bits of the 8-byte presentation timestamp field.
-static const uint64_t FBScrcpyFlagConfig   = (uint64_t)1 << 63;
-static const uint64_t FBScrcpyFlagKeyFrame = (uint64_t)1 << 62;
-static const uint64_t FBScrcpyPtsMask      = ~((uint64_t)3 << 62);
 static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
 
 @implementation FBScreenCaptureConfiguration
@@ -284,15 +281,11 @@ static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
     if (isKeyFrame) {
       if (parameterSets.length > 0 && ![parameterSets isEqualToData:self.lastSentParameterSets]) {
         self.lastSentParameterSets = parameterSets;
-        [self broadcastData:[self.class scrcpyPacketWithPayload:parameterSets
-                                                          flags:FBScrcpyFlagConfig
-                                             presentationTimeUs:presentationTimeUs]];
+        [self broadcastData:FBScrcpyPacketCreate((NSData *)parameterSets, FBScrcpyFlagConfig, presentationTimeUs)];
       }
     }
     uint64_t flags = isKeyFrame ? FBScrcpyFlagKeyFrame : 0;
-    [self broadcastData:[self.class scrcpyPacketWithPayload:annexBPictureData
-                                                      flags:flags
-                                         presentationTimeUs:presentationTimeUs]];
+    [self broadcastData:FBScrcpyPacketCreate(annexBPictureData, flags, presentationTimeUs)];
     return;
   }
 
@@ -322,23 +315,6 @@ static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
   }
 }
 
-+ (NSData *)scrcpyPacketWithPayload:(NSData *)payload
-                              flags:(uint64_t)flags
-                 presentationTimeUs:(uint64_t)presentationTimeUs
-{
-  uint64_t ptsAndFlags = flags | (presentationTimeUs & FBScrcpyPtsMask);
-  uint8_t header[12];
-  uint64_t bigPtsAndFlags = CFSwapInt64HostToBig(ptsAndFlags);
-  memcpy(header, &bigPtsAndFlags, sizeof(bigPtsAndFlags));
-  uint32_t bigSize = CFSwapInt32HostToBig((uint32_t)payload.length);
-  memcpy(header + sizeof(bigPtsAndFlags), &bigSize, sizeof(bigSize));
-
-  NSMutableData *packet = [NSMutableData dataWithCapacity:sizeof(header) + payload.length];
-  [packet appendBytes:header length:sizeof(header)];
-  [packet appendData:payload];
-  return packet;
-}
-
 #pragma mark - <FBTCPSocketDelegate>
 
 - (void)didClientConnect:(GCDAsyncSocket *)newClient
@@ -357,7 +333,7 @@ static const CGFloat FBDefaultScreenCaptureQuality = 0.8;
   NSData *parameterSets = [self currentParameterSets];
   if (parameterSets.length > 0) {
     NSData *payload = self.configuration.framing == FBVideoFramingScrcpy
-      ? [self.class scrcpyPacketWithPayload:parameterSets flags:FBScrcpyFlagConfig presentationTimeUs:0]
+      ? FBScrcpyPacketCreate(parameterSets, FBScrcpyFlagConfig, 0)
       : parameterSets;
     [newClient writeData:payload withTimeout:FRAME_TIMEOUT tag:0];
   }

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FBExtAudioPipeline.h"
 #import "FBExtSessionPipeline.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,12 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
 /** Stats fed into the heartbeat; updated by the sample handler. */
 @property (atomic) BOOL paused;
 @property (atomic) uint64_t framesReceived;
+@property (atomic) uint64_t audioSamplesReceived;
 @property (atomic) uint8_t currentOrientation;
 @property (atomic) size_t screenWidth;
 @property (atomic) size_t screenHeight;
 
 /** A point-in-time snapshot of the active pipelines, safe to read from any thread. */
 @property (atomic, copy, readonly) NSDictionary<NSNumber *, FBExtSessionPipeline *> *activePipelines;
+
+/** A point-in-time snapshot of the active audio pipelines, safe to read from any thread. */
+@property (atomic, copy, readonly) NSDictionary<NSNumber *, FBExtAudioPipeline *> *activeAudioPipelines;
 
 /** Starts connecting to the WDA control port (with retries). */
 - (void)start;

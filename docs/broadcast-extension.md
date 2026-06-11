@@ -105,15 +105,39 @@ WebDriverAgentRunner-Runner.app
 │     FBBroadcastManager ─ FBBroadcastControlServer (127.0.0.1:9300)
 │     FBVideoStreamManager → FBVideoStreamSession (TCP fan-out :9200+,
 │       screenshot-encode or broadcast-passthrough per session)
+│     FBAudioStreamManager → FBAudioStreamSession (TCP fan-out :9400+,
+│       broadcast-passthrough only)
 └── PlugIns/WebDriverAgentBroadcast.appex      extension
       FBBroadcastSampleHandler (RPBroadcastSampleHandler)
         → FBExtSessionPipeline × N (VTPixelTransfer letterbox scale +
           FBVideoEncoder per session, 420v end to end)
+        → FBExtAudioPipeline × N (AudioConverter resample to 48 kHz +
+          Opus encode per session, app audio only)
         → FBExtBroadcastClient ──TCP──► WDA control port
 ```
 
-The wire protocol (16-byte framed messages, JSON control payloads, binary video frames) is
-defined in `WebDriverAgentLib/Utilities/FBBroadcastProtocol.h`, which is compiled into both
+The wire protocol (16-byte framed messages, JSON control payloads, binary video/audio frames)
+is defined in `WebDriverAgentLib/Utilities/FBBroadcastProtocol.h`, which is compiled into both
 the framework and the extension.
 
-Audio capture (Opus) is a planned follow-up; audio sample buffers are currently ignored.
+## Audio capture
+
+While a broadcast is running the extension also receives the device's **app audio**
+(`RPSampleBufferTypeAudioApp`; microphone audio is intentionally ignored) and serves it to
+`/mobilerun/audiocapture` sessions (see
+[mobilerun-audiocapture.md](mobilerun-audiocapture.md)):
+
+- One `FBExtAudioPipeline` per audio session converts the incoming PCM (typically 44.1 kHz)
+  to 48 kHz and encodes 20 ms (960-sample) **Opus** packets with AudioToolbox's
+  `AudioConverter` — no third-party codec is bundled.
+- Audio sessions use the same SESSION_ADD/SESSION_REMOVE control messages as video ones,
+  discriminated by a `media: "audio"` JSON key and **bit 31 of the wire session id**
+  (`FBBroadcastAudioSessionIdFlag`), so audio and video ids never collide on the shared
+  connection.
+- The extension sends `AUDIO_PARAMS` (`0x87`, the RFC 7845 `OpusHead` with the encoder's real
+  pre-skip) and `AUDIO_FRAME` (`0x88`, `[8B pts µs BE][one Opus packet]`) messages; WDA fans
+  the packets out to the session's TCP clients.
+- Audio has **no screenshot-style fallback**: sessions stay alive without a broadcast but
+  stream nothing (`streaming: false` in the session object) until the extension connects.
+- The heartbeat carries an `audioPipelines` block (`samplesIn`, `packetsEncoded`,
+  `ringFrames`, … plus per-second rates) next to the video `pipelines` block.

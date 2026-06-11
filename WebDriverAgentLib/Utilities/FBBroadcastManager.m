@@ -11,6 +11,7 @@
 #include <time.h>
 #import <UIKit/UIKit.h>
 
+#import "FBAudioStreamManager.h"
 #import "FBBroadcastControlServer.h"
 #import "FBBroadcastPickerHost.h"
 #import "FBBroadcastProtocol.h"
@@ -129,6 +130,7 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
     @"hello": self.helloInfo ?: NSNull.null,
     @"heartbeat": heartbeat ?: NSNull.null,
     @"sessions": [FBVideoStreamManager.sharedInstance activeSessionsInfo],
+    @"audioSessions": [FBAudioStreamManager.sharedInstance activeSessionsInfo],
   };
 }
 
@@ -403,6 +405,34 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
   [self.controlServer sendSessionRemove:(uint32_t)identifier];
 }
 
++ (NSDictionary *)sessionAddPayloadForAudioConfiguration:(FBAudioCaptureConfiguration *)configuration
+{
+  return @{
+    FBBroadcastKeyMedia: FBBroadcastMediaAudio,
+    FBBroadcastKeyCodec: FBBroadcastCodecOpus,
+    FBBroadcastKeyBitrate: @(configuration.bitrate),
+    FBBroadcastKeyChannels: @(configuration.channels),
+    FBBroadcastKeySampleRate: @48000,
+  };
+}
+
+- (void)notifyAudioSessionAdded:(FBAudioStreamSession *)session
+{
+  if (!self.isExtensionConnected) {
+    return;
+  }
+  [self.controlServer sendSessionAdd:(uint32_t)session.identifier | FBBroadcastAudioSessionIdFlag
+                       configuration:[self.class sessionAddPayloadForAudioConfiguration:session.configuration]];
+}
+
+- (void)notifyAudioSessionRemoved:(NSUInteger)identifier
+{
+  if (!self.isExtensionConnected) {
+    return;
+  }
+  [self.controlServer sendSessionRemove:(uint32_t)identifier | FBBroadcastAudioSessionIdFlag];
+}
+
 - (void)requestKeyFrameForSession:(NSUInteger)identifier
 {
   [self.controlServer sendKeyframeRequest:(uint32_t)identifier];
@@ -420,6 +450,10 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
   for (FBVideoStreamSession *session in [FBVideoStreamManager.sharedInstance activeSessions]) {
     [self.controlServer sendSessionAdd:(uint32_t)session.identifier
                          configuration:[self.class sessionAddPayloadForConfiguration:session.configuration]];
+  }
+  for (FBAudioStreamSession *audioSession in [FBAudioStreamManager.sharedInstance activeSessions]) {
+    [self.controlServer sendSessionAdd:(uint32_t)audioSession.identifier | FBBroadcastAudioSessionIdFlag
+                         configuration:[self.class sessionAddPayloadForAudioConfiguration:audioSession.configuration]];
   }
 }
 
@@ -444,6 +478,11 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
 - (void)broadcastServerDidReceiveSessionError:(NSString *)message forSession:(uint32_t)sessionId
 {
   [FBLogger logFmt:@"The broadcast extension cannot serve session %u: %@", sessionId, message];
+  if (sessionId & FBBroadcastAudioSessionIdFlag) {
+    NSUInteger identifier = sessionId & ~FBBroadcastAudioSessionIdFlag;
+    [[FBAudioStreamManager.sharedInstance sessionWithIdentifier:identifier] markBroadcastError:message];
+    return;
+  }
   FBVideoStreamSession *session = [FBVideoStreamManager.sharedInstance sessionWithIdentifier:sessionId];
   [session detachBroadcastSourceAndForceKeyFrame];
 }
@@ -473,12 +512,41 @@ static const NSTimeInterval STOP_TIMEOUT = 5.0;
   [session ingestBroadcastFrame:annexBPictureData isKeyFrame:isKeyFrame];
 }
 
+- (void)broadcastServerDidReceiveAudioParams:(NSData *)opusHead forSession:(uint32_t)sessionId
+{
+  NSUInteger identifier = sessionId & ~FBBroadcastAudioSessionIdFlag;
+  FBAudioStreamSession *session = [FBAudioStreamManager.sharedInstance sessionWithIdentifier:identifier];
+  if (nil == session) {
+    [self.controlServer sendSessionRemove:sessionId];
+    return;
+  }
+  [session ingestBroadcastOpusHead:opusHead];
+}
+
+- (void)broadcastServerDidReceiveAudioPacket:(NSData *)opusPacket
+                                       ptsUs:(uint64_t)ptsUs
+                                  forSession:(uint32_t)sessionId
+{
+  NSUInteger identifier = sessionId & ~FBBroadcastAudioSessionIdFlag;
+  FBAudioStreamSession *session = [FBAudioStreamManager.sharedInstance sessionWithIdentifier:identifier];
+  if (nil == session) {
+    // The session is gone (stale extension pipeline); ask the extension to drop it.
+    [self.controlServer sendSessionRemove:sessionId];
+    return;
+  }
+  [session ingestBroadcastPacket:opusPacket ptsUs:ptsUs];
+}
+
 - (void)broadcastServerDidDisconnect
 {
   [FBLogger log:@"The broadcast extension disconnected; reverting sessions to the screenshot source"];
   [self resetConnectionState];
   for (FBVideoStreamSession *session in [FBVideoStreamManager.sharedInstance activeSessions]) {
     [session detachBroadcastSourceAndForceKeyFrame];
+  }
+  // Audio has no fallback source; the sessions stay alive and simply pause.
+  for (FBAudioStreamSession *audioSession in [FBAudioStreamManager.sharedInstance activeSessions]) {
+    [audioSession detachBroadcastSource];
   }
 }
 
