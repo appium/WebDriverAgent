@@ -4712,7 +4712,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.WebDriverAgentRunner.timo-mobilerun";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 				WARNING_CFLAGS = (
@@ -4766,7 +4766,7 @@
 					"$(inherited)",
 					"-all_load",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.WebDriverAgentRunner.timo-mobilerun";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USES_XCTRUNNER = YES;
 				WARNING_CFLAGS = (
@@ -4805,7 +4805,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentBroadcast/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.xctrunner.broadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.timo-mobilerun.xctrunner.broadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4821,7 +4821,7 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				INFOPLIST_FILE = WebDriverAgentBroadcast/Info.plist;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.xctrunner.broadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.WebDriverAgentRunner.timo-mobilerun.xctrunner.broadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
