@@ -133,6 +133,12 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (NSInteger)mjpegServerPort;
 
 /**
+ The maximum allowed HTTP request body size in bytes.
+ Defaults to 1GB and can be overridden with the MAX_HTTP_REQUEST_BODY_SIZE environment variable.
+ */
++ (UInt64)httpRequestBodySizeLimit;
+
+/**
  The scaling factor for frames of the mjpeg stream. The default (and maximum) value is 100,
  which does not perform any scaling. The minimum value must be greater than zero.
  ! Setting this to a value less than 100, especially together with orientation fixing enabled

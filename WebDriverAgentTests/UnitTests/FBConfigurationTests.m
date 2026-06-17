@@ -22,6 +22,7 @@
   unsetenv("USE_PORT");
   unsetenv("USE_IP");
   unsetenv("VERBOSE_LOGGING");
+  unsetenv("MAX_HTTP_REQUEST_BODY_SIZE");
 }
 
 - (void)testBindingPortDefault
@@ -55,6 +56,17 @@
 {
   setenv("USE_IP", "192.168.1.100", 1);
   XCTAssertEqualObjects([FBConfiguration bindingIPAddress], @"192.168.1.100");
+}
+
+- (void)testHttpRequestBodySizeLimitDefault
+{
+  XCTAssertEqual([FBConfiguration httpRequestBodySizeLimit], 1024ull * 1024ull * 1024ull);
+}
+
+- (void)testHttpRequestBodySizeLimitEnvironmentOverwrite
+{
+  setenv("MAX_HTTP_REQUEST_BODY_SIZE", "1024", 1);
+  XCTAssertEqual([FBConfiguration httpRequestBodySizeLimit], 1024ull);
 }
 
 @end

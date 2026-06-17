@@ -1301,6 +1301,14 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
   // the hook to flush any pending data to disk and maybe close the file.
 }
 
+/**
+ * Returns the maximum request body size this connection accepts.
+ **/
+- (UInt64)maxRequestBodySize
+{
+  return (UInt64)-1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Errors
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1322,6 +1330,21 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
   NSData *responseData = [self preprocessErrorResponse:response];
   [asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_RESPONSE];
   
+}
+
+/**
+ * Called if the HTTP request body is larger than the configured limit.
+ **/
+- (void)handleRequestBodyTooLarge
+{
+  HTTPLogWarn(@"HTTP Server: Error 413 - Request Entity Too Large (%@)", [self requestURI]);
+  
+  HTTPMessage *response = [[HTTPMessage alloc] initResponseWithStatusCode:413 description:nil version:HTTPVersion1_1];
+  [response setHeaderField:@"Content-Length" value:@"0"];
+  [response setHeaderField:@"Connection" value:@"close"];
+  
+  NSData *responseData = [self preprocessErrorResponse:response];
+  [asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_FINAL_RESPONSE];
 }
 
 /**
@@ -1617,6 +1640,15 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
             [self handleInvalidRequest:nil];
             return;
           }
+          
+          if (requestContentLength > [self maxRequestBodySize])
+          {
+            HTTPLogWarn(@"%@[%p]: Request body size %llu exceeds the configured limit %llu",
+                        THIS_FILE, self, requestContentLength, [self maxRequestBodySize]);
+            
+            [self handleRequestBodyTooLarge];
+            return;
+          }
         }
       }
       else
@@ -1749,6 +1781,17 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
       
       if (requestChunkSize > 0)
       {
+        UInt64 maxRequestBodySize = [self maxRequestBodySize];
+        if (requestChunkSize > maxRequestBodySize ||
+            requestContentLengthReceived > maxRequestBodySize - requestChunkSize)
+        {
+          HTTPLogWarn(@"%@[%p]: Chunked request body exceeds the configured limit %llu",
+                      THIS_FILE, self, maxRequestBodySize);
+          
+          [self handleRequestBodyTooLarge];
+          return;
+        }
+        
         NSUInteger bytesToRead;
         bytesToRead = (requestChunkSize < POST_CHUNKSIZE) ? (NSUInteger)requestChunkSize : POST_CHUNKSIZE;
         

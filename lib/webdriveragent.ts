@@ -62,6 +62,7 @@ export class WebDriverAgent {
   private readonly useXctestrunFile?: boolean;
   private readonly usePrebuiltWDA?: boolean;
   private readonly mjpegServerPort?: number;
+  private readonly maxHttpRequestBodySize?: number;
   private readonly wdaLaunchTimeout: number;
   private readonly usePreinstalledWDA?: boolean;
   private readonly updatedWDABundleIdSuffix: string;
@@ -105,6 +106,7 @@ export class WebDriverAgent {
     this.useXctestrunFile = args.useXctestrunFile;
     this.usePrebuiltWDA = args.usePrebuiltWDA;
     this.mjpegServerPort = args.mjpegServerPort;
+    this.maxHttpRequestBodySize = args.maxHttpRequestBodySize;
 
     this.updatedWDABundleId = args.updatedWDABundleId;
 
@@ -138,6 +140,7 @@ export class WebDriverAgent {
             useXctestrunFile: this.useXctestrunFile,
             derivedDataPath: args.derivedDataPath,
             mjpegServerPort: this.mjpegServerPort,
+            maxHttpRequestBodySize: this.maxHttpRequestBodySize,
             allowProvisioningDeviceRegistration: args.allowProvisioningDeviceRegistration,
             resultBundlePath: args.resultBundlePath,
             resultBundleVersion: args.resultBundleVersion,
@@ -702,6 +705,9 @@ export class WebDriverAgent {
     }
     if (this.wdaBindingIP) {
       xctestEnv.USE_IP = this.wdaBindingIP;
+    }
+    if (this.maxHttpRequestBodySize) {
+      xctestEnv.MAX_HTTP_REQUEST_BODY_SIZE = this.maxHttpRequestBodySize;
     }
     this.log.info('Launching WebDriverAgent on the device without xcodebuild');
     if (this.isRealDevice) {

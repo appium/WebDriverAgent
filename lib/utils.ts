@@ -60,6 +60,7 @@ export interface XctestrunFileArgs {
   bootstrapPath: string;
   wdaRemotePort: number | string;
   wdaBindingIP?: string;
+  maxHttpRequestBodySize?: number | string;
 }
 
 /**
@@ -146,13 +147,21 @@ export async function setRealDeviceSecurity(
  * then it will throw a file not found exception
  */
 export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string> {
-  const {deviceInfo, sdkVersion, bootstrapPath, wdaRemotePort, wdaBindingIP} = args;
+  const {
+    deviceInfo,
+    sdkVersion,
+    bootstrapPath,
+    wdaRemotePort,
+    wdaBindingIP,
+    maxHttpRequestBodySize,
+  } = args;
   const xctestrunFilePath = await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
   const xctestRunContent = await plist.parsePlistFile(xctestrunFilePath);
   const updateWDAPort = getAdditionalRunContent(
     deviceInfo.platformName,
     wdaRemotePort,
     wdaBindingIP,
+    maxHttpRequestBodySize,
   );
   const newXctestRunContent = mergeObjects(xctestRunContent, updateWDAPort);
   await plist.updatePlistFile(xctestrunFilePath, newXctestRunContent, true);
@@ -165,12 +174,14 @@ export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string>
  * @param platformName - The name of the platform
  * @param wdaRemotePort - The remote port number
  * @param wdaBindingIP - The IP address to bind to. If not given, it binds to all interfaces.
+ * @param maxHttpRequestBodySize - The maximum HTTP request body size in bytes.
  * @return returns a runner object which has USE_PORT and optionally USE_IP
  */
 export function getAdditionalRunContent(
   platformName: string,
   wdaRemotePort: number | string,
   wdaBindingIP?: string,
+  maxHttpRequestBodySize?: number | string,
 ): Record<string, any> {
   const runner = `WebDriverAgentRunner${isTvOS(platformName) ? '_tvOS' : ''}`;
   return {
@@ -179,6 +190,9 @@ export function getAdditionalRunContent(
         // USE_PORT must be 'string'
         USE_PORT: `${wdaRemotePort}`,
         ...(wdaBindingIP ? {USE_IP: wdaBindingIP} : {}),
+        ...(maxHttpRequestBodySize
+          ? {MAX_HTTP_REQUEST_BODY_SIZE: `${maxHttpRequestBodySize}`}
+          : {}),
       },
     },
   };

@@ -85,8 +85,10 @@
 - (void)prepareForBodyWithSize:(UInt64)contentLength;
 - (void)processBodyData:(NSData *)postDataChunk;
 - (void)finishBody;
+- (UInt64)maxRequestBodySize;
 
 - (void)handleVersionNotSupported:(NSString *)version;
+- (void)handleRequestBodyTooLarge;
 - (void)handleResourceNotFound;
 - (void)handleInvalidRequest:(NSData *)data;
 - (void)handleUnknownMethod:(NSString *)method;

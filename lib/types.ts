@@ -80,6 +80,7 @@ export interface WebDriverAgentArgs {
   usePrebuiltWDA?: boolean;
   derivedDataPath?: string;
   mjpegServerPort?: number;
+  maxHttpRequestBodySize?: number;
   updatedWDABundleId?: string;
   wdaLaunchTimeout?: number;
   usePreinstalledWDA?: boolean;
@@ -167,6 +168,7 @@ export interface XcodeBuildArgs {
   updatedWDABundleId?: string;
   derivedDataPath?: string;
   mjpegServerPort?: number;
+  maxHttpRequestBodySize?: number;
   prebuildDelay?: number;
   allowProvisioningDeviceRegistration?: boolean;
   resultBundlePath?: string;

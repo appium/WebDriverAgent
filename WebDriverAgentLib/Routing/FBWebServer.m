@@ -39,6 +39,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [super handleResourceNotFound];
 }
 
+- (UInt64)maxRequestBodySize
+{
+  return FBConfiguration.httpRequestBodySizeLimit;
+}
+
 @end
 
 

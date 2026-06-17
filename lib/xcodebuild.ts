@@ -72,6 +72,7 @@ export class XcodeBuild {
   private readonly wdaBindingIP?: string;
   private readonly updatedWDABundleId?: string;
   private readonly mjpegServerPort?: number;
+  private readonly maxHttpRequestBodySize?: number;
   private readonly prebuildDelay: number;
   private readonly allowProvisioningDeviceRegistration?: boolean;
   private readonly resultBundlePath?: string;
@@ -126,6 +127,7 @@ export class XcodeBuild {
     this.derivedDataPath = args.derivedDataPath;
 
     this.mjpegServerPort = args.mjpegServerPort;
+    this.maxHttpRequestBodySize = args.maxHttpRequestBodySize;
 
     this.prebuildDelay =
       typeof args.prebuildDelay === 'number' ? args.prebuildDelay : PREBUILD_DELAY;
@@ -160,6 +162,7 @@ export class XcodeBuild {
         bootstrapPath: this.bootstrapPath,
         wdaRemotePort: this.wdaRemotePort || 8100,
         wdaBindingIP: this.wdaBindingIP,
+        maxHttpRequestBodySize: this.maxHttpRequestBodySize,
       });
       return;
     }
@@ -445,6 +448,10 @@ export class XcodeBuild {
       USE_PORT: this.wdaRemotePort,
       WDA_PRODUCT_BUNDLE_IDENTIFIER: this.updatedWDABundleId || WDA_RUNNER_BUNDLE_ID,
     });
+    delete env.MAX_HTTP_REQUEST_BODY_SIZE;
+    if (this.maxHttpRequestBodySize) {
+      env.MAX_HTTP_REQUEST_BODY_SIZE = this.maxHttpRequestBodySize;
+    }
     if (this.mjpegServerPort) {
       // https://github.com/appium/WebDriverAgent/pull/105
       env.MJPEG_SERVER_PORT = this.mjpegServerPort;

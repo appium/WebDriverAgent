@@ -181,6 +181,13 @@ describe('utils', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_TVOS, '9000');
       expect(wdaPort.WebDriverAgentRunner_tvOS.EnvironmentVariables.USE_PORT).to.equal('9000');
     });
+
+    it('should include max HTTP request body size if provided', function () {
+      const runContent = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000, undefined, 1024);
+      expect(
+        runContent.WebDriverAgentRunner.EnvironmentVariables.MAX_HTTP_REQUEST_BODY_SIZE,
+      ).to.equal('1024');
+    });
   });
 
   describe('#getXctestrunFileName', function () {

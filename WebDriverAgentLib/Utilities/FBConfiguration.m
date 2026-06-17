@@ -26,6 +26,7 @@
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
 static NSUInteger const DefaultPortRange = 100;
+static UInt64 const DefaultHttpRequestBodySizeLimit = 1024ull * 1024ull * 1024ull;
 
 static char const *const controllerPrefBundlePath = "/System/Library/PrivateFrameworks/TextInput.framework/TextInput";
 static NSString *const controllerClassName = @"TIPreferencesController";
@@ -162,6 +163,19 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   }
 
   return DefaultMjpegServerPort;
+}
+
++ (UInt64)httpRequestBodySizeLimit
+{
+  NSString *limit = NSProcessInfo.processInfo.environment[@"MAX_HTTP_REQUEST_BODY_SIZE"];
+  if (limit.length > 0) {
+    long long parsedLimit = [limit longLongValue];
+    if (parsedLimit > 0) {
+      return (UInt64)parsedLimit;
+    }
+  }
+
+  return DefaultHttpRequestBodySizeLimit;
 }
 
 + (CGFloat)mjpegScalingFactor
