@@ -1,4 +1,4 @@
-import {fs, plist} from '@appium/support';
+import {fs, plist, util} from '@appium/support';
 import path from 'node:path';
 import {arch} from 'node:os';
 import {log} from '../logger';
@@ -150,19 +150,11 @@ function mergeObjects<T extends Record<string, any>, U extends Record<string, an
   const output: Record<string, any> = {...target};
   for (const [key, sourceValue] of Object.entries(source)) {
     const targetValue = output[key];
-    if (isPlainObject(targetValue) && isPlainObject(sourceValue)) {
+    if (util.isPlainObject(targetValue) && util.isPlainObject(sourceValue)) {
       output[key] = mergeObjects(targetValue, sourceValue);
       continue;
     }
     output[key] = sourceValue;
   }
   return output as T & U;
-}
-
-function isPlainObject(value: unknown): value is Record<string, any> {
-  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
-    return false;
-  }
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
 }

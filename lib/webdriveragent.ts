@@ -297,6 +297,7 @@ export class WebDriverAgent {
    */
   async launch(sessionId: string): Promise<StringRecord | null> {
     const startupStrategy = this.createStartupStrategy();
+    this.log.info(`Selected '${startupStrategy.name}' WebDriverAgent startup strategy`);
     this.activeStartupStrategy = startupStrategy;
     return await startupStrategy.launch(sessionId);
   }
