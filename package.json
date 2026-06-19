@@ -58,7 +58,7 @@
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/sinon": "^21.0.1",
     "appium-xcode": "^6.0.0",
     "chai": "^6.0.0",
