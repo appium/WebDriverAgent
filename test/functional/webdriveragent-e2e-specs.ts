@@ -12,6 +12,8 @@ import type {AppleDevice} from '../../lib/types';
 
 chai.use(chaiAsPromised);
 
+type SimulatorTestDevice = AppleDevice & {simctl: Simctl};
+
 const MOCHA_TIMEOUT_MS = 60 * 1000 * 5;
 
 const SIM_DEVICE_NAME = 'webDriverAgentTest';
@@ -35,13 +37,13 @@ describe('WebDriverAgent', function () {
   this.timeout(MOCHA_TIMEOUT_MS);
 
   describe('with fresh sim', function () {
-    let device: AppleDevice;
+    let device: SimulatorTestDevice;
     let simctl: Simctl;
 
     before(async function () {
       simctl = new Simctl();
       simctl.udid = await simctl.createDevice(SIM_DEVICE_NAME, DEVICE_NAME, PLATFORM_VERSION);
-      device = await getSimulator(simctl.udid);
+      device = (await getSimulator(simctl.udid)) as SimulatorTestDevice;
 
       // Prebuild WDA
       const wda = new WebDriverAgent({
@@ -67,7 +69,7 @@ describe('WebDriverAgent', function () {
       this.timeout(6 * 60 * 1000);
       beforeEach(async function () {
         await killAllSimulators();
-        await (device.simctl as Simctl).startBootMonitor({
+        await device.simctl.startBootMonitor({
           shouldPreboot: true,
           timeout: SIM_STARTUP_TIMEOUT_MS,
         });

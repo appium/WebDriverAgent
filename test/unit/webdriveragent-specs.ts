@@ -2,20 +2,17 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {BOOTSTRAP_PATH} from '../../lib/utils';
 import {WebDriverAgent} from '../../lib/webdriveragent';
+import {selectWdaStartupStrategyName} from '../../lib/wda-strategies';
 import * as utils from '../../lib/utils';
 import path from 'node:path';
 import sinon from 'sinon';
 import type {WebDriverAgentArgs} from '../../lib/types';
-import type {Simctl} from 'node-simctl';
-import type {Devicectl} from 'node-devicectl';
 
 chai.use(chaiAsPromised);
 
 const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {
     udid: 'some-sim-udid',
-    simctl: {} as Simctl,
-    devicectl: {} as Devicectl,
   },
   platformVersion: '9',
   host: 'me',
@@ -28,6 +25,28 @@ const customAgentPath = '/path/to/some/agent/WebDriverAgent.xcodeproj';
 const customDerivedDataPath = '/path/to/some/agent/DerivedData/';
 
 describe('WebDriverAgent', function () {
+  describe('startup strategy selection', function () {
+    it('should select an existing-url strategy for external WDA URLs', function () {
+      expect(selectWdaStartupStrategyName({webDriverAgentUrl: 'http://127.0.0.1:8100'})).to.equal(
+        'existing-url',
+      );
+    });
+
+    it('should select a simulator strategy for simulator sessions', function () {
+      expect(selectWdaStartupStrategyName({realDevice: false})).to.equal('simulator');
+    });
+
+    it('should select a real-device preinstalled strategy for no-xcode real-device sessions', function () {
+      expect(selectWdaStartupStrategyName({realDevice: true, usePreinstalledWDA: true})).to.equal(
+        'real-device-preinstalled',
+      );
+    });
+
+    it('should select a real-device xcodebuild strategy for default real-device sessions', function () {
+      expect(selectWdaStartupStrategyName({realDevice: true})).to.equal('real-device-xcodebuild');
+    });
+  });
+
   describe('Constructor', function () {
     it('should have a default wda agent if not specified', function () {
       const agent = new WebDriverAgent(fakeConstructorArgs);
@@ -59,6 +78,15 @@ describe('WebDriverAgent', function () {
       if (agent.xcodebuild) {
         expect(await agent.retrieveDerivedDataPath()).to.eql(customDerivedDataPath);
       }
+    });
+
+    it('should not create xcodebuild for real-device preinstalled sessions', function () {
+      const agent = new WebDriverAgent({
+        ...fakeConstructorArgs,
+        realDevice: true,
+        usePreinstalledWDA: true,
+      });
+      expect(() => agent.xcodebuild).to.throw('xcodebuild is not available');
     });
   });
 
@@ -400,6 +428,75 @@ describe('WebDriverAgent', function () {
         args.updatedWDABundleIdSuffix = '.customsuffix';
         const agent = new WebDriverAgent(args);
         expect(agent.bundleIdForXctest).to.equal('io.appium.wda.customsuffix');
+      });
+    });
+
+    describe('host operations', function () {
+      let sandbox: sinon.SinonSandbox;
+
+      beforeEach(function () {
+        sandbox = sinon.createSandbox();
+      });
+
+      afterEach(function () {
+        sandbox.restore();
+      });
+
+      it('should delegate real-device preinstalled launch and terminate to injected host ops', async function () {
+        const launchPreinstalled = sandbox.stub().resolves();
+        const terminate = sandbox.stub().resolves();
+        const agent = new WebDriverAgent({
+          ...fakeConstructorArgs,
+          device: {udid: 'real-device-udid'},
+          realDevice: true,
+          usePreinstalledWDA: true,
+          wdaLocalPort: 9100,
+          updatedWDABundleId: 'io.appium.wda',
+          mjpegServerPort: 9200,
+          wdaBindingIP: '127.0.0.1',
+          maxHttpRequestBodySize: 1024,
+          hostOps: {
+            realDevicePreinstalled: {
+              launchPreinstalled,
+              terminate,
+            },
+          },
+        });
+        sandbox.stub(agent as any, 'getStatus').resolves({build: 'data'});
+
+        await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
+        sinon.assert.calledOnce(launchPreinstalled);
+        expect(launchPreinstalled.firstCall.args[0]).to.include({
+          udid: 'real-device-udid',
+          bundleId: 'io.appium.wda.xctrunner',
+          wdaLocalPort: 9100,
+        });
+        expect(launchPreinstalled.firstCall.args[0].env).to.eql({
+          USE_PORT: 9100,
+          WDA_PRODUCT_BUNDLE_IDENTIFIER: 'io.appium.wda.xctrunner',
+          MJPEG_SERVER_PORT: 9200,
+          USE_IP: '127.0.0.1',
+          MAX_HTTP_REQUEST_BODY_SIZE: 1024,
+        });
+
+        await agent.quit();
+        sinon.assert.calledOnceWithExactly(terminate, {
+          udid: 'real-device-udid',
+          bundleId: 'io.appium.wda.xctrunner',
+        });
+      });
+
+      it('should require injected host ops for real-device preinstalled launch', async function () {
+        const agent = new WebDriverAgent({
+          ...fakeConstructorArgs,
+          device: {udid: 'real-device-udid'},
+          realDevice: true,
+          usePreinstalledWDA: true,
+        });
+
+        await expect(agent.launch('sessionId')).to.be.rejectedWith(
+          'Host operations must be provided',
+        );
       });
     });
   });

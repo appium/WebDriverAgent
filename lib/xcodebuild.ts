@@ -1,17 +1,9 @@
 import {retryInterval} from 'asyncbox';
 import {SubProcess, exec} from 'teen_process';
-import {logger, timing} from '@appium/support';
+import {logger, timing, util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
 import {log as defaultLogger} from './logger';
-import {
-  setRealDeviceSecurity,
-  setXctestrunFile,
-  killProcess,
-  getWDAUpgradeTimestamp,
-  isTvOS,
-  escapeRegExp,
-  truncateString,
-} from './utils';
+import {getWDAUpgradeTimestamp, isTvOS, setRealDeviceSecurity, setXctestrunFile} from './utils';
 import path from 'node:path';
 import {WDA_RUNNER_BUNDLE_ID} from './constants';
 import type {
@@ -36,7 +28,7 @@ const IGNORED_ERRORS = [
   'Failed to remove screenshot at path',
 ];
 const IGNORED_ERRORS_PATTERN = new RegExp(
-  '(' + IGNORED_ERRORS.map((errStr) => escapeRegExp(errStr)).join('|') + ')',
+  '(' + IGNORED_ERRORS.map((errStr) => util.escapeRegExp(errStr)).join('|') + ')',
 );
 
 const RUNNER_SCHEME_TV = 'WebDriverAgentRunner_tvOS';
@@ -308,7 +300,34 @@ export class XcodeBuild {
    * Stops the xcodebuild process and cleans up resources.
    */
   async quit(): Promise<void> {
-    await killProcess('xcodebuild', this.xcodebuild);
+    const xcodebuild = this.xcodebuild;
+    if (!xcodebuild || !xcodebuild.isRunning) {
+      return;
+    }
+
+    this.log.info(`Shutting down 'xcodebuild' process (pid '${xcodebuild.proc?.pid}')`);
+
+    try {
+      await xcodebuild.stop('SIGTERM', 1000);
+      return;
+    } catch (err: unknown) {
+      if (!(err as Error)?.message?.includes(`Process didn't end after`)) {
+        throw err;
+      }
+      this.log.debug(
+        `xcodebuild process did not end in a timely fashion: '${(err as Error)?.message}'.`,
+      );
+    }
+
+    try {
+      await xcodebuild.stop('SIGKILL');
+    } catch (err: unknown) {
+      if ((err as Error)?.message?.includes('not currently running')) {
+        // The process ended but for some reason we were not informed.
+        return;
+      }
+      throw err;
+    }
   }
 
   private async fetchBuildSettings(
@@ -336,7 +355,7 @@ export class XcodeBuild {
       entries = JSON.parse(stdout) as XcodeShowBuildSettingsEntry[];
     } catch (err: any) {
       this.log.warn(
-        `Cannot parse WDA build settings for scheme '${schemeLabel}' from ${truncateString(stdout, 300)}. ` +
+        `Cannot parse WDA build settings for scheme '${schemeLabel}' from ${util.truncateString(stdout, 300)}. ` +
           `Original error: ${err.message}`,
       );
       return;
@@ -433,10 +452,8 @@ export class XcodeBuild {
   }
 
   private async createSubProcess(buildOnly: boolean = false): Promise<SubProcess> {
-    if (!this.useXctestrunFile && this.realDevice) {
-      if (this.keychainPath && this.keychainPassword) {
-        await setRealDeviceSecurity(this.keychainPath, this.keychainPassword);
-      }
+    if (!this.useXctestrunFile && this.realDevice && this.keychainPath && this.keychainPassword) {
+      await setRealDeviceSecurity(this.keychainPath, this.keychainPassword);
     }
 
     const {cmd, args} = this.getCommand(buildOnly);

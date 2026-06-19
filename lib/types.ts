@@ -1,6 +1,4 @@
 import {type HTTPHeaders} from '@appium/types';
-import type {Simctl} from 'node-simctl';
-import type {Devicectl} from 'node-devicectl';
 
 // WebDriverAgentLib/Utilities/FBSettings.h
 export interface WDASettings {
@@ -98,12 +96,68 @@ export interface WebDriverAgentArgs {
   reqBasePath?: string;
   launchTimeout?: number;
   extraRequestHeaders?: HTTPHeaders;
+  hostOps?: WdaHostOps;
 }
 
 export interface AppleDevice {
   udid: string;
-  simctl?: Simctl;
-  devicectl?: Devicectl;
+}
+
+export type WdaStartupStrategyName =
+  | 'existing-url'
+  | 'simulator'
+  | 'real-device-xcodebuild'
+  | 'real-device-preinstalled';
+
+export type WdaLaunchEnvironment = Record<string, string | number>;
+
+export interface WdaLaunchOptions {
+  udid: string;
+  bundleId: string;
+  env: WdaLaunchEnvironment;
+  wdaLocalPort?: number;
+  wdaRemotePort: number;
+  platformName?: string;
+  platformVersion?: string;
+  timeoutMs: number;
+}
+
+export interface WdaTerminateOptions {
+  udid: string;
+  bundleId: string;
+}
+
+export interface WdaResetTestProcessesOptions {
+  udid: string;
+  isSimulator: boolean;
+}
+
+export interface WdaCleanupObsoleteProcessesOptions {
+  udid: string;
+  port: string;
+  commandLineIncludes: string;
+}
+
+export interface SimulatorHostOps {
+  launchPreinstalled(opts: WdaLaunchOptions): Promise<void>;
+  terminate(opts: WdaTerminateOptions): Promise<void>;
+  resetTestProcesses?(opts: WdaResetTestProcessesOptions): Promise<void>;
+}
+
+export interface RealDevicePreinstalledHostOps {
+  launchPreinstalled(opts: WdaLaunchOptions): Promise<void>;
+  terminate(opts: WdaTerminateOptions): Promise<void>;
+}
+
+export interface RealDeviceXcodebuildHostOps {
+  resetTestProcesses?(opts: WdaResetTestProcessesOptions): Promise<void>;
+  cleanupObsoleteProcesses?(opts: WdaCleanupObsoleteProcessesOptions): Promise<void>;
+}
+
+export interface WdaHostOps {
+  simulator?: SimulatorHostOps;
+  realDevicePreinstalled?: RealDevicePreinstalledHostOps;
+  realDeviceXcodebuild?: RealDeviceXcodebuildHostOps;
 }
 
 /**
