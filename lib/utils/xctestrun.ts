@@ -19,9 +19,9 @@ export interface XctestrunFileArgs {
 
 /**
  * Creates xctestrun file per device & platform version.
- * We expects to have WebDriverAgentRunner_iphoneos${sdkVersion|platformVersion}-arm64.xctestrun for real device
+ * We expect to have WebDriverAgentRunner_iphoneos${sdkVersion|platformVersion}-arm64.xctestrun for real device
  * and WebDriverAgentRunner_iphonesimulator${sdkVersion|platformVersion}-${x86_64|arm64}.xctestrun for simulator located @bootstrapPath
- * Newer Xcode (Xcode 10.0 at least) generate xctestrun file following sdkVersion.
+ * Newer Xcode (Xcode 10.0 at least) generates xctestrun file following sdkVersion.
  * e.g. Xcode which has iOS SDK Version 12.2 on an intel Mac host machine generates WebDriverAgentRunner_iphonesimulator.2-x86_64.xctestrun
  *      even if the cap has platform version 11.4
  *
@@ -116,7 +116,7 @@ export async function getXctestrunFilePath(
     );
     if (await fs.exists(originalXctestrunFile)) {
       // If this is first time run for given device, then first generate xctestrun file for device.
-      // We need to have a xctestrun file **per device** because we cant not have same wda port for all devices.
+      // We need to have a xctestrun file **per device** because we cannot have same wda port for all devices.
       await fs.copyFile(originalXctestrunFile, filePath);
       log.info(`Using '${filePath}' as xctestrun file copied by '${originalXctestrunFile}'`);
       return filePath;

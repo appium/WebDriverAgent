@@ -148,13 +148,12 @@ export function selectWdaStartupStrategyName(args: {
  * Creates a WDA startup strategy for the current facade state.
  */
 export function createWdaStartupStrategy(ctx: WdaStartupStrategyContext): WdaStartupStrategy {
-  switch (
-    selectWdaStartupStrategyName({
-      realDevice: ctx.isRealDevice,
-      webDriverAgentUrl: ctx.webDriverAgentUrl,
-      usePreinstalledWDA: ctx.usePreinstalledWDA,
-    })
-  ) {
+  const startupStrategy = selectWdaStartupStrategyName({
+    realDevice: ctx.isRealDevice,
+    webDriverAgentUrl: ctx.webDriverAgentUrl,
+    usePreinstalledWDA: ctx.usePreinstalledWDA,
+  });
+  switch (startupStrategy) {
     case 'existing-url':
       return new ExistingWdaUrlStrategy(ctx);
     case 'simulator':
@@ -163,6 +162,8 @@ export function createWdaStartupStrategy(ctx: WdaStartupStrategyContext): WdaSta
       return new RealDevicePreinstalledStrategy(ctx);
     case 'real-device-xcodebuild':
       return new RealDeviceXcodebuildStrategy(ctx);
+    default:
+      throw new Error(`Unknown WDA startup strategy: ${startupStrategy}`);
   }
 }
 
