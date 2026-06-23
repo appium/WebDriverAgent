@@ -114,7 +114,7 @@ jobs:
       matrix:
         config: ${{ fromJSON(needs.build_matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
@@ -141,7 +141,7 @@ jobs:
       matrix:
         config: ${{ fromJSON(needs.analyze_matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
@@ -166,7 +166,7 @@ jobs:
       matrix:
         config: ${{ fromJSON(needs.unit_test_matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
@@ -191,7 +191,7 @@ jobs:
       matrix:
         config: ${{ fromJSON(needs.integration_test_matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
