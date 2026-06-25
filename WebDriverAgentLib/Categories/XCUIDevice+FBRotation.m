@@ -64,6 +64,25 @@ static UIInterfaceOrientation FBInterfaceOrientationFromDeviceOrientation(UIDevi
   return application.interfaceOrientation == FBInterfaceOrientationFromDeviceOrientation(orientation);
 }
 
+- (NSString *)fb_deviceOrientation
+{
+  switch (self.orientation) {
+    case UIDeviceOrientationPortrait:
+      return @"PORTRAIT";
+    case UIDeviceOrientationPortraitUpsideDown:
+      return @"UIA_DEVICE_ORIENTATION_PORTRAIT_UPSIDEDOWN";
+    case UIDeviceOrientationLandscapeLeft:
+      return @"LANDSCAPE";
+    case UIDeviceOrientationLandscapeRight:
+      return @"UIA_DEVICE_ORIENTATION_LANDSCAPERIGHT";
+    case UIDeviceOrientationUnknown:
+    case UIDeviceOrientationFaceUp:
+    case UIDeviceOrientationFaceDown:
+    default:
+      return @"UNKNOWN";
+  }
+}
+
 - (NSDictionary *)fb_rotationMapping
 {
     static NSDictionary *rotationMap;

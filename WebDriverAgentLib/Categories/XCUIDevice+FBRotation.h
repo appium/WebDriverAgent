@@ -32,6 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
 /*! The UIDeviceOrientation to rotation mappings */
 @property (strong, nonatomic, readonly) NSDictionary *fb_rotationMapping;
 
+/**
+ The current physical device orientation represented as a WebDriver orientation string,
+ e.g. PORTRAIT, LANDSCAPE, UIA_DEVICE_ORIENTATION_LANDSCAPERIGHT or
+ UIA_DEVICE_ORIENTATION_PORTRAIT_UPSIDEDOWN. Returns UNKNOWN if the device orientation
+ cannot be mapped (e.g. face up/face down/unknown).
+ */
+@property (copy, nonatomic, readonly) NSString *fb_deviceOrientation;
+
 @end
 #endif
 

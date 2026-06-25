@@ -117,23 +117,11 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
 
 + (id<FBResponsePayload>)handleGetDeviceOrientation:(FBRouteRequest *)request
 {
-  return FBResponseWithObject([self.class deviceOrientationForDevice:XCUIDevice.sharedDevice]);
+  return FBResponseWithObject(XCUIDevice.sharedDevice.fb_deviceOrientation);
 }
 
 
 #pragma mark - Helpers
-
-+ (NSString *)deviceOrientationForDevice:(XCUIDevice *)device
-{
-  NSNumber *orientation = @(device.orientation);
-  NSSet *keys = [[self _orientationsMapping] keysOfEntriesPassingTest:^BOOL(id key, NSNumber *obj, BOOL *stop) {
-    return [obj isEqualToNumber:orientation];
-  }];
-  if (keys.count == 0) {
-    return @"UNKNOWN";
-  }
-  return keys.anyObject;
-}
 
 + (NSString *)interfaceOrientationForApplication:(XCUIApplication *)application
 {
