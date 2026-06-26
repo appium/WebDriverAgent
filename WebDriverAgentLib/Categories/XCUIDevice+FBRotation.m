@@ -67,8 +67,6 @@ static UIInterfaceOrientation FBInterfaceOrientationFromDeviceOrientation(UIDevi
 - (NSString *)fb_deviceOrientation
 {
   switch (self.orientation) {
-    case UIDeviceOrientationUnknown:
-      return @"UIDeviceOrientationUnknown";
     case UIDeviceOrientationPortrait:
       return @"UIDeviceOrientationPortrait";
     case UIDeviceOrientationPortraitUpsideDown:
@@ -81,6 +79,7 @@ static UIInterfaceOrientation FBInterfaceOrientationFromDeviceOrientation(UIDevi
       return @"UIDeviceOrientationFaceUp";
     case UIDeviceOrientationFaceDown:
       return @"UIDeviceOrientationFaceDown";
+    case UIDeviceOrientationUnknown:
     default:
       return @"UIDeviceOrientationUnknown";
   }
