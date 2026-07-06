@@ -15,7 +15,7 @@
     "prepare": "npm run build",
     "version": "npm run sync-wda-version",
     "test": "node --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
-    "e2e-test": "node --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
+    "e2e-test": "node --test --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
     "bundle": "npm run bundle:ios && npm run bundle:tv",
     "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
     "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.mjs",
