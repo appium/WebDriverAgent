@@ -144,8 +144,8 @@ extern NSString *const FBSnapshotMaxDepthKey;
  ! Setting this to a value less than 100, especially together with orientation fixing enabled
  ! may lead to WDA process termination because of an excessive CPU usage.
  */
-+ (CGFloat)mjpegScalingFactor;
-+ (void)setMjpegScalingFactor:(CGFloat)scalingFactor;
++ (double)mjpegScalingFactor;
++ (void)setMjpegScalingFactor:(double)scalingFactor;
 
 /**
  YES if verbose logging is enabled. NO otherwise.

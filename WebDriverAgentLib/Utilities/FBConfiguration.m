@@ -37,7 +37,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
 static BOOL FBShouldUseSingletonTestManager = YES;
 static BOOL FBShouldRespectSystemAlerts = NO;
 
-static CGFloat FBMjpegScalingFactor = 100.0;
+static double FBMjpegScalingFactor = 100.0;
 static BOOL FBMjpegShouldFixOrientation = NO;
 static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
@@ -178,12 +178,12 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return DefaultHttpRequestBodySizeLimit;
 }
 
-+ (CGFloat)mjpegScalingFactor
++ (double)mjpegScalingFactor
 {
   return FBMjpegScalingFactor;
 }
 
-+ (void)setMjpegScalingFactor:(CGFloat)scalingFactor {
++ (void)setMjpegScalingFactor:(double)scalingFactor {
   FBMjpegScalingFactor = scalingFactor;
 }
 
