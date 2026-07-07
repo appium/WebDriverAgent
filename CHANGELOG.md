@@ -1,3 +1,9 @@
+## [15.1.4](https://github.com/appium/WebDriverAgent/compare/v15.1.3...v15.1.4) (2026-07-07)
+
+### Miscellaneous Chores
+
+* Drop mocha and chai ([#1169](https://github.com/appium/WebDriverAgent/issues/1169)) ([11ba27c](https://github.com/appium/WebDriverAgent/commit/11ba27c71a38d7a8f4882ea70716541b3679e67f))
+
 ## [15.1.3](https://github.com/appium/WebDriverAgent/compare/v15.1.2...v15.1.3) (2026-07-01)
 
 ### Miscellaneous Chores
