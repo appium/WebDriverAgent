@@ -1,5 +1,4 @@
-import chai, {expect} from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import assert from 'node:assert/strict';
 import {getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName} from '../../lib/utils';
 import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants';
 import {fs} from '@appium/support';
@@ -8,8 +7,7 @@ import {fail} from 'node:assert';
 import {arch} from 'node:os';
 import sinon from 'sinon';
 import type {DeviceInfo} from '../../lib/types';
-
-chai.use(chaiAsPromised);
+import {describe, beforeEach, afterEach, it} from 'node:test';
 
 function get_arch(): string {
   return arch() === 'arm64' ? 'arm64' : 'x86_64';
@@ -39,7 +37,8 @@ describe('utils', function () {
         .resolves(true);
       sandbox.stub(fs, 'copyFile');
       const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
-      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
+      assert.strictEqual(
+        await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath),
         path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`),
       );
       sandbox.assert.notCalled(fs.copyFile as any);
@@ -72,7 +71,8 @@ describe('utils', function () {
         platformVersion,
         platformName: PLATFORM_NAME_IOS,
       };
-      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
+      assert.strictEqual(
+        await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath),
         path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`),
       );
     });
@@ -99,7 +99,8 @@ describe('utils', function () {
         platformVersion,
         platformName: PLATFORM_NAME_IOS,
       };
-      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
+      assert.strictEqual(
+        await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath),
         path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`),
       );
       sandbox.assert.notCalled(fs.copyFile as any);
@@ -143,7 +144,8 @@ describe('utils', function () {
         platformVersion,
         platformName: PLATFORM_NAME_IOS,
       };
-      await expect(getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath)).to.eventually.equal(
+      assert.strictEqual(
+        await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath),
         path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`),
       );
     });
@@ -164,7 +166,8 @@ describe('utils', function () {
         await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
         fail();
       } catch (err: any) {
-        expect(err.message).to.equal(
+        assert.strictEqual(
+          err.message,
           `If you are using 'useXctestrunFile' capability then you need to have a xctestrun file (expected: '${expected}')`,
         );
       }
@@ -174,19 +177,20 @@ describe('utils', function () {
   describe('#getAdditionalRunContent', function () {
     it('should return ios format', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000);
-      expect(wdaPort.WebDriverAgentRunner.EnvironmentVariables.USE_PORT).to.equal('8000');
+      assert.strictEqual(wdaPort.WebDriverAgentRunner.EnvironmentVariables.USE_PORT, '8000');
     });
 
     it('should return tvos format', function () {
       const wdaPort = getAdditionalRunContent(PLATFORM_NAME_TVOS, '9000');
-      expect(wdaPort.WebDriverAgentRunner_tvOS.EnvironmentVariables.USE_PORT).to.equal('9000');
+      assert.strictEqual(wdaPort.WebDriverAgentRunner_tvOS.EnvironmentVariables.USE_PORT, '9000');
     });
 
     it('should include max HTTP request body size if provided', function () {
       const runContent = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000, undefined, 1024);
-      expect(
+      assert.strictEqual(
         runContent.WebDriverAgentRunner.EnvironmentVariables.MAX_HTTP_REQUEST_BODY_SIZE,
-      ).to.equal('1024');
+        '1024',
+      );
     });
   });
 
@@ -198,7 +202,8 @@ describe('utils', function () {
       const platformName = 'iOs';
       const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
 
-      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
+      assert.strictEqual(
+        getXctestrunFileName(deviceInfo, '10.2.0'),
         'WebDriverAgentRunner_iphoneos10.2.0-arm64.xctestrun',
       );
     });
@@ -207,7 +212,8 @@ describe('utils', function () {
       const platformName = 'ios';
       const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
 
-      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
+      assert.strictEqual(
+        getXctestrunFileName(deviceInfo, '10.2.0'),
         `WebDriverAgentRunner_iphonesimulator10.2.0-${get_arch()}.xctestrun`,
       );
     });
@@ -216,7 +222,8 @@ describe('utils', function () {
       const platformName = 'tVos';
       const deviceInfo: DeviceInfo = {isRealDevice: true, udid, platformVersion, platformName};
 
-      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
+      assert.strictEqual(
+        getXctestrunFileName(deviceInfo, '10.2.0'),
         'WebDriverAgentRunner_tvOS_appletvos10.2.0-arm64.xctestrun',
       );
     });
@@ -225,7 +232,8 @@ describe('utils', function () {
       const platformName = 'tvOS';
       const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
 
-      expect(getXctestrunFileName(deviceInfo, '10.2.0')).to.equal(
+      assert.strictEqual(
+        getXctestrunFileName(deviceInfo, '10.2.0'),
         `WebDriverAgentRunner_tvOS_appletvsimulator10.2.0-${get_arch()}.xctestrun`,
       );
     });

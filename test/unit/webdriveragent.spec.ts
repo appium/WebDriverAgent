@@ -1,5 +1,3 @@
-import chai, {expect} from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import {BOOTSTRAP_PATH} from '../../lib/utils';
 import {WebDriverAgent} from '../../lib/webdriveragent';
 import {selectWdaStartupStrategyName} from '../../lib/wda-strategies';
@@ -7,8 +5,8 @@ import * as utils from '../../lib/utils';
 import path from 'node:path';
 import sinon from 'sinon';
 import type {WebDriverAgentArgs} from '../../lib/types';
-
-chai.use(chaiAsPromised);
+import {describe, beforeEach, afterEach, it} from 'node:test';
+import assert from 'node:assert/strict';
 
 const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {
@@ -27,39 +25,47 @@ const customDerivedDataPath = '/path/to/some/agent/DerivedData/';
 describe('WebDriverAgent', function () {
   describe('startup strategy selection', function () {
     it('should select an existing-url strategy for external WDA URLs', function () {
-      expect(selectWdaStartupStrategyName({webDriverAgentUrl: 'http://127.0.0.1:8100'})).to.equal(
+      assert.strictEqual(
+        selectWdaStartupStrategyName({webDriverAgentUrl: 'http://127.0.0.1:8100'}),
         'existing-url',
       );
     });
 
     it('should select a simulator strategy for simulator sessions', function () {
-      expect(selectWdaStartupStrategyName({realDevice: false})).to.equal('simulator');
+      assert.strictEqual(selectWdaStartupStrategyName({realDevice: false}), 'simulator');
     });
 
     it('should select a real-device preinstalled strategy for no-xcode real-device sessions', function () {
-      expect(selectWdaStartupStrategyName({realDevice: true, usePreinstalledWDA: true})).to.equal(
+      assert.strictEqual(
+        selectWdaStartupStrategyName({realDevice: true, usePreinstalledWDA: true}),
         'real-device-preinstalled',
       );
     });
 
     it('should select a real-device xcodebuild strategy for default real-device sessions', function () {
-      expect(selectWdaStartupStrategyName({realDevice: true})).to.equal('real-device-xcodebuild');
+      assert.strictEqual(
+        selectWdaStartupStrategyName({realDevice: true}),
+        'real-device-xcodebuild',
+      );
     });
   });
 
   describe('Constructor', function () {
     it('should have a default wda agent if not specified', function () {
       const agent = new WebDriverAgent(fakeConstructorArgs);
-      expect(agent.bootstrapPath).to.eql(BOOTSTRAP_PATH);
-      expect(agent.agentPath).to.eql(defaultAgentPath);
+      assert.strictEqual(agent.bootstrapPath, BOOTSTRAP_PATH);
+      assert.strictEqual(agent.agentPath, defaultAgentPath);
     });
     it('should have custom wda bootstrap and default agent if only bootstrap specified', function () {
       const agent = new WebDriverAgent({
         ...fakeConstructorArgs,
         bootstrapPath: customBootstrapPath,
       });
-      expect(agent.bootstrapPath).to.eql(customBootstrapPath);
-      expect(agent.agentPath).to.eql(path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
+      assert.strictEqual(agent.bootstrapPath, customBootstrapPath);
+      assert.strictEqual(
+        agent.agentPath,
+        path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'),
+      );
     });
     it('should have custom wda bootstrap and agent if both specified', function () {
       const agent = new WebDriverAgent({
@@ -67,8 +73,8 @@ describe('WebDriverAgent', function () {
         bootstrapPath: customBootstrapPath,
         agentPath: customAgentPath,
       });
-      expect(agent.bootstrapPath).to.eql(customBootstrapPath);
-      expect(agent.agentPath).to.eql(customAgentPath);
+      assert.strictEqual(agent.bootstrapPath, customBootstrapPath);
+      assert.strictEqual(agent.agentPath, customAgentPath);
     });
     it('should have custom derivedDataPath if specified', async function () {
       const agent = new WebDriverAgent({
@@ -76,7 +82,7 @@ describe('WebDriverAgent', function () {
         derivedDataPath: customDerivedDataPath,
       });
       if (agent.xcodebuild) {
-        expect(await agent.retrieveDerivedDataPath()).to.eql(customDerivedDataPath);
+        assert.strictEqual(await agent.retrieveDerivedDataPath(), customDerivedDataPath);
       }
     });
 
@@ -86,7 +92,7 @@ describe('WebDriverAgent', function () {
         realDevice: true,
         usePreinstalledWDA: true,
       });
-      expect(() => agent.xcodebuild).to.throw('xcodebuild is not available');
+      assert.throws(() => agent.xcodebuild, /xcodebuild is not available/);
     });
   });
 
@@ -101,19 +107,19 @@ describe('WebDriverAgent', function () {
         return {build: 'data'};
       });
 
-      await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
-      expect(agent.url.href).to.eql(override);
+      assert.deepStrictEqual(await agent.launch('sessionId'), {build: 'data'});
+      assert.strictEqual(agent.url.href, override);
       if (agent.jwproxy) {
-        expect(agent.jwproxy.server).to.eql('mockurl');
-        expect(agent.jwproxy.port).to.eql(8100);
-        expect(agent.jwproxy.base).to.eql('');
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.server, 'mockurl');
+        assert.strictEqual(agent.jwproxy.port, 8100);
+        assert.strictEqual(agent.jwproxy.base, '');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.server).to.eql('mockurl');
-        expect(agent.noSessionProxy.port).to.eql(8100);
-        expect(agent.noSessionProxy.base).to.eql('');
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.server, 'mockurl');
+        assert.strictEqual(agent.noSessionProxy.port, 8100);
+        assert.strictEqual(agent.noSessionProxy.base, '');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
       wdaStub.reset();
     });
@@ -130,22 +136,22 @@ describe('WebDriverAgent', function () {
         return {build: 'data'};
       });
 
-      await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
+      assert.deepStrictEqual(await agent.launch('sessionId'), {build: 'data'});
 
-      expect(agent.url.port).to.eql('8100');
-      expect(agent.url.hostname).to.eql('127.0.0.1');
-      expect(agent.url.pathname).to.eql('/aabbccdd');
+      assert.strictEqual(agent.url.port, '8100');
+      assert.strictEqual(agent.url.hostname, '127.0.0.1');
+      assert.strictEqual(agent.url.pathname, '/aabbccdd');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.server).to.eql('127.0.0.1');
-        expect(agent.jwproxy.port).to.eql(8100);
-        expect(agent.jwproxy.base).to.eql('/aabbccdd');
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.server, '127.0.0.1');
+        assert.strictEqual(agent.jwproxy.port, 8100);
+        assert.strictEqual(agent.jwproxy.base, '/aabbccdd');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.server).to.eql('127.0.0.1');
-        expect(agent.noSessionProxy.port).to.eql(8100);
-        expect(agent.noSessionProxy.base).to.eql('/aabbccdd');
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.server, '127.0.0.1');
+        assert.strictEqual(agent.noSessionProxy.port, 8100);
+        assert.strictEqual(agent.noSessionProxy.base, '/aabbccdd');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
     });
   });
@@ -154,13 +160,13 @@ describe('WebDriverAgent', function () {
     it('should use default WDA listening url', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('http://127.0.0.1:8100/');
+      assert.strictEqual(agent.url.href, 'http://127.0.0.1:8100/');
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
     });
     it('should use default WDA listening url with emply base url', function () {
@@ -172,13 +178,13 @@ describe('WebDriverAgent', function () {
       args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('http://127.0.0.1:9100/');
+      assert.strictEqual(agent.url.href, 'http://127.0.0.1:9100/');
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
     });
     it('should use customised WDA listening url', function () {
@@ -190,13 +196,13 @@ describe('WebDriverAgent', function () {
       args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('http://mockurl:9100/');
+      assert.strictEqual(agent.url.href, 'http://mockurl:9100/');
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
     });
     it('should use customised WDA listening url with slash', function () {
@@ -208,13 +214,13 @@ describe('WebDriverAgent', function () {
       args.wdaLocalPort = parseInt(wdaLocalPort, 10);
 
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('http://mockurl:9100/');
+      assert.strictEqual(agent.url.href, 'http://mockurl:9100/');
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.scheme).to.eql('http');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'http');
       }
     });
     it('should use the given webDriverAgentUrl and ignore other params', function () {
@@ -224,7 +230,7 @@ describe('WebDriverAgent', function () {
       args.webDriverAgentUrl = 'https://127.0.0.1:8100/';
 
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('https://127.0.0.1:8100/');
+      assert.strictEqual(agent.url.href, 'https://127.0.0.1:8100/');
     });
     it('should set scheme to https for https webDriverAgentUrl', function () {
       const args = Object.assign({}, fakeConstructorArgs);
@@ -232,10 +238,10 @@ describe('WebDriverAgent', function () {
       const agent = new WebDriverAgent(args);
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('https');
+        assert.strictEqual(agent.jwproxy.scheme, 'https');
       }
       if (agent.noSessionProxy) {
-        expect(agent.noSessionProxy.scheme).to.eql('https');
+        assert.strictEqual(agent.noSessionProxy.scheme, 'https');
       }
     });
 
@@ -243,10 +249,10 @@ describe('WebDriverAgent', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.webDriverAgentUrl = 'localhost:8100/aabbccdd';
       const agent = new WebDriverAgent(args);
-      expect(agent.url.href).to.eql('http://localhost:8100/aabbccdd');
+      assert.strictEqual(agent.url.href, 'http://localhost:8100/aabbccdd');
       (agent as any).setupProxies('mysession');
       if (agent.jwproxy) {
-        expect(agent.jwproxy.scheme).to.eql('http');
+        assert.strictEqual(agent.jwproxy.scheme, 'http');
       }
     });
 
@@ -254,7 +260,7 @@ describe('WebDriverAgent', function () {
       const args = Object.assign({}, fakeConstructorArgs);
       args.webDriverAgentUrl = 'http://';
       const agent = new WebDriverAgent(args);
-      expect(() => agent.url).to.throw();
+      assert.throws(() => agent.url);
     });
   });
 
@@ -281,9 +287,9 @@ describe('WebDriverAgent', function () {
         return null;
       });
 
-      expect(await wda.setupCaching()).to.be.undefined;
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl === undefined).to.be.true;
+      assert.strictEqual(await wda.setupCaching(), undefined);
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, undefined);
     });
 
     it('should cache when running WDA has only time', async function () {
@@ -291,9 +297,9 @@ describe('WebDriverAgent', function () {
         return {build: {time: 'Jun 24 2018 17:08:21'}};
       });
 
-      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
+      assert.strictEqual(await wda.setupCaching(), 'http://127.0.0.1:8100/');
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, 'http://127.0.0.1:8100/');
     });
 
     it('should not cache when bundle id is not default without updatedWDABundleId capability', async function () {
@@ -306,9 +312,9 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      expect(await wda.setupCaching()).to.be.undefined;
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl === undefined).to.be.true;
+      assert.strictEqual(await wda.setupCaching(), undefined);
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, undefined);
     });
 
     it('should not cache when bundle id is different with updatedWDABundleId capability', async function () {
@@ -321,9 +327,9 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      expect(await wda.setupCaching()).to.be.undefined;
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl === undefined).to.be.true;
+      assert.strictEqual(await wda.setupCaching(), undefined);
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, undefined);
     });
 
     it('should cache when bundle id is equal to updatedWDABundleId capability', async function () {
@@ -342,9 +348,9 @@ describe('WebDriverAgent', function () {
         };
       });
 
-      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
+      assert.strictEqual(await wda.setupCaching(), 'http://127.0.0.1:8100/');
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, 'http://127.0.0.1:8100/');
     });
 
     it('should not cache if current revision differs from the bundled one', async function () {
@@ -353,9 +359,9 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 2);
 
-      expect(await wda.setupCaching()).to.be.undefined;
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl === undefined).to.be.true;
+      assert.strictEqual(await wda.setupCaching(), undefined);
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, undefined);
     });
 
     it('should cache if current revision is the same as the bundled one', async function () {
@@ -364,9 +370,9 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 1);
 
-      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
+      assert.strictEqual(await wda.setupCaching(), 'http://127.0.0.1:8100/');
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, 'http://127.0.0.1:8100/');
     });
 
     it('should cache if current revision cannot be retrieved from WDA status', async function () {
@@ -375,9 +381,9 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => 1);
 
-      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
+      assert.strictEqual(await wda.setupCaching(), 'http://127.0.0.1:8100/');
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, 'http://127.0.0.1:8100/');
     });
 
     it('should cache if current revision cannot be retrieved from the file system', async function () {
@@ -386,9 +392,9 @@ describe('WebDriverAgent', function () {
       });
       getTimestampStub.callsFake(async () => null);
 
-      expect(await wda.setupCaching()).to.equal('http://127.0.0.1:8100/');
-      expect(wdaStub.calledOnce).to.be.true;
-      expect(wda.webDriverAgentUrl).to.equal('http://127.0.0.1:8100/');
+      assert.strictEqual(await wda.setupCaching(), 'http://127.0.0.1:8100/');
+      assert.strictEqual(wdaStub.calledOnce, true);
+      assert.strictEqual(wda.webDriverAgentUrl, 'http://127.0.0.1:8100/');
     });
   });
 
@@ -398,13 +404,13 @@ describe('WebDriverAgent', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         args.updatedWDABundleId = 'io.appium.wda';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('io.appium.wda.xctrunner');
+        assert.strictEqual(agent.bundleIdForXctest, 'io.appium.wda.xctrunner');
       });
 
       it('should have xctrunner automatically with default bundle id', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner.xctrunner');
+        assert.strictEqual(agent.bundleIdForXctest, 'com.facebook.WebDriverAgentRunner.xctrunner');
       });
 
       it('should allow an empty string as xctrunner suffix', function () {
@@ -412,14 +418,14 @@ describe('WebDriverAgent', function () {
         args.updatedWDABundleId = 'io.appium.wda';
         args.updatedWDABundleIdSuffix = '';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('io.appium.wda');
+        assert.strictEqual(agent.bundleIdForXctest, 'io.appium.wda');
       });
 
       it('should allow an empty string as xctrunner suffix with default bundle id', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         args.updatedWDABundleIdSuffix = '';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner');
+        assert.strictEqual(agent.bundleIdForXctest, 'com.facebook.WebDriverAgentRunner');
       });
 
       it('should have an arbitrary xctrunner suffix', function () {
@@ -427,7 +433,7 @@ describe('WebDriverAgent', function () {
         args.updatedWDABundleId = 'io.appium.wda';
         args.updatedWDABundleIdSuffix = '.customsuffix';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('io.appium.wda.customsuffix');
+        assert.strictEqual(agent.bundleIdForXctest, 'io.appium.wda.customsuffix');
       });
     });
 
@@ -464,14 +470,14 @@ describe('WebDriverAgent', function () {
         });
         sandbox.stub(agent as any, 'getStatus').resolves({build: 'data'});
 
-        await expect(agent.launch('sessionId')).to.eventually.eql({build: 'data'});
+        assert.deepStrictEqual(await agent.launch('sessionId'), {build: 'data'});
         sinon.assert.calledOnce(launchPreinstalled);
-        expect(launchPreinstalled.firstCall.args[0]).to.include({
+        assert.partialDeepStrictEqual(launchPreinstalled.firstCall.args[0], {
           udid: 'real-device-udid',
           bundleId: 'io.appium.wda.xctrunner',
           wdaLocalPort: 9100,
         });
-        expect(launchPreinstalled.firstCall.args[0].env).to.eql({
+        assert.deepStrictEqual(launchPreinstalled.firstCall.args[0].env, {
           USE_PORT: 9100,
           WDA_PRODUCT_BUNDLE_IDENTIFIER: 'io.appium.wda.xctrunner',
           MJPEG_SERVER_PORT: 9200,
@@ -494,9 +500,7 @@ describe('WebDriverAgent', function () {
           usePreinstalledWDA: true,
         });
 
-        await expect(agent.launch('sessionId')).to.be.rejectedWith(
-          'Host operations must be provided',
-        );
+        await assert.rejects(agent.launch('sessionId'), 'Host operations must be provided');
       });
     });
   });
