@@ -64,7 +64,7 @@
     "semantic-release": "^25.0.2",
     "semver": "^7.3.7",
     "sinon": "^22.0.0",
-    "typescript": "^6.0.2"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@appium/base-driver": "^10.3.0",
