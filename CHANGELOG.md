@@ -1,3 +1,9 @@
+## [15.1.5](https://github.com/appium/WebDriverAgent/compare/v15.1.4...v15.1.5) (2026-07-12)
+
+### Bug Fixes
+
+* lock screen via IOHID Power press on iOS 27 ([#1171](https://github.com/appium/WebDriverAgent/issues/1171)) ([64be238](https://github.com/appium/WebDriverAgent/commit/64be2388ad5d1cefa184beaf34ae85fe8e14e0c8))
+
 ## [15.1.4](https://github.com/appium/WebDriverAgent/compare/v15.1.3...v15.1.4) (2026-07-07)
 
 ### Miscellaneous Chores
