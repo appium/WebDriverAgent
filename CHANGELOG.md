@@ -1,3 +1,9 @@
+## [15.1.6](https://github.com/appium/WebDriverAgent/compare/v15.1.5...v15.1.6) (2026-07-12)
+
+### Bug Fixes
+
+* use double instead of CGFloat for mjpegScalingFactor public API ([#1168](https://github.com/appium/WebDriverAgent/issues/1168)) ([33dbaa4](https://github.com/appium/WebDriverAgent/commit/33dbaa4f56337bccc44ce7b0e796366d04df3630))
+
 ## [15.1.5](https://github.com/appium/WebDriverAgent/compare/v15.1.4...v15.1.5) (2026-07-12)
 
 ### Bug Fixes
