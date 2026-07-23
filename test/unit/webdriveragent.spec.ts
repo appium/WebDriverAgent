@@ -1,12 +1,26 @@
-import {BOOTSTRAP_PATH} from '../../lib/utils';
-import {WebDriverAgent} from '../../lib/webdriveragent';
-import {selectWdaStartupStrategyName} from '../../lib/wda-strategies';
-import * as utils from '../../lib/utils';
+import {BOOTSTRAP_PATH} from '../../lib/utils/index.js';
+import {selectWdaStartupStrategyName} from '../../lib/wda-strategies.js';
+import * as utils from '../../lib/utils/index.js';
 import path from 'node:path';
 import sinon from 'sinon';
-import type {WebDriverAgentArgs} from '../../lib/types';
+import esmock from 'esmock';
+import type {WebDriverAgentArgs} from '../../lib/types.js';
+import type * as WebDriverAgentModule from '../../lib/webdriveragent.js';
 import {describe, beforeEach, afterEach, it} from 'node:test';
 import assert from 'node:assert/strict';
+
+let currentGetWDAUpgradeTimestamp: (...args: any[]) => any = utils.getWDAUpgradeTimestamp;
+
+const {WebDriverAgent} = await esmock<typeof WebDriverAgentModule>(
+  '../../lib/webdriveragent.js',
+  import.meta.url,
+  {},
+  {
+    '../../lib/utils/index.js': {
+      getWDAUpgradeTimestamp: (...args: any[]) => currentGetWDAUpgradeTimestamp(...args),
+    },
+  },
+);
 
 const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {
@@ -82,7 +96,7 @@ describe('WebDriverAgent', function () {
         derivedDataPath: customDerivedDataPath,
       });
       if (agent.xcodebuild) {
-        assert.strictEqual(await agent.retrieveDerivedDataPath(), customDerivedDataPath);
+        assert.strictEqual(await agent.xcodebuild.retrieveDerivedDataPath(), customDerivedDataPath);
       }
     });
 
@@ -265,9 +279,10 @@ describe('WebDriverAgent', function () {
   });
 
   describe('setupCaching()', function () {
-    let wda: WebDriverAgent;
+    let wda: InstanceType<typeof WebDriverAgent>;
     let wdaStub: sinon.SinonStub;
-    const getTimestampStub = sinon.stub(utils, 'getWDAUpgradeTimestamp');
+    const getTimestampStub = sinon.stub();
+    currentGetWDAUpgradeTimestamp = getTimestampStub;
 
     beforeEach(function () {
       wda = new WebDriverAgent(fakeConstructorArgs);

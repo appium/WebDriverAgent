@@ -1,4 +1,4 @@
-import {PLATFORM_NAME_TVOS} from '../constants';
+import {PLATFORM_NAME_TVOS} from '../constants.js';
 
 /**
  * Return true if the platformName is tvOS

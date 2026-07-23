@@ -1,9 +1,9 @@
 import {fs} from '@appium/support';
 import {exec} from 'teen_process';
 import path from 'node:path';
-import {WDA_SCHEME, SDK_SIMULATOR, WDA_RUNNER_APP} from './constants';
-import {BOOTSTRAP_PATH} from './utils';
-import type {XcodeBuild} from './xcodebuild';
+import {WDA_SCHEME, SDK_SIMULATOR, WDA_RUNNER_APP} from './constants.js';
+import {BOOTSTRAP_PATH} from './utils/index.js';
+import type {XcodeBuild} from './xcodebuild.js';
 
 /**
  * Ensure simulator WDA is built and return the resulting app bundle path.

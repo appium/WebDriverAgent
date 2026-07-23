@@ -1,12 +1,16 @@
 import assert from 'node:assert/strict';
-import {getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName} from '../../lib/utils';
-import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants';
+import {
+  getXctestrunFilePath,
+  getAdditionalRunContent,
+  getXctestrunFileName,
+} from '../../lib/utils/index.js';
+import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants.js';
 import {fs} from '@appium/support';
 import path from 'node:path';
 import {fail} from 'node:assert';
 import {arch} from 'node:os';
 import sinon from 'sinon';
-import type {DeviceInfo} from '../../lib/types';
+import type {DeviceInfo} from '../../lib/types.js';
 import {describe, beforeEach, afterEach, it} from 'node:test';
 
 function get_arch(): string {

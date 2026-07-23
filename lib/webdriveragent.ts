@@ -3,17 +3,17 @@ import path from 'node:path';
 import {JWProxy} from '@appium/base-driver';
 import {fs, util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
-import {log as defaultLogger} from './logger';
-import {NoSessionProxy} from './no-session-proxy';
-import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp} from './utils';
-import {XcodeBuild} from './xcodebuild';
+import {log as defaultLogger} from './logger.js';
+import {NoSessionProxy} from './no-session-proxy.js';
+import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp} from './utils/index.js';
+import {XcodeBuild} from './xcodebuild.js';
 import AsyncLock from 'async-lock';
 import {
   WDA_RUNNER_BUNDLE_ID,
   WDA_BASE_URL,
   WDA_UPGRADE_TIMESTAMP_PATH,
   DEFAULT_TEST_BUNDLE_SUFFIX,
-} from './constants';
+} from './constants.js';
 import {strongbox} from '@appium/strongbox';
 import type {
   WebDriverAgentArgs,
@@ -21,13 +21,13 @@ import type {
   XcodeBuildSettings,
   RetrieveBuildSettingsOptions,
   WdaHostOps,
-} from './types';
+} from './types.js';
 import {
   createDefaultWdaHostOps,
   createWdaStartupStrategy,
   type WdaStartupStrategy,
   type WdaStartupStrategyContext,
-} from './wda-strategies';
+} from './wda-strategies.js';
 
 const WDA_LAUNCH_TIMEOUT = 60 * 1000;
 const WDA_AGENT_PORT = 8100;
@@ -347,17 +347,6 @@ export class WebDriverAgent {
       return;
     }
     return await this.xcodebuild.retrieveBuildSettings(options);
-  }
-
-  /**
-   * @deprecated Use {@link retrieveBuildSettings} instead. Will be removed in a future release.
-   * @returns The derived data path, or `undefined` if xcodebuild is skipped
-   */
-  async retrieveDerivedDataPath(): Promise<string | undefined> {
-    if (this.canSkipXcodebuild) {
-      return;
-    }
-    return await this.xcodebuild.retrieveDerivedDataPath();
   }
 
   /**
