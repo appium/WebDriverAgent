@@ -1,3 +1,14 @@
+## [16.0.0](https://github.com/appium/WebDriverAgent/compare/v15.1.6...v16.0.0) (2026-07-23)
+
+### ⚠ BREAKING CHANGES
+
+* Consumers using require('appium-webdriveragent') must switch to import/dynamic import() — the package no longer ships a CommonJS entry point.
+* WebDriverAgent#retrieveDerivedDataPath() has been removed; use #retrieveBuildSettings() instead.
+
+### Features
+
+* Migrate the package to ESM ([#1176](https://github.com/appium/WebDriverAgent/issues/1176)) ([fa54e5e](https://github.com/appium/WebDriverAgent/commit/fa54e5e65bdf40d8a653029142e44bcbbf143389))
+
 ## [15.1.6](https://github.com/appium/WebDriverAgent/compare/v15.1.5...v15.1.6) (2026-07-12)
 
 ### Bug Fixes
