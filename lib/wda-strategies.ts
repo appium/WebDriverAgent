@@ -1,9 +1,9 @@
 import {exec} from 'teen_process';
 import {fs} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
-import {getPIDsListeningOnPort, resetTestProcesses} from './utils';
-import type {NoSessionProxy} from './no-session-proxy';
-import type {XcodeBuild} from './xcodebuild';
+import {getPIDsListeningOnPort, resetTestProcesses} from './utils/index.js';
+import type {NoSessionProxy} from './no-session-proxy.js';
+import type {XcodeBuild} from './xcodebuild.js';
 import type {
   AppleDevice,
   RealDevicePreinstalledHostOps,
@@ -12,7 +12,7 @@ import type {
   WdaHostOps,
   WdaLaunchEnvironment,
   WdaStartupStrategyName,
-} from './types';
+} from './types.js';
 
 const WDA_AGENT_PORT = 8100;
 const HOST_OPS_REQUIRED_MESSAGE =

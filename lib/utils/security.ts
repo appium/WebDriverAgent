@@ -1,5 +1,5 @@
 import {exec} from 'teen_process';
-import {log} from '../logger';
+import {log} from '../logger.js';
 
 /**
  * Configure keychain access required for real-device code signing.

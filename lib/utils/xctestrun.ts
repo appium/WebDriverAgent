@@ -1,9 +1,9 @@
 import {fs, plist, util} from '@appium/support';
 import path from 'node:path';
 import {arch} from 'node:os';
-import {log} from '../logger';
-import type {DeviceInfo} from '../types';
-import {isTvOS} from './platform';
+import {log} from '../logger.js';
+import type {DeviceInfo} from '../types.js';
+import {isTvOS} from './platform.js';
 
 /**
  * Arguments for setting xctestrun file

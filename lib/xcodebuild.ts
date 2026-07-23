@@ -2,18 +2,23 @@ import {retryInterval} from 'asyncbox';
 import {SubProcess, exec} from 'teen_process';
 import {logger, timing, util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
-import {log as defaultLogger} from './logger';
-import {getWDAUpgradeTimestamp, isTvOS, setRealDeviceSecurity, setXctestrunFile} from './utils';
+import {log as defaultLogger} from './logger.js';
+import {
+  getWDAUpgradeTimestamp,
+  isTvOS,
+  setRealDeviceSecurity,
+  setXctestrunFile,
+} from './utils/index.js';
 import path from 'node:path';
-import {WDA_RUNNER_BUNDLE_ID} from './constants';
+import {WDA_RUNNER_BUNDLE_ID} from './constants.js';
 import type {
   AppleDevice,
   RetrieveBuildSettingsOptions,
   XcodeBuildArgs,
   XcodeBuildSettings,
   XcodeShowBuildSettingsEntry,
-} from './types';
-import type {NoSessionProxy} from './no-session-proxy';
+} from './types.js';
+import type {NoSessionProxy} from './no-session-proxy.js';
 
 const DEFAULT_SIGNING_ID = 'iPhone Developer';
 const PREBUILD_DELAY = 0;

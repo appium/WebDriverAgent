@@ -1,12 +1,12 @@
 import {Simctl} from 'node-simctl';
 import {getSimulator} from 'appium-ios-simulator';
-import {killAllSimulators, shutdownSimulator} from './helpers/simulator';
+import {killAllSimulators, shutdownSimulator} from './helpers/simulator.js';
 import {SubProcess} from 'teen_process';
-import {PLATFORM_VERSION, DEVICE_NAME} from './desired';
+import {PLATFORM_VERSION, DEVICE_NAME} from './desired.js';
 import {retryInterval} from 'asyncbox';
-import {WebDriverAgent} from '../../lib/webdriveragent';
+import {WebDriverAgent} from '../../lib/webdriveragent.js';
 import axios from 'axios';
-import type {AppleDevice} from '../../lib/types';
+import type {AppleDevice} from '../../lib/types.js';
 import {describe, before, after, beforeEach, afterEach, it} from 'node:test';
 import assert from 'node:assert/strict';
 
