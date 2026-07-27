@@ -1,17 +1,15 @@
-import assert from 'node:assert/strict';
-import {
-  getXctestrunFilePath,
-  getAdditionalRunContent,
-  getXctestrunFileName,
-} from '../../lib/utils/index.js';
-import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants.js';
-import {fs} from '@appium/support';
-import path from 'node:path';
 import {fail} from 'node:assert';
+import assert from 'node:assert/strict';
 import {arch} from 'node:os';
-import sinon from 'sinon';
-import type {DeviceInfo} from '../../lib/types.js';
+import path from 'node:path';
 import {describe, beforeEach, afterEach, it} from 'node:test';
+
+import {fs} from '@appium/support';
+import sinon from 'sinon';
+
+import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants.js';
+import type {DeviceInfo} from '../../lib/types.js';
+import {getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName} from '../../lib/utils/index.js';
 
 function get_arch(): string {
   return arch() === 'arm64' ? 'arm64' : 'x86_64';
@@ -50,22 +48,14 @@ describe('utils', function () {
 
     it('should return sdk based path without udid, copy them', async function () {
       const existsStub = sandbox.stub(fs, 'exists');
+      existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`)).resolves(false);
       existsStub
-        .withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
-        .resolves(false);
-      existsStub
-        .withArgs(
-          path.resolve(
-            `${bootstrapPath}/WebDriverAgentRunner_iphoneos${sdkVersion}-arm64.xctestrun`,
-          ),
-        )
+        .withArgs(path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphoneos${sdkVersion}-arm64.xctestrun`))
         .resolves(true);
       sandbox
         .stub(fs, 'copyFile')
         .withArgs(
-          path.resolve(
-            `${bootstrapPath}/WebDriverAgentRunner_iphoneos${sdkVersion}-arm64.xctestrun`,
-          ),
+          path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphoneos${sdkVersion}-arm64.xctestrun`),
           path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`),
         )
         .resolves();
@@ -83,19 +73,13 @@ describe('utils', function () {
 
     it('should return platform based path', async function () {
       const existsStub = sandbox.stub(fs, 'exists');
-      existsStub
-        .withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
-        .resolves(false);
+      existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`)).resolves(false);
       existsStub
         .withArgs(
-          path.resolve(
-            `${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`,
-          ),
+          path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`),
         )
         .resolves(false);
-      existsStub
-        .withArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`))
-        .resolves(true);
+      existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`)).resolves(true);
       sandbox.stub(fs, 'copyFile');
       const deviceInfo: DeviceInfo = {
         isRealDevice: false,
@@ -112,19 +96,13 @@ describe('utils', function () {
 
     it('should return platform based path without udid, copy them', async function () {
       const existsStub = sandbox.stub(fs, 'exists');
-      existsStub
-        .withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`))
-        .resolves(false);
+      existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${sdkVersion}.xctestrun`)).resolves(false);
       existsStub
         .withArgs(
-          path.resolve(
-            `${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`,
-          ),
+          path.resolve(`${bootstrapPath}/WebDriverAgentRunner_iphonesimulator${sdkVersion}-${get_arch()}.xctestrun`),
         )
         .resolves(false);
-      existsStub
-        .withArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`))
-        .resolves(false);
+      existsStub.withArgs(path.resolve(`${bootstrapPath}/${udid}_${platformVersion}.xctestrun`)).resolves(false);
       existsStub
         .withArgs(
           path.resolve(
@@ -191,10 +169,7 @@ describe('utils', function () {
 
     it('should include max HTTP request body size if provided', function () {
       const runContent = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000, undefined, 1024);
-      assert.strictEqual(
-        runContent.WebDriverAgentRunner.EnvironmentVariables.MAX_HTTP_REQUEST_BODY_SIZE,
-        '1024',
-      );
+      assert.strictEqual(runContent.WebDriverAgentRunner.EnvironmentVariables.MAX_HTTP_REQUEST_BODY_SIZE, '1024');
     });
   });
 

@@ -1,8 +1,9 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { logger, fs } from '@appium/support';
-import { exec } from 'teen_process';
+import {fileURLToPath} from 'node:url';
+
+import {logger, fs} from '@appium/support';
 import * as xcode from 'appium-xcode';
+import {exec} from 'teen_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +26,7 @@ const SDKS = ['sim', 'tv_sim'];
  *
  * @param {string} [xcodeVersion] Xcode version to include in archive name.
  */
-async function buildWebDriverAgent (xcodeVersion) {
+async function buildWebDriverAgent(xcodeVersion) {
   const target = process.env.TARGET;
   const sdk = process.env.SDK;
 
@@ -37,23 +38,22 @@ async function buildWebDriverAgent (xcodeVersion) {
     throw Error(`Please set SDK environment variable from the supported SDKs ${JSON.stringify(SDKS)}`);
   }
 
-
   LOG.info(`Cleaning ${DERIVED_DATA_PATH} if exists`);
   try {
     await exec('xcodebuild', ['clean', '-derivedDataPath', DERIVED_DATA_PATH, '-scheme', 'WebDriverAgentRunner'], {
-      cwd: ROOT_DIR
+      cwd: ROOT_DIR,
     });
   } catch {}
 
   // Get Xcode version
-  xcodeVersion = xcodeVersion || await xcode.getVersion();
+  xcodeVersion = xcodeVersion || (await xcode.getVersion());
   LOG.info(`Building WebDriverAgent for iOS using Xcode version '${xcodeVersion}'`);
 
   // Clean and build
   try {
     await exec('/bin/bash', ['./Scripts/build.sh'], {
       env: {TARGET: target, SDK: sdk, DERIVED_DATA_PATH},
-      cwd: ROOT_DIR
+      cwd: ROOT_DIR,
     });
   } catch (e) {
     LOG.error(`===FAILED TO BUILD FOR ${xcodeVersion}`);
@@ -91,4 +91,3 @@ if (isMainModule) {
 }
 
 export default buildWebDriverAgent;
-

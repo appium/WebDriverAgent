@@ -1,8 +1,9 @@
-import {Simctl} from 'node-simctl';
-import {retryInterval} from 'asyncbox';
 import {killAllSimulators as simKill} from 'appium-ios-simulator';
-import {resetTestProcesses} from '../../../lib/utils/index.js';
+import {retryInterval} from 'asyncbox';
+import {Simctl} from 'node-simctl';
+
 import type {AppleDevice} from '../../../lib/types.js';
+import {resetTestProcesses} from '../../../lib/utils/index.js';
 
 type SimulatorTestDevice = AppleDevice & {simctl: Simctl};
 

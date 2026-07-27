@@ -1,13 +1,15 @@
-import {BOOTSTRAP_PATH} from '../../lib/utils/index.js';
-import {selectWdaStartupStrategyName} from '../../lib/wda-strategies.js';
-import * as utils from '../../lib/utils/index.js';
-import path from 'node:path';
-import sinon from 'sinon';
-import esmock from 'esmock';
-import type {WebDriverAgentArgs} from '../../lib/types.js';
-import type * as WebDriverAgentModule from '../../lib/webdriveragent.js';
-import {describe, beforeEach, afterEach, it} from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import {describe, beforeEach, afterEach, it} from 'node:test';
+
+import esmock from 'esmock';
+import sinon from 'sinon';
+
+import type {WebDriverAgentArgs} from '../../lib/types.js';
+import {BOOTSTRAP_PATH} from '../../lib/utils/index.js';
+import * as utils from '../../lib/utils/index.js';
+import {selectWdaStartupStrategyName} from '../../lib/wda-strategies.js';
+import type * as WebDriverAgentModule from '../../lib/webdriveragent.js';
 
 let currentGetWDAUpgradeTimestamp: (...args: any[]) => any = utils.getWDAUpgradeTimestamp;
 
@@ -39,10 +41,7 @@ const customDerivedDataPath = '/path/to/some/agent/DerivedData/';
 describe('WebDriverAgent', function () {
   describe('startup strategy selection', function () {
     it('should select an existing-url strategy for external WDA URLs', function () {
-      assert.strictEqual(
-        selectWdaStartupStrategyName({webDriverAgentUrl: 'http://127.0.0.1:8100'}),
-        'existing-url',
-      );
+      assert.strictEqual(selectWdaStartupStrategyName({webDriverAgentUrl: 'http://127.0.0.1:8100'}), 'existing-url');
     });
 
     it('should select a simulator strategy for simulator sessions', function () {
@@ -57,10 +56,7 @@ describe('WebDriverAgent', function () {
     });
 
     it('should select a real-device xcodebuild strategy for default real-device sessions', function () {
-      assert.strictEqual(
-        selectWdaStartupStrategyName({realDevice: true}),
-        'real-device-xcodebuild',
-      );
+      assert.strictEqual(selectWdaStartupStrategyName({realDevice: true}), 'real-device-xcodebuild');
     });
   });
 
@@ -76,10 +72,7 @@ describe('WebDriverAgent', function () {
         bootstrapPath: customBootstrapPath,
       });
       assert.strictEqual(agent.bootstrapPath, customBootstrapPath);
-      assert.strictEqual(
-        agent.agentPath,
-        path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'),
-      );
+      assert.strictEqual(agent.agentPath, path.resolve(customBootstrapPath, 'WebDriverAgent.xcodeproj'));
     });
     it('should have custom wda bootstrap and agent if both specified', function () {
       const agent = new WebDriverAgent({

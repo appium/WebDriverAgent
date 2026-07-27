@@ -10,8 +10,5 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   },
-  "include": [
-    "lib",
-    "test"
-  ]
+  "include": ["lib", "test"]
 }

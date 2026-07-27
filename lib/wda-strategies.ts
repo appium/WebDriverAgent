@@ -1,9 +1,8 @@
-import {exec} from 'teen_process';
 import {fs} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
-import {getPIDsListeningOnPort, resetTestProcesses} from './utils/index.js';
+import {exec} from 'teen_process';
+
 import type {NoSessionProxy} from './no-session-proxy.js';
-import type {XcodeBuild} from './xcodebuild.js';
 import type {
   AppleDevice,
   RealDevicePreinstalledHostOps,
@@ -13,10 +12,11 @@ import type {
   WdaLaunchEnvironment,
   WdaStartupStrategyName,
 } from './types.js';
+import {getPIDsListeningOnPort, resetTestProcesses} from './utils/index.js';
+import type {XcodeBuild} from './xcodebuild.js';
 
 const WDA_AGENT_PORT = 8100;
-const HOST_OPS_REQUIRED_MESSAGE =
-  'Host operations must be provided to launch or terminate preinstalled WebDriverAgent';
+const HOST_OPS_REQUIRED_MESSAGE = 'Host operations must be provided to launch or terminate preinstalled WebDriverAgent';
 
 export interface WdaStartupStrategy {
   readonly name: WdaStartupStrategyName;
@@ -220,9 +220,7 @@ export function createDefaultRealDeviceXcodebuildHostOps(): RealDeviceXcodebuild
     async cleanupObsoleteProcesses({udid, port, commandLineIncludes}) {
       const obsoletePids = await getPIDsListeningOnPort(
         port,
-        (cmdLine) =>
-          cmdLine.includes(commandLineIncludes) &&
-          !cmdLine.toLowerCase().includes(udid.toLowerCase()),
+        (cmdLine) => cmdLine.includes(commandLineIncludes) && !cmdLine.toLowerCase().includes(udid.toLowerCase()),
       );
 
       if (obsoletePids.length > 0) {
@@ -232,18 +230,13 @@ export function createDefaultRealDeviceXcodebuildHostOps(): RealDeviceXcodebuild
   };
 }
 
-async function launchWithXcodebuild(
-  ctx: WdaStartupStrategyContext,
-  sessionId: string,
-): Promise<StringRecord | null> {
+async function launchWithXcodebuild(ctx: WdaStartupStrategyContext, sessionId: string): Promise<StringRecord | null> {
   ctx.log.info('Launching WebDriverAgent on the device');
 
   ctx.setupProxies(sessionId);
 
   if (!ctx.useXctestrunFile && !(await fs.exists(ctx.agentPath))) {
-    throw new Error(
-      `Trying to use WebDriverAgent project at '${ctx.agentPath}' but the ` + 'file does not exist',
-    );
+    throw new Error(`Trying to use WebDriverAgent project at '${ctx.agentPath}' but the ` + 'file does not exist');
   }
 
   if (ctx.useXctestrunFile || ctx.usePrebuiltWDA) {

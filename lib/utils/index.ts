@@ -4,12 +4,7 @@ export {BOOTSTRAP_PATH} from './module.js';
 export {isTvOS} from './platform.js';
 export {getPIDsListeningOnPort, killAppUsingPattern, resetTestProcesses} from './processes.js';
 export {setRealDeviceSecurity} from './security.js';
-export {
-  getAdditionalRunContent,
-  getXctestrunFileName,
-  getXctestrunFilePath,
-  setXctestrunFile,
-} from './xctestrun.js';
+export {getAdditionalRunContent, getXctestrunFileName, getXctestrunFilePath, setXctestrunFile} from './xctestrun.js';
 export type {XctestrunFileArgs} from './xctestrun.js';
 
 /**

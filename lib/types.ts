@@ -23,8 +23,7 @@ export interface WDASettings {
   defaultAlertAction?: 'accept' | 'dismiss';
   acceptAlertButtonSelector?: string;
   dismissAlertButtonSelector?: string;
-  screenshotOrientation?:
-    'auto' | 'portrait' | 'portraitUpsideDown' | 'landscapeRight' | 'landscapeLeft';
+  screenshotOrientation?: 'auto' | 'portrait' | 'portraitUpsideDown' | 'landscapeRight' | 'landscapeLeft';
   waitForIdleTimeout?: number;
   animationCoolOffTimeout?: number;
   maxTypingFrequency?: number;
@@ -100,7 +99,10 @@ export interface AppleDevice {
 }
 
 export type WdaStartupStrategyName =
-  'existing-url' | 'simulator' | 'real-device-xcodebuild' | 'real-device-preinstalled';
+  | 'existing-url'
+  | 'simulator'
+  | 'real-device-xcodebuild'
+  | 'real-device-preinstalled';
 
 export type WdaLaunchEnvironment = Record<string, string | number>;
 

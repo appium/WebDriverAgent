@@ -1,6 +1,8 @@
-import {fs, plist, util} from '@appium/support';
-import path from 'node:path';
 import {arch} from 'node:os';
+import path from 'node:path';
+
+import {fs, plist, util} from '@appium/support';
+
 import {log} from '../logger.js';
 import type {DeviceInfo} from '../types.js';
 import {isTvOS} from './platform.js';
@@ -32,14 +34,7 @@ export interface XctestrunFileArgs {
  * then it will throw a file not found exception
  */
 export async function setXctestrunFile(args: XctestrunFileArgs): Promise<string> {
-  const {
-    deviceInfo,
-    sdkVersion,
-    bootstrapPath,
-    wdaRemotePort,
-    wdaBindingIP,
-    maxHttpRequestBodySize,
-  } = args;
+  const {deviceInfo, sdkVersion, bootstrapPath, wdaRemotePort, wdaBindingIP, maxHttpRequestBodySize} = args;
   const xctestrunFilePath = await getXctestrunFilePath(deviceInfo, sdkVersion, bootstrapPath);
   const xctestRunContent = await plist.parsePlistFile(xctestrunFilePath);
   const updateWDAPort = getAdditionalRunContent(
@@ -75,9 +70,7 @@ export function getAdditionalRunContent(
         // USE_PORT must be 'string'
         USE_PORT: `${wdaRemotePort}`,
         ...(wdaBindingIP ? {USE_IP: wdaBindingIP} : {}),
-        ...(maxHttpRequestBodySize
-          ? {MAX_HTTP_REQUEST_BODY_SIZE: `${maxHttpRequestBodySize}`}
-          : {}),
+        ...(maxHttpRequestBodySize ? {MAX_HTTP_REQUEST_BODY_SIZE: `${maxHttpRequestBodySize}`} : {}),
       },
     },
   };
@@ -110,10 +103,7 @@ export async function getXctestrunFilePath(
       log.info(`Using '${filePath}' as xctestrun file`);
       return filePath;
     }
-    const originalXctestrunFile = path.resolve(
-      bootstrapPath,
-      getXctestrunFileName(deviceInfo, version),
-    );
+    const originalXctestrunFile = path.resolve(bootstrapPath, getXctestrunFileName(deviceInfo, version));
     if (await fs.exists(originalXctestrunFile)) {
       // If this is first time run for given device, then first generate xctestrun file for device.
       // We need to have a xctestrun file **per device** because we cannot have same wda port for all devices.
@@ -143,10 +133,7 @@ export function getXctestrunFileName(deviceInfo: DeviceInfo, version: string): s
   return `WebDriverAgentRunner_${isTvOS(deviceInfo.platformName) ? 'tvOS_appletv' : 'iphone'}${archSuffix}.xctestrun`;
 }
 
-function mergeObjects<T extends Record<string, any>, U extends Record<string, any>>(
-  target: T,
-  source: U,
-): T & U {
+function mergeObjects<T extends Record<string, any>, U extends Record<string, any>>(target: T, source: U): T & U {
   const output: Record<string, any> = {...target};
   for (const [key, sourceValue] of Object.entries(source)) {
     const targetValue = output[key];

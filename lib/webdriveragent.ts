@@ -1,20 +1,20 @@
-import {waitForCondition} from 'asyncbox';
 import path from 'node:path';
+
 import {JWProxy} from '@appium/base-driver';
+import {strongbox} from '@appium/strongbox';
 import {fs, util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
-import {log as defaultLogger} from './logger.js';
-import {NoSessionProxy} from './no-session-proxy.js';
-import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp} from './utils/index.js';
-import {XcodeBuild} from './xcodebuild.js';
 import AsyncLock from 'async-lock';
+import {waitForCondition} from 'asyncbox';
+
 import {
   WDA_RUNNER_BUNDLE_ID,
   WDA_BASE_URL,
   WDA_UPGRADE_TIMESTAMP_PATH,
   DEFAULT_TEST_BUNDLE_SUFFIX,
 } from './constants.js';
-import {strongbox} from '@appium/strongbox';
+import {log as defaultLogger} from './logger.js';
+import {NoSessionProxy} from './no-session-proxy.js';
 import type {
   WebDriverAgentArgs,
   AppleDevice,
@@ -22,12 +22,14 @@ import type {
   RetrieveBuildSettingsOptions,
   WdaHostOps,
 } from './types.js';
+import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp} from './utils/index.js';
 import {
   createDefaultWdaHostOps,
   createWdaStartupStrategy,
   type WdaStartupStrategy,
   type WdaStartupStrategyContext,
 } from './wda-strategies.js';
+import {XcodeBuild} from './xcodebuild.js';
 
 const WDA_LAUNCH_TIMEOUT = 60 * 1000;
 const WDA_AGENT_PORT = 8100;
@@ -89,8 +91,7 @@ export class WebDriverAgent {
     this.setWDAPaths(args.bootstrapPath, args.agentPath);
 
     this.wdaLocalPort = args.wdaLocalPort;
-    this.wdaRemotePort =
-      ((this.isRealDevice ? args.wdaRemotePort : null) ?? args.wdaLocalPort) || WDA_AGENT_PORT;
+    this.wdaRemotePort = ((this.isRealDevice ? args.wdaRemotePort : null) ?? args.wdaLocalPort) || WDA_AGENT_PORT;
     this.wdaBaseUrl = args.wdaBaseUrl || WDA_BASE_URL;
     this.wdaBindingIP = args.wdaBindingIP;
     this.prebuildWDA = args.prebuildWDA;
@@ -223,9 +224,7 @@ export class WebDriverAgent {
       } else {
         const port = this.wdaLocalPort || WDA_AGENT_PORT;
         const parsedBaseUrl = this.toUrl(this.wdaBaseUrl || WDA_BASE_URL);
-        this._url = new URL(
-          `${parsedBaseUrl.protocol}//${this.wdaBindingIP || parsedBaseUrl.hostname}:${port}`,
-        );
+        this._url = new URL(`${parsedBaseUrl.protocol}//${this.wdaBindingIP || parsedBaseUrl.hostname}:${port}`);
       }
     }
     return this._url;
@@ -308,8 +307,8 @@ export class WebDriverAgent {
    * @returns `true` if source is fresh (all required files exist), `false` otherwise
    */
   async isSourceFresh(): Promise<boolean> {
-    const existsPromises = ['Resources', path.join('Resources', 'WebDriverAgent.bundle')].map(
-      (subPath) => fs.exists(path.resolve(this.bootstrapPath, subPath)),
+    const existsPromises = ['Resources', path.join('Resources', 'WebDriverAgent.bundle')].map((subPath) =>
+      fs.exists(path.resolve(this.bootstrapPath, subPath)),
     );
     return (await Promise.all(existsPromises)).every((v) => v === true);
   }
@@ -340,9 +339,7 @@ export class WebDriverAgent {
    * @param options - Optional scheme, SDK, configuration, or destination
    * @returns Build settings, or `undefined` if xcodebuild is skipped or settings cannot be determined
    */
-  async retrieveBuildSettings(
-    options?: RetrieveBuildSettingsOptions,
-  ): Promise<XcodeBuildSettings | undefined> {
+  async retrieveBuildSettings(options?: RetrieveBuildSettingsOptions): Promise<XcodeBuildSettings | undefined> {
     if (this.canSkipXcodebuild) {
       return;
     }
@@ -445,10 +442,7 @@ export class WebDriverAgent {
       getStatus: async (timeoutMs) => await this.getStatus(timeoutMs),
       cleanupProjectIfFresh: async () => {
         const synchronizationKey = path.normalize(this.bootstrapPath);
-        await SHARED_RESOURCES_GUARD.acquire(
-          synchronizationKey,
-          async () => await this._cleanupProjectIfFresh(),
-        );
+        await SHARED_RESOURCES_GUARD.acquire(synchronizationKey, async () => await this._cleanupProjectIfFresh());
       },
       xcodebuild: () => this.xcodebuild,
       noSessionProxy: () => {
@@ -540,16 +534,13 @@ export class WebDriverAgent {
       headers: this.args.extraRequestHeaders,
     });
 
-    const sendGetStatus = async () =>
-      (await noSessionProxy.command('/status', 'GET')) as StringRecord;
+    const sendGetStatus = async () => (await noSessionProxy.command('/status', 'GET')) as StringRecord;
 
     if (timeoutMs == null || timeoutMs <= 0) {
       try {
         return await sendGetStatus();
       } catch (err: any) {
-        this.log.debug(
-          `WDA is not listening at '${this.url.href}'. Original error:: ${err.message}`,
-        );
+        this.log.debug(`WDA is not listening at '${this.url.href}'. Original error:: ${err.message}`);
         return null;
       }
     }
@@ -587,9 +578,7 @@ export class WebDriverAgent {
       return;
     }
 
-    const packageInfo = JSON.parse(
-      await fs.readFile(path.join(BOOTSTRAP_PATH, 'package.json'), 'utf8'),
-    );
+    const packageInfo = JSON.parse(await fs.readFile(path.join(BOOTSTRAP_PATH, 'package.json'), 'utf8'));
     const box = strongbox(packageInfo.name);
     let boxItem = box.getItem(RECENT_MODULE_VERSION_ITEM_NAME);
     if (!boxItem) {
@@ -605,9 +594,7 @@ export class WebDriverAgent {
           return;
         }
       } else {
-        this.log.info(
-          'There is no need to perform the project cleanup. A fresh install has been detected',
-        );
+        this.log.info('There is no need to perform the project cleanup. A fresh install has been detected');
         try {
           await box.createItemWithValue(RECENT_MODULE_VERSION_ITEM_NAME, packageInfo.version);
         } catch (e: any) {
@@ -622,9 +609,7 @@ export class WebDriverAgent {
       recentModuleVersion = util.coerceVersion(recentModuleVersion, true);
     } catch (e: any) {
       this.log.warn(`The persisted module version string has been damaged: ${e.message}`);
-      this.log.info(
-        `Updating it to '${packageInfo.version}' assuming the project clenup is not needed`,
-      );
+      this.log.info(`Updating it to '${packageInfo.version}' assuming the project clenup is not needed`);
       await boxItem.write(packageInfo.version);
       return;
     }

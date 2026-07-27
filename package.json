@@ -2,88 +2,22 @@
   "name": "appium-webdriveragent",
   "version": "16.0.0",
   "description": "Package bundling WebDriverAgent",
-  "main": "./build/lib/index.js",
-  "type": "module",
-  "types": "./build/lib/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./build/lib/index.d.ts",
-      "import": "./build/lib/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "scripts": {
-    "build": "tsc -b",
-    "dev": "npm run build -- --watch",
-    "clean": "npm run build -- --clean",
-    "lint": "eslint .",
-    "lint:fix": "npm run lint -- --fix",
-    "format": "prettier -w ./lib ./test",
-    "format:check": "prettier --check ./lib ./test",
-    "prepare": "npm run build",
-    "version": "npm run sync-wda-version",
-    "test": "node --enable-source-maps --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
-    "e2e-test": "node --enable-source-maps --test --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
-    "bundle": "npm run bundle:ios && npm run bundle:tv",
-    "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
-    "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.mjs",
-    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.mjs",
-    "sync-wda-version": "node ./Scripts/update-wda-version.mjs --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
-  },
-  "engines": {
-    "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
-    "npm": ">=10"
-  },
-  "prettier": {
-    "bracketSpacing": false,
-    "printWidth": 100,
-    "singleQuote": true
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/appium/WebDriverAgent.git"
-  },
   "keywords": [
     "Appium",
-    "iOS",
-    "WebDriver",
     "Selenium",
-    "WebDriverAgent"
+    "WebDriver",
+    "WebDriverAgent",
+    "iOS"
   ],
-  "author": "Appium Contributors",
-  "license": "Apache-2.0",
+  "homepage": "https://github.com/appium/WebDriverAgent#readme",
   "bugs": {
     "url": "https://github.com/appium/WebDriverAgent/issues"
   },
-  "homepage": "https://github.com/appium/WebDriverAgent#readme",
-  "devDependencies": {
-    "@appium/eslint-config-appium-ts": "^3.0.0",
-    "@appium/tsconfig": "^1.0.0-rc.1",
-    "@appium/types": "^1.0.0-rc.1",
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@types/async-lock": "^1.4.2",
-    "@types/node": "^26.0.0",
-    "@types/sinon": "^22.0.0",
-    "appium-xcode": "^7.0.0",
-    "conventional-changelog-conventionalcommits": "^9.3.1",
-    "esmock": "^2.7.6",
-    "node-simctl": "^9.0.0",
-    "prettier": "^3.9.3",
-    "semantic-release": "^25.0.2",
-    "semver": "^7.3.7",
-    "sinon": "^22.0.0",
-    "typescript": "^6.0.2"
-  },
-  "dependencies": {
-    "@appium/base-driver": "^10.3.0",
-    "@appium/strongbox": "^1.0.0-rc.1",
-    "@appium/support": "^7.2.1",
-    "appium-ios-simulator": "^9.0.0",
-    "async-lock": "^1.0.0",
-    "asyncbox": "^6.1.0",
-    "axios": "^1.16.0",
-    "teen_process": "^4.0.7"
+  "license": "Apache-2.0",
+  "author": "Appium Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appium/WebDriverAgent.git"
   },
   "files": [
     "lib",
@@ -99,5 +33,61 @@
     "WebDriverAgentTests",
     "XCTWebDriverAgentLib",
     "CHANGELOG.md"
-  ]
+  ],
+  "type": "module",
+  "main": "./build/lib/index.js",
+  "types": "./build/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/lib/index.d.ts",
+      "import": "./build/lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "npm run build -- --watch",
+    "clean": "npm run build -- --clean",
+    "lint": "oxlint -c oxlint.config.mjs .",
+    "lint:fix": "oxlint -c oxlint.config.mjs --fix .",
+    "format": "oxfmt -c oxfmt.config.mjs .",
+    "format:check": "oxfmt -c oxfmt.config.mjs --check .",
+    "prepare": "npm run build",
+    "version": "npm run sync-wda-version",
+    "test": "node --enable-source-maps --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
+    "e2e-test": "node --enable-source-maps --test --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
+    "bundle": "npm run bundle:ios && npm run bundle:tv",
+    "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
+    "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.mjs",
+    "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.mjs",
+    "sync-wda-version": "node ./Scripts/update-wda-version.mjs --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
+  },
+  "dependencies": {
+    "@appium/base-driver": "^10.3.0",
+    "@appium/strongbox": "^1.0.0-rc.1",
+    "@appium/support": "^7.2.1",
+    "appium-ios-simulator": "^9.0.0",
+    "async-lock": "^1.0.0",
+    "asyncbox": "^6.1.0",
+    "axios": "^1.16.0",
+    "teen_process": "^4.0.7"
+  },
+  "devDependencies": {
+    "@appium/oxc-config": "^1.1.0",
+    "@appium/semantic-release-config": "^1.1.0",
+    "@appium/tsconfig": "^1.0.0-rc.1",
+    "@appium/types": "^1.0.0-rc.1",
+    "@types/async-lock": "^1.4.2",
+    "@types/node": "^26.0.0",
+    "@types/sinon": "^22.0.0",
+    "appium-xcode": "^7.0.0",
+    "esmock": "^2.7.6",
+    "node-simctl": "^9.0.0",
+    "semver": "^7.3.7",
+    "sinon": "^22.0.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+    "npm": ">=10"
+  }
 }
