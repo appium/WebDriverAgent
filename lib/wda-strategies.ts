@@ -236,7 +236,7 @@ async function launchWithXcodebuild(ctx: WdaStartupStrategyContext, sessionId: s
   ctx.setupProxies(sessionId);
 
   if (!ctx.useXctestrunFile && !(await fs.exists(ctx.agentPath))) {
-    throw new Error(`Trying to use WebDriverAgent project at '${ctx.agentPath}' but the ` + 'file does not exist');
+    throw new Error(`Trying to use WebDriverAgent project at '${ctx.agentPath}' but the file does not exist`);
   }
 
   if (ctx.useXctestrunFile || ctx.usePrebuiltWDA) {
