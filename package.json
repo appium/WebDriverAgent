@@ -68,7 +68,7 @@
     "appium-xcode": "^6.0.0",
     "conventional-changelog-conventionalcommits": "^9.3.1",
     "esmock": "^2.7.6",
-    "node-simctl": "^8.0.0",
+    "node-simctl": "^9.1.0",
     "prettier": "^3.9.3",
     "semantic-release": "^25.0.2",
     "semver": "^7.3.7",
