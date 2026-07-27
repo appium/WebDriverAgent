@@ -79,7 +79,7 @@
     "@appium/base-driver": "^10.3.0",
     "@appium/strongbox": "^1.0.0-rc.1",
     "@appium/support": "^7.2.1",
-    "appium-ios-simulator": "^8.0.0",
+    "appium-ios-simulator": "^9.1.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^6.1.0",
     "axios": "^1.16.0",
