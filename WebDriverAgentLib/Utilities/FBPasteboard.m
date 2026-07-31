@@ -100,11 +100,7 @@
       break;
     }
 
-    XCUIElement *alertElement = XCUIApplication.fb_systemApplication.fb_alertElement;
-    if (nil != alertElement) {
-      FBAlert *alert = [FBAlert alertWithElement:alertElement];
-      [alert acceptWithError:nil];
-    }
+    [[FBAlert alertWithApplication:XCUIApplication.fb_systemApplication] acceptWithError:nil];
     uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
     if (timeElapsed / NSEC_PER_SEC > timeout) {
       NSString *description = [NSString stringWithFormat:@"Cannot handle pasteboard alert within %@s timeout", @(timeout)];

@@ -151,14 +151,6 @@
   }
 }
 
-- (void)testAlertElement
-{
-  [self showApplicationAlert];
-  XCUIElement *alertElement = [FBAlert alertWithApplication:self.testedApplication].alertElement;
-  XCTAssertTrue(alertElement.exists);
-  XCTAssertTrue(alertElement.elementType == XCUIElementTypeAlert);
-}
-
 - (void)testNotificationAlert
 {
   FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];

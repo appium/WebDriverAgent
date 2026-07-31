@@ -24,7 +24,6 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
-#import "XCUIElement+FBClassChain.h"
 
 /*!
  The intial value for the default application property.
@@ -55,15 +54,10 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 {
   NSString *autoClickAlertSelector = FBConfiguration.autoClickAlertSelector;
   if ([autoClickAlertSelector length] > 0) {
-    @try {
-      NSArray<XCUIElement*> *matches = [alert.alertElement fb_descendantsMatchingClassChain:autoClickAlertSelector
-                                                                shouldReturnAfterFirstMatch:YES];
-      if (matches.count > 0) {
-          [[matches objectAtIndex:0] tap];
-      }
-    } @catch (NSException *e) {
+    NSError *error;
+    if (![alert clickElementMatchingClassChain:autoClickAlertSelector error:&error]) {
       [FBLogger logFmt:@"Could not click at the alert element '%@'. Original error: %@",
-       autoClickAlertSelector, e.description];
+       autoClickAlertSelector, error.description];
     }
     // This setting has priority over other settings if enabled
     return;
