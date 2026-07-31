@@ -132,7 +132,11 @@ NSString *const FBTapsCountLabelIdentifier = @"numberOfTapsLabel";
 - (void)clearAlert
 {
   [self.testedApplication fb_waitUntilStable];
-  [[FBAlert alertWithApplication:self.testedApplication] dismissWithError:nil];
+  @try {
+    [[FBAlert alertWithApplication:self.testedApplication] dismiss];
+  } @catch (NSException *) {
+    // No alert is present, nothing to clear
+  }
   [self.testedApplication fb_waitUntilStable];
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
 }

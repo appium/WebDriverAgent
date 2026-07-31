@@ -97,32 +97,28 @@
 - (void)testClickAlertButton
 {
   FBAlert* alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
+  XCTAssertThrows([alert clickAlertButton:@"Invalid"]);
   [self showApplicationAlert];
-  XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
+  XCTAssertThrows([alert clickAlertButton:@"Invalid"]);
   FBAssertWaitTillBecomesTrue(alert.isPresent);
-  XCTAssertTrue([alert clickAlertButton:@"Will do" error:nil]);
+  XCTAssertNoThrow([alert clickAlertButton:@"Will do"]);
   FBAssertWaitTillBecomesTrue(!alert.isPresent);
 }
 
 - (void)testAcceptingAlert
 {
-  NSError *error;
   [self showApplicationAlert];
-  XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] acceptWithError:&error]);
+  XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] accept]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-  XCTAssertNil(error);
 }
 
 - (void)testAcceptingAlertWithCustomLocator
 {
-  NSError *error;
   [self showApplicationAlert];
   [FBConfiguration setAcceptAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
-    XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] acceptWithError:&error]);
+    XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] accept]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    XCTAssertNil(error);
   } @finally {
     [FBConfiguration setAcceptAlertButtonSelector:@""];
   }
@@ -130,22 +126,18 @@
 
 - (void)testDismissingAlert
 {
-  NSError *error;
   [self showApplicationAlert];
-  XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] dismissWithError:&error]);
+  XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] dismiss]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-  XCTAssertNil(error);
 }
 
 - (void)testDismissingAlertWithCustomLocator
 {
-  NSError *error;
   [self showApplicationAlert];
   [FBConfiguration setDismissAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
-    XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] dismissWithError:&error]);
+    XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] dismiss]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    XCTAssertNil(error);
   } @finally {
     [FBConfiguration setDismissAlertButtonSelector:@""];
   }

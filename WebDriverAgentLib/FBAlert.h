@@ -27,15 +27,15 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Determines whether alert is present.
 
- Not cached: this, text, buttonLabels, acceptWithError:, dismissWithError:,
- clickAlertButton:error:, clickElementMatchingClassChain:error:, and
- typeText:error: each independently re-resolve the alert against the live
- UI on every call, via a single upfront snapshot rather than an interactive
- element lookup - cheap, but still a fresh accessibility round trip per
- call. Calling isPresent before one of the others therefore pays for two
- snapshot resolutions where one would do - prefer calling the action
- directly and handling its own "not present" error, unless you specifically
- need to check presence without acting on it.
+ Not cached: this, text, buttonLabels, accept, dismiss, clickAlertButton:,
+ clickElementMatchingClassChain:, and typeText: each independently
+ re-resolve the alert against the live UI on every call, via a single
+ upfront snapshot rather than an interactive element lookup - cheap, but
+ still a fresh accessibility round trip per call. Calling isPresent before
+ one of the others therefore pays for two snapshot resolutions where one
+ would do - prefer calling the action directly and letting it raise
+ FBAlertNotPresentException, unless you specifically need to check
+ presence without acting on it.
  */
 - (BOOL)isPresent;
 
@@ -55,29 +55,29 @@ NS_ASSUME_NONNULL_BEGIN
  Accepts alert, if present.
  See isPresent for how presence is resolved.
 
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
+ @throws FBAlertNotPresentException if no alert is present.
+ @throws FBAlertActionFailedException if the accept button could not be found.
  */
-- (BOOL)acceptWithError:(NSError **)error;
+- (void)accept;
 
 /**
  Dismisses alert, if present.
  See isPresent for how presence is resolved.
 
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
+ @throws FBAlertNotPresentException if no alert is present.
+ @throws FBAlertActionFailedException if the dismiss button could not be found.
  */
-- (BOOL)dismissWithError:(NSError **)error;
+- (void)dismiss;
 
 /**
  Clicks on an alert button, if present.
  See isPresent for how presence is resolved.
 
  @param label The label of the button on which to click.
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation suceeds, otherwise NO.
+ @throws FBAlertNotPresentException if no alert is present.
+ @throws FBAlertActionFailedException if no button with the given label could be found.
  */
-- (BOOL)clickAlertButton:(NSString *)label error:(NSError **)error;
+- (void)clickAlertButton:(NSString *)label;
 
 /**
  Taps the first descendant of the alert matching the given class chain
@@ -85,20 +85,20 @@ NS_ASSUME_NONNULL_BEGIN
  See isPresent for how presence is resolved.
 
  @param classChain The class chain selector to match against the alert's descendants.
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
+ @throws FBAlertNotPresentException if no alert is present.
+ @throws FBAlertActionFailedException if no matching element could be found.
  */
-- (BOOL)clickElementMatchingClassChain:(NSString *)classChain error:(NSError **)error;
+- (void)clickElementMatchingClassChain:(NSString *)classChain;
 
 /**
  Types a text into an input inside the alert container, if it is present.
  See isPresent for how presence is resolved.
 
  @param text the text to type
- @param error If there is an error, upon return contains an NSError object that describes the problem.
- @return YES if the operation succeeds, otherwise NO.
+ @throws FBAlertNotPresentException if no alert is present.
+ @throws FBAlertSetTextFailedException if there is no single input field to type into, or typing itself fails.
  */
-- (BOOL)typeText:(NSString *)text error:(NSError **)error;
+- (void)typeText:(NSString *)text;
 
 @end
 

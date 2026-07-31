@@ -28,9 +28,13 @@
     commandStatus = [FBCommandStatus invalidArgumentErrorWithMessage:exception.reason
                                                            traceback:traceback];
   } else if ([exception.name isEqualToString:FBApplicationCrashedException]
-             || [exception.name isEqualToString:FBApplicationDeadlockDetectedException]) {
+             || [exception.name isEqualToString:FBApplicationDeadlockDetectedException]
+             || [exception.name isEqualToString:FBAlertActionFailedException]) {
     commandStatus = [FBCommandStatus invalidElementStateErrorWithMessage:exception.reason
                                                                traceback:traceback];
+  } else if ([exception.name isEqualToString:FBAlertSetTextFailedException]) {
+    commandStatus = [FBCommandStatus unsupportedOperationErrorWithMessage:exception.reason
+                                                                traceback:traceback];
   } else if ([exception.name isEqualToString:FBInvalidXPathException]
              || [exception.name isEqualToString:FBClassChainQueryParseException]) {
     commandStatus = [FBCommandStatus invalidSelectorErrorWithMessage:exception.reason
@@ -47,6 +51,9 @@
   } else if ([exception.name isEqualToString:FBSessionCreationException]) {
     commandStatus = [FBCommandStatus sessionNotCreatedError:exception.reason
                                                   traceback:traceback];
+  } else if ([exception.name isEqualToString:FBAlertNotPresentException]) {
+    commandStatus = [FBCommandStatus noAlertOpenErrorWithMessage:exception.reason
+                                                       traceback:traceback];
   } else {
     commandStatus = [FBCommandStatus unknownErrorWithMessage:exception.reason
                                                    traceback:traceback];

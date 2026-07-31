@@ -100,7 +100,11 @@
       break;
     }
 
-    [[FBAlert alertWithApplication:XCUIApplication.fb_systemApplication] acceptWithError:nil];
+    @try {
+      [[FBAlert alertWithApplication:XCUIApplication.fb_systemApplication] accept];
+    } @catch (NSException *) {
+      // No alert is present on this tick - expected on most iterations of this poll loop
+    }
     uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;
     if (timeElapsed / NSEC_PER_SEC > timeout) {
       NSString *description = [NSString stringWithFormat:@"Cannot handle pasteboard alert within %@s timeout", @(timeout)];

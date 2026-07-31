@@ -22,3 +22,6 @@ NSString *const FBClassChainQueryParseException = @"FBClassChainQueryParseExcept
 NSString *const FBApplicationCrashedException = @"FBApplicationCrashedException";
 NSString *const FBApplicationMissingException = @"FBApplicationMissingException";
 NSString *const FBIncompatibleWdaException = @"FBIncompatibleWdaException";
+NSString *const FBAlertNotPresentException = @"FBAlertNotPresentException";
+NSString *const FBAlertActionFailedException = @"FBAlertActionFailedException";
+NSString *const FBAlertSetTextFailedException = @"FBAlertSetTextFailedException";
