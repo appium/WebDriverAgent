@@ -80,48 +80,70 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
   return candidate;
 }
 
+// Priority matters here: an Alert always wins outright, a Sheet only loses to
+// an Alert, and a ScrollView (the Safari web-alert case) is the last resort.
+// A single tree walk collecting "whichever of these three types shows up
+// first in traversal order" is wrong - a ScrollView or Sheet elsewhere in the
+// tree (e.g. springboard's own UI) can sit earlier than the actual Alert and
+// permanently shadow it, since only one candidate was ever kept.
 + (nullable id<FBXCElementSnapshot>)fb_findAlertSnapshotInApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
 {
-  __block id<FBXCElementSnapshot> found = nil;
+  __block id<FBXCElementSnapshot> alertSnapshot = nil;
+  NSMutableArray<id<FBXCElementSnapshot>> *sheetSnapshots = [NSMutableArray array];
+  NSMutableArray<id<FBXCElementSnapshot>> *scrollViewSnapshots = [NSMutableArray array];
   [appSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    if (nil != found) {
+    if (nil != alertSnapshot) {
       return;
     }
-    XCUIElementType curType = descendant.elementType;
-    if (curType == XCUIElementTypeAlert || curType == XCUIElementTypeSheet || curType == XCUIElementTypeScrollView) {
-      found = descendant;
+    switch (descendant.elementType) {
+      case XCUIElementTypeAlert:
+        alertSnapshot = descendant;
+        break;
+      case XCUIElementTypeSheet:
+        [sheetSnapshots addObject:descendant];
+        break;
+      case XCUIElementTypeScrollView:
+        [scrollViewSnapshots addObject:descendant];
+        break;
+      default:
+        break;
     }
   }];
-  if (nil == found) {
-    return nil;
+  if (nil != alertSnapshot) {
+    return alertSnapshot;
   }
 
-  if (found.elementType == XCUIElementTypeAlert) {
-    return found;
-  }
-
-  if (found.elementType == XCUIElementTypeSheet) {
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-      return found;
+  BOOL isPhone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+  for (id<FBXCElementSnapshot> sheet in sheetSnapshots) {
+    if (isPhone) {
+      return sheet;
     }
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    id<FBXCElementSnapshot> ancestor = found.parent;
+    BOOL isInsidePopover = NO;
+    id<FBXCElementSnapshot> ancestor = sheet.parent;
     while (nil != ancestor) {
       if (nil != ancestor.identifier && [ancestor.identifier isEqualToString:@"PopoverDismissRegion"]) {
-        return nil;
+        isInsidePopover = YES;
+        break;
       }
       ancestor = ancestor.parent;
     }
-    return found;
+    if (!isInsidePopover) {
+      return sheet;
+    }
   }
 
-  if (found.elementType == XCUIElementTypeScrollView) {
-    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:found] fb_parentMatchingType:XCUIElementTypeApplication];
-    if (nil != app && [app.label isEqualToString:FB_SAFARI_APP_NAME]) {
-      // Check alert presence in Safari web view
-      return [self fb_findSafariAlertSnapshotInScrollView:found];
+  for (id<FBXCElementSnapshot> scrollView in scrollViewSnapshots) {
+    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollView] fb_parentMatchingType:XCUIElementTypeApplication];
+    if (nil == app || ![app.label isEqualToString:FB_SAFARI_APP_NAME]) {
+      continue;
+    }
+    // Check alert presence in Safari web view
+    id<FBXCElementSnapshot> safariAlert = [self fb_findSafariAlertSnapshotInScrollView:scrollView];
+    if (nil != safariAlert) {
+      return safariAlert;
     }
   }
 
@@ -130,7 +152,12 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
 - (nullable id<FBXCElementSnapshot>)fb_alertSnapshot
 {
-  id<FBXCElementSnapshot> appSnapshot = self.fb_cachedSnapshot ?: [self fb_customSnapshot];
+  id<FBXCElementSnapshot> appSnapshot = nil;
+  @try {
+    appSnapshot = self.fb_nativeSnapshot;
+  } @catch (NSException *e) {
+    appSnapshot = self.fb_customSnapshot;
+  }
   if (nil == appSnapshot) {
     return nil;
   }
