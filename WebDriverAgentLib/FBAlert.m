@@ -24,6 +24,8 @@
 @interface FBAlert ()
 @property (nonatomic, strong) XCUIApplication *application;
 @property (nonatomic, strong, nullable) XCUIElement *element;
+@property (nonatomic, strong, nullable) id<FBXCElementSnapshot> detectionSnapshot;
+@property (nonatomic, assign) BOOL didResolveDetectionSnapshot;
 @end
 
 @implementation FBAlert
@@ -46,14 +48,33 @@
 - (BOOL)isPresent
 {
   @try {
-    if (nil == self.alertElement) {
-      return NO;
-    }
-    [self.alertElement fb_customSnapshot];
-    return YES;
+    return nil != self.detectionSnapshot;
   } @catch (NSException *) {
     return NO;
   }
+}
+
+// Read-only detection path (isPresent/text/buttonLabels): resolves a single
+// snapshot via fb_alertSnapshot, which takes one upfront application
+// snapshot and does all type/candidate matching via in-memory tree
+// traversal, instead of the multiple discrete accessibility round trips
+// that alertElement's XCUIElementQuery-based resolution performs. This
+// matters a lot while the target app's main thread is busy (e.g. blocked
+// showing a JS alert in Safari), where each such round trip can cost ~5s.
+// Callers that need to interact with (tap) the alert must use alertElement
+// instead, since a snapshot cannot be tapped.
+- (nullable id<FBXCElementSnapshot>)detectionSnapshot
+{
+  if (!self.didResolveDetectionSnapshot) {
+    XCUIApplication *systemApp = XCUIApplication.fb_systemApplication;
+    if ([systemApp fb_isSameAppAs:self.application]) {
+      self->_detectionSnapshot = systemApp.fb_alertSnapshot;
+    } else {
+      self->_detectionSnapshot = systemApp.fb_alertSnapshot ?: self.application.fb_alertSnapshot;
+    }
+    self.didResolveDetectionSnapshot = YES;
+  }
+  return self->_detectionSnapshot;
 }
 
 - (BOOL)notPresentWithError:(NSError **)error
@@ -76,12 +97,12 @@
 
 - (NSString *)text
 {
-  if (!self.isPresent) {
+  id<FBXCElementSnapshot> snapshot = self.detectionSnapshot;
+  if (nil == snapshot) {
     return nil;
   }
 
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
-  id<FBXCElementSnapshot> snapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_customSnapshot];
   BOOL isSafariAlert = [self.class isSafariWebAlertWithSnapshot:snapshot];
   [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     XCUIElementType elementType = descendant.elementType;
@@ -139,12 +160,12 @@
 
 - (NSArray *)buttonLabels
 {
-  if (!self.isPresent) {
+  id<FBXCElementSnapshot> alertSnapshot = self.detectionSnapshot;
+  if (nil == alertSnapshot) {
     return nil;
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  id<FBXCElementSnapshot> alertSnapshot = self.alertElement.lastSnapshot ?: [self.alertElement fb_customSnapshot];
   [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
     if (descendant.elementType != XCUIElementTypeButton) {
       return;
