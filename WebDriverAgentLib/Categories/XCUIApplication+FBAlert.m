@@ -152,12 +152,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
 - (nullable id<FBXCElementSnapshot>)fb_alertSnapshot
 {
-  id<FBXCElementSnapshot> appSnapshot = nil;
-  @try {
-    appSnapshot = self.fb_nativeSnapshot;
-  } @catch (NSException *) {
-    appSnapshot = self.fb_customSnapshot;
-  }
+  id<FBXCElementSnapshot> appSnapshot = self.fb_cachedSnapshot ?: self.fb_customSnapshot;
   if (nil == appSnapshot) {
     return nil;
   }
