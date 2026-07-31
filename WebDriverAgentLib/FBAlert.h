@@ -30,10 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
  Not cached: this, text, buttonLabels, acceptWithError:, dismissWithError:,
  clickAlertButton:error:, clickElementMatchingClassChain:error:, and
  typeText:error: each independently re-resolve the alert against the live
- UI on every call. Calling isPresent before one of the others therefore
- pays for two resolutions - prefer calling the action directly and handling
- its own "not present" error, unless you specifically need to check
- presence without acting on it.
+ UI on every call, via a single upfront snapshot rather than an interactive
+ element lookup - cheap, but still a fresh accessibility round trip per
+ call. Calling isPresent before one of the others therefore pays for two
+ snapshot resolutions where one would do - prefer calling the action
+ directly and handling its own "not present" error, unless you specifically
+ need to check presence without acting on it.
  */
 - (BOOL)isPresent;
 

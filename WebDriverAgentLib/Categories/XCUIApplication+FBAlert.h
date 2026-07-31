@@ -18,16 +18,19 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FB_SAFARI_APP_NAME;
 
 /**
- Retrieve the current alert element
+ Retrieve the snapshot of the currently displayed alert, if any, using a
+ single upfront application snapshot and purely in-memory tree traversal for
+ all subsequent type/candidate checks - no further accessibility round trips
+ are made beyond the one it takes to obtain the application snapshot itself.
 
- @return Alert element instance
+ @return Alert snapshot instance, or nil if no alert is present
  */
-- (nullable XCUIElement *)fb_alertElement;
+- (nullable id<FBXCElementSnapshot>)fb_alertSnapshot;
 
 /**
  Retrieve the application hosting the iOS 18+ limited access permission prompt,
  cheaply gated on its running state so callers can avoid resolving its alert
- element when the prompt process isn't in the foreground.
+ snapshot when the prompt process isn't in the foreground.
  See https://github.com/appium/appium/issues/20591
 
  @return The prompt application if it is running in the foreground, otherwise nil
