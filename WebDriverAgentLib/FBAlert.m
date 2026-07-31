@@ -173,6 +173,60 @@
   return buttons;
 }
 
+// On iOS < 18, some system alerts (e.g. certain permission prompts) nest
+// their buttons deep enough that a single snapshot taken from the
+// application root exceeds FBConfiguration.snapshotMaxDepth before it
+// reaches them, even though the same snapshot easily reaches the alert's
+// own type/text near the top of the tree. Resolving the alert element live
+// and querying buttons from it gives that query its own fresh depth
+// budget, starting from the alert itself instead of the application root -
+// matching how the previous XCUIElementQuery-based implementation behaved.
+- (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
+                                      inApplication:(XCUIApplication *)application
+                                         preferLast:(BOOL)preferLast
+{
+  if (@available(iOS 18.0, *)) {
+    NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
+    id<FBXCElementSnapshot> buttonSnapshot = preferLast ? buttons.lastObject : buttons.firstObject;
+    return nil == buttonSnapshot ? nil : [self elementForSnapshot:buttonSnapshot inApplication:application];
+  }
+
+  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
+  if (nil == alertElement) {
+    return nil;
+  }
+  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  return preferLast ? buttons.lastObject : buttons.firstObject;
+}
+
+// See fb_buttonInAlertSnapshot:inApplication:preferLast: for why this
+// branches on iOS version.
+- (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
+                                      inApplication:(XCUIApplication *)application
+                                      matchingLabel:(NSString *)label
+{
+  if (@available(iOS 18.0, *)) {
+    __block id<FBXCElementSnapshot> matchedButtonSnapshot = nil;
+    [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+      if (nil != matchedButtonSnapshot || descendant.elementType != XCUIElementTypeButton) {
+        return;
+      }
+      if ([[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel isEqualToString:label]) {
+        matchedButtonSnapshot = descendant;
+      }
+    }];
+    return nil == matchedButtonSnapshot ? nil : [self elementForSnapshot:matchedButtonSnapshot inApplication:application];
+  }
+
+  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
+  if (nil == alertElement) {
+    return nil;
+  }
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label == %@", label];
+  return [[alertElement descendantsMatchingType:XCUIElementTypeButton]
+          matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
+}
+
 - (void)accept
 {
   XCUIApplication *snapshotApplication = nil;
@@ -203,13 +257,8 @@
    }
   }
   if (nil == acceptButton) {
-    NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> acceptButtonSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
-      ? buttons.lastObject
-      : buttons.firstObject;
-    if (nil != acceptButtonSnapshot) {
-      acceptButton = [self elementForSnapshot:acceptButtonSnapshot inApplication:snapshotApplication];
-    }
+    BOOL preferLast = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot]);
+    acceptButton = [self fb_buttonInAlertSnapshot:alertSnapshot inApplication:snapshotApplication preferLast:preferLast];
   }
   if (nil == acceptButton) {
     [self fb_raiseActionFailedExceptionWithReason:
@@ -248,13 +297,8 @@
     }
   }
   if (nil == dismissButton) {
-    NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> dismissButtonSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
-      ? buttons.firstObject
-      : buttons.lastObject;
-    if (nil != dismissButtonSnapshot) {
-      dismissButton = [self elementForSnapshot:dismissButtonSnapshot inApplication:snapshotApplication];
-    }
+    BOOL preferLast = !(alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot]);
+    dismissButton = [self fb_buttonInAlertSnapshot:alertSnapshot inApplication:snapshotApplication preferLast:preferLast];
   }
 
   if (nil == dismissButton) {
@@ -272,18 +316,9 @@
     [self fb_raiseNotPresentException];
   }
 
-  __block id<FBXCElementSnapshot> matchedButtonSnapshot = nil;
-  [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    if (nil != matchedButtonSnapshot || descendant.elementType != XCUIElementTypeButton) {
-      return;
-    }
-    if ([[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel isEqualToString:label]) {
-      matchedButtonSnapshot = descendant;
-    }
-  }];
-  XCUIElement *requestedButton = nil == matchedButtonSnapshot
-    ? nil
-    : [self elementForSnapshot:matchedButtonSnapshot inApplication:snapshotApplication];
+  XCUIElement *requestedButton = [self fb_buttonInAlertSnapshot:alertSnapshot
+                                                    inApplication:snapshotApplication
+                                                    matchingLabel:label];
   if (!requestedButton) {
     [self fb_raiseActionFailedExceptionWithReason:
      [NSString stringWithFormat:@"Failed to find button with label '%@' for alert: %@", label, alertSnapshot]];
