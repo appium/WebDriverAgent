@@ -69,14 +69,19 @@
 
 - (FBTVFocusState)pollFocusState:(FBTVDirection *)direction
 {
-  *direction = FBTVDirectionNone;
-
   // One snapshot walk of the whole app answers everything the polling loop
   // needs - whether the target still exists, whether it already has focus,
   // and (if not) where the currently focused element is - instead of the
   // 4 separate live AX round trips (`hasFocus`, `exists`, a focused-element
   // query, plus a snapshot of it) this used to cost per iteration.
-  id<FBXCElementSnapshot> appSnapshot = XCUIApplication.fb_activeApplication.fb_customSnapshot;
+  return [self pollFocusStateWithApplicationSnapshot:XCUIApplication.fb_activeApplication.fb_customSnapshot
+                                            direction:direction];
+}
+
+- (FBTVFocusState)pollFocusStateWithApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
+                                                direction:(FBTVDirection *)direction
+{
+  *direction = FBTVDirectionNone;
   NSString *targetUid = self.targetUid;
   __block id<FBXCElementSnapshot> targetSnapshot = nil;
   __block id<FBXCElementSnapshot> focusedSnapshot = nil;

@@ -7,6 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FBXCElementSnapshot.h"
 
 #if TARGET_OS_TV
 
@@ -26,6 +27,12 @@
                               delta:(CGFloat)delta
                   positiveDirection:(FBTVDirection)positiveDirection
                   negativeDirection:(FBTVDirection)negativeDirection;
+
+// Exposed for testing: the pure snapshot-walk core of `-pollFocusState:`,
+// parameterized on the application snapshot so tests can supply a fake tree
+// instead of the live one.
+- (FBTVFocusState)pollFocusStateWithApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
+                                                direction:(FBTVDirection *)direction;
 @end
 
 #endif

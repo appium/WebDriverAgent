@@ -310,6 +310,8 @@
 		64B264FE228C50E0002A5025 /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B264F3228C5098002A5025 /* FBTVNavigationTrackerTests.m */; };
 		64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 64B26507228C5514002A5025 /* XCUIElementDouble.m */; };
+		CB1BAB30928B638B300B4477 /* FBXCAccessibilityElementDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 16223B3E144418CC980D160E /* FBXCAccessibilityElementDouble.m */; };
+		DE75F01A64FBC6A58012E6B4 /* FBXCElementSnapshotDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = F46F78706C5157469122F730 /* FBXCElementSnapshotDouble.m */; };
 		64B2650A228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
 		64B2650B228CE4FF002A5025 /* FBTVNavigationTracker-Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */; };
 		64E3502E2AC0B6EB005F3ACB /* NSDictionary+FBUtf8SafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */; };
@@ -984,6 +986,10 @@
 		64B264F9228C50E0002A5025 /* UnitTests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		64B26506228C54F2002A5025 /* XCUIElementDouble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIElementDouble.h; sourceTree = "<group>"; };
 		64B26507228C5514002A5025 /* XCUIElementDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCUIElementDouble.m; sourceTree = "<group>"; };
+		6B32DB2419C346EF91F093D4 /* FBXCAccessibilityElementDouble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXCAccessibilityElementDouble.h; sourceTree = "<group>"; };
+		16223B3E144418CC980D160E /* FBXCAccessibilityElementDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXCAccessibilityElementDouble.m; sourceTree = "<group>"; };
+		8535171B1B3194840B8B4FCF /* FBXCElementSnapshotDouble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXCElementSnapshotDouble.h; sourceTree = "<group>"; };
+		F46F78706C5157469122F730 /* FBXCElementSnapshotDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXCElementSnapshotDouble.m; sourceTree = "<group>"; };
 		64B26509228CE4FF002A5025 /* FBTVNavigationTracker-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FBTVNavigationTracker-Private.h"; sourceTree = "<group>"; };
 		711084421DA3AA7500F913D6 /* FBXPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBXPath.h; sourceTree = "<group>"; };
 		711084431DA3AA7500F913D6 /* FBXPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBXPath.m; sourceTree = "<group>"; };
@@ -1571,6 +1577,10 @@
 			children = (
 				64B26506228C54F2002A5025 /* XCUIElementDouble.h */,
 				64B26507228C5514002A5025 /* XCUIElementDouble.m */,
+				6B32DB2419C346EF91F093D4 /* FBXCAccessibilityElementDouble.h */,
+				16223B3E144418CC980D160E /* FBXCAccessibilityElementDouble.m */,
+				8535171B1B3194840B8B4FCF /* FBXCElementSnapshotDouble.h */,
+				F46F78706C5157469122F730 /* FBXCElementSnapshotDouble.m */,
 			);
 			path = Doubles;
 			sourceTree = "<group>";
@@ -3295,6 +3305,8 @@
 			files = (
 				64B26508228C5514002A5025 /* XCUIElementDouble.m in Sources */,
 				64B26504228C5299002A5025 /* FBTVNavigationTrackerTests.m in Sources */,
+				CB1BAB30928B638B300B4477 /* FBXCAccessibilityElementDouble.m in Sources */,
+				DE75F01A64FBC6A58012E6B4 /* FBXCElementSnapshotDouble.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
