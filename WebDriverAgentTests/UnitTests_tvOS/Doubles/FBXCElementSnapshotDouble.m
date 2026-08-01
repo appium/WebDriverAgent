@@ -8,13 +8,11 @@
 
 #import "FBXCElementSnapshotDouble.h"
 
-// Fake AX process id paired with every FBXCAccessibilityElementDouble below.
 // FBElementUtils.h (which defines the real uid formula) is a private
 // WebDriverAgentLib header not visible to the test target, so
 // +wdUIDForElementId: below duplicates the same elementId+processId -> NSUUID
-// derivation (see FBElementUtils.m) rather than importing it.
-static const int FBXCElementSnapshotDoubleProcessIdentifier = 1;
-
+// derivation (see FBElementUtils.m) rather than importing it. It reuses
+// FBXCAccessibilityElementDoubleProcessIdentifier so the two stay in sync.
 @implementation FBXCElementSnapshotDouble
 
 + (instancetype)snapshotWithElementId:(unsigned long long)elementId
@@ -31,7 +29,7 @@ static const int FBXCElementSnapshotDoubleProcessIdentifier = 1;
 
 + (NSString *)wdUIDForElementId:(unsigned long long)elementId
 {
-  int processId = FBXCElementSnapshotDoubleProcessIdentifier;
+  int processId = FBXCAccessibilityElementDoubleProcessIdentifier;
   uint8_t bytes[16] = {0};
   memcpy(bytes, &elementId, sizeof(elementId));
   memcpy(bytes + sizeof(elementId), &processId, sizeof(processId));

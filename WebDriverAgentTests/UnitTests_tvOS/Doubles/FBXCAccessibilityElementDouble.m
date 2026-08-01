@@ -8,6 +8,8 @@
 
 #import "FBXCAccessibilityElementDouble.h"
 
+const int FBXCAccessibilityElementDoubleProcessIdentifier = 1;
+
 @implementation FBXCAccessibilityElementDouble
 
 - (instancetype)initWithElementId:(unsigned long long)elementId
@@ -15,9 +17,7 @@
   self = [super init];
   if (self) {
     _payload = @{@"uid.elementID": @(elementId)};
-    // Must stay in sync with FBXCElementSnapshotDoubleProcessIdentifier in
-    // FBXCElementSnapshotDouble.m, which independently derives the same uid.
-    _processIdentifier = 1;
+    _processIdentifier = FBXCAccessibilityElementDoubleProcessIdentifier;
   }
   return self;
 }

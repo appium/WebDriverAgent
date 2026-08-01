@@ -165,7 +165,7 @@
                   positiveDirection:(FBTVDirection)positiveDirection
                   negativeDirection:(FBTVDirection)negativeDirection
 {
-  // GCFloat is double in 64bit. tvOS is only for arm64
+  // CGFloat is double in 64bit. tvOS is only for arm64
   NSNumber *positiveDirectionNumber = [NSNumber numberWithInteger:positiveDirection];
   NSNumber *negativeDirectionNumber = [NSNumber numberWithInteger:negativeDirection];
   if (delta > DBL_EPSILON && ![item.directions containsObject:positiveDirectionNumber]) {

@@ -56,10 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
  whether it still exists, and - if neither - which direction the focus
  should move to get closer to it.
 
- @param direction Set to the suggested direction to move the focus to when
-   the return value is `FBTVFocusStatePending`. Left untouched otherwise.
-   `FBTVDirectionNone` means the currently focused element could not be
-   determined yet, so the caller should just retry on the next iteration.
+ @param direction Always reset to `FBTVDirectionNone` first, then set to the
+   suggested direction to move the focus to when the return value is
+   `FBTVFocusStatePending`. It is left as `FBTVDirectionNone` when the return
+   value is `FBTVFocusStateFocused`/`FBTVFocusStateGone`, or when the
+   currently focused element could not be determined yet - in the latter
+   case the caller should just retry on the next iteration.
  @return The current focus state of the tracked target element
  */
 - (FBTVFocusState)pollFocusState:(FBTVDirection *)direction;
