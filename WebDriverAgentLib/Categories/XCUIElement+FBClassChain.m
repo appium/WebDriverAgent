@@ -35,8 +35,10 @@
   [lookupChain removeObjectAtIndex:0];
   while (lookupChain.count > 0) {
     if (nil != chainItem.position) {
-      // It is necessary to resolve the position if intermediate element index is not zero or one,
-      // because predicates don't support search by indexes
+      // An explicit position always narrows the match set down to a single
+      // element, which becomes the sole root for the rest of the chain, so
+      // it has to be resolved now instead of being folded into `candidates`
+      // like an unindexed segment would be
       NSArray<id<FBXCElementSnapshot>> *currentRootMatch = [self.class fb_matchingSnapshotsWithItem:chainItem
                                                                                            candidates:candidates
                                                                           shouldReturnAfterFirstMatch:nil];
@@ -75,6 +77,22 @@
         }
       }
     }
+  }
+  if (roots.count > 1) {
+    // Overlapping roots (e.g. a previous segment matched both an ancestor
+    // and its own descendant) can otherwise yield the same snapshot twice,
+    // which would skew positional selection ([2], [-1], etc.) compared to
+    // the XCUIElementQuery-based matching this replaced, which always
+    // operated on a de-duplicated element set.
+    NSMutableArray<id<FBXCElementSnapshot>> *dedupedMatches = [NSMutableArray arrayWithCapacity:typeMatches.count];
+    NSHashTable<id<FBXCElementSnapshot>> *seenMatches = [NSHashTable hashTableWithOptions:NSHashTableObjectPointerPersonality];
+    for (id<FBXCElementSnapshot> match in typeMatches) {
+      if (![seenMatches containsObject:match]) {
+        [seenMatches addObject:match];
+        [dedupedMatches addObject:match];
+      }
+    }
+    typeMatches = dedupedMatches;
   }
   for (FBAbstractPredicateItem *predicateItem in item.predicates) {
     if ([predicateItem isKindOfClass:FBSelfPredicateItem.class]) {
