@@ -22,6 +22,19 @@ typedef NS_ENUM(NSUInteger, FBTVDirection) {
   FBTVDirectionNone   = 4
 };
 
+/**
+ Represents where the tracked target element currently stands with respect
+ to keyboard/remote focus, as of the last `-pollFocusState:` call.
+ */
+typedef NS_ENUM(NSUInteger, FBTVFocusState) {
+  // The target element currently has focus
+  FBTVFocusStateFocused,
+  // The target element could not be located in the accessibility tree anymore
+  FBTVFocusStateGone,
+  // The target element exists, but does not have focus yet
+  FBTVFocusStatePending,
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FBTVNavigationItem : NSObject
@@ -38,12 +51,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)trackerWithTargetElement: (XCUIElement *) targetElement;
 
 /**
- Determine the correct direction to move the focus to the tracked target
- element from the currently focused one
+ Takes a single snapshot of the application under test and uses it to answer,
+ in one round trip, whether the tracked target element currently has focus,
+ whether it still exists, and - if neither - which direction the focus
+ should move to get closer to it.
 
- @return FBTVDirection to move the focus to
+ @param direction Set to the suggested direction to move the focus to when
+   the return value is `FBTVFocusStatePending`. Left untouched otherwise.
+   `FBTVDirectionNone` means the currently focused element could not be
+   determined yet, so the caller should just retry on the next iteration.
+ @return The current focus state of the tracked target element
  */
-- (FBTVDirection)directionToFocusedElement;
+- (FBTVFocusState)pollFocusState:(FBTVDirection *)direction;
 
 @end
 

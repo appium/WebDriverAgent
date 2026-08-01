@@ -36,12 +36,13 @@ int const MAX_ITERATIONS_COUNT = 100;
 
   FBTVNavigationTracker *tracker = [FBTVNavigationTracker trackerWithTargetElement:self];
   for (int i = 0; i < MAX_ITERATIONS_COUNT; i++) {
-    // Here hasFocus works so far. Maybe, it is because it is handled by `XCUIRemote`...
-    if (self.hasFocus) {
+    FBTVDirection direction = FBTVDirectionNone;
+    FBTVFocusState focusState = [tracker pollFocusState:&direction];
+    if (focusState == FBTVFocusStateFocused) {
       return YES;
     }
 
-    if (!self.exists) {
+    if (focusState == FBTVFocusStateGone) {
       if (error) {
         *error = [[FBErrorBuilder.builder withDescription:
                    [NSString stringWithFormat:@"'%@' element is not reachable because it does not exist. Try to use XCUIRemote commands.", self.description]] build];
@@ -49,7 +50,6 @@ int const MAX_ITERATIONS_COUNT = 100;
       return NO;
     }
 
-    FBTVDirection direction = tracker.directionToFocusedElement;
     if (direction != FBTVDirectionNone) {
       [[XCUIRemote sharedRemote] pressButton: (XCUIRemoteButton)direction];
     }

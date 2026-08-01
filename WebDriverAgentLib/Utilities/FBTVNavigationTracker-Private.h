@@ -22,6 +22,10 @@
 
 - (FBTVDirection)horizontalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta;
 - (FBTVDirection)verticalDirectionWithItem:(FBTVNavigationItem *)item andDelta:(CGFloat)delta;
+- (FBTVDirection)directionWithItem:(FBTVNavigationItem *)item
+                              delta:(CGFloat)delta
+                  positiveDirection:(FBTVDirection)positiveDirection
+                  negativeDirection:(FBTVDirection)negativeDirection;
 @end
 
 #endif
