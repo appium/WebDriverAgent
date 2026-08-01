@@ -1,28 +1,24 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import {describe, beforeEach, afterEach, it} from 'node:test';
+import {describe, beforeEach, afterEach, it, mock} from 'node:test';
 
-import esmock from 'esmock';
 import sinon from 'sinon';
 
 import type {WebDriverAgentArgs} from '../../lib/types.js';
-import {BOOTSTRAP_PATH} from '../../lib/utils/index.js';
 import * as utils from '../../lib/utils/index.js';
 import {selectWdaStartupStrategyName} from '../../lib/wda-strategies.js';
-import type * as WebDriverAgentModule from '../../lib/webdriveragent.js';
 
 let currentGetWDAUpgradeTimestamp: (...args: any[]) => any = utils.getWDAUpgradeTimestamp;
 
-const {WebDriverAgent} = await esmock<typeof WebDriverAgentModule>(
-  '../../lib/webdriveragent.js',
-  import.meta.url,
-  {},
-  {
-    '../../lib/utils/index.js': {
-      getWDAUpgradeTimestamp: (...args: any[]) => currentGetWDAUpgradeTimestamp(...args),
-    },
+mock.module('../../lib/utils/index.js', {
+  exports: {
+    ...utils,
+    getWDAUpgradeTimestamp: (...args: any[]) => currentGetWDAUpgradeTimestamp(...args),
   },
-);
+});
+
+const {BOOTSTRAP_PATH} = await import('../../lib/utils/index.js');
+const {WebDriverAgent} = await import('../../lib/webdriveragent.js');
 
 const fakeConstructorArgs: WebDriverAgentArgs = {
   device: {

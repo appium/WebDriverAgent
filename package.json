@@ -54,7 +54,7 @@
     "format:check": "oxfmt -c oxfmt.config.mjs --check .",
     "prepare": "npm run build",
     "version": "npm run sync-wda-version",
-    "test": "node --enable-source-maps --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
+    "test": "node --enable-source-maps --experimental-test-module-mocks --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
     "e2e-test": "node --enable-source-maps --test --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
     "bundle": "npm run bundle:ios && npm run bundle:tv",
     "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
@@ -81,7 +81,6 @@
     "@types/node": "^26.0.0",
     "@types/sinon": "^22.0.0",
     "appium-xcode": "^7.0.0",
-    "esmock": "^2.7.6",
     "node-simctl": "^9.0.0",
     "semver": "^7.3.7",
     "sinon": "^22.0.0"
