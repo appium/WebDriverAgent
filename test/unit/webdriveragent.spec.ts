@@ -11,7 +11,7 @@ import {selectWdaStartupStrategyName} from '../../lib/wda-strategies.js';
 let currentGetWDAUpgradeTimestamp: (...args: any[]) => any = utils.getWDAUpgradeTimestamp;
 
 mock.module('../../lib/utils/index.js', {
-  exports: {
+  namedExports: {
     ...utils,
     getWDAUpgradeTimestamp: (...args: any[]) => currentGetWDAUpgradeTimestamp(...args),
   },
