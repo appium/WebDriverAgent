@@ -11,6 +11,7 @@
 #import <mach/mach_time.h>
 #import "FBAlert.h"
 #import "FBErrorBuilder.h"
+#import "FBExceptions.h"
 #import "FBMacros.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBAlert.h"
@@ -102,7 +103,10 @@
 
     @try {
       [[FBAlert alertWithApplication:XCUIApplication.fb_systemApplication] accept];
-    } @catch (NSException *) {
+    } @catch (NSException *e) {
+      if (![e.name isEqualToString:FBAlertNotPresentException]) {
+        @throw e;
+      }
       // No alert is present on this tick - expected on most iterations of this poll loop
     }
     uint64_t timeElapsed = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) - timeStarted;

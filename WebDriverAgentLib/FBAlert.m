@@ -144,7 +144,8 @@
 
 - (NSArray *)buttonLabels
 {
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:NULL];
+  XCUIApplication *snapshotApplication = nil;
+  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
   if (nil == alertSnapshot) {
     return nil;
   }
@@ -159,6 +160,23 @@
       [labels addObject:[NSString stringWithFormat:@"%@", label]];
     }
   }];
+  if (labels.count > 0) {
+    return labels.copy;
+  }
+
+  // See fb_buttonInAlertSnapshot:inApplication:preferLast: for why this
+  // falls back to a live query when the snapshot walk finds nothing.
+  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:snapshotApplication];
+  if (nil == alertElement) {
+    return labels.copy;
+  }
+  NSArray<XCUIElement *> *liveButtons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  for (XCUIElement *button in liveButtons) {
+    NSString *label = button.label;
+    if (nil != label) {
+      [labels addObject:label];
+    }
+  }
   return labels.copy;
 }
 
@@ -173,49 +191,52 @@
   return buttons;
 }
 
-// On iOS < 18, some system alerts (e.g. certain permission prompts) nest
+// Some system alerts (e.g. certain permission prompts on iOS < 18) nest
 // their buttons deep enough that a single snapshot taken from the
 // application root exceeds FBConfiguration.snapshotMaxDepth before it
 // reaches them, even though the same snapshot easily reaches the alert's
-// own type/text near the top of the tree. Resolving the alert element live
-// and querying buttons from it gives that query its own fresh depth
-// budget, starting from the alert itself instead of the application root -
-// matching how the previous XCUIElementQuery-based implementation behaved.
+// own type/text near the top of the tree. Try the cheap in-memory snapshot
+// walk first; if it finds no buttons, fall back to resolving the alert
+// element live and querying buttons from it, which gives that query its
+// own fresh depth budget starting from the alert itself instead of the
+// application root - matching how the previous XCUIElementQuery-based
+// implementation behaved. This keeps the common case to a single AX round
+// trip while staying safe against the depth-budget edge case.
 - (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
                                       inApplication:(XCUIApplication *)application
                                          preferLast:(BOOL)preferLast
 {
-  if (@available(iOS 18.0, *)) {
-    NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> buttonSnapshot = preferLast ? buttons.lastObject : buttons.firstObject;
-    return nil == buttonSnapshot ? nil : [self elementForSnapshot:buttonSnapshot inApplication:application];
+  NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
+  id<FBXCElementSnapshot> buttonSnapshot = preferLast ? buttons.lastObject : buttons.firstObject;
+  if (nil != buttonSnapshot) {
+    return [self elementForSnapshot:buttonSnapshot inApplication:application];
   }
 
   XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
   if (nil == alertElement) {
     return nil;
   }
-  NSArray<XCUIElement *> *buttons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-  return preferLast ? buttons.lastObject : buttons.firstObject;
+  NSArray<XCUIElement *> *liveButtons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+  return preferLast ? liveButtons.lastObject : liveButtons.firstObject;
 }
 
 // See fb_buttonInAlertSnapshot:inApplication:preferLast: for why this
-// branches on iOS version.
+// falls back to a live query when the snapshot walk finds nothing.
 - (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
                                       inApplication:(XCUIApplication *)application
                                       matchingLabel:(NSString *)label
 {
-  if (@available(iOS 18.0, *)) {
-    __block id<FBXCElementSnapshot> matchedButtonSnapshot = nil;
-    [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-      if (nil != matchedButtonSnapshot || descendant.elementType != XCUIElementTypeButton) {
-        return;
-      }
-      if ([[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel isEqualToString:label]) {
-        matchedButtonSnapshot = descendant;
-      }
-    }];
-    return nil == matchedButtonSnapshot ? nil : [self elementForSnapshot:matchedButtonSnapshot inApplication:application];
+  __block id<FBXCElementSnapshot> matchedButtonSnapshot = nil;
+  [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+    if (nil != matchedButtonSnapshot || descendant.elementType != XCUIElementTypeButton) {
+      return;
+    }
+    if ([[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel isEqualToString:label]) {
+      matchedButtonSnapshot = descendant;
+    }
+  }];
+  if (nil != matchedButtonSnapshot) {
+    return [self elementForSnapshot:matchedButtonSnapshot inApplication:application];
   }
 
   XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
