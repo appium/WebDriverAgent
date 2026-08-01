@@ -10,6 +10,7 @@
 #import "FBTVNavigationTracker-Private.h"
 
 #import "FBMathUtils.h"
+#import "FBXCElementSnapshotWrapper.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
@@ -66,9 +67,12 @@
 - (FBTVDirection)directionToFocusedElement
 {
   XCUIElement *focused = XCUIApplication.fb_activeApplication.fb_focusedElement;
+  // Snapshot the focused element once and read wdFrame/wdUID off the wrapper below,
+  // instead of off the raw live element, which would take a fresh snapshot per attribute.
+  FBXCElementSnapshotWrapper *focusedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:focused.fb_standardSnapshot];
 
-  CGPoint focusedCenter = FBRectGetCenter(focused.wdFrame);
-  FBTVNavigationItem *item = [self navigationItemWithElement:focused];
+  CGPoint focusedCenter = FBRectGetCenter(focusedSnapshot.wdFrame);
+  FBTVNavigationItem *item = [self navigationItemWithElement:focusedSnapshot];
   CGFloat yDelta = self.targetCenter.y - focusedCenter.y;
   CGFloat xDelta = self.targetCenter.x - focusedCenter.x;
   FBTVDirection direction;
