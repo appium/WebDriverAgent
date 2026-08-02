@@ -48,6 +48,30 @@
   button.selected = !button.selected;
 }
 
+- (IBAction)goToDeepHierarchy:(id)sender
+{
+  // Plain UIViews with fixed frames only - no Auto Layout constraints and no
+  // specialized subclasses (e.g. UITextView) that carry their own layout/text
+  // engines, which can make a deep nested chain pathologically expensive to
+  // lay out. This page exists purely as a fixture for exercising element
+  // lookups (e.g. class chain locators) against a deep accessibility tree.
+  UIViewController *deepHierarchyViewController = [UIViewController new];
+  deepHierarchyViewController.view.backgroundColor = UIColor.whiteColor;
+  deepHierarchyViewController.view.accessibilityIdentifier = @"DeepHierarchyPage";
+
+  UIView *parent = deepHierarchyViewController.view;
+  NSInteger depth = 70;
+  for (NSInteger i = 0; i < depth; i++) {
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, 1)];
+    view.accessibilityIdentifier = [NSString stringWithFormat:@"view_%ld", (long)i];
+    view.accessibilityLabel = [NSString stringWithFormat:@"View %ld", (long)i];
+    [parent addSubview:view];
+    parent = view;
+  }
+
+  [self.navigationController pushViewController:deepHierarchyViewController animated:NO];
+}
+
 - (void)viewDidLayoutSubviews
 {
   [super viewDidLayoutSubviews];

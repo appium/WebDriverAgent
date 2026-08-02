@@ -36,13 +36,7 @@
 
 - (void)testDescendantsMatchingType
 {
-  NSSet<NSString *> *expectedLabels = [NSSet setWithArray:@[
-    @"Alerts",
-    @"Attributes",
-    @"Scrolling",
-    @"Deadlock app",
-    @"Touch",
-  ]];
+  NSSet<NSString *> *expectedLabels = [NSSet setWithArray:FBMainViewButtonLabels];
   NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [[FBXCElementSnapshotWrapper ensureWrapped:
                                                           [self.testedView fb_customSnapshot]]
                                                          fb_descendantsMatchingType:XCUIElementTypeButton];

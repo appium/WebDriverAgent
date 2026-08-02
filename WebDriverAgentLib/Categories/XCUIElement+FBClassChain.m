@@ -15,11 +15,6 @@
 
 @implementation XCUIElement (FBClassChain)
 
-// Walks a single upfront snapshot of `self` in memory to resolve every
-// non-indexed chain segment, instead of resolving an intermediate live
-// XCUIElement (and paying an accessibility round trip) just to obtain a
-// query root for the next segment. A live element is only ever resolved
-// once, for the final match(es), via a uid-predicate lookup.
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingClassChain:(NSString *)classChainQuery shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
   NSError *error;
@@ -28,8 +23,121 @@
     @throw [NSException exceptionWithName:FBClassChainQueryParseException reason:error.localizedDescription userInfo:error.userInfo];
     return nil;
   }
-  NSMutableArray<FBClassChainItem *> *lookupChain = parsedChain.elements.mutableCopy;
-  NSArray<id<FBXCElementSnapshot>> *currentRoots = @[[self fb_customSnapshot]];
+  // The snapshot-walk strategy below only pays off when an intermediate
+  // (non-final) segment carries an explicit position: that is the only
+  // shape where the query-based strategy has to resolve a live element
+  // mid-chain - and pay an accessibility round trip - just to keep building
+  // the next segment's query. Every other shape (including the common case
+  // of zero or one position, on the final segment only) already resolves in
+  // a single round trip with the query-based strategy, while the snapshot
+  // walk always pays for one full upfront subtree snapshot regardless of
+  // whether it is actually needed - a bad trade in deep/large trees. See
+  // https://github.com/appium/WebDriverAgent/pull/1194#issuecomment-5156633352
+  NSArray<FBClassChainItem *> *chainItems = parsedChain.elements;
+  return [self.class fb_hasIntermediatePosition:chainItems]
+    ? [self fb_snapshotDescendantsMatchingChainItems:chainItems shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]
+    : [self fb_queryDescendantsMatchingChainItems:chainItems shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
+}
+
++ (BOOL)fb_hasIntermediatePosition:(NSArray<FBClassChainItem *> *)chainItems
+{
+  for (NSUInteger i = 0; i + 1 < chainItems.count; i++) {
+    if (nil != chainItems[i].position) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
+#pragma mark - Query-based strategy
+#pragma mark (single accessibility round trip; used whenever no intermediate
+#pragma mark  segment carries an explicit position)
+
+- (NSArray<XCUIElement *> *)fb_queryDescendantsMatchingChainItems:(NSArray<FBClassChainItem *> *)chainItems shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+{
+  NSMutableArray<FBClassChainItem *> *lookupChain = chainItems.mutableCopy;
+  FBClassChainItem *chainItem = lookupChain.firstObject;
+  XCUIElement *currentRoot = self;
+  XCUIElementQuery *query = [currentRoot fb_queryWithChainItem:chainItem query:nil];
+  [lookupChain removeObjectAtIndex:0];
+  while (lookupChain.count > 0) {
+    BOOL isRootChanged = NO;
+    if (nil != chainItem.position) {
+      NSArray<XCUIElement *> *currentRootMatch = [self.class fb_matchingElementsWithItem:chainItem
+                                                                                   query:query
+                                                             shouldReturnAfterFirstMatch:nil];
+      if (0 == currentRootMatch.count) {
+        return @[];
+      }
+      currentRoot = currentRootMatch.firstObject;
+      isRootChanged = YES;
+    }
+    chainItem = [lookupChain firstObject];
+    query = [currentRoot fb_queryWithChainItem:chainItem query:isRootChanged ? nil : query];
+    [lookupChain removeObjectAtIndex:0];
+  }
+  return [self.class fb_matchingElementsWithItem:chainItem
+                                           query:query
+                     shouldReturnAfterFirstMatch:@(shouldReturnAfterFirstMatch)];
+}
+
+- (XCUIElementQuery *)fb_queryWithChainItem:(FBClassChainItem *)item query:(nullable XCUIElementQuery *)query
+{
+  if (item.isDescendant) {
+    if (query) {
+      query = [query descendantsMatchingType:item.type];
+    } else {
+      query = [self.fb_query descendantsMatchingType:item.type];
+    }
+  } else {
+    if (query) {
+      query = [query childrenMatchingType:item.type];
+    } else {
+      query = [self.fb_query childrenMatchingType:item.type];
+    }
+  }
+  if (item.predicates) {
+    for (FBAbstractPredicateItem *predicate in item.predicates) {
+      if ([predicate isKindOfClass:FBSelfPredicateItem.class]) {
+        query = [query matchingPredicate:predicate.value];
+      } else if ([predicate isKindOfClass:FBDescendantPredicateItem.class]) {
+        query = [query containingPredicate:predicate.value];
+      }
+    }
+  }
+  return query;
+}
+
++ (NSArray<XCUIElement *> *)fb_matchingElementsWithItem:(FBClassChainItem *)item query:(XCUIElementQuery *)query shouldReturnAfterFirstMatch:(nullable NSNumber *)shouldReturnAfterFirstMatch
+{
+  if (1 == item.position.integerValue || (0 == item.position.integerValue && shouldReturnAfterFirstMatch.boolValue)) {
+    XCUIElement *result = query.fb_firstMatch;
+    return result ? @[result] : @[];
+  }
+  NSArray<XCUIElement *> *allMatches = query.fb_allMatches;
+  if (0 == item.position.integerValue) {
+    return allMatches;
+  }
+  if (allMatches.count >= (NSUInteger)ABS(item.position.integerValue)) {
+    return item.position.integerValue > 0
+      ? @[[allMatches objectAtIndex:item.position.integerValue - 1]]
+      : @[[allMatches objectAtIndex:allMatches.count + item.position.integerValue]];
+  }
+  return @[];
+}
+
+#pragma mark - Snapshot-based strategy
+#pragma mark (single upfront snapshot walked in memory; used when an
+#pragma mark  intermediate segment has an explicit position, avoiding one
+#pragma mark  extra accessibility round trip per such segment)
+
+- (NSArray<XCUIElement *> *)fb_snapshotDescendantsMatchingChainItems:(NSArray<FBClassChainItem *> *)chainItems shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
+{
+  NSMutableArray<FBClassChainItem *> *lookupChain = chainItems.mutableCopy;
+  // Reuse an already-taken snapshot of `self` if one is available (e.g. the
+  // caller just resolved/inspected this same element) instead of always
+  // paying for a fresh one.
+  NSArray<id<FBXCElementSnapshot>> *currentRoots = @[self.lastSnapshot ?: [self fb_customSnapshot]];
   FBClassChainItem *chainItem = lookupChain.firstObject;
   NSArray<id<FBXCElementSnapshot>> *candidates = [self.class fb_snapshotsMatchingItem:chainItem inRoots:currentRoots];
   [lookupChain removeObjectAtIndex:0];
