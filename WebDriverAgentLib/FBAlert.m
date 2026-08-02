@@ -11,14 +11,12 @@
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
 #import "FBLogger.h"
-#import "FBMacros.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBAlert.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTyping.h"
-#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
@@ -38,7 +36,11 @@
 
 - (BOOL)isPresent
 {
-  return nil != [self alertSnapshotFromApplication:NULL];
+  @try {
+    return nil != [self alertElementFromApplication];
+  } @catch (NSException *) {
+    return NO;
+  }
 }
 
 - (void)fb_raiseNotPresentException __attribute__((noreturn))
@@ -75,11 +77,12 @@
 
 - (NSString *)text
 {
-  id<FBXCElementSnapshot> snapshot = [self alertSnapshotFromApplication:NULL];
-  if (nil == snapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     return nil;
   }
 
+  id<FBXCElementSnapshot> snapshot = alertElement.lastSnapshot ?: [alertElement fb_customSnapshot];
   NSMutableArray<NSString *> *resultText = [NSMutableArray array];
   BOOL isSafariAlert = [self.class isSafariWebAlertWithSnapshot:snapshot];
   [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
@@ -113,171 +116,64 @@
 
 - (void)typeText:(NSString *)text
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     [self fb_raiseNotPresentException];
   }
 
-  NSMutableArray<id<FBXCElementSnapshot>> *dstFieldSnapshots = [NSMutableArray array];
-  [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    XCUIElementType elementType = descendant.elementType;
-    if (elementType == XCUIElementTypeTextField || elementType == XCUIElementTypeSecureTextField) {
-      [dstFieldSnapshots addObject:descendant];
-    }
-  }];
-  if (dstFieldSnapshots.count > 1) {
+  NSPredicate *textCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu}",
+                                          XCUIElementTypeTextField, XCUIElementTypeSecureTextField];
+  NSArray<XCUIElement *> *dstFields = [[alertElement descendantsMatchingType:XCUIElementTypeAny]
+                                       matchingPredicate:textCollectorPredicate].allElementsBoundByIndex;
+  if (dstFields.count > 1) {
     [self fb_raiseSetTextFailedExceptionWithReason:@"The alert contains more than one input field"];
   }
-  if (0 == dstFieldSnapshots.count) {
+  if (0 == dstFields.count) {
     [self fb_raiseSetTextFailedExceptionWithReason:@"The alert contains no input fields"];
   }
-  XCUIElement *dstField = [self elementForSnapshot:dstFieldSnapshots.firstObject inApplication:snapshotApplication];
-  if (nil == dstField) {
-    [self fb_raiseNotPresentException];
-  }
   NSError *error;
-  if (![dstField fb_typeText:text shouldClear:YES error:&error]) {
+  if (![dstFields.firstObject fb_typeText:text shouldClear:YES error:&error]) {
     [self fb_raiseSetTextFailedExceptionWithReason:error.description];
   }
 }
 
 - (NSArray *)buttonLabels
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     return nil;
   }
 
   NSMutableArray<NSString *> *labels = [NSMutableArray array];
-  if (@available(iOS 18.0, *)) {
-    [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-      if (descendant.elementType != XCUIElementTypeButton) {
-        return;
-      }
-      NSString *label = [FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel;
-      if (nil != label) {
-        [labels addObject:[NSString stringWithFormat:@"%@", label]];
-      }
-    }];
-    if (labels.count > 0) {
-      return labels.copy;
-    }
-  }
-
-  // See fb_buttonInAlertSnapshot:inApplication:preferLast: for why this
-  // falls back to a live query on iOS < 18, or when the snapshot walk
-  // finds nothing on iOS 18+.
-  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:snapshotApplication];
-  if (nil == alertElement) {
-    return labels.copy;
-  }
-  NSArray<XCUIElement *> *liveButtons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-  for (XCUIElement *button in liveButtons) {
-    NSString *label = button.label;
-    if (nil != label) {
-      [labels addObject:label];
-    }
-  }
-  return labels.copy;
-}
-
-+ (NSArray<id<FBXCElementSnapshot>> *)buttonSnapshotsInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
-{
-  NSMutableArray<id<FBXCElementSnapshot>> *buttons = [NSMutableArray array];
+  id<FBXCElementSnapshot> alertSnapshot = alertElement.lastSnapshot ?: [alertElement fb_customSnapshot];
   [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    if (descendant.elementType == XCUIElementTypeButton) {
-      [buttons addObject:descendant];
+    if (descendant.elementType != XCUIElementTypeButton) {
+      return;
+    }
+    NSString *label = [FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel;
+    if (nil != label) {
+      [labels addObject:[NSString stringWithFormat:@"%@", label]];
     }
   }];
-  return buttons;
-}
-
-// On iOS < 18, some system alerts (e.g. certain permission prompts) nest
-// their buttons deep enough that a single snapshot taken from the
-// application root exceeds FBConfiguration.snapshotMaxDepth before it
-// reaches them, even though the same snapshot easily reaches the alert's
-// own type/text near the top of the tree - and critically, sibling buttons
-// can sit at different depths, so the snapshot walk there is not simply
-// "empty or complete": it can silently return a partial, wrong button set
-// instead of failing cleanly. That is unsafe for choosing which button to
-// tap, so iOS < 18 always resolves the alert element live and queries
-// buttons from it, which gives that query its own fresh depth budget
-// starting from the alert itself instead of the application root -
-// matching how the previous XCUIElementQuery-based implementation
-// behaved. On iOS 18+, where this has been verified safe, the cheap
-// in-memory snapshot walk is tried first and only falls back to the live
-// query if it finds no buttons at all.
-- (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
-                                      inApplication:(XCUIApplication *)application
-                                         preferLast:(BOOL)preferLast
-{
-  if (@available(iOS 18.0, *)) {
-    NSArray<id<FBXCElementSnapshot>> *buttons = [self.class buttonSnapshotsInAlertSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> buttonSnapshot = preferLast ? buttons.lastObject : buttons.firstObject;
-    if (nil != buttonSnapshot) {
-      return [self elementForSnapshot:buttonSnapshot inApplication:application];
-    }
-  }
-
-  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
-  if (nil == alertElement) {
-    return nil;
-  }
-  NSArray<XCUIElement *> *liveButtons = [alertElement descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
-  return preferLast ? liveButtons.lastObject : liveButtons.firstObject;
-}
-
-// See fb_buttonInAlertSnapshot:inApplication:preferLast: for why this
-// branches on iOS version.
-- (nullable XCUIElement *)fb_buttonInAlertSnapshot:(id<FBXCElementSnapshot>)alertSnapshot
-                                      inApplication:(XCUIApplication *)application
-                                      matchingLabel:(NSString *)label
-{
-  if (@available(iOS 18.0, *)) {
-    __block id<FBXCElementSnapshot> matchedButtonSnapshot = nil;
-    [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-      if (nil != matchedButtonSnapshot || descendant.elementType != XCUIElementTypeButton) {
-        return;
-      }
-      if ([[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdLabel isEqualToString:label]) {
-        matchedButtonSnapshot = descendant;
-      }
-    }];
-    if (nil != matchedButtonSnapshot) {
-      return [self elementForSnapshot:matchedButtonSnapshot inApplication:application];
-    }
-  }
-
-  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:application];
-  if (nil == alertElement) {
-    return nil;
-  }
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label == %@", label];
-  return [[alertElement descendantsMatchingType:XCUIElementTypeButton]
-          matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
+  return labels.copy;
 }
 
 - (void)accept
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     [self fb_raiseNotPresentException];
   }
 
+  id<FBXCElementSnapshot> alertSnapshot = alertElement.lastSnapshot ?: [alertElement fb_customSnapshot];
   XCUIElement *acceptButton = nil;
   if (FBConfiguration.acceptAlertButtonSelector.length) {
-    XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:snapshotApplication];
     NSString *errorReason = nil;
-    if (nil != alertElement) {
-      @try {
-        acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonSelector
+    @try {
+      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonSelector
                                            shouldReturnAfterFirstMatch:YES] firstObject];
-      } @catch (NSException *ex) {
-        errorReason = ex.reason;
-      }
+    } @catch (NSException *ex) {
+      errorReason = ex.reason;
     }
     if (nil == acceptButton) {
       [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain selector '%@'",
@@ -289,35 +185,35 @@
    }
   }
   if (nil == acceptButton) {
-    BOOL preferLast = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot]);
-    acceptButton = [self fb_buttonInAlertSnapshot:alertSnapshot inApplication:snapshotApplication preferLast:preferLast];
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query
+                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+    acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+      ? buttons.lastObject
+      : buttons.firstObject;
   }
   if (nil == acceptButton) {
     [self fb_raiseActionFailedExceptionWithReason:
-     [NSString stringWithFormat:@"Failed to find accept button for alert: %@", alertSnapshot]];
+     [NSString stringWithFormat:@"Failed to find accept button for alert: %@", alertElement]];
   }
   [acceptButton tap];
 }
 
 - (void)dismiss
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     [self fb_raiseNotPresentException];
   }
 
+  id<FBXCElementSnapshot> alertSnapshot = alertElement.lastSnapshot ?: [alertElement fb_customSnapshot];
   XCUIElement *dismissButton = nil;
   if (FBConfiguration.dismissAlertButtonSelector.length) {
-    XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:snapshotApplication];
     NSString *errorReason = nil;
-    if (nil != alertElement) {
-      @try {
-        dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonSelector
+    @try {
+      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonSelector
                                             shouldReturnAfterFirstMatch:YES] firstObject];
-      } @catch (NSException *ex) {
-        errorReason = ex.reason;
-      }
+    } @catch (NSException *ex) {
+      errorReason = ex.reason;
     }
     if (nil == dismissButton) {
       [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain selector '%@'",
@@ -329,43 +225,40 @@
     }
   }
   if (nil == dismissButton) {
-    BOOL preferLast = !(alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot]);
-    dismissButton = [self fb_buttonInAlertSnapshot:alertSnapshot inApplication:snapshotApplication preferLast:preferLast];
+    NSArray<XCUIElement *> *buttons = [alertElement.fb_query
+                                        descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+    dismissButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+      ? buttons.firstObject
+      : buttons.lastObject;
   }
 
   if (nil == dismissButton) {
     [self fb_raiseActionFailedExceptionWithReason:
-     [NSString stringWithFormat:@"Failed to find dismiss button for alert: %@", alertSnapshot]];
+     [NSString stringWithFormat:@"Failed to find dismiss button for alert: %@", alertElement]];
   }
   [dismissButton tap];
 }
 
 - (void)clickAlertButton:(NSString *)label
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
+  XCUIElement *alertElement = [self alertElementFromApplication];
+  if (nil == alertElement) {
     [self fb_raiseNotPresentException];
   }
 
-  XCUIElement *requestedButton = [self fb_buttonInAlertSnapshot:alertSnapshot
-                                                    inApplication:snapshotApplication
-                                                    matchingLabel:label];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"label == %@", label];
+  XCUIElement *requestedButton = [[alertElement descendantsMatchingType:XCUIElementTypeButton]
+                                  matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
   if (!requestedButton) {
     [self fb_raiseActionFailedExceptionWithReason:
-     [NSString stringWithFormat:@"Failed to find button with label '%@' for alert: %@", label, alertSnapshot]];
+     [NSString stringWithFormat:@"Failed to find button with label '%@' for alert: %@", label, alertElement]];
   }
   [requestedButton tap];
 }
 
 - (void)clickElementMatchingClassChain:(NSString *)classChain
 {
-  XCUIApplication *snapshotApplication = nil;
-  id<FBXCElementSnapshot> alertSnapshot = [self alertSnapshotFromApplication:&snapshotApplication];
-  if (nil == alertSnapshot) {
-    [self fb_raiseNotPresentException];
-  }
-  XCUIElement *alertElement = [self elementForSnapshot:alertSnapshot inApplication:snapshotApplication];
+  XCUIElement *alertElement = [self alertElementFromApplication];
   if (nil == alertElement) {
     [self fb_raiseNotPresentException];
   }
@@ -376,26 +269,25 @@
                                            shouldReturnAfterFirstMatch:YES] firstObject];
   } @catch (NSException *ex) {
     [self fb_raiseActionFailedExceptionWithReason:
-     [NSString stringWithFormat:@"Failed to match class chain selector '%@' for alert: %@. Original error: %@", classChain, alertSnapshot, ex.reason]];
+     [NSString stringWithFormat:@"Failed to match class chain selector '%@' for alert: %@. Original error: %@", classChain, alertElement, ex.reason]];
   }
   if (nil == matchedElement) {
     [self fb_raiseActionFailedExceptionWithReason:
-     [NSString stringWithFormat:@"Failed to find any element matching class chain selector '%@' for alert: %@", classChain, alertSnapshot]];
+     [NSString stringWithFormat:@"Failed to find any element matching class chain selector '%@' for alert: %@", classChain, alertElement]];
   }
   [matchedElement tap];
 }
 
-// Single source of truth for alert detection: takes one upfront snapshot per
-// candidate application (systemApp, then self.application if different, then
-// the iOS 18+ limited access prompt app) and walks it purely in-memory to
-// find an alert-shaped descendant - no accessibility round trips beyond the
-// snapshot fetch itself. Every public method funnels through this instead of
-// the old XCUIElementQuery-based element search, which could cost several
-// discrete round trips (one per query stage, worse yet for Safari's nested
-// web-alert lookup). Returns the application the snapshot was found in via
-// `matchedApplication`, since that is the anchor elementForSnapshot:
-// needs - pass NULL if the caller only needs the snapshot.
-- (nullable id<FBXCElementSnapshot>)alertSnapshotFromApplication:(XCUIApplication * _Nullable * _Nullable)matchedApplication
+// Single source of truth for alert detection: checks each candidate
+// application (systemApp, then self.application if different, then the iOS
+// 18+ limited access prompt app) via targeted, predicate-filtered live
+// queries (see XCUIApplication.fb_alertElement) instead of snapshotting and
+// walking the whole application tree - the cost stays proportional to the
+// number of alert-shaped elements rather than the size/depth of the app,
+// which matters a lot for deeply nested view hierarchies. Every public
+// method funnels through this. No caching: each call re-resolves fresh so
+// a stale/replaced alert element is never reused across calls.
+- (nullable XCUIElement *)alertElementFromApplication
 {
   @try {
     XCUIApplication *systemApp = XCUIApplication.fb_systemApplication;
@@ -408,39 +300,15 @@
       [candidates addObject:promptApp];
     }
     for (XCUIApplication *candidate in candidates) {
-      id<FBXCElementSnapshot> snapshot = candidate.fb_alertSnapshot;
-      if (nil != snapshot) {
-        if (NULL != matchedApplication) {
-          *matchedApplication = candidate;
-        }
-        return snapshot;
+      XCUIElement *element = candidate.fb_alertElement;
+      if (nil != element) {
+        return element;
       }
     }
   } @catch (NSException *) {
     return nil;
   }
   return nil;
-}
-
-// Resolves the live, tappable element that corresponds to an already-known
-// snapshot by matching on its stable uid, instead of re-running a fresh
-// attribute/type-based query - a single targeted accessibility round trip
-// regardless of how deep the snapshot sits in the tree.
-- (nullable XCUIElement *)elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
-                                inApplication:(XCUIApplication *)application
-{
-  NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
-  if (nil == uid) {
-    return nil;
-  }
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",
-                             FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
-  @try {
-    return [[application.fb_query descendantsMatchingType:XCUIElementTypeAny]
-            matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
-  } @catch (NSException *) {
-    return nil;
-  }
 }
 
 @end

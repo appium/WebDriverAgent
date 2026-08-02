@@ -18,14 +18,15 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FB_SAFARI_APP_NAME;
 
 /**
- Retrieve the snapshot of the currently displayed alert, if any, using a
- single upfront application snapshot and purely in-memory tree traversal for
- all subsequent type/candidate checks - no further accessibility round trips
- are made beyond the one it takes to obtain the application snapshot itself.
+ Retrieve the currently displayed alert element, if any, using a single
+ predicate-filtered query (Alert, Sheet, or ScrollView type) instead of
+ snapshotting and walking the whole application tree - the cost stays
+ proportional to the number of matching elements rather than the
+ size/depth of the whole app.
 
- @return Alert snapshot instance, or nil if no alert is present
+ @return Alert element instance, or nil if no alert is present
  */
-- (nullable id<FBXCElementSnapshot>)fb_alertSnapshot;
+- (nullable XCUIElement *)fb_alertElement;
 
 /**
  Retrieve the application hosting the iOS 18+ limited access permission prompt,

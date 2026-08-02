@@ -11,6 +11,7 @@
 #import "FBMacros.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 
 #define MAX_CENTER_DELTA 10.0
@@ -80,49 +81,80 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
   return candidate;
 }
 
-// Priority matters here: an Alert always wins outright, a Sheet only loses to
-// an Alert, and a ScrollView (the Safari web-alert case) is the last resort.
-// A single tree walk collecting "whichever of these three types shows up
-// first in traversal order" is wrong - a ScrollView or Sheet elsewhere in the
-// tree (e.g. springboard's own UI) can sit earlier than the actual Alert and
-// permanently shadow it, since only one candidate was ever kept.
-+ (nullable id<FBXCElementSnapshot>)fb_findAlertSnapshotInApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
+// Resolves the live element that corresponds to an already-known snapshot
+// found somewhere under rootElement, by matching on its stable uid, instead
+// of re-running a fresh attribute/type-based query - a single targeted
+// accessibility round trip regardless of how deep the snapshot sits.
++ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                    underElement:(XCUIElement *)rootElement
 {
-  __block id<FBXCElementSnapshot> alertSnapshot = nil;
-  NSMutableArray<id<FBXCElementSnapshot>> *sheetSnapshots = [NSMutableArray array];
-  NSMutableArray<id<FBXCElementSnapshot>> *scrollViewSnapshots = [NSMutableArray array];
-  [appSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    if (nil != alertSnapshot) {
-      return;
-    }
-    switch (descendant.elementType) {
+  NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
+  if (nil == uid) {
+    return nil;
+  }
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",
+                             FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
+  return [[rootElement.fb_query descendantsMatchingType:XCUIElementTypeAny]
+          matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
+}
+
+// Resolving a query (matchingPredicate:/allElementsBoundByIndex) is itself
+// as expensive as taking a snapshot - it has to walk/resolve the matching
+// subtree either way. So this issues exactly ONE such query, matching all
+// three candidate types at once, instead of one query per type: querying
+// Alert, then Sheet, then ScrollView separately would pay that cost up to
+// three times over, which is worse than a single whole-app snapshot in the
+// common case where no alert is present at all (the query comes back
+// empty on the very first attempt). Priority is then resolved in memory
+// over the (typically 0-1 element) result: an Alert always wins outright,
+// a Sheet only loses to an Alert, and a ScrollView (the Safari web-alert
+// case) is the last resort. Per-candidate ancestor/subtree checks (the
+// iPad popover check, the Safari web-alert walk) only run for candidates
+// that actually matched, not for every possible type.
+//
+// Note: matchingSnapshotsWithError: (resolving the query directly to
+// snapshots, skipping live XCUIElement resolution) looked like a further
+// win on paper, but broke alert detection outright in practice - it does
+// not behave the same way fb_uniqueSnapshotWithError: does for a broad
+// tree-search query like this one. Stick to allElementsBoundByIndex here.
+- (nullable XCUIElement *)fb_alertElement
+{
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
+                            XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
+  NSArray<XCUIElement *> *candidates = [[self descendantsMatchingType:XCUIElementTypeAny]
+                                        matchingPredicate:predicate].allElementsBoundByIndex;
+  if (0 == candidates.count) {
+    return nil;
+  }
+
+  NSMutableArray<XCUIElement *> *sheets = [NSMutableArray array];
+  NSMutableArray<XCUIElement *> *scrollViews = [NSMutableArray array];
+  for (XCUIElement *candidate in candidates) {
+    switch (candidate.elementType) {
       case XCUIElementTypeAlert:
-        alertSnapshot = descendant;
-        break;
+        return candidate;
       case XCUIElementTypeSheet:
-        [sheetSnapshots addObject:descendant];
+        [sheets addObject:candidate];
         break;
       case XCUIElementTypeScrollView:
-        [scrollViewSnapshots addObject:descendant];
+        [scrollViews addObject:candidate];
         break;
       default:
         break;
     }
-  }];
-  if (nil != alertSnapshot) {
-    return alertSnapshot;
   }
 
   BOOL isPhone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
-  for (id<FBXCElementSnapshot> sheet in sheetSnapshots) {
+  for (XCUIElement *sheet in sheets) {
     if (isPhone) {
       return sheet;
     }
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
+    id<FBXCElementSnapshot> sheetSnapshot = sheet.lastSnapshot ?: [sheet fb_customSnapshot];
     BOOL isInsidePopover = NO;
-    id<FBXCElementSnapshot> ancestor = sheet.parent;
+    id<FBXCElementSnapshot> ancestor = sheetSnapshot.parent;
     while (nil != ancestor) {
       if (nil != ancestor.identifier && [ancestor.identifier isEqualToString:@"PopoverDismissRegion"]) {
         isInsidePopover = YES;
@@ -135,28 +167,20 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
     }
   }
 
-  for (id<FBXCElementSnapshot> scrollView in scrollViewSnapshots) {
-    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollView] fb_parentMatchingType:XCUIElementTypeApplication];
+  for (XCUIElement *scrollView in scrollViews) {
+    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.lastSnapshot ?: [scrollView fb_customSnapshot];
+    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollViewSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
     if (nil == app || ![app.label isEqualToString:FB_SAFARI_APP_NAME]) {
       continue;
     }
     // Check alert presence in Safari web view
-    id<FBXCElementSnapshot> safariAlert = [self fb_findSafariAlertSnapshotInScrollView:scrollView];
-    if (nil != safariAlert) {
-      return safariAlert;
+    id<FBXCElementSnapshot> safariAlertSnapshot = [self.class fb_findSafariAlertSnapshotInScrollView:scrollViewSnapshot];
+    if (nil != safariAlertSnapshot) {
+      return [self.class fb_elementForSnapshot:safariAlertSnapshot underElement:scrollView];
     }
   }
 
   return nil;
-}
-
-- (nullable id<FBXCElementSnapshot>)fb_alertSnapshot
-{
-  id<FBXCElementSnapshot> appSnapshot = self.fb_cachedSnapshot ?: self.fb_customSnapshot;
-  if (nil == appSnapshot) {
-    return nil;
-  }
-  return [self.class fb_findAlertSnapshotInApplicationSnapshot:appSnapshot];
 }
 
 @end

@@ -29,13 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 
  Not cached: this, text, buttonLabels, accept, dismiss, clickAlertButton:,
  clickElementMatchingClassChain:, and typeText: each independently
- re-resolve the alert against the live UI on every call, via a single
- upfront snapshot rather than an interactive element lookup - cheap, but
- still a fresh accessibility round trip per call. Calling isPresent before
- one of the others therefore pays for two snapshot resolutions where one
- would do - prefer calling the action directly and letting it raise
- FBAlertNotPresentException, unless you specifically need to check
- presence without acting on it.
+ re-resolve the alert against the live UI on every call via a single
+ predicate-filtered query - cheap, but still a fresh accessibility round
+ trip per call. Calling isPresent before one of the others therefore pays
+ for two resolutions where one would do - prefer calling the action
+ directly and letting it raise FBAlertNotPresentException, unless you
+ specifically need to check presence without acting on it.
  */
 - (BOOL)isPresent;
 
