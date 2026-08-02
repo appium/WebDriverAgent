@@ -59,8 +59,18 @@
   deepHierarchyViewController.view.backgroundColor = UIColor.whiteColor;
   deepHierarchyViewController.view.accessibilityIdentifier = @"DeepHierarchyPage";
 
-  UIView *parent = deepHierarchyViewController.view;
   NSInteger depth = 70;
+  // A plain UILabel sibling, not part of the nested chain below, so the
+  // fixture stays recognizable to a human glancing at the simulator instead
+  // of showing a blank white screen.
+  UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 60, CGRectGetWidth(UIScreen.mainScreen.bounds) - 40, 60)];
+  titleLabel.text = [NSString stringWithFormat:@"Deep Hierarchy\n%ld nested elements", (long)depth];
+  titleLabel.numberOfLines = 2;
+  titleLabel.textAlignment = NSTextAlignmentCenter;
+  titleLabel.font = [UIFont systemFontOfSize:20];
+  [deepHierarchyViewController.view addSubview:titleLabel];
+
+  UIView *parent = deepHierarchyViewController.view;
   for (NSInteger i = 0; i < depth; i++) {
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, 1)];
     view.accessibilityIdentifier = [NSString stringWithFormat:@"view_%ld", (long)i];

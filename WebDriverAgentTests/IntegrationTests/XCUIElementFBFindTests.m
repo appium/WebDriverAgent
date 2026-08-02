@@ -504,6 +504,24 @@
   XCTAssertEqualObjects(matches.firstObject.label, @"View 19");
 }
 
+// Exercises the snapshot-walk strategy with several intermediate positions
+// (the shape it exists for), as opposed to testPerformanceOfClassChainLookupOnDeepHierarchy
+// above, which only has a position on the final segment and stays on the
+// query-based strategy. Kept within the default snapshotMaxDepth (50)
+// combined with the app's own chrome depth above this fixture's root -
+// going deeper hit a native kAXErrorIllegalArgument even after raising
+// snapshotMaxDepth, which looks like a platform-level limitation
+// independent of this lookup, not something to route around here.
+- (void)testPerformanceOfMultiCheckpointClassChainLookupOnDeepHierarchy
+{
+  NSString *query = @"**/XCUIElementTypeOther[`label == \"View 5\"`][1]/**/XCUIElementTypeOther[`label == \"View 15\"`][1]/**/XCUIElementTypeOther[`label == \"View 25\"`][1]/**/XCUIElementTypeOther[`label BEGINSWITH \"View 30\"`]";
+  [self measureBlock:^{
+    NSArray<XCUIElement *> *matches = [self.testedApplication fb_descendantsMatchingClassChain:query
+                                                                     shouldReturnAfterFirstMatch:NO];
+    XCTAssertEqual(matches.count, 1);
+  }];
+}
+
 // Not a strict pass/fail assertion (timings vary across machines/CI) - this
 // records a measurement baseline so future regressions on this lookup show
 // up in Xcode's test reports.
