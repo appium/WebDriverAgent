@@ -24,9 +24,26 @@ extern NSString *const FB_SAFARI_APP_NAME;
  proportional to the number of matching elements rather than the
  size/depth of the whole app.
 
+ @param snapshotOut On return, set to the element's snapshot if resolving it
+ already required taking one as a side effect (the iPad sheet popover check,
+ or the Safari web-alert scan) - left untouched if no snapshot was taken, so
+ callers should seed it with nil beforehand. Pass NULL if not needed.
  @return Alert element instance, or nil if no alert is present
  */
-- (nullable XCUIElement *)fb_alertElement;
+- (nullable XCUIElement *)fb_alertElementWithSnapshot:(id<FBXCElementSnapshot> _Nullable * _Nullable)snapshotOut;
+
+/**
+ Resolves the live element that corresponds to an already-known snapshot
+ found somewhere under rootElement, by matching on its stable uid, instead
+ of re-running a fresh attribute/type-based query - a single targeted
+ accessibility round trip regardless of how deep the snapshot sits.
+
+ @param snapshot The snapshot to resolve a live element for
+ @param rootElement The element to scope the uid lookup query to
+ @return The live element matching the snapshot's uid, or nil if it could not be resolved
+ */
++ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                    underElement:(XCUIElement *)rootElement;
 
 /**
  Retrieve the application hosting the iOS 18+ limited access permission prompt,

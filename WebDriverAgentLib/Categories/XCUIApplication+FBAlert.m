@@ -81,10 +81,6 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
   return candidate;
 }
 
-// Resolves the live element that corresponds to an already-known snapshot
-// found somewhere under rootElement, by matching on its stable uid, instead
-// of re-running a fresh attribute/type-based query - a single targeted
-// accessibility round trip regardless of how deep the snapshot sits.
 + (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
                                     underElement:(XCUIElement *)rootElement
 {
@@ -98,7 +94,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
           matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
 }
 
-// Resolving a query (matchingPredicate:/allElementsBoundByIndex) is itself
+// Resolving a query (e.g. allElementsBoundByIndex) is itself
 // as expensive as taking a snapshot - it has to walk/resolve the matching
 // subtree either way. So this issues exactly ONE such query, matching all
 // three candidate types at once, instead of one query per type: querying
@@ -111,13 +107,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 // case) is the last resort. Per-candidate ancestor/subtree checks (the
 // iPad popover check, the Safari web-alert walk) only run for candidates
 // that actually matched, not for every possible type.
-//
-// Note: matchingSnapshotsWithError: (resolving the query directly to
-// snapshots, skipping live XCUIElement resolution) looked like a further
-// win on paper, but broke alert detection outright in practice - it does
-// not behave the same way fb_uniqueSnapshotWithError: does for a broad
-// tree-search query like this one. Stick to allElementsBoundByIndex here.
-- (nullable XCUIElement *)fb_alertElement
+- (nullable XCUIElement *)fb_alertElementWithSnapshot:(id<FBXCElementSnapshot> _Nullable * _Nullable)snapshotOut
 {
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
                             XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
@@ -152,7 +142,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    id<FBXCElementSnapshot> sheetSnapshot = sheet.lastSnapshot ?: [sheet fb_customSnapshot];
+    id<FBXCElementSnapshot> sheetSnapshot = sheet.lastSnapshot ?: sheet.fb_cachedSnapshot ?: [sheet fb_customSnapshot];
     BOOL isInsidePopover = NO;
     id<FBXCElementSnapshot> ancestor = sheetSnapshot.parent;
     while (nil != ancestor) {
@@ -163,12 +153,15 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
       ancestor = ancestor.parent;
     }
     if (!isInsidePopover) {
+      if (NULL != snapshotOut) {
+        *snapshotOut = sheetSnapshot;
+      }
       return sheet;
     }
   }
 
   for (XCUIElement *scrollView in scrollViews) {
-    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.lastSnapshot ?: [scrollView fb_customSnapshot];
+    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.lastSnapshot ?: scrollView.fb_cachedSnapshot ?: [scrollView fb_customSnapshot];
     id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollViewSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
     if (nil == app || ![app.label isEqualToString:FB_SAFARI_APP_NAME]) {
       continue;
@@ -176,7 +169,11 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
     // Check alert presence in Safari web view
     id<FBXCElementSnapshot> safariAlertSnapshot = [self.class fb_findSafariAlertSnapshotInScrollView:scrollViewSnapshot];
     if (nil != safariAlertSnapshot) {
-      return [self.class fb_elementForSnapshot:safariAlertSnapshot underElement:scrollView];
+      XCUIElement *resolved = [self.class fb_elementForSnapshot:safariAlertSnapshot underElement:scrollView];
+      if (nil != resolved && NULL != snapshotOut) {
+        *snapshotOut = safariAlertSnapshot;
+      }
+      return resolved;
     }
   }
 

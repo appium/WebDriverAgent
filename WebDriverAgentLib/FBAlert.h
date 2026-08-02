@@ -27,14 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Determines whether alert is present.
 
- Not cached: this, text, buttonLabels, accept, dismiss, clickAlertButton:,
- clickElementMatchingClassChain:, and typeText: each independently
- re-resolve the alert against the live UI on every call via a single
- predicate-filtered query - cheap, but still a fresh accessibility round
- trip per call. Calling isPresent before one of the others therefore pays
- for two resolutions where one would do - prefer calling the action
- directly and letting it raise FBAlertNotPresentException, unless you
- specifically need to check presence without acting on it.
+ An FBAlert instance resolves the alert (and, if found, its snapshot) at
+ most once, lazily, on the first call to isPresent, text, buttonLabels,
+ accept, dismiss, clickAlertButton:, clickElementMatchingClassChain:, or
+ typeText: - every subsequent call on the same instance reuses that result
+ rather than re-querying the live UI. This makes an isPresent check
+ immediately followed by an action (e.g. the auto-accept flow) act on the
+ exact same alert it just observed. Create a fresh FBAlert instance (via
+ alertWithApplication:) to observe the current UI state again.
  */
 - (BOOL)isPresent;
 
