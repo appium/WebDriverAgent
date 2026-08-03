@@ -109,7 +109,22 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
           frequency:(NSUInteger)frequency
               error:(NSError **)error
 {
+  // No snapshot was handed to us, so there is nothing to safely reuse -
+  // always fetch a fresh one.
   id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
+  return [self fb_typeText:text
+               shouldClear:shouldClear
+                 frequency:frequency
+                  snapshot:snapshot
+                     error:error];
+}
+
+- (BOOL)fb_typeText:(NSString *)text
+        shouldClear:(BOOL)shouldClear
+          frequency:(NSUInteger)frequency
+           snapshot:(id<FBXCElementSnapshot>)snapshot
+              error:(NSError **)error
+{
   FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
   [self fb_prepareForTextInputWithSnapshot:wrapped];
   if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
@@ -120,7 +135,15 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
 
 - (BOOL)fb_clearTextWithError:(NSError **)error
 {
+  // No snapshot was handed to us, so there is nothing to safely reuse -
+  // always fetch a fresh one.
   id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
+  return [self fb_clearTextWithSnapshot:snapshot error:error];
+}
+
+- (BOOL)fb_clearTextWithSnapshot:(id<FBXCElementSnapshot>)snapshot
+                            error:(NSError **)error
+{
   return [self fb_clearTextWithSnapshot:[FBXCElementSnapshotWrapper ensureWrapped:snapshot]
                   shouldPrepareForInput:YES
                                   error:error];

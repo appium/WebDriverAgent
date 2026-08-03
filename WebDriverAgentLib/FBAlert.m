@@ -194,7 +194,15 @@
     [self fb_raiseSetTextFailedExceptionWithReason:@"Failed to resolve the input field element"];
   }
   NSError *error;
-  if (![dstField fb_typeText:text shouldClear:YES error:&error]) {
+  // dstField was just resolved via a live query in fb_elementForSnapshot:underElement:
+  // above, so its cached snapshot can be safely reconstructed in memory
+  // instead of paying for a fresh round trip.
+  id<FBXCElementSnapshot> snapshot = dstField.fb_cachedSnapshot ?: [dstField fb_standardSnapshot];
+  if (![dstField fb_typeText:text
+                  shouldClear:YES
+                    frequency:FBConfiguration.maxTypingFrequency
+                     snapshot:snapshot
+                        error:&error]) {
     [self fb_raiseSetTextFailedExceptionWithReason:error.description];
   }
 }

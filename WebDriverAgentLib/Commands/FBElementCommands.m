@@ -221,9 +221,14 @@
   }
   NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
   NSError *error = nil;
+  // checkStaleness:YES above already took a fresh, verified-live snapshot of
+  // `element` and cached it as `lastSnapshot` - reuse it instead of paying
+  // for another round trip.
+  id<FBXCElementSnapshot> snapshot = element.lastSnapshot ?: element.fb_cachedSnapshot ?: [element fb_standardSnapshot];
   if (![element fb_typeText:textToType
                 shouldClear:NO
                   frequency:frequency
+                   snapshot:snapshot
                       error:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }

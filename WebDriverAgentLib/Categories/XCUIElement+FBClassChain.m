@@ -137,7 +137,7 @@
   // Reuse an already-taken snapshot of `self` if one is available (e.g. the
   // caller just resolved/inspected this same element) instead of always
   // paying for a fresh one.
-  NSArray<id<FBXCElementSnapshot>> *currentRoots = @[self.lastSnapshot ?: [self fb_customSnapshot]];
+  NSArray<id<FBXCElementSnapshot>> *currentRoots = @[self.lastSnapshot ?: self.fb_cachedSnapshot ?: [self fb_customSnapshot]];
   FBClassChainItem *chainItem = lookupChain.firstObject;
   NSArray<id<FBXCElementSnapshot>> *candidates = [self.class fb_snapshotsMatchingItem:chainItem inRoots:currentRoots];
   [lookupChain removeObjectAtIndex:0];
