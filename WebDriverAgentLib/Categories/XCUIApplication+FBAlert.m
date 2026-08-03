@@ -111,8 +111,13 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 {
   NSPredicate *predicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
                             XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
+  // allElementsBoundByAccessibilityElement resolves all matches in one
+  // round trip; allElementsBoundByIndex pays one extra round trip per
+  // match, which gets expensive while the target app is JS-blocked inside
+  // alert() (~5s per extra hop). Bound explicitly rather than via
+  // fb_allMatches, which would defer to the boundElementsByIndex setting.
   NSArray<XCUIElement *> *candidates = [[self descendantsMatchingType:XCUIElementTypeAny]
-                                        matchingPredicate:predicate].allElementsBoundByIndex;
+                                        matchingPredicate:predicate].allElementsBoundByAccessibilityElement;
   if (0 == candidates.count) {
     return nil;
   }
@@ -169,11 +174,13 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
     // Check alert presence in Safari web view
     id<FBXCElementSnapshot> safariAlertSnapshot = [self.class fb_findSafariAlertSnapshotInScrollView:scrollViewSnapshot];
     if (nil != safariAlertSnapshot) {
-      XCUIElement *resolved = [self.class fb_elementForSnapshot:safariAlertSnapshot underElement:scrollView];
-      if (nil != resolved && NULL != snapshotOut) {
+      // Not resolving safariAlertSnapshot to a live element here (another
+      // round trip) - scrollView is already live and is a valid ancestor
+      // for callers to resolve buttons/fields from later.
+      if (NULL != snapshotOut) {
         *snapshotOut = safariAlertSnapshot;
       }
-      return resolved;
+      return scrollView;
     }
   }
 

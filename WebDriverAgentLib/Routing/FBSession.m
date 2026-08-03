@@ -58,7 +58,7 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
       [alert clickElementMatchingClassChain:autoClickAlertSelector];
     } @catch (NSException *e) {
       [FBLogger logFmt:@"Could not click at the alert element '%@'. Original error: %@",
-       autoClickAlertSelector, e.reason];
+        autoClickAlertSelector, e.reason];
     }
     // This setting has priority over other settings if enabled
     return;
@@ -211,7 +211,7 @@ static FBSession *_activeSession = nil;
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
       NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K IN {%@, %@}",
-                                      @"elementType", @(XCUIElementTypeAlert), 
+                                      @"elementType", @(XCUIElementTypeAlert),
                                       // To look for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
                                       @"identifier", @"SBTransientOverlayWindow",
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting

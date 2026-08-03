@@ -17,6 +17,7 @@
 #import "XCUIApplication+FBAlert.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTyping.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 
@@ -337,13 +338,41 @@
     [self fb_raiseNotPresentException];
   }
 
-  XCUIElement *matchedElement = nil;
+  // For a Safari web alert, alertElement is the containing scrollView, not
+  // the alert's own div (see fb_alertElementWithSnapshot:), so a classChain
+  // query from it could also match unrelated page content. Constrain
+  // matches to descendants of alertSnapshot by uid when available.
+  NSSet<NSString *> *alertSnapshotUids = nil;
+  id<FBXCElementSnapshot> alertSnapshot = self.alertSnapshot;
+  if (nil != alertSnapshot) {
+    NSMutableSet<NSString *> *uids = [NSMutableSet set];
+    NSString *rootUid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:alertSnapshot];
+    if (nil != rootUid) {
+      [uids addObject:rootUid];
+    }
+    [alertSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+      NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:descendant];
+      if (nil != uid) {
+        [uids addObject:uid];
+      }
+    }];
+    alertSnapshotUids = uids;
+  }
+
+  NSArray<XCUIElement *> *matches = nil;
   @try {
-    matchedElement = [[alertElement fb_descendantsMatchingClassChain:classChain
-                                           shouldReturnAfterFirstMatch:YES] firstObject];
+    matches = [alertElement fb_descendantsMatchingClassChain:classChain
+                                  shouldReturnAfterFirstMatch:NO];
   } @catch (NSException *ex) {
     [self fb_raiseActionFailedExceptionWithReason:
      [NSString stringWithFormat:@"Failed to match class chain selector '%@' for alert: %@. Original error: %@", classChain, alertElement, ex.reason]];
+  }
+  XCUIElement *matchedElement = nil;
+  for (XCUIElement *match in matches) {
+    if (nil == alertSnapshotUids || [alertSnapshotUids containsObject:match.fb_uid]) {
+      matchedElement = match;
+      break;
+    }
   }
   if (nil == matchedElement) {
     [self fb_raiseActionFailedExceptionWithReason:
