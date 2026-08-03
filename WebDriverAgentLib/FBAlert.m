@@ -74,7 +74,7 @@
     XCUIElement *alertElement = self.alertElement;
     self.cachedAlertSnapshot = nil == alertElement
       ? nil
-      : (alertElement.lastSnapshot ?: alertElement.fb_cachedSnapshot ?: [alertElement fb_customSnapshot]);
+      : (alertElement.fb_cachedSnapshot ?: [alertElement fb_customSnapshot]);
     self.hasCachedAlertSnapshot = YES;
   }
   return self.cachedAlertSnapshot;

@@ -135,7 +135,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    id<FBXCElementSnapshot> sheetSnapshot = sheet.lastSnapshot ?: sheet.fb_cachedSnapshot ?: [sheet fb_customSnapshot];
+    id<FBXCElementSnapshot> sheetSnapshot = sheet.fb_cachedSnapshot ?: [sheet fb_customSnapshot];
     BOOL isInsidePopover = NO;
     id<FBXCElementSnapshot> ancestor = sheetSnapshot.parent;
     while (nil != ancestor) {
@@ -154,7 +154,7 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
   }
 
   for (XCUIElement *scrollView in scrollViews) {
-    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.lastSnapshot ?: scrollView.fb_cachedSnapshot ?: [scrollView fb_customSnapshot];
+    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.fb_cachedSnapshot ?: [scrollView fb_customSnapshot];
     id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollViewSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
     if (nil == app || ![app.label isEqualToString:FB_SAFARI_APP_NAME]) {
       continue;
