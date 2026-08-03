@@ -15,6 +15,7 @@
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBAlert.h"
+#import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBClassChain.h"
 #import "XCUIElement+FBTyping.h"
 #import "XCUIElement+FBUID.h"

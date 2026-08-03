@@ -33,19 +33,6 @@ extern NSString *const FB_SAFARI_APP_NAME;
 - (nullable XCUIElement *)fb_alertElementWithSnapshot:(id<FBXCElementSnapshot> _Nullable * _Nullable)snapshotOut;
 
 /**
- Resolves the live element that corresponds to an already-known snapshot
- found somewhere under rootElement, by matching on its stable uid, instead
- of re-running a fresh attribute/type-based query - a single targeted
- accessibility round trip regardless of how deep the snapshot sits.
-
- @param snapshot The snapshot to resolve a live element for
- @param rootElement The element to scope the uid lookup query to
- @return The live element matching the snapshot's uid, or nil if it could not be resolved
- */
-+ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
-                                    underElement:(XCUIElement *)rootElement;
-
-/**
  Retrieve the application hosting the iOS 18+ limited access permission prompt,
  cheaply gated on its running state so callers can avoid resolving its alert
  snapshot when the prompt process isn't in the foreground.

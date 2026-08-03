@@ -8,10 +8,8 @@
 
 #import "XCUIApplication+FBAlert.h"
 
-#import "FBMacros.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
-#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 
 #define MAX_CENTER_DELTA 10.0
@@ -33,6 +31,10 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
 + (nullable id<FBXCElementSnapshot>)fb_findSafariAlertSnapshotInScrollView:(id<FBXCElementSnapshot>)scrollViewSnapshot
 {
+  if (nil == scrollViewSnapshot) {
+    return nil;
+  }
+
   CGRect appFrame = scrollViewSnapshot.frame;
 
   __block id<FBXCElementSnapshot> webView = nil;
@@ -79,19 +81,6 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
     }
   }];
   return candidate;
-}
-
-+ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
-                                    underElement:(XCUIElement *)rootElement
-{
-  NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
-  if (nil == uid) {
-    return nil;
-  }
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",
-                             FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
-  return [[rootElement.fb_query descendantsMatchingType:XCUIElementTypeAny]
-          matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
 }
 
 // Resolving a query (e.g. allElementsBoundByIndex) is itself

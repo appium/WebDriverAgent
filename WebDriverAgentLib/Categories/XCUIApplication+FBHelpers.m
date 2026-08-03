@@ -33,6 +33,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCUIElementQuery.h"
@@ -651,6 +652,21 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     return NO;
   }
   return self == otherApp || [self.bundleID isEqualToString:(NSString *)otherApp.bundleID];
+}
+
++ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                    underElement:(XCUIElement *)rootElement
+{
+  NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
+  if (nil == uid) {
+    return nil;
+  }
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@",
+                             FBStringify(FBXCElementSnapshotWrapper, fb_uid), uid];
+  // Filtering by the snapshot's own type (instead of XCUIElementTypeAny) lets
+  // the query narrow down before the uid predicate is even applied.
+  return [[rootElement.fb_query descendantsMatchingType:snapshot.elementType]
+          matchingPredicate:predicate].allElementsBoundByIndex.firstObject;
 }
 
 @end
