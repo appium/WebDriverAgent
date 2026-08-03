@@ -113,9 +113,8 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
                             XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
   // allElementsBoundByAccessibilityElement resolves all matches in one
   // round trip; allElementsBoundByIndex pays one extra round trip per
-  // match, which gets expensive while the target app is JS-blocked inside
-  // alert() (~5s per extra hop). Bound explicitly rather than via
-  // fb_allMatches, which would defer to the boundElementsByIndex setting.
+  // match, costly while the target is JS-blocked inside alert() (~5s per
+  // hop).
   NSArray<XCUIElement *> *candidates = [[self descendantsMatchingType:XCUIElementTypeAny]
                                         matchingPredicate:predicate].allElementsBoundByAccessibilityElement;
   if (0 == candidates.count) {

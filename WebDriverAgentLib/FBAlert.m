@@ -79,6 +79,11 @@
   return self.cachedAlertSnapshot;
 }
 
+- (BOOL)isPresent
+{
+  return nil != self.alertElement;
+}
+
 + (NSArray<id<FBXCElementSnapshot>> *)fb_buttonSnapshotsInSnapshot:(id<FBXCElementSnapshot>)snapshot
 {
   NSMutableArray<id<FBXCElementSnapshot>> *buttons = [NSMutableArray array];
@@ -88,11 +93,6 @@
     }
   }];
   return buttons.copy;
-}
-
-- (BOOL)isPresent
-{
-  return nil != self.alertElement;
 }
 
 - (void)fb_raiseNotPresentException __attribute__((noreturn))
@@ -245,12 +245,27 @@
    }
   }
   if (nil == acceptButton) {
-    NSArray<id<FBXCElementSnapshot>> *buttonSnapshots = [self.class fb_buttonSnapshotsInSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> chosenSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
-      ? buttonSnapshots.lastObject
-      : buttonSnapshots.firstObject;
-    if (nil != chosenSnapshot) {
-      acceptButton = [XCUIApplication fb_elementForSnapshot:chosenSnapshot underElement:alertElement];
+    // buttonSnapshotsInSnapshot's tree-order walk doesn't always match a
+    // live query's ordering: on the system location-permission alert (iOS
+    // 17.5, confirmed via manual testing), that mismatch put a
+    // non-dismissing "Precise: On/Off" toggle first, so accept/dismiss
+    // silently tapped the wrong control and left the alert on screen. Not
+    // reproduced on iOS 18+, so keep the cheaper snapshot walk there and
+    // only pay for a live query below iOS 18.
+    if (@available(iOS 18.0, *)) {
+      NSArray<id<FBXCElementSnapshot>> *buttonSnapshots = [self.class fb_buttonSnapshotsInSnapshot:alertSnapshot];
+      id<FBXCElementSnapshot> chosenSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+        ? buttonSnapshots.lastObject
+        : buttonSnapshots.firstObject;
+      if (nil != chosenSnapshot) {
+        acceptButton = [XCUIApplication fb_elementForSnapshot:chosenSnapshot underElement:alertElement];
+      }
+    } else {
+      NSArray<XCUIElement *> *buttons = [alertElement.fb_query
+                                         descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+      acceptButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+        ? buttons.lastObject
+        : buttons.firstObject;
     }
   }
   if (nil == acceptButton) {
@@ -287,12 +302,21 @@
     }
   }
   if (nil == dismissButton) {
-    NSArray<id<FBXCElementSnapshot>> *buttonSnapshots = [self.class fb_buttonSnapshotsInSnapshot:alertSnapshot];
-    id<FBXCElementSnapshot> chosenSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
-      ? buttonSnapshots.firstObject
-      : buttonSnapshots.lastObject;
-    if (nil != chosenSnapshot) {
-      dismissButton = [XCUIApplication fb_elementForSnapshot:chosenSnapshot underElement:alertElement];
+    // See the matching comment in accept.
+    if (@available(iOS 18.0, *)) {
+      NSArray<id<FBXCElementSnapshot>> *buttonSnapshots = [self.class fb_buttonSnapshotsInSnapshot:alertSnapshot];
+      id<FBXCElementSnapshot> chosenSnapshot = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+        ? buttonSnapshots.firstObject
+        : buttonSnapshots.lastObject;
+      if (nil != chosenSnapshot) {
+        dismissButton = [XCUIApplication fb_elementForSnapshot:chosenSnapshot underElement:alertElement];
+      }
+    } else {
+      NSArray<XCUIElement *> *buttons = [alertElement.fb_query
+                                         descendantsMatchingType:XCUIElementTypeButton].allElementsBoundByIndex;
+      dismissButton = (alertSnapshot.elementType == XCUIElementTypeAlert || [self.class isSafariWebAlertWithSnapshot:alertSnapshot])
+        ? buttons.firstObject
+        : buttons.lastObject;
     }
   }
 
