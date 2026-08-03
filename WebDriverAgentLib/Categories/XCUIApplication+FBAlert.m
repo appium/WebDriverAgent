@@ -8,7 +8,6 @@
 
 #import "XCUIApplication+FBAlert.h"
 
-#import "FBMacros.h"
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBUtilities.h"
@@ -24,95 +23,152 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
 
 @implementation XCUIApplication (FBAlert)
 
-+ (nullable XCUIElement *)fb_limitedAccessPromptAlertElement
++ (nullable XCUIApplication *)fb_limitedAccessPromptApplication
 {
   XCUIApplication *promptApp = [[XCUIApplication alloc] initWithBundleIdentifier:FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID];
-  if (promptApp.state < XCUIApplicationStateRunningForeground) {
-    return nil;
-  }
-  return promptApp.fb_alertElement;
+  return promptApp.state < XCUIApplicationStateRunningForeground ? nil : promptApp;
 }
 
-- (nullable XCUIElement *)fb_alertElementFromSafariWithScrollView:(XCUIElement *)scrollView
-                                                     viewSnapshot:(id<FBXCElementSnapshot>)viewSnapshot
++ (nullable id<FBXCElementSnapshot>)fb_findSafariAlertSnapshotInScrollView:(id<FBXCElementSnapshot>)scrollViewSnapshot
 {
-  CGRect appFrame = viewSnapshot.frame;
-  NSPredicate *dstViewMatchPredicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot, NSDictionary *bindings) {
-    CGRect curFrame = snapshot.frame;
-    if (!CGRectEqualToRect(appFrame, curFrame)
-        && curFrame.origin.x > 0 && curFrame.size.width < appFrame.size.width) {
-      CGFloat possibleCenterX = (appFrame.size.width - curFrame.size.width) / 2;
-      return fabs(possibleCenterX - curFrame.origin.x) < MAX_CENTER_DELTA;
+  if (nil == scrollViewSnapshot) {
+    return nil;
+  }
+
+  CGRect appFrame = scrollViewSnapshot.frame;
+
+  __block id<FBXCElementSnapshot> webView = nil;
+  [scrollViewSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+    if (nil == webView && nil != descendant.identifier && [descendant.identifier isEqualToString:@"WebView"]) {
+      webView = descendant;
     }
-    return NO;
   }];
-  NSPredicate *dstViewContainPredicate1 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeTextView];
-  NSPredicate *dstViewContainPredicate2 = [NSPredicate predicateWithFormat:@"elementType == %lu", XCUIElementTypeButton];
+  if (nil == webView) {
+    return nil;
+  }
+
   // Find the first XCUIElementTypeOther which is the grandchild of the web view
-  // and is horizontally aligned to the center of the screen
-  XCUIElement *candidate = [[[[[[scrollView descendantsMatchingType:XCUIElementTypeAny]
-       matchingIdentifier:@"WebView"]
-      descendantsMatchingType:XCUIElementTypeOther]
-     matchingPredicate:dstViewMatchPredicate]
-    containingPredicate:dstViewContainPredicate1]
-   containingPredicate:dstViewContainPredicate2].allElementsBoundByIndex.firstObject;
+  // and is horizontally aligned to the center of the screen, and contains one
+  // to two buttons and at least one text view.
+  __block id<FBXCElementSnapshot> candidate = nil;
+  [webView enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
+    if (nil != candidate || descendant.elementType != XCUIElementTypeOther) {
+      return;
+    }
+    CGRect curFrame = descendant.frame;
+    if (CGRectEqualToRect(appFrame, curFrame)
+        || curFrame.origin.x <= 0
+        || curFrame.size.width >= appFrame.size.width) {
+      return;
+    }
+    CGFloat possibleCenterX = (appFrame.size.width - curFrame.size.width) / 2;
+    if (fabs(possibleCenterX - curFrame.origin.x) >= MAX_CENTER_DELTA) {
+      return;
+    }
 
-  if (nil == candidate) {
-    return nil;
-  }
-  // ...and contains one to two buttons
-  // and conatins at least one text view
-  __block NSUInteger buttonsCount = 0;
-  __block NSUInteger textViewsCount = 0;
-  id<FBXCElementSnapshot> snapshot = candidate.fb_cachedSnapshot ?: [candidate fb_customSnapshot];
-  [snapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    XCUIElementType curType = descendant.elementType;
-    if (curType == XCUIElementTypeButton) {
-      buttonsCount++;
-    } else if (curType == XCUIElementTypeTextView) {
-      textViewsCount++;
+    __block NSUInteger buttonsCount = 0;
+    __block NSUInteger textViewsCount = 0;
+    [descendant enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> innerDescendant) {
+      XCUIElementType curType = innerDescendant.elementType;
+      if (curType == XCUIElementTypeButton) {
+        buttonsCount++;
+      } else if (curType == XCUIElementTypeTextView) {
+        textViewsCount++;
+      }
+    }];
+    if (buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0) {
+      candidate = descendant;
     }
   }];
-  return (buttonsCount >= 1 && buttonsCount <= 2 && textViewsCount > 0) ? candidate : nil;
+  return candidate;
 }
 
-- (XCUIElement *)fb_alertElement
+// Resolving a query (e.g. allElementsBoundByIndex) is itself
+// as expensive as taking a snapshot - it has to walk/resolve the matching
+// subtree either way. So this issues exactly ONE such query, matching all
+// three candidate types at once, instead of one query per type: querying
+// Alert, then Sheet, then ScrollView separately would pay that cost up to
+// three times over, which is worse than a single whole-app snapshot in the
+// common case where no alert is present at all (the query comes back
+// empty on the very first attempt). Priority is then resolved in memory
+// over the (typically 0-1 element) result: an Alert always wins outright,
+// a Sheet only loses to an Alert, and a ScrollView (the Safari web-alert
+// case) is the last resort. Per-candidate ancestor/subtree checks (the
+// iPad popover check, the Safari web-alert walk) only run for candidates
+// that actually matched, not for every possible type.
+- (nullable XCUIElement *)fb_alertElementWithSnapshot:(id<FBXCElementSnapshot> _Nullable * _Nullable)snapshotOut
 {
-  NSPredicate *alertCollectorPredicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
-                                          XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
-  XCUIElement *alert = [[self descendantsMatchingType:XCUIElementTypeAny]
-                        matchingPredicate:alertCollectorPredicate].allElementsBoundByIndex.firstObject;
-  if (nil == alert) {
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"elementType IN {%lu,%lu,%lu}",
+                            XCUIElementTypeAlert, XCUIElementTypeSheet, XCUIElementTypeScrollView];
+  // allElementsBoundByAccessibilityElement resolves all matches in one
+  // round trip; allElementsBoundByIndex pays one extra round trip per
+  // match, costly while the target is JS-blocked inside alert() (~5s per
+  // hop).
+  NSArray<XCUIElement *> *candidates = [[self descendantsMatchingType:XCUIElementTypeAny]
+                                        matchingPredicate:predicate].allElementsBoundByAccessibilityElement;
+  if (0 == candidates.count) {
     return nil;
   }
-  id<FBXCElementSnapshot> alertSnapshot = alert.fb_cachedSnapshot ?: [alert fb_customSnapshot];
 
-  if (alertSnapshot.elementType == XCUIElementTypeAlert) {
-    return alert;
+  NSMutableArray<XCUIElement *> *sheets = [NSMutableArray array];
+  NSMutableArray<XCUIElement *> *scrollViews = [NSMutableArray array];
+  for (XCUIElement *candidate in candidates) {
+    switch (candidate.elementType) {
+      case XCUIElementTypeAlert:
+        return candidate;
+      case XCUIElementTypeSheet:
+        [sheets addObject:candidate];
+        break;
+      case XCUIElementTypeScrollView:
+        [scrollViews addObject:candidate];
+        break;
+      default:
+        break;
+    }
   }
 
-  if (alertSnapshot.elementType == XCUIElementTypeSheet) {
-    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-      return alert;
+  BOOL isPhone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+  for (XCUIElement *sheet in sheets) {
+    if (isPhone) {
+      return sheet;
     }
 
     // In case of iPad we want to check if sheet isn't contained by popover.
     // In that case we ignore it.
-    id<FBXCElementSnapshot> ancestor = alertSnapshot.parent;
+    id<FBXCElementSnapshot> sheetSnapshot = sheet.lastSnapshot ?: sheet.fb_cachedSnapshot ?: [sheet fb_customSnapshot];
+    BOOL isInsidePopover = NO;
+    id<FBXCElementSnapshot> ancestor = sheetSnapshot.parent;
     while (nil != ancestor) {
       if (nil != ancestor.identifier && [ancestor.identifier isEqualToString:@"PopoverDismissRegion"]) {
-        return nil;
+        isInsidePopover = YES;
+        break;
       }
       ancestor = ancestor.parent;
     }
-    return alert;
+    if (!isInsidePopover) {
+      if (NULL != snapshotOut) {
+        *snapshotOut = sheetSnapshot;
+      }
+      return sheet;
+    }
   }
 
-  if (alertSnapshot.elementType == XCUIElementTypeScrollView) {
-    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:alertSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
-    if (nil != app && [app.label isEqualToString:FB_SAFARI_APP_NAME]) {
-      // Check alert presence in Safari web view
-      return [self fb_alertElementFromSafariWithScrollView:alert viewSnapshot:alertSnapshot];
+  for (XCUIElement *scrollView in scrollViews) {
+    id<FBXCElementSnapshot> scrollViewSnapshot = scrollView.lastSnapshot ?: scrollView.fb_cachedSnapshot ?: [scrollView fb_customSnapshot];
+    id<FBXCElementSnapshot> app = [[FBXCElementSnapshotWrapper ensureWrapped:scrollViewSnapshot] fb_parentMatchingType:XCUIElementTypeApplication];
+    if (nil == app || ![app.label isEqualToString:FB_SAFARI_APP_NAME]) {
+      continue;
+    }
+    // Check alert presence in Safari web view
+    id<FBXCElementSnapshot> safariAlertSnapshot = [self.class fb_findSafariAlertSnapshotInScrollView:scrollViewSnapshot];
+    if (nil != safariAlertSnapshot) {
+      // Not resolving safariAlertSnapshot to a live element here (another
+      // round trip) - scrollView is already live and is a valid ancestor
+      // for callers to resolve buttons/fields from later.
+      if (NULL != snapshotOut) {
+        *snapshotOut = safariAlertSnapshot;
+      }
+      return scrollView;
     }
   }
 

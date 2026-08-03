@@ -69,60 +69,54 @@
 
 - (void)testAlertPresence
 {
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertFalse(alert.isPresent);
+  XCTAssertFalse([FBAlert alertWithApplication:self.testedApplication].isPresent);
   [self showApplicationAlert];
-  XCTAssertTrue(alert.isPresent);
+  XCTAssertTrue([FBAlert alertWithApplication:self.testedApplication].isPresent);
 }
 
 - (void)testAlertText
 {
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertNil(alert.text);
+  XCTAssertNil([FBAlert alertWithApplication:self.testedApplication].text);
   [self showApplicationAlert];
-  XCTAssertTrue([alert.text containsString:@"Magic"]);
-  XCTAssertTrue([alert.text containsString:@"Should read"]);
+  NSString *text = [FBAlert alertWithApplication:self.testedApplication].text;
+  XCTAssertTrue([text containsString:@"Magic"]);
+  XCTAssertTrue([text containsString:@"Should read"]);
 }
 
 - (void)testAlertLabels
 {
-  FBAlert* alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertNil(alert.buttonLabels);
+  XCTAssertNil([FBAlert alertWithApplication:self.testedApplication].buttonLabels);
   [self showApplicationAlert];
-  XCTAssertNotNil(alert.buttonLabels);
-  XCTAssertEqual(1, alert.buttonLabels.count);
-  XCTAssertEqualObjects(@"Will do", alert.buttonLabels[0]);
+  NSArray *labels = [FBAlert alertWithApplication:self.testedApplication].buttonLabels;
+  XCTAssertNotNil(labels);
+  XCTAssertEqual(1, labels.count);
+  XCTAssertEqualObjects(@"Will do", labels[0]);
 }
 
 - (void)testClickAlertButton
 {
-  FBAlert* alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
+  XCTAssertThrows([[FBAlert alertWithApplication:self.testedApplication] clickAlertButton:@"Invalid"]);
   [self showApplicationAlert];
-  XCTAssertFalse([alert clickAlertButton:@"Invalid" error:nil]);
-  FBAssertWaitTillBecomesTrue(alert.isPresent);
-  XCTAssertTrue([alert clickAlertButton:@"Will do" error:nil]);
-  FBAssertWaitTillBecomesTrue(!alert.isPresent);
+  XCTAssertThrows([[FBAlert alertWithApplication:self.testedApplication] clickAlertButton:@"Invalid"]);
+  FBAssertWaitTillBecomesTrue([FBAlert alertWithApplication:self.testedApplication].isPresent);
+  XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] clickAlertButton:@"Will do"]);
+  FBAssertWaitTillBecomesTrue(![FBAlert alertWithApplication:self.testedApplication].isPresent);
 }
 
 - (void)testAcceptingAlert
 {
-  NSError *error;
   [self showApplicationAlert];
-  XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] acceptWithError:&error]);
+  XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] accept]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-  XCTAssertNil(error);
 }
 
 - (void)testAcceptingAlertWithCustomLocator
 {
-  NSError *error;
   [self showApplicationAlert];
   [FBConfiguration setAcceptAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
-    XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] acceptWithError:&error]);
+    XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] accept]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    XCTAssertNil(error);
   } @finally {
     [FBConfiguration setAcceptAlertButtonSelector:@""];
   }
@@ -130,65 +124,52 @@
 
 - (void)testDismissingAlert
 {
-  NSError *error;
   [self showApplicationAlert];
-  XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] dismissWithError:&error]);
+  XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] dismiss]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-  XCTAssertNil(error);
 }
 
 - (void)testDismissingAlertWithCustomLocator
 {
-  NSError *error;
   [self showApplicationAlert];
   [FBConfiguration setDismissAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
   @try {
-    XCTAssertTrue([[FBAlert alertWithApplication:self.testedApplication] dismissWithError:&error]);
+    XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] dismiss]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
-    XCTAssertNil(error);
   } @finally {
     [FBConfiguration setDismissAlertButtonSelector:@""];
   }
 }
 
-- (void)testAlertElement
-{
-  [self showApplicationAlert];
-  XCUIElement *alertElement = [FBAlert alertWithApplication:self.testedApplication].alertElement;
-  XCTAssertTrue(alertElement.exists);
-  XCTAssertTrue(alertElement.elementType == XCUIElementTypeAlert);
-}
-
 - (void)testNotificationAlert
 {
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertNil(alert.text);
+  XCTAssertNil([FBAlert alertWithApplication:self.testedApplication].text);
   [self.testedApplication.buttons[@"Create Notification Alert"] tap];
-  FBAssertWaitTillBecomesTrue(alert.isPresent);
+  FBAssertWaitTillBecomesTrue([FBAlert alertWithApplication:self.testedApplication].isPresent);
 
-  XCTAssertTrue([alert.text containsString:@"Would Like to Send You Notifications"]);
-  XCTAssertTrue([alert.text containsString:@"Notifications may include"]);
+  NSString *text = [FBAlert alertWithApplication:self.testedApplication].text;
+  XCTAssertTrue([text containsString:@"Would Like to Send You Notifications"]);
+  XCTAssertTrue([text containsString:@"Notifications may include"]);
 }
 
 - (void)testCameraRollAlert
 {
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertNil(alert.text);
+  XCTAssertNil([FBAlert alertWithApplication:self.testedApplication].text);
 
   [self.testedApplication.buttons[@"Create Camera Roll Alert"] tap];
-  FBAssertWaitTillBecomesTrue(alert.isPresent);
+  FBAssertWaitTillBecomesTrue([FBAlert alertWithApplication:self.testedApplication].isPresent);
 }
 
 - (void)testGPSAccessAlert
 {
-  FBAlert *alert = [FBAlert alertWithApplication:self.testedApplication];
-  XCTAssertNil(alert.text);
+  XCTAssertNil([FBAlert alertWithApplication:self.testedApplication].text);
 
   [self.testedApplication.buttons[@"Create GPS access Alert"] tap];
-  FBAssertWaitTillBecomesTrue(alert.isPresent);
+  FBAssertWaitTillBecomesTrue([FBAlert alertWithApplication:self.testedApplication].isPresent);
 
-  XCTAssertTrue([alert.text containsString:@"location"]);
-  XCTAssertTrue([alert.text containsString:@"Yo Yo"]);
+  NSString *text = [FBAlert alertWithApplication:self.testedApplication].text;
+  XCTAssertTrue([text containsString:@"location"]);
+  XCTAssertTrue([text containsString:@"Yo Yo"]);
 }
 
 @end

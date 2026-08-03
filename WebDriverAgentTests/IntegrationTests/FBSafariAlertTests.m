@@ -67,7 +67,7 @@
   XCTAssertEqualObjects(buttonLabels.firstObject, @"Close");
   XCTAssertNotNil([self.safariApp fb_descendantsMatchingXPathQuery:@"//XCUIElementTypeButton[@label='Close']"
                                        shouldReturnAfterFirstMatch:YES].firstObject);
-  XCTAssertTrue([alert acceptWithError:nil]);
+  XCTAssertNoThrow([alert accept]);
 }
 
 @end

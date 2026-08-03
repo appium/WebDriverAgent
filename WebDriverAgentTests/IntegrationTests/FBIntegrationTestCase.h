@@ -15,6 +15,13 @@ extern NSString *const FBTouchesCountLabelIdentifier;
 extern NSString *const FBTapsCountLabelIdentifier;
 
 /**
+ Labels of the buttons on the integration app's main page, in their on-screen
+ (top to bottom) order. Update this in one place - WebDriverAgentTests/IntegrationApp/Resources/Base.lproj/Main.storyboard -
+ and here, rather than duplicating the list/count across individual tests.
+ */
+extern NSArray<NSString *> *const FBMainViewButtonLabels;
+
+/**
  XCTestCase helper class used for integration tests
  */
 @interface FBIntegrationTestCase : XCTestCase
@@ -61,6 +68,15 @@ extern NSString *const FBTapsCountLabelIdentifier;
  @param showCells whether should navigate to view with cell or plain scrollview
  */
 - (void)goToScrollPageWithCells:(BOOL)showCells;
+
+/**
+ Navigates integration app to a page containing a 70-level-deep chain of
+ nested elements (otherElements[@"view_0"]...otherElements[@"view_69"]),
+ each nested directly inside the previous one. Intended as a fixture for
+ performance testing of element lookups (e.g. class chain locators) against
+ a deep accessibility tree.
+ */
+- (void)goToDeepHierarchyPage;
 
 /**
  Verifies no alerts are present on the page.

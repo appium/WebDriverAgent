@@ -1,3 +1,9 @@
+## [16.1.2](https://github.com/appium/WebDriverAgent/compare/v16.1.1...v16.1.2) (2026-08-03)
+
+### Bug Fixes
+
+* Optimize class chain lookup ([#1194](https://github.com/appium/WebDriverAgent/issues/1194)) ([47cbbb5](https://github.com/appium/WebDriverAgent/commit/47cbbb597495ac78c4290c27c2ef0ee349004406))
+
 ## [16.1.1](https://github.com/appium/WebDriverAgent/compare/v16.1.0...v16.1.1) (2026-08-01)
 
 ### Miscellaneous Chores

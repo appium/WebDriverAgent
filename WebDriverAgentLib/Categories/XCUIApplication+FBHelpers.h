@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FBXCElementSnapshot.h"
+
 @class XCElementSnapshot;
 @protocol FBXCAccessibilityElement;
 @class FBXMLGenerationOptions;
@@ -165,6 +167,19 @@ NS_ASSUME_NONNULL_BEGIN
  @return YES if the other app has the same identifier
  */
 - (BOOL)fb_isSameAppAs:(nullable XCUIApplication *)otherApp;
+
+/**
+ Resolves the live element that corresponds to an already-known snapshot
+ found somewhere under rootElement, by matching on its stable uid, instead
+ of re-running a fresh attribute/type-based query - a single targeted
+ accessibility round trip regardless of how deep the snapshot sits.
+
+ @param snapshot The snapshot to resolve a live element for
+ @param rootElement The element to scope the uid lookup query to
+ @return The live element matching the snapshot's uid, or nil if it could not be resolved
+ */
++ (nullable XCUIElement *)fb_elementForSnapshot:(id<FBXCElementSnapshot>)snapshot
+                                    underElement:(XCUIElement *)rootElement;
 
 @end
 

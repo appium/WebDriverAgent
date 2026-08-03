@@ -130,7 +130,7 @@
 - (void)testFindMatchesInElement
 {
   NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@"//XCUIElementTypeButton"];
-  XCTAssertEqual([matchingSnapshots count], 5);
+  XCTAssertEqual([matchingSnapshots count], FBMainViewButtonLabels.count);
   for (id<FBXCElementSnapshot> element in matchingSnapshots) {
     XCTAssertTrue([[FBXCElementSnapshotWrapper ensureWrapped:element].wdType isEqualToString:@"XCUIElementTypeButton"]);
   }
@@ -174,7 +174,7 @@
 - (void)testFindMatchesInElementWithDotNotation
 {
   NSArray<id<FBXCElementSnapshot>> *matchingSnapshots = [FBXPath matchesWithRootElement:self.testedApplication forQuery:@".//XCUIElementTypeButton"];
-  XCTAssertEqual([matchingSnapshots count], 5);
+  XCTAssertEqual([matchingSnapshots count], FBMainViewButtonLabels.count);
   for (id<FBXCElementSnapshot> element in matchingSnapshots) {
     XCTAssertTrue([[FBXCElementSnapshotWrapper ensureWrapped:element].wdType isEqualToString:@"XCUIElementTypeButton"]);
   }
@@ -232,7 +232,7 @@
 - (void)testFindMultipleMatchesWithMatchesFunction
 {
   [self assertXPathQuery:@"//XCUIElementTypeButton[matches(@label, '.*')]"
-       findsButtonLabels:@[@"Alerts", @"Deadlock app", @"Attributes", @"Scrolling", @"Touch"]];
+       findsButtonLabels:FBMainViewButtonLabels];
 }
 
 - (void)testInvalidXPathExtensionFunctionViaElementLookup

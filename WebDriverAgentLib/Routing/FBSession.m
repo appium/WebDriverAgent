@@ -24,7 +24,6 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIApplication+FBQuiescence.h"
 #import "XCUIElement.h"
-#import "XCUIElement+FBClassChain.h"
 
 /*!
  The intial value for the default application property.
@@ -56,14 +55,10 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
   NSString *autoClickAlertSelector = FBConfiguration.autoClickAlertSelector;
   if ([autoClickAlertSelector length] > 0) {
     @try {
-      NSArray<XCUIElement*> *matches = [alert.alertElement fb_descendantsMatchingClassChain:autoClickAlertSelector
-                                                                shouldReturnAfterFirstMatch:YES];
-      if (matches.count > 0) {
-          [[matches objectAtIndex:0] tap];
-      }
+      [alert clickElementMatchingClassChain:autoClickAlertSelector];
     } @catch (NSException *e) {
       [FBLogger logFmt:@"Could not click at the alert element '%@'. Original error: %@",
-       autoClickAlertSelector, e.description];
+        autoClickAlertSelector, e.reason];
     }
     // This setting has priority over other settings if enabled
     return;
@@ -73,14 +68,17 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
     return;
   }
 
-  NSError *error;
   if ([self.defaultAlertAction isEqualToString:@"accept"]) {
-    if (![alert acceptWithError:&error]) {
-      [FBLogger logFmt:@"Cannot accept the alert. Original error: %@", error.description];
+    @try {
+      [alert accept];
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"Cannot accept the alert. Original error: %@", e.reason];
     }
   } else if ([self.defaultAlertAction isEqualToString:@"dismiss"]) {
-    if (![alert dismissWithError:&error]) {
-      [FBLogger logFmt:@"Cannot dismiss the alert. Original error: %@", error.description];
+    @try {
+      [alert dismiss];
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"Cannot dismiss the alert. Original error: %@", e.reason];
     }
   } else {
     [FBLogger logFmt:@"'%@' default alert action is unsupported", self.defaultAlertAction];
@@ -213,7 +211,7 @@ static FBSession *_activeSession = nil;
     XCUIApplicationState testedAppState = self.testedApplication.state;
     if (testedAppState >= XCUIApplicationStateRunningForeground) {
       NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K IN {%@, %@}",
-                                      @"elementType", @(XCUIElementTypeAlert), 
+                                      @"elementType", @(XCUIElementTypeAlert),
                                       // To look for `SBTransientOverlayWindow` elements. See https://github.com/appium/WebDriverAgent/pull/946
                                       @"identifier", @"SBTransientOverlayWindow",
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
