@@ -28,11 +28,10 @@
                   positiveDirection:(FBTVDirection)positiveDirection
                   negativeDirection:(FBTVDirection)negativeDirection;
 
-// Exposed for testing: the pure snapshot-walk core of `-pollFocusState:`,
-// parameterized on the application snapshot so tests can supply a fake tree
-// instead of the live one.
-- (FBTVFocusState)pollFocusStateWithApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
-                                                direction:(FBTVDirection *)direction;
+// Exposed for testing: the pure direction-math core of `-pollFocusState:`,
+// parameterized on the already-resolved focused element's snapshot so tests
+// can supply a fake one instead of a live query result.
+- (FBTVDirection)directionTowardsTargetFromFocusedElementSnapshot:(id<FBXCElementSnapshot>)focusedSnapshot;
 @end
 
 #endif

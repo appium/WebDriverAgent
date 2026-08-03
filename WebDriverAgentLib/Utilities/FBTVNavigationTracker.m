@@ -39,7 +39,6 @@
 
 @interface FBTVNavigationTracker ()
 @property (nonatomic, strong) XCUIElement *targetElement;
-@property (nonatomic, nullable, copy) NSString *targetUid;
 @property (nonatomic, assign) CGPoint targetCenter;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, FBTVNavigationItem* >* navigationItems;
 @end
@@ -58,10 +57,7 @@
   self = [super init];
   if (self) {
     _targetElement = targetElement;
-    // Called once per tracker (not per polling iteration), so the extra
-    // round trip here is negligible next to the per-iteration savings below.
     _targetCenter = FBRectGetCenter(targetElement.wdFrame);
-    _targetUid = targetElement.wdUID;
     _navigationItems = [NSMutableDictionary dictionary];
   }
   return self;
@@ -69,61 +65,58 @@
 
 - (FBTVFocusState)pollFocusState:(FBTVDirection *)direction
 {
-  // One snapshot walk of the whole app answers everything the polling loop
-  // needs - whether the target still exists, whether it already has focus,
-  // and (if not) where the currently focused element is - instead of the
-  // 4 separate live AX round trips (`hasFocus`, `exists`, a focused-element
-  // query, plus a snapshot of it) this used to cost per iteration.
-  return [self pollFocusStateWithApplicationSnapshot:XCUIApplication.fb_activeApplication.fb_customSnapshot
-                                            direction:direction];
-}
-
-- (FBTVFocusState)pollFocusStateWithApplicationSnapshot:(id<FBXCElementSnapshot>)appSnapshot
-                                                direction:(FBTVDirection *)direction
-{
   *direction = FBTVDirectionNone;
-  NSString *targetUid = self.targetUid;
-  __block id<FBXCElementSnapshot> targetSnapshot = nil;
-  __block id<FBXCElementSnapshot> focusedSnapshot = nil;
-  [appSnapshot enumerateDescendantsUsingBlock:^(id<FBXCElementSnapshot> descendant) {
-    if (nil != targetUid && [[FBXCElementSnapshotWrapper ensureWrapped:descendant].wdUID isEqualToString:targetUid]) {
-      targetSnapshot = descendant;
-    }
-    if (descendant.hasFocus) {
-      focusedSnapshot = descendant;
-    }
-  }];
 
-  if (nil == targetSnapshot) {
-    return FBTVFocusStateGone;
-  }
-  if (targetSnapshot.hasFocus) {
+  // `hasFocus`/`exists` are cheap, single-element live checks - each round
+  // trip only has to serialize the state of one already-known element, not
+  // an unbounded subtree, so there's no snapshot-walk win to be had here.
+  if (self.targetElement.hasFocus) {
     return FBTVFocusStateFocused;
   }
-  if (nil == focusedSnapshot) {
+  if (!self.targetElement.exists) {
+    return FBTVFocusStateGone;
+  }
+
+  // Likewise, a `hasFocus == true` predicate query only has to serialize its
+  // (typically 0-1) matches back over the round trip, unlike a whole-app
+  // snapshot walk, whose cost scales with total app size/depth.
+  XCUIElement *focusedElement = (XCUIElement *)XCUIApplication.fb_activeApplication.fb_focusedElement;
+  if (nil == focusedElement) {
     // Nothing is focused yet (e.g. right after the app became active) - let
     // the caller retry on the next iteration.
     return FBTVFocusStatePending;
   }
 
+  // The snapshot was already taken as a side effect of resolving the query
+  // above, so grab it for free instead of paying for a new round trip.
+  id<FBXCElementSnapshot> focusedSnapshot = focusedElement.lastSnapshot
+    ?: focusedElement.fb_cachedSnapshot
+    ?: [focusedElement fb_customSnapshot];
+  *direction = [self directionTowardsTargetFromFocusedElementSnapshot:focusedSnapshot];
+
+  return FBTVFocusStatePending;
+}
+
+- (FBTVDirection)directionTowardsTargetFromFocusedElementSnapshot:(id<FBXCElementSnapshot>)focusedSnapshot
+{
   FBXCElementSnapshotWrapper *focused = [FBXCElementSnapshotWrapper ensureWrapped:focusedSnapshot];
   CGPoint focusedCenter = FBRectGetCenter(focused.wdFrame);
   FBTVNavigationItem *item = [self navigationItemWithElement:focused];
   CGFloat yDelta = self.targetCenter.y - focusedCenter.y;
   CGFloat xDelta = self.targetCenter.x - focusedCenter.x;
+  FBTVDirection direction;
   if (fabs(yDelta) > fabs(xDelta)) {
-    *direction = [self verticalDirectionWithItem:item andDelta:yDelta];
-    if (*direction == FBTVDirectionNone) {
-      *direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
+    direction = [self verticalDirectionWithItem:item andDelta:yDelta];
+    if (direction == FBTVDirectionNone) {
+      direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
     }
   } else {
-    *direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
-    if (*direction == FBTVDirectionNone) {
-      *direction = [self verticalDirectionWithItem:item andDelta:yDelta];
+    direction = [self horizontalDirectionWithItem:item andDelta:xDelta];
+    if (direction == FBTVDirectionNone) {
+      direction = [self verticalDirectionWithItem:item andDelta:yDelta];
     }
   }
-
-  return FBTVFocusStatePending;
+  return direction;
 }
 
 #pragma mark - Utilities

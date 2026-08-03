@@ -51,10 +51,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)trackerWithTargetElement: (XCUIElement *) targetElement;
 
 /**
- Takes a single snapshot of the application under test and uses it to answer,
- in one round trip, whether the tracked target element currently has focus,
- whether it still exists, and - if neither - which direction the focus
- should move to get closer to it.
+ Determines whether the tracked target element currently has focus, whether
+ it still exists, and - if neither - which direction the focus should move
+ to get closer to it. Each of these is resolved with the cheapest available
+ accessibility round trip for what it's checking: `hasFocus`/`exists` are
+ single already-known-element checks, and the currently focused element (if
+ any) is found via a targeted `hasFocus == true` query rather than a whole-app
+ snapshot walk, whose cost scales with total app size/depth instead of with
+ the (typically 0-1) number of matches.
 
  @param direction Always reset to `FBTVDirectionNone` first, then set to the
    suggested direction to move the focus to when the return value is

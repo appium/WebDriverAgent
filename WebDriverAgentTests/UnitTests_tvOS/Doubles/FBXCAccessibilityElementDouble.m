@@ -8,8 +8,6 @@
 
 #import "FBXCAccessibilityElementDouble.h"
 
-const int FBXCAccessibilityElementDoubleProcessIdentifier = 1;
-
 @implementation FBXCAccessibilityElementDouble
 
 - (instancetype)initWithElementId:(unsigned long long)elementId
@@ -17,7 +15,7 @@ const int FBXCAccessibilityElementDoubleProcessIdentifier = 1;
   self = [super init];
   if (self) {
     _payload = @{@"uid.elementID": @(elementId)};
-    _processIdentifier = FBXCAccessibilityElementDoubleProcessIdentifier;
+    _processIdentifier = 1;
   }
   return self;
 }
