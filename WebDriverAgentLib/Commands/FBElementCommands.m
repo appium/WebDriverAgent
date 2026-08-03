@@ -346,15 +346,15 @@
 
 + (id<FBResponsePayload>)handlePressAndDragCoordinateWithVelocity:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
+  XCUIApplication *application = request.session.activeApplication;
   CGVector startOffset = CGVectorMake((CGFloat)[request.arguments[@"fromX"] doubleValue],
                                      (CGFloat)[request.arguments[@"fromY"] doubleValue]);
   XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
-                                                                    element:session.activeApplication];
+                                                                    element:application];
   CGVector endOffset = CGVectorMake((CGFloat)[request.arguments[@"toX"] doubleValue],
                                     (CGFloat)[request.arguments[@"toY"] doubleValue]);
   XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
-                                                                  element:session.activeApplication];
+                                                                  element:application];
   [startCoordinate pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
                thenDragToCoordinate:endCoordinate
                        withVelocity:[request.arguments[@"velocity"] doubleValue]
