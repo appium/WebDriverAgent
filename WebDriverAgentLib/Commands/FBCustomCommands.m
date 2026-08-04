@@ -539,6 +539,8 @@
     @"latitude": location ? @(location.coordinate.latitude) : NSNull.null,
     @"longitude": location ? @(location.coordinate.longitude) : NSNull.null,
     @"altitude": location ? @(location.altitude) : NSNull.null,
+    @"speed": location ? @(location.speed) : NSNull.null,
+    @"course": location ? @(location.course) : NSNull.null,
   });
 }
 
@@ -551,9 +553,33 @@
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Both latitude and longitude must be provided"
                                                                        traceback:nil]);
   }
+
+  NSNumber *altitude = request.arguments[@"altitude"];
+  NSNumber *speed = request.arguments[@"speed"];
+  NSNumber *course = request.arguments[@"course"];
+  NSNumber *horizontalAccuracy = request.arguments[@"horizontalAccuracy"];
+  NSNumber *verticalAccuracy = request.arguments[@"verticalAccuracy"];
+  NSNumber *speedAccuracy = request.arguments[@"speedAccuracy"];
+  NSNumber *courseAccuracy = request.arguments[@"courseAccuracy"];
+
+  CLLocation *location;
+  if (speed || course || altitude || horizontalAccuracy || verticalAccuracy || speedAccuracy || courseAccuracy) {
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(latitude.doubleValue, longitude.doubleValue);
+    location = [[CLLocation alloc] initWithCoordinate:coordinate
+                                             altitude:altitude ? altitude.doubleValue : 0
+                                   horizontalAccuracy:horizontalAccuracy ? horizontalAccuracy.doubleValue : 5
+                                     verticalAccuracy:verticalAccuracy ? verticalAccuracy.doubleValue : -1
+                                               course:course ? course.doubleValue : -1
+                                       courseAccuracy:courseAccuracy ? courseAccuracy.doubleValue : -1
+                                                speed:speed ? speed.doubleValue : -1
+                                        speedAccuracy:speedAccuracy ? speedAccuracy.doubleValue : -1
+                                            timestamp:[NSDate date]];
+  } else {
+    location = [[CLLocation alloc] initWithLatitude:latitude.doubleValue
+                                          longitude:longitude.doubleValue];
+  }
+
   NSError *error;
-  CLLocation *location = [[CLLocation alloc] initWithLatitude:latitude.doubleValue
-                                                    longitude:longitude.doubleValue];
   if (![XCUIDevice.sharedDevice fb_setSimulatedLocation:location error:&error]) {
     return FBResponseWithStatus([FBCommandStatus unknownErrorWithMessage:error.description
                                                                traceback:nil]);
