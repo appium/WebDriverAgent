@@ -1,7 +1,7 @@
-import {JWProxy} from '@appium/base-driver';
+import {WebDriverProxy} from '@appium/base-driver';
 import type {ProxyOptions} from '@appium/types';
 
-export class NoSessionProxy extends JWProxy {
+export class NoSessionProxy extends WebDriverProxy {
   constructor(opts: ProxyOptions = {}) {
     super(opts);
   }

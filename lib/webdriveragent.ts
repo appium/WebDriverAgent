@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import {JWProxy} from '@appium/base-driver';
+import {WebDriverProxy} from '@appium/base-driver';
 import {strongbox} from '@appium/strongbox';
 import {fs, util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
@@ -54,7 +54,7 @@ export class WebDriverAgent {
   started: boolean;
   updatedWDABundleId?: string;
   noSessionProxy?: NoSessionProxy;
-  jwproxy?: JWProxy;
+  jwproxy?: WebDriverProxy;
   proxyReqRes?: any;
   private readonly log: AppiumLogger;
   private readonly wdaLocalPort?: number;
@@ -473,7 +473,7 @@ export class WebDriverAgent {
       proxyOpts.reqBasePath = this.args.reqBasePath;
     }
 
-    this.jwproxy = new JWProxy(proxyOpts);
+    this.jwproxy = new WebDriverProxy(proxyOpts);
     this.jwproxy.sessionId = sessionId;
     this.proxyReqRes = this.jwproxy.proxyReqRes.bind(this.jwproxy);
 
