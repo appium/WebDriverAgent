@@ -28,7 +28,7 @@
 @property (readonly, copy, nonatomic) NSString *path;
 @property (readonly, copy, nonatomic) NSString *bundleID;
 @property (nonatomic) int processID;
-@property (readonly) _Bool processIDValid;
+@property (readonly, getter=isProcessIDValid) _Bool processIDValid;
 @property (nonatomic) unsigned long long applicationState;
 @property unsigned int interactionOptions;
 @property (readonly) _Bool shouldSkipPreEventQuiescence;
@@ -78,7 +78,6 @@
 - (id)_queue_description;
 - (void)_awaitKnownApplicationState;
 - (_Bool)isApplicationStateKnown;
-- (_Bool)isProcessIDValid;
 - (void)incrementAlertCount;
 - (void)resetAlertCount;
 - (void)_notifyWhenMainRunLoopIsIdle:(id /* block */)idle;

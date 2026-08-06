@@ -21,13 +21,12 @@
 @property (readonly) _Bool supportsAccessibility;
 @property (readonly) id <XCUIDevice> device;
 @property (readonly) id <XCUIRemoteSiriInterface> remoteSiriInterface;
-@property (readonly) _Bool enabled;
+@property (readonly, getter=isEnabled) _Bool enabled;
 
 /* instance methods */
 - (id)initWithDevice:(id)device remoteSiriInterface:(id)interface supportsAccessibility:(_Bool)accessibility;
 - (void)injectAssistantRecognitionStrings:(id)strings;
 - (void)injectVoiceRecognitionAudioInputPaths:(id)paths;
-- (_Bool)isEnabled;
 - (_Bool)_usesLegacySiriViewService;
 - (id)_siriBundleIdentifier;
 - (unsigned long long)_expectedStateForActivate;

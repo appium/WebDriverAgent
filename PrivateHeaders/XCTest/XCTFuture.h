@@ -25,7 +25,7 @@
 @property (readonly) NSMutableSet *cancelationExpectations;
 @property (readonly) id value;
 @property (readonly) NSError *error;
-@property (readonly) _Bool canceled;
+@property (readonly, getter=isCanceled) _Bool canceled;
 @property (readonly) double executionTime;
 
 /* class methods */
@@ -39,7 +39,6 @@
 - (void)_waitForFulfillmentSync:(_Bool)sync withCompletion:(id /* block */)completion;
 - (void)addCancelationExpectation:(id)expectation;
 - (void)valueWithCompletion:(id /* block */)completion;
-- (_Bool)isCanceled;
 
 @end
 

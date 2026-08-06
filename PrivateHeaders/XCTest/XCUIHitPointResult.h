@@ -14,12 +14,11 @@
 @interface XCUIHitPointResult : NSObject
 
 @property (readonly) CGPoint hitPoint;
-@property (readonly) _Bool hittable;
+@property (readonly, getter=isHittable) _Bool hittable;
 
 /* instance methods */
 - (id)initWithHitPoint:(CGPoint)point hittable:(_Bool)hittable;
 - (id)description;
-- (_Bool)isHittable;
 
 @end
 

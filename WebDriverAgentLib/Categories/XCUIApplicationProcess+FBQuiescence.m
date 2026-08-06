@@ -10,6 +10,7 @@
 
 #import <objc/runtime.h>
 
+#import "CDStructures.h"
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
 #import "FBLogger.h"

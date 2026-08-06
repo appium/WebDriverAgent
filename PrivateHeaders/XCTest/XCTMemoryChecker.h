@@ -17,13 +17,12 @@
 
 @property (retain) NSMutableSet *markedAddresses;
 @property (retain, nonatomic) DTXConnection *dtxConnection;
-@property (readonly) _Bool connectedToService;
+@property (readonly, getter=isConnectedToService) _Bool connectedToService;
 @property (weak) id <XCTMemoryCheckerDelegate> delegate;
 
 /* instance methods */
 - (id)init;
 - (id)initWithDelegate:(id)delegate;
-- (_Bool)isConnectedToService;
 - (id)_getGraphDataOfType:(long long)type forPID:(int)pid withError:(id *)error;
 - (int)_setMallocStackLoggingMode:(int)mode forPid:(int)pid withError:(id *)error;
 - (id)_getRunningProcesses:(id *)processes;

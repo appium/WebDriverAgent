@@ -51,11 +51,11 @@
 @property (readonly, copy) NSString *title;
 @property (readonly, copy) NSString *label;
 @property (readonly) unsigned long long elementType;
-@property (readonly) _Bool enabled;
+@property (readonly, getter=isEnabled) _Bool enabled;
 @property (readonly) long long horizontalSizeClass;
 @property (readonly) long long verticalSizeClass;
 @property (readonly) NSString *placeholderValue;
-@property (readonly) _Bool selected;
+@property (readonly, getter=isSelected) _Bool selected;
 @property (readonly) _Bool hasFocus;
 @property (readonly, copy) XCUIElementQuery *bannerNotifications;
 @property (readonly, copy) XCUIElementQuery *touchBars;
@@ -189,8 +189,6 @@
 - (void)resolveOrRaiseTestFailure;
 - (_Bool)resolveOrRaiseTestFailure:(_Bool)failure error:(id *)error;
 - (void)captureDebugInformation;
-- (_Bool)isEnabled;
-- (_Bool)isSelected;
 - (unsigned long long)traits;
 - (_Bool)isHittable;
 - (void)handleUIInterruptions;

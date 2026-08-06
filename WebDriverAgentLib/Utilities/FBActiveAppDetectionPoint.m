@@ -11,7 +11,7 @@
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
 
 @implementation FBActiveAppDetectionPoint
 
@@ -38,7 +38,7 @@
 + (id<FBXCAccessibilityElement>)axElementWithPoint:(CGPoint)point
 {
   __block id<FBXCAccessibilityElement> onScreenElement = nil;
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [proxy _XCT_requestElementAtPoint:point
                               reply:^(id element, NSError *error) {

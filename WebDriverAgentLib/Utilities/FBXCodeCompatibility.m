@@ -15,7 +15,18 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElementQuery.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTCapabilities.h"
+#import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
+#import "XCTRunnerDaemonSession.h"
+
+/**
+ Legacy testmanagerd (pre-Xcode 15) protocol-version handshake. Xcode 15+ testmanagerd replaced
+ this with named XCTCapabilities negotiation and no longer declares this selector at all, so it
+ does not appear in the modern XCTMessagingChannel_RunnerToDaemon protocol surface.
+ */
+@protocol FBXCTestManagerLegacyProtocolVersionExchanging <NSObject>
+- (void)_XCT_exchangeProtocolVersion:(unsigned long long)version reply:(void (^)(unsigned long long code))reply;
+@end
 
 @implementation XCUIElementQuery (FBCompatibility)
 
@@ -71,15 +82,25 @@ NSInteger FBTestmanagerdVersion(void)
   static dispatch_once_t getTestmanagerdVersion;
   static NSInteger testmanagerdVersion;
   dispatch_once(&getTestmanagerdVersion, ^{
-    id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+    id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
     if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_exchangeProtocolVersion:reply:)]) {
+      id<FBXCTestManagerLegacyProtocolVersionExchanging> legacyProxy = (id<FBXCTestManagerLegacyProtocolVersionExchanging>)proxy;
       [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-        [proxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
+        [legacyProxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
           testmanagerdVersion = (NSInteger) code;
           completion();
         }];
       }];
     } else {
+      // Modern testmanagerd (Xcode 15+) has already negotiated named XCTCapabilities by the time
+      // a daemon session exists, instead of a single scalar protocol version. There is no direct
+      // integer equivalent to report here (this value is diagnostic-only, surfaced via the
+      // 'testmanagerdVersion' session capability), so keep reporting the existing "assume
+      // newest/full-featured" sentinel, while confirming capabilities did negotiate successfully.
+      XCTCapabilities *capabilities = [XCTRunnerDaemonSession sharedSession].remoteInterfaceCapabilities;
+      if (nil == capabilities) {
+        [FBLogger log:@"Could not retrieve testmanagerd capabilities"];
+      }
       testmanagerdVersion = 0xFFFF;
     }
   });

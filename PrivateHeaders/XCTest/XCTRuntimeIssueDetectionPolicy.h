@@ -13,7 +13,7 @@
 
 @interface XCTRuntimeIssueDetectionPolicy : NSObject <NSSecureCoding>
 
-@property (readonly) _Bool detectionEnabled;
+@property (readonly, getter=isDetectionEnabled) _Bool detectionEnabled;
 @property (readonly) long long severity;
 @property (readonly) _Bool isDefault;
 
@@ -33,7 +33,6 @@
 - (id)dictionaryRepresentation;
 - (void)encodeWithCoder:(id)coder;
 - (id)initWithCoder:(id)coder;
-- (_Bool)isDetectionEnabled;
 
 @end
 

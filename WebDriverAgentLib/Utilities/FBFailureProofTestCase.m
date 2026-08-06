@@ -9,6 +9,9 @@
 #import "FBFailureProofTestCase.h"
 
 #import "FBLogger.h"
+#import "XCTIssue.h"
+#import "XCTSourceCodeContext.h"
+#import "XCTSourceCodeLocation.h"
 
 @implementation FBFailureProofTestCase
 
