@@ -6,7 +6,7 @@
 //
 #ifndef XCUIElement_h
 #define XCUIElement_h
-#import <XCUIAutomation/XCUIElement.h>
+#import <XCTest/XCUIElement.h>
 @import Foundation;
 @import UIKit;
 #import <TargetConditionals.h>

@@ -6,7 +6,7 @@
 //
 #ifndef XCUILocation_h
 #define XCUILocation_h
-#import <XCUIAutomation/XCUILocation.h>
+#import <XCTest/XCUILocation.h>
 @import Foundation;
 @import UIKit;
 

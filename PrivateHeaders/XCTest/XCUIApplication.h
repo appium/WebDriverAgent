@@ -6,7 +6,7 @@
 //
 #ifndef XCUIApplication_h
 #define XCUIApplication_h
-#import <XCUIAutomation/XCUIApplication.h>
+#import <XCTest/XCUIApplication.h>
 @import Foundation;
 @import UIKit;
 

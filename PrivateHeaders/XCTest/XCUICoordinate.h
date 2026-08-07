@@ -8,7 +8,7 @@
 #define XCUICoordinate_h
 #import <TargetConditionals.h>
 #if !TARGET_OS_TV // XCUICoordinate does not exist on tvOS's XCTest private framework
-#import <XCUIAutomation/XCUICoordinate.h>
+#import <XCTest/XCUICoordinate.h>
 @import Foundation;
 @import UIKit;
 

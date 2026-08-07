@@ -6,7 +6,7 @@
 //
 #ifndef XCUIScreen_h
 #define XCUIScreen_h
-#import <XCUIAutomation/XCUIScreen.h>
+#import <XCTest/XCUIScreen.h>
 @import Foundation;
 @import UIKit;
 

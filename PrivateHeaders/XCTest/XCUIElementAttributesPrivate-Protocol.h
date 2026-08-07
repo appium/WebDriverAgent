@@ -6,7 +6,7 @@
 //
 #ifndef XCUIElementAttributesPrivate_Protocol_h
 #define XCUIElementAttributesPrivate_Protocol_h
-#import <XCUIAutomation/XCUIElementAttributes.h>
+#import <XCTest/XCUIElementAttributes.h>
 @import Foundation;
 @import UIKit;
 

@@ -6,7 +6,7 @@
 //
 #ifndef XCUISiriService_h
 #define XCUISiriService_h
-#import <XCUIAutomation/XCUISiriService.h>
+#import <XCTest/XCUISiriService.h>
 @import Foundation;
 @import UIKit;
 

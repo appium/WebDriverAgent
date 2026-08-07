@@ -6,7 +6,7 @@
 //
 #ifndef XCUIDevice_h
 #define XCUIDevice_h
-#import <XCUIAutomation/XCUIDevice.h>
+#import <XCTest/XCUIDevice.h>
 @import Foundation;
 @import UIKit;
 

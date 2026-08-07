@@ -6,7 +6,7 @@
 //
 #ifndef XCUIElementQuery_h
 #define XCUIElementQuery_h
-#import <XCUIAutomation/XCUIElementQuery.h>
+#import <XCTest/XCUIElementQuery.h>
 @import Foundation;
 @import UIKit;
 
