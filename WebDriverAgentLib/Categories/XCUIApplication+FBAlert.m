@@ -113,17 +113,13 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
   NSMutableArray<XCUIElement *> *sheets = [NSMutableArray array];
   NSMutableArray<XCUIElement *> *scrollViews = [NSMutableArray array];
   for (XCUIElement *candidate in candidates) {
-    switch (candidate.elementType) {
-      case XCUIElementTypeAlert:
-        return candidate;
-      case XCUIElementTypeSheet:
-        [sheets addObject:candidate];
-        break;
-      case XCUIElementTypeScrollView:
-        [scrollViews addObject:candidate];
-        break;
-      default:
-        break;
+    XCUIElementType elementType = candidate.elementType;
+    if (elementType == XCUIElementTypeAlert) {
+      return candidate;
+    } else if (elementType == XCUIElementTypeSheet) {
+      [sheets addObject:candidate];
+    } else if (elementType == XCUIElementTypeScrollView) {
+      [scrollViews addObject:candidate];
     }
   }
 

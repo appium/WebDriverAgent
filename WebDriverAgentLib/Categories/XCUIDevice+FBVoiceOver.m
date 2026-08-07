@@ -190,19 +190,21 @@ static NSDictionary<NSString *, NSString *> *FBVoiceOverMoveSelectors(void)
 - (nullable NSString *)fb_voiceOverMove:(NSString *)direction error:(NSError **)error
 {
   if (![direction isKindOfClass:NSString.class] || 0 == direction.length) {
-    return [[[FBErrorBuilder builder]
-             withDescription:@"VoiceOver move direction must be a non-empty string"]
-            buildError:error], nil;
+    [[[FBErrorBuilder builder]
+      withDescription:@"VoiceOver move direction must be a non-empty string"]
+     buildError:error];
+    return nil;
   }
 
   NSString *normalizedDirection = direction.lowercaseString;
   NSString *selectorName = FBVoiceOverMoveSelectors()[normalizedDirection];
   if (nil == selectorName) {
     NSArray *supportedDirections = [FBVoiceOverMoveSelectors().allKeys sortedArrayUsingSelector:@selector(compare:)];
-    return [[[FBErrorBuilder builder]
-             withDescriptionFormat:@"Unsupported VoiceOver move direction '%@'. Supported directions: %@",
-             direction, supportedDirections]
-            buildError:error], nil;
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"Unsupported VoiceOver move direction '%@'. Supported directions: %@",
+      direction, supportedDirections]
+     buildError:error];
+    return nil;
   }
 
   return FBVoiceOverSpeechFromSelector(NSSelectorFromString(selectorName), error);

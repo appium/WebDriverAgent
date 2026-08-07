@@ -17,7 +17,7 @@
 #import "FBMacros.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
 #import "XCUIScreen.h"
 
 static const NSTimeInterval SCREENSHOT_TIMEOUT = 20.;
@@ -95,7 +95,7 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
                                          timeout:(NSTimeInterval)timeout
                                            error:(NSError **)error
 {
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   __block NSData *screenshotData = nil;
   __block NSError *innerError = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);

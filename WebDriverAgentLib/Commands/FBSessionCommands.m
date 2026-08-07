@@ -313,7 +313,7 @@
     return nil;
   }
 
-  XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleID];
+  XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:(NSString * _Nonnull)bundleID];
   BOOL forceAppLaunch = nil == capabilities[FB_CAP_FORCE_APP_LAUNCH]
     || [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
   XCUIApplicationState appState = app.state;

@@ -11,6 +11,7 @@
 #import "FBXCodeCompatibility.h"
 #import "XCUIElementQuery.h"
 #import "FBXCElementSnapshot.h"
+#import "XCTElementSetTransformer-Protocol.h"
 
 @implementation XCUIElementQuery (FBHelpers)
 

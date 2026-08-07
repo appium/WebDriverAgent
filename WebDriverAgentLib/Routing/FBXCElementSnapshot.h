@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)mergeTreeWithSnapshot:(id)arg1;
 - (id)_childMatchingElement:(id)arg1;
 - (NSArray<id<FBXCElementSnapshot>> *)_allDescendants;
-- (BOOL)hasDescendantMatchingFilter:(CDUnknownBlockType)arg1;
+- (BOOL)hasDescendantMatchingFilter:(BOOL(^)(id<FBXCElementSnapshot> snapshot))arg1;
 - (NSArray<id<FBXCElementSnapshot>> *)descendantsByFilteringWithBlock:(BOOL(^)(id<FBXCElementSnapshot> snapshot))block;
 - (id)elementSnapshotMatchingAccessibilityElement:(id)arg1;
 - (void)enumerateDescendantsUsingBlock:(void(^)(id<FBXCElementSnapshot> snapshot))block;
