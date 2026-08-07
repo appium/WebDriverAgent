@@ -328,7 +328,6 @@
 		668B1D9AFF85F0538E738675 /* XCUIElementAttributesPrivate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EF5BE504321321FB9320C43 /* XCUIElementAttributesPrivate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		67AFD75FBCD4BFC5424A0956 /* XCTMessagingRole_ActivityReporting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EED93C03F27978174C7333C1 /* XCTMessagingRole_ActivityReporting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68CF77BE3F4B659BAFC99AF1 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C19CEEEC9858A106061D1F8 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		68ED9F1794FD54552751E881 /* NSMutableCopying-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A22434E69880DA6637D56B72 /* NSMutableCopying-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6ACEDEB2C16EFA502ED27FC4 /* XCTMeasureOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = B3FDA51EB36F03592BF48762 /* XCTMeasureOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6B68382176E9918AF3110710 /* XCTMacCatalystStatusProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 42D2B5A0C490D9698C2A87A9 /* XCTMacCatalystStatusProviding-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6CE6B9FF16CEAB475B764A92 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3770A67ED561EBE5E443A /* main.m */; };
@@ -634,7 +633,6 @@
 		AEA08D6963D0F969992A56C3 /* XCTMemoryChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = AFD7929A5F0B45397F0D64CB /* XCTMemoryChecker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AF13E087AA2FF233A495CD0A /* XCUIResetAuthorizationStatusOfProtectedResourcesInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A0B17F41E4461BBD09A2962 /* XCUIResetAuthorizationStatusOfProtectedResourcesInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AF718FF9F916429C65A2FD11 /* XCTRuntimeIssueDetectionPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = B98A9F937EF98D6359FCCC7A /* XCTRuntimeIssueDetectionPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		B0316BB274207385910F8E04 /* NSMutableCopying-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A22434E69880DA6637D56B72 /* NSMutableCopying-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B20597D3E9290B4E9ACB812B /* XCTReportingSessionIssueReporter-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 525D62A58488A52AA1BFE94A /* XCTReportingSessionIssueReporter-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B316351C2DDF0CF5007D9317 /* FBAccessibilityTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = B316351B2DDF0CF5007D9317 /* FBAccessibilityTraits.m */; };
 		B316351D2DDF0CF5007D9317 /* FBAccessibilityTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = B316351B2DDF0CF5007D9317 /* FBAccessibilityTraits.m */; };
@@ -1320,7 +1318,6 @@
 		A1B2C3D41F001A00A1B0002 /* XCUIDevice+FBVoiceOver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "XCUIDevice+FBVoiceOver.m"; sourceTree = "<group>"; };
 		A1B2C3D41F001A00A1B0003 /* FBVoiceOverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBVoiceOverTests.m; sourceTree = "<group>"; };
 		A1B2C3D4E5F600000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = WebDriverAgentRunner/Assets.xcassets; sourceTree = SOURCE_ROOT; };
-		A22434E69880DA6637D56B72 /* NSMutableCopying-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "NSMutableCopying-Protocol.h"; sourceTree = "<group>"; };
 		A2793FE9DE63C687BB6E2D37 /* XCTMessagingChannel_RunnerToDaemon-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingChannel_RunnerToDaemon-Protocol.h"; sourceTree = "<group>"; };
 		A80A1C12FA9899367D316E8C /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTestCastMethodNamesUIAutomationDelegate-Protocol.h"; sourceTree = "<group>"; };
 		A8230FDD93639CE2E9EFE311 /* XCUILocation.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCUILocation.h; sourceTree = "<group>"; };
@@ -2424,7 +2421,6 @@
 				7119097B2152580600BA3C7E /* XCUIScreen.h */,
 				711CD03325ED1106001C01D2 /* XCUIScreenDataSource-Protocol.h */,
 				58156929D12ADE7DFE10116F /* NSFastEnumeration-Protocol.h */,
-				A22434E69880DA6637D56B72 /* NSMutableCopying-Protocol.h */,
 				7AA21CEBA6E92AAC73FB6A48 /* XCTAggregateSuiteRunStatistics.h */,
 				2D80202DC5D679EF37896431 /* XCTAttachmentManager.h */,
 				DB5400B170F08C71779CCD0E /* XCTCapabilities.h */,
@@ -2576,6 +2572,34 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		015926D657880CF9D0F58092 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A314A44E0D94111EF92CA98 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2DBF81E3C08F1FC33940E763 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		600C6B266A1F3EF1AE7D5A9D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		641EE6302240C5CA00173FCB /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -2747,7 +2771,6 @@
 				71D04DC925356C43008A052C /* XCUIElement+FBCaching.h in Headers */,
 				71C8E55225399A6B008572C1 /* XCUIApplication+FBQuiescence.h in Headers */,
 				D101B194EE49F32110C394FD /* NSFastEnumeration-Protocol.h in Headers */,
-				B0316BB274207385910F8E04 /* NSMutableCopying-Protocol.h in Headers */,
 				E19946F12AD25E3EFFD89A36 /* XCTAggregateSuiteRunStatistics.h in Headers */,
 				F8AA3C37F248FC3985BAFA23 /* XCTAttachmentManager.h in Headers */,
 				E8E894CD81C41AC4467A4F4C /* XCTCapabilities.h in Headers */,
@@ -2865,6 +2888,34 @@
 				ECC4ABB5477FBA3D442559B1 /* AppDelegate.h in Headers */,
 				5AF49CE43E731B433375C5B7 /* ViewController.h in Headers */,
 				ACA7E8FE7C086A9A6EF7CFDF /* SceneDelegate.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E87F5A3E5C2A3F22C298160 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4440DC716C640EF562EE5DC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9A1B9A1E280C98D76B54D86 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BFB138089A22AF05B7D37301 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3042,7 +3093,6 @@
 				E444DC95249131D40060D7EB /* HTTPConnection.h in Headers */,
 				712A0C871DA3E55D007D02E5 /* FBXPath-Private.h in Headers */,
 				1D0120AD346A99834385FBAB /* NSFastEnumeration-Protocol.h in Headers */,
-				68ED9F1794FD54552751E881 /* NSMutableCopying-Protocol.h in Headers */,
 				7738D42AE84269A6963A5610 /* XCTAggregateSuiteRunStatistics.h in Headers */,
 				3D39B383A140D6907C1FD590 /* XCTAttachmentManager.h in Headers */,
 				9D806BE84EDEFF2B9BC6F729 /* XCTCapabilities.h in Headers */,
@@ -3153,6 +3203,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F27BD713F28743C63FD4CAAC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -3164,6 +3221,7 @@
 				641EE2D72240BBE300173FCB /* Frameworks */,
 				641EE2D82240BBE300173FCB /* Resources */,
 				641EE3472240C1EF00173FCB /* Copy frameworks */,
+				BFB138089A22AF05B7D37301 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3200,6 +3258,7 @@
 				64B264F5228C50E0002A5025 /* Sources */,
 				64B264F6228C50E0002A5025 /* Frameworks */,
 				64B264F7228C50E0002A5025 /* Resources */,
+				8E87F5A3E5C2A3F22C298160 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3236,6 +3295,7 @@
 				0C8F51A35FC55062075A95E1 /* Sources */,
 				27DCAD21E0E9E30531F954C5 /* Frameworks */,
 				96D4839EA1C7D7555DF56450 /* Resources */,
+				A9A1B9A1E280C98D76B54D86 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3273,6 +3333,7 @@
 				EE2202081ECC612200A29571 /* Sources */,
 				EE2202151ECC612200A29571 /* Frameworks */,
 				EE2202181ECC612200A29571 /* Resources */,
+				1A314A44E0D94111EF92CA98 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3292,6 +3353,7 @@
 				EE5095E21EBCC9090028E2FE /* Sources */,
 				EE5095F71EBCC9090028E2FE /* Frameworks */,
 				EE5095FA1EBCC9090028E2FE /* Resources */,
+				A4440DC716C640EF562EE5DC /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3311,6 +3373,7 @@
 				EE836BFE1C0F118600D87246 /* Sources */,
 				EE836BFF1C0F118600D87246 /* Frameworks */,
 				EE836C001C0F118600D87246 /* Resources */,
+				F27BD713F28743C63FD4CAAC /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3329,6 +3392,7 @@
 				EE9B75D01CF7956C00275851 /* Sources */,
 				EE9B75D11CF7956C00275851 /* Frameworks */,
 				EE9B75D21CF7956C00275851 /* Resources */,
+				600C6B266A1F3EF1AE7D5A9D /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3346,6 +3410,7 @@
 				EE9B75E81CF7956C00275851 /* Sources */,
 				EE9B75E91CF7956C00275851 /* Frameworks */,
 				EE9B75EA1CF7956C00275851 /* Resources */,
+				2DBF81E3C08F1FC33940E763 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -3366,6 +3431,7 @@
 				EEF988271C486603005CA669 /* Frameworks */,
 				EEF988281C486603005CA669 /* Resources */,
 				EE93CFF41CCA501300708122 /* Copy frameworks */,
+				015926D657880CF9D0F58092 /* Headers */,
 			);
 			buildRules = (
 			);

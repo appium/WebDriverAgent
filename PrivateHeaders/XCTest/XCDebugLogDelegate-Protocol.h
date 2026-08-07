@@ -14,7 +14,7 @@
 @required
 
 /* required instance methods */
-- (void)logDebugMessage:(id)message;
+- (void)logDebugMessage:(NSString *)message;
 
 @optional
 

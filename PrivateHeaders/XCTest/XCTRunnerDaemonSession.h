@@ -33,7 +33,6 @@
 @property (weak) id <XCUIAXNotificationHandling> axNotificationHandler;
 @property (readonly) _Bool useLegacyEventCoordinateTransformationPath;
 @property (readonly) _Bool usePointTransformationsForFrameConversions;
-@property (readonly) unsigned long long hash;
 @property (readonly) Class superclass;
 @property (readonly, copy) NSString *description;
 @property (readonly, copy) NSString *debugDescription;
@@ -70,6 +69,11 @@
 - (void)unregisterForSignpostsWithToken:(id)token;
 
 // Since Xcode 14.3
+- (void)launchApplicationWithPath:(NSString *)path
+                          bundleID:(NSString *)bundleID
+                         arguments:(NSArray *)arguments
+                       environment:(NSDictionary *)environment
+                        completion:(void (^)(_Bool, NSError *))completion;
 - (void)openURL:(NSURL *)url usingApplication:(NSString *)application completion:(void (^)(_Bool, NSError *))completion;
 - (void)openDefaultApplicationForURL:(NSURL *)url completion:(void (^)(_Bool, NSError *))completion;
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs

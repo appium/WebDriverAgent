@@ -44,7 +44,9 @@
 @property (readonly) _Bool hasAutomationSession;
 @property _Bool idleAnimationWaitEnabled;
 @property (readonly) _Bool fauxCollectionViewCellsEnabled;
-@property (readonly, nonatomic) long long interfaceOrientation;
+#if !TARGET_OS_TV
+@property (readonly, nonatomic) UIInterfaceOrientation interfaceOrientation;
+#endif
 @property (nonatomic) unsigned long long crashBehavior;
 @property (readonly) unsigned long long hash;
 @property (readonly) Class superclass;

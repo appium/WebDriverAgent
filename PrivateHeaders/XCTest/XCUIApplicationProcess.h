@@ -46,7 +46,7 @@
 @property _Bool shouldContinueMonitoringAfterExit;
 @property (retain, nonatomic) id <XCTRunnerAutomationSession> automationSession;
 @property (readonly) id <XCTRunnerAutomationSession> automationSessionNonBlocking;
-@property (retain) XCElementSnapshot *lastSnapshot;
+@property (retain) id/*XCElementSnapshot*/ lastSnapshot;
 @property (readonly, copy) NSString *shortDescription;
 @property (readonly, copy) id /*XCAccessibilityElement*/ accessibilityElement;
 @property (readonly) unsigned long long alertCount;
@@ -57,7 +57,6 @@
 @property (readonly) _Bool usePointTransformationsForFrameConversions;
 @property (readonly) _Bool hasBannerNotificationIsStickyAttribute;
 @property (readonly) _Bool providesValuesForPrivilegedAttributes;
-@property (readonly) unsigned long long hash;
 @property (readonly) Class superclass;
 @property (readonly, copy) NSString *description;
 @property (readonly, copy) NSString *debugDescription;

@@ -8,6 +8,7 @@
 #define XCSynthesizedEventRecord_h
 @import Foundation;
 @import UIKit;
+#import <TargetConditionals.h>
 
 @class NSArray, NSDictionary, NSMutableArray, NSObject, NSString;
 
@@ -16,7 +17,9 @@
 @property (readonly) NSArray *eventPaths;
 @property (readonly, copy) NSString *name;
 @property (readonly) double maximumOffset;
-@property (readonly) long long interfaceOrientation;
+#if !TARGET_OS_TV
+@property (readonly) UIInterfaceOrientation interfaceOrientation;
+#endif
 @property long long targetProcessID;
 @property (readonly) unsigned long long displayID;
 @property _Bool beginsPersistentState;
@@ -31,11 +34,15 @@
 
 /* instance methods */
 - (_Bool)synthesizeWithError:(id *)error;
+#if !TARGET_OS_TV
 - (id)initWithName:(id)name displayID:(unsigned long long)id interfaceOrientation:(long long)orientation;
 - (void)unsetInterfaceOrientation;
+#endif
 - (id)initWithName:(id)name;
 - (id)initWithName:(id)name displayID:(unsigned long long)id;
+#if !TARGET_OS_TV
 - (id)initWithName:(id)name interfaceOrientation:(long long)orientation;
+#endif
 - (id)initWithCoder:(id)coder;
 - (void)encodeWithCoder:(id)coder;
 - (unsigned long long)hash;

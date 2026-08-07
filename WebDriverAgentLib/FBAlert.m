@@ -402,7 +402,8 @@
   }
   XCUIElement *matchedElement = nil;
   for (XCUIElement *match in matches) {
-    if (nil == alertSnapshotUids || [alertSnapshotUids containsObject:match.fb_uid]) {
+    NSString *matchUid = match.fb_uid;
+    if (nil == alertSnapshotUids || (nil != matchUid && [alertSnapshotUids containsObject:matchUid])) {
       matchedElement = match;
       break;
     }

@@ -27,7 +27,7 @@
 @property (copy) NSOrderedSet *lastInput;
 @property (copy) NSOrderedSet *lastOutput;
 @property _Bool modalViewPruningDisabled;
-@property (retain) XCElementSnapshot *rootElementSnapshot;
+@property (retain) id/*XCElementSnapshot*/ rootElementSnapshot;
 @property (readonly) id <XCTElementSnapshotAttributeDataSource> elementSnapshotAttributeDataSource;
 @property (readonly) XCUIApplication *application;
 @property (readonly, copy) NSString *queryDescription;

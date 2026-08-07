@@ -108,14 +108,13 @@
 - (id)_storageKeyForCandidateIssue;
 - (void)expectFailureWithContext:(id)context;
 - (_Bool)_isDuplicateOfIssue:(id)issue;
-- (void)_recordIssue:(id)issue;
+- (void)_recordIssue:(XCTIssue *)issue;
 - (void)_enqueueIssue:(id)issue;
 - (void)_dequeueIssues;
 - (void)_handleIssue:(id)issue;
 - (_Bool)_caughtUnhandledDeveloperExceptionPermittingControlFlowInterruptions:(_Bool)interruptions whileExecutingBlock:(id /* block */)block;
 - (_Bool)_caughtUnhandledDeveloperExceptionPermittingControlFlowInterruptions:(_Bool)interruptions caughtInterruptionException:(_Bool *)exception whileExecutingBlock:(id /* block */)block;
 - (void)_interruptOrMarkForLaterInterruption;
-- (void)recordFailureWithDescription:(id)description inFile:(id)file atLine:(unsigned long long)line expected:(_Bool)expected;
 - (void)addAttachment:(id)attachment;
 - (void)swift_waitForExpectations:(id)expectations timeout:(double)timeout enforceOrder:(_Bool)order completionHandler:(id /* block */)handler;
 - (id)_expectationForDarwinNotification:(id)notification;

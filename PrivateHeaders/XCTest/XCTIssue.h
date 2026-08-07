@@ -10,13 +10,12 @@
 @import Foundation;
 @import UIKit;
 
-#include "NSMutableCopying-Protocol.h"
 @class NSArray, NSData, NSDate, NSError, NSObject, NSString, NSUUID, XCTSourceCodeContext;
 
 @interface XCTIssue (FBXCTestPrivate)
 
 @property (copy) NSDate *timestamp;
-@property struct {  _Atomic _Bool x0;  } failureBreakPointCalled;
+@property struct {  _Bool x0;  } failureBreakPointCalled;
 @property (copy) NSData *expectationSnapshotData;
 @property (retain) NSUUID *UUID;
 @property (readonly) _Bool isLegacyExpectedFailure;

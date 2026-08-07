@@ -28,7 +28,6 @@
 @property (retain) XCTestConfiguration *testConfiguration;
 @property (retain) NSBundle *testBundle;
 @property (retain) id testBundlePrincipalClassInstance;
-@property (readonly) unsigned long long hash;
 @property (readonly) Class superclass;
 @property (readonly, copy) NSString *description;
 @property (readonly, copy) NSString *debugDescription;

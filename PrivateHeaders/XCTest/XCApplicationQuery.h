@@ -18,7 +18,7 @@
     XCUIApplication *_application;
 }
 
-@property (retain) XCElementSnapshot *lastSnapshot;
+@property (retain) id/*XCElementSnapshot*/ lastSnapshot;
 
 /* instance methods */
 - (void)dealloc;

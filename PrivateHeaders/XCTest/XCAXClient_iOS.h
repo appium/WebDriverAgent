@@ -30,7 +30,6 @@
 @property (readonly) _Bool supportsAnimationsInactiveNotifications;
 @property (readonly) NSArray *activeForegroundApplications;
 @property (readonly, nonatomic) XCAccessibilityElement *systemApplication;
-@property (readonly) unsigned long long hash;
 @property (readonly) Class superclass;
 @property (readonly, copy) NSString *description;
 @property (readonly, copy) NSString *debugDescription;

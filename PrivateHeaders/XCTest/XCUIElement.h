@@ -9,6 +9,7 @@
 #import <XCUIAutomation/XCUIElement.h>
 @import Foundation;
 @import UIKit;
+#import <TargetConditionals.h>
 
 #include "XCTNSPredicateExpectationObject-Protocol.h"
 #include "XCUIElementAttributesPrivate-Protocol.h"
@@ -26,12 +27,14 @@
 @property (readonly) id <XCUIDevice> device;
 @property (readonly, nonatomic) XCUIApplication *application;
 @property (readonly) XCUIElementQuery *query;
-@property (retain) XCElementSnapshot *lastSnapshot;
+@property (retain) id/*XCElementSnapshot*/ lastSnapshot;
 @property (readonly, copy) NSString *compactDescription;
 @property (readonly, copy) XCUIElement *elementBoundByAccessibilityElement;
 @property _Bool safeQueryResolutionEnabled;
 @property (readonly) long long displayID;
-@property (readonly, nonatomic) long long interfaceOrientation;
+#if !TARGET_OS_TV
+@property (readonly, nonatomic) UIInterfaceOrientation interfaceOrientation;
+#endif
 @property (readonly) _Bool hasBannerNotificationIsStickyAttribute;
 @property (readonly) _Bool bannerNotificationIsSticky;
 @property (readonly) id <XCUIElementEventTarget> eventTarget;
@@ -50,7 +53,6 @@
 @property (readonly) id value;
 @property (readonly, copy) NSString *title;
 @property (readonly, copy) NSString *label;
-@property (readonly) unsigned long long elementType;
 @property (readonly, getter=isEnabled) _Bool enabled;
 @property (readonly) long long horizontalSizeClass;
 @property (readonly) long long verticalSizeClass;
