@@ -47,6 +47,7 @@ jobs:
       name: Install dev dependencies
 
     - name: Prepare iOS simulator
+      if: ${{ matrix.test_targets.XCODE_VERSION != '27.0-beta' }}
       env:
         DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
         PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
