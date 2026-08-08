@@ -14,7 +14,7 @@ jobs:
         test_targets:
           # https://github.com/actions/runner-images/issues/14404
           - HOST_OS: 'xcode-27'
-            XCODE_VERSION: '27.0.0'
+            XCODE_VERSION: '27_beta_4'
             IOS_VERSION: '27.0'
             IOS_MODEL: 'iPhone 17'
           - HOST_OS: 'macos-26'
