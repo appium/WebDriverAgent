@@ -152,6 +152,11 @@
 - (void)playBackEventStreamAtURL:(id)url withSpeed:(double)speed;
 - (void)clickForDuration:(double)duration;
 - (void)tripleClick;
+/**
+ Public since Xcode 14. Scrolls the element's nearest scrollable ancestor until the element
+ becomes visible. It doesn't report failures through an error out-param, so completion is
+ verified by re-checking visibility afterwards.
+ */
 - (void)scrollToVisible;
 - (void)tapOrClick;
 - (void)forcePress;

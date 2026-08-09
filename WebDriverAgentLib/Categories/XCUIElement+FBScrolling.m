@@ -44,41 +44,17 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 @end
 
-/**
- Legacy (pre-Xcode 27) testmanagerd declares this selector directly on XCUIElement.
- */
-@protocol FBElementHitPointScrolling <NSObject>
-- (id)_hitPointByAttemptingToScrollToVisibleSnapshot:(id)snapshot error:(NSError **)error;
-@end
-
-/**
- Xcode 27 moved this logic into a dedicated XCUIElementBaseEventTarget wrapper (obtained via
- +forElement:) and renamed the selector by inserting 'AX'. XCUIElement itself does not inherit
- from XCUIElementBaseEventTarget, so the wrapper must be constructed explicitly.
- */
-@protocol FBElementEventTargetFactory <NSObject>
-+ (id)forElement:(id)element;
-@end
-
-@protocol FBElementEventTargetHitPointScrolling <NSObject>
-- (id)_hitPointByAttemptingToAXScrollToVisibleSnapshot:(id)snapshot error:(NSError **)error;
-@end
-
 @implementation XCUIElement (FBScrolling)
 
 - (BOOL)fb_nativeScrollToVisibleWithError:(NSError **)error
 {
-  id<FBXCElementSnapshot> snapshot = [self fb_customSnapshot];
-  Class<FBElementEventTargetFactory> eventTargetClass = (Class<FBElementEventTargetFactory>)NSClassFromString(@"XCUIElementBaseEventTarget");
-  if (nil != eventTargetClass && [eventTargetClass respondsToSelector:@selector(forElement:)]) {
-    id<FBElementEventTargetHitPointScrolling> eventTarget = (id<FBElementEventTargetHitPointScrolling>)[eventTargetClass forElement:self];
-    if ([(NSObject *)eventTarget respondsToSelector:@selector(_hitPointByAttemptingToAXScrollToVisibleSnapshot:error:)]) {
-      return nil != [eventTarget _hitPointByAttemptingToAXScrollToVisibleSnapshot:snapshot
-                                                                            error:error];
-    }
+  [self scrollToVisible];
+  if ([FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]].isWDVisible) {
+    return YES;
   }
-  return nil != [(id<FBElementHitPointScrolling>)self _hitPointByAttemptingToScrollToVisibleSnapshot:snapshot
-                                                                                                 error:error];
+  return [[[FBErrorBuilder builder]
+           withDescriptionFormat:@"Failed to natively scroll element '%@' to visible", self.description]
+          buildError:error];
 }
 
 - (void)fb_scrollUpByNormalizedDistance:(CGFloat)distance
