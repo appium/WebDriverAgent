@@ -49,11 +49,11 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 - (BOOL)fb_nativeScrollToVisibleWithError:(NSError **)error
 {
   [self scrollToVisible];
-  if ([FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]].isWDVisible) {
+  if (self.wdVisible) {
     return YES;
   }
   return [[[FBErrorBuilder builder]
-           withDescriptionFormat:@"Failed to natively scroll element '%@' to visible", self.description]
+           withDescriptionFormat:@"Failed to scroll element '%@' into view", self.description]
           buildError:error];
 }
 
