@@ -153,7 +153,7 @@
       if (0 == currentRootMatch.count) {
         return @[];
       }
-      currentRoots = @[currentRootMatch.firstObject];
+      currentRoots = @[(id<FBXCElementSnapshot> _Nonnull)currentRootMatch.firstObject];
     } else {
       currentRoots = candidates;
     }

@@ -123,6 +123,9 @@ static bool fb_isLocked;
   if (fb_isLocked) {
     return YES;
   }
+#if TARGET_OS_SIMULATOR
+  [self pressLockButton];
+#else
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"27.0")) {
     // iOS 27: pressLockButton no longer locks; use a direct IOHID Power press (0x0C/0x30, ~0.5s hold).
     if (![self fb_performIOHIDEventWithPage:0x0C
@@ -134,6 +137,7 @@ static bool fb_isLocked;
   } else {
     [self pressLockButton];
   }
+#endif
   return [[[[FBRunLoopSpinner new]
             timeout:FBScreenLockTimeout]
            timeoutErrorMessage:@"Timed out while waiting until the screen gets locked"]

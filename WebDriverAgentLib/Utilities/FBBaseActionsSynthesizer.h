@@ -9,6 +9,7 @@
 #import "FBElementCache.h"
 #import "FBXCElementSnapshot.h"
 #import "XCUIApplication.h"
+#import "XCPointerEventPath.h"
 #import "XCSynthesizedEventRecord.h"
 
 NS_ASSUME_NONNULL_BEGIN

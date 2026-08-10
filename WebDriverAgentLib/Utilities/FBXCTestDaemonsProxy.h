@@ -16,12 +16,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol XCTestManager_ManagerInterface;
+@protocol XCTMessagingChannel_RunnerToDaemon;
 @class FBScreenRecordingRequest, FBScreenRecordingPromise;
 
 @interface FBXCTestDaemonsProxy : NSObject
 
-+ (id<XCTestManager_ManagerInterface>)testRunnerProxy;
++ (id<XCTMessagingChannel_RunnerToDaemon>)testRunnerProxy;
 
 + (BOOL)synthesizeEventWithRecord:(XCSynthesizedEventRecord *)record
                             error:(NSError *__autoreleasing*)error;

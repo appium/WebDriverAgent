@@ -1,3 +1,13 @@
+## [16.1.6](https://github.com/appium/WebDriverAgent/compare/v16.1.5...v16.1.6) (2026-08-10)
+
+### Bug Fixes
+
+* Update PrivateHeaders/XCTest to modern Xcode private API surface ([#1202](https://github.com/appium/WebDriverAgent/issues/1202)) ([ad92558](https://github.com/appium/WebDriverAgent/commit/ad925582432262886852fde9d13fc4959678d44a))
+
+### Miscellaneous Chores
+
+* rename safe occurrences of JWProxy ([#1201](https://github.com/appium/WebDriverAgent/issues/1201)) ([0387506](https://github.com/appium/WebDriverAgent/commit/0387506df19700a41ac27bb8dbdcc6e19b7eabbe))
+
 ## [16.1.5](https://github.com/appium/WebDriverAgent/compare/v16.1.4...v16.1.5) (2026-08-05)
 
 ### Bug Fixes

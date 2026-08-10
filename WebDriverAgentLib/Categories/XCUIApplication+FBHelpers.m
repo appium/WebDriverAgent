@@ -23,7 +23,7 @@
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "FBXCAXClientProxy.h"
 #import "FBXMLGenerationOptions.h"
-#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
 #import "XCUIApplication.h"
@@ -144,7 +144,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
 + (NSArray<NSDictionary<NSString *, id> *> *)fb_appsInfoWithAxElements:(NSArray<id<FBXCAccessibilityElement>> *)axElements
 {
   NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray array];
-  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   for (id<FBXCAccessibilityElement> axElement in axElements) {
     NSMutableDictionary<NSString *, id> *appInfo = [NSMutableDictionary dictionary];
     pid_t pid = axElement.processIdentifier;

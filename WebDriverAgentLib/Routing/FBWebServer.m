@@ -128,8 +128,9 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
   if (!serverStarted) {
     [FBLogger logFmt:@"Last attempt to start web server failed with error %@", [error description]];
-    if ([self.delegate respondsToSelector:@selector(webServer:didFailToStartWithError:)]) {
-      [self.delegate webServer:self didFailToStartWithError:(NSError * _Nonnull)error];
+    id<FBWebServerDelegate> delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(webServer:didFailToStartWithError:)]) {
+      [delegate webServer:self didFailToStartWithError:(NSError * _Nonnull)error];
       return NO;
     }
     abort();

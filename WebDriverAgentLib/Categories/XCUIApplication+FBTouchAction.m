@@ -16,7 +16,6 @@
 #import "FBRunLoopSpinner.h"
 #import "FBW3CActionsSynthesizer.h"
 #import "FBXCTestDaemonsProxy.h"
-#import "XCEventGenerator.h"
 #import "XCUIElement+FBUtilities.h"
 
 #if !TARGET_OS_TV

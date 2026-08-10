@@ -80,9 +80,9 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 #pragma clang diagnostic pop
 }
 
-+ (id<XCTestManager_ManagerInterface>)testRunnerProxy
++ (id<XCTMessagingChannel_RunnerToDaemon>)testRunnerProxy
 {
-  static id<XCTestManager_ManagerInterface> proxy = nil;
+  static id<XCTMessagingChannel_RunnerToDaemon> proxy = nil;
   if ([FBConfiguration shouldUseSingletonTestManager]) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -97,7 +97,7 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
   return proxy;
 }
 
-+ (id<XCTestManager_ManagerInterface>)retrieveTestRunnerProxy
++ (id<XCTMessagingChannel_RunnerToDaemon>)retrieveTestRunnerProxy
 {
   return ((XCTRunnerDaemonSession *)[XCTRunnerDaemonSession sharedSession]).daemonProxy;
 }
@@ -113,7 +113,7 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
       completion();
     };
 
-    XCEventGeneratorHandler handlerBlock = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
+    void (^handlerBlock)(XCSynthesizedEventRecord *, NSError *) = ^(XCSynthesizedEventRecord *innerRecord, NSError *invokeError) {
       errorHandler(invokeError);
     };
     [[XCUIDevice.sharedDevice eventSynthesizer] synthesizeEvent:record completion:(id)^(BOOL result, NSError *invokeError) {
