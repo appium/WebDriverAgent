@@ -317,7 +317,7 @@ async function quitXcodebuild(ctx: WdaStartupStrategyContext): Promise<void> {
 
 function createPreinstalledWdaEnvironment(ctx: WdaStartupStrategyContext): WdaLaunchEnvironment {
   const xctestEnv: WdaLaunchEnvironment = {
-    USE_PORT: ctx.wdaLocalPort || WDA_AGENT_PORT,
+    USE_PORT: ctx.wdaRemotePort || WDA_AGENT_PORT,
     WDA_PRODUCT_BUNDLE_IDENTIFIER: ctx.bundleIdForXctest,
   };
   if (ctx.mjpegServerPort) {
