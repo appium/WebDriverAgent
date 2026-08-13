@@ -22,13 +22,13 @@ static void (*original_waitForQuiescenceIncludingAnimationsIdlePreEvent)(id, SEL
 static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, BOOL includingAnimations)
 {
   NSString *bundleId = [self bundleID];
-  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
+  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.sharedInstance.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling",
      bundleId];
     return;
   }
 
-  NSTimeInterval desiredTimeout = FBConfiguration.waitForIdleTimeout;
+  NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
   NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
   _XCTSetApplicationStateTimeout(desiredTimeout);
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
@@ -43,13 +43,13 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
 static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SEL _cmd, BOOL includingAnimations, BOOL isPreEvent)
 {
   NSString *bundleId = [self bundleID];
-  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.waitForIdleTimeout < DBL_EPSILON) {
+  if (![[self fb_shouldWaitForQuiescence] boolValue] || FBConfiguration.sharedInstance.waitForIdleTimeout < DBL_EPSILON) {
     [FBLogger logFmt:@"Quiescence checks are disabled for %@ application. Making it to believe it is idling",
      bundleId];
     return;
   }
 
-  NSTimeInterval desiredTimeout = FBConfiguration.waitForIdleTimeout;
+  NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
   NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
   _XCTSetApplicationStateTimeout(desiredTimeout);
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",

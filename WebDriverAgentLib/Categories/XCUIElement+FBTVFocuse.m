@@ -24,7 +24,7 @@ int const MAX_ITERATIONS_COUNT = 100;
 
 - (BOOL)fb_setFocusWithError:(NSError**) error
 {
-  [XCUIApplication.fb_activeApplication fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  [XCUIApplication.fb_activeApplication fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.animationCoolOffTimeout];
 
   if (!self.wdEnabled) {
     if (error) {

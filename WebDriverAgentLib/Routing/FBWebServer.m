@@ -41,7 +41,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
 - (UInt64)maxRequestBodySize
 {
-  return FBConfiguration.httpRequestBodySizeLimit;
+  return FBConfiguration.sharedInstance.httpRequestBodySizeLimit;
 }
 
 @end
@@ -104,8 +104,8 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [self registerRouteHandlers:[self.class collectCommandHandlerClasses]];
   [self registerServerKeyRouteHandlers];
 
-  NSRange serverPortRange = FBConfiguration.bindingPortRange;
-  NSString *bindingIP = FBConfiguration.bindingIPAddress;
+  NSRange serverPortRange = FBConfiguration.sharedInstance.bindingPortRange;
+  NSString *bindingIP = FBConfiguration.sharedInstance.bindingIPAddress;
   if (bindingIP != nil) {
     [self.server setInterface:bindingIP];
     [FBLogger logFmt:@"Using custom binding IP address: %@", bindingIP];
@@ -146,11 +146,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [self readMjpegSettingsFromEnv];
   self.mjpegServer = [[FBMjpegServer alloc] init];
   self.screenshotsBroadcaster = [[FBTCPSocket alloc]
-                                 initWithPort:(uint16_t)FBConfiguration.mjpegServerPort];
+                                 initWithPort:(uint16_t)FBConfiguration.sharedInstance.mjpegServerPort];
   self.screenshotsBroadcaster.delegate = self.mjpegServer;
   NSError *error;
   if (![self.screenshotsBroadcaster startWithError:&error]) {
-    [FBLogger logFmt:@"Cannot init screenshots broadcaster service on port %@. Original error: %@", @(FBConfiguration.mjpegServerPort), error.description];
+    [FBLogger logFmt:@"Cannot init screenshots broadcaster service on port %@. Original error: %@", @(FBConfiguration.sharedInstance.mjpegServerPort), error.description];
     [self.mjpegServer stopStreaming];
     self.mjpegServer = nil;
     self.screenshotsBroadcaster = nil;
@@ -179,11 +179,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   NSDictionary *env = NSProcessInfo.processInfo.environment;
   NSString *scalingFactor = [env objectForKey:@"MJPEG_SCALING_FACTOR"];
   if (scalingFactor != nil && [scalingFactor length] > 0) {
-    [FBConfiguration setMjpegScalingFactor:[scalingFactor floatValue]];
+    FBConfiguration.sharedInstance.mjpegScalingFactor = [scalingFactor floatValue];
   }
   NSString *screenshotQuality = [env objectForKey:@"MJPEG_SERVER_SCREENSHOT_QUALITY"];
   if (screenshotQuality != nil && [screenshotQuality length] > 0) {
-    [FBConfiguration setMjpegServerScreenshotQuality:[screenshotQuality integerValue]];
+    FBConfiguration.sharedInstance.mjpegServerScreenshotQuality = [screenshotQuality integerValue];
   }
 }
 

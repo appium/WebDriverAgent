@@ -472,7 +472,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   XCPointerEventPath *resultPath = [[XCPointerEventPath alloc] initForTextInput];
   [resultPath typeText:text
               atOffset:offset
-           typingSpeed:FBConfiguration.maxTypingFrequency
+           typingSpeed:FBConfiguration.sharedInstance.maxTypingFrequency
           shouldRedact:YES];
   return @[resultPath];
 }

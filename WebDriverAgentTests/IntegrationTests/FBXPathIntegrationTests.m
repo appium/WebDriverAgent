@@ -139,8 +139,8 @@
 - (void)testFindMatchesWithoutContextScopeLimit
 {
   XCUIElement *button = self.testedApplication.buttons.firstMatch;
-  BOOL previousValue = FBConfiguration.limitXpathContextScope;
-  FBConfiguration.limitXpathContextScope = NO;
+  BOOL previousValue = FBConfiguration.sharedInstance.limitXpathContextScope;
+  FBConfiguration.sharedInstance.limitXpathContextScope = NO;
   @try {
     NSArray *parentSnapshots = [FBXPath matchesWithRootElement:button forQuery:@".."];
     XCTAssertEqual(parentSnapshots.count, 1);
@@ -167,7 +167,7 @@
                           @"XCUIElementTypeButton"
                           );
   } @finally {
-    FBConfiguration.limitXpathContextScope = previousValue;
+    FBConfiguration.sharedInstance.limitXpathContextScope = previousValue;
   }
 }
 

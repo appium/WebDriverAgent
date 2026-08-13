@@ -27,7 +27,7 @@
   [self resetPermissions];
   [self launchApplication];
   [self goToAlertsPage];
-  [FBConfiguration disableApplicationUIInterruptionsHandling];
+  [FBConfiguration.sharedInstance disableApplicationUIInterruptionsHandling];
 }
 
 - (void)resetPermissions
@@ -113,12 +113,12 @@
 - (void)testAcceptingAlertWithCustomLocator
 {
   [self showApplicationAlert];
-  [FBConfiguration setAcceptAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
+  FBConfiguration.sharedInstance.acceptAlertButtonSelector = @"**/XCUIElementTypeButton[-1]";
   @try {
     XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] accept]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
   } @finally {
-    [FBConfiguration setAcceptAlertButtonSelector:@""];
+    FBConfiguration.sharedInstance.acceptAlertButtonSelector = @"";
   }
 }
 
@@ -132,12 +132,12 @@
 - (void)testDismissingAlertWithCustomLocator
 {
   [self showApplicationAlert];
-  [FBConfiguration setDismissAlertButtonSelector:@"**/XCUIElementTypeButton[-1]"];
+  FBConfiguration.sharedInstance.dismissAlertButtonSelector = @"**/XCUIElementTypeButton[-1]";
   @try {
     XCTAssertNoThrow([[FBAlert alertWithApplication:self.testedApplication] dismiss]);
     FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
   } @finally {
-    [FBConfiguration setDismissAlertButtonSelector:@""];
+    FBConfiguration.sharedInstance.dismissAlertButtonSelector = @"";
   }
 }
 

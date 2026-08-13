@@ -100,7 +100,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
 {
   return [self fb_typeText:text
                shouldClear:shouldClear
-                 frequency:FBConfiguration.maxTypingFrequency
+                 frequency:FBConfiguration.sharedInstance.maxTypingFrequency
                      error:error];
 }
 
@@ -184,7 +184,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
       [self fb_prepareForTextInputWithSnapshot:snapshot];
     }
 
-    if (retry == 0 && FBConfiguration.useClearTextShortcut) {
+    if (retry == 0 && FBConfiguration.sharedInstance.useClearTextShortcut) {
       // 1st attempt is via the IOHIDEvent as the fastest operation
       // https://github.com/appium/appium/issues/19389
       [[XCUIDevice sharedDevice] fb_performIOHIDEventWithPage:0x07  // kHIDPage_KeyboardOrKeypad
@@ -194,8 +194,8 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
     } else if (retry >= MAX_CLEAR_RETRIES - 1) {
       // Last chance retry. Tripple-tap the field to select its content
       [self tapWithNumberOfTaps:3 numberOfTouches:1];
-      return FBTypeText(backspaceDeleteSequence, FBConfiguration.defaultTypingFrequency, error);
-    } else if (!FBTypeText(backspacesToType, FBConfiguration.defaultTypingFrequency, error)) {
+      return FBTypeText(backspaceDeleteSequence, FBConfiguration.sharedInstance.defaultTypingFrequency, error);
+    } else if (!FBTypeText(backspacesToType, FBConfiguration.sharedInstance.defaultTypingFrequency, error)) {
       // 2nd operation
       return NO;
     }
@@ -215,7 +215,7 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
   // kHIDPage_KeyboardOrKeypad did not work for tvOS's search field. (tvOS 17 at least)
   // Tested XCUIElementTypeSearchField and XCUIElementTypeTextView whch were
   // common search field and email/passowrd input in tvOS apps.
-  return FBTypeText(backspacesToType, FBConfiguration.defaultTypingFrequency, error);
+  return FBTypeText(backspacesToType, FBConfiguration.sharedInstance.defaultTypingFrequency, error);
 #endif
 }
 
