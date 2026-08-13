@@ -27,8 +27,8 @@ extern NSString *const FBSnapshotMaxDepthKey;
 + (BOOL)shouldTerminateApp;
 
 /*! If shouldUseCompactResponses == NO, is the comma-separated list of fields to return with each element. Defaults to "type,label". */
-+ (void)setElementResponseAttributes:(NSString *)value;
-+ (NSString *)elementResponseAttributes;
++ (void)setElementResponseAttributes:(nullable NSString *)value;
++ (nullable NSString *)elementResponseAttributes;
 
 /*! Disables remote query evaluation making Xcode 9.x tests behave same as Xcode 8.x test */
 + (void)disableRemoteQueryEvaluation;
@@ -291,16 +291,16 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  warning into the log.
  Example: ** /XCUIElementTypeButton[`label CONTAINS[c] 'accept'`]
  */
-+ (void)setAcceptAlertButtonSelector:(NSString *)classChainSelector;
-+ (NSString *)acceptAlertButtonSelector;
-+ (void)setDismissAlertButtonSelector:(NSString *)classChainSelector;
-+ (NSString *)dismissAlertButtonSelector;
++ (void)setAcceptAlertButtonSelector:(nullable NSString *)classChainSelector;
++ (nullable NSString *)acceptAlertButtonSelector;
++ (void)setDismissAlertButtonSelector:(nullable NSString *)classChainSelector;
++ (nullable NSString *)dismissAlertButtonSelector;
 
 /**
  Sets class chain selector to apply for an automated alert click
  */
-+ (void)setAutoClickAlertSelector:(NSString *)classChainSelector;
-+ (NSString *)autoClickAlertSelector;
++ (void)setAutoClickAlertSelector:(nullable NSString *)classChainSelector;
++ (nullable NSString *)autoClickAlertSelector;
 
 /**
  * Whether to use HIDEvent for text clear.

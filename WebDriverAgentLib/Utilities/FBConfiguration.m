@@ -221,12 +221,12 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return FBShouldTerminateApp;
 }
 
-+ (void)setElementResponseAttributes:(NSString *)value
++ (void)setElementResponseAttributes:(nullable NSString *)value
 {
   FBElementResponseAttributes = value;
 }
 
-+ (NSString *)elementResponseAttributes
++ (nullable NSString *)elementResponseAttributes
 {
   return FBElementResponseAttributes;
 }
@@ -429,32 +429,32 @@ static BOOL FBShouldEnforceCustomSnapshots = NO;
   return FBShouldBoundElementsByIndex;
 }
 
-+ (void)setAcceptAlertButtonSelector:(NSString *)classChainSelector
++ (void)setAcceptAlertButtonSelector:(nullable NSString *)classChainSelector
 {
   FBAcceptAlertButtonSelector = classChainSelector;
 }
 
-+ (NSString *)acceptAlertButtonSelector
++ (nullable NSString *)acceptAlertButtonSelector
 {
   return FBAcceptAlertButtonSelector;
 }
 
-+ (void)setDismissAlertButtonSelector:(NSString *)classChainSelector
++ (void)setDismissAlertButtonSelector:(nullable NSString *)classChainSelector
 {
   FBDismissAlertButtonSelector = classChainSelector;
 }
 
-+ (NSString *)dismissAlertButtonSelector
++ (nullable NSString *)dismissAlertButtonSelector
 {
   return FBDismissAlertButtonSelector;
 }
 
-+ (void)setAutoClickAlertSelector:(NSString *)classChainSelector
++ (void)setAutoClickAlertSelector:(nullable NSString *)classChainSelector
 {
   FBAutoClickAlertSelector = classChainSelector;
 }
 
-+ (NSString *)autoClickAlertSelector
++ (nullable NSString *)autoClickAlertSelector
 {
   return FBAutoClickAlertSelector;
 }
