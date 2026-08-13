@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 @property (atomic, assign) BOOL shouldTerminateApp;
 
 /*! If shouldUseCompactResponses == NO, is the comma-separated list of fields to return with each element. Defaults to "type,label". */
-@property (atomic, copy) NSString *elementResponseAttributes;
+@property (atomic, copy, nullable) NSString *elementResponseAttributes;
 
 /*! Disables remote query evaluation making Xcode 9.x tests behave same as Xcode 8.x test */
 - (void)disableRemoteQueryEvaluation;
@@ -245,16 +245,16 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  warning into the log.
  Example: ** /XCUIElementTypeButton[`label CONTAINS[c] 'accept'`]
  */
-@property (atomic, copy) NSString *acceptAlertButtonSelector;
+@property (atomic, copy, nullable) NSString *acceptAlertButtonSelector;
 /**
  Custom class chain locator for dismiss alert button location. See `acceptAlertButtonSelector` for details.
  */
-@property (atomic, copy) NSString *dismissAlertButtonSelector;
+@property (atomic, copy, nullable) NSString *dismissAlertButtonSelector;
 
 /**
  Class chain selector to apply for an automated alert click
  */
-@property (atomic, copy) NSString *autoClickAlertSelector;
+@property (atomic, copy, nullable) NSString *autoClickAlertSelector;
 
 /**
  * Whether to use HIDEvent for text clear.
