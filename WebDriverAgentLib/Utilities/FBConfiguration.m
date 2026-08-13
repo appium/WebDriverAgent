@@ -183,12 +183,13 @@ static NSString *const axSettingsClassName = @"AXSettings";
 
 - (NSUInteger)maxTypingFrequency
 {
-  if (nil == self.maxTypingFrequencyOverride) {
+  NSNumber *override = self.maxTypingFrequencyOverride;
+  if (nil == override) {
     return self.defaultTypingFrequency;
   }
-  return self.maxTypingFrequencyOverride.integerValue <= 0
+  return override.integerValue <= 0
     ? self.defaultTypingFrequency
-    : self.maxTypingFrequencyOverride.integerValue;
+    : override.integerValue;
 }
 
 - (void)setMaxTypingFrequency:(NSUInteger)value
