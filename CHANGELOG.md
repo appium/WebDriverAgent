@@ -1,3 +1,9 @@
+## [16.1.7](https://github.com/appium/WebDriverAgent/compare/v16.1.6...v16.1.7) (2026-08-11)
+
+### Bug Fixes
+
+* Use wdaRemotePort instead of wdaLocalPort for preinstalled WDA USE_PORT ([#1206](https://github.com/appium/WebDriverAgent/issues/1206)) ([76e759f](https://github.com/appium/WebDriverAgent/commit/76e759ff959b4497c8a77d92e277f3531709abd8))
+
 ## [16.1.6](https://github.com/appium/WebDriverAgent/compare/v16.1.5...v16.1.6) (2026-08-10)
 
 ### Bug Fixes

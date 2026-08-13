@@ -496,6 +496,34 @@ describe('WebDriverAgent', function () {
         });
       });
 
+      it('should use wdaRemotePort rather than wdaLocalPort for the device USE_PORT', async function () {
+        const launchPreinstalled = sandbox.stub().resolves();
+        const terminate = sandbox.stub().resolves();
+        const agent = new WebDriverAgent({
+          ...fakeConstructorArgs,
+          device: {udid: 'real-device-udid'},
+          realDevice: true,
+          usePreinstalledWDA: true,
+          wdaLocalPort: 9100,
+          wdaRemotePort: 8100,
+          updatedWDABundleId: 'io.appium.wda',
+          hostOps: {
+            realDevicePreinstalled: {
+              launchPreinstalled,
+              terminate,
+            },
+          },
+        });
+        sandbox.stub(agent as any, 'getStatus').resolves({build: 'data'});
+
+        await agent.launch('sessionId');
+        sinon.assert.calledOnce(launchPreinstalled);
+        assert.deepStrictEqual(launchPreinstalled.firstCall.args[0].env, {
+          USE_PORT: 8100,
+          WDA_PRODUCT_BUNDLE_IDENTIFIER: 'io.appium.wda.xctrunner',
+        });
+      });
+
       it('should require injected host ops for real-device preinstalled launch', async function () {
         const agent = new WebDriverAgent({
           ...fakeConstructorArgs,
