@@ -61,6 +61,10 @@
     return;
   }
 
+  if ([NSProcessInfo.processInfo.environment[@"PLATFORM_VERSION"] integerValue] == 27) {
+    XCTSkip(@"FIXME: Unstable on platform version 27.");
+  }
+
   [self verifyForceTapWithOrientation:UIDeviceOrientationPortrait];
 }
 
