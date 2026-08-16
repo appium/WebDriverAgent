@@ -63,7 +63,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   if (!element) {
     return FBNoSuchElementErrorResponseForRequest(request);
   }
-  return FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 + (id<FBResponsePayload>)handleFindElements:(FBRouteRequest *)request
@@ -73,7 +73,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
                                       withValue:request.arguments[@"value"]
                                           under:session.activeApplication
                     shouldReturnAfterFirstMatch:NO];
-  return FBResponseWithCachedElements(elements, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElements(elements, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 + (id<FBResponsePayload>)handleFindVisibleCells:(FBRouteRequest *)request
@@ -87,7 +87,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   }];
   NSArray *cells = [element fb_filterDescendantsWithSnapshots:visibleCellSnapshots
                                                  onlyChildren:NO];
-  return FBResponseWithCachedElements(cells, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElements(cells, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 + (id<FBResponsePayload>)handleFindSubElement:(FBRouteRequest *)request
@@ -101,7 +101,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   if (!foundElement) {
     return FBNoSuchElementErrorResponseForRequest(request);
   }
-  return FBResponseWithCachedElement(foundElement, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElement(foundElement, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 + (id<FBResponsePayload>)handleFindSubElements:(FBRouteRequest *)request
@@ -113,7 +113,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
                                            withValue:request.arguments[@"value"]
                                                under:element
                          shouldReturnAfterFirstMatch:NO];
-  return FBResponseWithCachedElements(foundElements, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElements(foundElements, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 + (id<FBResponsePayload>)handleGetActiveElement:(FBRouteRequest *)request
@@ -122,7 +122,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   if (nil == element) {
     return FBNoSuchElementErrorResponseForRequest(request);
   }
-  return FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+  return FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 
 #if TARGET_OS_TV
@@ -131,7 +131,7 @@ static id<FBResponsePayload> FBNoSuchElementErrorResponseForRequest(FBRouteReque
   XCUIElement *element = request.session.activeApplication.fb_focusedElement;
   return element == nil
     ? FBNoSuchElementErrorResponseForRequest(request)
-    : FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.shouldUseCompactResponses);
+    : FBResponseWithCachedElement(element, request.session.elementCache, FBConfiguration.sharedInstance.shouldUseCompactResponses);
 }
 #endif
 

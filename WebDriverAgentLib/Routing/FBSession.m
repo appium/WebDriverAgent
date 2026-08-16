@@ -52,7 +52,7 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 
 - (void)didDetectAlert:(FBAlert *)alert
 {
-  NSString *autoClickAlertSelector = FBConfiguration.autoClickAlertSelector;
+  NSString *autoClickAlertSelector = FBConfiguration.sharedInstance.autoClickAlertSelector;
   if ([autoClickAlertSelector length] > 0) {
     @try {
       [alert clickElementMatchingClassChain:autoClickAlertSelector];
@@ -185,7 +185,7 @@ static FBSession *_activeSession = nil;
   }
 
   if (nil != self.testedApplication
-      && FBConfiguration.shouldTerminateApp
+      && FBConfiguration.sharedInstance.shouldTerminateApp
       && self.testedApplication.running
       && ![self.testedApplication fb_isSameAppAs:XCUIApplication.fb_systemApplication]) {
     @try {
@@ -217,7 +217,7 @@ static FBSession *_activeSession = nil;
                                       // To look for 'criticalAlertSetting' elements https://developer.apple.com/documentation/usernotifications/unnotificationsettings/criticalalertsetting
                                       // See https://github.com/appium/appium/issues/20835
                                       @"NotificationShortLookView"];
-      if ([FBConfiguration shouldRespectSystemAlerts]
+      if (FBConfiguration.sharedInstance.shouldRespectSystemAlerts
           && [[XCUIApplication.fb_systemApplication descendantsMatchingType:XCUIElementTypeAny]
               matchingPredicate:searchPredicate].count > 0) {
         return XCUIApplication.fb_systemApplication;

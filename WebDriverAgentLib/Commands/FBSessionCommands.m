@@ -264,29 +264,29 @@
 
 + (void)applyConfigurationFromCapabilities:(NSDictionary<NSString *, id> *)capabilities
 {
-  [FBConfiguration resetSessionSettings];
+  [FBConfiguration.sharedInstance resetSessionSettings];
   if (capabilities[FB_SETTING_USE_COMPACT_RESPONSES]) {
-    [FBConfiguration setShouldUseCompactResponses:[capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue]];
+    FBConfiguration.sharedInstance.shouldUseCompactResponses = [capabilities[FB_SETTING_USE_COMPACT_RESPONSES] boolValue];
   }
   NSString *elementResponseAttributes = capabilities[FB_SETTING_ELEMENT_RESPONSE_ATTRIBUTES];
   if (elementResponseAttributes) {
-    [FBConfiguration setElementResponseAttributes:elementResponseAttributes];
+    FBConfiguration.sharedInstance.elementResponseAttributes = elementResponseAttributes;
   }
   if (capabilities[FB_CAP_MAX_TYPING_FREQUENCY]) {
-    [FBConfiguration setMaxTypingFrequency:[capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue]];
+    FBConfiguration.sharedInstance.maxTypingFrequency = [capabilities[FB_CAP_MAX_TYPING_FREQUENCY] unsignedIntegerValue];
   }
   if (capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER]) {
-    [FBConfiguration setShouldUseSingletonTestManager:[capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue]];
+    FBConfiguration.sharedInstance.shouldUseSingletonTestManager = [capabilities[FB_CAP_USE_SINGLETON_TEST_MANAGER] boolValue];
   }
   if (capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS]) {
     if ([capabilities[FB_CAP_DISABLE_AUTOMATIC_SCREENSHOTS] boolValue]) {
-      [FBConfiguration disableScreenshots];
+      [FBConfiguration.sharedInstance disableScreenshots];
     } else {
-      [FBConfiguration enableScreenshots];
+      [FBConfiguration.sharedInstance enableScreenshots];
     }
   }
   if (capabilities[FB_CAP_SHOULD_TERMINATE_APP]) {
-    [FBConfiguration setShouldTerminateApp:[capabilities[FB_CAP_SHOULD_TERMINATE_APP] boolValue]];
+    FBConfiguration.sharedInstance.shouldTerminateApp = [capabilities[FB_CAP_SHOULD_TERMINATE_APP] boolValue];
   }
   NSNumber *delay = capabilities[FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC];
   if ([delay doubleValue] > 0.0) {
@@ -295,11 +295,11 @@
     [XCUIApplicationProcessDelay disableEventLoopDelay];
   }
   if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
-    FBConfiguration.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
+    FBConfiguration.sharedInstance.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
   if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
       [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
-    [FBConfiguration forceSimulatorSoftwareKeyboardPresence];
+    [FBConfiguration.sharedInstance forceSimulatorSoftwareKeyboardPresence];
   }
 }
 

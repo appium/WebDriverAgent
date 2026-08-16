@@ -94,7 +94,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
   if (!self.isStreaming) {
     return;
   }
-  NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
+  NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.sharedInstance.mjpegServerFramerate);
   uint64_t timerInterval = (uint64_t)(1.0 / (double)framerate * NSEC_PER_SEC);
   uint64_t timeStarted = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
   @synchronized (self.listeningClients) {
@@ -106,7 +106,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 
   NSError *error;
   CGFloat compressionQuality = MAX(FBMinCompressionQuality,
-                                   MIN(FBMaxCompressionQuality, (double)FBConfiguration.mjpegServerScreenshotQuality / 100.0));
+                                   MIN(FBMaxCompressionQuality, (double)FBConfiguration.sharedInstance.mjpegServerScreenshotQuality / 100.0));
   NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
                                                            compressionQuality:compressionQuality
                                                                           uti:UTTypeJPEG
@@ -124,7 +124,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 
   self.consecutiveScreenshotFailures = 0;
 
-  CGFloat scalingFactor = FBConfiguration.mjpegScalingFactor / 100.0;
+  CGFloat scalingFactor = FBConfiguration.sharedInstance.mjpegScalingFactor / 100.0;
   __weak typeof(self) weakSelf = self;
   [self.imageProcessor submitImageData:screenshotData
                          scalingFactor:scalingFactor
@@ -154,7 +154,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     }
     self.sentFramesCount++;
     self.sentBytesCount += chunk.length * clientCount;
-    NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.mjpegServerFramerate);
+    NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.sharedInstance.mjpegServerFramerate);
     if (0 == self.sentFramesCount % framerate) {
       [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@",
                             @(clientCount),

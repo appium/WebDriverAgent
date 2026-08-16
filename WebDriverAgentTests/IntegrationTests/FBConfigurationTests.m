@@ -26,13 +26,13 @@
 
 - (void)testReduceMotion
 {
-  BOOL defaultReduceMotionEnabled = [FBConfiguration reduceMotionEnabled];
+  BOOL defaultReduceMotionEnabled = FBConfiguration.sharedInstance.reduceMotionEnabled;
 
-  [FBConfiguration setReduceMotionEnabled:YES];
-  XCTAssertTrue([FBConfiguration reduceMotionEnabled]);
+  FBConfiguration.sharedInstance.reduceMotionEnabled = YES;
+  XCTAssertTrue(FBConfiguration.sharedInstance.reduceMotionEnabled);
 
-  [FBConfiguration setReduceMotionEnabled:defaultReduceMotionEnabled];
-  XCTAssertEqual([FBConfiguration reduceMotionEnabled], defaultReduceMotionEnabled);
+  FBConfiguration.sharedInstance.reduceMotionEnabled = defaultReduceMotionEnabled;
+  XCTAssertEqual(FBConfiguration.sharedInstance.reduceMotionEnabled, defaultReduceMotionEnabled);
 }
 
 @end

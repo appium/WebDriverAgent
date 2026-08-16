@@ -14,53 +14,59 @@ extern NSString *const FBSnapshotMaxChildrenKey;
 extern NSString *const FBSnapshotMaxDepthKey;
 
 /**
+Defines keyboard preference enabled status
+*/
+typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
+    FBConfigurationKeyboardPreferenceDisabled = 0,
+    FBConfigurationKeyboardPreferenceEnabled = 1,
+    FBConfigurationKeyboardPreferenceNotSupported = 2,
+};
+
+/**
  Accessors for Global Constants.
  */
 @interface FBConfiguration : NSObject
 
+/*! The shared configuration instance */
+@property (class, nonatomic, readonly) FBConfiguration *sharedInstance;
+
 /*! If set to YES will use compact (standards-compliant) & faster responses */
-+ (void)setShouldUseCompactResponses:(BOOL)value;
-+ (BOOL)shouldUseCompactResponses;
+@property (atomic, assign) BOOL shouldUseCompactResponses;
 
 /*! If set to YES (which is the default), the app will be terminated at the end of the session, if a bundleId was specified */
-+ (void)setShouldTerminateApp:(BOOL)value;
-+ (BOOL)shouldTerminateApp;
+@property (atomic, assign) BOOL shouldTerminateApp;
 
 /*! If shouldUseCompactResponses == NO, is the comma-separated list of fields to return with each element. Defaults to "type,label". */
-+ (void)setElementResponseAttributes:(NSString *)value;
-+ (NSString *)elementResponseAttributes;
+@property (atomic, copy, nullable) NSString *elementResponseAttributes;
 
 /*! Disables remote query evaluation making Xcode 9.x tests behave same as Xcode 8.x test */
-+ (void)disableRemoteQueryEvaluation;
+- (void)disableRemoteQueryEvaluation;
 
 /*! Enables the extended XCTest debug logging. Useful for developemnt purposes */
-+ (void)enableXcTestDebugLogs;
+- (void)enableXcTestDebugLogs;
 
 /*! Disables attribute key path analysis, which will cause XCTest on Xcode 9.x to ignore some elements */
-+ (void)disableAttributeKeyPathAnalysis;
+- (void)disableAttributeKeyPathAnalysis;
 
 /*! Disables XCTest automated screenshots taking */
-+ (void)disableScreenshots;
+- (void)disableScreenshots;
 /*! Enables XCTest automated screenshots taking */
-+ (void)enableScreenshots;
+- (void)enableScreenshots;
 
 /*! Disables XCTest automated videos taking (iOS 17+) */
-+ (void)disableScreenRecordings;
+- (void)disableScreenRecordings;
 /*! Enables XCTest automated videos taking  (iOS 17+) */
-+ (void)enableScreenRecordings;
+- (void)enableScreenRecordings;
 
-/* The maximum typing frequency for all typing activities */
-+ (void)setMaxTypingFrequency:(NSUInteger)value;
-+ (NSUInteger)maxTypingFrequency;
-+ (NSUInteger)defaultTypingFrequency;
+/*! The maximum typing frequency for all typing activities */
+@property (atomic, assign) NSUInteger maxTypingFrequency;
+@property (atomic, readonly) NSUInteger defaultTypingFrequency;
 
-/* Use singleton test manager proxy */
-+ (void)setShouldUseSingletonTestManager:(BOOL)value;
-+ (BOOL)shouldUseSingletonTestManager;
+/*! Use singleton test manager proxy */
+@property (atomic, assign) BOOL shouldUseSingletonTestManager;
 
-/* Enforces WDA to verify the presense of system alerts while checking for an active app */
-+ (void)setShouldRespectSystemAlerts:(BOOL)value;
-+ (BOOL)shouldRespectSystemAlerts;
+/*! Enforces WDA to verify the presense of system alerts while checking for an active app */
+@property (atomic, assign) BOOL shouldRespectSystemAlerts;
 
 /**
  * Extract switch value from arguments
@@ -78,8 +84,7 @@ extern NSString *const FBSnapshotMaxDepthKey;
  (or lowest quality) while the value 100 represents the least compression (or best
  quality). The default value is 25.
  */
-+ (NSUInteger)mjpegServerScreenshotQuality;
-+ (void)setMjpegServerScreenshotQuality:(NSUInteger)quality;
+@property (atomic, assign) NSUInteger mjpegServerScreenshotQuality;
 
 /**
  Whether to apply orientation fixes to the streamed JPEG images.
@@ -88,24 +93,21 @@ extern NSString *const FBSnapshotMaxDepthKey;
  metadata.
  ! Enablement of this setting may lead to WDA process termination because of an excessive CPU usage.
  */
-+ (BOOL)mjpegShouldFixOrientation;
-+ (void)setMjpegShouldFixOrientation:(BOOL)enabled;
+@property (atomic, assign) BOOL mjpegShouldFixOrientation;
 
 /**
  The framerate at which the background screenshots broadcaster should broadcast
  screenshots in range 1..60. The default value is 10 (Frames Per Second).
  Setting zero value will cause the framerate to be at its maximum possible value.
  */
-+ (NSUInteger)mjpegServerFramerate;
-+ (void)setMjpegServerFramerate:(NSUInteger)framerate;
+@property (atomic, assign) NSUInteger mjpegServerFramerate;
 
 /**
  Whether to limit the XPath scope to descendant items only while performing a lookup
  in an element context. Enabled by default. Being disabled, allows to use XPath locators
  like ".." in order to match parent items of the current context root.
  */
-+ (BOOL)limitXpathContextScope;
-+ (void)setLimitXpathContextScope:(BOOL)enabled;
+@property (atomic, assign) BOOL limitXpathContextScope;
 
 /**
  The quality of display screenshots. The higher quality you set is the bigger screenshot size is.
@@ -113,30 +115,29 @@ extern NSString *const FBSnapshotMaxDepthKey;
  The default quality value is 3 (lossless HEIC).
  See https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
  */
-+ (NSUInteger)screenshotQuality;
-+ (void)setScreenshotQuality:(NSUInteger)quality;
+@property (atomic, assign) NSUInteger screenshotQuality;
 
 /**
  The range of ports that the HTTP Server should attempt to bind on launch
  */
-+ (NSRange)bindingPortRange;
+@property (atomic, readonly) NSRange bindingPortRange;
 
 /**
  The IP address that the HTTP Server should bind to on launch.
  Returns nil if not specified, which causes the server to listen on all interfaces.
  */
-+ (NSString * _Nullable)bindingIPAddress;
+@property (atomic, readonly, nullable) NSString *bindingIPAddress;
 
 /**
  The port number where the background screenshots broadcaster is supposed to run
  */
-+ (NSInteger)mjpegServerPort;
+@property (atomic, readonly) NSInteger mjpegServerPort;
 
 /**
  The maximum allowed HTTP request body size in bytes.
  Defaults to 1GB and can be overridden with the MAX_HTTP_REQUEST_BODY_SIZE environment variable.
  */
-+ (UInt64)httpRequestBodySizeLimit;
+@property (atomic, readonly) UInt64 httpRequestBodySizeLimit;
 
 /**
  The scaling factor for frames of the mjpeg stream. The default (and maximum) value is 100,
@@ -144,172 +145,122 @@ extern NSString *const FBSnapshotMaxDepthKey;
  ! Setting this to a value less than 100, especially together with orientation fixing enabled
  ! may lead to WDA process termination because of an excessive CPU usage.
  */
-+ (double)mjpegScalingFactor;
-+ (void)setMjpegScalingFactor:(double)scalingFactor;
+@property (atomic, assign) double mjpegScalingFactor;
 
 /**
  YES if verbose logging is enabled. NO otherwise.
  */
-+ (BOOL)verboseLoggingEnabled;
+@property (atomic, readonly) BOOL verboseLoggingEnabled;
 
 /**
  Disables automatic handling of XCTest UI interruptions.
  */
-+ (void)disableApplicationUIInterruptionsHandling;
+- (void)disableApplicationUIInterruptionsHandling;
 
 /**
  * Configure keyboards preference to make test running stable
  */
-+ (void)configureDefaultKeyboardPreferences;
+- (void)configureDefaultKeyboardPreferences;
 
 
 /**
  * Turn on softwar keyboard forcefully for simulator.
  */
-+ (void)forceSimulatorSoftwareKeyboardPresence;
-
-/**
-Defines keyboard preference enabled status
-*/
-typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
-    FBConfigurationKeyboardPreferenceDisabled = 0,
-    FBConfigurationKeyboardPreferenceEnabled = 1,
-    FBConfigurationKeyboardPreferenceNotSupported = 2,
-};
+- (void)forceSimulatorSoftwareKeyboardPresence;
 
 /**
  * Modify keyboard configuration of 'auto-correction'.
- *
- * @param isEnabled Turn the configuration on if the value is YES
  */
-+ (void)setKeyboardAutocorrection:(BOOL)isEnabled;
-+ (FBConfigurationKeyboardPreference)keyboardAutocorrection;
+@property (atomic, assign) FBConfigurationKeyboardPreference keyboardAutocorrection;
 
 /**
  * Modify keyboard configuration of 'predictive'
- *
- * @param isEnabled Turn the configuration on if the value is YES
  */
-+ (void)setKeyboardPrediction:(BOOL)isEnabled;
-+ (FBConfigurationKeyboardPreference)keyboardPrediction;
+@property (atomic, assign) FBConfigurationKeyboardPreference keyboardPrediction;
 
 /**
- Sets maximum depth for traversing elements tree from parents to children while requesting XCElementSnapshot.
+ Maximum depth for traversing elements tree from parents to children while requesting XCElementSnapshot.
  Used to set maxDepth value in a dictionary provided by XCAXClient_iOS's method defaultParams.
  The original XCAXClient_iOS maxDepth value is set to INT_MAX, which is too big for some queries
  (for example: searching elements inside a WebView).
  Reasonable values are from 15 to 100 (larger numbers make queries slower).
-
- @param maxDepth The number of maximum depth for traversing elements tree
  */
-+ (void)setSnapshotMaxDepth:(int)maxDepth;
+@property (atomic, assign) int snapshotMaxDepth;
 
 /**
-  @return The number of maximum depth for traversing elements tree
- */
-+ (int)snapshotMaxDepth;
-
-/**
- Sets the maximum number of element children to traverse in each snapshot
+ Maximum number of element children to traverse in each snapshot
  while requesting XCElementSnapshot.
  Used to set the `maxChildren` value in a dictionary provided by
  XCAXClient_iOS's `defaultParameters` method.
  The original XCAXClient_iOS `maxChildren` value is `INT_MAX`.
-
- @param maxChildren The number of maximum element children for traversing elements tree
  */
-+ (void)setSnapshotMaxChildren:(int)maxChildren;
-
-/**
-  @return The maximum number of element children for traversing elements tree
- */
-+ (int)snapshotMaxChildren;
+@property (atomic, assign) int snapshotMaxChildren;
 
 /**
  * Whether to use fast search result matching while searching for elements.
  * By default this is disabled due to https://github.com/appium/appium/issues/10101
  * but it still makes sense to enable it for views containing large counts of elements
- *
- * @param enabled Either YES or NO
  */
-+ (void)setUseFirstMatch:(BOOL)enabled;
-+ (BOOL)useFirstMatch;
+@property (atomic, assign) BOOL useFirstMatch;
 
 /**
  * Whether to bound the lookup results by index.
  * By default this is disabled and bounding by accessibility is used.
  * Read https://stackoverflow.com/questions/49307513/meaning-of-allelementsboundbyaccessibilityelement
  * for more details on these two bounding methods.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setBoundElementsByIndex:(BOOL)enabled;
-+ (BOOL)boundElementsByIndex;
+@property (atomic, assign) BOOL boundElementsByIndex;
 
 /**
  * Modify reduce motion configuration in accessibility.
  * It works only for Simulator since Real device has security model which allows chnaging preferences
  * only from settings app.
- *
- * @param isEnabled Turn the configuration on if the value is YES
  */
-+ (void)setReduceMotionEnabled:(BOOL)isEnabled;
-+ (BOOL)reduceMotionEnabled;
+@property (atomic, assign) BOOL reduceMotionEnabled;
 
 /**
- * Set the idling timeout. If the timeout expires then WDA
+ * The idling timeout. If the timeout expires then WDA
  * tries to interact with the application even if it is not idling.
  * Setting it to zero disables idling checks.
  * The default timeout is set to 10 seconds.
- *
- * @param timeout The actual timeout value in float seconds
  */
-+ (void)setWaitForIdleTimeout:(NSTimeInterval)timeout;
-+ (NSTimeInterval)waitForIdleTimeout;
+@property (atomic, assign) NSTimeInterval waitForIdleTimeout;
 
 /**
- * Set the idling timeout for different actions, for example events synthesis, rotation change,
+ * The idling timeout for different actions, for example events synthesis, rotation change,
  * etc. If the timeout expires then WDA tries to interact with the application even if it is not idling.
  * Setting it to zero disables idling checks.
  * The default timeout is set to 2 seconds.
- *
- * @param timeout The actual timeout value in float seconds
  */
-+ (void)setAnimationCoolOffTimeout:(NSTimeInterval)timeout;
-+ (NSTimeInterval)animationCoolOffTimeout;
+@property (atomic, assign) NSTimeInterval animationCoolOffTimeout;
 
 /**
- Sets custom class chain locators for accept/dismiss alert buttons location.
+ Custom class chain locator for accept alert button location.
  This might be useful if the default buttons detection algorithm fails to determine alert buttons properly
  when defaultAlertAction is set.
 
- @param classChainSelector Valid class chain locator, which determines accept/reject button
- on the alert. The search root is the alert element itself.
  Setting this value to nil or an empty string (the default
  value) will enforce WDA to apply the default algorithm for alert buttons location.
  If an invalid/non-parseable locator is set then the lookup will fallback to the default algorithm and print a
  warning into the log.
  Example: ** /XCUIElementTypeButton[`label CONTAINS[c] 'accept'`]
  */
-+ (void)setAcceptAlertButtonSelector:(NSString *)classChainSelector;
-+ (NSString *)acceptAlertButtonSelector;
-+ (void)setDismissAlertButtonSelector:(NSString *)classChainSelector;
-+ (NSString *)dismissAlertButtonSelector;
+@property (atomic, copy, nullable) NSString *acceptAlertButtonSelector;
+/**
+ Custom class chain locator for dismiss alert button location. See `acceptAlertButtonSelector` for details.
+ */
+@property (atomic, copy, nullable) NSString *dismissAlertButtonSelector;
 
 /**
- Sets class chain selector to apply for an automated alert click
+ Class chain selector to apply for an automated alert click
  */
-+ (void)setAutoClickAlertSelector:(NSString *)classChainSelector;
-+ (NSString *)autoClickAlertSelector;
+@property (atomic, copy, nullable) NSString *autoClickAlertSelector;
 
 /**
  * Whether to use HIDEvent for text clear.
  * By default this is enabled and HIDEvent is used for text clear.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setUseClearTextShortcut:(BOOL)enabled;
-+ (BOOL)useClearTextShortcut;
+@property (atomic, assign) BOOL useClearTextShortcut;
 
 #if !TARGET_OS_TV
 /**
@@ -326,35 +277,32 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  the adjustment automatically. Defaults to "auto".
  @param error If no availale orientation strategy was given, it returns an NSError object that describes the problem.
  */
-+ (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error;
+- (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error;
 
 /**
 @return The value of UIInterfaceOrientation
 */
-+ (NSInteger)screenshotOrientation;
+@property (atomic, readonly) NSInteger screenshotOrientation;
 
 /**
 @return The orientation as String for human read
 */
-+ (NSString *)humanReadableScreenshotOrientation;
+@property (atomic, readonly) NSString *humanReadableScreenshotOrientation;
 
 #endif
 
 /**
  Resets all session-specific settings to their default values
  */
-+ (void)resetSessionSettings;
+- (void)resetSessionSettings;
 
 /**
  * Whether to calculate `hittable` attribute using native APIs
  * instead of legacy heuristics.
  * This flag improves accuracy, but may affect performance.
  * Disabled by default.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setIncludeHittableInPageSource:(BOOL)enabled;
-+ (BOOL)includeHittableInPageSource;
+@property (atomic, assign) BOOL includeHittableInPageSource;
 
 /**
  * Whether to include `nativeFrame` attribute in the XML page source.
@@ -366,11 +314,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  * and may introduce inconsistencies in size and position calculations.
  *
  * The value is disabled by default to avoid potential performance overhead.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setIncludeNativeFrameInPageSource:(BOOL)enabled;
-+ (BOOL)includeNativeFrameInPageSource;
+@property (atomic, assign) BOOL includeNativeFrameInPageSource;
 
 /**
  * Whether to include the `nativeAccessibilityElement` attribute in the XML page source.
@@ -384,11 +329,8 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  * accessibility flag alongside the computed `accessible` value.
  *
  * The value is disabled by default to keep the default page source stable.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setIncludeNativeAccessibilityElementInPageSource:(BOOL)enabled;
-+ (BOOL)includeNativeAccessibilityElementInPageSource;
+@property (atomic, assign) BOOL includeNativeAccessibilityElementInPageSource;
 
 /**
  * Whether to include `minValue`/`maxValue` attributes in the page source.
@@ -396,33 +338,24 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  * value boundaries for elements like sliders or progress indicators.
  * This may affect performance if used on many elements.
  * Disabled by default.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setIncludeMinMaxValueInPageSource:(BOOL)enabled;
-+ (BOOL)includeMinMaxValueInPageSource;
+@property (atomic, assign) BOOL includeMinMaxValueInPageSource;
 
 /**
  * Whether to include `customActions` attribute in the XML page source.
  * Custom actions represent accessibility actions available on UI elements.
  * This may affect performance if used on many elements.
  * Disabled by default.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setIncludeCustomActionsInPageSource:(BOOL)enabled;
-+ (BOOL)includeCustomActionsInPageSource;
+@property (atomic, assign) BOOL includeCustomActionsInPageSource;
 
 /**
  * Whether to enforce the use of custom snapshots instead of standard snapshots.
  * When enabled, fb_customSnapshot is always invoked instead of fb_standardSnapshot
  * for XPath tree building and element attributes fetching.
  * Disabled by default.
- *
- * @param enabled Either YES or NO
  */
-+ (void)setEnforceCustomSnapshots:(BOOL)enabled;
-+ (BOOL)enforceCustomSnapshots;
+@property (atomic, assign) BOOL enforceCustomSnapshots;
 
 @end
 

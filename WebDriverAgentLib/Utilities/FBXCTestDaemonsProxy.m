@@ -83,7 +83,7 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
 + (id<XCTMessagingChannel_RunnerToDaemon>)testRunnerProxy
 {
   static id<XCTMessagingChannel_RunnerToDaemon> proxy = nil;
-  if ([FBConfiguration shouldUseSingletonTestManager]) {
+  if (FBConfiguration.sharedInstance.shouldUseSingletonTestManager) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
       [FBLogger logFmt:@"Using singleton test manager"];

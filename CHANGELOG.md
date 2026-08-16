@@ -1,3 +1,9 @@
+## [16.2.0](https://github.com/appium/WebDriverAgent/compare/v16.1.7...v16.2.0) (2026-08-13)
+
+### Features
+
+* Convert FBConfiguration to a singleton with native properties ([#1208](https://github.com/appium/WebDriverAgent/issues/1208)) ([ee029da](https://github.com/appium/WebDriverAgent/commit/ee029da84448895c4ad51be0688e7b7df30697de))
+
 ## [16.1.7](https://github.com/appium/WebDriverAgent/compare/v16.1.6...v16.1.7) (2026-08-11)
 
 ### Bug Fixes

@@ -83,14 +83,14 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
         // We do not want this value to be too high because then we get images larger in size than original ones
         // Although, we also don't want to lose too much of the quality on recompression
         CGFloat recompressionQuality = MAX(0.9,
-                                           MIN(FBMaxCompressionQuality, (double)FBConfiguration.mjpegServerScreenshotQuality / 100.0));
+                                           MIN(FBMaxCompressionQuality, (double)FBConfiguration.sharedInstance.mjpegServerScreenshotQuality / 100.0));
         NSData *thumbnailData = [self.class fixedImageDataWithImageData:nextImageData
                                                           scalingFactor:scalingFactor
                                                                     uti:UTTypeJPEG
                                                      compressionQuality:recompressionQuality
         // iOS always returns screenshots in portrait orientation, but puts the real value into the metadata
         // Use it with care. See https://github.com/appium/WebDriverAgent/pull/812
-                                                         fixOrientation:FBConfiguration.mjpegShouldFixOrientation
+                                                         fixOrientation:FBConfiguration.sharedInstance.mjpegShouldFixOrientation
                                                      desiredOrientation:nil];
         NSData *processedImageData = thumbnailData ?: nextImageData;
         for (void (^handler)(NSData *) in handlers) {
@@ -168,13 +168,13 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
 {
   NSNumber *orientation = nil;
 #if !TARGET_OS_TV
-  if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortrait) {
+  if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationPortrait) {
     orientation = @(UIImageOrientationUp);
-  } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+  } else if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {
     orientation = @(UIImageOrientationDown);
-  } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
+  } else if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationLandscapeLeft) {
     orientation = @(UIImageOrientationRight);
-  } else if (FBConfiguration.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
+  } else if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationLandscapeRight) {
     orientation = @(UIImageOrientationLeft);
   }
 #endif

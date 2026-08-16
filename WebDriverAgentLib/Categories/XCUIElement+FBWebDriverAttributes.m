@@ -37,7 +37,7 @@
     return [self fb_nativeSnapshot];
   }
   // https://github.com/appium/WebDriverAgent/issues/1085
-  if (FBConfiguration.enforceCustomSnapshots) {
+  if (FBConfiguration.sharedInstance.enforceCustomSnapshots) {
     return [self fb_customSnapshot];
   }
   // https://github.com/appium/appium-xcuitest-driver/issues/2552

@@ -109,7 +109,7 @@
     id<FBXCElementSnapshot> snapshot = matchingSnapshots.firstObject;
     matchingSnapshots = @[snapshot];
   }
-  XCUIElement *scopeRoot = FBConfiguration.limitXpathContextScope ? self : self.application;
+  XCUIElement *scopeRoot = FBConfiguration.sharedInstance.limitXpathContextScope ? self : self.application;
   return [scopeRoot fb_filterDescendantsWithSnapshots:matchingSnapshots
                                          onlyChildren:NO];
 }

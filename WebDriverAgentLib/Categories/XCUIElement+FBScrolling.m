@@ -198,7 +198,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
       }
       scrollCount++;
       // Wait for scroll animation
-      [self fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+      [self fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.animationCoolOffTimeout];
     }
   }
 
