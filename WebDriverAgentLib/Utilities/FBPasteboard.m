@@ -20,7 +20,7 @@
 // Must not be less than FB_MONTORING_INTERVAL in FBAlertsMonitor
 #define ALERT_CHECK_INTERVAL_SEC 2
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @implementation FBPasteboard
 
 + (BOOL)setData:(NSData *)data forType:(NSString *)type error:(NSError **)error

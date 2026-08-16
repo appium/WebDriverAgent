@@ -44,7 +44,7 @@
 @property (readonly) _Bool hasAutomationSession;
 @property _Bool idleAnimationWaitEnabled;
 @property (readonly) _Bool fauxCollectionViewCellsEnabled;
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @property (readonly, nonatomic) UIInterfaceOrientation interfaceOrientation;
 #endif
 @property (nonatomic) unsigned long long crashBehavior;

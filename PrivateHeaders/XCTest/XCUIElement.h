@@ -32,7 +32,7 @@
 @property (readonly, copy) XCUIElement *elementBoundByAccessibilityElement;
 @property _Bool safeQueryResolutionEnabled;
 @property (readonly) long long displayID;
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @property (readonly, nonatomic) UIInterfaceOrientation interfaceOrientation;
 #endif
 @property (readonly) _Bool hasBannerNotificationIsStickyAttribute;

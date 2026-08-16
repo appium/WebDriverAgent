@@ -262,7 +262,7 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  */
 @property (atomic, assign) BOOL useClearTextShortcut;
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 /**
  Set the screenshot orientation for iOS
 

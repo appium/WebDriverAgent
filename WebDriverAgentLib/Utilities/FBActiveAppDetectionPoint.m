@@ -8,6 +8,10 @@
 
 #import "FBActiveAppDetectionPoint.h"
 
+#if TARGET_OS_WATCH
+@import WatchKit;
+#endif
+
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
 #import "FBXCTestDaemonsProxy.h"
@@ -17,7 +21,11 @@
 
 - (instancetype)init {
   if ((self = [super init])) {
+#if TARGET_OS_WATCH
+    CGSize screenSize = WKInterfaceDevice.currentDevice.screenBounds.size;
+#else
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
+#endif
     // Consider the element, which is located close to the top left corner of the screen the on-screen one.
     CGFloat pointDistance = MIN(screenSize.width, screenSize.height) * (CGFloat) 0.2;
     _coordinates = CGPointMake(pointDistance, pointDistance);

@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @interface FBBaseActionItem : NSObject
 
 /*! Raw JSON representation of the corresponding action item */

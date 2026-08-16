@@ -123,7 +123,12 @@ static NSString *const FB_LIMITED_ACCESS_PROMPT_BUNDLE_ID = @"com.apple.Contacts
     }
   }
 
+#if TARGET_OS_WATCH
+  // No popover concept or UIUserInterfaceIdiom on watchOS - treat sheets like phone sheets.
+  BOOL isPhone = YES;
+#else
   BOOL isPhone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+#endif
   for (XCUIElement *sheet in sheets) {
     if (isPhone) {
       return sheet;

@@ -73,7 +73,8 @@
 #if TARGET_OS_TV
     [[FBRoute GET:@"/element/:uuid/attribute/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
     [[FBRoute POST:@"/wda/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
-#else
+#elif !TARGET_OS_WATCH
+    // Gesture synthesis isn't supported on watchOS - only /element/:uuid/click is available.
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
 
@@ -205,7 +206,7 @@
     ? [value componentsJoinedByString:@""]
     : value;
   XCUIElementType elementType = [element elementType];
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
   if (elementType == XCUIElementTypePickerWheel) {
     [element adjustToPickerWheelValue:textToType];
     return FBResponseWithOK();
@@ -239,7 +240,7 @@
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:(NSString *)request.parameters[@"uuid"] checkStaleness:YES];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
   [element tap];
 #elif TARGET_OS_TV
   NSError *error = nil;
@@ -534,7 +535,7 @@
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
 
   CGRect frame = app.wdFrame;
-#if TARGET_OS_TV
+#if TARGET_OS_TV || TARGET_OS_WATCH
   CGSize screenSize = frame.size;
 #else
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);
@@ -551,7 +552,7 @@
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
 
   CGRect frame = app.wdFrame;
-#if TARGET_OS_TV
+#if TARGET_OS_TV || TARGET_OS_WATCH
   CGSize screenSize = frame.size;
 #else
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, app.interfaceOrientation);

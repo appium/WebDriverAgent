@@ -186,7 +186,7 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
       FBConfiguration.sharedInstance.limitXpathContextScope = [value boolValue];
       return nil;
     };
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
     map[FB_SETTING_SCREENSHOT_ORIENTATION] = ^FBCommandStatus *(FBSession *session, id value) {
       NSError *error;
       if (![FBConfiguration.sharedInstance setScreenshotOrientation:(NSString *)value error:&error]) {
@@ -303,7 +303,7 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
     map[FB_SETTING_LIMIT_XPATH_CONTEXT_SCOPE] = ^id(FBSession *session) {
       return @(FBConfiguration.sharedInstance.limitXpathContextScope);
     };
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
     map[FB_SETTING_SCREENSHOT_ORIENTATION] = ^id(FBSession *session) {
       return FBConfiguration.sharedInstance.humanReadableScreenshotOrientation;
     };

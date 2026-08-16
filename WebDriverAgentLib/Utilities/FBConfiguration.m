@@ -37,7 +37,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
 @interface FBConfiguration ()
 
 @property (atomic, strong) NSNumber *maxTypingFrequencyOverride;
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @property (atomic, assign) UIInterfaceOrientation screenshotOrientationStorage;
 #endif
 
@@ -292,7 +292,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
   return [FBGetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey) intValue];
 }
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 - (BOOL)setScreenshotOrientation:(NSString *)orientation error:(NSError **)error
 {
   // Only UIInterfaceOrientationUnknown is over iOS 8. Others are over iOS 2.
@@ -359,7 +359,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey, @INT_MAX);
   self.useClearTextShortcut = YES;
   self.limitXpathContextScope = YES;
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
   self.screenshotOrientationStorage = UIInterfaceOrientationUnknown;
 #endif
 }

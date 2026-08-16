@@ -435,6 +435,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
     }
   }
   
+#if !TARGET_OS_WATCH
   if ([UIDevice.currentDevice userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
     NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"elementType IN %@",
                                     @[@(XCUIElementTypeKey), @(XCUIElementTypeButton)]];
@@ -443,6 +444,7 @@ NSDictionary<NSString *, NSString *> *customExclusionAttributesMap(void) {
       [matchedKeys[matchedKeys.count - 1] tap];
     }
   }
+#endif
 #endif
   NSString *errorDescription = @"Did not know how to dismiss the keyboard. Try to dismiss it in the way supported by your application under test.";
   return [[[[FBRunLoopSpinner new]

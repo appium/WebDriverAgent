@@ -17,6 +17,8 @@ function define_xc_macros() {
     "runner" ) XC_TARGET="WebDriverAgentRunner";;
     "tv_lib" ) XC_TARGET="WebDriverAgentLib_tvOS";;
     "tv_runner" ) XC_TARGET="WebDriverAgentRunner_tvOS";;
+    "watch_lib" ) XC_TARGET="WebDriverAgentLib_watchOS";;
+    "watch_runner" ) XC_TARGET="WebDriverAgentRunner_watchOS";;
     *) echo "Unknown TARGET"; exit 1 ;;
   esac
 
@@ -24,8 +26,10 @@ function define_xc_macros() {
     "iphone" ) XC_DESTINATION="platform=iOS Simulator,name=`echo $IPHONE_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
     "ipad" ) XC_DESTINATION="platform=iOS Simulator,name=`echo $IPAD_MODEL | tr -d "'"`,OS=$IOS_VERSION";;
     "tv" ) XC_DESTINATION="platform=tvOS Simulator,name=`echo $TV_MODEL | tr -d "'"`,OS=$TV_VERSION";;
+    "watch" ) XC_DESTINATION="platform=watchOS Simulator,name=`echo $WATCH_MODEL | tr -d "'"`,OS=$WATCH_VERSION";;
     "generic" ) XC_DESTINATION="generic/platform=iOS";;
     "tv_generic" ) XC_DESTINATION="generic/platform=tvOS" XC_MACROS="${XC_MACROS} ARCHS=arm64";; # tvOS only supports arm64
+    "watch_generic" ) XC_DESTINATION="generic/platform=watchOS" XC_MACROS="${XC_MACROS} ARCHS=arm64";; # watchOS only supports arm64
   esac
 
   case "$ACTION" in
@@ -43,6 +47,8 @@ function define_xc_macros() {
     "device" ) XC_SDK="iphoneos";;
     "tv_sim" ) XC_SDK="appletvsimulator";;
     "tv_device" ) XC_SDK="appletvos";;
+    "watch_sim" ) XC_SDK="watchsimulator";;
+    "watch_device" ) XC_SDK="watchos";;
     *) echo "Unknown SDK"; exit 1 ;;
   esac
 

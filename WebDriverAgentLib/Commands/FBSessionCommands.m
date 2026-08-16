@@ -8,6 +8,10 @@
 
 #import "FBSessionCommands.h"
 
+#if TARGET_OS_WATCH
+@import WatchKit;
+#endif
+
 #import "FBCapabilities.h"
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
@@ -189,6 +193,16 @@
     [buildInfo setObject:version forKey:@"version"];
   }
 
+#if TARGET_OS_WATCH
+  NSString *osName = @"watchOS";
+  NSString *osVersion = WKInterfaceDevice.currentDevice.systemVersion;
+  NSString *deviceKind = @"watch";
+#else
+  NSString *osName = [[UIDevice currentDevice] systemName];
+  NSString *osVersion = [[UIDevice currentDevice] systemVersion];
+  NSString *deviceKind = [self.class deviceNameByUserInterfaceIdiom:[UIDevice currentDevice].userInterfaceIdiom];
+#endif
+
   return FBResponseWithObject(
     @{
       @"ready" : @YES,
@@ -196,20 +210,20 @@
       @"state" : @"success",
       @"os" :
         @{
-          @"name" : [[UIDevice currentDevice] systemName],
-          @"version" : [[UIDevice currentDevice] systemVersion],
+          @"name" : osName,
+          @"version" : osVersion,
           @"sdkVersion": FBSDKVersion() ?: @"unknown",
           @"testmanagerdVersion": @(FBTestmanagerdVersion()),
         },
       @"ios" :
         @{
-#if TARGET_OS_SIMULATOR
-          @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
+#if TARGET_OS_SIMULATOR && !TARGET_OS_WATCH
+          @"simulatorVersion" : osVersion,
 #endif
           @"ip" : [XCUIDevice sharedDevice].fb_wifiIPAddress ?: [NSNull null]
         },
       @"build" : buildInfo.copy,
-      @"device": [self.class deviceNameByUserInterfaceIdiom:[UIDevice currentDevice].userInterfaceIdiom]
+      @"device": deviceKind
     }
   );
 }
@@ -431,6 +445,7 @@
   };
 }
 
+#if !TARGET_OS_WATCH
 /*
  Return the device kind as lower case
 */
@@ -447,14 +462,23 @@
   return @"Unknown";
 
 }
+#endif
 
 + (NSDictionary *)currentCapabilities
 {
+#if TARGET_OS_WATCH
+  return
+  @{
+    @"device": @"watch",
+    @"sdkVersion": WKInterfaceDevice.currentDevice.systemVersion
+  };
+#else
   return
   @{
     @"device": [self.class deviceNameByUserInterfaceIdiom:[UIDevice currentDevice].userInterfaceIdiom],
     @"sdkVersion": [[UIDevice currentDevice] systemVersion]
   };
+#endif
 }
 
 +(nullable id<FBResponsePayload>)openDeepLink:(NSString *)initialUrl

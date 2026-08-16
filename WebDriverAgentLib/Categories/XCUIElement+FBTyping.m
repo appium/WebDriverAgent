@@ -89,6 +89,10 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
 #if !TARGET_OS_TV
   [FBLogger logFmt:@"Trying to tap the \"%@\" element to have it focused", snapshot.fb_description];
   [self tap];
+#if TARGET_OS_WATCH
+  // watchOS presents a full-screen keyboard sheet (a modal transition) - wait for it.
+  [self fb_waitUntilStableWithTimeout:2.0];
+#endif
   // It might take some time to update the UI
   [self fb_standardSnapshot];
 #endif
@@ -130,7 +134,14 @@ BOOL FBTypeText(NSString *text, NSUInteger typingSpeed, NSError **error)
   if (shouldClear && ![self fb_clearTextWithSnapshot:wrapped shouldPrepareForInput:NO error:error]) {
     return NO;
   }
+#if TARGET_OS_WATCH
+  // FBTypeText's low-level key synthesis never reaches watchOS's keyboard; -typeText: is a
+  // partial workaround (keystrokes still don't always land - a known limitation).
+  [self typeText:text];
+  return YES;
+#else
   return FBTypeText(text, frequency, error);
+#endif
 }
 
 - (BOOL)fb_clearTextWithError:(NSError **)error

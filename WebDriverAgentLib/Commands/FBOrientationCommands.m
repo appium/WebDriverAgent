@@ -29,7 +29,7 @@ const struct FBWDOrientationValues FBWDOrientationValues = {
   .portraitUpsideDown = @"UIA_DEVICE_ORIENTATION_PORTRAIT_UPSIDEDOWN",
 };
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 
 @implementation FBOrientationCommands
 

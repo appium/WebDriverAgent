@@ -109,8 +109,12 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                               desiredOrientation:(nullable NSNumber *)orientation
 {
   scalingFactor = MAX(FBMinScalingFactor, MIN(FBMaxScalingFactor, scalingFactor));
-  BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
   @autoreleasepool {
+#if TARGET_OS_WATCH
+    // UIGraphicsImageRenderer is unavailable and the watch screen doesn't rotate, so skip both.
+    return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
+#else
+    BOOL usesScaling = scalingFactor > 0.0 && scalingFactor < FBMaxScalingFactor;
     if (!usesScaling && !fixOrientation) {
       return [uti conformsToType:UTTypePNG] ? FBToPngData(imageData) : FBToJpegData(imageData, compressionQuality);
     }
@@ -157,6 +161,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                          actions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
         [uiImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
       }];
+#endif
   }
 }
 
@@ -167,7 +172,7 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
                                    error:(NSError **)error
 {
   NSNumber *orientation = nil;
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
   if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationPortrait) {
     orientation = @(UIImageOrientationUp);
   } else if (FBConfiguration.sharedInstance.screenshotOrientation == UIInterfaceOrientationPortraitUpsideDown) {

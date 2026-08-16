@@ -6,14 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#import "FBBaseActionsSynthesizer.h"
+import SwiftUI
 
-NS_ASSUME_NONNULL_BEGIN
-
-#if !TARGET_OS_TV && !TARGET_OS_WATCH
-@interface FBW3CActionsSynthesizer : FBBaseActionsSynthesizer
-
-@end
-#endif
-
-NS_ASSUME_NONNULL_END
+@main
+struct WatchSpikeApp: App {
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}

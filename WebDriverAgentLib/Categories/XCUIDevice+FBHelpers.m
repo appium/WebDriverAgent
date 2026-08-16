@@ -68,13 +68,13 @@ NSDictionary<NSString *, NSNumber *> *fb_availableButtonNames(void) {
     buttons[@"volumeup"] = @(XCUIDeviceButtonVolumeUp);     // 2
     buttons[@"volumedown"] = @(XCUIDeviceButtonVolumeDown); // 3
 #endif
-    if (@available(iOS 16.0, *)) {
+    if (@available(iOS 16.0, watchOS 9.0, *)) {
 #if __clang_major__ >= 15 // likely Xcode 15+
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonAction]) {
         buttons[@"action"] = @(XCUIDeviceButtonAction);     // 4
       }
 #endif
-#if (!TARGET_OS_SIMULATOR && __clang_major__ >= 16) // likely Xcode 16+
+#if (!TARGET_OS_SIMULATOR && !TARGET_OS_WATCH && __clang_major__ >= 16) // likely Xcode 16+; camera button does not exist on watchOS
       if ([XCUIDevice.sharedDevice hasHardwareButton:XCUIDeviceButtonCamera]) {
         buttons[@"camera"] = @(XCUIDeviceButtonCamera);
       }
@@ -357,9 +357,9 @@ static bool fb_isLocked;
     return YES;
   }
 
-#if __clang_major__ >= 15 || (__clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3)
+#if !TARGET_OS_WATCH && (__clang_major__ >= 15 || (__clang_major__ >= 14 && __clang_minor__ >= 0 && __clang_patchlevel__ >= 3))
   // Xcode 14.3.1 can build these values.
-  // For iOS 17+
+  // For iOS 17+; the `appearance` property does not exist on watchOS
   if ([self respondsToSelector:NSSelectorFromString(@"appearance")]) {
     self.appearance = (XCUIDeviceAppearance) appearance;
     return YES;

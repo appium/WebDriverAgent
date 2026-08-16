@@ -12,12 +12,16 @@ env:
   MIN_PLATFORM_VERSION: "17.5"
   MIN_TV_PLATFORM_VERSION: "17.5"
   MIN_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
+  MIN_WATCH_PLATFORM_VERSION: "10.5"
+  MIN_WATCH_DEVICE_NAME: "Apple Watch Series 9 (45mm)"
   MIN_IPHONE_DEVICE_NAME: "iPhone 15 Plus"
   MIN_IPAD_DEVICE_NAME: "iPad Air 13-inch (M2)"
   MAX_VM_IMAGE: xcode-27
   MAX_XCODE_VERSION: "27.0-beta"
   MAX_PLATFORM_VERSION: "27.0"
   MAX_TV_PLATFORM_VERSION: "27.0"
+  MAX_WATCH_PLATFORM_VERSION: "27.0"
+  MAX_WATCH_DEVICE_NAME: "Apple Watch Series 10 (46mm)"
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
   MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
   MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
@@ -36,10 +40,14 @@ jobs:
             {"name": "Generic_iOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "runner", "sdk": "sim", "dest": "generic", "code_sign": "no"},
             {"name": "Generic_tvOS_Build_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "action": "build", "target": "tv_runner", "sdk": "tv_sim", "dest": "tv_generic", "code_sign": "no"},
             {"name": "Generic_tvOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "tv_runner", "sdk": "tv_sim", "dest": "tv_generic", "code_sign": "no"},
+            {"name": "Generic_watchOS_Build_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "action": "build", "target": "watch_runner", "sdk": "watch_sim", "dest": "watch_generic", "code_sign": "no"},
+            {"name": "Generic_watchOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "watch_runner", "sdk": "watch_sim", "dest": "watch_generic", "code_sign": "no"},
             {"name": "iOS_Build_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "action": "build", "target": "runner", "sdk": "sim", "iphone_model": "${{ env.MAX_IPHONE_DEVICE_NAME }}", "ipad_model": "${{ env.MAX_IPAD_DEVICE_NAME }}", "ios_version": "${{ env.MAX_PLATFORM_VERSION }}"},
             {"name": "iOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "runner", "sdk": "sim", "iphone_model": "${{ env.MIN_IPHONE_DEVICE_NAME }}", "ipad_model": "${{ env.MIN_IPAD_DEVICE_NAME }}", "ios_version": "${{ env.MIN_PLATFORM_VERSION }}"},
             {"name": "tvOS_Build_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "action": "build", "target": "tv_runner", "sdk": "tv_sim", "tv_model": "${{ env.MAX_TV_DEVICE_NAME }}", "tv_version": "${{ env.MAX_TV_PLATFORM_VERSION }}"},
-            {"name": "tvOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "tv_runner", "sdk": "tv_sim", "dest": "tv", "tv_model": "${{ env.MIN_TV_DEVICE_NAME }}", "tv_version": "${{ env.MIN_TV_PLATFORM_VERSION }}"}
+            {"name": "tvOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "tv_runner", "sdk": "tv_sim", "dest": "tv", "tv_model": "${{ env.MIN_TV_DEVICE_NAME }}", "tv_version": "${{ env.MIN_TV_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Build_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "action": "build", "target": "watch_runner", "sdk": "watch_sim", "dest": "watch", "watch_model": "${{ env.MAX_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MAX_WATCH_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Build_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "action": "build", "target": "watch_runner", "sdk": "watch_sim", "dest": "watch", "watch_model": "${{ env.MIN_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MIN_WATCH_PLATFORM_VERSION }}"}
           ]
           MATRIX_JSON
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
@@ -60,7 +68,11 @@ jobs:
             {"name": "tvOS_Lib_Analyze_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "target": "tv_lib", "sdk": "tv_sim", "tv_model": "${{ env.MAX_TV_DEVICE_NAME }}", "tv_version": "${{ env.MAX_TV_PLATFORM_VERSION }}"},
             {"name": "tvOS_Lib_Analyze_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "target": "tv_lib", "sdk": "tv_sim", "tv_model": "${{ env.MIN_TV_DEVICE_NAME }}", "tv_version": "${{ env.MIN_TV_PLATFORM_VERSION }}"},
             {"name": "tvOS_Runner_Analyze_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "target": "tv_runner", "sdk": "tv_sim", "tv_model": "${{ env.MAX_TV_DEVICE_NAME }}", "tv_version": "${{ env.MAX_TV_PLATFORM_VERSION }}"},
-            {"name": "tvOS_Runner_Analyze_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "target": "tv_runner", "sdk": "tv_sim", "tv_model": "${{ env.MIN_TV_DEVICE_NAME }}", "tv_version": "${{ env.MIN_TV_PLATFORM_VERSION }}"}
+            {"name": "tvOS_Runner_Analyze_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "target": "tv_runner", "sdk": "tv_sim", "tv_model": "${{ env.MIN_TV_DEVICE_NAME }}", "tv_version": "${{ env.MIN_TV_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Lib_Analyze_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "target": "watch_lib", "sdk": "watch_sim", "watch_model": "${{ env.MAX_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MAX_WATCH_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Lib_Analyze_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "target": "watch_lib", "sdk": "watch_sim", "watch_model": "${{ env.MIN_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MIN_WATCH_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Runner_Analyze_Max_Xcode", "vm_image": "${{ env.MAX_VM_IMAGE }}", "xcode_version": "${{ env.MAX_XCODE_VERSION }}", "target": "watch_runner", "sdk": "watch_sim", "watch_model": "${{ env.MAX_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MAX_WATCH_PLATFORM_VERSION }}"},
+            {"name": "watchOS_Runner_Analyze_Min_Xcode", "vm_image": "${{ env.MIN_VM_IMAGE }}", "xcode_version": "${{ env.MIN_XCODE_VERSION }}", "target": "watch_runner", "sdk": "watch_sim", "watch_model": "${{ env.MIN_WATCH_DEVICE_NAME }}", "watch_version": "${{ env.MIN_WATCH_PLATFORM_VERSION }}"}
           ]
           MATRIX_JSON
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
@@ -131,6 +143,8 @@ jobs:
           IOS_VERSION: ${{ matrix.config.ios_version }}
           TV_MODEL: ${{ matrix.config.tv_model }}
           TV_VERSION: ${{ matrix.config.tv_version }}
+          WATCH_MODEL: ${{ matrix.config.watch_model }}
+          WATCH_VERSION: ${{ matrix.config.watch_version }}
 
   analyze:
     needs: analyze_matrix
@@ -156,6 +170,8 @@ jobs:
           IOS_VERSION: ${{ matrix.config.ios_version }}
           TV_MODEL: ${{ matrix.config.tv_model }}
           TV_VERSION: ${{ matrix.config.tv_version }}
+          WATCH_MODEL: ${{ matrix.config.watch_model }}
+          WATCH_VERSION: ${{ matrix.config.watch_version }}
 
   unit_test:
     needs: unit_test_matrix

@@ -21,7 +21,7 @@
 #import "XCSynthesizedEventRecord.h"
 #import "XCUIElement+FBUtilities.h"
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
 @implementation FBBaseActionItem
 
 + (NSString *)actionName

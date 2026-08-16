@@ -13,7 +13,7 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBUtilities.h"
 
-# if !TARGET_OS_TV
+# if !TARGET_OS_TV && !TARGET_OS_WATCH
 
 @implementation XCUIDevice (FBRotation)
 

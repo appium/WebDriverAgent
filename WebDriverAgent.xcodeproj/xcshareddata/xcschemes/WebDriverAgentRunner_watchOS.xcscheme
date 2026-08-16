@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "2600"
-   version = "1.7">
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
-      <PostActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Embed app icon into Runner.app"
-               scriptText = "&quot;${SRCROOT}/Scripts/embed-runner-icon.sh&quot;&#10;">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "EEF988291C486603005CA669"
-                     BuildableName = "WebDriverAgentRunner.xctest"
-                     BlueprintName = "WebDriverAgentRunner"
-                     ReferencedContainer = "container:WebDriverAgent.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
-      </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -32,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EEF988291C486603005CA669"
-               BuildableName = "WebDriverAgentRunner.xctest"
-               BlueprintName = "WebDriverAgentRunner"
+               BlueprintIdentifier = "C0A58256FB8AD3E976C8F8D2"
+               BuildableName = "WebDriverAgentRunner_watchOS.xctest"
+               BlueprintName = "WebDriverAgentRunner_watchOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,14 +28,23 @@
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       shouldUseLaunchSchemeArgsEnv = "YES"
       systemAttachmentLifetime = "keepNever">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "C0A58256FB8AD3E976C8F8D2"
+            BuildableName = "WebDriverAgentRunner_watchOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_watchOS"
+            ReferencedContainer = "container:WebDriverAgent.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EEF988291C486603005CA669"
-               BuildableName = "WebDriverAgentRunner.xctest"
-               BlueprintName = "WebDriverAgentRunner"
+               BlueprintIdentifier = "C0A58256FB8AD3E976C8F8D2"
+               BuildableName = "WebDriverAgentRunner_watchOS.xctest"
+               BlueprintName = "WebDriverAgentRunner_watchOS"
                ReferencedContainer = "container:WebDriverAgent.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -72,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EEF988291C486603005CA669"
-            BuildableName = "WebDriverAgentRunner.xctest"
-            BlueprintName = "WebDriverAgentRunner"
+            BlueprintIdentifier = "C0A58256FB8AD3E976C8F8D2"
+            BuildableName = "WebDriverAgentRunner_watchOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_watchOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -95,13 +86,18 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "MJPEG_SERVER_PORT"
-            value = "$(MJPEG_SERVER_PORT)"
+            key = "WDA_PRODUCT_BUNDLE_IDENTIFIER"
+            value = "$(WDA_PRODUCT_BUNDLE_IDENTIFIER)"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "WDA_PRODUCT_BUNDLE_IDENTIFIER"
-            value = "$(WDA_PRODUCT_BUNDLE_IDENTIFIER)"
+            key = "MAX_HTTP_REQUEST_BODY_SIZE"
+            value = "$(MAX_HTTP_REQUEST_BODY_SIZE)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "VERBOSE_LOGGING"
+            value = "$(VERBOSE_LOGGING)"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -115,9 +111,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EEF988291C486603005CA669"
-            BuildableName = "WebDriverAgentRunner.xctest"
-            BlueprintName = "WebDriverAgentRunner"
+            BlueprintIdentifier = "C0A58256FB8AD3E976C8F8D2"
+            BuildableName = "WebDriverAgentRunner_watchOS.xctest"
+            BlueprintName = "WebDriverAgentRunner_watchOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
