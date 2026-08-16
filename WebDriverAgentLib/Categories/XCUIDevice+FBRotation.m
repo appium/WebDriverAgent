@@ -59,7 +59,7 @@ static UIInterfaceOrientation FBInterfaceOrientationFromDeviceOrientation(UIDevi
 {
   // Tapping elements immediately after rotation may fail due to way UIKit is handling touches.
   // We should wait till UI cools off, before continuing
-  [application fb_waitUntilStableWithTimeout:FBConfiguration.animationCoolOffTimeout];
+  [application fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.animationCoolOffTimeout];
 
   return application.interfaceOrientation == FBInterfaceOrientationFromDeviceOrientation(orientation);
 }

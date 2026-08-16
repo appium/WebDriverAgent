@@ -120,7 +120,7 @@ inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL 
 
     NSMutableDictionary *result = compactResult.mutableCopy;
     FBXCElementSnapshotWrapper *wrappedSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:snapshot];
-    NSArray *fields = [FBConfiguration.elementResponseAttributes componentsSeparatedByString:@","];
+    NSArray *fields = [FBConfiguration.sharedInstance.elementResponseAttributes componentsSeparatedByString:@","];
     for (NSString *field in fields) {
       // 'name' here is the w3c-approved identifier for what we mean by 'type'
       if ([field isEqualToString:@"name"] || [field isEqualToString:@"type"]) {

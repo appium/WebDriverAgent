@@ -176,7 +176,7 @@
 
 - (void)testCompactResponseYesWithResponseAttributesSet
 {
-  [FBConfiguration setElementResponseAttributes:@"name,text,enabled"];
+  FBConfiguration.sharedInstance.elementResponseAttributes = @"name,text,enabled";
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, YES);
   XCTAssertNotNil(fields[@"ELEMENT"]);
@@ -186,7 +186,7 @@
 
 - (void)testCompactResponseNoWithResponseAttributesSet
 {
-  [FBConfiguration setElementResponseAttributes:@"name,text,enabled"];
+  FBConfiguration.sharedInstance.elementResponseAttributes = @"name,text,enabled";
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, NO);
   XCTAssertNotNil(fields[@"ELEMENT"]);
@@ -199,7 +199,7 @@
 
 - (void)testInvalidAttribute
 {
-  [FBConfiguration setElementResponseAttributes:@"invalid_field,name"];
+  FBConfiguration.sharedInstance.elementResponseAttributes = @"invalid_field,name";
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, NO);
   XCTAssertNotNil(fields[@"ELEMENT"]);
@@ -210,7 +210,7 @@
 
 - (void)testKnownAttributes
 {
-  [FBConfiguration setElementResponseAttributes:@"name,type,label,text,rect,enabled,displayed,selected"];
+  FBConfiguration.sharedInstance.elementResponseAttributes = @"name,type,label,text,rect,enabled,displayed,selected";
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, NO);
   XCTAssertNotNil(fields[@"ELEMENT"]);
@@ -228,7 +228,7 @@
 
 - (void)testArbitraryAttributes
 {
-  [FBConfiguration setElementResponseAttributes:@"attribute/name,attribute/value"];
+  FBConfiguration.sharedInstance.elementResponseAttributes = @"attribute/name,attribute/value";
   XCUIElement *alertsButton = self.testedApplication.buttons[@"Alerts"];
   NSDictionary *fields = FBDictionaryResponseWithElement(alertsButton, NO);
   XCTAssertNotNil(fields[@"ELEMENT"]);

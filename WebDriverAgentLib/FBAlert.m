@@ -200,7 +200,7 @@
   id<FBXCElementSnapshot> snapshot = dstField.fb_cachedSnapshot ?: [dstField fb_standardSnapshot];
   if (![dstField fb_typeText:text
                   shouldClear:YES
-                    frequency:FBConfiguration.maxTypingFrequency
+                    frequency:FBConfiguration.sharedInstance.maxTypingFrequency
                      snapshot:snapshot
                         error:&error]) {
     [self fb_raiseSetTextFailedExceptionWithReason:error.description];
@@ -236,17 +236,17 @@
   }
 
   XCUIElement *acceptButton = nil;
-  if (FBConfiguration.acceptAlertButtonSelector.length) {
+  if (FBConfiguration.sharedInstance.acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.acceptAlertButtonSelector
+      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.sharedInstance.acceptAlertButtonSelector
                                            shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == acceptButton) {
       [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain selector '%@'",
-       FBConfiguration.acceptAlertButtonSelector];
+       FBConfiguration.sharedInstance.acceptAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }
@@ -293,17 +293,17 @@
   }
 
   XCUIElement *dismissButton = nil;
-  if (FBConfiguration.dismissAlertButtonSelector.length) {
+  if (FBConfiguration.sharedInstance.dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.dismissAlertButtonSelector
+      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.sharedInstance.dismissAlertButtonSelector
                                             shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == dismissButton) {
       [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain selector '%@'",
-       FBConfiguration.dismissAlertButtonSelector];
+       FBConfiguration.sharedInstance.dismissAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }

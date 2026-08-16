@@ -24,15 +24,15 @@
 {
   [super setUp];
   self.testedApplication = (id)XCUIApplicationDouble.new;
-  self.shouldTerminateAppValue = FBConfiguration.shouldTerminateApp;
-  [FBConfiguration setShouldTerminateApp:NO];
+  self.shouldTerminateAppValue = FBConfiguration.sharedInstance.shouldTerminateApp;
+  FBConfiguration.sharedInstance.shouldTerminateApp = NO;
   self.session = [FBSession initWithApplication:self.testedApplication];
 }
 
 - (void)tearDown
 {
   [self.session kill];
-  [FBConfiguration setShouldTerminateApp:self.shouldTerminateAppValue];
+  FBConfiguration.sharedInstance.shouldTerminateApp = self.shouldTerminateAppValue;
   [super tearDown];
 }
 

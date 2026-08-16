@@ -37,7 +37,7 @@
 
 - (XCUIElement *)fb_firstMatch
 {
-  if (FBConfiguration.useFirstMatch) {
+  if (FBConfiguration.sharedInstance.useFirstMatch) {
     XCUIElement* match = self.firstMatch;
     return [match exists] ? match : nil;
   }
@@ -46,7 +46,7 @@
 
 - (NSArray<XCUIElement *> *)fb_allMatches
 {
-  return FBConfiguration.boundElementsByIndex
+  return FBConfiguration.sharedInstance.boundElementsByIndex
     ? self.allElementsBoundByIndex
     : self.allElementsBoundByAccessibilityElement;
 }

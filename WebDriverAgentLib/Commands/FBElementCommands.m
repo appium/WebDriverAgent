@@ -219,7 +219,7 @@
     [element adjustToNormalizedSliderPosition:sliderValue];
     return FBResponseWithOK();
   }
-  NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: [FBConfiguration maxTypingFrequency];
+  NSUInteger frequency = (NSUInteger)[request.arguments[@"frequency"] longLongValue] ?: FBConfiguration.sharedInstance.maxTypingFrequency;
   NSError *error = nil;
   // checkStaleness:YES above already took a fresh, verified-live snapshot of
   // `element` and cached it as `lastSnapshot` - reuse it instead of paying
@@ -292,7 +292,7 @@
   if (![element fb_setFocusWithError:&error]) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
-  return FBResponseWithStatus([FBCommandStatus okWithValue: FBDictionaryResponseWithElement(element, FBConfiguration.shouldUseCompactResponses)]);
+  return FBResponseWithStatus([FBCommandStatus okWithValue: FBDictionaryResponseWithElement(element, FBConfiguration.sharedInstance.shouldUseCompactResponses)]);
 }
 #else
 + (id<FBResponsePayload>)handleDoubleTap:(FBRouteRequest *)request
@@ -520,7 +520,7 @@
 + (id<FBResponsePayload>)handleKeys:(FBRouteRequest *)request
 {
   NSString *textToType = [request.arguments[@"value"] componentsJoinedByString:@""];
-  NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: [FBConfiguration maxTypingFrequency];
+  NSUInteger frequency = [request.arguments[@"frequency"] unsignedIntegerValue] ?: FBConfiguration.sharedInstance.maxTypingFrequency;
   NSError *error;
   if (!FBTypeText(textToType, frequency, &error)) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description

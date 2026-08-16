@@ -130,7 +130,7 @@
 
 - (void)fb_waitUntilStable
 {
-  [self fb_waitUntilStableWithTimeout:FBConfiguration.waitForIdleTimeout];
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.waitForIdleTimeout];
 }
 
 - (void)fb_waitUntilStableWithTimeout:(NSTimeInterval)timeout
@@ -139,9 +139,9 @@
     return;
   }
 
-  NSTimeInterval previousTimeout = FBConfiguration.waitForIdleTimeout;
+  NSTimeInterval previousTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
   BOOL previousQuiescence = self.application.fb_shouldWaitForQuiescence;
-  FBConfiguration.waitForIdleTimeout = timeout;
+  FBConfiguration.sharedInstance.waitForIdleTimeout = timeout;
   if (!previousQuiescence) {
     self.application.fb_shouldWaitForQuiescence = YES;
   }
@@ -150,7 +150,7 @@
   if (previousQuiescence != self.application.fb_shouldWaitForQuiescence) {
     self.application.fb_shouldWaitForQuiescence = previousQuiescence;
   }
-  FBConfiguration.waitForIdleTimeout = previousTimeout;
+  FBConfiguration.sharedInstance.waitForIdleTimeout = previousTimeout;
 }
 
 - (void)fb_raiseStaleElementExceptionWithError:(NSError *)error __attribute__((noreturn))
