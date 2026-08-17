@@ -10,7 +10,7 @@ import Foundation
 
 /// Minimal synchronous JSON/HTTP client for driving the real WebDriverAgentRunner_watchOS
 /// server, the same way a real client (Appium, curl) would. Requires the server to already be
-/// running - see Scripts/watchos-http-integration-test.sh.
+/// running, e.g. via `xcodebuild test -scheme WebDriverAgentRunner_watchOS`.
 struct WDAWatchHTTPClient {
   struct Response {
     let statusCode: Int

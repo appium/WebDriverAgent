@@ -63,11 +63,15 @@
     if (nw_listener_state_ready == state) {
       dispatch_semaphore_signal(startupSemaphore);
     } else if (nw_listener_state_failed == state || nw_listener_state_cancelled == state) {
-      startupError = [NSError errorWithDomain:@"FBTCPSocket"
-                                          code:2
-                                      userInfo:@{NSLocalizedDescriptionKey: (id)(nwError
-                                        ? CFBridgingRelease(nw_error_copy_cf_error(nwError))
-                                        : @"The TCP listener failed to start")}];
+      // NSLocalizedDescriptionKey must be a string, not the underlying NSError itself, or
+      // -[NSError localizedDescription] crashes trying to treat it as one.
+      NSError *underlyingError = nwError ? (NSError *)CFBridgingRelease(nw_error_copy_cf_error(nwError)) : nil;
+      NSMutableDictionary<NSString *, id> *userInfo = [NSMutableDictionary dictionary];
+      userInfo[NSLocalizedDescriptionKey] = underlyingError.localizedDescription ?: @"The TCP listener failed to start";
+      if (underlyingError) {
+        userInfo[NSUnderlyingErrorKey] = underlyingError;
+      }
+      startupError = [NSError errorWithDomain:@"FBTCPSocket" code:2 userInfo:userInfo];
       dispatch_semaphore_signal(startupSemaphore);
     }
   });
