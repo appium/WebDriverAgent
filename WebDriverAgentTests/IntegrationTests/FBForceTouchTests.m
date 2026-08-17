@@ -57,12 +57,11 @@
 
 - (void)testForceTap
 {
+  XCTSkipIf(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"27.0"),
+            @"FIXME: Unstable on platform version 27.");
+
   if (![XCUIDevice sharedDevice].supportsPressureInteraction) {
     return;
-  }
-
-  if ([NSProcessInfo.processInfo.environment[@"IOS_VERSION"] integerValue] == 27) {
-    XCTSkip(@"FIXME: Unstable on platform version 27.");
   }
 
   [self verifyForceTapWithOrientation:UIDeviceOrientationPortrait];
