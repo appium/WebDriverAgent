@@ -51,7 +51,7 @@
 
 - (void)testGetPasteboard
 {
-  if ([NSProcessInfo.processInfo.environment[@"PLATFORM_VERSION"] integerValue] == 27) {
+  if ([NSProcessInfo.processInfo.environment[@"IOS_VERSION"] integerValue] == 27) {
     XCTSkip(@"FIXME: Pasteboard retrieval has opposite button behavior on platform version 27.");
   }
 
