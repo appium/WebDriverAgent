@@ -38,6 +38,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyWhenNoAnimationsAreActiveForApplication:(XCUIApplication *)application
                                                 reply:(void (^)(void))reply;
 
+/**
+ Wraps the private -[XCAXClient_iOS notifyWhenEventLoopIsIdleForApplication:reply:],
+ used to check run loop responsiveness before a snapshot request (#1210).
+ `reply` may fire more than once per call; `error` is non-nil only if monitoring
+ itself could not be started.
+ */
+- (void)notifyWhenEventLoopIsIdleForApplication:(XCUIApplication *)application
+                                           reply:(void (^)(id _Nullable result, NSError * _Nullable error))reply;
+
 - (nullable NSDictionary *)attributesForElement:(id<FBXCAccessibilityElement>)element
                                      attributes:(NSArray *)attributes
                                           error:(NSError**)error;

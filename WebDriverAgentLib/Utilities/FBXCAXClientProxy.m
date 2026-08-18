@@ -81,6 +81,12 @@ static id FBAXClient = nil;
   [FBAXClient notifyWhenNoAnimationsAreActiveForApplication:application reply:reply];
 }
 
+- (void)notifyWhenEventLoopIsIdleForApplication:(XCUIApplication *)application
+                                           reply:(void (^)(id _Nullable result, NSError * _Nullable error))reply
+{
+  [FBAXClient notifyWhenEventLoopIsIdleForApplication:application reply:reply];
+}
+
 - (NSDictionary *)attributesForElement:(id<FBXCAccessibilityElement>)element
                             attributes:(NSArray *)attributes
                                  error:(NSError**)error;

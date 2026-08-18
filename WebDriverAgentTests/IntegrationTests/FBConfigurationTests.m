@@ -11,6 +11,9 @@
 
 #import "FBConfiguration.h"
 #import "FBRuntimeUtils.h"
+#import "FBTestMacros.h"
+#import "XCUIElement.h"
+#import "XCUIElement+FBIsVisible.h"
 
 @interface FBConfigurationTests : FBIntegrationTestCase
 
@@ -33,6 +36,37 @@
 
   FBConfiguration.sharedInstance.reduceMotionEnabled = defaultReduceMotionEnabled;
   XCTAssertEqual(FBConfiguration.sharedInstance.reduceMotionEnabled, defaultReduceMotionEnabled);
+}
+
+- (void)testAccessibilityDeadlineAbortsSnapshotRequestForDeadlockedApp
+{
+  if (nil != NSProcessInfo.processInfo.environment[@"CI"]) {
+    XCTSkip(@"Deliberately freezes the app for several seconds, too slow/flaky for CI");
+  }
+
+  NSTimeInterval previousDeadline = FBConfiguration.sharedInstance.accessibilityDeadline;
+  // Also bounds any snapshot-based wait -tap itself may perform once the app is stuck.
+  FBConfiguration.sharedInstance.accessibilityDeadline = 3.0;
+  @try {
+    XCUIElement *deadlockButton = self.testedApplication.buttons[@"Deadlock app"];
+    FBAssertWaitTillBecomesTrue(deadlockButton.fb_isVisible);
+    // Freezes the app's main thread for 20s - see -[ViewController deadlockApp:].
+    [deadlockButton tap];
+
+    NSError *error;
+    NSDate *start = [NSDate date];
+    id snapshot = [self.testedApplication snapshotWithError:&error];
+    NSTimeInterval elapsed = -start.timeIntervalSinceNow;
+
+    XCTAssertNil(snapshot);
+    XCTAssertNotNil(error);
+    // Should abort close to accessibilityDeadline (plus XCTest's own internal
+    // retries), not hang indefinitely waiting for the frozen app (#1210).
+    XCTAssertLessThan(elapsed, 20.0);
+  } @finally {
+    FBConfiguration.sharedInstance.accessibilityDeadline = previousDeadline;
+    [self.testedApplication terminate];
+  }
 }
 
 @end

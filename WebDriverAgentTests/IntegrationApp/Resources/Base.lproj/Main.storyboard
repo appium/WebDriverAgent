@@ -38,7 +38,6 @@
                                 <state key="normal" title="Deadlock app"/>
                                 <connections>
                                     <action selector="deadlockApp:" destination="BYZ-38-t0r" eventType="touchUpInside" id="53X-DJ-KNY"/>
-                                    <action selector="showAlert:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FEN-VX-MMc"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M2N-Yn-ytb">

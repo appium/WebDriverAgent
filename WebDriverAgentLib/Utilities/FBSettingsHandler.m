@@ -142,6 +142,10 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
       FBConfiguration.sharedInstance.animationCoolOffTimeout = [value doubleValue];
       return nil;
     };
+    map[FB_SETTING_ACCESSIBILITY_DEADLINE] = ^FBCommandStatus *(FBSession *session, id value) {
+      FBConfiguration.sharedInstance.accessibilityDeadline = [value doubleValue];
+      return nil;
+    };
     map[FB_SETTING_DEFAULT_ALERT_ACTION] = ^FBCommandStatus *(FBSession *session, id value) {
       if (nil == value) {
         session.defaultAlertAction = nil;
@@ -248,6 +252,9 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
     };
     map[FB_SETTING_ANIMATION_COOL_OFF_TIMEOUT] = ^id(FBSession *session) {
       return @(FBConfiguration.sharedInstance.animationCoolOffTimeout);
+    };
+    map[FB_SETTING_ACCESSIBILITY_DEADLINE] = ^id(FBSession *session) {
+      return @(FBConfiguration.sharedInstance.accessibilityDeadline);
     };
     map[FB_SETTING_BOUND_ELEMENTS_BY_INDEX] = ^id(FBSession *session) {
       return @(FBConfiguration.sharedInstance.boundElementsByIndex);

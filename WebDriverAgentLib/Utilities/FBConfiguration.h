@@ -235,6 +235,17 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
 @property (atomic, assign) NSTimeInterval animationCoolOffTimeout;
 
 /**
+ * Maximum time to wait for the frontmost application to confirm its main run loop
+ * is responsive before an accessibility snapshot request (element attribute
+ * lookups, active app detection, etc). XCTest has no bounded timeout of its own
+ * here, so a frozen app could otherwise block WDA forever (#1210); past this
+ * timeout the request is aborted with an error instead.
+ * Set to zero or negative to disable, restoring unbounded behavior. Disabled (0)
+ * by default.
+ */
+@property (atomic, assign) NSTimeInterval accessibilityDeadline;
+
+/**
  Custom class chain locator for accept alert button location.
  This might be useful if the default buttons detection algorithm fails to determine alert buttons properly
  when defaultAlertAction is set.
