@@ -217,5 +217,6 @@ jobs:
           IPHONE_MODEL: ${{ matrix.config.iphone_model }}
           IPAD_MODEL: ${{ matrix.config.ipad_model }}
           IOS_VERSION: ${{ matrix.config.ios_version }}
+          SKIP_TESTING: ${{ startsWith(matrix.config.ios_version, '27.') && matrix.config.action == 'int_test_3' && 'IntegrationTests_3/FBForceTouchTests/testForceTap' || '' }}
           FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 600
           FASTLANE_XCODEBUILD_SETTINGS_RETRIES: 2

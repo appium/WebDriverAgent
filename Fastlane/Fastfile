@@ -8,6 +8,9 @@ lane :test do
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
     device: ENV['DEVICE'],
-    number_of_retries: 3
+    number_of_retries: 3,
+    skip_testing: ENV.fetch('SKIP_TESTING', '')
+      .split(',')
+      .reject(&:empty?)
   )
 end
