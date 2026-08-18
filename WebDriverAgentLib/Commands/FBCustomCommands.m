@@ -63,6 +63,10 @@
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
+#if TARGET_OS_WATCH
+    [[FBRoute POST:@"/wda/rotateDigitalCrown"] respondWithTarget:self action:@selector(handleRotateDigitalCrownCommand:)],
+    [[FBRoute POST:@"/wda/performHandGesture"] respondWithTarget:self action:@selector(handlePerformHandGestureCommand:)],
+#endif
     [[FBRoute POST:@"/wda/performAccessibilityAudit"] respondWithTarget:self action:@selector(handlePerformAccessibilityAudit:)],
     [[FBRoute POST:@"/wda/performIoHidEvent"] respondWithTarget:self action:@selector(handlePeformIOHIDEvent:)],
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
@@ -294,6 +298,38 @@
   }
   return FBResponseWithOK();
 }
+
+#if TARGET_OS_WATCH
++ (id<FBResponsePayload>)handleRotateDigitalCrownCommand:(FBRouteRequest *)request
+{
+  NSNumber *delta = request.arguments[@"delta"];
+  if (nil == delta) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"'delta' argument is mandatory"
+                                                                         traceback:nil]);
+  }
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_rotateDigitalCrown:delta.doubleValue
+                                              velocity:request.arguments[@"velocity"]
+                                                 error:&error]) {
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithOK();
+}
+
++ (id<FBResponsePayload>)handlePerformHandGestureCommand:(FBRouteRequest *)request
+{
+  NSString *gestureName = request.arguments[@"name"];
+  if (nil == gestureName) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"'name' argument is mandatory"
+                                                                         traceback:nil]);
+  }
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_performHandGesture:gestureName error:&error]) {
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithOK();
+}
+#endif
 
 + (id<FBResponsePayload>)handleActivateSiri:(FBRouteRequest *)request
 {

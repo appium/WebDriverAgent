@@ -166,6 +166,40 @@ typedef NS_ENUM(NSUInteger, FBUIInterfaceAppearance) {
  */
 - (nullable NSNumber *)fb_getAppearance;
 
+#if TARGET_OS_WATCH
+/**
+ Rotates the Digital Crown on Apple Watch. See
+ https://developer.apple.com/documentation/xcuiautomation/xcuidevice/rotatedigitalcrown(delta:velocity:)
+ and https://developer.apple.com/documentation/xcuiautomation/xcuidevice/rotatedigitalcrown(delta:)
+ Invoked dynamically (this selector was only added to the SDK in Xcode 16.3), so this compiles against
+ older Xcode versions too - it just fails at runtime with an error if the OS/SDK combination in use
+ doesn't actually implement it.
+
+ @param delta The number of full crown rotations, e.g. 1.0 is one complete turn.
+              The sign gives the direction: positive rotates up/clockwise, negative rotates down/counterclockwise.
+ @param velocity The rotation speed, in rotations per second, e.g. 1.0 completes one full
+                 rotation per second. This is the raw value behind the public XCUIGestureVelocity
+                 API, which only exposes it via named presets (.slow/.default/.fast).
+                 Pass nil to use XCTest's own default velocity instead of specifying one explicitly.
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_rotateDigitalCrown:(double)delta velocity:(nullable NSNumber *)velocity error:(NSError **)error;
+
+/**
+ Performs a hand gesture on Apple Watch (e.g. Double Tap, Wrist Flick). See
+ https://developer.apple.com/documentation/xcuiautomation/xcuidevice/perform(handgesture:)
+ Invoked dynamically (this selector was only added to the SDK in Xcode 16.3), so this compiles against
+ older Xcode versions too - it just fails at runtime with an error if the OS/SDK combination in use
+ doesn't actually implement it.
+
+ @param gestureName One of the supported gesture names: doubleTap (watchOS 10+), flick (watchOS 26+).
+ @param error If there is an error, upon return contains an NSError object that describes the problem.
+ @return YES if the operation succeeds, otherwise NO.
+ */
+- (BOOL)fb_performHandGesture:(NSString *)gestureName error:(NSError **)error;
+#endif // TARGET_OS_WATCH
+
 #if !TARGET_OS_TV
 /**
  Allows to set a simulated geolocation coordinates.

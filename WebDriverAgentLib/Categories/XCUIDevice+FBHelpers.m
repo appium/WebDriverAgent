@@ -86,6 +86,27 @@ NSDictionary<NSString *, NSNumber *> *fb_availableButtonNames(void) {
 }
 #endif
 
+#if TARGET_OS_WATCH
+// Raw values from XCUIDeviceHandGesture (XCUIAutomation/XCUIDeviceHandGesture.h): doubleTap = 1, flick = 2.
+// Referenced by raw integer rather than the enum constant, and invoked via NSInvocation in
+// fb_performHandGesture:error: below, since that enum/selector was only added to the SDK in Xcode 16.3
+// (flick specifically needs watchOS 12.0/26 - see the @available check below). This way the code compiles
+// against any Xcode version; unsupported gestures/selectors are only rejected at runtime.
+NSDictionary<NSString *, NSNumber *> *fb_availableHandGestureNames(void) {
+  static dispatch_once_t onceToken;
+  static NSDictionary *result;
+  dispatch_once(&onceToken, ^{
+    NSMutableDictionary *gestures = [NSMutableDictionary dictionary];
+    gestures[@"doubletap"] = @(1);
+    if (@available(watchOS 12.0, *)) {
+      gestures[@"flick"] = @(2);
+    }
+    result = [gestures copy];
+  });
+  return result;
+}
+#endif // TARGET_OS_WATCH
+
 @implementation XCUIDevice (FBHelpers)
 
 static bool fb_isLocked;
@@ -385,6 +406,57 @@ static bool fb_isLocked;
   ? [NSNumber numberWithLongLong:[self appearanceMode]]
   : nil;
 }
+
+#if TARGET_OS_WATCH
+- (BOOL)fb_rotateDigitalCrown:(double)delta velocity:(nullable NSNumber *)velocity error:(NSError **)error
+{
+  SEL selector = nil == velocity
+    ? NSSelectorFromString(@"rotateDigitalCrownByDelta:")
+    : NSSelectorFromString(@"rotateDigitalCrownByDelta:withVelocity:");
+  if (nil == selector || ![self respondsToSelector:selector]) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"Digital Crown rotation is not supported by the current Xcode SDK/OS combination"]
+            buildError:error];
+  }
+  NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setTarget:self];
+  [invocation setArgument:&delta atIndex:2];
+  if (velocity) {
+    double velocityValue = velocity.doubleValue;
+    [invocation setArgument:&velocityValue atIndex:3];
+  }
+  [invocation invoke];
+  return YES;
+}
+
+- (BOOL)fb_performHandGesture:(NSString *)gestureName error:(NSError **)error
+{
+  NSDictionary<NSString *, NSNumber *> *availableGestures = fb_availableHandGestureNames();
+  NSNumber *gestureValue = availableGestures[gestureName.lowercaseString];
+  if (!gestureValue) {
+    NSArray *sortedKeys = [availableGestures.allKeys sortedArrayUsingSelector:@selector(compare:)];
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"The hand gesture '%@' is not supported. The device under test only supports the following hand gestures: %@", gestureName, sortedKeys]
+            buildError:error];
+  }
+  SEL selector = NSSelectorFromString(@"performHandGesture:");
+  if (nil == selector || ![self respondsToSelector:selector]) {
+    return [[[FBErrorBuilder builder]
+             withDescriptionFormat:@"Hand gesture automation is not supported by the current Xcode SDK/OS combination"]
+            buildError:error];
+  }
+  NSMethodSignature *signature = [self methodSignatureForSelector:selector];
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+  [invocation setSelector:selector];
+  [invocation setTarget:self];
+  NSInteger gestureRawValue = gestureValue.integerValue;
+  [invocation setArgument:&gestureRawValue atIndex:2];
+  [invocation invoke];
+  return YES;
+}
+#endif // TARGET_OS_WATCH
 
 #if !TARGET_OS_TV
 - (BOOL)fb_setSimulatedLocation:(CLLocation *)location error:(NSError **)error

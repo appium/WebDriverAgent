@@ -89,7 +89,6 @@
 - (void)_silentPressButton:(long long)button;
 - (void)holdHomeButtonForDuration:(double)duration;
 - (void)pressLockButton;
-- (void)rotateDigitalCrown:(double)crown velocity:(double)velocity;
 - (void)ensureSystemAppIsLoaded;
 - (void)attachLocalizableStringsData;
 - (_Bool)startHIDEventRecordingWithError:(id *)error;

@@ -47,4 +47,50 @@ final class WDADeviceIntegrationTests: WDAWatchIntegrationTestCase {
     let clearResponse = try client.delete("/session/\(sessionId!)/wda/simulatedLocation")
     XCTAssertEqual(clearResponse.statusCode, 200)
   }
+
+  func testRotateDigitalCrown() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/rotateDigitalCrown", body: [
+      "delta": 0.2,
+      "velocity": 1.0,
+    ])
+    XCTAssertEqual(response.statusCode, 200)
+  }
+
+  func testRotateDigitalCrownDefaultVelocity() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/rotateDigitalCrown", body: [
+      "delta": -0.2,
+    ])
+    XCTAssertEqual(response.statusCode, 200)
+  }
+
+  func testRotateDigitalCrownMissingDelta() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/rotateDigitalCrown")
+    XCTAssertEqual(response.statusCode, 400)
+  }
+
+  func testPerformHandGestureDoubleTap() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/performHandGesture", body: [
+      "name": "doubleTap",
+    ])
+    XCTAssertEqual(response.statusCode, 200)
+  }
+
+  func testPerformHandGestureFlick() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/performHandGesture", body: [
+      "name": "flick",
+    ])
+    XCTAssertEqual(response.statusCode, 200)
+  }
+
+  func testPerformHandGestureUnsupportedName() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/performHandGesture", body: [
+      "name": "clench",
+    ])
+    XCTAssertEqual(response.statusCode, 500)
+  }
+
+  func testPerformHandGestureMissingName() throws {
+    let response = try client.post("/session/\(sessionId!)/wda/performHandGesture")
+    XCTAssertEqual(response.statusCode, 400)
+  }
 }
