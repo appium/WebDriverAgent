@@ -21,7 +21,7 @@ env:
   MAX_PLATFORM_VERSION: "27.0"
   MAX_TV_PLATFORM_VERSION: "27.0"
   MAX_WATCH_PLATFORM_VERSION: "27.0"
-  MAX_WATCH_DEVICE_NAME: "Apple Watch Series 10 (46mm)"
+  MAX_WATCH_DEVICE_NAME: "Apple Watch Series 11 (46mm)"
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
   MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
   MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
