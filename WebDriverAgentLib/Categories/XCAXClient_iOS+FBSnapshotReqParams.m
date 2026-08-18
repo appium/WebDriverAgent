@@ -77,11 +77,12 @@ static NSObject *unresponsiveApplicationPidsLock;
 
 static NSError *FBBuildUnresponsiveApplicationError(int pid, NSTimeInterval timeout)
 {
+  // https://github.com/appium/WebDriverAgent/issues/1210
   NSString *description = [NSString stringWithFormat:
     @"The application with process identifier %d did not confirm its main run loop is "
-     @"responsive within %.1f second(s) and is likely in an illegal/unresponsive application "
-     @"state. Aborting the accessibility snapshot request instead of risking an indefinite "
-     @"hang. See https://github.com/appium/WebDriverAgent/issues/1210 for more details",
+     @"responsive within %.1f second(s) and is likely in an unresponsive state. "
+     @"Aborting the accessibility snapshot request instead of risking an indefinite "
+     @"hang.",
     pid, timeout];
   [FBLogger logFmt:@"%@", description];
   NSError *error;
