@@ -25,9 +25,15 @@ final class WDAHTTPEndToEndTests: WDAWatchIntegrationTestCase {
     let clickResponse = try client.post("/session/\(sessionId!)/element/\(buttonId)/click")
     XCTAssertEqual(clickResponse.statusCode, 200)
 
-    // Re-find: element UUIDs aren't stable across snapshots, and the label just changed.
-    let updatedLabelId = try findElement(byAccessibilityId: "resultLabel")
-    XCTAssertEqual(try attributeValue(updatedLabelId, "label"), "Tapped")
+    // Re-find (element UUIDs aren't stable across snapshots) and poll briefly: the click
+    // response returns before the label's own on-screen update has necessarily landed yet.
+    var label: String?
+    let deadline = Date().addingTimeInterval(5)
+    repeat {
+      let updatedLabelId = try findElement(byAccessibilityId: "resultLabel")
+      label = try attributeValue(updatedLabelId, "label")
+    } while label != "Tapped" && Date() < deadline
+    XCTAssertEqual(label, "Tapped")
   }
 
   func testFindElementThatDoesNotExistReturnsAnError() throws {

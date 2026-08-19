@@ -162,7 +162,58 @@ function stop_watch_wda_server() {
   fi
 }
 
+# IntegrationApp_watchOS (the app a session actually launches) is otherwise only built/installed
+# by fastlane_test's own xcodebuild invocation below - which runs concurrently with, and can lose
+# the race against, the very first session-creation request the moment the server reports ready.
+# That loses with "Application info provider (FBSApplicationLibrary) returned nil for ...": the
+# simulator's app registry hadn't caught up with the install yet. `xcodebuild build`/
+# `build-for-testing` alone don't touch the simulator at all (they only stage build products) -
+# so this resolves the actual target device, boots it, and explicitly `simctl install`s the app,
+# confirming the registry has it before the server or the real test run starts.
+function ensure_watch_test_app_installed() {
+  local watch_udid
+  watch_udid=$(xcrun simctl list devices available -j | jq -r \
+    --arg name "$(echo $WATCH_MODEL | tr -d "'")" \
+    --arg rt "watchOS-$(echo $WATCH_VERSION | tr '.' '-')" \
+    '.devices | to_entries[] | select(.key | contains($rt)) | .value[] | select(.name == $name) | .udid' \
+    | head -1)
+  if [[ -z "$watch_udid" ]]; then
+    echo "Could not resolve a simulator UDID for '$WATCH_MODEL' ($WATCH_VERSION)"
+    exit 1
+  fi
+
+  xcrun simctl boot "$watch_udid" 2>/dev/null || true
+  xcrun simctl bootstatus "$watch_udid" -b
+
+  xcodebuild -project WebDriverAgent.xcodeproj \
+    -scheme IntegrationApp_watchOS \
+    -sdk "$XC_SDK" \
+    -destination "id=$watch_udid" \
+    build $XC_MACROS
+
+  local app_path
+  app_path=$(xcodebuild -project WebDriverAgent.xcodeproj \
+    -scheme IntegrationApp_watchOS \
+    -sdk "$XC_SDK" \
+    -destination "id=$watch_udid" \
+    -showBuildSettings $XC_MACROS 2>/dev/null \
+    | awk -F ' = ' '/ CODESIGNING_FOLDER_PATH /{print $2; exit}')
+  if [[ -z "$app_path" ]]; then
+    echo "Could not resolve the built IntegrationApp_watchOS.app path"
+    exit 1
+  fi
+
+  xcrun simctl install "$watch_udid" "$app_path"
+
+  local bundle_id="${WDA_TEST_BUNDLE_ID:-com.facebook.wda.IntegrationApp.watchOS}"
+  if ! xcrun simctl get_app_container "$watch_udid" "$bundle_id" >/dev/null 2>&1; then
+    echo "IntegrationApp_watchOS did not register with the simulator's app registry after install"
+    exit 1
+  fi
+}
+
 function watch_int_test_2() {
+  ensure_watch_test_app_installed
   trap stop_watch_wda_server EXIT
   start_watch_wda_server
   fastlane_test IntegrationTests_watchOS_2

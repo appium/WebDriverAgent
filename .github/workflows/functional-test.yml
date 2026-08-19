@@ -1,6 +1,8 @@
 name: Functional Tests
 
-on: [pull_request]
+# TEMPORARILY disabled to free up the shared 5-runner macOS pool for faster feedback on watchOS
+# CI work in progress on #1216. Restore `on: [pull_request]` once that's done.
+on: workflow_dispatch
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
