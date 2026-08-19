@@ -16,9 +16,16 @@ import XCTest
 /// failing loudly the moment it starts working, instead of silently staying stale.
 final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
   // watchOS classifies an inline TextField's element type differently across OS versions (e.g.
-  // a button-styled placeholder pre-tap on some versions, .textField on others), so look it up
-  // by identifier across all types rather than filtering through app.textFields.
-  private var typingField: XCUIElement { app.descendants(matching: .any)["typingField"] }
+  // a button-styled placeholder pre-tap on some versions, .textField on others), and on some
+  // versions the identifier resolves to more than one node in the tree (an interactive control
+  // plus a non-value-bearing wrapper) - so search all types and prefer whichever match actually
+  // carries a value/placeholder, falling back to the first match if none do.
+  private var typingField: XCUIElement {
+    let candidates = app.descendants(matching: .any).matching(identifier: "typingField").allElementsBoundByIndex
+    return candidates.first { $0.wdValue != nil || $0.wdPlaceholderValue != nil }
+      ?? candidates.first
+      ?? app.descendants(matching: .any)["typingField"]
+  }
 
   private func backOutOfKeyboardIfPresented() {
     let cancel = app.buttons["Cancel"]
