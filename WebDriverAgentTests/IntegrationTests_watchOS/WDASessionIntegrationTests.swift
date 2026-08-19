@@ -36,7 +36,7 @@ final class WDASessionIntegrationTests: XCTestCase {
     ])
     XCTAssertEqual(createResponse.statusCode, 200)
     guard let sessionId = createResponse.valueDict?["sessionId"] as? String else {
-      return XCTFail("No sessionId in create-session response: \(String(describing: createResponse.json))")
+      return XCTFail("No sessionId in create-session response: \(createResponse.debugDescription)")
     }
     XCTAssertFalse(sessionId.isEmpty)
 

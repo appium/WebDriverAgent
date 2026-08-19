@@ -19,6 +19,18 @@ struct WDAWatchHTTPClient {
     var value: Any? { json?["value"] }
     var valueDict: [String: Any]? { value as? [String: Any] }
     var valueString: String? { value as? String }
+
+    /// Single-line, non-pretty-printed rendering of the response for failure messages -
+    /// `String(describing: json)`'s multi-line dictionary output gets silently truncated by
+    /// GitHub Actions' error-annotation renderer at the first embedded newline.
+    var debugDescription: String {
+      guard let json = json,
+            let data = try? JSONSerialization.data(withJSONObject: json),
+            let compact = String(data: data, encoding: .utf8) else {
+        return "status \(statusCode), no JSON body"
+      }
+      return "status \(statusCode): \(compact)"
+    }
   }
 
   enum ClientError: Error, CustomStringConvertible {

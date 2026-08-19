@@ -24,7 +24,7 @@ class WDAWatchIntegrationTestCase: XCTestCase {
         "capabilities": ["alwaysMatch": ["bundleId": Self.integrationAppBundleId]]
       ])
       guard response.statusCode == 200, let sessionId = response.valueDict?["sessionId"] as? String else {
-        XCTFail("Failed to create session: \(String(describing: response.json))")
+        XCTFail("Failed to create session: \(response.debugDescription)")
         return
       }
       self.sessionId = sessionId
@@ -48,7 +48,7 @@ class WDAWatchIntegrationTestCase: XCTestCase {
       "value": accessibilityId,
     ])
     guard response.statusCode == 200, let elementId = response.valueDict?["ELEMENT"] as? String else {
-      XCTFail("Could not find element '\(accessibilityId)': \(String(describing: response.json))", file: file, line: line)
+      XCTFail("Could not find element '\(accessibilityId)': \(response.debugDescription)", file: file, line: line)
       throw WDAWatchHTTPClient.ClientError.requestFailed("element not found")
     }
     return elementId

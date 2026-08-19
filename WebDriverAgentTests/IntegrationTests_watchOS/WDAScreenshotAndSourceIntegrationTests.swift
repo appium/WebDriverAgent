@@ -7,7 +7,11 @@
  */
 
 import XCTest
+// XCUIAutomation is a separate module on newer SDKs but folded into XCTest on older ones
+// (Xcode 15.4) - guard the import so this builds on both.
+#if canImport(XCUIAutomation)
 import XCUIAutomation
+#endif
 
 /// Covers device/element screenshots and page source, calling XCUIDevice+FBHelpers/
 /// XCUIApplication+FBHelpers and plain XCTest APIs directly in-process.
