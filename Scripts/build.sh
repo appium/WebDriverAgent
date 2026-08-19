@@ -185,9 +185,14 @@ function ensure_watch_test_app_installed() {
   xcrun simctl boot "$watch_udid" 2>/dev/null || true
   xcrun simctl bootstatus "$watch_udid" -b
 
+  # -configuration pinned explicitly on both calls below: the plain `build` action follows the
+  # scheme's own default (Debug), but a bare `-showBuildSettings` query without an action isn't
+  # tied to that scheme default and falls back to Release - leaving the two out of sync and
+  # `simctl install` pointed at a Release .app path that was never actually built.
   xcodebuild -project WebDriverAgent.xcodeproj \
     -scheme IntegrationApp_watchOS \
     -sdk "$XC_SDK" \
+    -configuration Debug \
     -destination "id=$watch_udid" \
     build $XC_MACROS
 
@@ -195,6 +200,7 @@ function ensure_watch_test_app_installed() {
   app_path=$(xcodebuild -project WebDriverAgent.xcodeproj \
     -scheme IntegrationApp_watchOS \
     -sdk "$XC_SDK" \
+    -configuration Debug \
     -destination "id=$watch_udid" \
     -showBuildSettings $XC_MACROS 2>/dev/null \
     | awk -F ' = ' '/ CODESIGNING_FOLDER_PATH /{print $2; exit}')
