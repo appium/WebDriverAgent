@@ -8,15 +8,12 @@
 
 import XCTest
 
-/// Base class for the in-process integration tests: these call WebDriverAgentLib_watchOS's own
+/// Base class for the watchOS integration tests: these call WebDriverAgentLib_watchOS's own
 /// categories directly (fb_descendantsMatchingClassName:, wdEnabled, fb_activeAppsInfo, etc.),
 /// the same way the iOS/tvOS integration tests do, rather than driving a separately running
-/// WebDriverAgentRunner_watchOS server over HTTP. Much faster, since there's no server to boot
-/// and no HTTP round trip per assertion - see WDAWatchIntegrationTestCase for the HTTP-based
-/// end-to-end tests that still need the real server.
+/// WebDriverAgentRunner_watchOS server over HTTP (see git history for that approach - dropped as
+/// not worth the added CI complexity; use the functional/e2e test suite for real-server coverage).
 class WDAWatchInProcessTestCase: XCTestCase {
-  // Duplicated from WDAWatchIntegrationTestCase (a different Xcode target, IntegrationTests_watchOS_2)
-  // rather than shared, same as iOS's own IntegrationTests_1/2/3 duplicate small helpers across targets.
   static let integrationAppBundleId = ProcessInfo.processInfo.environment["WDA_TEST_BUNDLE_ID"]
     ?? "com.facebook.wda.IntegrationApp.watchOS"
 

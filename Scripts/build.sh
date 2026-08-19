@@ -123,108 +123,6 @@ function fastlane_test() {
   SDK="$XC_SDK" DEVICE="$FASTLANE_DEVICE" SCHEME="$1" bundle exec fastlane test
 }
 
-# Unlike the iOS/tvOS integration tests, which launch the app under test in-process via
-# XCUIApplication, IntegrationTests_watchOS is an HTTP client that drives a real, separately
-# running WebDriverAgentRunner_watchOS server (see WDAWatchHTTPClient.swift). So the server has
-# to be booted in the background here first.
-function start_watch_wda_server() {
-  WATCH_SERVER_LOG=$(mktemp)
-  xcodebuild -project WebDriverAgent.xcodeproj \
-    -scheme WebDriverAgentRunner_watchOS \
-    -sdk "$XC_SDK" \
-    -destination "$XC_DESTINATION" \
-    -only-testing:WebDriverAgentRunner_watchOS/UITestingUITests/testRunner \
-    test $XC_MACROS \
-    > "$WATCH_SERVER_LOG" 2>&1 &
-  WATCH_SERVER_PID=$!
-
-  for _ in $(seq 1 90); do
-    if curl -s -f -m 2 http://127.0.0.1:8100/status >/dev/null 2>&1; then
-      return 0
-    fi
-    if ! kill -0 "$WATCH_SERVER_PID" 2>/dev/null; then
-      echo "WebDriverAgentRunner_watchOS exited before becoming ready:"
-      cat "$WATCH_SERVER_LOG"
-      exit 1
-    fi
-    sleep 2
-  done
-
-  echo "Timed out waiting for WebDriverAgentRunner_watchOS to become ready:"
-  cat "$WATCH_SERVER_LOG"
-  exit 1
-}
-
-function stop_watch_wda_server() {
-  if [[ -n "${WATCH_SERVER_PID:-}" ]]; then
-    kill "$WATCH_SERVER_PID" 2>/dev/null || true
-    wait "$WATCH_SERVER_PID" 2>/dev/null || true
-  fi
-}
-
-# IntegrationApp_watchOS (the app a session actually launches) is otherwise only built/installed
-# by fastlane_test's own xcodebuild invocation below - which runs concurrently with, and can lose
-# the race against, the very first session-creation request the moment the server reports ready.
-# That loses with "Application info provider (FBSApplicationLibrary) returned nil for ...": the
-# simulator's app registry hadn't caught up with the install yet. `xcodebuild build`/
-# `build-for-testing` alone don't touch the simulator at all (they only stage build products) -
-# so this resolves the actual target device, boots it, and explicitly `simctl install`s the app,
-# confirming the registry has it before the server or the real test run starts.
-function ensure_watch_test_app_installed() {
-  local watch_udid
-  watch_udid=$(xcrun simctl list devices available -j | jq -r \
-    --arg name "$(echo $WATCH_MODEL | tr -d "'")" \
-    --arg rt "watchOS-$(echo $WATCH_VERSION | tr '.' '-')" \
-    '.devices | to_entries[] | select(.key | contains($rt)) | .value[] | select(.name == $name) | .udid' \
-    | head -1)
-  if [[ -z "$watch_udid" ]]; then
-    echo "Could not resolve a simulator UDID for '$WATCH_MODEL' ($WATCH_VERSION)"
-    exit 1
-  fi
-
-  xcrun simctl boot "$watch_udid" 2>/dev/null || true
-  xcrun simctl bootstatus "$watch_udid" -b
-
-  # -configuration pinned explicitly on both calls below: the plain `build` action follows the
-  # scheme's own default (Debug), but a bare `-showBuildSettings` query without an action isn't
-  # tied to that scheme default and falls back to Release - leaving the two out of sync and
-  # `simctl install` pointed at a Release .app path that was never actually built.
-  xcodebuild -project WebDriverAgent.xcodeproj \
-    -scheme IntegrationApp_watchOS \
-    -sdk "$XC_SDK" \
-    -configuration Debug \
-    -destination "id=$watch_udid" \
-    build $XC_MACROS
-
-  local app_path
-  app_path=$(xcodebuild -project WebDriverAgent.xcodeproj \
-    -scheme IntegrationApp_watchOS \
-    -sdk "$XC_SDK" \
-    -configuration Debug \
-    -destination "id=$watch_udid" \
-    -showBuildSettings $XC_MACROS 2>/dev/null \
-    | awk -F ' = ' '/ CODESIGNING_FOLDER_PATH /{print $2; exit}')
-  if [[ -z "$app_path" ]]; then
-    echo "Could not resolve the built IntegrationApp_watchOS.app path"
-    exit 1
-  fi
-
-  xcrun simctl install "$watch_udid" "$app_path"
-
-  local bundle_id="${WDA_TEST_BUNDLE_ID:-com.facebook.wda.IntegrationApp.watchOS}"
-  if ! xcrun simctl get_app_container "$watch_udid" "$bundle_id" >/dev/null 2>&1; then
-    echo "IntegrationApp_watchOS did not register with the simulator's app registry after install"
-    exit 1
-  fi
-}
-
-function watch_int_test_2() {
-  ensure_watch_test_app_installed
-  trap stop_watch_wda_server EXIT
-  start_watch_wda_server
-  fastlane_test IntegrationTests_watchOS_2
-}
-
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;
@@ -232,9 +130,8 @@ case "$ACTION" in
   "int_test_2" ) fastlane_test IntegrationTests_2 ;;
   "int_test_3" ) fastlane_test IntegrationTests_3 ;;
   "tv_int_test" ) fastlane_test IntegrationTests_tvOS ;;
-  # IntegrationTests_watchOS_1 calls WebDriverAgentLib_watchOS's categories directly, in-process -
-  # no server to boot first, unlike _2 (see start_watch_wda_server above).
-  "watch_int_test_1" ) fastlane_test IntegrationTests_watchOS_1 ;;
-  "watch_int_test_2" ) watch_int_test_2 ;;
+  # Like the iOS/tvOS integration tests, this launches the app under test in-process via
+  # XCUIApplication rather than driving a separately running WDA server over HTTP.
+  "watch_int_test" ) fastlane_test IntegrationTests_watchOS ;;
   *) xcbuild ;;
 esac
