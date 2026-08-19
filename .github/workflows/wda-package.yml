@@ -8,6 +8,7 @@ env:
   XCODE_VERSION: 16.4
   DESTINATION_SIM: platform=iOS Simulator,name=iPhone 17
   DESTINATION_SIM_tvOS: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+  DESTINATION_SIM_watchOS: platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)
 
 jobs:
   host_machine:
@@ -85,6 +86,12 @@ jobs:
           - target: '_tvOS'
             arch: arm64
             simulator_name: Debug-appletvsimulator
+          - target: '_watchOS'
+            arch: x86_64
+            simulator_name: Debug-watchsimulator
+          - target: '_watchOS'
+            arch: arm64
+            simulator_name: Debug-watchsimulator
     steps:
       - name: Checkout
         uses: actions/checkout@v7

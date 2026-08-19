@@ -56,9 +56,10 @@
     "version": "npm run sync-wda-version",
     "test": "node --enable-source-maps --experimental-test-module-mocks --test --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
     "e2e-test": "node --enable-source-maps --test --test-force-exit --test-concurrency=1 --test-timeout=600000 \"./build/test/functional/**/*.spec.js\"",
-    "bundle": "npm run bundle:ios && npm run bundle:tv",
+    "bundle": "npm run bundle:ios && npm run bundle:tv && npm run bundle:watch",
     "bundle:ios": "TARGET=runner SDK=sim node ./Scripts/build-webdriveragent.mjs",
     "bundle:tv": "TARGET=tv_runner SDK=tv_sim node ./Scripts/build-webdriveragent.mjs",
+    "bundle:watch": "TARGET=watch_runner SDK=watch_sim node ./Scripts/build-webdriveragent.mjs",
     "fetch-prebuilt-wda": "node ./Scripts/fetch-prebuilt-wda.mjs",
     "sync-wda-version": "node ./Scripts/update-wda-version.mjs --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
   },

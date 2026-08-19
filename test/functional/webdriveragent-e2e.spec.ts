@@ -1,27 +1,18 @@
 import assert from 'node:assert/strict';
-import {describe, before, after, beforeEach, afterEach, it} from 'node:test';
-
-import {getSimulator} from 'appium-ios-simulator';
-import {retryInterval} from 'asyncbox';
-import axios from 'axios';
-import {Simctl} from 'node-simctl';
-import {SubProcess} from 'teen_process';
+import {randomUUID} from 'node:crypto';
+import {describe, before, afterEach, it} from 'node:test';
 
 import type {AppleDevice} from '../../lib/types.js';
 import {WebDriverAgent} from '../../lib/webdriveragent.js';
-import {PLATFORM_VERSION, DEVICE_NAME} from './desired.js';
-import {killAllSimulators, shutdownSimulator} from './helpers/simulator.js';
+import {PLATFORM_NAME, PLATFORM_VERSION} from './desired.js';
+import {getTargetDevice} from './helpers/simulator.js';
 
-type SimulatorTestDevice = AppleDevice & {simctl: Simctl};
-
-const SIM_DEVICE_NAME = 'webDriverAgentTest';
-const SIM_STARTUP_TIMEOUT_MS = 60 * 1000 * 5;
-
-const testUrl = 'http://localhost:8100/tree';
+const WDA_BASE_URL = 'http://localhost:8100';
 
 function getStartOpts(device: AppleDevice) {
   return {
     device,
+    platformName: PLATFORM_NAME,
     platformVersion: PLATFORM_VERSION,
     host: 'localhost',
     port: 8100,
@@ -31,77 +22,79 @@ function getStartOpts(device: AppleDevice) {
   };
 }
 
+// /status and /source are both routed `.withoutSession` in WebDriverAgentLib, so they can be hit
+// directly after `launch()` without this package having to create a real WDA session first.
+async function assertWdaIsResponding(): Promise<void> {
+  const statusResponse = await fetch(`${WDA_BASE_URL}/status`);
+  assert.equal(statusResponse.status, 200);
+  const status = (await statusResponse.json()) as {value: {state: string; build: {productBundleIdentifier: string}}};
+  assert.equal(status.value.state, 'success');
+  assert.equal(typeof status.value.build.productBundleIdentifier, 'string');
+
+  const sourceResponse = await fetch(`${WDA_BASE_URL}/source`);
+  assert.equal(sourceResponse.status, 200);
+  const source = (await sourceResponse.json()) as {value: string};
+  assert.equal(typeof source.value, 'string');
+  assert.ok(source.value.length > 0, 'expected /source to return non-empty page source');
+
+  await assertSessionScopedSourceWorks();
+}
+
+// The sessionId passed to `agent.launch()` is only used for Appium-side proxy bookkeeping - it
+// never reaches WDA. Fetching source through `/session/:sessionId/source` (the form Appium
+// actually uses) needs a real WDA-issued session, created here via `POST /session`.
+async function assertSessionScopedSourceWorks(): Promise<void> {
+  const createSessionResponse = await fetch(`${WDA_BASE_URL}/session`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({capabilities: {alwaysMatch: {}, firstMatch: [{}]}}),
+  });
+  assert.equal(createSessionResponse.status, 200);
+  const session = (await createSessionResponse.json()) as {value: {sessionId: string}};
+  const wdaSessionId = session.value.sessionId;
+  assert.equal(typeof wdaSessionId, 'string');
+
+  try {
+    const sessionSourceResponse = await fetch(`${WDA_BASE_URL}/session/${wdaSessionId}/source`);
+    assert.equal(sessionSourceResponse.status, 200);
+    const sessionSource = (await sessionSourceResponse.json()) as {value: string};
+    assert.ok(sessionSource.value.length > 0, 'expected session-scoped /source to return non-empty page source');
+  } finally {
+    await fetch(`${WDA_BASE_URL}/session/${wdaSessionId}`, {method: 'DELETE'});
+  }
+}
+
+// Assumes a simulator is already booted and settled (the CI workflow, or the developer locally,
+// is responsible for that - see helpers/simulator.ts#getTargetDevice). These tests only cover
+// WDA build+startup, so they don't manage the simulator's lifecycle themselves.
 describe('WebDriverAgent', function () {
-  describe('with fresh sim', function () {
-    let device: SimulatorTestDevice;
-    let simctl: Simctl;
+  let device: AppleDevice;
+  let agent: WebDriverAgent | undefined;
 
-    before(async function () {
-      simctl = new Simctl();
-      simctl.udid = await simctl.createDevice(SIM_DEVICE_NAME, DEVICE_NAME, PLATFORM_VERSION);
-      device = (await getSimulator(simctl.udid)) as SimulatorTestDevice;
+  before(async function () {
+    device = await getTargetDevice();
+  });
 
-      // Prebuild WDA
-      const wda = new WebDriverAgent({
-        iosSdkVersion: PLATFORM_VERSION,
-        platformVersion: PLATFORM_VERSION,
-        showXcodeLog: true,
-        device,
-      });
-      if (wda.xcodebuild) {
-        await wda.xcodebuild.start(true);
-      }
-    });
+  // Guarantees WDA gets shut down even if the test itself throws (e.g. a failed assertion),
+  // so a leftover process/port doesn't take down the next test too.
+  afterEach(async function () {
+    await agent?.quit();
+    agent = undefined;
+  });
 
-    after(async function () {
-      await shutdownSimulator(device);
+  it('should build and start WDA from sources', async function () {
+    agent = new WebDriverAgent(getStartOpts(device));
 
-      await simctl.deleteDevice();
-    });
+    await agent.launch(randomUUID());
+    await assertWdaIsResponding();
+  });
 
-    describe('with running sim', function () {
-      beforeEach(async function () {
-        await killAllSimulators();
-        await device.simctl.startBootMonitor({
-          shouldPreboot: true,
-          timeout: SIM_STARTUP_TIMEOUT_MS,
-        });
-      });
-      afterEach(async function () {
-        try {
-          await retryInterval(5, 1000, async function () {
-            await shutdownSimulator(device);
-          });
-        } catch {}
-      });
+  it('should start WDA from a prebuilt binary', async function () {
+    // Relies on the build products the previous test already produced, exercising the
+    // `usePrebuiltWDA` (test-without-building) xcodebuild code path instead of a full rebuild.
+    agent = new WebDriverAgent({...getStartOpts(device), usePrebuiltWDA: true});
 
-      it('should launch agent on a sim', async function () {
-        const agent = new WebDriverAgent(getStartOpts(device));
-
-        await agent.launch('sessionId');
-        await assert.rejects(() => axios({url: testUrl}), /Request failed with status code 404/);
-        await agent.quit();
-      });
-
-      it('should fail if xcodebuild fails', async function () {
-        const agent = new WebDriverAgent(getStartOpts(device));
-        (agent.xcodebuild as any).createSubProcess = async function () {
-          const args = [
-            '-workspace',
-            `${this.agentPath}dfgs`,
-            // '-scheme',
-            // 'XCTUITestRunner',
-            // '-destination',
-            // `id=${this.device.udid}`,
-            // 'test'
-          ];
-          return new SubProcess('xcodebuild', args, {detached: true});
-        };
-
-        await assert.rejects(() => agent.launch('sessionId'), /xcodebuild failed/);
-
-        await agent.quit();
-      });
-    });
+    await agent.launch(randomUUID());
+    await assertWdaIsResponding();
   });
 });

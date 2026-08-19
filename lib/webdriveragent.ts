@@ -22,7 +22,7 @@ import type {
   RetrieveBuildSettingsOptions,
   WdaHostOps,
 } from './types.js';
-import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp} from './utils/index.js';
+import {BOOTSTRAP_PATH, getWDAUpgradeTimestamp, isWatchOS} from './utils/index.js';
 import {
   createDefaultWdaHostOps,
   createWdaStartupStrategy,
@@ -87,6 +87,10 @@ export class WebDriverAgent {
     this.iosSdkVersion = args.iosSdkVersion;
     this.host = args.host;
     this.isRealDevice = !!args.realDevice;
+
+    if (isWatchOS(this.platformName || '') && this.isRealDevice) {
+      throw new Error('Real watchOS device testing is not supported; watchOS is only available via the Simulator.');
+    }
 
     this.setWDAPaths(args.bootstrapPath, args.agentPath);
 

@@ -15,20 +15,35 @@ jobs:
           # https://github.com/actions/runner-images/issues/14404
           - HOST_OS: 'xcode-27'
             XCODE_VERSION: '27.0-beta'
-            IOS_VERSION: '27.0'
-            IOS_MODEL: 'iPhone 17'
+            PLATFORM_NAME: 'iOS'
+            PLATFORM_VERSION: '27.0'
+            DEVICE_NAME: 'iPhone 17'
           - HOST_OS: 'macos-26'
             XCODE_VERSION: '26.4'
-            IOS_VERSION: '26.4'
-            IOS_MODEL: 'iPhone 17'
+            PLATFORM_NAME: 'iOS'
+            PLATFORM_VERSION: '26.4'
+            DEVICE_NAME: 'iPhone 17'
           - HOST_OS: 'macos-15'
             XCODE_VERSION: '16.4'
-            IOS_VERSION: '18.5'
-            IOS_MODEL: 'iPhone 16 Plus'
+            PLATFORM_NAME: 'iOS'
+            PLATFORM_VERSION: '18.5'
+            DEVICE_NAME: 'iPhone 16 Plus'
           - HOST_OS: 'macos-14'
             XCODE_VERSION: '15.4'
-            IOS_VERSION: '17.5'
-            IOS_MODEL: 'iPhone 15 Plus'
+            PLATFORM_NAME: 'iOS'
+            PLATFORM_VERSION: '17.5'
+            DEVICE_NAME: 'iPhone 15 Plus'
+          # watchOS: same Min/Max Xcode pairing used by wda-tests.yml's watch integration test matrix.
+          - HOST_OS: 'xcode-27'
+            XCODE_VERSION: '27.0-beta'
+            PLATFORM_NAME: 'watchOS'
+            PLATFORM_VERSION: '27.0'
+            DEVICE_NAME: 'Apple Watch Series 11 (46mm)'
+          - HOST_OS: 'macos-14'
+            XCODE_VERSION: '15.4'
+            PLATFORM_NAME: 'watchOS'
+            PLATFORM_VERSION: '10.5'
+            DEVICE_NAME: 'Apple Watch Series 9 (45mm)'
 
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
     runs-on: ${{matrix.test_targets.HOST_OS}}
@@ -46,18 +61,32 @@ jobs:
         mkdir -p ./Resources/WebDriverAgent.bundle
       name: Install dev dependencies
 
-    - name: Prepare iOS simulator
-      if: ${{ matrix.test_targets.XCODE_VERSION != '27.0-beta' }}
-      env:
-        DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
-        PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
+    - run: xcrun simctl list devices available
+      name: List Installed Simulators
+    - run: xcrun simctl list runtimes
+      name: List Runtimes
+    - name: Start Simulator UI
+      # Xcode 27 replaced Simulator.app with DeviceHub.app, one directory level up from
+      # Simulator.app's location (Contents/Applications instead of Contents/Developer/Applications).
       run: |
-        xcrun simctl list devices available
-        open -Fn "$(xcode-select -p)/Applications/Simulator.app"
-        udid=$(xcrun simctl list devices available -j | \
-          node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
-        xcrun simctl bootstatus $udid -b
-        xcrun simctl shutdown $udid
+        if [ "${PLATFORM_VERSION%%.*}" -ge 27 ]; then
+          open -Fn "$(xcode-select --print-path)/../Applications/DeviceHub.app"
+        else
+          open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+        fi
+      env:
+        PLATFORM_VERSION: ${{matrix.test_targets.PLATFORM_VERSION}}
+    - name: Prepare simulator
+      id: prepareSimulator
+      uses: futureware-tech/simulator-action@v5
+      with:
+        model: '${{matrix.test_targets.DEVICE_NAME}}'
+        os: '${{matrix.test_targets.PLATFORM_NAME}}'
+        os_version: '${{matrix.test_targets.PLATFORM_VERSION}}'
+        shutdown_after_job: false
+        wait_for_boot: true
+    - name: Finalize simulator boot
+      run: node Scripts/ci/wait-for-simulator-idle.mjs "${{steps.prepareSimulator.outputs.udid}}"
 
     - run: npm run e2e-test
       name: Run functional tests
@@ -65,5 +94,7 @@ jobs:
         CI: true
         _FORCE_LOGS: 1
         _LOG_TIMESTAMP: 1
-        DEVICE_NAME: ${{matrix.test_targets.IOS_MODEL}}
-        PLATFORM_VERSION: ${{matrix.test_targets.IOS_VERSION}}
+        DEVICE_NAME: ${{matrix.test_targets.DEVICE_NAME}}
+        PLATFORM_NAME: ${{matrix.test_targets.PLATFORM_NAME}}
+        PLATFORM_VERSION: ${{matrix.test_targets.PLATFORM_VERSION}}
+        SIMULATOR_UDID: ${{steps.prepareSimulator.outputs.udid}}

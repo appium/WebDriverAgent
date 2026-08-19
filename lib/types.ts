@@ -179,9 +179,11 @@ export type WdaScheme =
   | 'WebDriverAgentRunner'
   | 'WebDriverAgentLib'
   | 'WebDriverAgentRunner_tvOS'
-  | 'WebDriverAgentLib_tvOS';
+  | 'WebDriverAgentLib_tvOS'
+  | 'WebDriverAgentRunner_watchOS'
+  | 'WebDriverAgentLib_watchOS';
 
-export type WdaSdk = 'iphonesimulator' | 'iphoneos' | 'appletvsimulator' | 'appletvos';
+export type WdaSdk = 'iphonesimulator' | 'iphoneos' | 'appletvsimulator' | 'appletvos' | 'watchsimulator';
 
 export type WdaBuildConfiguration = 'Debug' | 'Release';
 

@@ -7,7 +7,7 @@ import {describe, beforeEach, afterEach, it} from 'node:test';
 import {fs} from '@appium/support';
 import sinon from 'sinon';
 
-import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS} from '../../lib/constants.js';
+import {PLATFORM_NAME_IOS, PLATFORM_NAME_TVOS, PLATFORM_NAME_WATCHOS} from '../../lib/constants.js';
 import type {DeviceInfo} from '../../lib/types.js';
 import {getXctestrunFilePath, getAdditionalRunContent, getXctestrunFileName} from '../../lib/utils/index.js';
 
@@ -167,6 +167,11 @@ describe('utils', function () {
       assert.strictEqual(wdaPort.WebDriverAgentRunner_tvOS.EnvironmentVariables.USE_PORT, '9000');
     });
 
+    it('should return watchos format', function () {
+      const wdaPort = getAdditionalRunContent(PLATFORM_NAME_WATCHOS, '9100');
+      assert.strictEqual(wdaPort.WebDriverAgentRunner_watchOS.EnvironmentVariables.USE_PORT, '9100');
+    });
+
     it('should include max HTTP request body size if provided', function () {
       const runContent = getAdditionalRunContent(PLATFORM_NAME_IOS, 8000, undefined, 1024);
       assert.strictEqual(runContent.WebDriverAgentRunner.EnvironmentVariables.MAX_HTTP_REQUEST_BODY_SIZE, '1024');
@@ -214,6 +219,16 @@ describe('utils', function () {
       assert.strictEqual(
         getXctestrunFileName(deviceInfo, '10.2.0'),
         `WebDriverAgentRunner_tvOS_appletvsimulator10.2.0-${get_arch()}.xctestrun`,
+      );
+    });
+
+    it('should return watchos format, simulator', function () {
+      const platformName = 'watchOS';
+      const deviceInfo: DeviceInfo = {isRealDevice: false, udid, platformVersion, platformName};
+
+      assert.strictEqual(
+        getXctestrunFileName(deviceInfo, '10.2.0'),
+        `WebDriverAgentRunner_watchOS_watchsimulator10.2.0-${get_arch()}.xctestrun`,
       );
     });
   });

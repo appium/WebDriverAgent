@@ -97,6 +97,29 @@ describe('WebDriverAgent', function () {
       });
       assert.throws(() => agent.xcodebuild, /xcodebuild is not available/);
     });
+
+    it('should throw for real watchOS device sessions', function () {
+      assert.throws(
+        () =>
+          new WebDriverAgent({
+            ...fakeConstructorArgs,
+            platformName: 'watchOS',
+            realDevice: true,
+          }),
+        /Real watchOS device testing is not supported/,
+      );
+    });
+
+    it('should not throw for watchOS simulator sessions', function () {
+      assert.doesNotThrow(
+        () =>
+          new WebDriverAgent({
+            ...fakeConstructorArgs,
+            platformName: 'watchOS',
+            realDevice: false,
+          }),
+      );
+    });
   });
 
   describe('launch', function () {

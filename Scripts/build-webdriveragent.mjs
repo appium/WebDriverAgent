@@ -12,14 +12,15 @@ const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __file
 const LOG = new logger.getLogger('WDABuild');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const DERIVED_DATA_PATH = `${ROOT_DIR}/wdaBuild`;
-const WDA_BUNDLE = 'WebDriverAgentRunner-Runner.app';
-const WDA_BUNDLE_PATH = path.join(DERIVED_DATA_PATH, 'Build', 'Products', 'Debug-iphonesimulator');
 
-const WDA_BUNDLE_TV = 'WebDriverAgentRunner_tvOS-Runner.app';
-const WDA_BUNDLE_TV_PATH = path.join(DERIVED_DATA_PATH, 'Build', 'Products', 'Debug-appletvsimulator');
+const BUNDLE_INFO = {
+  runner: {bundle: 'WebDriverAgentRunner-Runner.app', productDir: 'Debug-iphonesimulator'},
+  tv_runner: {bundle: 'WebDriverAgentRunner_tvOS-Runner.app', productDir: 'Debug-appletvsimulator'},
+  watch_runner: {bundle: 'WebDriverAgentRunner_watchOS-Runner.app', productDir: 'Debug-watchsimulator'},
+};
 
-const TARGETS = ['runner', 'tv_runner'];
-const SDKS = ['sim', 'tv_sim'];
+const TARGETS = ['runner', 'tv_runner', 'watch_runner'];
+const SDKS = ['sim', 'tv_sim', 'watch_sim'];
 
 /**
  * Build WebDriverAgent and pack the app bundle into a zip archive.
@@ -61,9 +62,8 @@ async function buildWebDriverAgent(xcodeVersion) {
     throw e;
   }
 
-  const isTv = target === 'tv_runner';
-  const bundle = isTv ? WDA_BUNDLE_TV : WDA_BUNDLE;
-  const bundle_path = isTv ? WDA_BUNDLE_TV_PATH : WDA_BUNDLE_PATH;
+  const {bundle, productDir} = BUNDLE_INFO[target];
+  const bundle_path = path.join(DERIVED_DATA_PATH, 'Build', 'Products', productDir);
 
   const zipName = `WebDriverAgentRunner-Runner-${sdk}-${xcodeVersion}.zip`;
   LOG.info(`Creating ${zipName} which includes ${bundle}`);

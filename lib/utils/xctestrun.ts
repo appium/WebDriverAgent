@@ -5,7 +5,7 @@ import {fs, plist, util} from '@appium/support';
 
 import {log} from '../logger.js';
 import type {DeviceInfo} from '../types.js';
-import {isTvOS} from './platform.js';
+import {isTvOS, isWatchOS} from './platform.js';
 
 /**
  * Arguments for setting xctestrun file
@@ -63,7 +63,7 @@ export function getAdditionalRunContent(
   wdaBindingIP?: string,
   maxHttpRequestBodySize?: number | string,
 ): Record<string, any> {
-  const runner = `WebDriverAgentRunner${isTvOS(platformName) ? '_tvOS' : ''}`;
+  const runner = `WebDriverAgentRunner${getRunnerSchemeSuffix(platformName)}`;
   return {
     [runner]: {
       EnvironmentVariables: {
@@ -130,7 +130,33 @@ export function getXctestrunFileName(deviceInfo: DeviceInfo, version: string): s
   const archSuffix = deviceInfo.isRealDevice
     ? `os${version}-arm64`
     : `simulator${version}-${arch() === 'arm64' ? 'arm64' : 'x86_64'}`;
-  return `WebDriverAgentRunner_${isTvOS(deviceInfo.platformName) ? 'tvOS_appletv' : 'iphone'}${archSuffix}.xctestrun`;
+  return `WebDriverAgentRunner_${getXctestrunSdkPrefix(deviceInfo.platformName)}${archSuffix}.xctestrun`;
+}
+
+/**
+ * @returns The `WebDriverAgentRunner` scheme name suffix for the given platform.
+ */
+function getRunnerSchemeSuffix(platformName: string): string {
+  if (isTvOS(platformName)) {
+    return '_tvOS';
+  }
+  if (isWatchOS(platformName)) {
+    return '_watchOS';
+  }
+  return '';
+}
+
+/**
+ * @returns The scheme-and-SDK prefix used in auto-generated xctestrun file names for the given platform.
+ */
+function getXctestrunSdkPrefix(platformName: string): string {
+  if (isTvOS(platformName)) {
+    return 'tvOS_appletv';
+  }
+  if (isWatchOS(platformName)) {
+    return 'watchOS_watch';
+  }
+  return 'iphone';
 }
 
 function mergeObjects<T extends Record<string, any>, U extends Record<string, any>>(target: T, source: U): T & U {

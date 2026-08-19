@@ -1,7 +1,7 @@
 import {getWDAUpgradeTimestamp as getWDAUpgradeTimestampImpl} from './module.js';
 
 export {BOOTSTRAP_PATH} from './module.js';
-export {isTvOS} from './platform.js';
+export {getPlatformSchemeSuffix, isTvOS, isWatchOS} from './platform.js';
 export {getPIDsListeningOnPort, killAppUsingPattern, resetTestProcesses} from './processes.js';
 export {setRealDeviceSecurity} from './security.js';
 export {getAdditionalRunContent, getXctestrunFileName, getXctestrunFilePath, setXctestrunFile} from './xctestrun.js';
