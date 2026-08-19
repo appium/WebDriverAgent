@@ -8,16 +8,18 @@
 
 import XCTest
 
-/// Covers FBAlertViewCommands' error path - IntegrationApp_watchOS never presents a real alert,
-/// so this only exercises the "no alert open" error, not the success path.
-final class WDAAlertIntegrationTests: WDAWatchIntegrationTestCase {
-  func testAlertTextWithNoAlertPresentReturnsAnError() throws {
-    let response = try client.get("/session/\(sessionId!)/alert/text")
-    XCTAssertNotEqual(response.statusCode, 200)
+/// Covers FBAlert's no-alert-present behavior directly, in-process. IntegrationApp_watchOS never
+/// presents a real alert, so this only exercises the "no alert open" path (`text`/`buttonLabels`
+/// both just return nil - no HTTP-error-style throw at this layer), not the success path.
+final class WDAAlertIntegrationTests: WDAWatchInProcessTestCase {
+  // All reads, no taps/typing - reuse the same running app across the whole class.
+  override class var relaunchForEachTest: Bool { false }
+
+  func testAlertTextWithNoAlertPresentReturnsNil() {
+    XCTAssertNil(FBAlert(application: app).text())
   }
 
-  func testAlertButtonsWithNoAlertPresentReturnsAnError() throws {
-    let response = try client.get("/session/\(sessionId!)/wda/alert/buttons")
-    XCTAssertNotEqual(response.statusCode, 200)
+  func testAlertButtonsWithNoAlertPresentReturnsNil() {
+    XCTAssertNil(FBAlert(application: app).buttonLabels())
   }
 }

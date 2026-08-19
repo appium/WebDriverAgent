@@ -119,6 +119,7 @@
 		205E75731851D363B53A61DE /* UITestingUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */; };
 		208F3FB46E41B0A1C87B8800 /* FBScreenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C9EAAB25E8415A00470CD8 /* FBScreenshot.m */; };
 		2238B4FC5C7DCD4B4215444D /* XCTMessagingRole_ProtectedResourceAuthorization-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = CCCBEAE654102DBB1C8C22CD /* XCTMessagingRole_ProtectedResourceAuthorization-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		227E3F36FAA2C3881F89FD81 /* WDAClickIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C878996F07A9B26E66FC4EAC /* WDAClickIntegrationTests.swift */; };
 		229F9F5B85C1255447495847 /* XCUIApplicationAutomationSessionProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 603D97F0F9A5B9D4E6442BF2 /* XCUIApplicationAutomationSessionProviding-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		22A6AD29DB4A497BC03C2B67 /* XCTIssue+FBPatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 71A5C67129A4F39600421C37 /* XCTIssue+FBPatcher.h */; };
 		22D9C8C0CDA32D1F307A345E /* XCTMessagingRole_DebugLogging-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 471DF7EE3C63C3069FB9D40D /* XCTMessagingRole_DebugLogging-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -488,6 +489,7 @@
 		67AFD75FBCD4BFC5424A0956 /* XCTMessagingRole_ActivityReporting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EED93C03F27978174C7333C1 /* XCTMessagingRole_ActivityReporting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		68BAD7FD955D2732151C355D /* XCUIRemoteAccessibilityInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 3DD2F42015E89D253EA57F63 /* XCUIRemoteAccessibilityInterface-Protocol.h */; };
 		68CF77BE3F4B659BAFC99AF1 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C19CEEEC9858A106061D1F8 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		68EB0B8D53270CB68C53D028 /* WDAAlertIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F75AEC6442F32A3C4394AD /* WDAAlertIntegrationTests.swift */; };
 		698A247C297C36C7DEBFCD28 /* XCTMessagingRole_TestReporting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 13AAB3B43FB533B0E9C3F40D /* XCTMessagingRole_TestReporting-Protocol.h */; };
 		69D17671BE6F04D5FE909BD1 /* XCTMessagingRole_BundleRequesting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = C928E94CBC13E262D818C28E /* XCTMessagingRole_BundleRequesting-Protocol.h */; };
 		6A093FDB29E19E1F1F51A6A8 /* FBImageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 7150348521A6DAD600A0F4BA /* FBImageUtils.h */; };
@@ -495,6 +497,7 @@
 		6A4E39AED8C9C8BEBD960710 /* FBImageProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 63CCF91021ECE4C700E94ABD /* FBImageProcessor.h */; };
 		6A594CAA5D54658403A031DC /* XCTRunnerAutomationSession-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01AF8E73DD47455B4854E470 /* XCTRunnerAutomationSession-Protocol.h */; };
 		6ACEDEB2C16EFA502ED27FC4 /* XCTMeasureOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = B3FDA51EB36F03592BF48762 /* XCTMeasureOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6AF8892AEF5C6BF01896B6DA /* WDAAppLifecycleIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1B9A793C9EFB7853C1AA13 /* WDAAppLifecycleIntegrationTests.swift */; };
 		6B3AB44BFFDDF042E4B712C1 /* FBPasteboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 71930C4020662E1F00D3AFEC /* FBPasteboard.h */; };
 		6B4E076881F3C7F369044682 /* FBXCDeviceEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 13DE7A47287C4005003243C6 /* FBXCDeviceEvent.h */; };
 		6B68382176E9918AF3110710 /* XCTMacCatalystStatusProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 42D2B5A0C490D9698C2A87A9 /* XCTMacCatalystStatusProviding-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -507,6 +510,7 @@
 		6E9672EC1A999619AED1EF4D /* XCTSourceCodeContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 530D925D1492C4DF826B46BB /* XCTSourceCodeContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EA187930FA95A0FB2D0338F /* XCUIElement+FBUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE376401D59F81400ED88DD /* XCUIElement+FBUtilities.m */; };
 		6EC82BD561787BE315AD369A /* XCTMessagingRole_SiriAutomation-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FCD1815F2BF21CA0936B04E1 /* XCTMessagingRole_SiriAutomation-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6EDF83DA0A6C7A7E67C30AF6 /* WDADeviceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646D714BC17FE9258CFBDF55 /* WDADeviceIntegrationTests.swift */; };
 		6FC8E41707F65D5A432206CC /* FBXCAccessibilityElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 13DE7A41287C2A8D003243C6 /* FBXCAccessibilityElement.h */; };
 		70E21F76098198E19A6E5A5E /* FBXCAXClientProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 7157B28F221DADD2001C348C /* FBXCAXClientProxy.h */; };
 		711084441DA3AA7500F913D6 /* FBXPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 711084421DA3AA7500F913D6 /* FBXPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -734,6 +738,7 @@
 		71F5BE51252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
 		71F5BE52252F14EB00EE9EBA /* FBExceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 71F5BE4E252F14EB00EE9EBA /* FBExceptions.m */; };
 		727A1A132D139DB3B82808F4 /* XCTFuture.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F044AD574A9837C04F833CB /* XCTFuture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		72F5BAE6CA919434EA4DA0F3 /* WDAFindIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED63DFD03326F6351165FE /* WDAFindIntegrationTests.swift */; };
 		72FE28D00A69D335B463C03A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 721E280BFFEFFD40C89277AF /* AppDelegate.m */; };
 		732D07CE799D8B584B4033E8 /* XCTMessagingRole_DebugLogging-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 471DF7EE3C63C3069FB9D40D /* XCTMessagingRole_DebugLogging-Protocol.h */; };
 		734735CAB6A95282CCF098E5 /* XCUIElement+FBFind.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBD48A1D47746D00656A81 /* XCUIElement+FBFind.m */; };
@@ -780,6 +785,8 @@
 		81A1DA56232415B8FC3329E8 /* XCUIApplicationImplReporter-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BC403F42F61DDB1F11DD0 /* XCUIApplicationImplReporter-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		81BB152C7704087B3FE6F854 /* XCTSkippedTestContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8C32C75CC17179B347DF6F78 /* XCTSkippedTestContext.h */; };
 		81D8C17650E61D67CB43061A /* XCTIssue.h in Headers */ = {isa = PBXBuildFile; fileRef = ACB055BCA9CCEAB3DECD1A74 /* XCTIssue.h */; };
+		82BFCB20DDC831F3F3700469 /* WDAWatchInProcessTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C280328DE3379F9EF701A20 /* WDAWatchInProcessTestCase.swift */; };
+		8305C9A5FE6D379A2BB445D2 /* WDAHTTPEndToEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F281228C841D2A0718B9AD /* WDAHTTPEndToEndTests.swift */; };
 		83FFBD660C6C7F8D2426E2EE /* XCTestRun.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35ACE41E3B77D600A02D78 /* XCTestRun.h */; };
 		84198CB51920B55B0AD0F5B4 /* XCTMessagingRole_UIAutomation-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 92182E4007B37665AB8CD88E /* XCTMessagingRole_UIAutomation-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		844C1352549460E759ABCCD3 /* XCTMessagingChannel_RunnerToIDE-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 100F37231BF17CA9BB91DF16 /* XCTMessagingChannel_RunnerToIDE-Protocol.h */; };
@@ -894,7 +901,7 @@
 		A8CEAEFC8CC63F94DA0176A9 /* XCUIDevice+FBVoiceOver.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */; };
 		A95AE6DC8C54B7E2C3CB2570 /* XCTMessagingRole_SelfDiagnosisIssueReporting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 74AA57E9A81B1B0515CB587F /* XCTMessagingRole_SelfDiagnosisIssueReporting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A967F44C38E10C0295AD08FF /* XCTMessagingRole_CapabilityExchange-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 62A682C55077710D1D90ABC3 /* XCTMessagingRole_CapabilityExchange-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A970B1FBC690CBE536636228 /* WebDriverAgentLib_watchOS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D1171249FE5D91AC5D797E5C /* WebDriverAgentLib_watchOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A970B1FBC690CBE536636228 /* WebDriverAgentLib_watchOS.framework in Copy frameworks */ = {isa = PBXBuildFile; fileRef = D1171249FE5D91AC5D797E5C /* WebDriverAgentLib_watchOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A9BCCC677A46E48D4D2B05A9 /* FBActiveAppDetectionPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */; };
 		AAA213E600F40AB7F43D1015 /* WebDriverAgentLib_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 641EE6F82240C5CA00173FCB /* WebDriverAgentLib_tvOS.framework */; };
 		AABBCCDDEEFF001122334457 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF001122334456 /* SceneDelegate.m */; };
@@ -932,6 +939,7 @@
 		B316351D2DDF0CF5007D9317 /* FBAccessibilityTraits.m in Sources */ = {isa = PBXBuildFile; fileRef = B316351B2DDF0CF5007D9317 /* FBAccessibilityTraits.m */; };
 		B316351F2DDF0D0B007D9317 /* FBAccessibilityTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = B316351E2DDF0D0B007D9317 /* FBAccessibilityTraits.h */; };
 		B31635202DDF0D0B007D9317 /* FBAccessibilityTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = B316351E2DDF0D0B007D9317 /* FBAccessibilityTraits.h */; };
+		B36D8136E49BF48ED389D1DB /* WDAWatchInProcessTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C280328DE3379F9EF701A20 /* WDAWatchInProcessTestCase.swift */; };
 		B63FBAF7421417011D724B6F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 722E62C63348A451A351524B /* Foundation.framework */; };
 		B6AB97EF303CCF15017EB07A /* XCUIApplicationProcessDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FCB89739438814F43BCA24 /* XCUIApplicationProcessDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B6B73CE709728984EF03361D /* FBFailureProofTestCase.h in Headers */ = {isa = PBXBuildFile; fileRef = EE6A89381D0B38640083E92B /* FBFailureProofTestCase.h */; };
@@ -955,6 +963,7 @@
 		BF9B191D841681A571BAFED1 /* _XCTestObservationPrivate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = C840A8703A7C8D48897E158A /* _XCTestObservationPrivate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BFF5D9B9446DD542E5D6017D /* XCTTagSelection.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E2092D85A7C691F157B1971 /* XCTTagSelection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C040AE5F2E3B934E8EEAEE0F /* XCUIApplicationProcessDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FCB89739438814F43BCA24 /* XCUIApplicationProcessDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C06A5CB7DFF9A36069723DDA /* WDAUnknownCommandIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C90E6C9835DC2FDB3CB6501 /* WDAUnknownCommandIntegrationTests.swift */; };
 		C07F140AF96143A0A5CAA2B0 /* XCTestCaseDiscoveryUIAutomationDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E29888B75A756D1CCD21604C /* XCTestCaseDiscoveryUIAutomationDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C1414C29C836902466C4D6DB /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A80A1C12FA9899367D316E8C /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C14FD6933C5E978E7E54F44D /* XCTMessagingRole_BundleRequesting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = C928E94CBC13E262D818C28E /* XCTMessagingRole_BundleRequesting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -988,6 +997,7 @@
 		C8FB547922D4C1FC00B69954 /* FBUnattachedAppLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = C8FB547722D4C1FC00B69954 /* FBUnattachedAppLauncher.h */; };
 		C8FB547A22D4C1FC00B69954 /* FBUnattachedAppLauncher.m in Sources */ = {isa = PBXBuildFile; fileRef = C8FB547822D4C1FC00B69954 /* FBUnattachedAppLauncher.m */; };
 		C931666B44D9F20B3A1026B0 /* XCAXClient_iOS+FBSnapshotReqParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 714E14B629805CAE00375DD7 /* XCAXClient_iOS+FBSnapshotReqParams.h */; };
+		C9E1623979E5FA83C1E58A45 /* WDASessionIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D14C409E982099568175D1 /* WDASessionIntegrationTests.swift */; };
 		CA1E428789B0D9CB9C874133 /* XCUIKnobControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C78201A2212BEA77979F4FF /* XCUIKnobControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CAA29EF94D29713540C57528 /* XCUIInterruptionMonitoring-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 44019CB45CF491B5FDAB8213 /* XCUIInterruptionMonitoring-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CB1790B793BB813AF80F65DF /* XCUIElement+FBTVFocuse.h in Headers */ = {isa = PBXBuildFile; fileRef = 641EE7042240CDCF00173FCB /* XCUIElement+FBTVFocuse.h */; };
@@ -1009,15 +1019,18 @@
 		D1212325FDE77754EE503755 /* FBRouteRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB7881CAEDF0C008C271F /* FBRouteRequest.m */; };
 		D142183578036F5FD5B9880B /* XCUIDevice+FBHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = AD6C26961CF2481700F8B5FF /* XCUIDevice+FBHelpers.h */; };
 		D14718959F7D46949859EEE6 /* FBDebugLogDelegateDecorator.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7E27191D06C69F001BEC7B /* FBDebugLogDelegateDecorator.m */; };
+		D1DC5C660E5AB15DAFB7FB53 /* WDAHTTPEndToEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F281228C841D2A0718B9AD /* WDAHTTPEndToEndTests.swift */; };
 		D1DE06DF54156F744E364B5F /* FBDebugLogDelegateDecorator.h in Headers */ = {isa = PBXBuildFile; fileRef = EE7E27181D06C69F001BEC7B /* FBDebugLogDelegateDecorator.h */; };
 		D203F622C7C0D968F3BD2AAF /* XCUIPlatformApplicationServicesProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 3BA71BCF1FDA482419CA8596 /* XCUIPlatformApplicationServicesProviding-Protocol.h */; };
 		D209CAD44BCD87BDF8BE30B1 /* libAccessibility.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B41A224D5B480042A993 /* libAccessibility.tbd */; };
 		D227087A470351BB2BD58376 /* XCTWaiterWait.h in Headers */ = {isa = PBXBuildFile; fileRef = 8566F4674B2CF640A678C952 /* XCTWaiterWait.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D22F20BC746C639DCDD2F69C /* XCTMessagingRole_ProcessMonitoring-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = B43D656732067585371ADD31 /* XCTMessagingRole_ProcessMonitoring-Protocol.h */; };
+		D22FED0B3856919DA4BCFA67 /* WDATypingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 912F32C353FE7C3E7C841405 /* WDATypingIntegrationTests.swift */; };
 		D234E390A449065FA22F28EF /* XCUIAccessibilityInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = D47DD8BF27FE639742EA2E3E /* XCUIAccessibilityInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D27A70EE9F480A3D1CDDB389 /* XCTMessagingRole_PerformanceMeasurementReporting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B650ADFEEA2369A10F6C1F1 /* XCTMessagingRole_PerformanceMeasurementReporting-Protocol.h */; };
 		D2A463EE081CED34AA988123 /* XCTTestIdentifierSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E079E00FE148476F94BC42F /* XCTTestIdentifierSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D2B83B27DAB80FE235285D2F /* FBElement.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9AB7791CAEDF0C008C271F /* FBElement.h */; };
+		D3028F821AFA2A8986906A8F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD1ABD1093739852B52C472B /* Foundation.framework */; };
 		D3634A090D755F8993EDD3E5 /* XCUIApplicationImplReporter-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BC403F42F61DDB1F11DD0 /* XCUIApplicationImplReporter-Protocol.h */; };
 		D40D635A4ABBC79829A0D590 /* FBElementTypeTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9AB78F1CAEDF0C008C271F /* FBElementTypeTransformer.h */; };
 		D42BE4D9C5231F13BD465DBD /* XCTWaiterManager-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = CC227321769E70CDF7C2D38F /* XCTWaiterManager-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1045,9 +1058,11 @@
 		DFC01347FC6A5308D5C6765D /* XCTMessagingRole_MemoryTesting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 13D863EAE7F6F8B7E42D99B9 /* XCTMessagingRole_MemoryTesting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E046D4602540FA7272DCBCB4 /* XCUIElement+FBWebDriverAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE376481D59FAE900ED88DD /* XCUIElement+FBWebDriverAttributes.m */; };
 		E101F1B19A8079EAD8457C0C /* WDAWatchIntegrationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BD02A29E3B2EB1D57FDD29 /* WDAWatchIntegrationTestCase.swift */; };
+		E1653072AC5040C7325DAAED /* WebDriverAgentLib_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1171249FE5D91AC5D797E5C /* WebDriverAgentLib_watchOS.framework */; };
 		E19946F12AD25E3EFFD89A36 /* XCTAggregateSuiteRunStatistics.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AA21CEBA6E92AAC73FB6A48 /* XCTAggregateSuiteRunStatistics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E1C6D95706F0F87BE535E332 /* WDAClickIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C878996F07A9B26E66FC4EAC /* WDAClickIntegrationTests.swift */; };
 		E1E21D96BC2347D9AC01269D /* XCUIApplicationProcessTracker-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 3238E68F292452D8234153F1 /* XCUIApplicationProcessTracker-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E1F20E47472FED558822C1E5 /* WDAElementAttributeIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848B7B14F95EFE16EEC46045 /* WDAElementAttributeIntegrationTests.swift */; };
 		E1F9DBCDED4574CBF53450BE /* XCUIApplicationAutomationSessionProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 603D97F0F9A5B9D4E6442BF2 /* XCUIApplicationAutomationSessionProviding-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E29A0688606C24973775C64D /* XCTTestIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 831F292661C60B68B557F14D /* XCTTestIdentifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E2D4264AE37BE5A1EDEA72AF /* XCTReportingSessionTestContainer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = D5D58975822CD58C8FEF7FEB /* XCTReportingSessionTestContainer-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1100,7 +1115,9 @@
 		E571286CBEA891946EED7C70 /* XCTSourceCodeLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 81BB54ECBFB5B7B680BB5D4F /* XCTSourceCodeLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E608A983E2E6A6A1A46A6E91 /* XCUIDeviceAutomationModeInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 5CF2F53B94CC13C628FC7760 /* XCUIDeviceAutomationModeInterface-Protocol.h */; };
 		E62AED48CAE64088C1E7498B /* XCUIElement+FBPickerWheel.h in Headers */ = {isa = PBXBuildFile; fileRef = 7136A4771E8918E60024FC3D /* XCUIElement+FBPickerWheel.h */; };
+		E66195839119DC5A8BB7A5D9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD1ABD1093739852B52C472B /* Foundation.framework */; };
 		E6B214145FE46BBFD824FAE7 /* FBMathUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1888381DA661C400307AA8 /* FBMathUtils.h */; };
+		E6C5DCBD3EB1CA81B39483F5 /* WDAWatchHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F28D3CD9DDC2E54DB115316 /* WDAWatchHTTPClient.swift */; };
 		E78F581F8E7530B24AC31A8B /* XCTMessagingRole_UIAutomation-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 92182E4007B37665AB8CD88E /* XCTMessagingRole_UIAutomation-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E7DF976BD298CC4815946781 /* WDAUnknownCommandIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C90E6C9835DC2FDB3CB6501 /* WDAUnknownCommandIntegrationTests.swift */; };
 		E8E894CD81C41AC4467A4F4C /* XCTCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = DB5400B170F08C71779CCD0E /* XCTCapabilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1316,14 +1333,17 @@
 		F93EF507E81BB1A6697308CE /* NSExpression+FBFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 71555A3C1DEC460A007D4A8B /* NSExpression+FBFormat.m */; };
 		F9EA3F69A986D8D59A5122DB /* XCUIElementEventTarget-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DC62BF635704E9C72AF533E /* XCUIElementEventTarget-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA2CCA58B4A82D18E0F57C74 /* XCTMemoryChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = AFD7929A5F0B45397F0D64CB /* XCTMemoryChecker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA84B427FACA61DE6ED21ABD /* WebDriverAgentLib_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1171249FE5D91AC5D797E5C /* WebDriverAgentLib_watchOS.framework */; };
 		FAAD39E3C21C0415EE00F703 /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A80A1C12FA9899367D316E8C /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FAC85D261CAD26DB5F9D804C /* XCUIPlatformApplicationServicesProviding-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 3BA71BCF1FDA482419CA8596 /* XCUIPlatformApplicationServicesProviding-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FBAFC553152CE132D6CB98E5 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C19CEEEC9858A106061D1F8 /* XCUIDeviceDelayedAttachmentTransferSupportInterface-Protocol.h */; };
 		FBB82323D9D57F069440BF94 /* XCTMessagingRole_SystemConfiguration-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EA24F4BE52B2520874E09BEF /* XCTMessagingRole_SystemConfiguration-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FBDF04E5916B91FCEC0190CB /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = E444DCA324913C210060D7EB /* Route.h */; };
 		FBF064E4D96CFCD08E1F4EF7 /* XCUIDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = EE35ACFD1E3B77D600A02D78 /* XCUIDevice.h */; };
+		FBFEC05ED2C01D1EAE34BE9A /* WDAScreenshotAndSourceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F677B5B7737E7E1F321C20 /* WDAScreenshotAndSourceIntegrationTests.swift */; };
 		FC607DB5132FEF425237267B /* XCTMessagingRole_MemoryTesting-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 13D863EAE7F6F8B7E42D99B9 /* XCTMessagingRole_MemoryTesting-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FC73EE781D24A598B44C3337 /* XCUIElement+FBScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB74A1CAEDF0C008C271F /* XCUIElement+FBScrolling.m */; };
+		FD332E1C00E0800BA1820A4E /* WDAWatchIntegrationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BD02A29E3B2EB1D57FDD29 /* WDAWatchIntegrationTestCase.swift */; };
 		FD89236D119E129E8CEBDBCD /* XCTMessagingRole_HIDEventRecording-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 94D7F0C1E30FBDB5D2583908 /* XCTMessagingRole_HIDEventRecording-Protocol.h */; };
 		FDCF9A86C0531A1240ADAD4D /* XCTMessagingRole_UserPresence-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 036CD60C5DFA1644E3D51289 /* XCTMessagingRole_UserPresence-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FDD8D03066D7654072A51ABF /* FBUnattachedAppLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = C8FB547722D4C1FC00B69954 /* FBUnattachedAppLauncher.h */; };
@@ -1336,6 +1356,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1010D4A95020671CBB31297A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95186DE2383671DFA81D7FCB;
+			remoteInfo = WebDriverAgentLib_watchOS;
+		};
+		4550C2F5C675C03E9A91C68C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9D6B02D8FC050BAF7159284F;
+			remoteInfo = IntegrationApp_watchOS;
+		};
+		61F47E68EDECE16439DC2F57 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9D6B02D8FC050BAF7159284F;
+			remoteInfo = IntegrationApp_watchOS;
+		};
 		641EE6FA2240C5F400173FCB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
@@ -1349,6 +1390,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 641EE5D52240C5CA00173FCB;
 			remoteInfo = WebDriverAgentLib_tvOS;
+		};
+		79A7BAB354E176E532A7A562 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91F9DAE11B99DBC2001349B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95186DE2383671DFA81D7FCB;
+			remoteInfo = WebDriverAgentLib_watchOS;
 		};
 		844B4A2ED5B8EE2FDD98DAD6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1443,7 +1491,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A970B1FBC690CBE536636228 /* WebDriverAgentLib_watchOS.framework in CopyFiles */,
+				A970B1FBC690CBE536636228 /* WebDriverAgentLib_watchOS.framework in Copy frameworks */,
 			);
 			name = "Copy frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1477,6 +1525,7 @@
 		00834B3220005AD5A5ABEF7C /* XCUIApplicationManaging-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIApplicationManaging-Protocol.h"; sourceTree = "<group>"; };
 		01AF8E73DD47455B4854E470 /* XCTRunnerAutomationSession-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTRunnerAutomationSession-Protocol.h"; sourceTree = "<group>"; };
 		036CD60C5DFA1644E3D51289 /* XCTMessagingRole_UserPresence-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_UserPresence-Protocol.h"; sourceTree = "<group>"; };
+		051DE54AD9D9CE240FA27944 /* IntegrationTests_watchOS_2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_watchOS_2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		059F291E7D13B17580B4AD43 /* _XCTMessaging_VoidProtocol-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "_XCTMessaging_VoidProtocol-Protocol.h"; sourceTree = "<group>"; };
 		0DC62BF635704E9C72AF533E /* XCUIElementEventTarget-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIElementEventTarget-Protocol.h"; sourceTree = "<group>"; };
 		0E0413372DF1E15100AF007C /* XCUIElement+FBMinMax.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "XCUIElement+FBMinMax.m"; sourceTree = "<group>"; };
@@ -1488,6 +1537,7 @@
 		100F37231BF17CA9BB91DF16 /* XCTMessagingChannel_RunnerToIDE-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingChannel_RunnerToIDE-Protocol.h"; sourceTree = "<group>"; };
 		100F88CC697C688B7444D5BB /* XCUIApplicationMonitor-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIApplicationMonitor-Protocol.h"; sourceTree = "<group>"; };
 		10FBCE8B3A419B970DB7A5CE /* XCTMessagingRole_AttachmentFutureResultStatusUpdating-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_AttachmentFutureResultStatusUpdating-Protocol.h"; sourceTree = "<group>"; };
+		12F281228C841D2A0718B9AD /* WDAHTTPEndToEndTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAHTTPEndToEndTests.swift; sourceTree = "<group>"; };
 		1357E295233D05240054BDB8 /* XCUIHitPointResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCUIHitPointResult.h; sourceTree = "<group>"; };
 		13815F6D2328D20400CDAB61 /* FBActiveAppDetectionPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBActiveAppDetectionPoint.h; sourceTree = "<group>"; };
 		13815F6E2328D20400CDAB61 /* FBActiveAppDetectionPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBActiveAppDetectionPoint.m; sourceTree = "<group>"; };
@@ -1506,6 +1556,7 @@
 		13FFF2F0287DBEE600E561E4 /* XCElementSnapshotDouble.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XCElementSnapshotDouble.h; sourceTree = "<group>"; };
 		13FFF2F1287DBEE600E561E4 /* XCElementSnapshotDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCElementSnapshotDouble.m; sourceTree = "<group>"; };
 		16223B3E144418CC980D160E /* FBXCAccessibilityElementDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXCAccessibilityElementDouble.m; sourceTree = "<group>"; };
+		167CC387B5F9D62618B48F80 /* IntegrationTests_watchOS-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "IntegrationTests_watchOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		1BA7DD8C206D694B007C7C26 /* XCTElementSetTransformer-Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XCTElementSetTransformer-Protocol.h"; sourceTree = "<group>"; };
 		1E09842154A44874C4E9CA01 /* XCUIButtonConsole.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCUIButtonConsole.h; sourceTree = "<group>"; };
 		209C65575782ECAA09892D2B /* XCTMessagingRole_TestExecution-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_TestExecution-Protocol.h"; sourceTree = "<group>"; };
@@ -1514,7 +1565,6 @@
 		24BD02A29E3B2EB1D57FDD29 /* WDAWatchIntegrationTestCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAWatchIntegrationTestCase.swift; sourceTree = "<group>"; };
 		27D14C409E982099568175D1 /* WDASessionIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDASessionIntegrationTests.swift; sourceTree = "<group>"; };
 		28F75AEC6442F32A3C4394AD /* WDAAlertIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAAlertIntegrationTests.swift; sourceTree = "<group>"; };
-		2B2328F1BEDB7C3DFBC22E9A /* IntegrationTests_watchOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_watchOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B650ADFEEA2369A10F6C1F1 /* XCTMessagingRole_PerformanceMeasurementReporting-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_PerformanceMeasurementReporting-Protocol.h"; sourceTree = "<group>"; };
 		2BA6647ADE7B44F13513065A /* XCTMessagingRole_TelemetrySending-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_TelemetrySending-Protocol.h"; sourceTree = "<group>"; };
 		2CA02992F03AE1E134F2CAF5 /* XCTPromise.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTPromise.h; sourceTree = "<group>"; };
@@ -1761,6 +1811,7 @@
 		97FFAEF000CE312DEBEA9385 /* RouteRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RouteRequest.m; sourceTree = "<group>"; };
 		9A0B17F41E4461BBD09A2962 /* XCUIResetAuthorizationStatusOfProtectedResourcesInterface-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIResetAuthorizationStatusOfProtectedResourcesInterface-Protocol.h"; sourceTree = "<group>"; };
 		9AF0584AD9B6D0A57012C978 /* XCTExpectedFailureContextManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTExpectedFailureContextManager.h; sourceTree = "<group>"; };
+		9C280328DE3379F9EF701A20 /* WDAWatchInProcessTestCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAWatchInProcessTestCase.swift; sourceTree = "<group>"; };
 		9DD3770A67ED561EBE5E443A /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A1291FF806FE75EDE239FE44 /* XCTRepetitionPolicy.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTRepetitionPolicy.h; sourceTree = "<group>"; };
 		A1B2C3D41F001A00A1B0001 /* XCUIDevice+FBVoiceOver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCUIDevice+FBVoiceOver.h"; sourceTree = "<group>"; };
@@ -2036,6 +2087,7 @@
 		EEE9B4701CD02B88009D2030 /* FBRunLoopSpinner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRunLoopSpinner.h; sourceTree = "<group>"; };
 		EEE9B4711CD02B88009D2030 /* FBRunLoopSpinner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRunLoopSpinner.m; sourceTree = "<group>"; };
 		EEF9882A1C486603005CA669 /* WebDriverAgentRunner.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebDriverAgentRunner.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F089699F492CFC82E55D84D7 /* IntegrationTests_watchOS_1.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_watchOS_1.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0D85EFE3ACAC48EEE0F8348 /* XCTMessagingRole_ScreenRecording-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_ScreenRecording-Protocol.h"; sourceTree = "<group>"; };
 		F2034DFA5DEC7D26F32590EF /* XCUIRemoteDeviceRunner-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIRemoteDeviceRunner-Protocol.h"; sourceTree = "<group>"; };
 		F46F78706C5157469122F730 /* FBXCElementSnapshotDouble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXCElementSnapshotDouble.m; sourceTree = "<group>"; };
@@ -2055,6 +2107,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0EBAEDBC746DF010C6595542 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3028F821AFA2A8986906A8F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		266808779F8E38E2C3280720 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2069,6 +2129,15 @@
 			files = (
 				B63FBAF7421417011D724B6F /* Foundation.framework in Frameworks */,
 				AAA213E600F40AB7F43D1015 /* WebDriverAgentLib_tvOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		30DBE8D4E4AB99F4C518DD6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1653072AC5040C7325DAAED /* WebDriverAgentLib_watchOS.framework in Frameworks */,
+				E66195839119DC5A8BB7A5D9 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2113,14 +2182,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				28B292C9A3654A81B765EB37 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ECA2D9FDA872B089E60C5289 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7D099F5AD14B24B9FC3FEBF0 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2354,11 +2415,12 @@
 				E005FEDAF49DCFA9FB77BEF3 /* IntegrationApp_tvOS.app */,
 				ACA330765D30E21E3EEB163D /* IntegrationTests_tvOS.xctest */,
 				758FC0D745C185A2C28BEDA1 /* IntegrationApp_watchOS.app */,
-				2B2328F1BEDB7C3DFBC22E9A /* IntegrationTests_watchOS.xctest */,
 				5B56DD7542C71ECB1C6E2439 /* WebDriverAgentLib_watchOS.framework */,
 				CFE8F33794194FA3EB790C46 /* WebDriverAgentRunner_watchOS.xctest */,
 				D1171249FE5D91AC5D797E5C /* WebDriverAgentLib_watchOS.framework */,
 				8B03F8C09D809131DE7792A7 /* WebDriverAgentRunner_watchOS.xctest */,
+				F089699F492CFC82E55D84D7 /* IntegrationTests_watchOS_1.xctest */,
+				051DE54AD9D9CE240FA27944 /* IntegrationTests_watchOS_2.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2506,6 +2568,9 @@
 				646D714BC17FE9258CFBDF55 /* WDADeviceIntegrationTests.swift */,
 				28F75AEC6442F32A3C4394AD /* WDAAlertIntegrationTests.swift */,
 				3C90E6C9835DC2FDB3CB6501 /* WDAUnknownCommandIntegrationTests.swift */,
+				167CC387B5F9D62618B48F80 /* IntegrationTests_watchOS-Bridging-Header.h */,
+				9C280328DE3379F9EF701A20 /* WDAWatchInProcessTestCase.swift */,
+				12F281228C841D2A0718B9AD /* WDAHTTPEndToEndTests.swift */,
 			);
 			path = IntegrationTests_watchOS;
 			sourceTree = "<group>";
@@ -4052,22 +4117,41 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4632809915F58C9095914E85 /* IntegrationTests_watchOS */ = {
+		0163EE84DB3AF5DD46214C75 /* IntegrationTests_watchOS_2 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9DA322A56A2DFF03F3E5CDEA /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS" */;
+			buildConfigurationList = 0B780B107528F8F97887FADE /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS_2" */;
 			buildPhases = (
-				A17BAB1FBE5B3A5B0AB97661 /* Sources */,
-				ECA2D9FDA872B089E60C5289 /* Frameworks */,
-				7A0971F542104119F22CD36E /* Resources */,
+				247BE1FE4353CD54150AE19D /* Sources */,
+				0EBAEDBC746DF010C6595542 /* Frameworks */,
+				5ECCCFA725522A85B2E2DE02 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DC55141E0512D9D0ADE54987 /* PBXTargetDependency */,
+				55211AF662BD9215471EEF96 /* PBXTargetDependency */,
 			);
-			name = IntegrationTests_watchOS;
-			productName = IntegrationTests_watchOS;
-			productReference = 2B2328F1BEDB7C3DFBC22E9A /* IntegrationTests_watchOS.xctest */;
+			name = IntegrationTests_watchOS_2;
+			productName = IntegrationTests_watchOS_2;
+			productReference = 051DE54AD9D9CE240FA27944 /* IntegrationTests_watchOS_2.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		5D9539D7055B5E6EED56D100 /* IntegrationTests_watchOS_1 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C27414B1DEE3FFF4AEE3112 /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS_1" */;
+			buildPhases = (
+				A3A83215DA904C3B5BD86EC8 /* Sources */,
+				30DBE8D4E4AB99F4C518DD6C /* Frameworks */,
+				38F16BEEEEDF88C74D4F570F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B5DEACD7B6109622C39DEFD1 /* PBXTargetDependency */,
+				07E03EEE96B99EBB8DDAC7F5 /* PBXTargetDependency */,
+			);
+			name = IntegrationTests_watchOS_1;
+			productName = IntegrationTests_watchOS_1;
+			productReference = F089699F492CFC82E55D84D7 /* IntegrationTests_watchOS_1.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		641EE2D92240BBE300173FCB /* WebDriverAgentRunner_tvOS */ = {
@@ -4428,7 +4512,8 @@
 				7C3BE5A1B1A6022529590D15 /* IntegrationApp_tvOS */,
 				DE52ACA4B43F527189E374EE /* IntegrationTests_tvOS */,
 				9D6B02D8FC050BAF7159284F /* IntegrationApp_watchOS */,
-				4632809915F58C9095914E85 /* IntegrationTests_watchOS */,
+				5D9539D7055B5E6EED56D100 /* IntegrationTests_watchOS_1 */,
+				0163EE84DB3AF5DD46214C75 /* IntegrationTests_watchOS_2 */,
 			);
 		};
 /* End PBXProject section */
@@ -4442,6 +4527,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		360A0A377FD9AB69C7F73ED7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		38F16BEEEEDF88C74D4F570F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5ECCCFA725522A85B2E2DE02 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4463,13 +4562,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		64B264F7228C50E0002A5025 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7A0971F542104119F22CD36E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4556,6 +4648,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BE258E6A383AF8BCB59C475 /* FBTVFocusIntegrationTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		247BE1FE4353CD54150AE19D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E6C5DCBD3EB1CA81B39483F5 /* WDAWatchHTTPClient.swift in Sources */,
+				FD332E1C00E0800BA1820A4E /* WDAWatchIntegrationTestCase.swift in Sources */,
+				C9E1623979E5FA83C1E58A45 /* WDASessionIntegrationTests.swift in Sources */,
+				C06A5CB7DFF9A36069723DDA /* WDAUnknownCommandIntegrationTests.swift in Sources */,
+				D1DC5C660E5AB15DAFB7FB53 /* WDAHTTPEndToEndTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4727,22 +4831,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A17BAB1FBE5B3A5B0AB97661 /* Sources */ = {
+		A3A83215DA904C3B5BD86EC8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEFE56CC1A4EC88BCCD9BD6D /* WDAWatchHTTPClient.swift in Sources */,
-				E101F1B19A8079EAD8457C0C /* WDAWatchIntegrationTestCase.swift in Sources */,
-				D9FF15E0009D95996128C5E1 /* WDASessionIntegrationTests.swift in Sources */,
-				1FA2AA058DF5AEAC2212EAF8 /* WDAFindIntegrationTests.swift in Sources */,
-				A648F711A5BECD8BE680AB79 /* WDAElementAttributeIntegrationTests.swift in Sources */,
-				E1C6D95706F0F87BE535E332 /* WDAClickIntegrationTests.swift in Sources */,
-				93B85BB5737C85F650FF772F /* WDATypingIntegrationTests.swift in Sources */,
-				2CDFA27001529A43B560F3A1 /* WDAScreenshotAndSourceIntegrationTests.swift in Sources */,
-				07CD6433C98FC4A86E2BC7E3 /* WDAAppLifecycleIntegrationTests.swift in Sources */,
-				CEA3AF02E2BFF31ABB97F6F0 /* WDADeviceIntegrationTests.swift in Sources */,
-				A15C224F98CDB418E5727697 /* WDAAlertIntegrationTests.swift in Sources */,
-				E7DF976BD298CC4815946781 /* WDAUnknownCommandIntegrationTests.swift in Sources */,
+				B36D8136E49BF48ED389D1DB /* WDAWatchInProcessTestCase.swift in Sources */,
+				72F5BAE6CA919434EA4DA0F3 /* WDAFindIntegrationTests.swift in Sources */,
+				E1F20E47472FED558822C1E5 /* WDAElementAttributeIntegrationTests.swift in Sources */,
+				227E3F36FAA2C3881F89FD81 /* WDAClickIntegrationTests.swift in Sources */,
+				6AF8892AEF5C6BF01896B6DA /* WDAAppLifecycleIntegrationTests.swift in Sources */,
+				6EDF83DA0A6C7A7E67C30AF6 /* WDADeviceIntegrationTests.swift in Sources */,
+				FBFEC05ED2C01D1EAE34BE9A /* WDAScreenshotAndSourceIntegrationTests.swift in Sources */,
+				D22FED0B3856919DA4BCFA67 /* WDATypingIntegrationTests.swift in Sources */,
+				68EB0B8D53270CB68C53D028 /* WDAAlertIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5132,6 +5233,18 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		07E03EEE96B99EBB8DDAC7F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = WebDriverAgentLib_watchOS;
+			target = 95186DE2383671DFA81D7FCB /* WebDriverAgentLib_watchOS */;
+			targetProxy = 79A7BAB354E176E532A7A562 /* PBXContainerItemProxy */;
+		};
+		55211AF662BD9215471EEF96 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = IntegrationApp_watchOS;
+			target = 9D6B02D8FC050BAF7159284F /* IntegrationApp_watchOS */;
+			targetProxy = 4550C2F5C675C03E9A91C68C /* PBXContainerItemProxy */;
+		};
 		641EE6FB2240C5F400173FCB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 641EE5D52240C5CA00173FCB /* WebDriverAgentLib_tvOS */;
@@ -5165,11 +5278,11 @@
 			target = EE158A981CBD452B00A3E3F0 /* WebDriverAgentLib */;
 			targetProxy = AD8D96F01D3C12960061268E /* PBXContainerItemProxy */;
 		};
-		DC55141E0512D9D0ADE54987 /* PBXTargetDependency */ = {
+		B5DEACD7B6109622C39DEFD1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = IntegrationApp_watchOS;
 			target = 9D6B02D8FC050BAF7159284F /* IntegrationApp_watchOS */;
-			targetProxy = D564026BFC4C47F0187BD64C /* PBXContainerItemProxy */;
+			targetProxy = 61F47E68EDECE16439DC2F57 /* PBXContainerItemProxy */;
 		};
 		EE158B5C1CBD462500A3E3F0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5286,6 +5399,39 @@
 					"-Wno-cast-qual",
 					"-Wno-declaration-after-statement",
 				);
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		36368E199503ECC18E7454EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS.p2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = IntegrationApp_watchOS;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		576FE2D16BFCBBE981772A09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS.p2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = IntegrationApp_watchOS;
+				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
@@ -5626,6 +5772,24 @@
 			};
 			name = Release;
 		};
+		6C5CE831509454D3ACD726D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS.p1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_OBJC_BRIDGING_HEADER = "WebDriverAgentTests/IntegrationTests_watchOS/IntegrationTests_watchOS-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = IntegrationApp_watchOS;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		91F9DB0A1B99DBC2001349B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -5762,10 +5926,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SWIFT_OBJC_BRIDGING_HEADER = "WebDriverAgentTests/IntegrationTests_watchOS/IntegrationTests_watchOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_TARGET_NAME = IntegrationApp_watchOS;
@@ -5987,6 +6153,23 @@
 			};
 			name = Release;
 		};
+		CF2088FE066E2E9E31EB2544 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS.p1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_OBJC_BRIDGING_HEADER = "WebDriverAgentTests/IntegrationTests_watchOS/IntegrationTests_watchOS-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = IntegrationApp_watchOS;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
 		D086EA231A06418467927B2C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */;
@@ -6010,10 +6193,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.facebook.wda.IntegrationTests.watchOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SWIFT_OBJC_BRIDGING_HEADER = "WebDriverAgentTests/IntegrationTests_watchOS/IntegrationTests_watchOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_TARGET_NAME = IntegrationApp_watchOS;
@@ -6508,6 +6693,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0B780B107528F8F97887FADE /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS_2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				576FE2D16BFCBBE981772A09 /* Release */,
+				36368E199503ECC18E7454EE /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3C27414B1DEE3FFF4AEE3112 /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS_1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C5CE831509454D3ACD726D0 /* Release */,
+				CF2088FE066E2E9E31EB2544 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		52337A6D84BBC564B5D2090B /* Build configuration list for PBXNativeTarget "IntegrationApp_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -6576,15 +6779,6 @@
 			buildConfigurations = (
 				FCDAC27CD0999E5F422A47B0 /* Debug */,
 				CBB9412B2F081EE453A8D639 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		9DA322A56A2DFF03F3E5CDEA /* Build configuration list for PBXNativeTarget "IntegrationTests_watchOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				98904BB9FB61E1406D4E2754 /* Release */,
-				ED63FDC4EBEFE82B7D106218 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

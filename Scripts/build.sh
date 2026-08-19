@@ -123,6 +123,51 @@ function fastlane_test() {
   SDK="$XC_SDK" DEVICE="$FASTLANE_DEVICE" SCHEME="$1" bundle exec fastlane test
 }
 
+# Unlike the iOS/tvOS integration tests, which launch the app under test in-process via
+# XCUIApplication, IntegrationTests_watchOS is an HTTP client that drives a real, separately
+# running WebDriverAgentRunner_watchOS server (see WDAWatchHTTPClient.swift). So the server has
+# to be booted in the background here first.
+function start_watch_wda_server() {
+  WATCH_SERVER_LOG=$(mktemp)
+  xcodebuild -project WebDriverAgent.xcodeproj \
+    -scheme WebDriverAgentRunner_watchOS \
+    -sdk "$XC_SDK" \
+    -destination "$XC_DESTINATION" \
+    -only-testing:WebDriverAgentRunner_watchOS/UITestingUITests/testRunner \
+    test $XC_MACROS \
+    > "$WATCH_SERVER_LOG" 2>&1 &
+  WATCH_SERVER_PID=$!
+
+  for _ in $(seq 1 90); do
+    if curl -s -f -m 2 http://127.0.0.1:8100/status >/dev/null 2>&1; then
+      return 0
+    fi
+    if ! kill -0 "$WATCH_SERVER_PID" 2>/dev/null; then
+      echo "WebDriverAgentRunner_watchOS exited before becoming ready:"
+      cat "$WATCH_SERVER_LOG"
+      exit 1
+    fi
+    sleep 2
+  done
+
+  echo "Timed out waiting for WebDriverAgentRunner_watchOS to become ready:"
+  cat "$WATCH_SERVER_LOG"
+  exit 1
+}
+
+function stop_watch_wda_server() {
+  if [[ -n "${WATCH_SERVER_PID:-}" ]]; then
+    kill "$WATCH_SERVER_PID" 2>/dev/null || true
+    wait "$WATCH_SERVER_PID" 2>/dev/null || true
+  fi
+}
+
+function watch_int_test_2() {
+  trap stop_watch_wda_server EXIT
+  start_watch_wda_server
+  fastlane_test IntegrationTests_watchOS_2
+}
+
 define_xc_macros
 case "$ACTION" in
   "analyze" ) analyze ;;
@@ -130,6 +175,9 @@ case "$ACTION" in
   "int_test_2" ) fastlane_test IntegrationTests_2 ;;
   "int_test_3" ) fastlane_test IntegrationTests_3 ;;
   "tv_int_test" ) fastlane_test IntegrationTests_tvOS ;;
-  "watch_int_test" ) fastlane_test IntegrationTests_watchOS ;;
+  # IntegrationTests_watchOS_1 calls WebDriverAgentLib_watchOS's categories directly, in-process -
+  # no server to boot first, unlike _2 (see start_watch_wda_server above).
+  "watch_int_test_1" ) fastlane_test IntegrationTests_watchOS_1 ;;
+  "watch_int_test_2" ) watch_int_test_2 ;;
   *) xcbuild ;;
 esac

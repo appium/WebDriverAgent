@@ -8,24 +8,18 @@
 
 import XCTest
 
-/// Covers /element/:uuid/click - the only tap-like interaction registered on watchOS
-/// (gesture synthesis routes aren't).
-final class WDAClickIntegrationTests: WDAWatchIntegrationTestCase {
-  func testClickingButtonUpdatesTheResultLabel() throws {
-    let labelId = try findElement(byAccessibilityId: "resultLabel")
-    XCTAssertEqual(try attributeValue(labelId, "label"), "Idle")
+/// Covers /element/:uuid/click, which on watchOS (like iOS) is just standard XCTest `-tap`
+/// (see FBElementCommands.handleClick:) - so this just calls `.tap()` directly, the same way
+/// the iOS/tvOS integration tests do. The "click a nonexistent element UUID" case isn't a `tap`
+/// behavior at all (it's FBElementCache's UUID-lookup failure), so it's covered by the HTTP
+/// end-to-end tests instead, where there's an actual UUID/route layer to miss against.
+final class WDAClickIntegrationTests: WDAWatchInProcessTestCase {
+  func testClickingButtonUpdatesTheResultLabel() {
+    let label = app.staticTexts["resultLabel"]
+    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Idle")
 
-    let buttonId = try findElement(byAccessibilityId: "tapMeButton")
-    let clickResponse = try client.post("/session/\(sessionId!)/element/\(buttonId)/click")
-    XCTAssertEqual(clickResponse.statusCode, 200)
+    app.buttons["tapMeButton"].tap()
 
-    // Re-find: element UUIDs aren't stable across snapshots, and the label just changed.
-    let updatedLabelId = try findElement(byAccessibilityId: "resultLabel")
-    XCTAssertEqual(try attributeValue(updatedLabelId, "label"), "Tapped")
-  }
-
-  func testClickingAnElementThatDoesNotExistReturnsAnError() throws {
-    let response = try client.post("/session/\(sessionId!)/element/00000000-0000-0000-0000-000000000000/click")
-    XCTAssertNotEqual(response.statusCode, 200)
+    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Tapped")
   }
 }

@@ -8,50 +8,53 @@
 
 import XCTest
 
-/// Covers /element/:uuid/value, /element/:uuid/clear, and /wda/keyboard/dismiss.
+/// Covers XCUIElement+FBTyping (set value/clear) and the keyboard-dismiss helper, calling them
+/// directly in-process instead of over HTTP.
 ///
 /// KNOWN LIMITATION (see XCUIElement+FBTyping.m): the keyboard opens and the field gets focus,
 /// but no keystrokes land. Wrapped in XCTExpectFailure so this re-verifies itself and starts
 /// failing loudly the moment it starts working, instead of silently staying stale.
-final class WDATypingIntegrationTests: WDAWatchIntegrationTestCase {
-  func testSetValueOpensTheKeyboardAndAttemptsToTypeIntoTheField() throws {
-    let fieldId = try findElement(byAccessibilityId: "typingField")
-    XCTAssertEqual(try attributeValue(fieldId, "value"), "Type here", "expected the untouched placeholder")
+final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
+  private func backOutOfKeyboardIfPresented() {
+    let cancel = app.buttons["Cancel"]
+    if cancel.waitForExistence(timeout: 2) {
+      cancel.tap()
+    }
+  }
 
-    let setValueResponse = try client.post("/session/\(sessionId!)/element/\(fieldId)/value", body: [
-      "value": ["h", "i"]
-    ])
-    XCTAssertEqual(setValueResponse.statusCode, 200, "the route itself should not error even though typing doesn't land")
+  func testSetValueOpensTheKeyboardAndAttemptsToTypeIntoTheField() {
+    let field = app.textFields["typingField"]
+    XCTAssertEqual(field.wdValue as? String ?? field.wdPlaceholderValue, "Type here")
 
+    // fb_typeText taps to focus internally if needed, but watchOS's full-screen keyboard sheet
+    // transition can outlast its short internal settle wait - tap and wait for the sheet
+    // ourselves first to shrink (not eliminate) the race.
+    field.tap()
+    _ = app.buttons["Cancel"].waitForExistence(timeout: 5)
+
+    // Both possible failure modes - typeText: recording a "no keyboard focus" issue internally
+    // if the sheet transition is still lagging, or it landing focus fine but the keystrokes
+    // themselves not registering - are the same known watchOS limitation, so both are expected
+    // here. If this ever starts reliably working, XCTExpectFailure itself starts failing loudly.
     XCTExpectFailure("watchOS keystroke delivery into the on-screen keyboard is a known unresolved limitation") {
-      let value = try? attributeValue(fieldId, "value")
-      XCTAssertEqual(value, "hi")
+      _ = try? field.fb_typeText("hi", shouldClear: false)
+      XCTAssertEqual(field.wdValue as? String, "hi")
     }
 
-    // Back out so later tests start clean.
-    if let cancelId = try? findElement(byAccessibilityId: "Cancel") {
-      _ = try? client.post("/session/\(sessionId!)/element/\(cancelId)/click")
-    }
+    backOutOfKeyboardIfPresented()
   }
 
   func testClearingAnAlreadyEmptyFieldSucceeds() throws {
     // Clearing an empty field short-circuits, so this works despite the typing limitation.
-    let fieldId = try findElement(byAccessibilityId: "typingField")
-    let clearResponse = try client.post("/session/\(sessionId!)/element/\(fieldId)/clear")
-    XCTAssertEqual(clearResponse.statusCode, 200)
+    try app.textFields["typingField"].fb_clearText()
   }
 
-  func testDismissKeyboardRouteRespondsWithoutCrashingTheServer() throws {
-    // Only asserts the route round-trips cleanly, not that dismissal actually happens.
-    let fieldId = try findElement(byAccessibilityId: "typingField")
-    try client.post("/session/\(sessionId!)/element/\(fieldId)/click")
-    Thread.sleep(forTimeInterval: 1)
+  func testDismissKeyboardDoesNotCrashTheApp() {
+    // Only asserts the call round-trips cleanly, not that dismissal actually happens.
+    app.textFields["typingField"].tap()
 
-    _ = try client.post("/session/\(sessionId!)/wda/keyboard/dismiss")
+    _ = try? app.fb_dismissKeyboard(withKeyNames: nil)
 
-    // Back out regardless of whether dismiss actually closed the sheet.
-    if let cancelId = try? findElement(byAccessibilityId: "Cancel") {
-      _ = try? client.post("/session/\(sessionId!)/element/\(cancelId)/click")
-    }
+    backOutOfKeyboardIfPresented()
   }
 }

@@ -8,50 +8,32 @@
 
 import XCTest
 
-/// Covers FBElementCommands' read-only element/window attribute routes.
-final class WDAElementAttributeIntegrationTests: WDAWatchIntegrationTestCase {
-  func testWindowSizeAndRect() throws {
-    let sizeResponse = try client.get("/session/\(sessionId!)/window/size")
-    XCTAssertEqual(sizeResponse.statusCode, 200)
-    XCTAssertGreaterThan(sizeResponse.valueDict?["width"] as? Double ?? 0, 0)
-    XCTAssertGreaterThan(sizeResponse.valueDict?["height"] as? Double ?? 0, 0)
+/// Covers the FBElement attribute properties (wdEnabled/wdVisible/wdRect/wdType/wdLabel/
+/// wdSelected/wdAccessible/fb_valueForWDAttributeName:) directly, in-process - the same
+/// properties FBElementCommands' attribute routes read from.
+final class WDAElementAttributeIntegrationTests: WDAWatchInProcessTestCase {
+  // All reads, no taps/typing - reuse the same running app across the whole class.
+  override class var relaunchForEachTest: Bool { false }
 
-    let rectResponse = try client.get("/session/\(sessionId!)/window/rect")
-    XCTAssertEqual(rectResponse.statusCode, 200)
-    XCTAssertGreaterThan(rectResponse.valueDict?["width"] as? Double ?? 0, 0)
+  func testWindowSizeAndRect() {
+    XCTAssertGreaterThan(app.wdFrame.width, 0)
+    XCTAssertGreaterThan(app.wdFrame.height, 0)
   }
 
-  func testButtonAttributes() throws {
-    let buttonId = try findElement(byAccessibilityId: "tapMeButton")
-
-    let enabledResponse = try client.get("/session/\(sessionId!)/element/\(buttonId)/enabled")
-    XCTAssertEqual(enabledResponse.value as? Bool, true)
-
-    let displayedResponse = try client.get("/session/\(sessionId!)/element/\(buttonId)/displayed")
-    XCTAssertEqual(displayedResponse.value as? Bool, true)
-
-    let rectResponse = try client.get("/session/\(sessionId!)/element/\(buttonId)/rect")
-    XCTAssertEqual(rectResponse.statusCode, 200)
-    XCTAssertGreaterThan(rectResponse.valueDict?["width"] as? Double ?? 0, 0)
-
-    let nameResponse = try client.get("/session/\(sessionId!)/element/\(buttonId)/name")
-    XCTAssertEqual(nameResponse.valueString, "XCUIElementTypeButton")
-
-    let labelResponse = try client.get("/session/\(sessionId!)/element/\(buttonId)/attribute/label")
-    XCTAssertEqual(labelResponse.valueString, "Tap Me")
-
-    let accessibleResponse = try client.get("/session/\(sessionId!)/wda/element/\(buttonId)/accessible")
-    XCTAssertEqual(accessibleResponse.statusCode, 200)
+  func testButtonAttributes() {
+    let button = app.buttons["tapMeButton"]
+    XCTAssertTrue(button.isWDEnabled)
+    XCTAssertTrue(button.isWDVisible)
+    XCTAssertGreaterThan(button.wdRect["width"] as? Double ?? 0, 0)
+    XCTAssertEqual(button.wdType, "XCUIElementTypeButton")
+    XCTAssertEqual(button.wdLabel, "Tap Me")
+    XCTAssertEqual(button.fb_value(forWDAttributeName: "label") as? String, "Tap Me")
+    XCTAssertTrue(button.isWDAccessible)
   }
 
-  func testResultLabelTextAndSelectedState() throws {
-    let labelId = try findElement(byAccessibilityId: "resultLabel")
-
-    let textResponse = try client.get("/session/\(sessionId!)/element/\(labelId)/text")
-    XCTAssertEqual(textResponse.valueString, "Idle")
-
-    let selectedResponse = try client.get("/session/\(sessionId!)/element/\(labelId)/selected")
-    XCTAssertEqual(selectedResponse.statusCode, 200)
-    XCTAssertEqual(selectedResponse.value as? Bool, false)
+  func testResultLabelTextAndSelectedState() {
+    let label = app.staticTexts["resultLabel"]
+    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Idle")
+    XCTAssertFalse(label.isWDSelected)
   }
 }
