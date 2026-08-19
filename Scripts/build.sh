@@ -106,8 +106,11 @@ function fastlane_test() {
     "tv" )
       FASTLANE_DEVICE="$(echo $TV_MODEL | tr -d "'") ($TV_VERSION)"
       ;;
+    "watch" )
+      FASTLANE_DEVICE="$(echo $WATCH_MODEL | tr -d "'") ($WATCH_VERSION)"
+      ;;
     * )
-      echo "Error: Unknown DEST value '${DEST:-}'. DEST must be one of: iphone, ipad, tv"
+      echo "Error: Unknown DEST value '${DEST:-}'. DEST must be one of: iphone, ipad, tv, watch"
       exit 1
       ;;
   esac
@@ -126,5 +129,7 @@ case "$ACTION" in
   "int_test_1" ) fastlane_test IntegrationTests_1 ;;
   "int_test_2" ) fastlane_test IntegrationTests_2 ;;
   "int_test_3" ) fastlane_test IntegrationTests_3 ;;
+  "tv_int_test" ) fastlane_test IntegrationTests_tvOS ;;
+  "watch_int_test" ) fastlane_test IntegrationTests_watchOS ;;
   *) xcbuild ;;
 esac
