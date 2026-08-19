@@ -15,6 +15,11 @@ import XCTest
 /// but no keystrokes land. Wrapped in XCTExpectFailure so this re-verifies itself and starts
 /// failing loudly the moment it starts working, instead of silently staying stale.
 final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
+  // watchOS classifies an inline TextField's element type differently across OS versions (e.g.
+  // a button-styled placeholder pre-tap on some versions, .textField on others), so look it up
+  // by identifier across all types rather than filtering through app.textFields.
+  private var typingField: XCUIElement { app.descendants(matching: .any)["typingField"] }
+
   private func backOutOfKeyboardIfPresented() {
     let cancel = app.buttons["Cancel"]
     if cancel.waitForExistence(timeout: 2) {
@@ -23,7 +28,7 @@ final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
   }
 
   func testSetValueOpensTheKeyboardAndAttemptsToTypeIntoTheField() {
-    let field = app.textFields["typingField"]
+    let field = typingField
     XCTAssertEqual(field.wdValue ?? field.wdPlaceholderValue, "Type here")
 
     // fb_typeText taps to focus internally if needed, but watchOS's full-screen keyboard sheet
@@ -46,12 +51,12 @@ final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
 
   func testClearingAnAlreadyEmptyFieldSucceeds() throws {
     // Clearing an empty field short-circuits, so this works despite the typing limitation.
-    try app.textFields["typingField"].fb_clearText()
+    try typingField.fb_clearText()
   }
 
   func testDismissKeyboardDoesNotCrashTheApp() {
     // Only asserts the call round-trips cleanly, not that dismissal actually happens.
-    app.textFields["typingField"].tap()
+    typingField.tap()
 
     _ = try? app.fb_dismissKeyboard(withKeyNames: nil)
 

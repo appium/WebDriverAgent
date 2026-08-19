@@ -77,7 +77,10 @@ final class WDAFindIntegrationTests: WDAWatchInProcessTestCase {
   }
 
   func testActiveElementResolvesToTheFocusedTextField() {
-    app.textFields["typingField"].tap()
+    // watchOS classifies an inline TextField's element type differently across OS versions (e.g.
+    // a button-styled placeholder pre-tap on some versions, .textField on others), so look it up
+    // by identifier across all types rather than filtering through app.textFields.
+    app.descendants(matching: .any)["typingField"].tap()
 
     // Focus reporting lags the tap slightly on watchOS (the same flakiness the old HTTP-based
     // version of this test papered over with a whole-suite retry) - poll briefly instead.
