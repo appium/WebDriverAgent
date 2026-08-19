@@ -44,7 +44,7 @@ final class WDADeviceIntegrationTests: WDAWatchInProcessTestCase {
   /// when the toolchain that built this very test bundle (same build as the runner) is new enough. Checked
   /// the same way WDA itself does, via responds(to:), rather than hardcoding an Xcode/OS version number here.
   private var supportsDigitalCrownAndHandGesture: Bool {
-    XCUIDevice.shared.responds(to: Selector(("rotateDigitalCrownByDelta:")))
+    XCUIDevice.shared.responds(to: NSSelectorFromString("rotateDigitalCrownByDelta:"))
   }
 
   private func assertSucceeds(_ expectedToSucceed: Bool, file: StaticString = #filePath, line: UInt = #line, _ body: () throws -> Void) {

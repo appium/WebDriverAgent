@@ -16,10 +16,10 @@ import XCTest
 final class WDAClickIntegrationTests: WDAWatchInProcessTestCase {
   func testClickingButtonUpdatesTheResultLabel() {
     let label = app.staticTexts["resultLabel"]
-    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Idle")
+    XCTAssertEqual(label.wdValue ?? label.wdLabel, "Idle")
 
     app.buttons["tapMeButton"].tap()
 
-    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Tapped")
+    XCTAssertEqual(label.wdValue ?? label.wdLabel, "Tapped")
   }
 }

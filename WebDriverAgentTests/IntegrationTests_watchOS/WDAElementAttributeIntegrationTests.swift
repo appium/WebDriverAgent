@@ -33,7 +33,7 @@ final class WDAElementAttributeIntegrationTests: WDAWatchInProcessTestCase {
 
   func testResultLabelTextAndSelectedState() {
     let label = app.staticTexts["resultLabel"]
-    XCTAssertEqual(label.wdValue as? String ?? label.wdLabel, "Idle")
+    XCTAssertEqual(label.wdValue ?? label.wdLabel, "Idle")
     XCTAssertFalse(label.isWDSelected)
   }
 }

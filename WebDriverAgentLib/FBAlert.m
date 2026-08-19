@@ -236,17 +236,18 @@
   }
 
   XCUIElement *acceptButton = nil;
-  if (FBConfiguration.sharedInstance.acceptAlertButtonSelector.length) {
+  NSString *acceptAlertButtonSelector = FBConfiguration.sharedInstance.acceptAlertButtonSelector ?: @"";
+  if (acceptAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      acceptButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.sharedInstance.acceptAlertButtonSelector
+      acceptButton = [[alertElement fb_descendantsMatchingClassChain:acceptAlertButtonSelector
                                            shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == acceptButton) {
       [FBLogger logFmt:@"Cannot find any match for Accept alert button using the class chain selector '%@'",
-       FBConfiguration.sharedInstance.acceptAlertButtonSelector];
+       acceptAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }
@@ -293,17 +294,18 @@
   }
 
   XCUIElement *dismissButton = nil;
-  if (FBConfiguration.sharedInstance.dismissAlertButtonSelector.length) {
+  NSString *dismissAlertButtonSelector = FBConfiguration.sharedInstance.dismissAlertButtonSelector ?: @"";
+  if (dismissAlertButtonSelector.length) {
     NSString *errorReason = nil;
     @try {
-      dismissButton = [[alertElement fb_descendantsMatchingClassChain:FBConfiguration.sharedInstance.dismissAlertButtonSelector
+      dismissButton = [[alertElement fb_descendantsMatchingClassChain:dismissAlertButtonSelector
                                             shouldReturnAfterFirstMatch:YES] firstObject];
     } @catch (NSException *ex) {
       errorReason = ex.reason;
     }
     if (nil == dismissButton) {
       [FBLogger logFmt:@"Cannot find any match for Dismiss alert button using the class chain selector '%@'",
-       FBConfiguration.sharedInstance.dismissAlertButtonSelector];
+       dismissAlertButtonSelector];
       if (nil != errorReason) {
         [FBLogger logFmt:@"Original error: %@", errorReason];
       }

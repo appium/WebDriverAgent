@@ -24,7 +24,7 @@ final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
 
   func testSetValueOpensTheKeyboardAndAttemptsToTypeIntoTheField() {
     let field = app.textFields["typingField"]
-    XCTAssertEqual(field.wdValue as? String ?? field.wdPlaceholderValue, "Type here")
+    XCTAssertEqual(field.wdValue ?? field.wdPlaceholderValue, "Type here")
 
     // fb_typeText taps to focus internally if needed, but watchOS's full-screen keyboard sheet
     // transition can outlast its short internal settle wait - tap and wait for the sheet
@@ -38,7 +38,7 @@ final class WDATypingIntegrationTests: WDAWatchInProcessTestCase {
     // here. If this ever starts reliably working, XCTExpectFailure itself starts failing loudly.
     XCTExpectFailure("watchOS keystroke delivery into the on-screen keyboard is a known unresolved limitation") {
       _ = try? field.fb_typeText("hi", shouldClear: false)
-      XCTAssertEqual(field.wdValue as? String, "hi")
+      XCTAssertEqual(field.wdValue, "hi")
     }
 
     backOutOfKeyboardIfPresented()
