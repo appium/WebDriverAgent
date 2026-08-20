@@ -12,40 +12,43 @@ jobs:
       fail-fast: false
       matrix:
         test_targets:
-          # https://github.com/actions/runner-images/issues/14404
+          # iOS
           - HOST_OS: 'xcode-27'
             XCODE_VERSION: '27.0-beta'
             PLATFORM_NAME: 'iOS'
             PLATFORM_VERSION: '27.0'
-            DEVICE_NAME: 'iPhone 17'
-          - HOST_OS: 'macos-26'
-            XCODE_VERSION: '26.4'
-            PLATFORM_NAME: 'iOS'
-            PLATFORM_VERSION: '26.4'
             DEVICE_NAME: 'iPhone 17'
           - HOST_OS: 'macos-15'
             XCODE_VERSION: '16.4'
             PLATFORM_NAME: 'iOS'
             PLATFORM_VERSION: '18.5'
             DEVICE_NAME: 'iPhone 16 Plus'
-          - HOST_OS: 'macos-14'
-            XCODE_VERSION: '15.4'
-            PLATFORM_NAME: 'iOS'
-            PLATFORM_VERSION: '17.5'
-            DEVICE_NAME: 'iPhone 15 Plus'
-          # watchOS: same Min/Max Xcode pairing used by wda-tests.yml's watch integration test matrix.
+
+          # tvOS
+          - HOST_OS: 'xcode-27'
+            XCODE_VERSION: '27.0-beta'
+            PLATFORM_NAME: 'tvOS'
+            PLATFORM_VERSION: '27.0'
+            DEVICE_NAME: 'Apple TV 4K (3rd generation)'
+          - HOST_OS: 'macos-15'
+            XCODE_VERSION: '16.4'
+            PLATFORM_NAME: 'tvOS'
+            PLATFORM_VERSION: '18.5'
+            DEVICE_NAME: 'Apple TV 4K (3rd generation)'
+
+          # WatchOS
           - HOST_OS: 'xcode-27'
             XCODE_VERSION: '27.0-beta'
             PLATFORM_NAME: 'watchOS'
             PLATFORM_VERSION: '27.0'
             DEVICE_NAME: 'Apple Watch Series 11 (46mm)'
-          - HOST_OS: 'macos-14'
-            XCODE_VERSION: '15.4'
+          - HOST_OS: 'macos-15'
+            XCODE_VERSION: '16.4'
             PLATFORM_NAME: 'watchOS'
-            PLATFORM_VERSION: '10.5'
-            DEVICE_NAME: 'Apple Watch Series 9 (45mm)'
+            PLATFORM_VERSION: '11.5'
+            DEVICE_NAME: 'Apple Watch Series 10 (46mm)'
 
-    # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
     runs-on: ${{matrix.test_targets.HOST_OS}}
     steps:
     - uses: actions/checkout@v7
