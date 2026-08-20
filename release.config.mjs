@@ -8,5 +8,7 @@ export default releaseConfig({
     'WebDriverAgentRunner-Build-Sim-x86_64.zip',
     'WebDriverAgentRunner_tvOS-Build-Sim-arm64.zip',
     'WebDriverAgentRunner_tvOS-Build-Sim-x86_64.zip',
+    'WebDriverAgentRunner_watchOS-Build-Sim-arm64.zip',
+    'WebDriverAgentRunner_watchOS-Build-Sim-x86_64.zip',
   ],
 });
