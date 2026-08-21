@@ -93,6 +93,13 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 /**
+ The port this socket is listening on. Equal to the port passed to -initWithPort: unless that was
+ 0 ("let the system assign a port"), in which case this reflects the actually assigned port once
+ -startWithError: has returned successfully.
+ */
+@property (nonatomic, readonly) uint16_t port;
+
+/**
  Creates TCP socket isntance which is going to be started on the specified port
 
  @param port The actual port number

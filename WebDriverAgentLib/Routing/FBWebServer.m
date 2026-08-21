@@ -13,9 +13,9 @@
 #else
 #import "RoutingConnection.h"
 #import "RoutingHTTPServer.h"
+#endif
 #import "FBMjpegServer.h"
 #import "FBTCPSocket.h"
-#endif
 
 #import "FBCommandHandler.h"
 #import "FBErrorBuilder.h"
@@ -59,9 +59,9 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 @property (nonatomic, strong) FBWatchHTTPServer *server;
 #else
 @property (nonatomic, strong) RoutingHTTPServer *server;
+#endif
 @property (nonatomic, nullable) FBTCPSocket *screenshotsBroadcaster;
 @property (nonatomic, nullable, strong) FBMjpegServer *mjpegServer;
-#endif
 @property (atomic, assign) BOOL keepAlive;
 @end
 
@@ -69,9 +69,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
 
 - (void)dealloc
 {
-#if !TARGET_OS_WATCH
   [self stopScreenshotsBroadcaster];
-#endif
 }
 
 + (NSArray<Class<FBCommandHandler>> *)collectCommandHandlerClasses
@@ -96,9 +94,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   if (![self startHTTPServer]) {
     return;
   }
-#if !TARGET_OS_WATCH
   [self initScreenshotsBroadcaster];
-#endif
 
   self.keepAlive = YES;
   NSRunLoop *runLoop = [NSRunLoop mainRunLoop];
@@ -163,13 +159,15 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   return YES;
 }
 
-#if !TARGET_OS_WATCH
 - (void)initScreenshotsBroadcaster
 {
   [self readMjpegSettingsFromEnv];
   self.mjpegServer = [[FBMjpegServer alloc] init];
   self.screenshotsBroadcaster = [[FBTCPSocket alloc]
                                  initWithPort:(uint16_t)FBConfiguration.sharedInstance.mjpegServerPort];
+#if TARGET_OS_WATCH
+  self.mjpegServer.socket = self.screenshotsBroadcaster;
+#endif
   self.screenshotsBroadcaster.delegate = self.mjpegServer;
   NSError *error;
   if (![self.screenshotsBroadcaster startWithError:&error]) {
@@ -209,14 +207,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     FBConfiguration.sharedInstance.mjpegServerScreenshotQuality = [screenshotQuality integerValue];
   }
 }
-#endif
 
 - (void)stopServing
 {
   [FBSession.activeSession kill];
-#if !TARGET_OS_WATCH
   [self stopScreenshotsBroadcaster];
-#endif
   if (self.server.isRunning) {
     [self.server stop:NO];
   }

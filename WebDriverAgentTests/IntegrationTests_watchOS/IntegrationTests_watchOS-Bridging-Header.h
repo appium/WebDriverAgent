@@ -19,3 +19,5 @@
 #import "XCUIDevice+FBHelpers.h"
 #import "FBAlert.h"
 #import "FBElement.h"
+#import "FBMjpegServer.h"
+#import "FBTCPSocket.h"

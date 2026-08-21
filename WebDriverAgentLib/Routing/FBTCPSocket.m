@@ -14,7 +14,6 @@
 @property (readonly, nonatomic) dispatch_queue_t socketQueue;
 @property (nullable, nonatomic) nw_listener_t listener;
 @property (readonly, nonatomic) NSMutableArray<nw_connection_t> *connectedClients;
-@property (readonly, nonatomic) uint16_t port;
 @end
 
 
@@ -61,6 +60,10 @@
     // if/else, not switch: -Wswitch-enum, -Wswitch-default, and -Wcovered-switch-default can't
     // all be satisfied by one switch statement at once.
     if (nw_listener_state_ready == state) {
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (strongSelf) {
+        strongSelf->_port = nw_listener_get_port(listener);
+      }
       dispatch_semaphore_signal(startupSemaphore);
     } else if (nw_listener_state_failed == state || nw_listener_state_cancelled == state) {
       // NSLocalizedDescriptionKey must be a string, not the underlying NSError itself, or
@@ -210,7 +213,6 @@
 @property (readonly, nonatomic) dispatch_queue_t socketQueue;
 @property (readonly, nonatomic) GCDAsyncSocket *listeningSocket;
 @property (readonly, nonatomic) NSMutableArray *connectedClients;
-@property (readonly, nonatomic) uint16_t port;
 @end
 
 
@@ -239,6 +241,7 @@
     return NO;
   }
 
+  _port = self.listeningSocket.localPort;
   return YES;
 }
 
