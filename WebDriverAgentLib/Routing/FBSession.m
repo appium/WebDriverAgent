@@ -317,14 +317,23 @@ static FBSession *_activeSession = nil;
 - (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout
 {
   __block XCUIApplication *systemApp = nil;
+  __block NSException *caughtException = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-    systemApp = XCUIApplication.fb_systemApplication;
+    // +fb_systemApplication is undocumented private API; some of its XCUIApplication siblings
+    // (e.g. -terminate) hard-assert when called off the main thread, so guard against this one
+    // doing the same on some other Xcode/iOS version - an uncaught exception thrown from inside a
+    // bare dispatch_async block has no handler and would crash the whole process.
+    @try {
+      systemApp = XCUIApplication.fb_systemApplication;
+    } @catch (NSException *e) {
+      caughtException = e;
+    }
     dispatch_semaphore_signal(sem);
   });
   int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
-  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
-    [FBLogger logFmt:@"Could not determine the system application within %@ seconds; assuming '%@' might be it and skipping its termination", @(timeout), self.testedApplication.bundleID];
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs)) || nil != caughtException) {
+    [FBLogger logFmt:@"Could not determine the system application within %@ seconds%@; assuming '%@' might be it and skipping its termination", @(timeout), nil == caughtException ? @"" : [NSString stringWithFormat:@" (%@)", caughtException.description], self.testedApplication.bundleID];
     return YES;
   }
   return [self.testedApplication fb_isSameAppAs:systemApp];
