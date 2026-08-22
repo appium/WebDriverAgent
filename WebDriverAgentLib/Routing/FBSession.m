@@ -181,13 +181,9 @@ static FBSession *_activeSession = nil;
     return;
   }
 
-  // Cleared up front, before the (potentially slow) teardown below - not just at the very end -
-  // so that any request which arrives while that teardown is still running resolves to "no such
-  // session" (see +sessionWithIdentifier:) instead of racing in against a session that's already
-  // mid-teardown, and unlike the notification below, would never get abandoned either.
-  if (self == _activeSession) {
-    _activeSession = nil;
-  }
+  // Cleared up front, not at the end, so a request arriving mid-teardown resolves to "no such
+  // session" (+sessionWithIdentifier:) instead of running against a half-torn-down one.
+  _activeSession = nil;
 
   // Posted early, before the (potentially slow) teardown below, so anything waiting on this
   // session's pending HTTP requests can stop waiting as soon as possible.
