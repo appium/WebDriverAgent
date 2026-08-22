@@ -72,6 +72,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)get:(NSString *)path withBlock:(void (^)(RouteRequest *request, RouteResponse *response))block;
 
 /**
+ Immediately sends `response` to every non-standalone request currently pending for the given
+ "sessionID" path param - whether still queued on -routeQueue or already executing - instead of
+ leaving their HTTP clients waiting on a session that no longer exists. A request that has already
+ started executing keeps running to completion in the background regardless (GCD gives no way to
+ abort a block once it starts), but its eventual result is discarded rather than ever reaching a
+ client. `response` is written as-is to every pending client, so the caller is expected to supply
+ a fully-populated, protocol-correct error response (e.g. a W3C-shaped JSON body).
+ */
+- (void)abandonPendingRequestsForSessionID:(NSString *)sessionID withResponse:(RouteResponse *)response;
+
+/**
  Starts listening on `port`.
  */
 - (BOOL)start:(NSError **)error;
