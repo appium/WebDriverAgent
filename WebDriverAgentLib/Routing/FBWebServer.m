@@ -208,7 +208,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   for (Class<FBCommandHandler> commandHandler in commandHandlerClasses) {
     NSArray *routes = [commandHandler routes];
     for (FBRoute *route in routes) {
-      [self.server handleMethod:route.verb withPath:route.path block:^(RouteRequest *request, RouteResponse *response) {
+      [self.server handleMethod:route.verb withPath:route.path standalone:route.isStandalone block:^(RouteRequest *request, RouteResponse *response) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (nil == strongSelf) {
           return;

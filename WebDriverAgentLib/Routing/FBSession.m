@@ -195,7 +195,9 @@ static FBSession *_activeSession = nil;
     }
   }
 
-  _activeSession = nil;
+  if (self == _activeSession) {
+    _activeSession = nil;
+  }
 }
 
 - (XCUIApplication *)activeApplication
