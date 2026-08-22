@@ -23,6 +23,7 @@
 #import "XCUIDevice.h"
 
 #define LAUNCH_APP_TIMEOUT_SEC 300
+#define STOP_SCREEN_RECORDING_TIMEOUT_SEC 20
 
 static void (*originalLaunchAppMethod)(id, SEL, NSString*, NSString*, NSArray*, NSDictionary*, void (^)(_Bool, NSError *));
 
@@ -342,14 +343,16 @@ static void swizzledLaunchApp(id self, SEL _cmd, NSString *path, NSString *bundl
   }
 
   __block NSError *innerError = nil;
-  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    [session stopScreenRecordingWithUUID:uuid withReply:^(NSError *invokeError) {
-      if (nil != invokeError) {
-        innerError = invokeError;
-      }
-      completion();
-    }];
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  [session stopScreenRecordingWithUUID:uuid withReply:^(NSError *invokeError) {
+    innerError = invokeError;
+    dispatch_semaphore_signal(sem);
   }];
+  int64_t timeoutNs = (int64_t)(STOP_SCREEN_RECORDING_TIMEOUT_SEC * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs)) && nil == innerError) {
+    NSString *message = [NSString stringWithFormat:@"Did not receive a reply to stop screen recording within %d seconds", STOP_SCREEN_RECORDING_TIMEOUT_SEC];
+    innerError = [[[FBErrorBuilder builder] withDescription:message] build];
+  }
   if (nil != innerError && error) {
     *error = innerError;
   }

@@ -33,6 +33,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 @property (nonatomic, strong) NSRegularExpression *regex;
 @property (nonatomic, copy, nullable) NSArray<NSString *> *keys;
 @property (nonatomic, copy) void (^block)(RouteRequest *request, RouteResponse *response);
+@property (nonatomic, assign) BOOL isStandalone;
 @end
 
 @implementation FBHTTPRoute
@@ -48,6 +49,13 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 @property (nonatomic, copy, nullable) NSString *interface;
 // nw_connection_t isn't NSCopying, so it can't be an NSDictionary key - use NSMapTable instead.
 @property (nonatomic, strong) NSMapTable<id, NSMutableData *> *connectionBuffers;
+// Keyed by "METHOD path" - holds connections waiting on an already in-flight standalone request
+// for that same endpoint. Guarded by @synchronized(self.standaloneWaiters).
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableArray *> *standaloneWaiters;
+// Keyed by the "sessionID" path param - holds clients with a non-standalone request currently
+// queued on -routeQueue or executing for that session. See -abandonPendingRequestsForSessionID:.
+// Guarded by @synchronized(self.pendingSessionRequests).
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet *> *pendingSessionRequests;
 
 @end
 
@@ -60,6 +68,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     _defaultHeaders = [NSMutableDictionary dictionary];
     _connectionBuffers = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                  valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
+    _standaloneWaiters = [NSMutableDictionary dictionary];
+    _pendingSessionRequests = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -132,9 +142,18 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
             withPath:(NSString *)path
                block:(void (^)(RouteRequest *request, RouteResponse *response))block
 {
+  [self handleMethod:method withPath:path standalone:NO block:block];
+}
+
+- (void)handleMethod:(NSString *)method
+            withPath:(NSString *)path
+          standalone:(BOOL)standalone
+               block:(void (^)(RouteRequest *request, RouteResponse *response))block
+{
   FBHTTPRoute *route = [self compiledRouteWithPath:path];
   route.verb = method.uppercaseString;
   route.block = block;
+  route.isStandalone = standalone;
   [self.routes addObject:route];
 }
 
@@ -304,9 +323,43 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       [response setHeader:field value:value];
     }];
 
+    if (route.isStandalone) {
+      [self dispatchStandaloneRoute:route request:request response:response client:client method:method path:path];
+      return;
+    }
+
+    NSString *sessionID = params[@"sessionID"];
+    if (nil != sessionID) {
+      @synchronized (self.pendingSessionRequests) {
+        NSMutableSet *pendingClients = self.pendingSessionRequests[sessionID];
+        if (nil == pendingClients) {
+          pendingClients = [NSMutableSet set];
+          self.pendingSessionRequests[sessionID] = pendingClients;
+        }
+        [pendingClients addObject:client];
+      }
+    }
+
     void (^invoke)(void) = ^{
       route.block(request, response);
-      [self writeResponse:response toClient:client];
+      // Whoever removes `client` from pendingSessionRequests first "wins" and gets to respond -
+      // either this normal completion, or -abandonPendingRequestsForSessionID: on another thread.
+      BOOL shouldRespond = YES;
+      if (nil != sessionID) {
+        @synchronized (self.pendingSessionRequests) {
+          NSMutableSet *pendingClients = self.pendingSessionRequests[sessionID];
+          shouldRespond = [pendingClients containsObject:client];
+          if (shouldRespond) {
+            [pendingClients removeObject:client];
+            if (0 == pendingClients.count) {
+              [self.pendingSessionRequests removeObjectForKey:sessionID];
+            }
+          }
+        }
+      }
+      if (shouldRespond) {
+        [self writeResponse:response toClient:client];
+      }
     };
     dispatch_queue_t routeQueue = self.routeQueue;
     if (routeQueue) {
@@ -321,6 +374,65 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   notFound.statusCode = kHTTPStatusCodeNotFound;
   [notFound respondWithString:@"Not Found"];
   [self writeResponse:notFound toClient:client];
+}
+
+#pragma mark - Session-scoped request cancellation
+
+- (void)abandonPendingRequestsForSessionID:(NSString *)sessionID withResponse:(RouteResponse *)response
+{
+  NSSet *clients;
+  @synchronized (self.pendingSessionRequests) {
+    clients = [self.pendingSessionRequests[sessionID] copy];
+    [self.pendingSessionRequests removeObjectForKey:sessionID];
+  }
+  for (nw_connection_t client in clients) {
+    [self writeResponse:response toClient:client];
+  }
+}
+
+#pragma mark - Standalone route dispatch
+
+- (void)dispatchStandaloneRoute:(FBHTTPRoute *)route
+                         request:(RouteRequest *)request
+                        response:(RouteResponse *)response
+                          client:(nw_connection_t)client
+                          method:(NSString *)method
+                            path:(NSString *)path
+{
+  NSString *key = [NSString stringWithFormat:@"%@ %@", method, path];
+  BOOL isInFlight = NO;
+  @synchronized (self.standaloneWaiters) {
+    NSMutableArray *waiters = self.standaloneWaiters[key];
+    if (nil != waiters) {
+      [waiters addObject:client];
+      isInFlight = YES;
+    } else {
+      self.standaloneWaiters[key] = [NSMutableArray array];
+    }
+  }
+  if (isInFlight) {
+    // An identical request is already executing; it will deliver this connection's response too.
+    return;
+  }
+
+  dispatch_queue_t queue = dispatch_queue_create(key.UTF8String, DISPATCH_QUEUE_SERIAL);
+  __weak typeof(self) weakSelf = self;
+  dispatch_async(queue, ^{
+    route.block(request, response);
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    if (nil == strongSelf) {
+      return;
+    }
+    NSArray *joinedClients;
+    @synchronized (strongSelf.standaloneWaiters) {
+      joinedClients = [strongSelf.standaloneWaiters[key] copy];
+      [strongSelf.standaloneWaiters removeObjectForKey:key];
+    }
+    [strongSelf writeResponse:response toClient:client];
+    for (nw_connection_t joinedClient in joinedClients) {
+      [strongSelf writeResponse:response toClient:joinedClient];
+    }
+  });
 }
 
 - (void)writeResponse:(RouteResponse *)response toClient:(nw_connection_t)client

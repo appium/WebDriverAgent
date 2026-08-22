@@ -18,8 +18,8 @@
 {
   return
   @[
-    [[FBRoute GET:@"/screenshot"].withoutSession respondWithTarget:self action:@selector(handleGetScreenshot:)],
-    [[FBRoute GET:@"/screenshot"] respondWithTarget:self action:@selector(handleGetScreenshot:)],
+    [[FBRoute GET:@"/screenshot"].withoutSession.standalone respondWithTarget:self action:@selector(handleGetScreenshot:)],
+    [[FBRoute GET:@"/screenshot"].standalone respondWithTarget:self action:@selector(handleGetScreenshot:)],
   ];
 }
 

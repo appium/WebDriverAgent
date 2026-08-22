@@ -34,12 +34,20 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 
 NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 
+// +[XCUIApplication fb_systemApplication] goes through FBXCAXClientProxy's shared accessibility
+// channel, which can be stuck for as long as some other in-flight request against a frozen app -
+// see -fb_isTestedApplicationSameAsSystemAppWithTimeout: below.
+static const NSTimeInterval FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC = 5.;
+NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotification";
+
 @interface FBSession ()
 @property (nullable, nonatomic) XCUIApplication *testedApplication;
 @property (nonatomic) BOOL isTestedApplicationExpectedToRun;
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
+
+- (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout;
 @end
 
 @interface FBSession (FBAlertsMonitorDelegate)
@@ -173,6 +181,14 @@ static FBSession *_activeSession = nil;
     return;
   }
 
+  // Cleared up front, not at the end, so a request arriving mid-teardown resolves to "no such
+  // session" (+sessionWithIdentifier:) instead of running against a half-torn-down one.
+  _activeSession = nil;
+
+  // Posted early, before the (potentially slow) teardown below, so anything waiting on this
+  // session's pending HTTP requests can stop waiting as soon as possible.
+  [NSNotificationCenter.defaultCenter postNotificationName:FBSessionWasKilledNotification object:self];
+
   [self disableAlertsMonitor];
 
   FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
@@ -187,15 +203,13 @@ static FBSession *_activeSession = nil;
   if (nil != self.testedApplication
       && FBConfiguration.sharedInstance.shouldTerminateApp
       && self.testedApplication.running
-      && ![self.testedApplication fb_isSameAppAs:XCUIApplication.fb_systemApplication]) {
+      && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
     @try {
       [self.testedApplication terminate];
     } @catch (NSException *e) {
       [FBLogger logFmt:@"%@", e.description];
     }
   }
-
-  _activeSession = nil;
 }
 
 - (XCUIApplication *)activeApplication
@@ -288,6 +302,37 @@ static FBSession *_activeSession = nil;
   return nil != self.testedApplication && [bundleIdentifier isEqualToString:(NSString *)self.testedApplication.bundleID]
     ? self.testedApplication
     : [[XCUIApplication alloc] initWithBundleIdentifier:bundleIdentifier];
+}
+
+// +[XCUIApplication fb_systemApplication] has no async variant and can block for as long as
+// FBXCAXClientProxy's shared accessibility channel is busy servicing some other (possibly stuck)
+// request against a frozen app, unrelated to this session. Run it on its own thread and give up
+// after `timeout`, assuming the tested app IS the system app - the safer assumption, since it
+// means -kill skips terminating it rather than risking terminating springboard - if we can't find
+// out in time.
+- (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout
+{
+  __block XCUIApplication *systemApp = nil;
+  __block NSException *caughtException = nil;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    // +fb_systemApplication is undocumented private API; some of its XCUIApplication siblings
+    // (e.g. -terminate) hard-assert when called off the main thread, so guard against this one
+    // doing the same on some other Xcode/iOS version - an uncaught exception thrown from inside a
+    // bare dispatch_async block has no handler and would crash the whole process.
+    @try {
+      systemApp = XCUIApplication.fb_systemApplication;
+    } @catch (NSException *e) {
+      caughtException = e;
+    }
+    dispatch_semaphore_signal(sem);
+  });
+  int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs)) || nil != caughtException) {
+    [FBLogger logFmt:@"Could not determine the system application within %@ seconds%@; assuming '%@' might be it and skipping its termination", @(timeout), nil == caughtException ? @"" : [NSString stringWithFormat:@" (%@)", caughtException.description], self.testedApplication.bundleID];
+    return YES;
+  }
+  return [self.testedApplication fb_isSameAppAs:systemApp];
 }
 
 @end

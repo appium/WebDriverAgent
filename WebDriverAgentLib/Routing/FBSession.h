@@ -17,6 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString* const FB_SAFARI_BUNDLE_ID;
 
 /**
+ Posted (synchronously, on whatever thread calls -kill) once a session has been torn down. The
+ notification's object is the FBSession instance that was killed - see -identifier.
+ */
+extern NSString* const FBSessionWasKilledNotification;
+
+/**
  Class that represents testing session
  */
 @interface FBSession : NSObject

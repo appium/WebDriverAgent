@@ -13,8 +13,10 @@
 #import "FBTCPSocket.h"
 
 #import "FBCommandHandler.h"
+#import "FBCommandStatus.h"
 #import "FBErrorBuilder.h"
 #import "FBExceptionHandler.h"
+#import "FBResponsePayload.h"
 #import "FBRouteRequest.h"
 #import "FBRuntimeUtils.h"
 #import "FBSession.h"
@@ -79,6 +81,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   [self.server setDefaultHeader:@"Server" value:@"WebDriverAgent/1.0"];
   [self.server setDefaultHeader:@"Access-Control-Allow-Origin" value:@"*"];
   [self.server setDefaultHeader:@"Access-Control-Allow-Headers" value:@"Content-Type, X-Requested-With"];
+
+  [NSNotificationCenter.defaultCenter addObserver:self
+                                          selector:@selector(sessionWasKilled:)
+                                              name:FBSessionWasKilledNotification
+                                            object:nil];
 
   [self registerRouteHandlers:[self.class collectCommandHandlerClasses]];
   [self registerServerKeyRouteHandlers];
@@ -167,8 +174,26 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   }
 }
 
+- (void)sessionWasKilled:(NSNotification *)notification
+{
+  FBSession *session = notification.object;
+  if (![session isKindOfClass:FBSession.class]) {
+    return;
+  }
+  // Same "invalid session id" shape a still-queued request would eventually get anyway, once
+  // -routeQueue drains and FBRoute.decorateRequest: finds the session gone - just delivered now
+  // instead of after however long the request would otherwise have been stuck waiting.
+  NSString *message = [NSString stringWithFormat:@"Session %@ was deleted while this request was still pending", session.identifier];
+  id<FBResponsePayload> payload = FBResponseWithStatus([FBCommandStatus noSuchDriverErrorWithMessage:message
+                                                                                            traceback:nil]);
+  RouteResponse *response = [RouteResponse new];
+  [payload dispatchWithResponse:response];
+  [self.server abandonPendingRequestsForSessionID:session.identifier withResponse:response];
+}
+
 - (void)stopServing
 {
+  [NSNotificationCenter.defaultCenter removeObserver:self name:FBSessionWasKilledNotification object:nil];
   [FBSession.activeSession kill];
   [self stopScreenshotsBroadcaster];
   if (self.server.isRunning) {
@@ -208,7 +233,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   for (Class<FBCommandHandler> commandHandler in commandHandlerClasses) {
     NSArray *routes = [commandHandler routes];
     for (FBRoute *route in routes) {
-      [self.server handleMethod:route.verb withPath:route.path block:^(RouteRequest *request, RouteResponse *response) {
+      [self.server handleMethod:route.verb withPath:route.path standalone:route.isStandalone block:^(RouteRequest *request, RouteResponse *response) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (nil == strongSelf) {
           return;
