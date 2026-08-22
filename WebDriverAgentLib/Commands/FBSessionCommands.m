@@ -47,8 +47,8 @@
     [[FBRoute POST:@"/wda/apps/state"] respondWithTarget:self action:@selector(handleSessionAppState:)],
     [[FBRoute GET:@"/wda/apps/list"] respondWithTarget:self action:@selector(handleGetActiveAppsList:)],
     [[FBRoute GET:@""] respondWithTarget:self action:@selector(handleGetActiveSession:)],
-    [[FBRoute DELETE:@""] respondWithTarget:self action:@selector(handleDeleteSession:)],
-    [[FBRoute GET:@"/status"].withoutSession respondWithTarget:self action:@selector(handleGetStatus:)],
+    [[FBRoute DELETE:@""].standalone respondWithTarget:self action:@selector(handleDeleteSession:)],
+    [[FBRoute GET:@"/status"].withoutSession.standalone respondWithTarget:self action:@selector(handleGetStatus:)],
 
     // Health check might modify simulator state so it should only be called in-between testing sessions
     [[FBRoute GET:@"/wda/healthcheck"].withoutSession respondWithTarget:self action:@selector(handleGetHealthCheck:)],

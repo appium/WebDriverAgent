@@ -77,6 +77,8 @@
 
 @end
 
+#define TESTMANAGERD_VERSION_TIMEOUT_SEC 20
+
 NSInteger FBTestmanagerdVersion(void)
 {
   static dispatch_once_t getTestmanagerdVersion;
@@ -85,12 +87,18 @@ NSInteger FBTestmanagerdVersion(void)
     id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
     if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_exchangeProtocolVersion:reply:)]) {
       id<FBXCTestManagerLegacyProtocolVersionExchanging> legacyProxy = (id<FBXCTestManagerLegacyProtocolVersionExchanging>)proxy;
-      [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-        [legacyProxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
-          testmanagerdVersion = (NSInteger) code;
-          completion();
-        }];
+      // Assume newest/full-featured on timeout, mirroring the modern-testmanagerd branch below.
+      __block NSInteger receivedVersion = 0xFFFF;
+      dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+      [legacyProxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
+        receivedVersion = (NSInteger) code;
+        dispatch_semaphore_signal(sem);
       }];
+      int64_t timeoutNs = (int64_t)(TESTMANAGERD_VERSION_TIMEOUT_SEC * NSEC_PER_SEC);
+      if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+        [FBLogger logFmt:@"Did not receive a testmanagerd protocol version reply within %d seconds; assuming the newest/full-featured protocol", TESTMANAGERD_VERSION_TIMEOUT_SEC];
+      }
+      testmanagerdVersion = receivedVersion;
     } else {
       // Modern testmanagerd (Xcode 15+) has already negotiated named XCTCapabilities by the time
       // a daemon session exists, instead of a single scalar protocol version. There is no direct
