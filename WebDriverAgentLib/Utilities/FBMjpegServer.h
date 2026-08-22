@@ -19,14 +19,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)init;
 
-#if TARGET_OS_WATCH
 /**
- The socket that owns this instance as its delegate. watchOS clients are bare nw_connection_t
- values with no write method of their own (unlike GCDAsyncSocket on other platforms), so frame
- writes are routed through -[FBTCPSocket writeData:toClient:]. Must be set before streaming starts.
+ The socket that owns this instance as its delegate. Clients are bare nw_connection_t values
+ with no write method of their own, so frame writes are routed through
+ -[FBTCPSocket writeData:toClient:]. Must be set before streaming starts.
  */
 @property (nonatomic, weak, nullable) FBTCPSocket *socket;
-#endif
 
 /**
  Stops screenshot broadcasting and prevents future scheduling.

@@ -6,13 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// RoutingHTTPServer/CocoaHTTPServer need BSD sockets (via GCDAsyncSocket), which watchOS
-// forbids - see FBTCPSocket.h/.m. This is a minimal HTTP/1.1 server on top of the watchOS
-// FBTCPSocket, mirroring just enough of RoutingHTTPServer's API for FBWebServer.m to swap
-// servers with a single #if TARGET_OS_WATCH.
+// A minimal HTTP/1.1 server on top of FBTCPSocket (Network.framework-backed on every platform,
+// since watchOS forbids BSD sockets outright - see FBTCPSocket.h/.m).
 //
 // No chunked encoding, range requests, or pipelining - just request line + headers +
-// Content-Length body, and ":param" path matching like RoutingHTTPServer.m.
+// Content-Length body, and ":param" path matching.
 
 @import Foundation;
 
@@ -21,7 +19,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBWatchHTTPServer : NSObject
+@interface FBHTTPServer : NSObject
 
 /*! The port the server is (or will be) listening on */
 @property (nonatomic) uint16_t port;
@@ -41,8 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setDefaultHeader:(NSString *)field value:(NSString *)value;
 
 /**
+ Sets the local IP address to bind the listener to. Must be called before -start:. Pass nil (the
+ default) to listen on all interfaces.
+ */
+- (void)setInterface:(nullable NSString *)interface;
+
+/**
  Registers a route handler for the given HTTP method and path pattern (":param" segments are
- captured into the request's `params`, matching RoutingHTTPServer's convention).
+ captured into the request's `params`).
  */
 - (void)handleMethod:(NSString *)method
             withPath:(NSString *)path

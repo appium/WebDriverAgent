@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// Minimal, watchOS-only stand-in for Vendor/RoutingHTTPServer/RouteResponse.h, reproducing just
-// what FBRoute.m/FBResponseJSONPayload.m call on it. See FBWatchHTTPServer.h.
+// A minimal response value type, exposing just the surface FBRoute.m/FBResponseJSONPayload.m
+// call on it.
 
 @import Foundation;
 #import <WebDriverAgentLib/FBHTTPStatusCodes.h>

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#import "FBWatchHTTPServer.h"
+#import "FBHTTPServer.h"
 
 #import "FBConfiguration.h"
 #import "FBTCPSocket.h"
@@ -28,29 +28,30 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   return (NSData * _Nonnull)[string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-@interface FBWatchHTTPRoute : NSObject
+@interface FBHTTPRoute : NSObject
 @property (nonatomic, copy) NSString *verb;
 @property (nonatomic, strong) NSRegularExpression *regex;
 @property (nonatomic, copy, nullable) NSArray<NSString *> *keys;
 @property (nonatomic, copy) void (^block)(RouteRequest *request, RouteResponse *response);
 @end
 
-@implementation FBWatchHTTPRoute
+@implementation FBHTTPRoute
 @end
 
 
-@interface FBWatchHTTPServer () <FBTCPSocketDelegate>
+@interface FBHTTPServer () <FBTCPSocketDelegate>
 
 @property (nonatomic, nullable, strong) FBTCPSocket *socket;
-@property (nonatomic, strong) NSMutableArray<FBWatchHTTPRoute *> *routes;
+@property (nonatomic, strong) NSMutableArray<FBHTTPRoute *> *routes;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *defaultHeaders;
 @property (nonatomic, nullable) dispatch_queue_t routeQueue;
+@property (nonatomic, copy, nullable) NSString *interface;
 // nw_connection_t isn't NSCopying, so it can't be an NSDictionary key - use NSMapTable instead.
 @property (nonatomic, strong) NSMapTable<id, NSMutableData *> *connectionBuffers;
 
 @end
 
-@implementation FBWatchHTTPServer
+@implementation FBHTTPServer
 
 - (instancetype)init
 {
@@ -73,15 +74,20 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   self.defaultHeaders[field] = value;
 }
 
+- (void)setInterface:(nullable NSString *)interface
+{
+  _interface = interface.copy;
+}
+
 #pragma mark - Route registration
 
-- (FBWatchHTTPRoute *)compiledRouteWithPath:(NSString *)path
+- (FBHTTPRoute *)compiledRouteWithPath:(NSString *)path
 {
-  FBWatchHTTPRoute *route = [FBWatchHTTPRoute new];
+  FBHTTPRoute *route = [FBHTTPRoute new];
   NSMutableArray<NSString *> *keys = [NSMutableArray array];
 
   // Escape regex-significant characters before substituting :param placeholders, like
-  // RoutingHTTPServer.m does.
+  // RoutingHTTPServer.m used to.
   NSRegularExpression *escapeRegex = [NSRegularExpression regularExpressionWithPattern:@"[.+()]"
                                                                                 options:(NSRegularExpressionOptions)0
                                                                                   error:nil];
@@ -126,7 +132,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
             withPath:(NSString *)path
                block:(void (^)(RouteRequest *request, RouteResponse *response))block
 {
-  FBWatchHTTPRoute *route = [self compiledRouteWithPath:path];
+  FBHTTPRoute *route = [self compiledRouteWithPath:path];
   route.verb = method.uppercaseString;
   route.block = block;
   [self.routes addObject:route];
@@ -142,6 +148,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 - (BOOL)start:(NSError **)error
 {
   FBTCPSocket *socket = [[FBTCPSocket alloc] initWithPort:self.port];
+  socket.interface = self.interface;
   socket.delegate = self;
   if (![socket startWithError:error]) {
     return NO;
@@ -239,8 +246,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
     NSUInteger contentLength = (NSUInteger)requestHeaders[@"content-length"].integerValue;
     if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
-      // Mirrors FBHTTPConnection's maxRequestBodySize enforcement on iOS/tvOS. Closes the
-      // connection after responding, since the rest of the oversized body is still incoming.
+      // Mirrors CocoaHTTPServer's maxRequestBodySize enforcement. Closes the connection after
+      // responding, since the rest of the oversized body is still incoming.
       RouteResponse *tooLarge = [RouteResponse new];
       tooLarge.statusCode = kHTTPStatusCodeRequestEntityTooLarge;
       [tooLarge respondWithString:@"Request Entity Too Large"];
@@ -269,7 +276,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   NSURLComponents *requestTarget = [NSURLComponents componentsWithString:pathAndQuery];
   NSString *path = requestTarget.path ?: pathAndQuery;
 
-  for (FBWatchHTTPRoute *route in self.routes) {
+  for (FBHTTPRoute *route in self.routes) {
     if (![route.verb isEqualToString:method]) {
       continue;
     }
@@ -367,6 +374,12 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     return @"Bad Request";
   } else if (kHTTPStatusCodeNotFound == statusCode) {
     return @"Not Found";
+  } else if (kHTTPStatusCodeMethodNotAllowed == statusCode) {
+    return @"Method Not Allowed";
+  } else if (kHTTPStatusCodeRequestTimeout == statusCode) {
+    return @"Request Timeout";
+  } else if (kHTTPStatusCodeRequestEntityTooLarge == statusCode) {
+    return @"Request Entity Too Large";
   } else if (kHTTPStatusCodeInternalServerError == statusCode) {
     return @"Internal Server Error";
   }

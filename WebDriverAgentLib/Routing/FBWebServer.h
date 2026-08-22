@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class RouteResponse, RoutingHTTPServer, FBExceptionHandler;
+@class RouteResponse, FBExceptionHandler;
 @protocol FBWebServerDelegate;
 
 NS_ASSUME_NONNULL_BEGIN

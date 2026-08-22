@@ -6,10 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// Minimal, watchOS-only stand-in for Vendor/RoutingHTTPServer/RouteRequest.h, which is not
-// available on watchOS because RoutingHTTPServer/CocoaHTTPServer/CocoaAsyncSocket cannot be
-// built there (see FBWatchHTTPServer.h). Exposes just the surface FBWebServer's route blocks
-// and FBRoute.decorateRequest: read.
+// A minimal request value type, exposing just the surface FBWebServer's route blocks and
+// FBRoute.decorateRequest: read.
 
 @import Foundation;
 
