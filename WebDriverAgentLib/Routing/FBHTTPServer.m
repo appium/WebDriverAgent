@@ -8,7 +8,9 @@
 
 #import "FBHTTPServer.h"
 
+#import "FBCommandStatus.h"
 #import "FBConfiguration.h"
+#import "FBResponsePayload.h"
 #import "FBTCPSocket.h"
 
 static NSData *FBCRLFCRLFData(void)
@@ -318,8 +320,9 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   }
 
   RouteResponse *notFound = [RouteResponse new];
-  notFound.statusCode = kHTTPStatusCodeNotFound;
-  [notFound respondWithString:@"Not Found"];
+  FBCommandStatus *status = [FBCommandStatus unknownCommandErrorWithMessage:nil
+                                                                   traceback:nil];
+  [FBResponseWithStatus(status) dispatchWithResponse:notFound];
   [self writeResponse:notFound toClient:client];
 }
 
