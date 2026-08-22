@@ -205,10 +205,13 @@
 + (id<FBResponsePayload>)handleActiveAppInfo:(FBRouteRequest *)request
 {
   XCUIApplication *app = request.session.activeApplication ?: XCUIApplication.fb_activeApplication;
+  // .identifier can be nil if the app stopped answering accessibility requests
+  // and accessibilityDeadline aborted the underlying snapshot fetch (#1210).
+  NSString *name = app.identifier ?: @"unknown";
   return FBResponseWithObject(@{
     @"pid": @(app.processID),
     @"bundleId": app.bundleID,
-    @"name": app.identifier,
+    @"name": name,
     @"processArguments": [self processArguments:app],
   });
 }

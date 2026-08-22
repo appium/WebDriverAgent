@@ -38,9 +38,10 @@
 
 - (IBAction)deadlockApp:(id)sender
 {
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    // This will never execute
-  });
+  // A self dispatch_sync would trip the OS watchdog and get the process
+  // killed outright. Sleeping instead simulates an app that stops answering
+  // accessibility requests while staying alive, per #1210.
+  [NSThread sleepForTimeInterval:20.0];
 }
 
 - (IBAction)didTapButton:(UIButton *)button

@@ -81,6 +81,12 @@ static id FBAXClient = nil;
   [FBAXClient notifyWhenNoAnimationsAreActiveForApplication:application reply:reply];
 }
 
+- (void)notifyWhenEventLoopIsIdleForApplication:(XCUIApplication *)application
+                                           reply:(void (^)(id _Nullable result, NSError * _Nullable error))reply
+{
+  [FBAXClient notifyWhenEventLoopIsIdleForApplication:application reply:reply];
+}
+
 - (NSDictionary *)attributesForElement:(id<FBXCAccessibilityElement>)element
                             attributes:(NSArray *)attributes
                                  error:(NSError**)error;
@@ -92,28 +98,30 @@ static id FBAXClient = nil;
 
 - (XCUIApplication *)monitoredApplicationWithProcessIdentifier:(int)pid
 {
-  NSMutableSet *terminatedAppIds = [NSMutableSet set];
-  for (NSNumber *appPid in self.appsCache) {
-    if (![self.appsCache[appPid] running]) {
-      [terminatedAppIds addObject:appPid];
+  @synchronized (self) {
+    NSMutableSet *terminatedAppIds = [NSMutableSet set];
+    for (NSNumber *appPid in self.appsCache) {
+      if (![self.appsCache[appPid] running]) {
+        [terminatedAppIds addObject:appPid];
+      }
     }
-  }
-  for (NSNumber *appPid in terminatedAppIds) {
-    [self.appsCache removeObjectForKey:appPid];
-  }
+    for (NSNumber *appPid in terminatedAppIds) {
+      [self.appsCache removeObjectForKey:appPid];
+    }
 
-  XCUIApplication *result = [self.appsCache objectForKey:@(pid)];
-  if (nil != result) {
-    return result;
-  }
+    XCUIApplication *result = [self.appsCache objectForKey:@(pid)];
+    if (nil != result) {
+      return result;
+    }
 
-  XCUIApplication *app = [[FBAXClient applicationProcessTracker]
-                          monitoredApplicationWithProcessIdentifier:pid];
-  if (nil == app) {
-    return nil;
+    XCUIApplication *app = [[FBAXClient applicationProcessTracker]
+                            monitoredApplicationWithProcessIdentifier:pid];
+    if (nil == app) {
+      return nil;
+    }
+    [self.appsCache setObject:app forKey:@(pid)];
+    return app;
   }
-  [self.appsCache setObject:app forKey:@(pid)];
-  return app;
 }
 
 @end

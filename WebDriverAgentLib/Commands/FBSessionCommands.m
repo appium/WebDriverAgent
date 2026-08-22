@@ -311,6 +311,9 @@
   if (nil != capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT]) {
     FBConfiguration.sharedInstance.waitForIdleTimeout = [capabilities[FB_SETTING_WAIT_FOR_IDLE_TIMEOUT] doubleValue];
   }
+  if (nil != capabilities[FB_SETTING_ACCESSIBILITY_DEADLINE]) {
+    FBConfiguration.sharedInstance.accessibilityDeadline = [capabilities[FB_SETTING_ACCESSIBILITY_DEADLINE] doubleValue];
+  }
   if (nil == capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] ||
       [capabilities[FB_CAP_FORCE_SIMULATOR_SOFTWARE_KEYBOARD_PRESENCE] boolValue]) {
     [FBConfiguration.sharedInstance forceSimulatorSoftwareKeyboardPresence];
