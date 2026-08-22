@@ -52,6 +52,10 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // Keyed by "METHOD path" - holds connections waiting on an already in-flight standalone request
 // for that same endpoint. Guarded by @synchronized(self.standaloneWaiters).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableArray *> *standaloneWaiters;
+// Keyed by the "sessionID" path param - holds clients with a non-standalone request currently
+// queued on -routeQueue or executing for that session. See -abandonPendingRequestsForSessionID:.
+// Guarded by @synchronized(self.pendingSessionRequests).
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet *> *pendingSessionRequests;
 
 @end
 
@@ -65,6 +69,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     _connectionBuffers = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                  valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
     _standaloneWaiters = [NSMutableDictionary dictionary];
+    _pendingSessionRequests = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -323,9 +328,38 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       return;
     }
 
+    NSString *sessionID = params[@"sessionID"];
+    if (nil != sessionID) {
+      @synchronized (self.pendingSessionRequests) {
+        NSMutableSet *pendingClients = self.pendingSessionRequests[sessionID];
+        if (nil == pendingClients) {
+          pendingClients = [NSMutableSet set];
+          self.pendingSessionRequests[sessionID] = pendingClients;
+        }
+        [pendingClients addObject:client];
+      }
+    }
+
     void (^invoke)(void) = ^{
       route.block(request, response);
-      [self writeResponse:response toClient:client];
+      // Whoever removes `client` from pendingSessionRequests first "wins" and gets to respond -
+      // either this normal completion, or -abandonPendingRequestsForSessionID: on another thread.
+      BOOL shouldRespond = YES;
+      if (nil != sessionID) {
+        @synchronized (self.pendingSessionRequests) {
+          NSMutableSet *pendingClients = self.pendingSessionRequests[sessionID];
+          shouldRespond = [pendingClients containsObject:client];
+          if (shouldRespond) {
+            [pendingClients removeObject:client];
+            if (0 == pendingClients.count) {
+              [self.pendingSessionRequests removeObjectForKey:sessionID];
+            }
+          }
+        }
+      }
+      if (shouldRespond) {
+        [self writeResponse:response toClient:client];
+      }
     };
     dispatch_queue_t routeQueue = self.routeQueue;
     if (routeQueue) {
@@ -340,6 +374,20 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   notFound.statusCode = kHTTPStatusCodeNotFound;
   [notFound respondWithString:@"Not Found"];
   [self writeResponse:notFound toClient:client];
+}
+
+#pragma mark - Session-scoped request cancellation
+
+- (void)abandonPendingRequestsForSessionID:(NSString *)sessionID withResponse:(RouteResponse *)response
+{
+  NSSet *clients;
+  @synchronized (self.pendingSessionRequests) {
+    clients = [self.pendingSessionRequests[sessionID] copy];
+    [self.pendingSessionRequests removeObjectForKey:sessionID];
+  }
+  for (nw_connection_t client in clients) {
+    [self writeResponse:response toClient:client];
+  }
 }
 
 #pragma mark - Standalone route dispatch
