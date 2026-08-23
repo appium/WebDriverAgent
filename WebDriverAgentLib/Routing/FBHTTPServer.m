@@ -88,6 +88,12 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // Per-client cache of the already-parsed request line + headers while its body is still
 // arriving; nil while a client's next unread bytes start with an unparsed header block.
 @property (nonatomic, strong) NSMapTable<id, FBPendingHTTPRequestHeader *> *pendingRequestHeaders;
+// -processBufferForClient: parses a connection's buffer outside of any lock (cheap, and it can
+// hand off to -dispatchMethod:...). It's only safe to do that unlocked because every call to it -
+// from -client:didReceiveData: and from -writeResponse:toClient:thenCloseConnection: alike - is
+// funneled through this single serial queue, so no two calls (even for different connections) ever
+// run concurrently with each other.
+@property (nonatomic, strong) dispatch_queue_t bufferProcessingQueue;
 // Connections with a request that's been parsed off the buffer but not yet answered. While a
 // connection is in this set, -processBufferForClient: won't start any further pipelined request
 // already sitting in its buffer - that keeps responses on one connection from being written out
@@ -116,6 +122,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
                                                  valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
     _pendingRequestHeaders = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                     valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
+    _bufferProcessingQueue = dispatch_queue_create("com.facebook.wda.http.bufferProcessing", DISPATCH_QUEUE_SERIAL);
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
@@ -271,7 +278,10 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     }
     [buffer appendData:data];
   }
-  [self processBufferForClient:client];
+  __weak typeof(self) weakSelf = self;
+  dispatch_async(self.bufferProcessingQueue, ^{
+    [weakSelf processBufferForClient:client];
+  });
 }
 
 #pragma mark - HTTP parsing
@@ -447,7 +457,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       // -sessionWasKilled:); tracking its own request here would make it abandon itself and write
       // a response twice.
       NSString *trackedSessionID = [route.verb isEqualToString:@"DELETE"] ? nil : sessionID;
-      [self dispatchStandaloneRoute:route request:request response:response client:client method:method path:path sessionID:trackedSessionID];
+      [self dispatchStandaloneRoute:route request:request response:response client:client method:method pathAndQuery:pathAndQuery sessionID:trackedSessionID];
       return;
     }
 
@@ -536,10 +546,13 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
                         response:(RouteResponse *)response
                           client:(nw_connection_t)client
                           method:(NSString *)method
-                            path:(NSString *)path
+                    pathAndQuery:(NSString *)pathAndQuery
                        sessionID:(nullable NSString *)sessionID
 {
-  NSString *key = [NSString stringWithFormat:@"%@ %@", method, path];
+  // Includes the query string, not just the path, so two concurrent requests that would run
+  // route.block with genuinely different `request` objects (e.g. differing query params) are
+  // never coalesced into sharing one response.
+  NSString *key = [NSString stringWithFormat:@"%@ %@", method, pathAndQuery];
   FBPendingRequest *waiter = [[FBPendingRequest alloc] initWithClient:client];
   if (nil != sessionID) {
     [self trackPendingRequest:waiter forSessionID:sessionID];
@@ -620,7 +633,10 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     @synchronized (self.connectionBuffers) {
       [self.connectionsAwaitingResponse removeObject:client];
     }
-    [self processBufferForClient:client];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.bufferProcessingQueue, ^{
+      [weakSelf processBufferForClient:client];
+    });
   }
 }
 

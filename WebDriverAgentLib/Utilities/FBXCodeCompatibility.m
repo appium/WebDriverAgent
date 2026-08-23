@@ -81,24 +81,42 @@
 
 NSInteger FBTestmanagerdVersion(void)
 {
-  static dispatch_once_t getTestmanagerdVersion;
-  static NSInteger testmanagerdVersion;
-  dispatch_once(&getTestmanagerdVersion, ^{
+  // Not a dispatch_once: a `dispatch_once` here would permanently cache the timeout fallback below
+  // if the very first call's daemon reply merely arrived late (busy, not hung), instead of the real
+  // negotiated version. -1 means "not yet successfully determined" - only a real reply (or the
+  // always-correct modern-testmanagerd branch) is cached; a timeout is retried on the next call.
+  static NSInteger cachedVersion = -1;
+  static dispatch_queue_t syncQueue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    syncQueue = dispatch_queue_create("com.facebook.wda.testmanagerdVersion", DISPATCH_QUEUE_SERIAL);
+  });
+
+  __block NSInteger result;
+  dispatch_sync(syncQueue, ^{
+    if (cachedVersion >= 0) {
+      result = cachedVersion;
+      return;
+    }
+
     id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
     if ([(NSObject *)proxy respondsToSelector:@selector(_XCT_exchangeProtocolVersion:reply:)]) {
       id<FBXCTestManagerLegacyProtocolVersionExchanging> legacyProxy = (id<FBXCTestManagerLegacyProtocolVersionExchanging>)proxy;
-      // Assume newest/full-featured on timeout, mirroring the modern-testmanagerd branch below.
-      __block NSInteger receivedVersion = 0xFFFF;
+      __block NSInteger receivedVersion = -1;
       dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-      [legacyProxy _XCT_exchangeProtocolVersion:testmanagerdVersion reply:^(unsigned long long code) {
+      [legacyProxy _XCT_exchangeProtocolVersion:0 reply:^(unsigned long long code) {
         receivedVersion = (NSInteger) code;
         dispatch_semaphore_signal(sem);
       }];
       int64_t timeoutNs = (int64_t)(TESTMANAGERD_VERSION_TIMEOUT_SEC * NSEC_PER_SEC);
       if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+        // Assume newest/full-featured on timeout, mirroring the modern-testmanagerd branch below -
+        // but don't cache it, so a merely-slow (not hung) daemon gets a real answer on a later call.
         [FBLogger logFmt:@"Did not receive a testmanagerd protocol version reply within %d seconds; assuming the newest/full-featured protocol", TESTMANAGERD_VERSION_TIMEOUT_SEC];
+        result = 0xFFFF;
+        return;
       }
-      testmanagerdVersion = receivedVersion;
+      result = receivedVersion;
     } else {
       // Modern testmanagerd (Xcode 15+) has already negotiated named XCTCapabilities by the time
       // a daemon session exists, instead of a single scalar protocol version. There is no direct
@@ -109,8 +127,9 @@ NSInteger FBTestmanagerdVersion(void)
       if (nil == capabilities) {
         [FBLogger log:@"Could not retrieve testmanagerd capabilities"];
       }
-      testmanagerdVersion = 0xFFFF;
+      result = 0xFFFF;
     }
+    cachedVersion = result;
   });
-  return testmanagerdVersion;
+  return result;
 }

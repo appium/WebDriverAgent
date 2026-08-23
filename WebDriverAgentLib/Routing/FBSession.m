@@ -38,6 +38,14 @@ NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 // channel, which can be stuck for as long as some other in-flight request against a frozen app -
 // see -fb_isTestedApplicationSameAsSystemAppWithTimeout: below.
 static const NSTimeInterval FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC = 5.;
+// -[XCUIApplication terminate] hard-asserts off the main thread - see
+// -fb_terminateTestedApplicationWithTimeout: below.
+static const NSTimeInterval FB_APP_TERMINATE_TIMEOUT_SEC = 5.;
+// Upper bound on -kill's own teardown (system-app check + terminate above, plus the existing 20s
+// bound on stopping an active screen recording - see FBXCTestDaemonsProxy) - how long a caller that
+// lost the -kill race below will wait for the winner to actually finish, rather than proceeding
+// immediately against a session that's still mid-teardown.
+static const NSTimeInterval FB_KILL_WAIT_TIMEOUT_SEC = 35.;
 NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotification";
 
 @interface FBSession ()
@@ -46,8 +54,13 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
+// Lets a -kill caller that loses the atomic race in -kill wait for the winner's teardown to
+// actually finish, instead of returning immediately. Created once per session instance - see -init.
+@property (nonatomic, strong, readonly) NSCondition *killCondition;
+@property (nonatomic, assign) BOOL isKillFinished;
 
 - (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout;
+- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout;
 @end
 
 @interface FBSession (FBAlertsMonitorDelegate)
@@ -98,6 +111,14 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @implementation FBSession
 
 static FBSession *_activeSession = nil;
+
+- (instancetype)init
+{
+  if ((self = [super init])) {
+    _killCondition = [NSCondition new];
+  }
+  return self;
+}
 
 + (instancetype)activeSession
 {
@@ -191,33 +212,46 @@ static FBSession *_activeSession = nil;
     }
   }
   if (!wasActive) {
+    // Someone else is already tearing this exact session down (e.g. a concurrent DELETE and the
+    // pre-kill in session creation both targeting it). Wait for that teardown to actually finish,
+    // bounded, so a caller that's about to act as if the session is gone - e.g. launching a fresh
+    // app for a replacement session - doesn't race a still-in-flight -terminate.
+    [self.killCondition lock];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_KILL_WAIT_TIMEOUT_SEC];
+    while (!self.isKillFinished && [self.killCondition waitUntilDate:deadline]) {
+      // Re-checks isKillFinished on every wake, in case of a spurious wakeup.
+    }
+    [self.killCondition unlock];
     return;
   }
 
-  // Posted early, before the (potentially slow) teardown below, so anything waiting on this
-  // session's pending HTTP requests can stop waiting as soon as possible.
-  [NSNotificationCenter.defaultCenter postNotificationName:FBSessionWasKilledNotification object:self];
+  @try {
+    // Posted early, before the (potentially slow) teardown below, so anything waiting on this
+    // session's pending HTTP requests can stop waiting as soon as possible.
+    [NSNotificationCenter.defaultCenter postNotificationName:FBSessionWasKilledNotification object:self];
 
-  [self disableAlertsMonitor];
+    [self disableAlertsMonitor];
 
-  FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
-  if (nil != activeScreenRecording) {
-    NSError *error;
-    if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
-      [FBLogger logFmt:@"%@", error];
+    FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
+    if (nil != activeScreenRecording) {
+      NSError *error;
+      if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
+        [FBLogger logFmt:@"%@", error];
+      }
+      [FBScreenRecordingContainer.sharedInstance reset];
     }
-    [FBScreenRecordingContainer.sharedInstance reset];
-  }
 
-  if (nil != self.testedApplication
-      && FBConfiguration.sharedInstance.shouldTerminateApp
-      && self.testedApplication.running
-      && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
-    @try {
-      [self.testedApplication terminate];
-    } @catch (NSException *e) {
-      [FBLogger logFmt:@"%@", e.description];
+    if (nil != self.testedApplication
+        && FBConfiguration.sharedInstance.shouldTerminateApp
+        && self.testedApplication.running
+        && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
+      [self fb_terminateTestedApplicationWithTimeout:FB_APP_TERMINATE_TIMEOUT_SEC];
     }
+  } @finally {
+    [self.killCondition lock];
+    self.isKillFinished = YES;
+    [self.killCondition broadcast];
+    [self.killCondition unlock];
   }
 }
 
@@ -342,6 +376,31 @@ static FBSession *_activeSession = nil;
     return YES;
   }
   return [self.testedApplication fb_isSameAppAs:systemApp];
+}
+
+// -[XCUIApplication terminate] hard-asserts when called off the main thread, but -kill (the only
+// caller) can now itself run on a background queue - DELETE /session is a standalone route (see
+// FBHTTPServer.m) that bypasses the main routeQueue. Dispatching to main and waiting indefinitely
+// would reintroduce the exact hang standalone routes exist to avoid, if that's the queue currently
+// stuck servicing some other request against the frozen app; give up after `timeout` instead. The
+// dispatched block still runs (and still terminates the app) whenever main frees up, even after
+// this method has given up waiting on it.
+- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout
+{
+  XCUIApplication *application = self.testedApplication;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    @try {
+      [application terminate];
+    } @catch (NSException *e) {
+      [FBLogger logFmt:@"%@", e.description];
+    }
+    dispatch_semaphore_signal(sem);
+  });
+  int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
+  if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
+    [FBLogger logFmt:@"Could not terminate '%@' within %@ seconds; the main thread may still be busy servicing another request", application.bundleID, @(timeout)];
+  }
 }
 
 @end
