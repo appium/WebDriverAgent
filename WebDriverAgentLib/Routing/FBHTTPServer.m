@@ -145,8 +145,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   FBHTTPRoute *route = [FBHTTPRoute new];
   NSMutableArray<NSString *> *keys = [NSMutableArray array];
 
-  // Escape regex-significant characters before substituting :param placeholders, like
-  // RoutingHTTPServer.m used to.
+  // Escape regex-significant characters before substituting :param placeholders.
   NSRegularExpression *escapeRegex = [NSRegularExpression regularExpressionWithPattern:@"[.+()]"
                                                                                 options:(NSRegularExpressionOptions)0
                                                                                   error:nil];
