@@ -135,7 +135,8 @@
       }
       [strongSelf scheduleReceiveForConnection:connection];
     } else if (nw_connection_state_failed == state || nw_connection_state_cancelled == state) {
-      [weakSelf handleDisconnectForConnection:connection];
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      [strongSelf handleDisconnectForConnection:connection];
     }
   });
   nw_connection_start(connection);

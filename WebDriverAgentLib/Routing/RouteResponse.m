@@ -9,7 +9,7 @@
 #import "RouteResponse.h"
 
 @interface RouteResponse ()
-@property (nonatomic, copy) NSMutableDictionary<NSString *, NSString *> *mutableHeaders;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *mutableHeaders;
 @end
 
 @implementation RouteResponse
