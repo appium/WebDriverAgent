@@ -56,9 +56,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 @end
 
 
-// Represents one dispatched-but-not-yet-answered request. Uses default (pointer) identity, so two
-// pending requests that happen to share the same underlying connection - e.g. two pipelined
-// requests for the same session - are never conflated into a single tracked entry.
+// One dispatched-but-not-yet-answered request. Default (pointer) identity, so two pipelined
+// requests sharing a connection are never conflated into a single tracked entry.
 @interface FBPendingRequest : NSObject
 @property (nonatomic, strong, readonly) nw_connection_t client;
 @end
@@ -88,25 +87,20 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // Per-client cache of the already-parsed request line + headers while its body is still
 // arriving; nil while a client's next unread bytes start with an unparsed header block.
 @property (nonatomic, strong) NSMapTable<id, FBPendingHTTPRequestHeader *> *pendingRequestHeaders;
-// -processBufferForClient: parses a connection's buffer outside of any lock (cheap, and it can
-// hand off to -dispatchMethod:...). It's only safe to do that unlocked because every call to it -
-// from -client:didReceiveData: and from -writeResponse:toClient:thenCloseConnection: alike - is
-// funneled through this single serial queue, so no two calls (even for different connections) ever
-// run concurrently with each other.
+// -processBufferForClient: parses a connection's buffer unlocked; safe only because every caller
+// (-client:didReceiveData: and -writeResponse:toClient:thenCloseConnection:) funnels through this
+// one serial queue, so no two calls ever run concurrently.
 @property (nonatomic, strong) dispatch_queue_t bufferProcessingQueue;
-// Connections with a request that's been parsed off the buffer but not yet answered. While a
-// connection is in this set, -processBufferForClient: won't start any further pipelined request
-// already sitting in its buffer - that keeps responses on one connection from being written out
-// of order when e.g. a standalone /screenshot and /status are pipelined back to back and finish
-// on independent queues. Guarded by @synchronized(self.connectionBuffers) (same lock as the
-// buffers themselves, so the busy-check and the buffer consume-and-dispatch stay one atomic step).
+// Connections with a request parsed off the buffer but not yet answered. Blocks
+// -processBufferForClient: from starting the next pipelined request, so responses on one
+// connection can't be written out of order. Guarded by @synchronized(self.connectionBuffers).
 @property (nonatomic, strong) NSMutableSet *connectionsAwaitingResponse;
-// Keyed by "METHOD path" - holds requests waiting on an already in-flight standalone request for
-// that same endpoint. Guarded by @synchronized(self.standaloneWaiters).
+// Keyed by "METHOD path" - requests waiting on an already in-flight standalone request for that
+// endpoint. Guarded by @synchronized(self.standaloneWaiters).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableArray<FBPendingRequest *> *> *standaloneWaiters;
-// Keyed by the "sessionID" path param - holds requests currently queued or executing for that
-// session, standalone or not (except DELETE /session itself - see -dispatchMethod:...).
-// See -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
+// Keyed by the "sessionID" path param - requests currently queued or executing for that session,
+// standalone or not (except DELETE /session itself - see -dispatchMethod:). See
+// -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
 
 @end
@@ -286,9 +280,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
 #pragma mark - HTTP parsing
 
-// Parses and dispatches at most one request per call. A connection with a request already
-// in flight is left alone - see -connectionsAwaitingResponse - and picks back up, via a fresh
-// call to this method, once that request's response has been written.
+// Parses and dispatches at most one request per call; a connection with one already in flight is
+// left alone (see -connectionsAwaitingResponse) until its response is written.
 - (void)processBufferForClient:(nw_connection_t)client
 {
   NSMutableData *buffer;
@@ -453,9 +446,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
     NSString *sessionID = params[@"sessionID"];
     if (route.isStandalone) {
-      // DELETE /session is what triggers -abandonPendingRequestsForSessionID: (see -kill /
-      // -sessionWasKilled:); tracking its own request here would make it abandon itself and write
-      // a response twice.
+      // DELETE triggers -abandonPendingRequestsForSessionID: itself; tracking its own request
+      // would make it abandon itself and write a response twice.
       NSString *trackedSessionID = [route.verb isEqualToString:@"DELETE"] ? nil : sessionID;
       [self dispatchStandaloneRoute:route request:request response:response client:client method:method pathAndQuery:pathAndQuery sessionID:trackedSessionID];
       return;
@@ -495,8 +487,6 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
 #pragma mark - Session-scoped request cancellation
 
-// `pendingRequest` identifies one dispatched request - see FBPendingRequest - so pipelined
-// requests that happen to share a connection are tracked independently of one another.
 - (void)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
@@ -509,9 +499,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   }
 }
 
-// Returns YES if `pendingRequest` was still tracked (and is now removed) - i.e. this caller won
-// the race to respond to it, as opposed to -abandonPendingRequestsForSessionID: having already
-// claimed it on another thread.
+// Returns YES if this caller won the race to respond, vs. -abandonPendingRequestsForSessionID:
+// already having claimed `pendingRequest` on another thread.
 - (BOOL)untrackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
@@ -549,9 +538,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
                     pathAndQuery:(NSString *)pathAndQuery
                        sessionID:(nullable NSString *)sessionID
 {
-  // Includes the query string, not just the path, so two concurrent requests that would run
-  // route.block with genuinely different `request` objects (e.g. differing query params) are
-  // never coalesced into sharing one response.
+  // Includes the query string so requests with different params are never coalesced together.
   NSString *key = [NSString stringWithFormat:@"%@ %@", method, pathAndQuery];
   FBPendingRequest *waiter = [[FBPendingRequest alloc] initWithClient:client];
   if (nil != sessionID) {
@@ -587,8 +574,6 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       [strongSelf.standaloneWaiters removeObjectForKey:key];
     }
     for (FBPendingRequest *joinedWaiter in [@[waiter] arrayByAddingObjectsFromArray:joinedWaiters]) {
-      // Whoever untracks a waiter first "wins" and gets to respond - either this normal
-      // completion, or -abandonPendingRequestsForSessionID: on another thread.
       BOOL shouldRespond = (nil == sessionID) || [strongSelf untrackPendingRequest:joinedWaiter forSessionID:sessionID];
       if (shouldRespond) {
         [strongSelf writeResponse:response toClient:joinedWaiter.client];
@@ -627,8 +612,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       [weakSelf closeClient:client];
     }];
   } else {
-    // Submitted before this connection is allowed to move on to its next pipelined request (see
-    // -processBufferForClient:), so responses can't reach the wire out of order.
+    // Sent before unblocking the next pipelined request, so responses can't reach the wire out of order.
     [self.socket writeData:payload toClient:client];
     @synchronized (self.connectionBuffers) {
       [self.connectionsAwaitingResponse removeObject:client];

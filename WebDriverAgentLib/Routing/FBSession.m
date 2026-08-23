@@ -34,17 +34,11 @@ NSString *const FBDefaultApplicationAuto = @"auto";
 
 NSString *const FB_SAFARI_BUNDLE_ID = @"com.apple.mobilesafari";
 
-// +[XCUIApplication fb_systemApplication] goes through FBXCAXClientProxy's shared accessibility
-// channel, which can be stuck for as long as some other in-flight request against a frozen app -
-// see -fb_isTestedApplicationSameAsSystemAppWithTimeout: below.
+// FBXCAXClientProxy's shared accessibility channel can be stuck servicing another request.
 static const NSTimeInterval FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC = 5.;
-// -[XCUIApplication terminate] hard-asserts off the main thread - see
-// -fb_terminateTestedApplicationWithTimeout: below.
+// -terminate hard-asserts off the main thread, which may itself be busy - see -fb_terminate...:.
 static const NSTimeInterval FB_APP_TERMINATE_TIMEOUT_SEC = 5.;
-// Upper bound on -kill's own teardown (system-app check + terminate above, plus the existing 20s
-// bound on stopping an active screen recording - see FBXCTestDaemonsProxy) - how long a caller that
-// lost the -kill race below will wait for the winner to actually finish, rather than proceeding
-// immediately against a session that's still mid-teardown.
+// How long a -kill caller that lost the race below waits for the winner's teardown to finish.
 static const NSTimeInterval FB_KILL_WAIT_TIMEOUT_SEC = 35.;
 NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotification";
 
@@ -54,8 +48,7 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
-// Lets a -kill caller that loses the atomic race in -kill wait for the winner's teardown to
-// actually finish, instead of returning immediately. Created once per session instance - see -init.
+// Lets a -kill caller that loses the race wait for the winner's teardown to finish. See -init.
 @property (nonatomic, strong, readonly) NSCondition *killCondition;
 @property (nonatomic, assign) BOOL isKillFinished;
 
@@ -198,12 +191,9 @@ static FBSession *_activeSession = nil;
 
 - (void)kill
 {
-  // DELETE /session and session creation now run concurrently (both can bypass the frozen route
-  // queue), so a session that's already been superseded by a newer one can still reach here via a
-  // stale reference. Check-and-clear must happen as one atomic step, else a belated -kill on the
-  // old session could win the write race and null out the new session's pointer instead of its
-  // own. self != _activeSession means someone else already killed/replaced this session - nothing
-  // left for us to do.
+  // DELETE /session and session creation can now run concurrently, so a session already
+  // superseded by a newer one can still reach here via a stale reference. Check-and-clear must be
+  // atomic, else a belated -kill could null out the new session's pointer instead of its own.
   BOOL wasActive;
   @synchronized (self.class) {
     wasActive = (self == _activeSession);
@@ -212,22 +202,18 @@ static FBSession *_activeSession = nil;
     }
   }
   if (!wasActive) {
-    // Someone else is already tearing this exact session down (e.g. a concurrent DELETE and the
-    // pre-kill in session creation both targeting it). Wait for that teardown to actually finish,
-    // bounded, so a caller that's about to act as if the session is gone - e.g. launching a fresh
-    // app for a replacement session - doesn't race a still-in-flight -terminate.
+    // Someone else is already tearing this session down - wait for that to finish (bounded), so
+    // we don't act as if it's gone (e.g. launch a new app) while its -terminate is still in flight.
     [self.killCondition lock];
     NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_KILL_WAIT_TIMEOUT_SEC];
     while (!self.isKillFinished && [self.killCondition waitUntilDate:deadline]) {
-      // Re-checks isKillFinished on every wake, in case of a spurious wakeup.
     }
     [self.killCondition unlock];
     return;
   }
 
   @try {
-    // Posted early, before the (potentially slow) teardown below, so anything waiting on this
-    // session's pending HTTP requests can stop waiting as soon as possible.
+    // Posted before teardown so pending HTTP requests for this session can stop waiting sooner.
     [NSNotificationCenter.defaultCenter postNotificationName:FBSessionWasKilledNotification object:self];
 
     [self disableAlertsMonitor];
@@ -347,22 +333,17 @@ static FBSession *_activeSession = nil;
     : [[XCUIApplication alloc] initWithBundleIdentifier:bundleIdentifier];
 }
 
-// +[XCUIApplication fb_systemApplication] has no async variant and can block for as long as
-// FBXCAXClientProxy's shared accessibility channel is busy servicing some other (possibly stuck)
-// request against a frozen app, unrelated to this session. Run it on its own thread and give up
-// after `timeout`, assuming the tested app IS the system app - the safer assumption, since it
-// means -kill skips terminating it rather than risking terminating springboard - if we can't find
-// out in time.
+// Has no async variant and can block on the shared accessibility channel. Run off-thread and give
+// up after `timeout`, assuming the tested app IS the system app - safer, since it means skipping
+// termination rather than risking terminating springboard.
 - (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout
 {
   __block XCUIApplication *systemApp = nil;
   __block NSException *caughtException = nil;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-    // +fb_systemApplication is undocumented private API; some of its XCUIApplication siblings
-    // (e.g. -terminate) hard-assert when called off the main thread, so guard against this one
-    // doing the same on some other Xcode/iOS version - an uncaught exception thrown from inside a
-    // bare dispatch_async block has no handler and would crash the whole process.
+    // Undocumented private API; guard in case it hard-asserts off-main like -terminate does on
+    // some Xcode/iOS version - uncaught, that would crash the whole process.
     @try {
       systemApp = XCUIApplication.fb_systemApplication;
     } @catch (NSException *e) {
@@ -378,13 +359,9 @@ static FBSession *_activeSession = nil;
   return [self.testedApplication fb_isSameAppAs:systemApp];
 }
 
-// -[XCUIApplication terminate] hard-asserts when called off the main thread, but -kill (the only
-// caller) can now itself run on a background queue - DELETE /session is a standalone route (see
-// FBHTTPServer.m) that bypasses the main routeQueue. Dispatching to main and waiting indefinitely
-// would reintroduce the exact hang standalone routes exist to avoid, if that's the queue currently
-// stuck servicing some other request against the frozen app; give up after `timeout` instead. The
-// dispatched block still runs (and still terminates the app) whenever main frees up, even after
-// this method has given up waiting on it.
+// -terminate hard-asserts off-main, but -kill can now run on a background queue. Dispatching to
+// main and waiting indefinitely could hang just as long as main is stuck, so give up after
+// `timeout`; the dispatched call still runs (and terminates the app) whenever main frees up.
 - (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout
 {
   XCUIApplication *application = self.testedApplication;
