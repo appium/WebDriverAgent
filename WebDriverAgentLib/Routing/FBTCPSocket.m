@@ -78,12 +78,18 @@
       // NSLocalizedDescriptionKey must be a string, not the underlying NSError itself, or
       // -[NSError localizedDescription] crashes trying to treat it as one.
       NSError *underlyingError = nwError ? (NSError *)CFBridgingRelease(nw_error_copy_cf_error(nwError)) : nil;
-      NSMutableDictionary<NSString *, id> *userInfo = [NSMutableDictionary dictionary];
-      userInfo[NSLocalizedDescriptionKey] = underlyingError.localizedDescription ?: @"The TCP listener failed to start";
-      if (underlyingError) {
-        userInfo[NSUnderlyingErrorKey] = underlyingError;
+      if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]) {
+        // Surface POSIX errors (e.g. EADDRINUSE) directly, since callers like FBWebServer check
+        // for them by domain/code on the top-level error to decide whether to retry another port.
+        startupError = underlyingError;
+      } else {
+        NSMutableDictionary<NSString *, id> *userInfo = [NSMutableDictionary dictionary];
+        userInfo[NSLocalizedDescriptionKey] = underlyingError.localizedDescription ?: @"The TCP listener failed to start";
+        if (underlyingError) {
+          userInfo[NSUnderlyingErrorKey] = underlyingError;
+        }
+        startupError = [NSError errorWithDomain:@"FBTCPSocket" code:2 userInfo:userInfo];
       }
-      startupError = [NSError errorWithDomain:@"FBTCPSocket" code:2 userInfo:userInfo];
       dispatch_semaphore_signal(startupSemaphore);
     }
   });
@@ -98,6 +104,10 @@
     if (error) {
       *error = startupError;
     }
+    // Cancel rather than just dropping our reference - otherwise a late ready/failed callback
+    // can still fire and the port stays bound at the OS level even though the caller was told
+    // startup failed.
+    nw_listener_cancel(listener);
     self.listener = nil;
     return NO;
   }
@@ -144,11 +154,9 @@
     }
     if (nil != content) {
       dispatch_data_t nonnullContent = (dispatch_data_t _Nonnull)content;
-      __block NSData *data = nil;
+      NSMutableData *data = [NSMutableData data];
       dispatch_data_apply(nonnullContent, ^bool(dispatch_data_t  _Nonnull region, size_t offset, const void * _Nonnull buffer, size_t size) {
-        NSMutableData *accumulated = [(data ?: [NSData data]) mutableCopy];
-        [accumulated appendBytes:buffer length:size];
-        data = accumulated.copy;
+        [data appendBytes:buffer length:size];
         return true;
       });
       if (data.length > 0) {
@@ -198,13 +206,19 @@
 
 - (void)stop
 {
+  NSArray<nw_connection_t> *clients;
   @synchronized (self.connectedClients) {
-    NSArray<nw_connection_t> *clients = self.connectedClients.copy;
+    clients = self.connectedClients.copy;
     [self.connectedClients removeAllObjects];
+  }
+  // Cancel on socketQueue, the same queue every connection's send/receive is bound to (see
+  // -acceptConnection:), so a write already issued just before -stop (e.g. a shutdown route's
+  // response) is processed before the cancellation rather than racing it.
+  dispatch_async(self.socketQueue, ^{
     for (nw_connection_t client in clients) {
       nw_connection_cancel(client);
     }
-  }
+  });
 
   self.delegate = nil;
   nw_listener_t listener = self.listener;

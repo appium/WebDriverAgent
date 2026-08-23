@@ -261,7 +261,11 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
       return;
     }
     [response respondWithString:@"Shutting down"];
-    [strongSelf.delegate webServerDidRequestShutdown:strongSelf];
+    // Deferred so the "Shutting down" response is written to the client before
+    // webServerDidRequestShutdown: tears down the server's socket out from under it.
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [strongSelf.delegate webServerDidRequestShutdown:strongSelf];
+    });
   }];
 
   [self registerRouteHandlers:@[FBUnknownCommands.class]];

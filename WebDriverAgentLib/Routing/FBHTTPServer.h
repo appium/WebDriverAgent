@@ -9,8 +9,9 @@
 // A minimal HTTP/1.1 server on top of FBTCPSocket (Network.framework-backed on every platform,
 // since watchOS forbids BSD sockets outright - see FBTCPSocket.h/.m).
 //
-// No chunked encoding, range requests, or pipelining - just request line + headers +
-// Content-Length body, and ":param" path matching.
+// No range requests or request pipelining - just request line + headers + Content-Length body,
+// and ":param" path matching. Transfer-Encoding: chunked requests are rejected outright (501)
+// rather than silently mishandled.
 
 @import Foundation;
 
