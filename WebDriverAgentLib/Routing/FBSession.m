@@ -177,13 +177,22 @@ static FBSession *_activeSession = nil;
 
 - (void)kill
 {
-  if (nil == _activeSession) {
+  // DELETE /session and session creation now run concurrently (both can bypass the frozen route
+  // queue), so a session that's already been superseded by a newer one can still reach here via a
+  // stale reference. Check-and-clear must happen as one atomic step, else a belated -kill on the
+  // old session could win the write race and null out the new session's pointer instead of its
+  // own. self != _activeSession means someone else already killed/replaced this session - nothing
+  // left for us to do.
+  BOOL wasActive;
+  @synchronized (self.class) {
+    wasActive = (self == _activeSession);
+    if (wasActive) {
+      _activeSession = nil;
+    }
+  }
+  if (!wasActive) {
     return;
   }
-
-  // Cleared up front, not at the end, so a request arriving mid-teardown resolves to "no such
-  // session" (+sessionWithIdentifier:) instead of running against a half-torn-down one.
-  _activeSession = nil;
 
   // Posted early, before the (potentially slow) teardown below, so anything waiting on this
   // session's pending HTTP requests can stop waiting as soon as possible.
