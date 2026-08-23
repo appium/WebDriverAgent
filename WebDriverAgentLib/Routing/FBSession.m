@@ -48,9 +48,6 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
-// Lets a -kill caller that loses the race wait for the winner's teardown to finish. See -init.
-@property (nonatomic, strong, readonly) NSCondition *killCondition;
-@property (nonatomic, assign) BOOL isKillFinished;
 
 - (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout;
 - (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout;
@@ -104,13 +101,30 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @implementation FBSession
 
 static FBSession *_activeSession = nil;
+// Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
+// -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
+// the pointer before running it. See +waitForActiveTeardownWithTimeout:.
+static BOOL _isTeardownInProgress = NO;
 
-- (instancetype)init
++ (NSCondition *)teardownCondition
 {
-  if ((self = [super init])) {
-    _killCondition = [NSCondition new];
+  static NSCondition *condition;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    condition = [NSCondition new];
+  });
+  return condition;
+}
+
+// Waits (bounded) for any -kill teardown currently in progress to finish.
++ (void)waitForActiveTeardownWithTimeout:(NSTimeInterval)timeout
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
+  while (_isTeardownInProgress && [condition waitUntilDate:deadline]) {
   }
-  return self;
+  [condition unlock];
 }
 
 + (instancetype)activeSession
@@ -118,11 +132,23 @@ static FBSession *_activeSession = nil;
   return _activeSession;
 }
 
++ (void)killActiveSessionAndWaitForTeardown
+{
+  FBSession *session = _activeSession;
+  if (nil != session) {
+    // Runs the real teardown synchronously if this call wins the race in -kill, or waits for
+    // whoever did to finish if it lost - either way, blocks until torn down.
+    [session kill];
+  } else {
+    // _activeSession is already nil, but a concurrent -kill (e.g. from DELETE /session) may still
+    // be mid-teardown - wait for it, so we don't launch a replacement app too early.
+    [self waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
+  }
+}
+
 + (void)markSessionActive:(FBSession *)session
 {
-  if (_activeSession) {
-    [_activeSession kill];
-  }
+  [self killActiveSessionAndWaitForTeardown];
   _activeSession = session;
 }
 
@@ -204,13 +230,14 @@ static FBSession *_activeSession = nil;
   if (!wasActive) {
     // Someone else is already tearing this session down - wait for that to finish (bounded), so
     // we don't act as if it's gone (e.g. launch a new app) while its -terminate is still in flight.
-    [self.killCondition lock];
-    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_KILL_WAIT_TIMEOUT_SEC];
-    while (!self.isKillFinished && [self.killCondition waitUntilDate:deadline]) {
-    }
-    [self.killCondition unlock];
+    [self.class waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
     return;
   }
+
+  NSCondition *teardownCondition = self.class.teardownCondition;
+  [teardownCondition lock];
+  _isTeardownInProgress = YES;
+  [teardownCondition unlock];
 
   @try {
     // Posted before teardown so pending HTTP requests for this session can stop waiting sooner.
@@ -231,13 +258,16 @@ static FBSession *_activeSession = nil;
         && FBConfiguration.sharedInstance.shouldTerminateApp
         && self.testedApplication.running
         && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
+      // Blocks until the app is either actually terminated or durably given up on (never left
+      // pending) - see -fb_terminateTestedApplicationWithTimeout: - so it's safe to report this
+      // teardown as finished as soon as this returns.
       [self fb_terminateTestedApplicationWithTimeout:FB_APP_TERMINATE_TIMEOUT_SEC];
     }
   } @finally {
-    [self.killCondition lock];
-    self.isKillFinished = YES;
-    [self.killCondition broadcast];
-    [self.killCondition unlock];
+    [teardownCondition lock];
+    _isTeardownInProgress = NO;
+    [teardownCondition broadcast];
+    [teardownCondition unlock];
   }
 }
 
@@ -361,22 +391,33 @@ static FBSession *_activeSession = nil;
 
 // -terminate hard-asserts off-main, but -kill can now run on a background queue. Dispatching to
 // main and waiting indefinitely could hang just as long as main is stuck, so give up after
-// `timeout`; the dispatched call still runs (and terminates the app) whenever main frees up.
+// `timeout` - but a "given up on" call must never still terminate whatever's running by the time
+// main gets to it (e.g. a replacement session's app), so cancellation and the actual terminate
+// call share a lock: whichever gets there first - the dispatched block, or the timeout - wins.
 - (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout
 {
   XCUIApplication *application = self.testedApplication;
+  NSObject *lock = [NSObject new];
+  __block BOOL isAllowedToTerminate = YES;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_main_queue(), ^{
-    @try {
-      [application terminate];
-    } @catch (NSException *e) {
-      [FBLogger logFmt:@"%@", e.description];
+    @synchronized (lock) {
+      if (isAllowedToTerminate) {
+        @try {
+          [application terminate];
+        } @catch (NSException *e) {
+          [FBLogger logFmt:@"%@", e.description];
+        }
+      }
     }
     dispatch_semaphore_signal(sem);
   });
   int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
-    [FBLogger logFmt:@"Could not terminate '%@' within %@ seconds; the main thread may still be busy servicing another request", application.bundleID, @(timeout)];
+    @synchronized (lock) {
+      isAllowedToTerminate = NO;
+    }
+    [FBLogger logFmt:@"Could not terminate '%@' within %@ seconds; giving up on it rather than risk terminating a possible replacement session's app later", application.bundleID, @(timeout)];
   }
 }
 

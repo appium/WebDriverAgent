@@ -87,9 +87,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // Per-client cache of the already-parsed request line + headers while its body is still
 // arriving; nil while a client's next unread bytes start with an unparsed header block.
 @property (nonatomic, strong) NSMapTable<id, FBPendingHTTPRequestHeader *> *pendingRequestHeaders;
-// -processBufferForClient: parses a connection's buffer unlocked; safe only because every caller
-// (-client:didReceiveData: and -writeResponse:toClient:thenCloseConnection:) funnels through this
-// one serial queue, so no two calls ever run concurrently.
+// All buffer access - appending new data and -processBufferForClient:'s unlocked parse - is
+// funneled through this one serial queue, so appends can never race a parse.
 @property (nonatomic, strong) dispatch_queue_t bufferProcessingQueue;
 // Connections with a request parsed off the buffer but not yet answered. Blocks
 // -processBufferForClient: from starting the next pipelined request, so responses on one
@@ -264,17 +263,23 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
 - (void)client:(nw_connection_t)client didReceiveData:(NSData *)data
 {
-  NSMutableData *buffer;
-  @synchronized (self.connectionBuffers) {
-    buffer = [self.connectionBuffers objectForKey:client];
-    if (nil == buffer) {
-      return;
-    }
-    [buffer appendData:data];
-  }
+  // The append itself, not just the parse, must run on bufferProcessingQueue: otherwise a receive
+  // callback here could still mutate the buffer while -processBufferForClient: is reading it
+  // unlocked on that queue.
   __weak typeof(self) weakSelf = self;
   dispatch_async(self.bufferProcessingQueue, ^{
-    [weakSelf processBufferForClient:client];
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    if (nil == strongSelf) {
+      return;
+    }
+    @synchronized (strongSelf.connectionBuffers) {
+      NSMutableData *buffer = [strongSelf.connectionBuffers objectForKey:client];
+      if (nil == buffer) {
+        return;
+      }
+      [buffer appendData:data];
+    }
+    [strongSelf processBufferForClient:client];
   });
 }
 

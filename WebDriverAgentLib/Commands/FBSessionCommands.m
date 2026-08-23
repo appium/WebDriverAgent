@@ -89,9 +89,7 @@
 
 + (id<FBResponsePayload>)handleCreateSession:(FBRouteRequest *)request
 {
-  if (nil != FBSession.activeSession) {
-    [FBSession.activeSession kill];
-  }
+  [FBSession killActiveSessionAndWaitForTeardown];
 
   NSDictionary<NSString *, id> *capabilities;
   id<FBResponsePayload> errorResponse = [self capabilitiesFromCreateSessionRequest:request
