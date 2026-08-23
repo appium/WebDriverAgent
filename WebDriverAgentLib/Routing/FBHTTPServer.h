@@ -10,8 +10,8 @@
 // since watchOS forbids BSD sockets outright - see FBTCPSocket.h/.m).
 //
 // No range requests or request pipelining - just request line + headers + Content-Length body,
-// and ":param" path matching. Transfer-Encoding: chunked requests are rejected outright (501)
-// rather than silently mishandled.
+// and ":param" path matching. Any Transfer-Encoding is rejected outright (501) rather than
+// silently mishandled, since no decoder is implemented.
 
 @import Foundation;
 

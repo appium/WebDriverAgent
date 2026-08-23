@@ -274,12 +274,14 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
         requestHeaders[name.lowercaseString] = value;
       }
 
-      NSString *transferEncoding = requestHeaders[@"transfer-encoding"].lowercaseString;
-      if (nil != transferEncoding && NSNotFound != [transferEncoding rangeOfString:@"chunked"].location) {
-        // De-chunking isn't implemented - fail loudly instead of silently misreading the body as
-        // empty and desyncing the rest of the connection's request stream.
+      NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
+      if (transferEncoding.length > 0) {
+        // No transfer decoder is implemented at all, so any encoding (chunked or otherwise -
+        // including a value only introduced by a duplicate header overwriting "chunked" above)
+        // is rejected rather than risking the body being misread as empty and desyncing the rest
+        // of the connection's request stream.
         RouteResponse *notImplemented = [RouteResponse new];
-        id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus unknownCommandErrorWithMessage:@"Chunked Transfer-Encoding is not supported"
+        id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus unknownCommandErrorWithMessage:@"Transfer-Encoding is not supported"
                                                                                                                   traceback:nil]);
         [notImplementedPayload dispatchWithResponse:notImplemented];
         [self failClient:client withResponse:notImplemented];
