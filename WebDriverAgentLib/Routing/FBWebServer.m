@@ -269,6 +269,9 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
     [response respondWithString:@"<!DOCTYPE html><html><title>Health Check</title><body><p>I-AM-ALIVE</p></body></html>"];
   }];
 
+  // Deprecated: no longer needed since appium-xcuitest-driver handles calibration
+  // itself (https://github.com/appium/appium-xcuitest-driver/pull/2948). Kept for
+  // backward compatibility; will be removed in a future major release.
   NSString *calibrationPage = @"<html>"
   "<title>{\"x\":null,\"y\":null}</title>"
   "<header>"
@@ -276,6 +279,7 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   "</header>"
   "</html>";
   [self.server get:@"/calibrate" withBlock:^(RouteRequest *request, RouteResponse *response) {
+    [FBLogger logFmt:@"The /calibrate endpoint is deprecated and will be removed in a future release"];
     [response respondWithString:calibrationPage];
   }];
 
