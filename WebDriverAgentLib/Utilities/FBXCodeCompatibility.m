@@ -81,10 +81,9 @@
 
 NSInteger FBTestmanagerdVersion(void)
 {
-  // -1 means "not yet determined". Every outcome is cached, including the timeout fallback below:
-  // the value is diagnostic-only, and against a degraded daemon that never answers the exchange,
-  // retrying would make every subsequent /status request stall for the full timeout - repeated
-  // health checks would see an already-bound WDA as permanently unavailable.
+  // -1 means "not yet determined". The timeout fallback is cached like any other outcome: the
+  // value is diagnostic-only, and retrying would stall every later /status for the full timeout
+  // against a daemon that never answers.
   static NSInteger cachedVersion = -1;
   static dispatch_queue_t syncQueue;
   static dispatch_once_t onceToken;
