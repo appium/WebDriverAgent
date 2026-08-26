@@ -102,9 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param data The data to send
  @param client The destination client
- @param completion Called once the send attempt finishes
+ @param completion Called once the send attempt finishes. `didSucceed` is NO if the send failed
+        (e.g. the peer went away mid-write), in which case nothing was delivered and the caller
+        must not treat the connection as usable.
  */
-- (void)writeData:(NSData *)data toClient:(nw_connection_t)client completion:(nullable void (^)(void))completion;
+- (void)writeData:(NSData *)data toClient:(nw_connection_t)client completion:(nullable void (^)(BOOL didSucceed))completion;
 
 @end
 

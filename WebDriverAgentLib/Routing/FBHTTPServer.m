@@ -471,15 +471,25 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       }
       NSString *value = [[line substringFromIndex:colonRange.location + 1]
                           stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
-      requestHeaders[name.lowercaseString] = value;
+      NSString *normalizedName = name.lowercaseString;
+      // RFC 7230 (3.3.3): a message with conflicting or repeated framing fields MUST be treated
+      // as unrecoverable. Last-wins assignment would let "Transfer-Encoding: chunked" followed
+      // by an empty "Transfer-Encoding:" slip past the presence check below, and would let the
+      // last of several Content-Length values drive parsing - both classic request-smuggling
+      // primitives whenever an intermediary resolves the duplicate differently than we would.
+      if (([normalizedName isEqualToString:@"content-length"] || [normalizedName isEqualToString:@"transfer-encoding"])
+          && nil != requestHeaders[normalizedName]) {
+        [self respondBadRequestToClient:client];
+        return;
+      }
+      requestHeaders[normalizedName] = value;
     }
 
     NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
-    if (transferEncoding.length > 0) {
-      // No transfer decoder is implemented at all, so any encoding (chunked or otherwise -
-      // including a value only introduced by a duplicate header overwriting "chunked" above)
-      // is rejected rather than risking the body being misread as empty and desyncing the rest
-      // of the connection's request stream.
+    if (nil != transferEncoding) {
+      // No transfer decoder is implemented at all, so the header's mere presence is rejected -
+      // including an empty value, which is not a valid encoding list and would otherwise let
+      // the body be misread as empty, desyncing the rest of the connection's request stream.
       RouteResponse *notImplemented = [RouteResponse new];
       id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
                                                                                                                   traceback:nil]);
@@ -766,7 +776,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
   if (shouldClose) {
     __weak typeof(self) weakSelf = self;
-    [self.socket writeData:payload toClient:client completion:^{
+    [self.socket writeData:payload toClient:client completion:^(BOOL didSucceed) {
       [weakSelf closeClient:client];
     }];
   } else {
@@ -777,9 +787,17 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     // Network.framework. If the connection dies mid-send the completion still fires and
     // -processBufferForClient: simply finds no buffer left.
     __weak typeof(self) weakSelf = self;
-    [self.socket writeData:payload toClient:client completion:^{
+    [self.socket writeData:payload toClient:client completion:^(BOOL didSucceed) {
       __strong typeof(weakSelf) strongSelf = weakSelf;
       if (nil == strongSelf) {
+        return;
+      }
+      if (!didSucceed) {
+        // The response never reached the peer, so the connection is already unusable. Running
+        // its next pipelined request - possibly a mutating one - would change device state for
+        // a client that can no longer be answered; drop the connection and its buffer instead.
+        [FBLogger log:@"Failed to write a response; dropping the connection and its pending requests"];
+        [strongSelf closeClient:client];
         return;
       }
       @synchronized (strongSelf.connectionBuffers) {

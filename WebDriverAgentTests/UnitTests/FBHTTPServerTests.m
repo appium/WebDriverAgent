@@ -131,6 +131,35 @@ static atomic_int gFramingProbeHits;
   XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
 }
 
+- (void)testDuplicateContentLengthIsRejected
+{
+  // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins assignment would let
+  // the second value drive parsing while an intermediary used the first - a smuggling primitive.
+  NSString *payload = @"POST /framing/probe HTTP/1.1\r\nContent-Length: 5\r\nContent-Length: 0\r\n\r\nhello";
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0
+                                           didClose:&didClose];
+  XCTAssertTrue([response containsString:@"400"], @"%@", response);
+  XCTAssertTrue(didClose);
+  XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
+}
+
+- (void)testEmptyTransferEncodingIsRejected
+{
+  // "chunked" followed by an empty value: with last-wins assignment plus a non-empty presence
+  // check, the empty value used to make the header look absent, so the chunked body was parsed
+  // as a zero-length body and its bytes re-read as smuggled requests.
+  NSString *payload = @"POST /framing/probe HTTP/1.1\r\nTransfer-Encoding: chunked\r\nTransfer-Encoding: \r\n\r\n0\r\n\r\n";
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0
+                                           didClose:&didClose];
+  XCTAssertTrue([response containsString:@"400"] || [response containsString:@"501"], @"%@", response);
+  XCTAssertTrue(didClose);
+  XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
+}
+
 - (void)testPipelinedRequestsAreServedInOrder
 {
   // Two requests in one payload: both must be answered on the same connection. Guards the
