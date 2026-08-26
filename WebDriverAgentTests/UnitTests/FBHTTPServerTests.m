@@ -131,6 +131,20 @@ static atomic_int gFramingProbeHits;
   XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
 }
 
+- (void)testHeaderLineWithoutColonIsRejected
+{
+  // Silently skipping the malformed line made this dispatch with an empty body while "hello"
+  // stayed in the buffer to be parsed as the next request.
+  NSString *payload = @"POST /framing/probe HTTP/1.1\r\nContent-Length 5\r\n\r\nhello";
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0
+                                           didClose:&didClose];
+  XCTAssertTrue([response containsString:@"400"], @"%@", response);
+  XCTAssertTrue(didClose);
+  XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
+}
+
 - (void)testDuplicateContentLengthIsRejected
 {
   // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins assignment would let

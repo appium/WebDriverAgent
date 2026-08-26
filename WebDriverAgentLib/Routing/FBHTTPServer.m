@@ -456,8 +456,16 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     for (NSUInteger i = 1; i < lines.count; i++) {
       NSString *line = lines[i];
       NSRange colonRange = [line rangeOfString:@":"];
-      if (NSNotFound == colonRange.location) {
+      if (0 == line.length) {
         continue;
+      }
+      if (NSNotFound == colonRange.location) {
+        // A non-empty header line without a colon is malformed. Skipping it would silently drop
+        // whatever it was meant to say - "Content-Length 5" would dispatch the request with an
+        // empty body and leave its bytes to be parsed as another request - which defeats the
+        // framing checks below.
+        [self respondBadRequestToClient:client];
+        return;
       }
       NSString *name = [line substringToIndex:colonRange.location];
       // RFC 7230 (3.2.4) requires rejecting whitespace between a field name and its colon with
