@@ -22,6 +22,14 @@
 
 static const NSUInteger MAX_FPS = 60;
 static const NSTimeInterval FRAME_TIMEOUT = 1.;
+// Upper bound on frames handed to nw_connection_send per client that have not finished sending
+// yet. Frames for a client at the cap are dropped instead of queued: Network.framework buffers
+// submitted sends in-process without any backpressure signal, so a viewer that stops reading
+// (or whose network stalls) would otherwise retain every generated frame until WDA runs out of
+// memory. The previous GCDAsyncSocket-based implementation bounded this with a 1-second write
+// timeout that disconnected slow clients; dropping frames keeps slow-but-alive viewers usable
+// while capping their memory cost at MAX_PENDING_FRAMES_PER_CLIENT frames.
+static const NSUInteger MAX_PENDING_FRAMES_PER_CLIENT = 4;
 static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
 
@@ -44,6 +52,10 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 @property (atomic, assign) BOOL isStreaming;
 @property (nonatomic, assign) NSUInteger sentFramesCount;
 @property (nonatomic, assign) NSUInteger sentBytesCount;
+@property (nonatomic, assign) NSUInteger droppedFramesCount;
+// Frames submitted to nw_connection_send whose completion has not fired yet, per client.
+// Guarded by @synchronized (self.listeningClients).
+@property (nonatomic, readonly) NSMapTable<id, NSNumber *> *pendingFrameCounts;
 
 @end
 
@@ -58,6 +70,8 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     _sentFramesCount = 0;
     _sentBytesCount = 0;
     _listeningClients = [NSMutableArray array];
+    _pendingFrameCounts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
+                                                valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
     _imageProcessor = [[FBImageProcessor alloc] init];
     _mainScreenID = [XCUIScreen.mainScreen displayID];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
@@ -149,17 +163,40 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
       return;
     }
     NSUInteger clientCount = self.listeningClients.count;
+    __weak typeof(self) weakSelf = self;
     for (nw_connection_t client in self.listeningClients) {
-      [self.socket writeData:chunk toClient:client];
+      NSUInteger pendingFrames = [self.pendingFrameCounts objectForKey:client].unsignedIntegerValue;
+      if (pendingFrames >= MAX_PENDING_FRAMES_PER_CLIENT) {
+        // The client is not draining its socket - drop this frame for it instead of queueing
+        // yet another copy inside Network.framework. See MAX_PENDING_FRAMES_PER_CLIENT.
+        self.droppedFramesCount++;
+        continue;
+      }
+      [self.pendingFrameCounts setObject:@(pendingFrames + 1) forKey:client];
+      [self.socket writeData:chunk toClient:client completion:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (nil == strongSelf) {
+          return;
+        }
+        @synchronized (strongSelf.listeningClients) {
+          NSUInteger stillPending = [strongSelf.pendingFrameCounts objectForKey:client].unsignedIntegerValue;
+          if (stillPending > 1) {
+            [strongSelf.pendingFrameCounts setObject:@(stillPending - 1) forKey:client];
+          } else {
+            [strongSelf.pendingFrameCounts removeObjectForKey:client];
+          }
+        }
+      }];
     }
     self.sentFramesCount++;
     self.sentBytesCount += chunk.length * clientCount;
     NSUInteger framerate = FBNormalizedMjpegFramerate(FBConfiguration.sharedInstance.mjpegServerFramerate);
     if (0 == self.sentFramesCount % framerate) {
-      [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@",
+      [FBLogger verboseLog:[NSString stringWithFormat:@"MJPEG stats: clients=%@ sentFrames=%@ sentBytes=%@ droppedFrames=%@",
                             @(clientCount),
                             @(self.sentFramesCount),
-                            @(self.sentBytesCount)]];
+                            @(self.sentBytesCount),
+                            @(self.droppedFramesCount)]];
     }
   }
 }
@@ -190,6 +227,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 {
   @synchronized (self.listeningClients) {
     [self.listeningClients removeObject:client];
+    [self.pendingFrameCounts removeObjectForKey:client];
   }
   [FBLogger log:@"Disconnected a client from screenshots broadcast"];
 }
@@ -200,6 +238,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
   @synchronized (self.listeningClients) {
     NSArray<nw_connection_t> *clients = self.listeningClients.copy;
     [self.listeningClients removeAllObjects];
+    [self.pendingFrameCounts removeAllObjects];
     for (nw_connection_t client in clients) {
       nw_connection_cancel(client);
     }
