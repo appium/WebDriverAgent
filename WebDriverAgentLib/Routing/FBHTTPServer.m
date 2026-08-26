@@ -10,6 +10,7 @@
 
 #import "FBCommandStatus.h"
 #import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBResponsePayload.h"
 #import "FBTCPSocket.h"
 
@@ -130,8 +131,21 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
+// When each connection started waiting for its current request to complete: set on connect and
+// whenever bytes of a new request begin arriving, cleared once a complete request is dispatched.
+// The reaper below closes connections whose entry outlives FBIncompleteRequestTimeout, so peers
+// that connect and never deliver a complete request cannot be retained forever. Idle keep-alive
+// connections (no entry) are exempt. Guarded by @synchronized(self.connectionBuffers).
+@property (nonatomic, strong) NSMapTable<id, NSDate *> *incompleteRequestStarts;
+@property (nonatomic, nullable) dispatch_source_t staleConnectionReaper;
 
 @end
+
+// How long a connection may take to deliver a complete request (first byte of the request line
+// through the end of the declared body) before it is closed. The previous CocoaHTTPServer stack
+// enforced 30-second header read timeouts; this restores an equivalent bound.
+static const NSTimeInterval FBIncompleteRequestTimeout = 30.0;
+static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
 @implementation FBHTTPServer
 
@@ -148,6 +162,8 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
+    _incompleteRequestStarts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
+                                                     valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
   }
   return self;
 }
@@ -255,18 +271,57 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
     return NO;
   }
   self.socket = socket;
+  dispatch_source_t reaper = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.bufferProcessingQueue);
+  dispatch_source_set_timer(reaper,
+                            dispatch_time(DISPATCH_TIME_NOW, FBStaleConnectionSweepIntervalSec * NSEC_PER_SEC),
+                            (uint64_t)FBStaleConnectionSweepIntervalSec * NSEC_PER_SEC,
+                            NSEC_PER_SEC);
+  __weak typeof(self) weakSelf = self;
+  dispatch_source_set_event_handler(reaper, ^{
+    [weakSelf reapStaleConnections];
+  });
+  dispatch_resume(reaper);
+  self.staleConnectionReaper = reaper;
   _isRunning = YES;
   return YES;
 }
 
+- (void)reapStaleConnections
+{
+  NSMutableArray *staleConnections = [NSMutableArray array];
+  @synchronized (self.connectionBuffers) {
+    for (id connection in self.incompleteRequestStarts) {
+      // A connection whose request is already executing is waiting on the handler, not on the
+      // peer - it must not be reaped no matter how long the handler takes.
+      if ([self.connectionsAwaitingResponse containsObject:connection]) {
+        continue;
+      }
+      NSDate *start = [self.incompleteRequestStarts objectForKey:connection];
+      if (nil != start && -start.timeIntervalSinceNow > FBIncompleteRequestTimeout) {
+        [staleConnections addObject:connection];
+      }
+    }
+  }
+  for (id connection in staleConnections) {
+    [FBLogger logFmt:@"Closing a connection that did not deliver a complete request within %@ seconds", @(FBIncompleteRequestTimeout)];
+    [self closeClient:(nw_connection_t)connection];
+  }
+}
+
 - (void)stop:(BOOL)immediately
 {
+  dispatch_source_t reaper = self.staleConnectionReaper;
+  if (nil != reaper) {
+    dispatch_source_cancel(reaper);
+    self.staleConnectionReaper = nil;
+  }
   [self.socket stop];
   self.socket = nil;
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers removeAllObjects];
     [self.pendingRequestHeaders removeAllObjects];
     [self.connectionsAwaitingResponse removeAllObjects];
+    [self.incompleteRequestStarts removeAllObjects];
   }
   _isRunning = NO;
 }
@@ -277,6 +332,9 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 {
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers setObject:[NSMutableData data] forKey:newClient];
+    // The clock towards FBIncompleteRequestTimeout starts at connect: a peer that connects and
+    // never sends a complete first request gets reaped just like one that stalls mid-request.
+    [self.incompleteRequestStarts setObject:[NSDate date] forKey:newClient];
   }
 }
 
@@ -286,6 +344,7 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
     [self.connectionBuffers removeObjectForKey:client];
     [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse removeObject:client];
+    [self.incompleteRequestStarts removeObjectForKey:client];
   }
 }
 
@@ -306,6 +365,12 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
         return;
       }
       [buffer appendData:data];
+      if (nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
+        // First bytes of a new request on an idle keep-alive connection: restart the
+        // incomplete-request clock. Deliberately NOT refreshed on subsequent bytes, so a peer
+        // drip-feeding data cannot keep an incomplete request alive past the timeout.
+        [strongSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+      }
     }
     [strongSelf processBufferForClient:client];
   });
@@ -432,6 +497,14 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
     [buffer replaceBytesInRange:NSMakeRange(0, totalRequestLength) withBytes:NULL length:0];
     [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse addObject:client];
+    if (0 == buffer.length) {
+      // A complete request was delivered and nothing further is buffered: the connection is a
+      // healthy keep-alive and must not be reaped while idle.
+      [self.incompleteRequestStarts removeObjectForKey:client];
+    } else {
+      // Pipelined bytes of the next request are already buffered - restart its clock.
+      [self.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+    }
   }
 
   [self dispatchMethod:pending.method pathAndQuery:pending.pathAndQuery body:body client:client];
@@ -682,6 +755,7 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers removeObjectForKey:client];
     [self.connectionsAwaitingResponse removeObject:client];
+    [self.incompleteRequestStarts removeObjectForKey:client];
   }
   nw_connection_cancel(client);
 }
