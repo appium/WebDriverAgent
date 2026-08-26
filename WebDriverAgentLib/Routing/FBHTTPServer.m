@@ -820,11 +820,26 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         [strongSelf closeClient:client];
         return;
       }
-      @synchronized (strongSelf.connectionBuffers) {
-        [strongSelf.connectionsAwaitingResponse removeObject:client];
-      }
+      // Lifting the reaper exemption and resuming parsing must happen in one step *on*
+      // bufferProcessingQueue - the same serial queue the reaper runs on. Removing the client
+      // from connectionsAwaitingResponse out here would expose it to a sweep already queued
+      // ahead of the parse, which would judge an already fully-buffered pipelined request by
+      // the timestamp of the previous (possibly very slow) request and close the connection.
       dispatch_async(strongSelf.bufferProcessingQueue, ^{
-        [weakSelf processBufferForClient:client];
+        __strong typeof(weakSelf) queuedSelf = weakSelf;
+        if (nil == queuedSelf) {
+          return;
+        }
+        @synchronized (queuedSelf.connectionBuffers) {
+          [queuedSelf.connectionsAwaitingResponse removeObject:client];
+          // Mid-request connections (pipelined bytes already buffered) get their window measured
+          // from the moment parsing could actually resume, not from the previous request. Absent
+          // entries are left absent: an idle keep-alive connection stays exempt.
+          if (nil != [queuedSelf.incompleteRequestStarts objectForKey:client]) {
+            [queuedSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+          }
+        }
+        [queuedSelf processBufferForClient:client];
       });
     }];
   }
