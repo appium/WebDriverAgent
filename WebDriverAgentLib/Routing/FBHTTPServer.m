@@ -359,12 +359,23 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     if (nil == strongSelf) {
       return;
     }
+    BOOL isOverBufferCap = NO;
     @synchronized (strongSelf.connectionBuffers) {
       NSMutableData *buffer = [strongSelf.connectionBuffers objectForKey:client];
       if (nil == buffer) {
         return;
       }
       [buffer appendData:data];
+      // Hard upper bound for everything a connection may have buffered but not yet consumed:
+      // one maximal header block plus one maximal body, with headroom for a pipelined
+      // follow-up. The per-request checks in -processBufferForClient: don't run while a
+      // request is executing (see -connectionsAwaitingResponse), so without this cap a client
+      // could pump data unboundedly for exactly as long as its previous request takes.
+      uint64_t bufferCap = FBConfiguration.sharedInstance.httpRequestBodySizeLimit + 2 * (uint64_t)FBMaxRequestHeaderSize;
+      if (bufferCap < FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
+        bufferCap = UINT64_MAX;
+      }
+      isOverBufferCap = buffer.length > bufferCap;
       // Body phase (a parsed header is pending): a valid declared body legitimately takes as
       // long as the link is slow - e.g. a large base64 payload over a USB tunnel - so the
       // timeout acts as an idle bound, refreshed on every byte of progress (total buffered size
@@ -376,6 +387,13 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       if (isBodyPhase || nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
         [strongSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
       }
+    }
+    if (isOverBufferCap) {
+      // No response owed - a peer this far past any legitimate request size isn't reading
+      // responses anyway, and writing one would itself queue inside Network.framework.
+      [FBLogger log:@"Closing a connection that overflowed its request buffer"];
+      [strongSelf closeClient:client];
+      return;
     }
     [strongSelf processBufferForClient:client];
   });
@@ -442,6 +460,15 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         continue;
       }
       NSString *name = [line substringToIndex:colonRange.location];
+      // RFC 7230 (3.2.4) requires rejecting whitespace between a field name and its colon with
+      // a 400: storing "content-length " as a distinct key would silently drop the real header,
+      // dispatch the request with a zero-length body, and desync the connection's framing - a
+      // request-smuggling primitive when an intermediary normalizes the same header.
+      if (0 == name.length
+          || NSNotFound != [name rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location) {
+        [self respondBadRequestToClient:client];
+        return;
+      }
       NSString *value = [[line substringFromIndex:colonRange.location + 1]
                           stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
       requestHeaders[name.lowercaseString] = value;
@@ -743,15 +770,25 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       [weakSelf closeClient:client];
     }];
   } else {
-    // Sent before unblocking the next pipelined request, so responses can't reach the wire out of order.
-    [self.socket writeData:payload toClient:client];
-    @synchronized (self.connectionBuffers) {
-      [self.connectionsAwaitingResponse removeObject:client];
-    }
+    // The next pipelined request is only unblocked from the send's completion: response
+    // ordering is preserved either way (nw_connection_send is FIFO per connection), but
+    // unblocking early would let a client that pipelines requests without ever reading
+    // responses accumulate an unbounded number of fully-rendered response buffers inside
+    // Network.framework. If the connection dies mid-send the completion still fires and
+    // -processBufferForClient: simply finds no buffer left.
     __weak typeof(self) weakSelf = self;
-    dispatch_async(self.bufferProcessingQueue, ^{
-      [weakSelf processBufferForClient:client];
-    });
+    [self.socket writeData:payload toClient:client completion:^{
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (nil == strongSelf) {
+        return;
+      }
+      @synchronized (strongSelf.connectionBuffers) {
+        [strongSelf.connectionsAwaitingResponse removeObject:client];
+      }
+      dispatch_async(strongSelf.bufferProcessingQueue, ^{
+        [weakSelf processBufferForClient:client];
+      });
+    }];
   }
 }
 

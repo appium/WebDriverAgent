@@ -116,6 +116,35 @@ static atomic_int gFramingProbeHits;
   XCTAssertEqual(atomic_load(&gFramingProbeHits), 0, @"the route must not be dispatched with unknown body extent");
 }
 
+- (void)testWhitespaceBeforeHeaderColonIsRejected
+{
+  // RFC 7230 (3.2.4): whitespace between a field name and its colon MUST be rejected with a 400.
+  // Tolerating it stores "content-length " as a distinct key, dispatches the request with a
+  // zero-length body, and re-parses the declared body as a smuggled pipelined request.
+  NSString *payload = @"POST /framing/probe HTTP/1.1\r\nContent-Length : 5\r\n\r\nhello";
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0
+                                           didClose:&didClose];
+  XCTAssertTrue([response containsString:@"400"], @"%@", response);
+  XCTAssertTrue(didClose);
+  XCTAssertEqual(atomic_load(&gFramingProbeHits), 0);
+}
+
+- (void)testPipelinedRequestsAreServedInOrder
+{
+  // Two requests in one payload: both must be answered on the same connection. Guards the
+  // response backpressure logic - the next pipelined request is only processed once the
+  // previous response's send completed, which must not stall or reorder the pipeline.
+  NSString *payload = @"GET /framing/ping HTTP/1.1\r\n\r\nGET /framing/ping HTTP/1.1\r\n\r\n";
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0
+                                           didClose:&didClose];
+  NSUInteger pongCount = [response componentsSeparatedByString:@"pong"].count - 1;
+  XCTAssertEqual(pongCount, 2, @"both pipelined requests must be answered: %@", response);
+}
+
 - (void)testPartiallyNumericContentLengthIsRejected
 {
   NSString *payload = @"POST /framing/probe HTTP/1.1\r\nContent-Length: 5abc\r\n\r\nhello";
