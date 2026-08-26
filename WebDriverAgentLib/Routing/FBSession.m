@@ -110,7 +110,9 @@ static FBSession *_activeSession = nil;
 // waiters while the other was still running, letting the next session creation bump the
 // generation and make that still-running teardown skip its app/recording cleanup entirely.
 static NSUInteger _activeTeardownCount = 0;
-// Bumped whenever a session is marked active. +waitForActiveTeardownWithTimeout: is bounded, so a
+// Bumped by +killActiveSessionAndWaitForTeardown, i.e. as soon as a caller takes ownership of the
+// device - before it launches anything, not once the new session is finally marked active.
+// +waitForActiveTeardownWithTimeout: is bounded, so a
 // pathologically slow teardown can still be running when a replacement session is created; its
 // remaining steps mutate process-wide state (the tested app, whose bundle ID the replacement
 // likely shares, and the screen recording container), which must not be applied on top of a newer
@@ -155,6 +157,15 @@ static NSUInteger _sessionGeneration = 0;
     // be mid-teardown - wait for it, so we don't launch a replacement app too early.
     [self waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
   }
+  // Returning from here is the point where the caller takes ownership of the device and starts
+  // launching its application, so the generation is claimed *here* rather than later in
+  // +markSessionActive:. The wait above is bounded: if it expired with a teardown still running,
+  // that teardown must already be stale by the time the replacement app exists, or it could
+  // terminate the process it just launched (both sessions usually share a bundle identifier).
+  // Any teardown this call actually ran to completion is finished, so invalidating it is a no-op.
+  @synchronized (self.class) {
+    _sessionGeneration++;
+  }
 }
 
 + (void)markSessionActive:(FBSession *)session
@@ -162,8 +173,6 @@ static NSUInteger _sessionGeneration = 0;
   [self killActiveSessionAndWaitForTeardown];
   @synchronized (self.class) {
     _activeSession = session;
-    // Invalidates the remaining steps of any teardown that outlived the bounded wait above.
-    _sessionGeneration++;
   }
 }
 
