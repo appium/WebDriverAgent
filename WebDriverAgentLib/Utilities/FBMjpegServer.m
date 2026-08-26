@@ -22,13 +22,8 @@
 
 static const NSUInteger MAX_FPS = 60;
 static const NSTimeInterval FRAME_TIMEOUT = 1.;
-// Upper bound on frames handed to nw_connection_send per client that have not finished sending
-// yet. Frames for a client at the cap are dropped instead of queued: Network.framework buffers
-// submitted sends in-process without any backpressure signal, so a viewer that stops reading
-// (or whose network stalls) would otherwise retain every generated frame until WDA runs out of
-// memory. The previous GCDAsyncSocket-based implementation bounded this with a 1-second write
-// timeout that disconnected slow clients; dropping frames keeps slow-but-alive viewers usable
-// while capping their memory cost at MAX_PENDING_FRAMES_PER_CLIENT frames.
+// nw_connection_send buffers without backpressure, so a client that stops reading would retain
+// every generated frame. Frames past this cap are dropped instead of queued.
 static const NSUInteger MAX_PENDING_FRAMES_PER_CLIENT = 4;
 static const NSTimeInterval FAILURE_BACKOFF_MIN = 1.0;
 static const NSTimeInterval FAILURE_BACKOFF_MAX = 10.0;
@@ -53,8 +48,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 @property (nonatomic, assign) NSUInteger sentFramesCount;
 @property (nonatomic, assign) NSUInteger sentBytesCount;
 @property (nonatomic, assign) NSUInteger droppedFramesCount;
-// Frames submitted to nw_connection_send whose completion has not fired yet, per client.
-// Guarded by @synchronized (self.listeningClients).
+// Frames submitted but not sent yet, per client. Guarded by @synchronized (self.listeningClients).
 @property (nonatomic, readonly) NSMapTable<id, NSNumber *> *pendingFrameCounts;
 
 @end
@@ -167,8 +161,6 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     for (nw_connection_t client in self.listeningClients) {
       NSUInteger pendingFrames = [self.pendingFrameCounts objectForKey:client].unsignedIntegerValue;
       if (pendingFrames >= MAX_PENDING_FRAMES_PER_CLIENT) {
-        // The client is not draining its socket - drop this frame for it instead of queueing
-        // yet another copy inside Network.framework. See MAX_PENDING_FRAMES_PER_CLIENT.
         self.droppedFramesCount++;
         continue;
       }
