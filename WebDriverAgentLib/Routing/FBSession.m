@@ -104,7 +104,12 @@ static FBSession *_activeSession = nil;
 // Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
 // -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
 // the pointer before running it. See +waitForActiveTeardownWithTimeout:.
-static BOOL _isTeardownInProgress = NO;
+// A count rather than a flag: because the wait below is bounded, a replacement session can be
+// created - and later torn down itself - while an earlier teardown is still finishing, so two
+// teardowns can overlap. With a shared flag the first one to finish would clear it and wake
+// waiters while the other was still running, letting the next session creation bump the
+// generation and make that still-running teardown skip its app/recording cleanup entirely.
+static NSUInteger _activeTeardownCount = 0;
 // Bumped whenever a session is marked active. +waitForActiveTeardownWithTimeout: is bounded, so a
 // pathologically slow teardown can still be running when a replacement session is created; its
 // remaining steps mutate process-wide state (the tested app, whose bundle ID the replacement
@@ -122,13 +127,13 @@ static NSUInteger _sessionGeneration = 0;
   return condition;
 }
 
-// Waits (bounded) for any -kill teardown currently in progress to finish.
+// Waits (bounded) for every -kill teardown currently in progress to finish.
 + (void)waitForActiveTeardownWithTimeout:(NSTimeInterval)timeout
 {
   NSCondition *condition = self.teardownCondition;
   [condition lock];
   NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
-  while (_isTeardownInProgress && [condition waitUntilDate:deadline]) {
+  while (_activeTeardownCount > 0 && [condition waitUntilDate:deadline]) {
   }
   [condition unlock];
 }
@@ -259,7 +264,7 @@ static NSUInteger _sessionGeneration = 0;
 
   NSCondition *teardownCondition = self.class.teardownCondition;
   [teardownCondition lock];
-  _isTeardownInProgress = YES;
+  _activeTeardownCount++;
   [teardownCondition unlock];
 
   @try {
@@ -293,7 +298,9 @@ static NSUInteger _sessionGeneration = 0;
     }
   } @finally {
     [teardownCondition lock];
-    _isTeardownInProgress = NO;
+    _activeTeardownCount--;
+    // Broadcast unconditionally: waiters re-check the count themselves, so a wake-up while
+    // another teardown is still running simply puts them back to waiting.
     [teardownCondition broadcast];
     [teardownCondition unlock];
   }
