@@ -104,19 +104,15 @@ static FBSession *_activeSession = nil;
 // Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
 // -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
 // the pointer before running it. See +waitForActiveTeardownWithTimeout:.
-// A count rather than a flag: because the wait below is bounded, a replacement session can be
-// created - and later torn down itself - while an earlier teardown is still finishing, so two
-// teardowns can overlap. With a shared flag the first one to finish would clear it and wake
-// waiters while the other was still running, letting the next session creation bump the
-// generation and make that still-running teardown skip its app/recording cleanup entirely.
+// A count, not a flag: the wait below is bounded, so teardowns can overlap. A shared flag would
+// let the first to finish wake waiters while the other still ran, and the next session creation
+// would then bump the generation and make that teardown skip its cleanup.
 static NSUInteger _activeTeardownCount = 0;
-// Bumped by +killActiveSessionAndWaitForTeardown, i.e. as soon as a caller takes ownership of the
-// device - before it launches anything, not once the new session is finally marked active.
-// +waitForActiveTeardownWithTimeout: is bounded, so a
-// pathologically slow teardown can still be running when a replacement session is created; its
-// remaining steps mutate process-wide state (the tested app, whose bundle ID the replacement
-// likely shares, and the screen recording container), which must not be applied on top of a newer
-// generation. Every such step re-checks the generation it started with.
+// Bumped by +killActiveSessionAndWaitForTeardown, i.e. when a caller takes ownership of the
+// device - before it launches anything. Since the wait there is bounded, a slow teardown can
+// still be running by then; its remaining steps mutate process-wide state (the tested app, whose
+// bundle ID the replacement usually shares, and the recording container), so each re-checks the
+// generation it started with.
 static NSUInteger _sessionGeneration = 0;
 
 + (NSCondition *)teardownCondition
@@ -157,12 +153,10 @@ static NSUInteger _sessionGeneration = 0;
     // be mid-teardown - wait for it, so we don't launch a replacement app too early.
     [self waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
   }
-  // Returning from here is the point where the caller takes ownership of the device and starts
-  // launching its application, so the generation is claimed *here* rather than later in
-  // +markSessionActive:. The wait above is bounded: if it expired with a teardown still running,
-  // that teardown must already be stale by the time the replacement app exists, or it could
-  // terminate the process it just launched (both sessions usually share a bundle identifier).
-  // Any teardown this call actually ran to completion is finished, so invalidating it is a no-op.
+  // Claimed here, not in +markSessionActive:, because the caller starts launching its application
+  // as soon as this returns. If the bounded wait expired with a teardown still running, that
+  // teardown has to be stale before the replacement app exists or it could terminate it. A
+  // teardown this call ran to completion is already finished, so invalidating it is a no-op.
   @synchronized (self.class) {
     _sessionGeneration++;
   }
@@ -288,9 +282,8 @@ static NSUInteger _sessionGeneration = 0;
       if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
         [FBLogger logFmt:@"%@", error];
       }
-      // The stop above targets this session's recording by UUID and is safe either way, but the
-      // container is process-wide: resetting it after a replacement session started recording
-      // would drop that session's promise instead.
+      // The stop above is by UUID and safe either way, but the container is process-wide:
+      // resetting it would drop a replacement session's promise instead.
       if ([self.class isSessionGenerationCurrent:generation]) {
         [FBScreenRecordingContainer.sharedInstance reset];
       }
@@ -446,10 +439,9 @@ static NSUInteger _sessionGeneration = 0;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_main_queue(), ^{
     @synchronized (lock) {
-      // The generation is re-checked here, not before dispatching: this block can sit on a busy
-      // main queue for longer than +killActiveSessionAndWaitForTeardown is willing to wait, and
-      // a replacement session created in that window usually runs the very same bundle ID -
-      // terminating "the old app" would kill the new session's app instead.
+      // Re-checked here rather than before dispatching: this block can sit on a busy main queue
+      // longer than the teardown wait allows, and a replacement created in that window usually
+      // runs the same bundle ID - terminating "the old app" would kill the new one.
       if (isAllowedToTerminate && [self.class isSessionGenerationCurrent:generation]) {
         @try {
           [application terminate];
