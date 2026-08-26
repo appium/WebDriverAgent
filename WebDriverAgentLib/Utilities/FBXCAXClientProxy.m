@@ -43,7 +43,7 @@ static id FBAXClient = nil;
   return [FBAXClient _setAXTimeout:timeout error:error];
 }
 
-- (void)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
+- (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(BOOL (^)(void))block
 {
   NSTimeInterval previousTimeout = [FBAXClient AXTimeout];
   NSError *error;
@@ -51,7 +51,7 @@ static id FBAXClient = nil;
     [FBLogger logFmt:@"Failed to set AXTimeout to %@: %@", @(timeout), error];
   }
   @try {
-    block();
+    return block();
   } @finally {
     if (![self setAXTimeout:previousTimeout error:&error]) {
       [FBLogger logFmt:@"Failed to restore AXTimeout to %@: %@", @(previousTimeout), error];
@@ -59,12 +59,12 @@ static id FBAXClient = nil;
   }
 }
 
-- (void)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
+- (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(BOOL (^)(void))block
 {
   NSTimeInterval previousTimeout = _XCTXPCRequestTimeout();
   _XCTSetXPCRequestTimeout(timeout);
   @try {
-    block();
+    return block();
   } @finally {
     _XCTSetXPCRequestTimeout(previousTimeout);
   }

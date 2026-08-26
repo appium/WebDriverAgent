@@ -72,8 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
  it only makes each individual caller give up sooner, while requests already abandoned
  by their callers keep occupying the channel and can still delay whatever is queued
  behind them by their original, un-shortened duration.
+
+ `block` should return YES if it completed without hitting `timeout`, or NO if it
+ detected a timeout (e.g. via -[NSError(XCTFuture) xct_isFutureTimeout]) - this method
+ returns that same value.
  */
-- (void)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
+- (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(BOOL (^)(void))block;
 
 /**
  Runs `block` synchronously with the XCTest automation-session XPC request timeout
@@ -101,8 +105,12 @@ NS_ASSUME_NONNULL_BEGIN
  to be serviced - repeatedly retrying after a timeout adds more queued work rather than
  freeing up the channel, and can never be used to reliably bound end-to-end latency
  while the target is unresponsive.
+
+ `block` should return YES if it completed without hitting `timeout`, or NO if it
+ detected a timeout (e.g. via -[NSError(XCTFuture) xct_isFutureTimeout]) - this method
+ returns that same value.
  */
-- (void)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
+- (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(BOOL (^)(void))block;
 
 @end
 
