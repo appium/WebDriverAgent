@@ -60,8 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
  returns (even if it throws). Bounds how long a single accessibility (AX) request
  issued by this process is allowed to wait for a reply from the AX server. Every
  AX-backed call funneled through this proxy - systemApplication, activeApplications,
- snapshotForElement:..., attributesForElement:... - is bounded by this single,
- process-wide value; there is no per-call override. Defaults to 60 seconds.
+ snapshotForElement:..., attributesForElement:... - is an in-process call into
+ XCAXClient_iOS and is bounded by this single, process-wide value; there is no
+ per-call override. Defaults to 60 seconds.
+
+ These XCAXClient_iOS calls are themselves wrapped in
+ `+[XCTFuture futureWithTimeout:description:block:]`, but that wrapper's own timeout
+ is `_XCTAXClientWrapperTimeout()` - AXTimeout plus a fixed 5-second margin, not
+ -withXPCRequestTimeout:do:'s `_XCTXPCRequestTimeout`. That margin exists so the AX
+ layer's own timeout has a chance to fire and produce a clean error before XCTFuture's
+ wrapper would cut if off anyway; it is not independently tunable. AXTimeout is
+ therefore the only knob that matters for every call this proxy wraps.
 
  Important: this only bounds how long the CALLING thread waits for a reply. The AX
  server itself is not told to cancel the request when this timeout elapses - the
@@ -81,12 +90,19 @@ NS_ASSUME_NONNULL_BEGIN
  Runs `block` synchronously with the XCTest automation-session XPC request timeout
  (the private `_XCTXPCRequestTimeout`/`_XCTSetXPCRequestTimeout` globals) temporarily
  set to `timeout`, restoring the previous value once `block` returns (even if it
- throws). This is the XCTest-level analog of -withAXTimeout:do:, but scoped wider:
- virtually every timeout-bounded automation call in the process - element matching,
- attribute/snapshot fetches, event confirmation, and the AX-backed calls above - is
- ultimately funneled through `+[XCTFuture futureWithTimeout:description:block:]`,
- which uses this value as its default wait bound. Like AXTimeout, it is a single,
- process-wide setting with no per-call override. Defaults to 30 seconds.
+ throws). Defaults to 30 seconds.
+
+ This does NOT bound anything else in this proxy - despite the similar shape, it is
+ not the XCTest-level analog of -withAXTimeout:do: for the calls above. AXTimeout and
+ the XPC request timeout gate two structurally different, non-nested call paths:
+ XCAXClient_iOS (what this proxy wraps) makes its AX-server round trips in-process,
+ bounded solely by AXTimeout (see -withAXTimeout:do:); XCTRunnerAutomationSession -
+ a separate class WDA does not go through here - makes its calls over a real
+ NSXPCConnection (`remoteObjectProxyWithErrorHandler:`) to another process, bounded by
+ this timeout instead. `-[XCTRunnerAutomationSession matchesForQuery:error:]` (the
+ primitive behind XCUIElementQuery/most element-finding lookups) and that class's own,
+ identically-named `attributesForElement:attributes:error:` are the calls this timeout
+ actually bounds - not -[XCAXClient_iOS attributesForElement:attributes:error:] above.
 
  `futureWithTimeout:description:block:` is a synchronous wait wrapper: it starts the
  real (asynchronous) XPC request and blocks the calling thread until either the reply
