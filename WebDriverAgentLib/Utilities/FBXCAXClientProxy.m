@@ -43,19 +43,31 @@ static id FBAXClient = nil;
   return [FBAXClient _setAXTimeout:timeout error:error];
 }
 
-- (NSTimeInterval)axTimeout
+- (void)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
 {
-  return [FBAXClient AXTimeout];
+  NSTimeInterval previousTimeout = [FBAXClient AXTimeout];
+  NSError *error;
+  if (![self setAXTimeout:timeout error:&error]) {
+    [FBLogger logFmt:@"Failed to set AXTimeout to %@: %@", @(timeout), error];
+  }
+  @try {
+    block();
+  } @finally {
+    if (![self setAXTimeout:previousTimeout error:&error]) {
+      [FBLogger logFmt:@"Failed to restore AXTimeout to %@: %@", @(previousTimeout), error];
+    }
+  }
 }
 
-- (void)setXPCRequestTimeout:(NSTimeInterval)timeout
+- (void)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
 {
+  NSTimeInterval previousTimeout = _XCTXPCRequestTimeout();
   _XCTSetXPCRequestTimeout(timeout);
-}
-
-- (NSTimeInterval)xpcRequestTimeout
-{
-  return _XCTXPCRequestTimeout();
+  @try {
+    block();
+  } @finally {
+    _XCTSetXPCRequestTimeout(previousTimeout);
+  }
 }
 
 - (id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
