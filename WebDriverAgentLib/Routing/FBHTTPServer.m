@@ -101,8 +101,21 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
+// Sessions that -abandonPendingRequestsForSessionID: has already torn down, mapped to the
+// response it abandoned them with, so a request for one parsed *after* that point is answered
+// immediately instead of queueing behind a possibly-wedged route queue that will never produce
+// an abandonment notification for it. Session identifiers are UUIDs and never reused, so a
+// recorded entry can never reject a live session. Insertion-ordered by `abandonedSessionOrder`
+// and capped at FBMaxRecordedAbandonedSessions. Guarded by @synchronized(self.pendingSessionRequests).
+@property (nonatomic, strong) NSMutableDictionary<NSString *, RouteResponse *> *abandonedSessionResponses;
+@property (nonatomic, strong) NSMutableArray<NSString *> *abandonedSessionOrder;
 
 @end
+
+// How many torn-down sessions to remember for late-arriving requests. Only one session is ever
+// active, so this only has to outlive the in-flight requests of the sessions immediately before
+// the current one; anything older would be answered "no such driver" by the route itself anyway.
+static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
 
 @implementation FBHTTPServer
 
@@ -119,6 +132,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
+    _abandonedSessionResponses = [NSMutableDictionary dictionary];
+    _abandonedSessionOrder = [NSMutableArray array];
   }
   return self;
 }
@@ -460,7 +475,11 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     FBPendingRequest *pendingRequest = nil;
     if (nil != sessionID) {
       pendingRequest = [[FBPendingRequest alloc] initWithClient:client];
-      [self trackPendingRequest:pendingRequest forSessionID:sessionID];
+      RouteResponse *abandonedResponse = [self trackPendingRequest:pendingRequest forSessionID:sessionID];
+      if (nil != abandonedResponse) {
+        [self writeResponse:abandonedResponse toClient:client];
+        return;
+      }
     }
 
     void (^invoke)(void) = ^{
@@ -491,15 +510,25 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
 #pragma mark - Session-scoped request cancellation
 
-- (void)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
+// Returns nil once `pendingRequest` is tracked. If the session was already abandoned, nothing is
+// tracked and the response it was abandoned with is returned instead - the caller must deliver
+// that and skip dispatching, since no future abandonment notification would ever reach this
+// request. Checked under the same lock that -abandonPendingRequestsForSessionID: takes, so a
+// request can never slip in between the abandonment and the record of it.
+- (nullable RouteResponse *)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
+    RouteResponse *abandonedResponse = self.abandonedSessionResponses[sessionID];
+    if (nil != abandonedResponse) {
+      return abandonedResponse;
+    }
     NSMutableSet<FBPendingRequest *> *pendingRequests = self.pendingSessionRequests[sessionID];
     if (nil == pendingRequests) {
       pendingRequests = [NSMutableSet set];
       self.pendingSessionRequests[sessionID] = pendingRequests;
     }
     [pendingRequests addObject:pendingRequest];
+    return nil;
   }
 }
 
@@ -526,6 +555,16 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   @synchronized (self.pendingSessionRequests) {
     pendingRequests = [self.pendingSessionRequests[sessionID] copy];
     [self.pendingSessionRequests removeObjectForKey:sessionID];
+    // Recorded before the lock is dropped, so any request admitted from here on is rejected by
+    // -trackPendingRequest:forSessionID: rather than queueing for a session that is already gone.
+    if (nil == self.abandonedSessionResponses[sessionID]) {
+      [self.abandonedSessionOrder addObject:sessionID];
+      self.abandonedSessionResponses[sessionID] = response;
+      while (self.abandonedSessionOrder.count > FBMaxRecordedAbandonedSessions) {
+        [self.abandonedSessionResponses removeObjectForKey:self.abandonedSessionOrder.firstObject];
+        [self.abandonedSessionOrder removeObjectAtIndex:0];
+      }
+    }
   }
   for (FBPendingRequest *pendingRequest in pendingRequests) {
     [self writeResponse:response toClient:pendingRequest.client];
@@ -546,7 +585,11 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   NSString *key = [NSString stringWithFormat:@"%@ %@", method, pathAndQuery];
   FBPendingRequest *waiter = [[FBPendingRequest alloc] initWithClient:client];
   if (nil != sessionID) {
-    [self trackPendingRequest:waiter forSessionID:sessionID];
+    RouteResponse *abandonedResponse = [self trackPendingRequest:waiter forSessionID:sessionID];
+    if (nil != abandonedResponse) {
+      [self writeResponse:abandonedResponse toClient:client];
+      return;
+    }
   }
 
   BOOL isInFlight = NO;
