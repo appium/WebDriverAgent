@@ -8,6 +8,7 @@
 
 #import "FBXCAXClientProxy.h"
 
+#import "CDStructures.h"
 #import "FBXCAccessibilityElement.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
@@ -40,6 +41,21 @@ static id FBAXClient = nil;
 - (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error
 {
   return [FBAXClient _setAXTimeout:timeout error:error];
+}
+
+- (NSTimeInterval)axTimeout
+{
+  return [FBAXClient AXTimeout];
+}
+
+- (void)setXPCRequestTimeout:(NSTimeInterval)timeout
+{
+  _XCTSetXPCRequestTimeout(timeout);
+}
+
+- (NSTimeInterval)xpcRequestTimeout
+{
+  return _XCTXPCRequestTimeout();
 }
 
 - (id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
