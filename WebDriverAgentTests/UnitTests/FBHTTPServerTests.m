@@ -145,4 +145,25 @@ static atomic_int gFramingProbeHits;
   XCTAssertTrue([response containsString:@"400"], @"%@", response);
 }
 
+- (void)testOversizedCompletedHeaderBlockIsRejected
+{
+  // Same flood, but properly terminated with \r\n\r\n. Depending on how the bytes coalesce, the
+  // terminator can arrive in the same receive callback as the bulk of the block, in which case
+  // the incomplete-header cap never fires - the completed block must be rejected too instead of
+  // being copied and parsed.
+  NSMutableString *payload = [NSMutableString stringWithString:@"GET /framing/ping HTTP/1.1\r\n"];
+  NSString *filler = [@"X-Filler: " stringByAppendingString:[@"" stringByPaddingToLength:1013 withString:@"a" startingAtIndex:0]];
+  while (payload.length < 96 * 1024) {
+    [payload appendString:filler];
+    [payload appendString:@"\r\n"];
+  }
+  [payload appendString:@"\r\n"];
+  BOOL didClose;
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[payload dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:10.0
+                                           didClose:&didClose];
+  XCTAssertTrue([response containsString:@"400"], @"%@", response);
+  XCTAssertFalse([response containsString:@"pong"], @"the oversized request must not be served: %@", response);
+}
+
 @end

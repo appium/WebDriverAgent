@@ -342,6 +342,13 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
       // Wait for the rest of the header block to arrive.
       return;
     }
+    if (headerEndRange.location > FBMaxRequestHeaderSize) {
+      // The check above only fires while the terminator is still missing; a single large receive
+      // can deliver an oversized header block terminator included, so the completed block must be
+      // bounded too before it gets copied and parsed.
+      [self respondBadRequestToClient:client];
+      return;
+    }
 
     NSData *headerData = [buffer subdataWithRange:NSMakeRange(0, headerEndRange.location)];
     NSString *headerString = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
