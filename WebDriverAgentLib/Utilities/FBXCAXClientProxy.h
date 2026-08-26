@@ -22,8 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedClient;
 
-- (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error;
-
 - (nullable id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
                                             attributes:(nullable NSArray<NSString *> *)attributes
                                                inDepth:(BOOL)inDepth

@@ -38,23 +38,18 @@ static id FBAXClient = nil;
   return instance;
 }
 
-- (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error
-{
-  return [FBAXClient _setAXTimeout:timeout error:error];
-}
-
 - (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
 {
   NSTimeInterval previousTimeout = [FBAXClient AXTimeout];
   NSError *error;
-  if (![self setAXTimeout:timeout error:&error]) {
+  if (![FBAXClient _setAXTimeout:timeout error:&error]) {
     [FBLogger logFmt:@"Failed to set AXTimeout to %@: %@", @(timeout), error];
   }
   CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
   @try {
     block();
   } @finally {
-    if (![self setAXTimeout:previousTimeout error:&error]) {
+    if (![FBAXClient _setAXTimeout:previousTimeout error:&error]) {
       [FBLogger logFmt:@"Failed to restore AXTimeout to %@: %@", @(previousTimeout), error];
     }
   }
