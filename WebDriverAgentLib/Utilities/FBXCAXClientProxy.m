@@ -20,6 +20,7 @@ static id FBAXClient = nil;
 @interface FBXCAXClientProxy ()
 
 @property (nonatomic) NSMutableDictionary<NSNumber *, XCUIApplication *> *appsCache;
+@property (nonatomic, nullable) id<FBXCAccessibilityElement> cachedSystemApplication;
 
 @end
 
@@ -67,7 +68,14 @@ static id FBAXClient = nil;
 
 - (id<FBXCAccessibilityElement>)systemApplication
 {
-  return [FBAXClient systemApplication];
+  @synchronized (self) {
+    if (nil == self.cachedSystemApplication) {
+      // The system application's identity cannot change without it being killed,
+      // which takes WDA down with it, so it is safe to cache it forever.
+      self.cachedSystemApplication = [FBAXClient systemApplication];
+    }
+    return self.cachedSystemApplication;
+  }
 }
 
 - (NSDictionary *)defaultParameters
