@@ -101,20 +101,17 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
-// Sessions that -abandonPendingRequestsForSessionID: has already torn down, mapped to the
-// response it abandoned them with, so a request for one parsed *after* that point is answered
-// immediately instead of queueing behind a possibly-wedged route queue that will never produce
-// an abandonment notification for it. Session identifiers are UUIDs and never reused, so a
-// recorded entry can never reject a live session. Insertion-ordered by `abandonedSessionOrder`
-// and capped at FBMaxRecordedAbandonedSessions. Guarded by @synchronized(self.pendingSessionRequests).
+// Already-abandoned sessions mapped to the response they were abandoned with, so a request
+// parsed after that point is answered at once instead of queueing for a session that is gone.
+// Session ids are UUIDs, so an entry can never reject a live session. Insertion-ordered by
+// `abandonedSessionOrder`. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, RouteResponse *> *abandonedSessionResponses;
 @property (nonatomic, strong) NSMutableArray<NSString *> *abandonedSessionOrder;
 
 @end
 
-// How many torn-down sessions to remember for late-arriving requests. Only one session is ever
-// active, so this only has to outlive the in-flight requests of the sessions immediately before
-// the current one; anything older would be answered "no such driver" by the route itself anyway.
+// Only has to outlive the in-flight requests of the previous few sessions; older ones are
+// answered "no such driver" by the route itself anyway.
 static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
 
 @implementation FBHTTPServer
@@ -510,11 +507,10 @@ static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
 
 #pragma mark - Session-scoped request cancellation
 
-// Returns nil once `pendingRequest` is tracked. If the session was already abandoned, nothing is
-// tracked and the response it was abandoned with is returned instead - the caller must deliver
-// that and skip dispatching, since no future abandonment notification would ever reach this
-// request. Checked under the same lock that -abandonPendingRequestsForSessionID: takes, so a
-// request can never slip in between the abandonment and the record of it.
+// Returns nil once `pendingRequest` is tracked, or - if the session was already abandoned - the
+// response to deliver instead of dispatching, since no abandonment notification would ever reach
+// this request. Shares a lock with -abandonPendingRequestsForSessionID: so nothing slips between
+// the abandonment and the record of it.
 - (nullable RouteResponse *)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
@@ -555,8 +551,7 @@ static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
   @synchronized (self.pendingSessionRequests) {
     pendingRequests = [self.pendingSessionRequests[sessionID] copy];
     [self.pendingSessionRequests removeObjectForKey:sessionID];
-    // Recorded before the lock is dropped, so any request admitted from here on is rejected by
-    // -trackPendingRequest:forSessionID: rather than queueing for a session that is already gone.
+    // Recorded before the lock is dropped, so requests admitted from here on are rejected.
     if (nil == self.abandonedSessionResponses[sessionID]) {
       [self.abandonedSessionOrder addObject:sessionID];
       self.abandonedSessionResponses[sessionID] = response;
