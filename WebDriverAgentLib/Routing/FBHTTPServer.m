@@ -31,16 +31,12 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   return (NSData * _Nonnull)[string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-// Upper bound for a request's header block (the bytes before \r\n\r\n). A connection that keeps
-// sending bytes without ever completing its header block would otherwise grow its buffer without
-// limit. Real WDA requests carry a handful of short headers; 64 KiB is far above anything
-// legitimate.
+// Caps a request's header block, so a connection that never completes one cannot grow its buffer
+// without limit. Far above anything a real request needs.
 static const NSUInteger FBMaxRequestHeaderSize = 64 * 1024;
 
-// Strictly parses a Content-Length value: ASCII decimal digits only, bounded so the value below
-// cannot overflow. Returns NO for anything else - -integerValue must not be used here, since it
-// silently maps garbage ("bogus" -> 0, "12abc" -> 12) to a wrong body length, desyncing the
-// framing of every subsequent request on the connection.
+// ASCII decimal digits only. -integerValue must not be used here: it maps garbage silently
+// ("bogus" -> 0, "12abc" -> 12), desyncing the framing of every later request on the connection.
 static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 {
   // Bounds the digit count so the accumulation below cannot overflow unsigned long long.
@@ -55,8 +51,7 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
     }
     result = result * 10 + (c - '0');
   }
-  // NSUInteger is 32-bit on watchOS (arm64_32), where the 15-digit bound above is not enough on
-  // its own: truncating here would resurrect exactly the framing desync this parser prevents.
+  // NSUInteger is 32-bit on watchOS (arm64_32), so the digit bound alone would still truncate.
   if (result > (unsigned long long)NSUIntegerMax) {
     return NO;
   }
@@ -135,19 +130,16 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
-// When each connection started waiting for its current request to complete: set on connect and
-// whenever bytes of a new request begin arriving, cleared once a complete request is dispatched.
-// The reaper below closes connections whose entry outlives FBIncompleteRequestTimeout, so peers
-// that connect and never deliver a complete request cannot be retained forever. Idle keep-alive
-// connections (no entry) are exempt. Guarded by @synchronized(self.connectionBuffers).
+// When each connection started waiting for its current request. The reaper closes connections
+// whose entry outlives FBIncompleteRequestTimeout; idle keep-alive connections have no entry and
+// are exempt. Guarded by @synchronized(self.connectionBuffers).
 @property (nonatomic, strong) NSMapTable<id, NSDate *> *incompleteRequestStarts;
 @property (nonatomic, nullable) dispatch_source_t staleConnectionReaper;
 
 @end
 
-// How long a connection may take to deliver a complete request (first byte of the request line
-// through the end of the declared body) before it is closed. The previous CocoaHTTPServer stack
-// enforced 30-second header read timeouts; this restores an equivalent bound.
+// How long a connection may take to deliver a complete request, matching the header read timeout
+// the previous CocoaHTTPServer stack enforced.
 static const NSTimeInterval FBIncompleteRequestTimeout = 30.0;
 static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
@@ -295,8 +287,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   NSMutableArray *staleConnections = [NSMutableArray array];
   @synchronized (self.connectionBuffers) {
     for (id connection in self.incompleteRequestStarts) {
-      // A connection whose request is already executing is waiting on the handler, not on the
-      // peer - it must not be reaped no matter how long the handler takes.
+      // Waiting on the handler, not the peer - never reap, however long the handler takes.
       if ([self.connectionsAwaitingResponse containsObject:connection]) {
         continue;
       }
@@ -336,8 +327,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 {
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers setObject:[NSMutableData data] forKey:newClient];
-    // The clock towards FBIncompleteRequestTimeout starts at connect: a peer that connects and
-    // never sends a complete first request gets reaped just like one that stalls mid-request.
+    // Starts at connect, so a peer that connects and then sends nothing is reaped too.
     [self.incompleteRequestStarts setObject:[NSDate date] forKey:newClient];
   }
 }
@@ -370,31 +360,24 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         return;
       }
       [buffer appendData:data];
-      // Hard upper bound for everything a connection may have buffered but not yet consumed:
-      // one maximal header block plus one maximal body, with headroom for a pipelined
-      // follow-up. The per-request checks in -processBufferForClient: don't run while a
-      // request is executing (see -connectionsAwaitingResponse), so without this cap a client
-      // could pump data unboundedly for exactly as long as its previous request takes.
+      // One maximal header block plus one maximal body, plus headroom for a pipelined follow-up.
+      // The per-request checks don't run while a request is executing, so without this cap a
+      // client could pump data unboundedly for as long as its previous request takes.
       uint64_t bufferCap = FBConfiguration.sharedInstance.httpRequestBodySizeLimit + 2 * (uint64_t)FBMaxRequestHeaderSize;
       if (bufferCap < FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
         bufferCap = UINT64_MAX;
       }
       isOverBufferCap = buffer.length > bufferCap;
-      // Body phase (a parsed header is pending): a valid declared body legitimately takes as
-      // long as the link is slow - e.g. a large base64 payload over a USB tunnel - so the
-      // timeout acts as an idle bound, refreshed on every byte of progress (total buffered size
-      // stays bounded by the already-validated Content-Length). During the header phase the
-      // clock is only started (first bytes of a new request on an idle keep-alive connection),
-      // never refreshed: a peer drip-feeding header bytes must not be able to keep an
-      // incomplete header block alive past the timeout.
+      // In the body phase the timeout is an idle bound, refreshed on progress: a declared body
+      // may legitimately be slow and its size is already capped by Content-Length. In the header
+      // phase the clock is only started, never refreshed, so drip-fed headers cannot outlive it.
       BOOL isBodyPhase = nil != [strongSelf.pendingRequestHeaders objectForKey:client];
       if (isBodyPhase || nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
         [strongSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
       }
     }
     if (isOverBufferCap) {
-      // No response owed - a peer this far past any legitimate request size isn't reading
-      // responses anyway, and writing one would itself queue inside Network.framework.
+      // No response owed: a peer this far past any legitimate size is not reading anyway.
       [FBLogger log:@"Closing a connection that overflowed its request buffer"];
       [strongSelf closeClient:client];
       return;
@@ -426,8 +409,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
     if (NSNotFound == headerEndRange.location) {
       if (buffer.length > FBMaxRequestHeaderSize) {
-        // The client has sent more than any legitimate header block could occupy without ever
-        // completing it - stop buffering and drop the connection instead of growing without bound.
+        // Past any legitimate header block and still unterminated - stop buffering.
         [self respondBadRequestToClient:client];
         return;
       }
@@ -435,9 +417,8 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       return;
     }
     if (headerEndRange.location > FBMaxRequestHeaderSize) {
-      // The check above only fires while the terminator is still missing; a single large receive
-      // can deliver an oversized header block terminator included, so the completed block must be
-      // bounded too before it gets copied and parsed.
+      // The check above only fires while the terminator is missing; one large receive can deliver
+      // an oversized block with it, so bound the completed block too before parsing it.
       [self respondBadRequestToClient:client];
       return;
     }
@@ -464,18 +445,14 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         continue;
       }
       if (NSNotFound == colonRange.location) {
-        // A non-empty header line without a colon is malformed. Skipping it would silently drop
-        // whatever it was meant to say - "Content-Length 5" would dispatch the request with an
-        // empty body and leave its bytes to be parsed as another request - which defeats the
-        // framing checks below.
+        // Malformed. Skipping it would drop what it meant to say: "Content-Length 5" would
+        // dispatch with an empty body, leaving its bytes to be parsed as another request.
         [self respondBadRequestToClient:client];
         return;
       }
       NSString *name = [line substringToIndex:colonRange.location];
-      // RFC 7230 (3.2.4) requires rejecting whitespace between a field name and its colon with
-      // a 400: storing "content-length " as a distinct key would silently drop the real header,
-      // dispatch the request with a zero-length body, and desync the connection's framing - a
-      // request-smuggling primitive when an intermediary normalizes the same header.
+      // RFC 7230 (3.2.4): whitespace before the colon MUST be rejected. Storing "content-length "
+      // as its own key would drop the real header and desync the framing.
       if (0 == name.length
           || NSNotFound != [name rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location) {
         [self respondBadRequestToClient:client];
@@ -484,11 +461,8 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       NSString *value = [[line substringFromIndex:colonRange.location + 1]
                           stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
       NSString *normalizedName = name.lowercaseString;
-      // RFC 7230 (3.3.3): a message with conflicting or repeated framing fields MUST be treated
-      // as unrecoverable. Last-wins assignment would let "Transfer-Encoding: chunked" followed
-      // by an empty "Transfer-Encoding:" slip past the presence check below, and would let the
-      // last of several Content-Length values drive parsing - both classic request-smuggling
-      // primitives whenever an intermediary resolves the duplicate differently than we would.
+      // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins would let an empty
+      // "Transfer-Encoding:" mask an earlier "chunked", and the last Content-Length drive parsing.
       if (([normalizedName isEqualToString:@"content-length"] || [normalizedName isEqualToString:@"transfer-encoding"])
           && nil != requestHeaders[normalizedName]) {
         [self respondBadRequestToClient:client];
@@ -499,9 +473,8 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
     NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
     if (nil != transferEncoding) {
-      // No transfer decoder is implemented at all, so the header's mere presence is rejected -
-      // including an empty value, which is not a valid encoding list and would otherwise let
-      // the body be misread as empty, desyncing the rest of the connection's request stream.
+      // No transfer decoder exists, so mere presence is rejected - including an empty value,
+      // which is not a valid encoding list and would let the body be misread as empty.
       RouteResponse *notImplemented = [RouteResponse new];
       id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
                                                                                                                   traceback:nil]);
@@ -513,8 +486,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     NSString *contentLengthValue = requestHeaders[@"content-length"];
     NSUInteger contentLength = 0;
     if (nil != contentLengthValue && !FBParseContentLength(contentLengthValue, &contentLength)) {
-      // With an unparseable Content-Length the body's extent is unknowable, so the connection
-      // cannot be resynced - reject and close.
+      // The body's extent is unknowable, so the connection cannot be resynced - reject and close.
       [self respondBadRequestToClient:client];
       return;
     }
@@ -800,12 +772,9 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
       [weakSelf closeClient:client];
     }];
   } else {
-    // The next pipelined request is only unblocked from the send's completion: response
-    // ordering is preserved either way (nw_connection_send is FIFO per connection), but
-    // unblocking early would let a client that pipelines requests without ever reading
-    // responses accumulate an unbounded number of fully-rendered response buffers inside
-    // Network.framework. If the connection dies mid-send the completion still fires and
-    // -processBufferForClient: simply finds no buffer left.
+    // Unblocked from the send's completion, not before it: ordering is preserved either way
+    // (nw_connection_send is FIFO per connection), but unblocking early lets a client that
+    // pipelines without reading responses pile up rendered responses inside Network.framework.
     __weak typeof(self) weakSelf = self;
     [self.socket writeData:payload toClient:client completion:^(BOOL didSucceed) {
       __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -813,18 +782,16 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         return;
       }
       if (!didSucceed) {
-        // The response never reached the peer, so the connection is already unusable. Running
-        // its next pipelined request - possibly a mutating one - would change device state for
-        // a client that can no longer be answered; drop the connection and its buffer instead.
+        // The response never reached the peer, so running its next pipelined request - possibly
+        // a mutating one - would change device state for a client that can no longer be answered.
         [FBLogger log:@"Failed to write a response; dropping the connection and its pending requests"];
         [strongSelf closeClient:client];
         return;
       }
-      // Lifting the reaper exemption and resuming parsing must happen in one step *on*
-      // bufferProcessingQueue - the same serial queue the reaper runs on. Removing the client
-      // from connectionsAwaitingResponse out here would expose it to a sweep already queued
-      // ahead of the parse, which would judge an already fully-buffered pipelined request by
-      // the timestamp of the previous (possibly very slow) request and close the connection.
+      // Lifting the exemption and resuming parsing happen in one step on bufferProcessingQueue,
+      // the queue the reaper also runs on: doing it out here exposes the connection to a sweep
+      // queued ahead of the parse, which would judge a buffered request by the previous one's
+      // timestamp.
       dispatch_async(strongSelf.bufferProcessingQueue, ^{
         __strong typeof(weakSelf) queuedSelf = weakSelf;
         if (nil == queuedSelf) {
@@ -832,9 +799,8 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         }
         @synchronized (queuedSelf.connectionBuffers) {
           [queuedSelf.connectionsAwaitingResponse removeObject:client];
-          // Mid-request connections (pipelined bytes already buffered) get their window measured
-          // from the moment parsing could actually resume, not from the previous request. Absent
-          // entries are left absent: an idle keep-alive connection stays exempt.
+          // Mid-request connections get their window from when parsing could resume, not from the
+          // previous request. Absent entries stay absent, so idle keep-alives remain exempt.
           if (nil != [queuedSelf.incompleteRequestStarts objectForKey:client]) {
             [queuedSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
           }
