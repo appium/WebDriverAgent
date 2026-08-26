@@ -11,6 +11,7 @@
 #import <arpa/inet.h>
 #import <stdatomic.h>
 #import <sys/socket.h>
+#import <unistd.h>
 
 #import "FBHTTPServer.h"
 
@@ -69,23 +70,43 @@ static atomic_int gFramingProbeHits;
     close(fd);
     return nil;
   }
-  // Ignore send errors: the flood test expects the server to close mid-send.
-  send(fd, payload.bytes, payload.length, 0);
+  // send(2) may write only part of the payload, which would truncate the multi-KiB flood
+  // payloads into something the server answers differently. Errors stay ignored on purpose:
+  // those same tests expect the server to close the connection mid-send.
+  const uint8_t *bytes = payload.bytes;
+  size_t remaining = payload.length;
+  while (remaining > 0) {
+    ssize_t sent = send(fd, bytes, remaining, 0);
+    if (sent <= 0) {
+      break;
+    }
+    bytes += sent;
+    remaining -= (size_t)sent;
+  }
   NSMutableData *received = [NSMutableData data];
   char chunk[4096];
   NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
   while (deadline.timeIntervalSinceNow > 0) {
     ssize_t n = recv(fd, chunk, sizeof(chunk), 0);
-    if (n > 0) {
-      [received appendBytes:chunk length:(NSUInteger)n];
-      // The response has started arriving; the server keeps the connection open after a
-      // success, so don't wait the full timeout for an EOF that never comes.
-      struct timeval drainTv = { .tv_sec = 0, .tv_usec = 200000 };
-      setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &drainTv, sizeof(drainTv));
-    } else {
-      *didClose = (n == 0);
+    if (n == 0) {
+      *didClose = YES;
       break;
     }
+    if (n < 0) {
+      // A read timeout. Only stop waiting once the response is a keep-alive success, where no
+      // EOF is ever coming; every other response precedes a close, and giving up here would
+      // report didClose = NO for a connection the server is about to drop.
+      NSString *soFar = [[NSString alloc] initWithData:received encoding:NSUTF8StringEncoding] ?: @"";
+      if ([soFar containsString:@"HTTP/1.1 200"]) {
+        break;
+      }
+      continue;
+    }
+    [received appendBytes:chunk length:(NSUInteger)n];
+    // The response has started arriving; poll in short slices from here so a keep-alive success
+    // doesn't sit out the whole timeout waiting for an EOF that never comes.
+    struct timeval drainTv = { .tv_sec = 0, .tv_usec = 200000 };
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &drainTv, sizeof(drainTv));
   }
   close(fd);
   return [[NSString alloc] initWithData:received encoding:NSUTF8StringEncoding] ?: @"";
@@ -215,6 +236,7 @@ static atomic_int gFramingProbeHits;
                                             timeout:10.0
                                            didClose:&didClose];
   XCTAssertTrue([response containsString:@"400"], @"%@", response);
+  XCTAssertTrue(didClose, @"the connection must be closed rather than left buffering");
 }
 
 - (void)testOversizedCompletedHeaderBlockIsRejected
@@ -236,6 +258,7 @@ static atomic_int gFramingProbeHits;
                                            didClose:&didClose];
   XCTAssertTrue([response containsString:@"400"], @"%@", response);
   XCTAssertFalse([response containsString:@"pong"], @"the oversized request must not be served: %@", response);
+  XCTAssertTrue(didClose, @"the connection must be closed rather than left buffering");
 }
 
 @end

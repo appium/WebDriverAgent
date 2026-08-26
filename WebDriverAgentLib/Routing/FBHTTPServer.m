@@ -43,8 +43,7 @@ static const NSUInteger FBMaxRequestHeaderSize = 64 * 1024;
 // framing of every subsequent request on the connection.
 static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 {
-  // 15 digits keeps the value far below NSUIntegerMax on every platform; any real body length
-  // that long is rejected by the body size limit anyway.
+  // Bounds the digit count so the accumulation below cannot overflow unsigned long long.
   if (value.length < 1 || value.length > 15) {
     return NO;
   }
@@ -55,6 +54,11 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
       return NO;
     }
     result = result * 10 + (c - '0');
+  }
+  // NSUInteger is 32-bit on watchOS (arm64_32), where the 15-digit bound above is not enough on
+  // its own: truncating here would resurrect exactly the framing desync this parser prevents.
+  if (result > (unsigned long long)NSUIntegerMax) {
+    return NO;
   }
   *outLength = (NSUInteger)result;
   return YES;
@@ -538,6 +542,14 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   if (buffer.length < totalRequestLength) {
     // Wait for the rest of the body to arrive - the parsed header stays cached above, so this
     // doesn't re-scan/re-parse the header block on every subsequently arriving chunk.
+    @synchronized (self.connectionBuffers) {
+      // The request is now in its body phase, which is idle-bounded rather than hard-bounded.
+      // -client:didReceiveData: samples that phase before this parse runs, so the receive that
+      // completed a slowly-delivered header (and carried the first body bytes) would otherwise
+      // leave the connection on its header-phase timestamp and let the sweep close it despite
+      // the body having just made progress.
+      [self.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+    }
     return;
   }
 
@@ -822,6 +834,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 {
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers removeObjectForKey:client];
+    [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse removeObject:client];
     [self.incompleteRequestStarts removeObjectForKey:client];
   }
