@@ -30,6 +30,35 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   return (NSData * _Nonnull)[string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
+// Upper bound for a request's header block (the bytes before \r\n\r\n). A connection that keeps
+// sending bytes without ever completing its header block would otherwise grow its buffer without
+// limit. Real WDA requests carry a handful of short headers; 64 KiB is far above anything
+// legitimate.
+static const NSUInteger FBMaxRequestHeaderSize = 64 * 1024;
+
+// Strictly parses a Content-Length value: ASCII decimal digits only, bounded so the value below
+// cannot overflow. Returns NO for anything else - -integerValue must not be used here, since it
+// silently maps garbage ("bogus" -> 0, "12abc" -> 12) to a wrong body length, desyncing the
+// framing of every subsequent request on the connection.
+static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
+{
+  // 15 digits keeps the value far below NSUIntegerMax on every platform; any real body length
+  // that long is rejected by the body size limit anyway.
+  if (value.length < 1 || value.length > 15) {
+    return NO;
+  }
+  unsigned long long result = 0;
+  for (NSUInteger i = 0; i < value.length; i++) {
+    unichar c = [value characterAtIndex:i];
+    if (c < '0' || c > '9') {
+      return NO;
+    }
+    result = result * 10 + (c - '0');
+  }
+  *outLength = (NSUInteger)result;
+  return YES;
+}
+
 @interface FBHTTPRoute : NSObject
 @property (nonatomic, copy) NSString *verb;
 @property (nonatomic, strong) NSRegularExpression *regex;
@@ -304,6 +333,12 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   if (nil == pending) {
     NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
     if (NSNotFound == headerEndRange.location) {
+      if (buffer.length > FBMaxRequestHeaderSize) {
+        // The client has sent more than any legitimate header block could occupy without ever
+        // completing it - stop buffering and drop the connection instead of growing without bound.
+        [self respondBadRequestToClient:client];
+        return;
+      }
       // Wait for the rest of the header block to arrive.
       return;
     }
@@ -349,7 +384,14 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
       return;
     }
 
-    NSUInteger contentLength = (NSUInteger)requestHeaders[@"content-length"].integerValue;
+    NSString *contentLengthValue = requestHeaders[@"content-length"];
+    NSUInteger contentLength = 0;
+    if (nil != contentLengthValue && !FBParseContentLength(contentLengthValue, &contentLength)) {
+      // With an unparseable Content-Length the body's extent is unknowable, so the connection
+      // cannot be resynced - reject and close.
+      [self respondBadRequestToClient:client];
+      return;
+    }
     if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
       // Closes the connection after responding, since the rest of the oversized body is still incoming.
       RouteResponse *tooLarge = [RouteResponse new];
