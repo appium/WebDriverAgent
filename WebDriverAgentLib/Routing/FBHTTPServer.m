@@ -365,10 +365,15 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         return;
       }
       [buffer appendData:data];
-      if (nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
-        // First bytes of a new request on an idle keep-alive connection: restart the
-        // incomplete-request clock. Deliberately NOT refreshed on subsequent bytes, so a peer
-        // drip-feeding data cannot keep an incomplete request alive past the timeout.
+      // Body phase (a parsed header is pending): a valid declared body legitimately takes as
+      // long as the link is slow - e.g. a large base64 payload over a USB tunnel - so the
+      // timeout acts as an idle bound, refreshed on every byte of progress (total buffered size
+      // stays bounded by the already-validated Content-Length). During the header phase the
+      // clock is only started (first bytes of a new request on an idle keep-alive connection),
+      // never refreshed: a peer drip-feeding header bytes must not be able to keep an
+      // incomplete header block alive past the timeout.
+      BOOL isBodyPhase = nil != [strongSelf.pendingRequestHeaders objectForKey:client];
+      if (isBodyPhase || nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
         [strongSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
       }
     }
