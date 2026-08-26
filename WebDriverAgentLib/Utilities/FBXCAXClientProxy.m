@@ -69,6 +69,19 @@ static id FBAXClient = nil;
   return (CFAbsoluteTimeGetCurrent() - startTime) < timeout;
 }
 
+- (BOOL)withApplicationStateTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
+{
+  NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
+  _XCTSetApplicationStateTimeout(timeout);
+  CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
+  @try {
+    block();
+  } @finally {
+    _XCTSetApplicationStateTimeout(previousTimeout);
+  }
+  return (CFAbsoluteTimeGetCurrent() - startTime) < timeout;
+}
+
 - (id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element
                                    attributes:(NSArray<NSString *> *)attributes
                                       inDepth:(BOOL)inDepth

@@ -122,6 +122,31 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
 
+/**
+ Runs `block` synchronously with the XCTest application-state timeout (the private
+ `_XCTApplicationStateTimeout`/`_XCTSetApplicationStateTimeout` globals) temporarily
+ set to `timeout`, restoring the previous value once `block` returns (even if it
+ throws). Defaults to 60 seconds, though it may be pre-seeded once from a
+ NSUserDefaults override the first time it is read, before any of this process's own
+ -withApplicationStateTimeout:do: calls run.
+
+ Unlike AXTimeout/the XPC request timeout above, this one is not scoped to a single
+ request/response round trip - it bounds `[XCTWaiter waitForExpectations:timeout:]`
+ inside `-[XCUIApplicationProcess waitForQuiescenceIncludingAnimationsIdle:...]`,
+ which WDA's own XCUIApplicationProcess+FBQuiescence.m swizzle already targets for the
+ per-tap pre/post-event quiescence wait. That wait is gated by a *compound OR*
+ expectation over two independently-notified flags - `eventLoopHasIdled` and (when
+ requested) `animationsHaveFinished` - so it can return as soon as either one changes,
+ not necessarily both; this timeout only bounds how long that race is allowed to run
+ before giving up on both. The same global also bounds XCTest's app-launch/foreground
+ state-transition waits (see -[FBSessionCommands launchApplication:...],
+ +[FBSessionCommands openDeepLink:withApplication:timeout:]), which are a different,
+ non-quiescence consumer of this same timeout.
+
+ Returns YES if `block` returned within `timeout`, NO otherwise.
+ */
+- (BOOL)withApplicationStateTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
+
 @end
 
 NS_ASSUME_NONNULL_END
