@@ -43,6 +43,12 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
 
 @implementation FBIntegrationTestCase
 
++ (BOOL)isRunningInCI
+{
+  NSString *value = NSProcessInfo.processInfo.environment[@"CI"];
+  return nil != value && value.length > 0;
+}
+
 - (void)setUp
 {
   // Enable it to get extended XCTest logs printed into the console

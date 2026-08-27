@@ -32,9 +32,8 @@
 {
   XCTSkip(@"Failed on Azure Pipeline. Local run succeeded.");
 
-  // Video recording is only available since iOS 17
   if (SYSTEM_VERSION_LESS_THAN(@"17.0")) {
-    return;
+    XCTSkip(@"Video recording is only available since iOS 17");
   }
 
   FBScreenRecordingRequest *recordingRequest = [[FBScreenRecordingRequest alloc] initWithFps:24

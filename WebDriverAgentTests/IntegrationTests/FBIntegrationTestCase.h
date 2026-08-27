@@ -29,6 +29,13 @@ extern NSArray<NSString *> *const FBMainViewButtonLabels;
 @property (nonatomic, strong, readonly) XCUIApplication *springboard;
 
 /**
+ Whether tests are running under CI, as forwarded into the test process by the
+ scheme's CI environment variable (see Fastlane/Fastfile). Use to XCTSkip tests
+ that are known to be too slow/flaky/unsupported for CI.
+ */
++ (BOOL)isRunningInCI;
+
+/**
  Launches application and resets side effects of testing like orientation etc.
  */
 - (void)launchApplication;
