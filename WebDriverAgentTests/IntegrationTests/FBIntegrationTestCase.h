@@ -61,11 +61,6 @@ extern NSArray<NSString *> *const FBMainViewButtonLabels;
 - (void)goToSpringBoardFirstPage;
 
 /**
- Navigates to SpringBoard path with Extras folder
- */
-- (void)goToSpringBoardExtras;
-
-/**
  Navigates to SpringBoard's dashboard
  */
 - (void)goToSpringBoardDashboard;

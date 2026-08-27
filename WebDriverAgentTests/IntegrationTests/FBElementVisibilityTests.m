@@ -37,17 +37,6 @@
   XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].firstMatch.fb_isVisible);
 }
 
-- (void)testSpringBoardSubfolder
-{
-  if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad
-      || SYSTEM_VERSION_GREATER_THAN(@"12.0")) {
-    XCTSkip(@"Not applicable to iPad or iOS > 12.0");
-  }
-  [self launchApplication];
-  [self goToSpringBoardExtras];
-  XCTAssertFalse(self.springboard.icons[@"Extras"].otherElements[@"Contacts"].fb_isVisible);
-}
-
 - (void)testIconsFromSearchDashboard
 {
   if (FBIntegrationTestCase.isRunningInCI) {

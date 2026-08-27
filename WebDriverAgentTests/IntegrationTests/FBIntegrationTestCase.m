@@ -111,14 +111,6 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
   FBAssertWaitTillBecomesTrue(XCUIApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.fb_isVisible);
 }
 
-- (void)goToSpringBoardExtras
-{
-  [self goToSpringBoardFirstPage];
-  [self.springboard swipeLeft];
-  [self.testedApplication fb_waitUntilStable];
-  FBAssertWaitTillBecomesTrue(self.springboard.icons[@"Extras"].fb_isVisible);
-}
-
 - (void)goToSpringBoardDashboard
 {
   [self goToSpringBoardFirstPage];
