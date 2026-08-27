@@ -258,10 +258,11 @@ static NSString *const topNodeIndexPath = @"top";
       if ([root isKindOfClass:XCUIElement.class]) {
         lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]
                                            useNative:useNativeSnapshot];
+        // root.lastSnapshot may be stale leftover from an unrelated earlier command.
         contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
           ? nil
-          : ([(XCUIElement *)root lastSnapshot] ?: [self snapshotWithRoot:(XCUIElement *)root
-                                                                useNative:useNativeSnapshot]);
+          : ([(XCUIElement *)root fb_cachedSnapshot] ?: [self snapshotWithRoot:(XCUIElement *)root
+                                                                     useNative:useNativeSnapshot]);
       } else {
         lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
         contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
