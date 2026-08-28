@@ -407,113 +407,174 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   }
 
   if (nil == pending) {
-    NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
-    if (NSNotFound == headerEndRange.location) {
-      if (buffer.length > FBMaxRequestHeaderSize) {
-        // Past any legitimate header block and still unterminated - stop buffering.
-        [self respondBadRequestToClient:client];
-        return;
-      }
-      // Wait for the rest of the header block to arrive.
+    pending = [self parsedRequestHeaderFromBuffer:buffer forClient:client];
+    if (nil == pending) {
+      // Either the header block is still incomplete, or it was rejected and answered already.
       return;
     }
-    if (headerEndRange.location > FBMaxRequestHeaderSize) {
-      // The check above only fires while the terminator is missing; one large receive can deliver
-      // an oversized block with it, so bound the completed block too before parsing it.
-      [self respondBadRequestToClient:client];
-      return;
-    }
-
-    NSData *headerData = [buffer subdataWithRange:NSMakeRange(0, headerEndRange.location)];
-    NSString *headerString = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
-    NSArray<NSString *> *lines = [headerString componentsSeparatedByString:@"\r\n"];
-    if (lines.count < 1) {
-      [self respondBadRequestToClient:client];
-      return;
-    }
-
-    NSArray<NSString *> *requestLineParts = [lines.firstObject componentsSeparatedByString:@" "];
-    if (requestLineParts.count < 2) {
-      [self respondBadRequestToClient:client];
-      return;
-    }
-
-    NSMutableDictionary<NSString *, NSString *> *requestHeaders = [NSMutableDictionary dictionary];
-    for (NSUInteger i = 1; i < lines.count; i++) {
-      NSString *line = lines[i];
-      NSRange colonRange = [line rangeOfString:@":"];
-      if (0 == line.length) {
-        continue;
-      }
-      if (NSNotFound == colonRange.location) {
-        // Malformed. Skipping it would drop what it meant to say: "Content-Length 5" would
-        // dispatch with an empty body, leaving its bytes to be parsed as another request.
-        [self respondBadRequestToClient:client];
-        return;
-      }
-      NSString *name = [line substringToIndex:colonRange.location];
-      // RFC 7230 (3.2.4): whitespace before the colon MUST be rejected. Storing "content-length "
-      // as its own key would drop the real header and desync the framing.
-      if (0 == name.length
-          || NSNotFound != [name rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location) {
-        [self respondBadRequestToClient:client];
-        return;
-      }
-      NSString *value = [[line substringFromIndex:colonRange.location + 1]
-                          stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
-      NSString *normalizedName = name.lowercaseString;
-      // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins would let an empty
-      // "Transfer-Encoding:" mask an earlier "chunked", and the last Content-Length drive parsing.
-      if (([normalizedName isEqualToString:@"content-length"] || [normalizedName isEqualToString:@"transfer-encoding"])
-          && nil != requestHeaders[normalizedName]) {
-        [self respondBadRequestToClient:client];
-        return;
-      }
-      requestHeaders[normalizedName] = value;
-    }
-
-    NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
-    if (nil != transferEncoding) {
-      // No transfer decoder exists, so mere presence is rejected - including an empty value,
-      // which is not a valid encoding list and would let the body be misread as empty.
-      RouteResponse *notImplemented = [RouteResponse new];
-      id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
-                                                                                                                  traceback:nil]);
-      [notImplementedPayload dispatchWithResponse:notImplemented];
-      [self failClient:client withResponse:notImplemented];
-      return;
-    }
-
-    NSString *contentLengthValue = requestHeaders[@"content-length"];
-    NSUInteger contentLength = 0;
-    if (nil != contentLengthValue && !FBParseContentLength(contentLengthValue, &contentLength)) {
-      // The body's extent is unknowable, so the connection cannot be resynced - reject and close.
-      [self respondBadRequestToClient:client];
-      return;
-    }
-    if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
-      // Closes the connection after responding, since the rest of the oversized body is still incoming.
-      RouteResponse *tooLarge = [RouteResponse new];
-      id<FBResponsePayload> tooLargePayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"The request body exceeds the configured size limit"
-                                                                                                            traceback:nil]);
-      [tooLargePayload dispatchWithResponse:tooLarge];
-      [self failClient:client withResponse:tooLarge];
-      return;
-    }
-
-    pending = [FBPendingHTTPRequestHeader new];
-    pending.method = requestLineParts[0].uppercaseString;
-    pending.pathAndQuery = requestLineParts[1];
-    pending.bodyStart = headerEndRange.location + headerEndRange.length;
-    pending.contentLength = contentLength;
     @synchronized (self.connectionBuffers) {
       [self.pendingRequestHeaders setObject:pending forKey:client];
     }
   }
 
+  [self dispatchBufferedRequestWithHeader:pending fromBuffer:buffer forClient:client];
+}
+
+// Locates the CRLFCRLF that ends the buffered header block and bounds the block's size. Returns
+// NO when nothing can be parsed yet - either because more bytes are needed or because the block
+// was rejected, in which case the 400 has already been written.
+- (BOOL)findHeaderBlockEnd:(out NSRange *)outHeaderEndRange
+                  inBuffer:(NSMutableData *)buffer
+                 forClient:(nw_connection_t)client
+{
+  NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
+  if (NSNotFound == headerEndRange.location) {
+    if (buffer.length > FBMaxRequestHeaderSize) {
+      // Past any legitimate header block and still unterminated - stop buffering.
+      [self respondBadRequestToClient:client];
+    }
+    // Otherwise wait for the rest of the header block to arrive.
+    return NO;
+  }
+  if (headerEndRange.location > FBMaxRequestHeaderSize) {
+    // The check above only fires while the terminator is missing; one large receive can deliver
+    // an oversized block with it, so bound the completed block too before parsing it.
+    [self respondBadRequestToClient:client];
+    return NO;
+  }
+  *outHeaderEndRange = headerEndRange;
+  return YES;
+}
+
+// Turns the header lines that follow the request line into a lowercase-keyed dictionary.
+// Returns nil for the malformed and ambiguous shapes, having written the 400 already.
+- (nullable NSDictionary<NSString *, NSString *> *)parsedHeaderFieldsFromLines:(NSArray<NSString *> *)lines
+                                                                    forClient:(nw_connection_t)client
+{
+  NSMutableDictionary<NSString *, NSString *> *requestHeaders = [NSMutableDictionary dictionary];
+  for (NSUInteger i = 1; i < lines.count; i++) {
+    NSString *line = lines[i];
+    NSRange colonRange = [line rangeOfString:@":"];
+    if (0 == line.length) {
+      continue;
+    }
+    if (NSNotFound == colonRange.location) {
+      // Malformed. Skipping it would drop what it meant to say: "Content-Length 5" would
+      // dispatch with an empty body, leaving its bytes to be parsed as another request.
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    NSString *name = [line substringToIndex:colonRange.location];
+    // RFC 7230 (3.2.4): whitespace before the colon MUST be rejected. Storing "content-length "
+    // as its own key would drop the real header and desync the framing.
+    if (0 == name.length
+        || NSNotFound != [name rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location) {
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    NSString *value = [[line substringFromIndex:colonRange.location + 1]
+                        stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+    NSString *normalizedName = name.lowercaseString;
+    // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins would let an empty
+    // "Transfer-Encoding:" mask an earlier "chunked", and the last Content-Length drive parsing.
+    if (([normalizedName isEqualToString:@"content-length"] || [normalizedName isEqualToString:@"transfer-encoding"])
+        && nil != requestHeaders[normalizedName]) {
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    requestHeaders[normalizedName] = value;
+  }
+  return requestHeaders;
+}
+
+// Rejects framing this server cannot honour and resolves the declared body length from the
+// remaining framing headers. Returns NO having written the closing error response already.
+- (BOOL)resolveBodyLength:(out NSUInteger *)outBodyLength
+         fromHeaderFields:(NSDictionary<NSString *, NSString *> *)requestHeaders
+                forClient:(nw_connection_t)client
+{
+  NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
+  if (nil != transferEncoding) {
+    // No transfer decoder exists, so mere presence is rejected - including an empty value,
+    // which is not a valid encoding list and would let the body be misread as empty.
+    RouteResponse *notImplemented = [RouteResponse new];
+    id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
+                                                                                                                traceback:nil]);
+    [notImplementedPayload dispatchWithResponse:notImplemented];
+    [self failClient:client withResponse:notImplemented];
+    return NO;
+  }
+
+  NSString *contentLengthValue = requestHeaders[@"content-length"];
+  NSUInteger contentLength = 0;
+  if (nil != contentLengthValue && !FBParseContentLength(contentLengthValue, &contentLength)) {
+    // The body's extent is unknowable, so the connection cannot be resynced - reject and close.
+    [self respondBadRequestToClient:client];
+    return NO;
+  }
+  if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
+    // Closes the connection after responding, since the rest of the oversized body is still incoming.
+    RouteResponse *tooLarge = [RouteResponse new];
+    id<FBResponsePayload> tooLargePayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"The request body exceeds the configured size limit"
+                                                                                                          traceback:nil]);
+    [tooLargePayload dispatchWithResponse:tooLarge];
+    [self failClient:client withResponse:tooLarge];
+    return NO;
+  }
+  *outBodyLength = contentLength;
+  return YES;
+}
+
+// Parses the request line and headers of the request at the head of the buffer. Returns nil
+// while the header block is still incomplete, and for a rejected one, which is answered here.
+- (nullable FBPendingHTTPRequestHeader *)parsedRequestHeaderFromBuffer:(NSMutableData *)buffer
+                                                             forClient:(nw_connection_t)client
+{
+  NSRange headerEndRange;
+  if (![self findHeaderBlockEnd:&headerEndRange inBuffer:buffer forClient:client]) {
+    return nil;
+  }
+
+  NSData *headerData = [buffer subdataWithRange:NSMakeRange(0, headerEndRange.location)];
+  NSString *headerString = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
+  NSArray<NSString *> *lines = [headerString componentsSeparatedByString:@"\r\n"];
+  if (lines.count < 1) {
+    [self respondBadRequestToClient:client];
+    return nil;
+  }
+
+  NSArray<NSString *> *requestLineParts = [lines.firstObject componentsSeparatedByString:@" "];
+  if (requestLineParts.count < 2) {
+    [self respondBadRequestToClient:client];
+    return nil;
+  }
+
+  NSDictionary<NSString *, NSString *> *requestHeaders = [self parsedHeaderFieldsFromLines:lines forClient:client];
+  if (nil == requestHeaders) {
+    return nil;
+  }
+  NSUInteger contentLength = 0;
+  if (![self resolveBodyLength:&contentLength fromHeaderFields:requestHeaders forClient:client]) {
+    return nil;
+  }
+
+  FBPendingHTTPRequestHeader *pending = [FBPendingHTTPRequestHeader new];
+  pending.method = requestLineParts[0].uppercaseString;
+  pending.pathAndQuery = requestLineParts[1];
+  pending.bodyStart = headerEndRange.location + headerEndRange.length;
+  pending.contentLength = contentLength;
+  return pending;
+}
+
+// Consumes the already-parsed request from the head of the buffer and dispatches it, once its
+// whole body has arrived. Returns with the cached header left in place while it hasn't.
+- (void)dispatchBufferedRequestWithHeader:(FBPendingHTTPRequestHeader *)pending
+                               fromBuffer:(NSMutableData *)buffer
+                                forClient:(nw_connection_t)client
+{
   NSUInteger totalRequestLength = pending.bodyStart + pending.contentLength;
   if (buffer.length < totalRequestLength) {
-    // Wait for the rest of the body to arrive - the parsed header stays cached above, so this
+    // Wait for the rest of the body to arrive - the parsed header stays cached, so this
     // doesn't re-scan/re-parse the header block on every subsequently arriving chunk.
     @synchronized (self.connectionBuffers) {
       // The request is now in its body phase, which is idle-bounded rather than hard-bounded.
