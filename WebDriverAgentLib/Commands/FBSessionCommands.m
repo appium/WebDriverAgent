@@ -386,8 +386,8 @@
       }
     };
     if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
-      [FBXCAXClientProxy.sharedClient withApplicationStateTimeout:[capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]
-                                                                do:launchBlock];
+      [FBXCAXClientProxy withApplicationStateTimeout:[capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]
+                                                   do:launchBlock];
     } else {
       launchBlock();
     }
@@ -508,7 +508,7 @@
     response = FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
   };
   if (nil != timeout) {
-    [FBXCAXClientProxy.sharedClient withApplicationStateTimeout:[timeout doubleValue] do:openBlock];
+    [FBXCAXClientProxy withApplicationStateTimeout:[timeout doubleValue] do:openBlock];
   } else {
     openBlock();
   }

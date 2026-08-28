@@ -31,7 +31,7 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
   NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
    @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
-  [FBXCAXClientProxy.sharedClient withApplicationStateTimeout:desiredTimeout do:^{
+  [FBXCAXClientProxy withApplicationStateTimeout:desiredTimeout do:^{
     original_waitForQuiescenceIncludingAnimationsIdle(self, _cmd, includingAnimations);
   }];
 }
@@ -48,7 +48,7 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SE
   NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
    @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
-  [FBXCAXClientProxy.sharedClient withApplicationStateTimeout:desiredTimeout do:^{
+  [FBXCAXClientProxy withApplicationStateTimeout:desiredTimeout do:^{
     original_waitForQuiescenceIncludingAnimationsIdlePreEvent(self, _cmd, includingAnimations, isPreEvent);
   }];
 }

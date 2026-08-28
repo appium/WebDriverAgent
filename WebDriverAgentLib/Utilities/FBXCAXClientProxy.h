@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  These XCAXClient_iOS calls are themselves wrapped in
  `+[XCTFuture futureWithTimeout:description:block:]`, but that wrapper's own timeout
  is `_XCTAXClientWrapperTimeout()` - AXTimeout plus a fixed 5-second margin, not
- -withXPCRequestTimeout:do:'s `_XCTXPCRequestTimeout`. That margin exists so the AX
+ +withXPCRequestTimeout:do:'s `_XCTXPCRequestTimeout`. That margin exists so the AX
  layer's own timeout has a chance to fire and produce a clean error before XCTFuture's
  wrapper would cut if off anyway; it is not independently tunable. AXTimeout is
  therefore the only knob that matters for every call this proxy wraps.
@@ -80,9 +80,16 @@ NS_ASSUME_NONNULL_BEGIN
  by their callers keep occupying the channel and can still delay whatever is queued
  behind them by their original, un-shortened duration.
 
- Returns YES if `block` returned within `timeout`, NO otherwise.
+ The whole scope is serialized behind a dedicated lock, so overlapping calls from
+ different threads nest/queue instead of racing to restore the global.
+
+ If installing `timeout` fails, `block` is not run, this returns NO, and `error` (if
+ given) is populated with the underlying failure. A failure while restoring the
+ previous value is logged and reported via `error` independently of the return value,
+ which always reflects `block`'s completion, sampled immediately after it returns and
+ before the restore attempt.
  */
-- (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
+- (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block error:(NSError **)error;
 
 /**
  Runs `block` synchronously with the XCTest automation-session XPC request timeout
@@ -118,9 +125,15 @@ NS_ASSUME_NONNULL_BEGIN
  freeing up the channel, and can never be used to reliably bound end-to-end latency
  while the target is unresponsive.
 
+ A class-level method: it only touches the XPC request timeout global, never the AX
+ client, so calling it does not trigger AX subsystem initialization. The scope is
+ serialized behind a dedicated lock, so overlapping calls nest/queue instead of racing
+ to restore the global. The returned completion result is sampled immediately after
+ `block` returns and before the previous value is restored.
+
  Returns YES if `block` returned within `timeout`, NO otherwise.
  */
-- (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
++ (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
 
 /**
  Runs `block` synchronously with the XCTest application-state timeout (the private
@@ -128,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
  set to `timeout`, restoring the previous value once `block` returns (even if it
  throws). Defaults to 60 seconds, though it may be pre-seeded once from a
  NSUserDefaults override the first time it is read, before any of this process's own
- -withApplicationStateTimeout:do: calls run.
+ +withApplicationStateTimeout:do: calls run.
 
  Unlike AXTimeout/the XPC request timeout above, this one is not scoped to a single
  request/response round trip - it bounds `[XCTWaiter waitForExpectations:timeout:]`
@@ -143,9 +156,15 @@ NS_ASSUME_NONNULL_BEGIN
  +[FBSessionCommands openDeepLink:withApplication:timeout:]), which are a different,
  non-quiescence consumer of this same timeout.
 
+ A class-level method: it only touches the application-state timeout global, never the
+ AX client, so calling it does not trigger AX subsystem initialization. The scope is
+ serialized behind a dedicated lock, so overlapping calls nest/queue instead of racing
+ to restore the global. The returned completion result is sampled immediately after
+ `block` returns and before the previous value is restored.
+
  Returns YES if `block` returned within `timeout`, NO otherwise.
  */
-- (BOOL)withApplicationStateTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
++ (BOOL)withApplicationStateTimeout:(NSTimeInterval)timeout do:(void (^)(void))block;
 
 @end
 
