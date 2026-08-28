@@ -105,15 +105,11 @@ static FBSession *_activeSession = nil;
 // Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
 // -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
 // the pointer before running it. See +waitForActiveTeardownWithTimeout:.
-// A count, not a flag: the wait below is bounded, so teardowns can overlap. A shared flag would
-// let the first to finish wake waiters while the other still ran, and the next session creation
-// would then bump the generation and make that teardown skip its cleanup.
+// A count, not a flag: the bounded wait below lets teardowns overlap, so one of them finishing
+// must not wake waiters while another still runs.
 static NSUInteger _activeTeardownCount = 0;
-// Bumped by +killActiveSessionAndWaitForTeardown, i.e. when a caller takes ownership of the
-// device - before it launches anything. Since the wait there is bounded, a slow teardown can
-// still be running by then; its remaining steps mutate process-wide state (the tested app, whose
-// bundle ID the replacement usually shares, and the recording container), so each re-checks the
-// generation it started with.
+// Bumped once a caller owns the device, before it launches anything; a teardown still running past
+// the bounded wait re-checks it before touching process-wide state.
 static NSUInteger _sessionGeneration = 0;
 
 + (NSCondition *)teardownCondition
@@ -154,10 +150,8 @@ static NSUInteger _sessionGeneration = 0;
     // be mid-teardown - wait for it, so we don't launch a replacement app too early.
     [self waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
   }
-  // Claimed here, not in +markSessionActive:, because the caller starts launching its application
-  // as soon as this returns. If the bounded wait expired with a teardown still running, that
-  // teardown has to be stale before the replacement app exists or it could terminate it. A
-  // teardown this call ran to completion is already finished, so invalidating it is a no-op.
+  // Claimed before the caller launches its replacement app: if the bounded wait expired with a
+  // teardown still running, that teardown must be stale by the time the new app exists.
   NSCondition *condition = self.teardownCondition;
   [condition lock];
   _sessionGeneration++;
@@ -173,8 +167,8 @@ static NSUInteger _sessionGeneration = 0;
   [condition unlock];
 }
 
-// NO once a newer session has been marked active, meaning the caller's teardown is stale and must
-// not touch process-wide state that the newer session now owns.
+// NO once a newer session has claimed the device, meaning the caller's teardown is stale and must
+// leave process-wide state alone.
 + (BOOL)isSessionGenerationCurrent:(NSUInteger)generation
 {
   NSCondition *condition = self.teardownCondition;
@@ -257,8 +251,7 @@ static NSUInteger _sessionGeneration = 0;
   NSUInteger generation;
   [teardownCondition lock];
   wasActive = (self == _activeSession);
-  // Captured here so the teardown steps below can tell whether a replacement session has been
-  // created in the meantime - see +isSessionGenerationCurrent:.
+  // Captured so the teardown steps below can tell whether a replacement has claimed the device.
   generation = _sessionGeneration;
   if (wasActive) {
     _activeSession = nil;
@@ -298,15 +291,14 @@ static NSUInteger _sessionGeneration = 0;
         && self.testedApplication.running
         && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
       // Blocks until the app is either actually terminated or durably given up on (never left
-      // pending) - see -fb_terminateTestedApplicationWithTimeout:generation: - so it's safe to report this
-      // teardown as finished as soon as this returns.
+      // pending) - see -fb_terminateTestedApplicationWithTimeout:generation: - so it's safe to
+      // report this teardown as finished as soon as this returns.
       [self fb_terminateTestedApplicationWithTimeout:FB_APP_TERMINATE_TIMEOUT_SEC generation:generation];
     }
   } @finally {
     [teardownCondition lock];
     _activeTeardownCount--;
-    // Broadcast unconditionally: waiters re-check the count themselves, so a wake-up while
-    // another teardown is still running simply puts them back to waiting.
+    // Unconditional: waiters re-check the count, so a wake-up mid-teardown just puts them back.
     [teardownCondition broadcast];
     [teardownCondition unlock];
   }
@@ -443,9 +435,8 @@ static NSUInteger _sessionGeneration = 0;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_main_queue(), ^{
     @synchronized (lock) {
-      // Re-checked here rather than before dispatching: this block can sit on a busy main queue
-      // longer than the teardown wait allows, and a replacement created in that window usually
-      // runs the same bundle ID - terminating "the old app" would kill the new one.
+      // Re-checked here, not before dispatching: this block can sit on a busy main queue past the
+      // teardown wait, and a replacement usually runs the same bundle ID as the app to terminate.
       if (isAllowedToTerminate && [self.class isSessionGenerationCurrent:generation]) {
         @try {
           [application terminate];
