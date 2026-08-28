@@ -368,7 +368,7 @@
 - (void)testForceTap
 {
   if (![XCUIDevice.sharedDevice supportsPressureInteraction]) {
-    return;
+    XCTSkip(@"Device does not support pressure interaction");
   }
 
   NSArray<NSDictionary<NSString *, id> *> *gesture =

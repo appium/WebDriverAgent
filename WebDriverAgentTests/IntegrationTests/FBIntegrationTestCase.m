@@ -43,6 +43,12 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
 
 @implementation FBIntegrationTestCase
 
++ (BOOL)isRunningInCI
+{
+  NSString *value = NSProcessInfo.processInfo.environment[@"CI"];
+  return nil != value && value.length > 0;
+}
+
 - (void)setUp
 {
   // Enable it to get extended XCTest logs printed into the console
@@ -103,14 +109,6 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
   [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
   [self.testedApplication fb_waitUntilStable];
   FBAssertWaitTillBecomesTrue(XCUIApplication.fb_systemApplication.icons[@"Calendar"].firstMatch.fb_isVisible);
-}
-
-- (void)goToSpringBoardExtras
-{
-  [self goToSpringBoardFirstPage];
-  [self.springboard swipeLeft];
-  [self.testedApplication fb_waitUntilStable];
-  FBAssertWaitTillBecomesTrue(self.springboard.icons[@"Extras"].fb_isVisible);
 }
 
 - (void)goToSpringBoardDashboard

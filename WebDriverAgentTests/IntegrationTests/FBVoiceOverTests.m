@@ -32,7 +32,7 @@
 - (void)testVoiceOverUnavailableOnOlderSDK
 {
   if ([XCUIDevice.sharedDevice fb_isVoiceOverServiceAvailable]) {
-    return;
+    XCTSkip(@"Only applicable when the VoiceOver service is unavailable");
   }
 
   NSError *error = nil;
@@ -44,10 +44,10 @@
 - (void)testVoiceOverEnableDisableAndNavigation
 {
   if (SYSTEM_VERSION_LESS_THAN(@"27.0")) {
-    return;
+    XCTSkip(@"Requires iOS 27.0+");
   }
   if (![XCUIDevice.sharedDevice fb_isVoiceOverServiceAvailable]) {
-    return;
+    XCTSkip(@"VoiceOver service is unavailable on this device");
   }
 
   [self launchApplication];
@@ -78,10 +78,10 @@
 - (void)testVoiceOverMoveBackward
 {
   if (SYSTEM_VERSION_LESS_THAN(@"27.0")) {
-    return;
+    XCTSkip(@"Requires iOS 27.0+");
   }
   if (![XCUIDevice.sharedDevice fb_isVoiceOverServiceAvailable]) {
-    return;
+    XCTSkip(@"VoiceOver service is unavailable on this device");
   }
 
   [self launchApplication];
