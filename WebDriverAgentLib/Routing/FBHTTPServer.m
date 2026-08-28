@@ -500,10 +500,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
 #pragma mark - Session-scoped request cancellation
 
-// Returns nil once `pendingRequest` is tracked, or - if the session was already abandoned - the
-// response to deliver instead of dispatching, since no abandonment notification would ever reach
-// this request. Shares a lock with -abandonPendingRequestsForSessionID: so nothing slips between
-// the abandonment and the record of it.
+// Returns nil once `pendingRequest` is tracked, or the response an already-abandoned session was
+// abandoned with, which the caller must deliver instead of dispatching.
 - (nullable RouteResponse *)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
