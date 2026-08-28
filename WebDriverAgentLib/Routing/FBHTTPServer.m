@@ -39,23 +39,24 @@ static const NSUInteger FBMaxRequestHeaderSize = 16 * 1024;
 // ("bogus" -> 0, "12abc" -> 12), desyncing the framing of every later request on the connection.
 static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 {
-  // Bounds the digit count so the accumulation below cannot overflow unsigned long long.
-  if (value.length < 1 || value.length > 15) {
+  if (value.length < 1) {
     return NO;
   }
-  unsigned long long result = 0;
+  NSUInteger result = 0;
   for (NSUInteger i = 0; i < value.length; i++) {
     unichar c = [value characterAtIndex:i];
     if (c < '0' || c > '9') {
       return NO;
     }
-    result = result * 10 + (c - '0');
+    NSUInteger digit = (NSUInteger)(c - '0');
+    // NSUInteger is 32-bit on watchOS (arm64_32), so this bounds truncation as well as overflow.
+    // Anything smaller is left to the caller's httpRequestBodySizeLimit check.
+    if (result > (NSUIntegerMax - digit) / 10) {
+      return NO;
+    }
+    result = result * 10 + digit;
   }
-  // NSUInteger is 32-bit on watchOS (arm64_32), so the digit bound alone would still truncate.
-  if (result > (unsigned long long)NSUIntegerMax) {
-    return NO;
-  }
-  *outLength = (NSUInteger)result;
+  *outLength = result;
   return YES;
 }
 
