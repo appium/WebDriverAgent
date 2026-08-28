@@ -22,7 +22,7 @@
 - (void)testSpringBoardIcons
 {
   if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-    return;
+    XCTSkip(@"Not applicable to iPad");
   }
   [self launchApplication];
   [self goToSpringBoardFirstPage];
@@ -37,21 +37,14 @@
   XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].firstMatch.fb_isVisible);
 }
 
-- (void)testSpringBoardSubfolder
+- (void)testIconsFromSearchDashboard
 {
-  if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad
-      || SYSTEM_VERSION_GREATER_THAN(@"12.0")) {
-    return;
+  if (FBIntegrationTestCase.isRunningInCI) {
+    // Causes: Failure fetching attributes for element <XCAccessibilityElement>
+    // Device element: Error Domain=XCTDaemonErrorDomain Code=13 "Value for attribute 5017 is an error."
+    XCTSkip(@"Fails with XCTDaemonErrorDomain Code=13 on CI simulators");
   }
-  [self launchApplication];
-  [self goToSpringBoardExtras];
-  XCTAssertFalse(self.springboard.icons[@"Extras"].otherElements[@"Contacts"].fb_isVisible);
-}
 
-- (void)disabled_testIconsFromSearchDashboard
-{
-  // This test causes:
-  // Failure fetching attributes for element <XCAccessibilityElement: 0x60800044dd10> Device element: Error Domain=XCTDaemonErrorDomain Code=13 "Value for attribute 5017 is an error." UserInfo={NSLocalizedDescription=Value for attribute 5017 is an error.}
   [self launchApplication];
   [self goToSpringBoardDashboard];
   XCTAssertFalse(self.springboard.icons[@"Reminders"].fb_isVisible);
