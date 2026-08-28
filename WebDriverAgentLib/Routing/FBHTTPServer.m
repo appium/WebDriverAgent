@@ -32,8 +32,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 }
 
 // Caps a request's header block, so a connection that never completes one cannot grow its buffer
-// without limit. Far above anything a real request needs.
-static const NSUInteger FBMaxRequestHeaderSize = 64 * 1024;
+// without limit. Matches node's default --max-http-header-size.
+static const NSUInteger FBMaxRequestHeaderSize = 16 * 1024;
 
 // ASCII decimal digits only. -integerValue must not be used here: it maps garbage silently
 // ("bogus" -> 0, "12abc" -> 12), desyncing the framing of every later request on the connection.
