@@ -44,9 +44,12 @@
   [super tearDown];
 }
 
-// The test is flaky on slow Travis CI
-- (void)disabled_testAutoAcceptingOfAlerts
+- (void)testAutoAcceptingOfAlerts
 {
+  if (FBIntegrationTestCase.isRunningInCI) {
+    XCTSkip(@"Flaky on slow CI machines");
+  }
+
   self.session = [FBSession
                   initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
@@ -57,9 +60,12 @@
   }
 }
 
-// The test is flaky on slow Travis CI
-- (void)disabled_testAutoDismissingOfAlerts
+- (void)testAutoDismissingOfAlerts
 {
+  if (FBIntegrationTestCase.isRunningInCI) {
+    XCTSkip(@"Flaky on slow CI machines");
+  }
+
   self.session = [FBSession
                   initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];

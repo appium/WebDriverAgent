@@ -52,8 +52,7 @@
 - (void)testSimpleScroll
 {
   if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
-    // This test is unstable in CI env
-    return;
+    XCTSkip(@"Requires iOS 16.0+");
   }
 
   FBAssertVisibleCell(@"0");
@@ -90,8 +89,7 @@
 - (void)testNativeFarScrollToVisible
 {
   if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
-    // This test is unstable in CI env
-    return;
+    XCTSkip(@"Requires iOS 16.0+");
   }
 
   NSString *cellName = @"80";
@@ -114,8 +112,7 @@
   XCTAssertTrue(element.fb_isVisible);
   
   if (SYSTEM_VERSION_LESS_THAN(@"16.0")) {
-    // This test is unstable in CI env
-    return;
+    XCTSkip(@"Requires iOS 16.0+");
   }
 
   [element tap];

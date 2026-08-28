@@ -42,8 +42,12 @@
   [self.session terminateApplicationWithBundleId:FB_SAFARI_BUNDLE_ID];
 }
 
-- (void)disabled_testCanHandleSafariInputPrompt
+- (void)testCanHandleSafariInputPrompt
 {
+  if (FBIntegrationTestCase.isRunningInCI) {
+    XCTSkip(@"Depends on an external website (w3schools.com), unreliable on CI");
+  }
+
   XCUIElement *urlInput = [[self.safariApp
                             descendantsMatchingType:XCUIElementTypeTextField]
                            matchingPredicate:[

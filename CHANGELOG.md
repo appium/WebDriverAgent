@@ -1,3 +1,9 @@
+## [16.9.0](https://github.com/appium/WebDriverAgent/compare/v16.8.0...v16.9.0) (2026-08-27)
+
+### Features
+
+* cache the system application resolution for WDA's process lifetime ([#1232](https://github.com/appium/WebDriverAgent/issues/1232)) ([21c98f2](https://github.com/appium/WebDriverAgent/commit/21c98f253561ee3dfc93edfb1c4de6afc3200b50))
+
 ## [16.8.0](https://github.com/appium/WebDriverAgent/compare/v16.7.3...v16.8.0) (2026-08-24)
 
 ### Features

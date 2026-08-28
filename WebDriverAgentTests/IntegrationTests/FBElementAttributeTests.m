@@ -66,7 +66,7 @@
   // Images are neither accessibility elements nor contain them, so both checks should fail
   XCUIElement *imageElement = self.testedApplication.images.allElementsBoundByIndex.firstObject;
   if (nil == imageElement) {
-    return;
+    XCTSkip(@"No image element available to test");
   }
   
   XCTAssertTrue(imageElement.exists);
