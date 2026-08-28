@@ -100,6 +100,7 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 
 @implementation FBSession
 
+// Guarded, together with the two counters below, by +teardownCondition.
 static FBSession *_activeSession = nil;
 // Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
 // -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
@@ -157,26 +158,30 @@ static NSUInteger _sessionGeneration = 0;
   // as soon as this returns. If the bounded wait expired with a teardown still running, that
   // teardown has to be stale before the replacement app exists or it could terminate it. A
   // teardown this call ran to completion is already finished, so invalidating it is a no-op.
-  @synchronized (self.class) {
-    _sessionGeneration++;
-  }
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  _sessionGeneration++;
+  [condition unlock];
 }
 
 + (void)markSessionActive:(FBSession *)session
 {
   [self killActiveSessionAndWaitForTeardown];
-  @synchronized (self.class) {
-    _activeSession = session;
-  }
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  _activeSession = session;
+  [condition unlock];
 }
 
 // NO once a newer session has been marked active, meaning the caller's teardown is stale and must
 // not touch process-wide state that the newer session now owns.
 + (BOOL)isSessionGenerationCurrent:(NSUInteger)generation
 {
-  @synchronized (self.class) {
-    return generation == _sessionGeneration;
-  }
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  BOOL isCurrent = generation == _sessionGeneration;
+  [condition unlock];
+  return isCurrent;
 }
 
 + (instancetype)sessionWithIdentifier:(NSString *)identifier
@@ -247,28 +252,27 @@ static NSUInteger _sessionGeneration = 0;
   // DELETE /session and session creation can now run concurrently, so a session already
   // superseded by a newer one can still reach here via a stale reference. Check-and-clear must be
   // atomic, else a belated -kill could null out the new session's pointer instead of its own.
+  NSCondition *teardownCondition = self.class.teardownCondition;
   BOOL wasActive;
   NSUInteger generation;
-  @synchronized (self.class) {
-    wasActive = (self == _activeSession);
-    // Captured here so the teardown steps below can tell whether a replacement session has been
-    // created in the meantime - see +isSessionGenerationCurrent:.
-    generation = _sessionGeneration;
-    if (wasActive) {
-      _activeSession = nil;
-    }
+  [teardownCondition lock];
+  wasActive = (self == _activeSession);
+  // Captured here so the teardown steps below can tell whether a replacement session has been
+  // created in the meantime - see +isSessionGenerationCurrent:.
+  generation = _sessionGeneration;
+  if (wasActive) {
+    _activeSession = nil;
+    // Registered in the same critical section as the clear above, else a concurrent session
+    // creation could observe neither an active session nor a teardown and skip its wait.
+    _activeTeardownCount++;
   }
+  [teardownCondition unlock];
   if (!wasActive) {
     // Someone else is already tearing this session down - wait for that to finish (bounded), so
     // we don't act as if it's gone (e.g. launch a new app) while its -terminate is still in flight.
     [self.class waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
     return;
   }
-
-  NSCondition *teardownCondition = self.class.teardownCondition;
-  [teardownCondition lock];
-  _activeTeardownCount++;
-  [teardownCondition unlock];
 
   @try {
     // Posted before teardown so pending HTTP requests for this session can stop waiting sooner.
