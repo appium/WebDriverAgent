@@ -124,7 +124,7 @@ void calculateMaxTreeDepth(NSDictionary *tree, NSNumber *currentDepth, NSNumber*
 - (void)testAccessbilityAudit
 {
   if (SYSTEM_VERSION_LESS_THAN(@"17.0")) {
-    return;
+    XCTSkip(@"Requires iOS 17.0+");
   }
 
   NSError *error;

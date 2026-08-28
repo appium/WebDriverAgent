@@ -32,7 +32,7 @@
 - (void)testErroneousGestures
 {
   if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
-    return;
+    XCTSkip(@"Key events are not supported on this platform");
   }
 
   NSArray<NSArray<NSDictionary<NSString *, id> *> *> *invalidGestures =
@@ -121,7 +121,7 @@
 - (void)testTextTyping
 {
   if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
-    return;
+    XCTSkip(@"Key events are not supported on this platform");
   }
 
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];
@@ -160,7 +160,7 @@
 - (void)testTextTypingWithEmptyActions
 {
   if (![XCPointerEvent.class fb_areKeyEventsSupported]) {
-    return;
+    XCTSkip(@"Key events are not supported on this platform");
   }
 
   XCUIElement *textField = self.testedApplication.textFields[@"aIdentifier"];

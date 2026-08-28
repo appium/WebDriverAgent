@@ -40,7 +40,7 @@
 
 - (void)testAccessibilityDeadlineAbortsSnapshotRequestForDeadlockedApp
 {
-  if (nil != NSProcessInfo.processInfo.environment[@"CI"]) {
+  if (FBIntegrationTestCase.isRunningInCI) {
     XCTSkip(@"Deliberately freezes the app for several seconds, too slow/flaky for CI");
   }
 

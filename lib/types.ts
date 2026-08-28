@@ -13,6 +13,16 @@ export interface WDASettings {
   keyboardAutocorrection?: boolean;
   keyboardPrediction?: boolean;
   customSnapshotTimeout?: number;
+  accessibilityDeadline?: number;
+  enforceCustomSnapshots?: boolean;
+  limitXPathContextScope?: boolean;
+  includeHittableInPageSource?: boolean;
+  includeNativeFrameInPageSource?: boolean;
+  includeNativeAccessibilityElementInPageSource?: boolean;
+  includeMinMaxValueInPageSource?: boolean;
+  includeCustomActionsInPageSource?: boolean;
+  respectSystemAlerts?: boolean;
+  autoClickAlertSelector?: string;
   snapshotMaxDepth?: number;
   snapshotMaxChildren?: number;
   useFirstMatch?: boolean;
@@ -50,6 +60,7 @@ export interface WDACapabilities {
   forceSimulatorSoftwareKeyboardPresence?: boolean;
   defaultAlertAction?: 'accept' | 'dismiss';
   appLaunchStateTimeoutSec?: number;
+  accessibilityDeadline?: number;
 }
 
 export interface WebDriverAgentArgs {
