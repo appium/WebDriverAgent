@@ -280,15 +280,15 @@ static NSUInteger _sessionGeneration = 0;
 
     [self disableAlertsMonitor];
 
-    FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
-    if (nil != activeScreenRecording) {
-      NSError *error;
-      if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
-        [FBLogger logFmt:@"%@", error];
-      }
-      // The stop above is by UUID and safe either way, but the container is process-wide:
-      // resetting it would drop a replacement session's promise instead.
-      if ([self.class isSessionGenerationCurrent:generation]) {
+    // The container is process-wide, so its promise may already be a replacement session's: both
+    // the stop and the reset must be skipped once this teardown is stale.
+    if ([self.class isSessionGenerationCurrent:generation]) {
+      FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
+      if (nil != activeScreenRecording) {
+        NSError *error;
+        if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
+          [FBLogger logFmt:@"%@", error];
+        }
         [FBScreenRecordingContainer.sharedInstance reset];
       }
     }
