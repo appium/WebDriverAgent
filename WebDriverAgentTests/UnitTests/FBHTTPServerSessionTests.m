@@ -97,6 +97,26 @@ static atomic_int gSessionProbeHits;
   XCTAssertEqual(atomic_load(&gSessionProbeHits), 0, @"the route must not run for a deleted session");
 }
 
+- (void)testAbandonedSessionIsRememberedAfterManyLaterAbandonments
+{
+  // Abandoned ids are kept for the server's lifetime; evicting them would let a stale request
+  // queue on a possibly wedged route queue again, which is the hang this rejection prevents.
+  RouteResponse *abandonedResponse = [RouteResponse new];
+  [abandonedResponse respondWithString:@"session-was-deleted"];
+  [self.server abandonPendingRequestsForSessionID:@"dead-session" withResponse:abandonedResponse];
+  for (NSUInteger index = 0; index < 64; ++index) {
+    RouteResponse *otherResponse = [RouteResponse new];
+    [otherResponse respondWithString:@"other-session-was-deleted"];
+    [self.server abandonPendingRequestsForSessionID:[NSString stringWithFormat:@"other-session-%lu", (unsigned long)index]
+                                       withResponse:otherResponse];
+  }
+
+  NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[@"GET /session/dead-session/probe HTTP/1.1\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]
+                                            timeout:5.0];
+  XCTAssertTrue([response containsString:@"session-was-deleted"], @"%@", response);
+  XCTAssertEqual(atomic_load(&gSessionProbeHits), 0, @"the route must not run for a deleted session");
+}
+
 - (void)testRequestForLiveSessionIsStillServed
 {
   // The rejection above must be scoped to the abandoned identifier only.

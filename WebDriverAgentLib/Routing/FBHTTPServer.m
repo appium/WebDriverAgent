@@ -101,18 +101,12 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
-// Already-abandoned sessions mapped to the response they were abandoned with, so a request
-// parsed after that point is answered at once instead of queueing for a session that is gone.
-// Session ids are UUIDs, so an entry can never reject a live session. Insertion-ordered by
-// `abandonedSessionOrder`. Guarded by @synchronized(self.pendingSessionRequests).
+// Already-abandoned sessions mapped to the response they were abandoned with, so a request parsed
+// after that point is answered at once instead of queueing for a session that is gone. Kept for
+// the server's lifetime; ids are UUIDs. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, RouteResponse *> *abandonedSessionResponses;
-@property (nonatomic, strong) NSMutableArray<NSString *> *abandonedSessionOrder;
 
 @end
-
-// Only has to outlive the in-flight requests of the previous few sessions; older ones are
-// answered "no such driver" by the route itself anyway.
-static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
 
 @implementation FBHTTPServer
 
@@ -130,7 +124,6 @@ static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
     _abandonedSessionResponses = [NSMutableDictionary dictionary];
-    _abandonedSessionOrder = [NSMutableArray array];
   }
   return self;
 }
@@ -552,14 +545,7 @@ static const NSUInteger FBMaxRecordedAbandonedSessions = 8;
     pendingRequests = [self.pendingSessionRequests[sessionID] copy];
     [self.pendingSessionRequests removeObjectForKey:sessionID];
     // Recorded before the lock is dropped, so requests admitted from here on are rejected.
-    if (nil == self.abandonedSessionResponses[sessionID]) {
-      [self.abandonedSessionOrder addObject:sessionID];
-      self.abandonedSessionResponses[sessionID] = response;
-      while (self.abandonedSessionOrder.count > FBMaxRecordedAbandonedSessions) {
-        [self.abandonedSessionResponses removeObjectForKey:self.abandonedSessionOrder.firstObject];
-        [self.abandonedSessionOrder removeObjectAtIndex:0];
-      }
-    }
+    self.abandonedSessionResponses[sessionID] = response;
   }
   for (FBPendingRequest *pendingRequest in pendingRequests) {
     [self writeResponse:response toClient:pendingRequest.client];
