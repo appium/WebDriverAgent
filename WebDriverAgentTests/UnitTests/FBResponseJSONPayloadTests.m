@@ -29,12 +29,33 @@
   XCTAssertNoThrow([payload dispatchWithResponse:response]);
   XCTAssertNotNil(response.responseData);
 
-  NSError *error;
+  NSError *error = nil;
   NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:response.responseData
                                                            options:0
                                                              error:&error];
   XCTAssertNil(error);
   XCTAssertEqualObjects(parsed[@"value"], @"abc�def");
+}
+
+// Dictionary keys must be sanitized too, not just values
+- (void)testDispatchSanitizesNonUtf8EncodableKeys
+{
+  unichar chars[] = {'k', 0xD800, 'y'};
+  NSString *unsafeKey = [NSString stringWithCharacters:chars length:sizeof(chars) / sizeof(unichar)];
+  NSDictionary *dictionary = @{unsafeKey: @"value"};
+  FBResponseJSONPayload *payload = [[FBResponseJSONPayload alloc] initWithDictionary:dictionary
+                                                                        httpStatusCode:kHTTPStatusCodeOK];
+  RouteResponse *response = [RouteResponse new];
+
+  XCTAssertNoThrow([payload dispatchWithResponse:response]);
+  XCTAssertNotNil(response.responseData);
+
+  NSError *error = nil;
+  NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:response.responseData
+                                                           options:0
+                                                             error:&error];
+  XCTAssertNil(error);
+  XCTAssertEqualObjects(parsed[@"k�y"], @"value");
 }
 
 - (void)testDispatchWithRegularDictionary

@@ -45,11 +45,27 @@
   XCTAssertEqualObjects(safe[@"key"], expected);
   XCTAssertEqualObjects(safe[@"nested"][@"value"][0], expected);
 
-  NSError *error;
+  NSError *error = nil;
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:safe
                                                      options:0
                                                        error:&error];
-  XCTAssertNotNil(jsonData, @"Sanitized dictionary must be serializable to JSON, error of %@", error);
+  XCTAssertNotNil(jsonData, @"JSON serialization of the sanitized dictionary unexpectedly failed: %@", error);
+}
+
+- (void)testUnpairedSurrogateKeySanitization
+{
+  unichar chars[] = {'k', 0xD800, 'y'};
+  NSString *unsafeKey = [NSString stringWithCharacters:chars length:sizeof(chars) / sizeof(unichar)];
+  NSDictionary *d = @{unsafeKey: @"value"};
+  NSDictionary *safe = d.fb_utf8SafeDictionary;
+
+  XCTAssertEqualObjects(safe[@"k�y"], @"value");
+
+  NSError *error = nil;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:safe
+                                                     options:0
+                                                       error:&error];
+  XCTAssertNotNil(jsonData, @"JSON serialization of the sanitized dictionary unexpectedly failed: %@", error);
 }
 
 - (void)testValidSurrogatePairIsPreserved
