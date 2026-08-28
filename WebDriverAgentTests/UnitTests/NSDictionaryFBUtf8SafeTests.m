@@ -31,4 +31,31 @@
   XCTAssertEqualObjects(d, d.fb_utf8SafeDictionary);
 }
 
+- (void)testUnpairedSurrogateSanitization
+{
+  unichar chars[] = {'a', 'b', 'c', 0xD800, 'd', 'e', 'f'};
+  NSString *unsafe = [NSString stringWithCharacters:chars length:sizeof(chars) / sizeof(unichar)];
+  NSDictionary *d = @{
+    @"key": unsafe,
+    @"nested": @{@"value": @[unsafe]},
+  };
+  NSDictionary *safe = d.fb_utf8SafeDictionary;
+
+  NSString *expected = @"abc�def";
+  XCTAssertEqualObjects(safe[@"key"], expected);
+  XCTAssertEqualObjects(safe[@"nested"][@"value"][0], expected);
+
+  NSError *error;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:safe
+                                                     options:0
+                                                       error:&error];
+  XCTAssertNotNil(jsonData, @"Sanitized dictionary must be serializable to JSON, error of %@", error);
+}
+
+- (void)testValidSurrogatePairIsPreserved
+{
+  NSString *emoji = @"a😀b";
+  XCTAssertEqualObjects([emoji fb_utf8SafeStringWithReplacement:0xfffd], emoji);
+}
+
 @end

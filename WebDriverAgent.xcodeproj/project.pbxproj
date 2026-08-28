@@ -604,6 +604,7 @@
 		716F0DA12A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */; };
 		716F0DA32A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */; };
 		716F0DA62A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 716F0DA52A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m */; };
+		E82332D32C4E06280CBE3F4C /* FBResponseJSONPayloadTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5C37472190A686297D3534 /* FBResponseJSONPayloadTests.m */; };
 		7182A87F3CAA27F71B624AD2 /* XCTRunnerAutomationSession-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01AF8E73DD47455B4854E470 /* XCTRunnerAutomationSession-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		718F49C8230844330045FE8B /* FBProtocolHelpersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 718F49C7230844330045FE8B /* FBProtocolHelpersTests.m */; };
 		718F49C923087ACF0045FE8B /* FBProtocolHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 71B155DD23080CA600646AFB /* FBProtocolHelpers.h */; };
@@ -1595,6 +1596,7 @@
 		716F0D9F2A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+FBUtf8SafeDictionary.h"; sourceTree = "<group>"; };
 		716F0DA02A16CA1000CDD977 /* NSDictionary+FBUtf8SafeDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+FBUtf8SafeDictionary.m"; sourceTree = "<group>"; };
 		716F0DA52A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDictionaryFBUtf8SafeTests.m; sourceTree = "<group>"; };
+		3F5C37472190A686297D3534 /* FBResponseJSONPayloadTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBResponseJSONPayloadTests.m; sourceTree = "<group>"; };
 		717C0D702518ED2800CAA6EC /* TVOSSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSSettings.xcconfig; sourceTree = "<group>"; };
 		717C0D862518ED7000CAA6EC /* TVOSTestSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TVOSTestSettings.xcconfig; sourceTree = "<group>"; };
 		7183E8C2B556594311CB8898 /* XCUIRemoteSiriInterface-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCUIRemoteSiriInterface-Protocol.h"; sourceTree = "<group>"; };
@@ -2682,6 +2684,7 @@
 				712A0C841DA3E459007D02E5 /* FBXPathTests.m */,
 				EE9B76581CF7987300275851 /* Info.plist */,
 				716F0DA52A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m */,
+				3F5C37472190A686297D3534 /* FBResponseJSONPayloadTests.m */,
 				7139145B1DF01A12005896C2 /* NSExpressionFBFormatTests.m */,
 				71A224E71DE326C500844D55 /* NSPredicateFBFormatTests.m */,
 				713914591DF01989005896C2 /* XCUIElementHelpersTests.m */,
@@ -4811,6 +4814,7 @@
 				71A224E81DE326C500844D55 /* NSPredicateFBFormatTests.m in Sources */,
 				EE6A892B1D0B25820083E92B /* XCUIApplicationDouble.m in Sources */,
 				716F0DA62A17323300CDD977 /* NSDictionaryFBUtf8SafeTests.m in Sources */,
+				E82332D32C4E06280CBE3F4C /* FBResponseJSONPayloadTests.m in Sources */,
 				EE6A892D1D0B2AF40083E92B /* FBErrorBuilderTests.m in Sources */,
 				712A0C851DA3E459007D02E5 /* FBXPathTests.m in Sources */,
 				ADBC39981D07842800327304 /* XCUIElementDouble.m in Sources */,

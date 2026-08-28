@@ -14,30 +14,32 @@ const unichar REPLACER = 0xfffd;
 
 - (instancetype)fb_utf8SafeStringWithReplacement:(unichar)replacement
 {
-  if ([self canBeConvertedToEncoding:NSUTF8StringEncoding]) {
-    return self;
-  }
-
-  NSData *data = [self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
-  NSString *convertedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  NSMutableString *result = [NSMutableString string];
+  // -canBeConvertedToEncoding: and -dataUsingEncoding:allowLossyConversion:
+  // both misreport strings containing unpaired UTF-16 surrogates, so the
+  // code units are validated manually instead of relying on them.
+  NSUInteger length = self.length;
+  NSMutableString *result = [NSMutableString stringWithCapacity:length];
   NSString *replacementStr = [NSString stringWithCharacters:&replacement length:1];
-  NSUInteger originalIdx = 0;
-  NSUInteger convertedIdx = 0;
-  while (originalIdx < [self length] && convertedIdx < [convertedString length]) {
-    unichar originalChar = [self characterAtIndex:originalIdx];
-    unichar convertedChar = [convertedString characterAtIndex:convertedIdx];
-
-    if (originalChar == convertedChar) {
-      [result appendString:[NSString stringWithCharacters:&originalChar length:1]];
-      originalIdx++;
-      convertedIdx++;
-      continue;
-    }
-
-    while (originalChar != convertedChar && originalIdx < [self length]) {
+  NSUInteger idx = 0;
+  while (idx < length) {
+    unichar c = [self characterAtIndex:idx];
+    if (c >= 0xD800 && c <= 0xDBFF) {
+      if (idx + 1 < length) {
+        unichar next = [self characterAtIndex:idx + 1];
+        if (next >= 0xDC00 && next <= 0xDFFF) {
+          [result appendString:[self substringWithRange:NSMakeRange(idx, 2)]];
+          idx += 2;
+          continue;
+        }
+      }
       [result appendString:replacementStr];
-      originalChar = [self characterAtIndex:++originalIdx];
+      idx += 1;
+    } else if (c >= 0xDC00 && c <= 0xDFFF) {
+      [result appendString:replacementStr];
+      idx += 1;
+    } else {
+      [result appendString:[self substringWithRange:NSMakeRange(idx, 1)]];
+      idx += 1;
     }
   }
   return result.copy;
