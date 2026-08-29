@@ -178,6 +178,19 @@ static NSUInteger _sessionGeneration = 0;
   return isCurrent;
 }
 
+// Read in the same critical section that validates the generation: a replacement would have bumped
+// the generation before storing anything, so a promise captured here can never be its.
++ (FBScreenRecordingPromise *)activeScreenRecordingForGeneration:(NSUInteger)generation
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  FBScreenRecordingPromise *promise = generation == _sessionGeneration
+    ? FBScreenRecordingContainer.sharedInstance.screenRecordingPromise
+    : nil;
+  [condition unlock];
+  return promise;
+}
+
 + (instancetype)sessionWithIdentifier:(NSString *)identifier
 {
   if (!identifier) {
@@ -273,15 +286,16 @@ static NSUInteger _sessionGeneration = 0;
 
     [self disableAlertsMonitor];
 
-    // The container is process-wide, so its promise may already be a replacement session's: both
-    // the stop and the reset must be skipped once this teardown is stale.
-    if ([self.class isSessionGenerationCurrent:generation]) {
-      FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
-      if (nil != activeScreenRecording) {
-        NSError *error;
-        if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
-          [FBLogger logFmt:@"%@", error];
-        }
+    // The container is process-wide, so only act on a promise captured while this teardown still
+    // owned the generation - nil here means it is stale and must leave the recording alone.
+    FBScreenRecordingPromise *activeScreenRecording = [self.class activeScreenRecordingForGeneration:generation];
+    if (nil != activeScreenRecording) {
+      NSError *error;
+      if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
+        [FBLogger logFmt:@"%@", error];
+      }
+      // Identity, not generation: the stop above may outlast a replacement storing its own promise.
+      if (FBScreenRecordingContainer.sharedInstance.screenRecordingPromise == activeScreenRecording) {
         [FBScreenRecordingContainer.sharedInstance reset];
       }
     }
