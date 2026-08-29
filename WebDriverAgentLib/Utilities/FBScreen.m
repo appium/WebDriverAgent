@@ -13,6 +13,11 @@
 
 @implementation FBScreen
 
++ (long long)displayID
+{
+  return XCUIScreen.mainScreen.displayID;
+}
+
 + (double)scale
 {
   return [XCUIScreen.mainScreen scale];
