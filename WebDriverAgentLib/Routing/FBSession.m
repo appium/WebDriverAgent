@@ -315,9 +315,8 @@ static NSUInteger _committedTerminationCount = 0;
         [FBLogger logFmt:@"%@", error];
       }
       // Identity, not generation: the stop above may outlast a replacement storing its own promise.
-      if (FBScreenRecordingContainer.sharedInstance.screenRecordingPromise == activeScreenRecording) {
-        [FBScreenRecordingContainer.sharedInstance reset];
-      }
+      // Compare-and-reset, so that replacement's store cannot land between the check and the reset.
+      [FBScreenRecordingContainer.sharedInstance resetIfPromiseIs:activeScreenRecording];
     }
 
     if (nil != self.testedApplication

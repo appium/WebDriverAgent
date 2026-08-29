@@ -36,23 +36,39 @@
                                 fps:(NSUInteger)fps
                               codec:(long long)codec;
 {
-  self.fps = fps;
-  self.codec = codec;
-  self.screenRecordingPromise = screenRecordingPromise;
-  self.startedAt = @([NSDate.date timeIntervalSince1970]);
+  @synchronized (self) {
+    self.fps = fps;
+    self.codec = codec;
+    self.screenRecordingPromise = screenRecordingPromise;
+    self.startedAt = @([NSDate.date timeIntervalSince1970]);
+  }
 }
 
 - (void)reset;
 {
-  self.fps = 0;
-  self.codec = 0;
-  if (nil != self.screenRecordingPromise) {
-    [XCTContext runActivityNamed:@"Video Cleanup" block:^(id<XCTActivity> activity){
-      [activity addAttachment:(XCTAttachment *)self.screenRecordingPromise.nativePromise];
-    }];
-    self.screenRecordingPromise = nil;
+  @synchronized (self) {
+    self.fps = 0;
+    self.codec = 0;
+    if (nil != self.screenRecordingPromise) {
+      [XCTContext runActivityNamed:@"Video Cleanup" block:^(id<XCTActivity> activity){
+        [activity addAttachment:(XCTAttachment *)self.screenRecordingPromise.nativePromise];
+      }];
+      self.screenRecordingPromise = nil;
+    }
+    self.startedAt = nil;
   }
-  self.startedAt = nil;
+}
+
+- (BOOL)resetIfPromiseIs:(FBScreenRecordingPromise *)screenRecordingPromise
+{
+  // @synchronized is recursive, so -reset may take the very same lock again below.
+  @synchronized (self) {
+    if (self.screenRecordingPromise != screenRecordingPromise) {
+      return NO;
+    }
+    [self reset];
+    return YES;
+  }
 }
 
 - (nullable NSDictionary *)toDictionary
