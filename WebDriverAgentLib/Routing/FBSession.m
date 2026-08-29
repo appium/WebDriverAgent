@@ -111,6 +111,9 @@ static NSUInteger _activeTeardownCount = 0;
 // Bumped once a caller owns the device, before it launches anything; a teardown still running past
 // the bounded wait re-checks it before touching process-wide state.
 static NSUInteger _sessionGeneration = 0;
+// Teardowns that have claimed the current generation and are committed to terminating the app.
+// The generation bump waits for these to drain, so a claim and a bump can never interleave.
+static NSUInteger _committedTerminationCount = 0;
 
 + (NSCondition *)teardownCondition
 {
@@ -154,6 +157,11 @@ static NSUInteger _sessionGeneration = 0;
   // teardown still running, that teardown must be stale by the time the new app exists.
   NSCondition *condition = self.teardownCondition;
   [condition lock];
+  // A committed -terminate cannot be revoked, so wait it out (bounded by its own budget) rather
+  // than hand out the next generation while it is still in flight.
+  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_APP_TERMINATE_TIMEOUT_SEC];
+  while (_committedTerminationCount > 0 && [condition waitUntilDate:deadline]) {
+  }
   _sessionGeneration++;
   [condition unlock];
 }
@@ -167,15 +175,27 @@ static NSUInteger _sessionGeneration = 0;
   [condition unlock];
 }
 
-// NO once a newer session has claimed the device, meaning the caller's teardown is stale and must
-// leave process-wide state alone.
-+ (BOOL)isSessionGenerationCurrent:(NSUInteger)generation
+// Validates and claims `generation` in one critical section, so no replacement can be handed the
+// next generation until the matching +endTermination. NO means this teardown is already stale.
++ (BOOL)beginTerminationForGeneration:(NSUInteger)generation
 {
   NSCondition *condition = self.teardownCondition;
   [condition lock];
   BOOL isCurrent = generation == _sessionGeneration;
+  if (isCurrent) {
+    _committedTerminationCount++;
+  }
   [condition unlock];
   return isCurrent;
+}
+
++ (void)endTermination
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  _committedTerminationCount--;
+  [condition broadcast];
+  [condition unlock];
 }
 
 // Read in the same critical section that validates the generation: a replacement would have bumped
@@ -451,11 +471,14 @@ static NSUInteger _sessionGeneration = 0;
     @synchronized (lock) {
       // Re-checked here, not before dispatching: this block can sit on a busy main queue past the
       // teardown wait, and a replacement usually runs the same bundle ID as the app to terminate.
-      if (isAllowedToTerminate && [self.class isSessionGenerationCurrent:generation]) {
+      // The claim is held across -terminate, so no replacement can take the next generation mid-call.
+      if (isAllowedToTerminate && [self.class beginTerminationForGeneration:generation]) {
         @try {
           [application terminate];
         } @catch (NSException *e) {
           [FBLogger logFmt:@"%@", e.description];
+        } @finally {
+          [self.class endTermination];
         }
       }
     }
