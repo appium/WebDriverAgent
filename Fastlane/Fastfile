@@ -11,6 +11,10 @@ lane :test do
     number_of_retries: 3,
     skip_testing: ENV.fetch('SKIP_TESTING', '')
       .split(',')
-      .reject(&:empty?)
+      .reject(&:empty?),
+    # Forwarded into the on-simulator test process via each scheme's CI
+    # LaunchAction environment variable, since xcodebuild does not propagate
+    # the calling shell's environment to the app under test on its own.
+    xcargs: "CI=#{ENV['CI']}"
   )
 end

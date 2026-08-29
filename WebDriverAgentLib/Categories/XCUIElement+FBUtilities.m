@@ -100,9 +100,11 @@
     }
   }
   NSMutableArray<XCUIElement *> *matchedElements = [NSMutableArray array];
-  NSString *uid = nil == self.lastSnapshot
+  // self.lastSnapshot may be stale leftover from an unrelated earlier command.
+  id<FBXCElementSnapshot> selfSnapshot = self.fb_cachedSnapshot;
+  NSString *uid = nil == selfSnapshot
     ? self.fb_uid
-    : [FBXCElementSnapshotWrapper wdUIDWithSnapshot:self.lastSnapshot];
+    : [FBXCElementSnapshotWrapper wdUIDWithSnapshot:selfSnapshot];
   if (nil != uid && [matchedIds containsObject:uid]) {
     XCUIElement *stableSelf = [self fb_stableInstanceWithUid:uid];
     if (1 == snapshots.count) {

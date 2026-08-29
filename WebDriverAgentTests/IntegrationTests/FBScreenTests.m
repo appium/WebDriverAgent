@@ -22,10 +22,14 @@
   [self launchApplication];
 }
 
+- (void)testDisplayID
+{
+  XCTAssertGreaterThanOrEqual([FBScreen displayID], 0LL);
+}
+
 - (void)testScreenScale
 {
   XCTAssertTrue([FBScreen scale] >= 2);
 }
 
 @end
-

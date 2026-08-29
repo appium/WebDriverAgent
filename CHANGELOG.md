@@ -1,3 +1,51 @@
+## [16.11.0](https://github.com/appium/WebDriverAgent/compare/v16.10.0...v16.11.0) (2026-08-29)
+
+### Features
+
+* expose AXTimeout and XCTest XPC request timeout wrappers  ([#1233](https://github.com/appium/WebDriverAgent/issues/1233)) ([d5c8571](https://github.com/appium/WebDriverAgent/commit/d5c85718c32bc495a0f73518d3e40eee624b3582))
+
+## [16.10.0](https://github.com/appium/WebDriverAgent/compare/v16.9.4...v16.10.0) (2026-08-29)
+
+### Features
+
+* add displayId in the wda/screen ([#1238](https://github.com/appium/WebDriverAgent/issues/1238)) ([bfbe6b0](https://github.com/appium/WebDriverAgent/commit/bfbe6b00b196647f87267827627a5ff675496c30))
+
+## [16.9.4](https://github.com/appium/WebDriverAgent/compare/v16.9.3...v16.9.4) (2026-08-29)
+
+### Bug Fixes
+
+* drop MJPEG frames for clients that stop draining their socket ([#1227](https://github.com/appium/WebDriverAgent/issues/1227)) ([00cb6b6](https://github.com/appium/WebDriverAgent/commit/00cb6b612a5a1a1d00a386e23de01c4eca811df8))
+
+## [16.9.3](https://github.com/appium/WebDriverAgent/compare/v16.9.2...v16.9.3) (2026-08-29)
+
+### Bug Fixes
+
+* reject malformed Content-Length values and bound request header buffering ([#1226](https://github.com/appium/WebDriverAgent/issues/1226)) ([60c5fc4](https://github.com/appium/WebDriverAgent/commit/60c5fc461d91611778b8bb0745a21c80451d6ccf))
+
+## [16.9.2](https://github.com/appium/WebDriverAgent/compare/v16.9.1...v16.9.2) (2026-08-28)
+
+### Bug Fixes
+
+* cache the testmanagerd protocol version fallback on timeout ([#1228](https://github.com/appium/WebDriverAgent/issues/1228)) ([f3d8e0c](https://github.com/appium/WebDriverAgent/commit/f3d8e0ce42488b6e95a74f1c59e0f20a500d1a54))
+* sanitize non-UTF-8-encodable strings before JSON response serialization ([#1236](https://github.com/appium/WebDriverAgent/issues/1236)) ([fa6a250](https://github.com/appium/WebDriverAgent/commit/fa6a2503222ac2ffd039cb73a96689467774d7f2))
+
+### Miscellaneous Chores
+
+* **deps:** bump @appium/strongbox from 1.1.3 to 2.0.0 ([#1237](https://github.com/appium/WebDriverAgent/issues/1237)) ([03db844](https://github.com/appium/WebDriverAgent/commit/03db844ee0cb408bb323d0d77241ba55188c47f3))
+
+## [16.9.1](https://github.com/appium/WebDriverAgent/compare/v16.9.0...v16.9.1) (2026-08-28)
+
+### Bug Fixes
+
+* add missing settings to the exported WDASettings/WDACapabilities types ([#1230](https://github.com/appium/WebDriverAgent/issues/1230)) ([a9e8203](https://github.com/appium/WebDriverAgent/commit/a9e8203d71051db7a0c14c192288b2b5115cf5cf))
+* do not trust XCUIElement.lastSnapshot for long-lived elements ([#1235](https://github.com/appium/WebDriverAgent/issues/1235)) ([57968cc](https://github.com/appium/WebDriverAgent/commit/57968cc58b69ea9f036d70a694a0c9a5b6f764f7))
+
+## [16.9.0](https://github.com/appium/WebDriverAgent/compare/v16.8.0...v16.9.0) (2026-08-27)
+
+### Features
+
+* cache the system application resolution for WDA's process lifetime ([#1232](https://github.com/appium/WebDriverAgent/issues/1232)) ([21c98f2](https://github.com/appium/WebDriverAgent/commit/21c98f253561ee3dfc93edfb1c4de6afc3200b50))
+
 ## [16.8.0](https://github.com/appium/WebDriverAgent/compare/v16.7.3...v16.8.0) (2026-08-24)
 
 ### Features

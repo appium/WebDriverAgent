@@ -10,11 +10,11 @@
 
 #import <objc/runtime.h>
 
-#import "CDStructures.h"
 #import "FBConfiguration.h"
 #import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBSettings.h"
+#import "FBXCAXClientProxy.h"
 
 static void (*original_waitForQuiescenceIncludingAnimationsIdle)(id, SEL, BOOL);
 static void (*original_waitForQuiescenceIncludingAnimationsIdlePreEvent)(id, SEL, BOOL, BOOL);
@@ -29,15 +29,11 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdle(id self, SEL _cmd, 
   }
 
   NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
-  NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
-  _XCTSetApplicationStateTimeout(desiredTimeout);
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
    @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
-  @try {
+  [FBXCAXClientProxy withApplicationStateTimeout:desiredTimeout do:^{
     original_waitForQuiescenceIncludingAnimationsIdle(self, _cmd, includingAnimations);
-  } @finally {
-    _XCTSetApplicationStateTimeout(previousTimeout);
-  }
+  }];
 }
 
 static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SEL _cmd, BOOL includingAnimations, BOOL isPreEvent)
@@ -50,15 +46,11 @@ static void swizzledWaitForQuiescenceIncludingAnimationsIdlePreEvent(id self, SE
   }
 
   NSTimeInterval desiredTimeout = FBConfiguration.sharedInstance.waitForIdleTimeout;
-  NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
-  _XCTSetApplicationStateTimeout(desiredTimeout);
   [FBLogger logFmt:@"Waiting up to %@s until %@ is in idle state (%@ animations)",
    @(desiredTimeout), bundleId, includingAnimations ? @"including" : @"excluding"];
-  @try {
+  [FBXCAXClientProxy withApplicationStateTimeout:desiredTimeout do:^{
     original_waitForQuiescenceIncludingAnimationsIdlePreEvent(self, _cmd, includingAnimations, isPreEvent);
-  } @finally {
-    _XCTSetApplicationStateTimeout(previousTimeout);
-  }
+  }];
 }
 
 @implementation XCUIApplicationProcess (FBQuiescence)

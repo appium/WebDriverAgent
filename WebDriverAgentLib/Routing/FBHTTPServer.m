@@ -10,6 +10,7 @@
 
 #import "FBCommandStatus.h"
 #import "FBConfiguration.h"
+#import "FBLogger.h"
 #import "FBResponsePayload.h"
 #import "FBTCPSocket.h"
 
@@ -28,6 +29,35 @@ static NSData *FBCRLFCRLFData(void)
 static NSData * _Nonnull FBUTF8Data(NSString *string)
 {
   return (NSData * _Nonnull)[string dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+// Caps a request's header block, so a connection that never completes one cannot grow its buffer
+// without limit. Matches node's default --max-http-header-size.
+static const NSUInteger FBMaxRequestHeaderSize = 16 * 1024;
+
+// ASCII decimal digits only. -integerValue must not be used here: it maps garbage silently
+// ("bogus" -> 0, "12abc" -> 12), desyncing the framing of every later request on the connection.
+static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
+{
+  if (value.length < 1) {
+    return NO;
+  }
+  NSUInteger result = 0;
+  for (NSUInteger i = 0; i < value.length; i++) {
+    unichar c = [value characterAtIndex:i];
+    if (c < '0' || c > '9') {
+      return NO;
+    }
+    NSUInteger digit = (NSUInteger)(c - '0');
+    // NSUInteger is 32-bit on watchOS (arm64_32), so this bounds truncation as well as overflow.
+    // Anything smaller is left to the caller's httpRequestBodySizeLimit check.
+    if (result > (NSUIntegerMax - digit) / 10) {
+      return NO;
+    }
+    result = result * 10 + digit;
+  }
+  *outLength = result;
+  return YES;
 }
 
 @interface FBHTTPRoute : NSObject
@@ -101,8 +131,18 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
+// When each connection started waiting for its current request. The reaper closes connections
+// whose entry outlives FBIncompleteRequestTimeout; idle keep-alive connections have no entry and
+// are exempt. Guarded by @synchronized(self.connectionBuffers).
+@property (nonatomic, strong) NSMapTable<id, NSDate *> *incompleteRequestStarts;
+@property (nonatomic, nullable) dispatch_source_t staleConnectionReaper;
 
 @end
+
+// How long a connection may take to deliver a complete request, matching the header read timeout
+// the previous CocoaHTTPServer stack enforced.
+static const NSTimeInterval FBIncompleteRequestTimeout = 30.0;
+static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
 @implementation FBHTTPServer
 
@@ -119,6 +159,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
+    _incompleteRequestStarts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
+                                                     valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
   }
   return self;
 }
@@ -226,18 +268,56 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     return NO;
   }
   self.socket = socket;
+  dispatch_source_t reaper = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.bufferProcessingQueue);
+  dispatch_source_set_timer(reaper,
+                            dispatch_time(DISPATCH_TIME_NOW, FBStaleConnectionSweepIntervalSec * NSEC_PER_SEC),
+                            (uint64_t)FBStaleConnectionSweepIntervalSec * NSEC_PER_SEC,
+                            NSEC_PER_SEC);
+  __weak typeof(self) weakSelf = self;
+  dispatch_source_set_event_handler(reaper, ^{
+    [weakSelf reapStaleConnections];
+  });
+  dispatch_resume(reaper);
+  self.staleConnectionReaper = reaper;
   _isRunning = YES;
   return YES;
 }
 
+- (void)reapStaleConnections
+{
+  NSMutableArray *staleConnections = [NSMutableArray array];
+  @synchronized (self.connectionBuffers) {
+    for (id connection in self.incompleteRequestStarts) {
+      // Waiting on the handler, not the peer - never reap, however long the handler takes.
+      if ([self.connectionsAwaitingResponse containsObject:connection]) {
+        continue;
+      }
+      NSDate *start = [self.incompleteRequestStarts objectForKey:connection];
+      if (nil != start && -start.timeIntervalSinceNow > FBIncompleteRequestTimeout) {
+        [staleConnections addObject:connection];
+      }
+    }
+  }
+  for (id connection in staleConnections) {
+    [FBLogger logFmt:@"Closing a connection that did not deliver a complete request within %@ seconds", @(FBIncompleteRequestTimeout)];
+    [self closeClient:(nw_connection_t)connection];
+  }
+}
+
 - (void)stop:(BOOL)immediately
 {
+  dispatch_source_t reaper = self.staleConnectionReaper;
+  if (nil != reaper) {
+    dispatch_source_cancel(reaper);
+    self.staleConnectionReaper = nil;
+  }
   [self.socket stop];
   self.socket = nil;
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers removeAllObjects];
     [self.pendingRequestHeaders removeAllObjects];
     [self.connectionsAwaitingResponse removeAllObjects];
+    [self.incompleteRequestStarts removeAllObjects];
   }
   _isRunning = NO;
 }
@@ -248,6 +328,8 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 {
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers setObject:[NSMutableData data] forKey:newClient];
+    // Starts at connect, so a peer that connects and then sends nothing is reaped too.
+    [self.incompleteRequestStarts setObject:[NSDate date] forKey:newClient];
   }
 }
 
@@ -257,6 +339,7 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     [self.connectionBuffers removeObjectForKey:client];
     [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse removeObject:client];
+    [self.incompleteRequestStarts removeObjectForKey:client];
   }
 }
 
@@ -271,12 +354,34 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     if (nil == strongSelf) {
       return;
     }
+    BOOL isOverBufferCap = NO;
     @synchronized (strongSelf.connectionBuffers) {
       NSMutableData *buffer = [strongSelf.connectionBuffers objectForKey:client];
       if (nil == buffer) {
         return;
       }
       [buffer appendData:data];
+      // One maximal header block plus one maximal body, plus headroom for a pipelined follow-up.
+      // The per-request checks don't run while a request is executing, so without this cap a
+      // client could pump data unboundedly for as long as its previous request takes.
+      uint64_t bufferCap = FBConfiguration.sharedInstance.httpRequestBodySizeLimit + 2 * (uint64_t)FBMaxRequestHeaderSize;
+      if (bufferCap < FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
+        bufferCap = UINT64_MAX;
+      }
+      isOverBufferCap = buffer.length > bufferCap;
+      // In the body phase the timeout is an idle bound, refreshed on progress: a declared body
+      // may legitimately be slow and its size is already capped by Content-Length. In the header
+      // phase the clock is only started, never refreshed, so drip-fed headers cannot outlive it.
+      BOOL isBodyPhase = nil != [strongSelf.pendingRequestHeaders objectForKey:client];
+      if (isBodyPhase || nil == [strongSelf.incompleteRequestStarts objectForKey:client]) {
+        [strongSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+      }
+    }
+    if (isOverBufferCap) {
+      // No response owed: a peer this far past any legitimate size is not reading anyway.
+      [FBLogger log:@"Closing a connection that overflowed its request buffer"];
+      [strongSelf closeClient:client];
+      return;
     }
     [strongSelf processBufferForClient:client];
   });
@@ -302,78 +407,183 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
   }
 
   if (nil == pending) {
-    NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
-    if (NSNotFound == headerEndRange.location) {
-      // Wait for the rest of the header block to arrive.
+    pending = [self parsedRequestHeaderFromBuffer:buffer forClient:client];
+    if (nil == pending) {
+      // Either the header block is still incomplete, or it was rejected and answered already.
       return;
     }
-
-    NSData *headerData = [buffer subdataWithRange:NSMakeRange(0, headerEndRange.location)];
-    NSString *headerString = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
-    NSArray<NSString *> *lines = [headerString componentsSeparatedByString:@"\r\n"];
-    if (lines.count < 1) {
-      [self respondBadRequestToClient:client];
-      return;
-    }
-
-    NSArray<NSString *> *requestLineParts = [lines.firstObject componentsSeparatedByString:@" "];
-    if (requestLineParts.count < 2) {
-      [self respondBadRequestToClient:client];
-      return;
-    }
-
-    NSMutableDictionary<NSString *, NSString *> *requestHeaders = [NSMutableDictionary dictionary];
-    for (NSUInteger i = 1; i < lines.count; i++) {
-      NSString *line = lines[i];
-      NSRange colonRange = [line rangeOfString:@":"];
-      if (NSNotFound == colonRange.location) {
-        continue;
-      }
-      NSString *name = [line substringToIndex:colonRange.location];
-      NSString *value = [[line substringFromIndex:colonRange.location + 1]
-                          stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
-      requestHeaders[name.lowercaseString] = value;
-    }
-
-    NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
-    if (transferEncoding.length > 0) {
-      // No transfer decoder is implemented at all, so any encoding (chunked or otherwise -
-      // including a value only introduced by a duplicate header overwriting "chunked" above)
-      // is rejected rather than risking the body being misread as empty and desyncing the rest
-      // of the connection's request stream.
-      RouteResponse *notImplemented = [RouteResponse new];
-      id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
-                                                                                                                  traceback:nil]);
-      [notImplementedPayload dispatchWithResponse:notImplemented];
-      [self failClient:client withResponse:notImplemented];
-      return;
-    }
-
-    NSUInteger contentLength = (NSUInteger)requestHeaders[@"content-length"].integerValue;
-    if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
-      // Closes the connection after responding, since the rest of the oversized body is still incoming.
-      RouteResponse *tooLarge = [RouteResponse new];
-      id<FBResponsePayload> tooLargePayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"The request body exceeds the configured size limit"
-                                                                                                            traceback:nil]);
-      [tooLargePayload dispatchWithResponse:tooLarge];
-      [self failClient:client withResponse:tooLarge];
-      return;
-    }
-
-    pending = [FBPendingHTTPRequestHeader new];
-    pending.method = requestLineParts[0].uppercaseString;
-    pending.pathAndQuery = requestLineParts[1];
-    pending.bodyStart = headerEndRange.location + headerEndRange.length;
-    pending.contentLength = contentLength;
     @synchronized (self.connectionBuffers) {
       [self.pendingRequestHeaders setObject:pending forKey:client];
     }
   }
 
+  [self dispatchBufferedRequestWithHeader:pending fromBuffer:buffer forClient:client];
+}
+
+// Locates the CRLFCRLF that ends the buffered header block and bounds the block's size. Returns
+// NO when nothing can be parsed yet - either because more bytes are needed or because the block
+// was rejected, in which case the 400 has already been written.
+- (BOOL)findHeaderBlockEnd:(out NSRange *)outHeaderEndRange
+                  inBuffer:(NSMutableData *)buffer
+                 forClient:(nw_connection_t)client
+{
+  NSRange headerEndRange = [buffer rangeOfData:FBCRLFCRLFData() options:(NSDataSearchOptions)0 range:NSMakeRange(0, buffer.length)];
+  if (NSNotFound == headerEndRange.location) {
+    if (buffer.length > FBMaxRequestHeaderSize) {
+      // Past any legitimate header block and still unterminated - stop buffering.
+      [self respondBadRequestToClient:client];
+    }
+    // Otherwise wait for the rest of the header block to arrive.
+    return NO;
+  }
+  if (headerEndRange.location > FBMaxRequestHeaderSize) {
+    // The check above only fires while the terminator is missing; one large receive can deliver
+    // an oversized block with it, so bound the completed block too before parsing it.
+    [self respondBadRequestToClient:client];
+    return NO;
+  }
+  *outHeaderEndRange = headerEndRange;
+  return YES;
+}
+
+// Turns the header lines that follow the request line into a lowercase-keyed dictionary.
+// Returns nil for the malformed and ambiguous shapes, having written the 400 already.
+- (nullable NSDictionary<NSString *, NSString *> *)parsedHeaderFieldsFromLines:(NSArray<NSString *> *)lines
+                                                                    forClient:(nw_connection_t)client
+{
+  NSMutableDictionary<NSString *, NSString *> *requestHeaders = [NSMutableDictionary dictionary];
+  for (NSUInteger i = 1; i < lines.count; i++) {
+    NSString *line = lines[i];
+    NSRange colonRange = [line rangeOfString:@":"];
+    if (0 == line.length) {
+      continue;
+    }
+    if (NSNotFound == colonRange.location) {
+      // Malformed. Skipping it would drop what it meant to say: "Content-Length 5" would
+      // dispatch with an empty body, leaving its bytes to be parsed as another request.
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    NSString *name = [line substringToIndex:colonRange.location];
+    // RFC 7230 (3.2.4): whitespace before the colon MUST be rejected. Storing "content-length "
+    // as its own key would drop the real header and desync the framing.
+    if (0 == name.length
+        || NSNotFound != [name rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location) {
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    NSString *value = [[line substringFromIndex:colonRange.location + 1]
+                        stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+    NSString *normalizedName = name.lowercaseString;
+    // RFC 7230 (3.3.3): repeated framing fields are unrecoverable. Last-wins would let an empty
+    // "Transfer-Encoding:" mask an earlier "chunked", and the last Content-Length drive parsing.
+    if (([normalizedName isEqualToString:@"content-length"] || [normalizedName isEqualToString:@"transfer-encoding"])
+        && nil != requestHeaders[normalizedName]) {
+      [self respondBadRequestToClient:client];
+      return nil;
+    }
+    requestHeaders[normalizedName] = value;
+  }
+  return requestHeaders;
+}
+
+// Rejects framing this server cannot honour and resolves the declared body length from the
+// remaining framing headers. Returns NO having written the closing error response already.
+- (BOOL)resolveBodyLength:(out NSUInteger *)outBodyLength
+         fromHeaderFields:(NSDictionary<NSString *, NSString *> *)requestHeaders
+                forClient:(nw_connection_t)client
+{
+  NSString *transferEncoding = requestHeaders[@"transfer-encoding"];
+  if (nil != transferEncoding) {
+    // No transfer decoder exists, so mere presence is rejected - including an empty value,
+    // which is not a valid encoding list and would let the body be misread as empty.
+    RouteResponse *notImplemented = [RouteResponse new];
+    id<FBResponsePayload> notImplementedPayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"Transfer-Encoding is not supported"
+                                                                                                                traceback:nil]);
+    [notImplementedPayload dispatchWithResponse:notImplemented];
+    [self failClient:client withResponse:notImplemented];
+    return NO;
+  }
+
+  NSString *contentLengthValue = requestHeaders[@"content-length"];
+  NSUInteger contentLength = 0;
+  if (nil != contentLengthValue && !FBParseContentLength(contentLengthValue, &contentLength)) {
+    // The body's extent is unknowable, so the connection cannot be resynced - reject and close.
+    [self respondBadRequestToClient:client];
+    return NO;
+  }
+  if (contentLength > FBConfiguration.sharedInstance.httpRequestBodySizeLimit) {
+    // Closes the connection after responding, since the rest of the oversized body is still incoming.
+    RouteResponse *tooLarge = [RouteResponse new];
+    id<FBResponsePayload> tooLargePayload = FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:@"The request body exceeds the configured size limit"
+                                                                                                          traceback:nil]);
+    [tooLargePayload dispatchWithResponse:tooLarge];
+    [self failClient:client withResponse:tooLarge];
+    return NO;
+  }
+  *outBodyLength = contentLength;
+  return YES;
+}
+
+// Parses the request line and headers of the request at the head of the buffer. Returns nil
+// while the header block is still incomplete, and for a rejected one, which is answered here.
+- (nullable FBPendingHTTPRequestHeader *)parsedRequestHeaderFromBuffer:(NSMutableData *)buffer
+                                                             forClient:(nw_connection_t)client
+{
+  NSRange headerEndRange;
+  if (![self findHeaderBlockEnd:&headerEndRange inBuffer:buffer forClient:client]) {
+    return nil;
+  }
+
+  NSData *headerData = [buffer subdataWithRange:NSMakeRange(0, headerEndRange.location)];
+  NSString *headerString = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
+  NSArray<NSString *> *lines = [headerString componentsSeparatedByString:@"\r\n"];
+  if (lines.count < 1) {
+    [self respondBadRequestToClient:client];
+    return nil;
+  }
+
+  NSArray<NSString *> *requestLineParts = [lines.firstObject componentsSeparatedByString:@" "];
+  if (requestLineParts.count < 2) {
+    [self respondBadRequestToClient:client];
+    return nil;
+  }
+
+  NSDictionary<NSString *, NSString *> *requestHeaders = [self parsedHeaderFieldsFromLines:lines forClient:client];
+  if (nil == requestHeaders) {
+    return nil;
+  }
+  NSUInteger contentLength = 0;
+  if (![self resolveBodyLength:&contentLength fromHeaderFields:requestHeaders forClient:client]) {
+    return nil;
+  }
+
+  FBPendingHTTPRequestHeader *pending = [FBPendingHTTPRequestHeader new];
+  pending.method = requestLineParts[0].uppercaseString;
+  pending.pathAndQuery = requestLineParts[1];
+  pending.bodyStart = headerEndRange.location + headerEndRange.length;
+  pending.contentLength = contentLength;
+  return pending;
+}
+
+// Consumes the already-parsed request from the head of the buffer and dispatches it, once its
+// whole body has arrived. Returns with the cached header left in place while it hasn't.
+- (void)dispatchBufferedRequestWithHeader:(FBPendingHTTPRequestHeader *)pending
+                               fromBuffer:(NSMutableData *)buffer
+                                forClient:(nw_connection_t)client
+{
   NSUInteger totalRequestLength = pending.bodyStart + pending.contentLength;
   if (buffer.length < totalRequestLength) {
-    // Wait for the rest of the body to arrive - the parsed header stays cached above, so this
+    // Wait for the rest of the body to arrive - the parsed header stays cached, so this
     // doesn't re-scan/re-parse the header block on every subsequently arriving chunk.
+    @synchronized (self.connectionBuffers) {
+      // The request is now in its body phase, which is idle-bounded rather than hard-bounded.
+      // -client:didReceiveData: samples that phase before this parse runs, so the receive that
+      // completed a slowly-delivered header (and carried the first body bytes) would otherwise
+      // leave the connection on its header-phase timestamp and let the sweep close it despite
+      // the body having just made progress.
+      [self.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+    }
     return;
   }
 
@@ -383,6 +593,14 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
     [buffer replaceBytesInRange:NSMakeRange(0, totalRequestLength) withBytes:NULL length:0];
     [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse addObject:client];
+    if (0 == buffer.length) {
+      // A complete request was delivered and nothing further is buffered: the connection is a
+      // healthy keep-alive and must not be reaped while idle.
+      [self.incompleteRequestStarts removeObjectForKey:client];
+    } else {
+      // Pipelined bytes of the next request are already buffered - restart its clock.
+      [self.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+    }
   }
 
   [self dispatchMethod:pending.method pathAndQuery:pending.pathAndQuery body:body client:client];
@@ -612,19 +830,46 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 
   if (shouldClose) {
     __weak typeof(self) weakSelf = self;
-    [self.socket writeData:payload toClient:client completion:^{
+    [self.socket writeData:payload toClient:client completion:^(BOOL didSucceed) {
       [weakSelf closeClient:client];
     }];
   } else {
-    // Sent before unblocking the next pipelined request, so responses can't reach the wire out of order.
-    [self.socket writeData:payload toClient:client];
-    @synchronized (self.connectionBuffers) {
-      [self.connectionsAwaitingResponse removeObject:client];
-    }
+    // Unblocked from the send's completion, not before it: ordering is preserved either way
+    // (nw_connection_send is FIFO per connection), but unblocking early lets a client that
+    // pipelines without reading responses pile up rendered responses inside Network.framework.
     __weak typeof(self) weakSelf = self;
-    dispatch_async(self.bufferProcessingQueue, ^{
-      [weakSelf processBufferForClient:client];
-    });
+    [self.socket writeData:payload toClient:client completion:^(BOOL didSucceed) {
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (nil == strongSelf) {
+        return;
+      }
+      if (!didSucceed) {
+        // The response never reached the peer, so running its next pipelined request - possibly
+        // a mutating one - would change device state for a client that can no longer be answered.
+        [FBLogger log:@"Failed to write a response; dropping the connection and its pending requests"];
+        [strongSelf closeClient:client];
+        return;
+      }
+      // Lifting the exemption and resuming parsing happen in one step on bufferProcessingQueue,
+      // the queue the reaper also runs on: doing it out here exposes the connection to a sweep
+      // queued ahead of the parse, which would judge a buffered request by the previous one's
+      // timestamp.
+      dispatch_async(strongSelf.bufferProcessingQueue, ^{
+        __strong typeof(weakSelf) queuedSelf = weakSelf;
+        if (nil == queuedSelf) {
+          return;
+        }
+        @synchronized (queuedSelf.connectionBuffers) {
+          [queuedSelf.connectionsAwaitingResponse removeObject:client];
+          // Mid-request connections get their window from when parsing could resume, not from the
+          // previous request. Absent entries stay absent, so idle keep-alives remain exempt.
+          if (nil != [queuedSelf.incompleteRequestStarts objectForKey:client]) {
+            [queuedSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
+          }
+        }
+        [queuedSelf processBufferForClient:client];
+      });
+    }];
   }
 }
 
@@ -632,7 +877,9 @@ static NSData * _Nonnull FBUTF8Data(NSString *string)
 {
   @synchronized (self.connectionBuffers) {
     [self.connectionBuffers removeObjectForKey:client];
+    [self.pendingRequestHeaders removeObjectForKey:client];
     [self.connectionsAwaitingResponse removeObject:client];
+    [self.incompleteRequestStarts removeObjectForKey:client];
   }
   nw_connection_cancel(client);
 }

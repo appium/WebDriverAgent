@@ -174,6 +174,7 @@
     @"statusBarSize": @{@"width": @(statusBarSize.width),
                         @"height": @(statusBarSize.height),
     },
+    @"displayId": @([FBScreen displayID]),
     @"scale": @([FBScreen scale]),
   });
 }
