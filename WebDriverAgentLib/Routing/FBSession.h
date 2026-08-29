@@ -54,6 +54,9 @@ extern NSString* const FBSessionWasKilledNotification;
  Kills the active session, if any, and blocks until its teardown - including one already started
  by a concurrent caller - is fully finished. Call this before preparing/launching a replacement
  application, so it can't race a still-in-progress termination of the outgoing one.
+
+ @throws FBSessionCreationException if the outgoing application's termination is still in flight
+ after the wait, since a replacement must never start while that termination can still land.
  */
 + (void)killActiveSessionAndWaitForTeardown;
 

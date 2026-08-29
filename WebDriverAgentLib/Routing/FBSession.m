@@ -157,13 +157,20 @@ static NSUInteger _committedTerminationCount = 0;
   // teardown still running, that teardown must be stale by the time the new app exists.
   NSCondition *condition = self.teardownCondition;
   [condition lock];
-  // A committed -terminate cannot be revoked, so wait it out (bounded by its own budget) rather
-  // than hand out the next generation while it is still in flight.
+  // A committed -terminate cannot be revoked, so the next generation must never be handed out
+  // while one is in flight - give up on the new session instead of racing it.
   NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_APP_TERMINATE_TIMEOUT_SEC];
   while (_committedTerminationCount > 0 && [condition waitUntilDate:deadline]) {
   }
-  _sessionGeneration++;
+  BOOL isTerminationPending = _committedTerminationCount > 0;
+  if (!isTerminationPending) {
+    _sessionGeneration++;
+  }
   [condition unlock];
+  if (isTerminationPending) {
+    NSString *reason = [NSString stringWithFormat:@"The termination of a previous session's application is still in progress after %@ seconds. Please retry the session creation later", @(FB_APP_TERMINATE_TIMEOUT_SEC)];
+    @throw [NSException exceptionWithName:FBSessionCreationException reason:reason userInfo:nil];
+  }
 }
 
 + (void)markSessionActive:(FBSession *)session
