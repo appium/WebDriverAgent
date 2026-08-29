@@ -138,12 +138,16 @@ static NSUInteger _committedTerminationCount = 0;
 
 + (instancetype)activeSession
 {
-  return _activeSession;
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  FBSession *session = _activeSession;
+  [condition unlock];
+  return session;
 }
 
 + (void)killActiveSessionAndWaitForTeardown
 {
-  FBSession *session = _activeSession;
+  FBSession *session = self.activeSession;
   if (nil != session) {
     // Runs the real teardown synchronously if this call wins the race in -kill, or waits for
     // whoever did to finish if it lost - either way, blocks until torn down.
@@ -223,10 +227,9 @@ static NSUInteger _committedTerminationCount = 0;
   if (!identifier) {
     return nil;
   }
-  if (![identifier isEqualToString:_activeSession.identifier]) {
-    return nil;
-  }
-  return _activeSession;
+  // A single snapshot: reading the global twice could validate one session and return another.
+  FBSession *session = self.activeSession;
+  return [identifier isEqualToString:session.identifier] ? session : nil;
 }
 
 + (instancetype)initWithApplication:(XCUIApplication *)application
