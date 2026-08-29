@@ -24,7 +24,7 @@ env:
   MAX_WATCH_DEVICE_NAME: "Apple Watch Series 11 (46mm)"
   MAX_IPHONE_DEVICE_NAME: "iPhone 17"
   MAX_TV_DEVICE_NAME: "Apple TV 4K (3rd generation)"
-  MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M2)"
+  MAX_IPAD_DEVICE_NAME: "iPad Air 11-inch (M4)"
 
 jobs:
   build_matrix:

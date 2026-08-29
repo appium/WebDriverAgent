@@ -1,3 +1,9 @@
+## [16.11.1](https://github.com/appium/WebDriverAgent/compare/v16.11.0...v16.11.1) (2026-08-29)
+
+### Bug Fixes
+
+* build of FBMjpegServer ([#1239](https://github.com/appium/WebDriverAgent/issues/1239)) ([a3b8650](https://github.com/appium/WebDriverAgent/commit/a3b8650670b9b30c5fc0cd5aa4834a6774d4a828))
+
 ## [16.11.0](https://github.com/appium/WebDriverAgent/compare/v16.10.0...v16.11.0) (2026-08-29)
 
 ### Features
