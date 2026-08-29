@@ -22,6 +22,7 @@
 #import "FBSettings.h"
 #import "FBSettingsHandler.h"
 #import "FBRuntimeUtils.h"
+#import "FBXCAXClientProxy.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIApplication+FBQuiescence.h"
@@ -376,18 +377,22 @@
       return errorResponse;
     }
   } else {
-    NSTimeInterval defaultTimeout = _XCTApplicationStateTimeout();
-    if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
-      _XCTSetApplicationStateTimeout([capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]);
-    }
-    @try {
-      [app launch];
-    } @catch (NSException *e) {
-      return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:e.reason traceback:nil]);
-    } @finally {
-      if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
-        _XCTSetApplicationStateTimeout(defaultTimeout);
+    __block id<FBResponsePayload> launchErrorResponse;
+    void (^launchBlock)(void) = ^{
+      @try {
+        [app launch];
+      } @catch (NSException *e) {
+        launchErrorResponse = FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:e.reason traceback:nil]);
       }
+    };
+    if (nil != capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC]) {
+      [FBXCAXClientProxy withApplicationStateTimeout:[capabilities[FB_CAP_APP_LAUNCH_STATE_TIMEOUT_SEC] doubleValue]
+                                                   do:launchBlock];
+    } else {
+      launchBlock();
+    }
+    if (nil != launchErrorResponse) {
+      return launchErrorResponse;
     }
   }
 
@@ -486,12 +491,9 @@
                               withApplication:(nullable NSString *)bundleID
                                       timeout:(nullable NSNumber *)timeout
 {
-  NSError *openError;
-  NSTimeInterval defaultTimeout = _XCTApplicationStateTimeout();
-  if (nil != timeout) {
-    _XCTSetApplicationStateTimeout([timeout doubleValue]);
-  }
-  @try {
+  __block id<FBResponsePayload> response;
+  void (^openBlock)(void) = ^{
+    NSError *openError;
     BOOL result = nil == bundleID
       ? [XCUIDevice.sharedDevice fb_openUrl:initialUrl
                                       error:&openError]
@@ -499,16 +501,18 @@
                             withApplication:(id)bundleID
                                       error:&openError];
     if (result) {
-      return nil;
+      return;
     }
     NSString *errorMsg = [NSString stringWithFormat:@"Cannot open the URL %@ with the %@ application. Original error: %@",
                           initialUrl, bundleID ?: @"default", openError.localizedDescription];
-    return FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
-  } @finally {
-    if (nil != timeout) {
-      _XCTSetApplicationStateTimeout(defaultTimeout);
-    }
+    response = FBResponseWithStatus([FBCommandStatus sessionNotCreatedError:errorMsg traceback:nil]);
+  };
+  if (nil != timeout) {
+    [FBXCAXClientProxy withApplicationStateTimeout:[timeout doubleValue] do:openBlock];
+  } else {
+    openBlock();
   }
+  return response;
 }
 
 @end

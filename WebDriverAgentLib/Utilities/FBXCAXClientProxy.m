@@ -8,6 +8,7 @@
 
 #import "FBXCAXClientProxy.h"
 
+#import "CDStructures.h"
 #import "FBXCAccessibilityElement.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
@@ -16,6 +17,39 @@
 #import "XCUIApplication.h"
 
 static id FBAXClient = nil;
+
+// Guards -withAXTimeout:do:'s save/set/restore of the process-wide AXTimeout global.
+static NSRecursiveLock *FBAXTimeoutLock(void)
+{
+  static NSRecursiveLock *lock;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    lock = [NSRecursiveLock new];
+  });
+  return lock;
+}
+
+// Guards +withXPCRequestTimeout:do:'s save/set/restore of the process-wide XPC request timeout global.
+static NSRecursiveLock *FBXPCRequestTimeoutLock(void)
+{
+  static NSRecursiveLock *lock;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    lock = [NSRecursiveLock new];
+  });
+  return lock;
+}
+
+// Guards +withApplicationStateTimeout:do:'s save/set/restore of the process-wide application-state timeout global.
+static NSRecursiveLock *FBApplicationStateTimeoutLock(void)
+{
+  static NSRecursiveLock *lock;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    lock = [NSRecursiveLock new];
+  });
+  return lock;
+}
 
 @interface FBXCAXClientProxy ()
 
@@ -38,9 +72,80 @@ static id FBAXClient = nil;
   return instance;
 }
 
-- (BOOL)setAXTimeout:(NSTimeInterval)timeout error:(NSError **)error
+- (BOOL)withAXTimeout:(NSTimeInterval)timeout do:(void (^)(void))block error:(NSError **)error
 {
-  return [FBAXClient _setAXTimeout:timeout error:error];
+  NSRecursiveLock *lock = FBAXTimeoutLock();
+  [lock lock];
+  @try {
+    NSTimeInterval previousTimeout = [FBAXClient AXTimeout];
+    NSError *setError;
+    if (![FBAXClient _setAXTimeout:timeout error:&setError]) {
+      [FBLogger logFmt:@"Failed to set AXTimeout to %@: %@", @(timeout), setError];
+      if (nil != error) {
+        *error = setError;
+      }
+      return NO;
+    }
+    NSTimeInterval startTime = NSProcessInfo.processInfo.systemUptime;
+    BOOL completedInTime = NO;
+    @try {
+      block();
+      completedInTime = (NSProcessInfo.processInfo.systemUptime - startTime) < timeout;
+    } @finally {
+      NSError *restoreError;
+      if (![FBAXClient _setAXTimeout:previousTimeout error:&restoreError]) {
+        [FBLogger logFmt:@"Failed to restore AXTimeout to %@: %@", @(previousTimeout), restoreError];
+        if (nil != error) {
+          *error = restoreError;
+        }
+      }
+    }
+    return completedInTime;
+  } @finally {
+    [lock unlock];
+  }
+}
+
++ (BOOL)withXPCRequestTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
+{
+  NSRecursiveLock *lock = FBXPCRequestTimeoutLock();
+  [lock lock];
+  @try {
+    NSTimeInterval previousTimeout = _XCTXPCRequestTimeout();
+    _XCTSetXPCRequestTimeout(timeout);
+    NSTimeInterval startTime = NSProcessInfo.processInfo.systemUptime;
+    BOOL completedInTime = NO;
+    @try {
+      block();
+      completedInTime = (NSProcessInfo.processInfo.systemUptime - startTime) < timeout;
+    } @finally {
+      _XCTSetXPCRequestTimeout(previousTimeout);
+    }
+    return completedInTime;
+  } @finally {
+    [lock unlock];
+  }
+}
+
++ (BOOL)withApplicationStateTimeout:(NSTimeInterval)timeout do:(void (^)(void))block
+{
+  NSRecursiveLock *lock = FBApplicationStateTimeoutLock();
+  [lock lock];
+  @try {
+    NSTimeInterval previousTimeout = _XCTApplicationStateTimeout();
+    _XCTSetApplicationStateTimeout(timeout);
+    NSTimeInterval startTime = NSProcessInfo.processInfo.systemUptime;
+    BOOL completedInTime = NO;
+    @try {
+      block();
+      completedInTime = (NSProcessInfo.processInfo.systemUptime - startTime) < timeout;
+    } @finally {
+      _XCTSetApplicationStateTimeout(previousTimeout);
+    }
+    return completedInTime;
+  } @finally {
+    [lock unlock];
+  }
 }
 
 - (id<FBXCElementSnapshot>)snapshotForElement:(id<FBXCAccessibilityElement>)element

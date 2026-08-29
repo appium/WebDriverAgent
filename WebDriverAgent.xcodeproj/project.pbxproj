@@ -1158,6 +1158,7 @@
 		EE3A18661CDE734B00DE4205 /* FBKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = EE3A18641CDE734B00DE4205 /* FBKeyboard.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3A18671CDE734B00DE4205 /* FBKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3A18651CDE734B00DE4205 /* FBKeyboard.m */; };
 		EE3F8CFE1D08AA17006F02CE /* FBRunLoopSpinnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3F8CFD1D08AA17006F02CE /* FBRunLoopSpinnerTests.m */; };
+		A09D847635CA4C155583B967 /* FBXCAXClientProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6231A764C3FAAB29B87CD987 /* FBXCAXClientProxyTests.m */; };
 		EE3F8D001D08B05F006F02CE /* FBElementTypeTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3F8CFF1D08B05F006F02CE /* FBElementTypeTransformerTests.m */; };
 		EE5095E51EBCC9090028E2FE /* FBTypingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = AD76723F1D6B826F00610457 /* FBTypingTest.m */; };
 		EE5095EB1EBCC9090028E2FE /* XCElementSnapshotHitPointTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE006EB21EBA1C7B006900A4 /* XCElementSnapshotHitPointTests.m */; };
@@ -1828,6 +1829,7 @@
 		EE3A18641CDE734B00DE4205 /* FBKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBKeyboard.h; path = WebDriverAgentLib/Utilities/FBKeyboard.h; sourceTree = SOURCE_ROOT; };
 		EE3A18651CDE734B00DE4205 /* FBKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBKeyboard.m; path = WebDriverAgentLib/Utilities/FBKeyboard.m; sourceTree = SOURCE_ROOT; };
 		EE3F8CFD1D08AA17006F02CE /* FBRunLoopSpinnerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRunLoopSpinnerTests.m; sourceTree = "<group>"; };
+		6231A764C3FAAB29B87CD987 /* FBXCAXClientProxyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBXCAXClientProxyTests.m; sourceTree = "<group>"; };
 		EE3F8CFF1D08B05F006F02CE /* FBElementTypeTransformerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBElementTypeTransformerTests.m; sourceTree = "<group>"; };
 		EE5095FE1EBCC9090028E2FE /* IntegrationTests_2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55B3221D1D5388003AAAEC /* FBTableDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBTableDataSource.h; sourceTree = "<group>"; };
@@ -2686,6 +2688,7 @@
 				ADEF63AE1D09DEBE0070A7E3 /* FBRuntimeUtilsTests.m */,
 				714801D01FA9D9FA00DC5997 /* FBSDKVersionTests.m */,
 				EE6A89251D0B19E60083E92B /* FBSessionTests.m */,
+				6231A764C3FAAB29B87CD987 /* FBXCAXClientProxyTests.m */,
 				716E0BD01E917F260087A825 /* FBXMLSafeStringTests.m */,
 				712A0C841DA3E459007D02E5 /* FBXPathTests.m */,
 				EE9B76581CF7987300275851 /* Info.plist */,
@@ -4805,6 +4808,7 @@
 			files = (
 				713352FD26CEF31D00523CBC /* FBLRUCacheTests.m in Sources */,
 				EE3F8CFE1D08AA17006F02CE /* FBRunLoopSpinnerTests.m in Sources */,
+				A09D847635CA4C155583B967 /* FBXCAXClientProxyTests.m in Sources */,
 				714801D11FA9D9FA00DC5997 /* FBSDKVersionTests.m in Sources */,
 				EE3F8D001D08B05F006F02CE /* FBElementTypeTransformerTests.m in Sources */,
 				13FFF2F2287DBEE600E561E4 /* XCElementSnapshotDouble.m in Sources */,

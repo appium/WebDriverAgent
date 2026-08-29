@@ -13,6 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FBScreen : NSObject
 
 /**
+ The identifier of the main device's display
+ */
++ (long long)displayID;
+
+/**
  The scale factor of the main device's screen
  */
 + (double)scale;

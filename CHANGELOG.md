@@ -1,3 +1,21 @@
+## [16.11.1](https://github.com/appium/WebDriverAgent/compare/v16.11.0...v16.11.1) (2026-08-29)
+
+### Bug Fixes
+
+* build of FBMjpegServer ([#1239](https://github.com/appium/WebDriverAgent/issues/1239)) ([a3b8650](https://github.com/appium/WebDriverAgent/commit/a3b8650670b9b30c5fc0cd5aa4834a6774d4a828))
+
+## [16.11.0](https://github.com/appium/WebDriverAgent/compare/v16.10.0...v16.11.0) (2026-08-29)
+
+### Features
+
+* expose AXTimeout and XCTest XPC request timeout wrappers  ([#1233](https://github.com/appium/WebDriverAgent/issues/1233)) ([d5c8571](https://github.com/appium/WebDriverAgent/commit/d5c85718c32bc495a0f73518d3e40eee624b3582))
+
+## [16.10.0](https://github.com/appium/WebDriverAgent/compare/v16.9.4...v16.10.0) (2026-08-29)
+
+### Features
+
+* add displayId in the wda/screen ([#1238](https://github.com/appium/WebDriverAgent/issues/1238)) ([bfbe6b0](https://github.com/appium/WebDriverAgent/commit/bfbe6b00b196647f87267827627a5ff675496c30))
+
 ## [16.9.4](https://github.com/appium/WebDriverAgent/compare/v16.9.3...v16.9.4) (2026-08-29)
 
 ### Bug Fixes
