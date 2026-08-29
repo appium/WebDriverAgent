@@ -165,7 +165,7 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
         continue;
       }
       [self.pendingFrameCounts setObject:@(pendingFrames + 1) forKey:client];
-      [self.socket writeData:chunk toClient:client completion:^{
+      [self.socket writeData:chunk toClient:client completion:^(BOOL didSucceed) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (nil == strongSelf) {
           return;
