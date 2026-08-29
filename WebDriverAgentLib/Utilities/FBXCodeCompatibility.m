@@ -81,8 +81,9 @@
 
 NSInteger FBTestmanagerdVersion(void)
 {
-  // Not dispatch_once: that would permanently cache the timeout fallback below if the first call's
-  // reply merely arrived late. -1 means "not yet determined"; a timeout isn't cached, so it retries.
+  // -1 means "not yet determined". The timeout fallback is cached like any other outcome: the
+  // value is diagnostic-only, and retrying would stall every later /status for the full timeout
+  // against a daemon that never answers.
   static NSInteger cachedVersion = -1;
   static dispatch_queue_t syncQueue;
   static dispatch_once_t onceToken;
@@ -108,12 +109,11 @@ NSInteger FBTestmanagerdVersion(void)
       }];
       int64_t timeoutNs = (int64_t)(TESTMANAGERD_VERSION_TIMEOUT_SEC * NSEC_PER_SEC);
       if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs))) {
-        // Assume newest/full-featured on timeout, but don't cache it - retry on the next call.
         [FBLogger logFmt:@"Did not receive a testmanagerd protocol version reply within %d seconds; assuming the newest/full-featured protocol", TESTMANAGERD_VERSION_TIMEOUT_SEC];
         result = 0xFFFF;
-        return;
+      } else {
+        result = receivedVersion;
       }
-      result = receivedVersion;
     } else {
       // Modern testmanagerd (Xcode 15+) negotiates named XCTCapabilities instead of a scalar
       // version; there's no direct integer equivalent, so just confirm capabilities negotiated.

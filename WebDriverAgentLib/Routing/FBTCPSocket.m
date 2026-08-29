@@ -195,12 +195,15 @@
   [self writeData:data toClient:client completion:nil];
 }
 
-- (void)writeData:(NSData *)data toClient:(nw_connection_t)client completion:(nullable void (^)(void))completion
+- (void)writeData:(NSData *)data toClient:(nw_connection_t)client completion:(nullable void (^)(BOOL didSucceed))completion
 {
   dispatch_data_t dispatchData = dispatch_data_create(data.bytes, data.length, self.socketQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
   nw_connection_send(client, dispatchData, NW_CONNECTION_DEFAULT_STREAM_CONTEXT, false, ^(nw_error_t  _Nullable sendError) {
     if (completion) {
-      completion();
+      // The send error must reach the caller: a failed write means the response never reached
+      // the peer, and treating that as success would e.g. let the next pipelined request run
+      // against a connection that can no longer answer it.
+      completion(nil == sendError);
     }
   });
 }

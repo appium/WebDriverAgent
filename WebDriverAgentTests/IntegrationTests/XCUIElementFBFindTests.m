@@ -21,6 +21,7 @@
 #import "XCUIElement+FBResolve.h"
 #import "FBXPath.h"
 #import "FBXCodeCompatibility.h"
+#import "XCUIElement+FBUtilities.h"
 
 @interface XCUIElementFBFindTests : FBIntegrationTestCase
 @property (nonatomic, strong) XCUIElement *testedView;
@@ -533,6 +534,27 @@
                                                                      shouldReturnAfterFirstMatch:NO];
     XCTAssertEqual(matches.count, 1);
   }];
+}
+
+@end
+
+@interface XCUIElementFBFindTests_StaleAppSnapshot : FBIntegrationTestCase
+@end
+@implementation XCUIElementFBFindTests_StaleAppSnapshot
+
+// Regression test for https://github.com/appium/appium/issues/22672.
+- (void)testClassChainWithIntermediatePositionAfterStaleAppSnapshot
+{
+  [self launchApplication];
+  // Simulates a stale snapshot cached by an earlier, unrelated command (e.g. GET /source).
+  [self.testedApplication fb_customSnapshot];
+  [self goToDeepHierarchyPage];
+
+  NSString *query = @"**/XCUIElementTypeOther[`label == \"View 10\"`][1]/**/XCUIElementTypeOther[`label BEGINSWITH \"View 19\"`]";
+  NSArray<XCUIElement *> *matches = [self.testedApplication fb_descendantsMatchingClassChain:query
+                                                                   shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(matches.count, 1);
+  XCTAssertEqualObjects(matches.firstObject.label, @"View 19");
 }
 
 @end
