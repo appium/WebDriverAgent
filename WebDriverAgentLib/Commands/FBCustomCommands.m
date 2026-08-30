@@ -53,6 +53,8 @@
     [[FBRoute GET:@"/wda/locked"] respondWithTarget:self action:@selector(handleIsLocked:)],
     [[FBRoute GET:@"/wda/screen"] respondWithTarget:self action:@selector(handleGetScreen:)],
     [[FBRoute GET:@"/wda/screen"].withoutSession respondWithTarget:self action:@selector(handleGetScreen:)],
+    [[FBRoute GET:@"/wda/screens"] respondWithTarget:self action:@selector(handleGetScreens:)],
+    [[FBRoute GET:@"/wda/screens"].withoutSession respondWithTarget:self action:@selector(handleGetScreens:)],
     [[FBRoute GET:@"/wda/activeAppInfo"] respondWithTarget:self action:@selector(handleActiveAppInfo:)],
     [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)],
 #if !TARGET_OS_TV && !TARGET_OS_WATCH // tvOS/watchOS do not provide relevant APIs
@@ -177,6 +179,16 @@
     @"displayId": @([FBScreen displayID]),
     @"scale": @([FBScreen scale]),
   });
+}
+
++ (id<FBResponsePayload>)handleGetScreens:(FBRouteRequest *)request
+{
+  NSError *error;
+  NSArray<NSDictionary<NSString *, id> *> *screens = [FBScreen screensWithError:&error];
+  if (nil == screens) {
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithObject(screens);
 }
 
 + (id<FBResponsePayload>)handleLock:(FBRouteRequest *)request
