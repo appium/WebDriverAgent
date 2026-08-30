@@ -131,6 +131,10 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
+// Already-abandoned sessions mapped to the response they were abandoned with, so a request parsed
+// after that point is answered at once instead of queueing for a session that is gone. Kept for
+// the server's lifetime; ids are UUIDs. Guarded by @synchronized(self.pendingSessionRequests).
+@property (nonatomic, strong) NSMutableDictionary<NSString *, RouteResponse *> *abandonedSessionResponses;
 // When each connection started waiting for its current request. The reaper closes connections
 // whose entry outlives FBIncompleteRequestTimeout; idle keep-alive connections have no entry and
 // are exempt. Guarded by @synchronized(self.connectionBuffers).
@@ -159,6 +163,7 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
+    _abandonedSessionResponses = [NSMutableDictionary dictionary];
     _incompleteRequestStarts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                      valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
   }
@@ -678,7 +683,11 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     FBPendingRequest *pendingRequest = nil;
     if (nil != sessionID) {
       pendingRequest = [[FBPendingRequest alloc] initWithClient:client];
-      [self trackPendingRequest:pendingRequest forSessionID:sessionID];
+      RouteResponse *abandonedResponse = [self trackPendingRequest:pendingRequest forSessionID:sessionID];
+      if (nil != abandonedResponse) {
+        [self writeResponse:abandonedResponse toClient:client];
+        return;
+      }
     }
 
     void (^invoke)(void) = ^{
@@ -709,15 +718,22 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
 #pragma mark - Session-scoped request cancellation
 
-- (void)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
+// Returns nil once `pendingRequest` is tracked, or the response an already-abandoned session was
+// abandoned with, which the caller must deliver instead of dispatching.
+- (nullable RouteResponse *)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
+    RouteResponse *abandonedResponse = self.abandonedSessionResponses[sessionID];
+    if (nil != abandonedResponse) {
+      return abandonedResponse;
+    }
     NSMutableSet<FBPendingRequest *> *pendingRequests = self.pendingSessionRequests[sessionID];
     if (nil == pendingRequests) {
       pendingRequests = [NSMutableSet set];
       self.pendingSessionRequests[sessionID] = pendingRequests;
     }
     [pendingRequests addObject:pendingRequest];
+    return nil;
   }
 }
 
@@ -744,6 +760,8 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   @synchronized (self.pendingSessionRequests) {
     pendingRequests = [self.pendingSessionRequests[sessionID] copy];
     [self.pendingSessionRequests removeObjectForKey:sessionID];
+    // Recorded before the lock is dropped, so requests admitted from here on are rejected.
+    self.abandonedSessionResponses[sessionID] = response;
   }
   for (FBPendingRequest *pendingRequest in pendingRequests) {
     [self writeResponse:response toClient:pendingRequest.client];
@@ -764,7 +782,11 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   NSString *key = [NSString stringWithFormat:@"%@ %@", method, pathAndQuery];
   FBPendingRequest *waiter = [[FBPendingRequest alloc] initWithClient:client];
   if (nil != sessionID) {
-    [self trackPendingRequest:waiter forSessionID:sessionID];
+    RouteResponse *abandonedResponse = [self trackPendingRequest:waiter forSessionID:sessionID];
+    if (nil != abandonedResponse) {
+      [self writeResponse:abandonedResponse toClient:client];
+      return;
+    }
   }
 
   BOOL isInFlight = NO;

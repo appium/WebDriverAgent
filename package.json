@@ -1,6 +1,6 @@
 {
   "name": "appium-webdriveragent",
-  "version": "16.11.1",
+  "version": "16.11.2",
   "description": "Package bundling WebDriverAgent",
   "keywords": [
     "Appium",
@@ -64,9 +64,9 @@
     "sync-wda-version": "node ./Scripts/update-wda-version.mjs --package-version=${npm_package_version} && git add WebDriverAgentLib/Info.plist"
   },
   "dependencies": {
-    "@appium/base-driver": "^10.3.0",
+    "@appium/base-driver": "^10.8.0",
     "@appium/strongbox": "^2.0.0",
-    "@appium/support": "^7.2.1",
+    "@appium/support": "^7.2.6",
     "appium-ios-simulator": "^9.0.0",
     "async-lock": "^1.0.0",
     "asyncbox": "^6.1.0",
