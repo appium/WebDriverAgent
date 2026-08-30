@@ -1,3 +1,9 @@
+## [16.11.2](https://github.com/appium/WebDriverAgent/compare/v16.11.1...v16.11.2) (2026-08-30)
+
+### Bug Fixes
+
+* reject requests admitted after their session was abandoned ([#1229](https://github.com/appium/WebDriverAgent/issues/1229)) ([d6b4862](https://github.com/appium/WebDriverAgent/commit/d6b4862ea113083959a80e87c488fd555cbc8061))
+
 ## [16.11.1](https://github.com/appium/WebDriverAgent/compare/v16.11.0...v16.11.1) (2026-08-29)
 
 ### Bug Fixes
