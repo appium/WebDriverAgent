@@ -1,3 +1,9 @@
+## [16.11.4](https://github.com/appium/WebDriverAgent/compare/v16.11.3...v16.11.4) (2026-08-30)
+
+### Bug Fixes
+
+* prevent a stale teardown from affecting a newer session generation ([#1231](https://github.com/appium/WebDriverAgent/issues/1231)) ([83642a1](https://github.com/appium/WebDriverAgent/commit/83642a11218fd2b2801af0a04d3b253125246bd7))
+
 ## [16.11.3](https://github.com/appium/WebDriverAgent/compare/v16.11.2...v16.11.3) (2026-08-30)
 
 ### Miscellaneous Chores

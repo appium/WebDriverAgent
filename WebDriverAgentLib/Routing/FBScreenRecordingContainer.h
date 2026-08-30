@@ -45,6 +45,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reset;
 
 /**
+ Resets the container, but only if it still keeps the given promise. The comparison and the
+ reset are performed atomically, so a promise stored concurrently is never dropped.
+
+ @param screenRecordingPromise the promise the caller expects to be still active
+ @return YES if the container has been reset
+ */
+- (BOOL)resetIfPromiseIs:(FBScreenRecordingPromise *)screenRecordingPromise;
+
+/**
  Transforms the container content to a dictionary.
 
  @return May return nil if no screen recording is currently running

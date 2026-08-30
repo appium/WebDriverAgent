@@ -50,7 +50,7 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
 
 - (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout;
-- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout;
+- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout generation:(NSUInteger)generation;
 @end
 
 @interface FBSession (FBAlertsMonitorDelegate)
@@ -100,11 +100,20 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 
 @implementation FBSession
 
+// Guarded, together with the two counters below, by +teardownCondition.
 static FBSession *_activeSession = nil;
 // Class-level, not per-instance: a caller that finds _activeSession already nil (a concurrent
 // -kill beat it there) still needs to know whether that -kill's teardown is done, since it cleared
 // the pointer before running it. See +waitForActiveTeardownWithTimeout:.
-static BOOL _isTeardownInProgress = NO;
+// A count, not a flag: the bounded wait below lets teardowns overlap, so one of them finishing
+// must not wake waiters while another still runs.
+static NSUInteger _activeTeardownCount = 0;
+// Bumped once a caller owns the device, before it launches anything; a teardown still running past
+// the bounded wait re-checks it before touching process-wide state.
+static NSUInteger _sessionGeneration = 0;
+// Teardowns that have claimed the current generation and are committed to terminating the app.
+// The generation bump waits for these to drain, so a claim and a bump can never interleave.
+static NSUInteger _committedTerminationCount = 0;
 
 + (NSCondition *)teardownCondition
 {
@@ -116,25 +125,29 @@ static BOOL _isTeardownInProgress = NO;
   return condition;
 }
 
-// Waits (bounded) for any -kill teardown currently in progress to finish.
+// Waits (bounded) for every -kill teardown currently in progress to finish.
 + (void)waitForActiveTeardownWithTimeout:(NSTimeInterval)timeout
 {
   NSCondition *condition = self.teardownCondition;
   [condition lock];
   NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
-  while (_isTeardownInProgress && [condition waitUntilDate:deadline]) {
+  while (_activeTeardownCount > 0 && [condition waitUntilDate:deadline]) {
   }
   [condition unlock];
 }
 
 + (instancetype)activeSession
 {
-  return _activeSession;
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  FBSession *session = _activeSession;
+  [condition unlock];
+  return session;
 }
 
 + (void)killActiveSessionAndWaitForTeardown
 {
-  FBSession *session = _activeSession;
+  FBSession *session = self.activeSession;
   if (nil != session) {
     // Runs the real teardown synchronously if this call wins the race in -kill, or waits for
     // whoever did to finish if it lost - either way, blocks until torn down.
@@ -144,12 +157,69 @@ static BOOL _isTeardownInProgress = NO;
     // be mid-teardown - wait for it, so we don't launch a replacement app too early.
     [self waitForActiveTeardownWithTimeout:FB_KILL_WAIT_TIMEOUT_SEC];
   }
+  // Claimed before the caller launches its replacement app: if the bounded wait expired with a
+  // teardown still running, that teardown must be stale by the time the new app exists.
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  // A committed -terminate cannot be revoked, so the next generation must never be handed out
+  // while one is in flight - give up on the new session instead of racing it.
+  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FB_APP_TERMINATE_TIMEOUT_SEC];
+  while (_committedTerminationCount > 0 && [condition waitUntilDate:deadline]) {
+  }
+  BOOL isTerminationPending = _committedTerminationCount > 0;
+  if (!isTerminationPending) {
+    _sessionGeneration++;
+  }
+  [condition unlock];
+  if (isTerminationPending) {
+    NSString *reason = [NSString stringWithFormat:@"The termination of a previous session's application is still in progress after %@ seconds. Please retry the session creation later", @(FB_APP_TERMINATE_TIMEOUT_SEC)];
+    @throw [NSException exceptionWithName:FBSessionCreationException reason:reason userInfo:nil];
+  }
 }
 
 + (void)markSessionActive:(FBSession *)session
 {
   [self killActiveSessionAndWaitForTeardown];
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
   _activeSession = session;
+  [condition unlock];
+}
+
+// Validates and claims `generation` in one critical section, so no replacement can be handed the
+// next generation until the matching +endTermination. NO means this teardown is already stale.
++ (BOOL)beginTerminationForGeneration:(NSUInteger)generation
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  BOOL isCurrent = generation == _sessionGeneration;
+  if (isCurrent) {
+    _committedTerminationCount++;
+  }
+  [condition unlock];
+  return isCurrent;
+}
+
++ (void)endTermination
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  _committedTerminationCount--;
+  [condition broadcast];
+  [condition unlock];
+}
+
+// Read in the same critical section that validates the generation: a replacement would have bumped
+// the generation before storing anything, so a promise captured here can never be its.
++ (FBScreenRecordingPromise *)activeScreenRecordingForGeneration:(NSUInteger)generation
+{
+  NSCondition *condition = self.teardownCondition;
+  [condition lock];
+  FBScreenRecordingPromise *promise = generation == _sessionGeneration
+    ? FBScreenRecordingContainer.sharedInstance.screenRecordingPromise
+    : nil;
+  [condition unlock];
+  return promise;
 }
 
 + (instancetype)sessionWithIdentifier:(NSString *)identifier
@@ -157,10 +227,9 @@ static BOOL _isTeardownInProgress = NO;
   if (!identifier) {
     return nil;
   }
-  if (![identifier isEqualToString:_activeSession.identifier]) {
-    return nil;
-  }
-  return _activeSession;
+  // A single snapshot: reading the global twice could validate one session and return another.
+  FBSession *session = self.activeSession;
+  return [identifier isEqualToString:session.identifier] ? session : nil;
 }
 
 + (instancetype)initWithApplication:(XCUIApplication *)application
@@ -220,13 +289,20 @@ static BOOL _isTeardownInProgress = NO;
   // DELETE /session and session creation can now run concurrently, so a session already
   // superseded by a newer one can still reach here via a stale reference. Check-and-clear must be
   // atomic, else a belated -kill could null out the new session's pointer instead of its own.
+  NSCondition *teardownCondition = self.class.teardownCondition;
   BOOL wasActive;
-  @synchronized (self.class) {
-    wasActive = (self == _activeSession);
-    if (wasActive) {
-      _activeSession = nil;
-    }
+  NSUInteger generation;
+  [teardownCondition lock];
+  wasActive = (self == _activeSession);
+  // Captured so the teardown steps below can tell whether a replacement has claimed the device.
+  generation = _sessionGeneration;
+  if (wasActive) {
+    _activeSession = nil;
+    // Registered in the same critical section as the clear above, else a concurrent session
+    // creation could observe neither an active session nor a teardown and skip its wait.
+    _activeTeardownCount++;
   }
+  [teardownCondition unlock];
   if (!wasActive) {
     // Someone else is already tearing this session down - wait for that to finish (bounded), so
     // we don't act as if it's gone (e.g. launch a new app) while its -terminate is still in flight.
@@ -234,24 +310,23 @@ static BOOL _isTeardownInProgress = NO;
     return;
   }
 
-  NSCondition *teardownCondition = self.class.teardownCondition;
-  [teardownCondition lock];
-  _isTeardownInProgress = YES;
-  [teardownCondition unlock];
-
   @try {
     // Posted before teardown so pending HTTP requests for this session can stop waiting sooner.
     [NSNotificationCenter.defaultCenter postNotificationName:FBSessionWasKilledNotification object:self];
 
     [self disableAlertsMonitor];
 
-    FBScreenRecordingPromise *activeScreenRecording = FBScreenRecordingContainer.sharedInstance.screenRecordingPromise;
+    // The container is process-wide, so only act on a promise captured while this teardown still
+    // owned the generation - nil here means it is stale and must leave the recording alone.
+    FBScreenRecordingPromise *activeScreenRecording = [self.class activeScreenRecordingForGeneration:generation];
     if (nil != activeScreenRecording) {
       NSError *error;
       if (![FBXCTestDaemonsProxy stopScreenRecordingWithUUID:activeScreenRecording.identifier error:&error]) {
         [FBLogger logFmt:@"%@", error];
       }
-      [FBScreenRecordingContainer.sharedInstance reset];
+      // Identity, not generation: the stop above may outlast a replacement storing its own promise.
+      // Compare-and-reset, so that replacement's store cannot land between the check and the reset.
+      [FBScreenRecordingContainer.sharedInstance resetIfPromiseIs:activeScreenRecording];
     }
 
     if (nil != self.testedApplication
@@ -259,13 +334,14 @@ static BOOL _isTeardownInProgress = NO;
         && self.testedApplication.running
         && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
       // Blocks until the app is either actually terminated or durably given up on (never left
-      // pending) - see -fb_terminateTestedApplicationWithTimeout: - so it's safe to report this
-      // teardown as finished as soon as this returns.
-      [self fb_terminateTestedApplicationWithTimeout:FB_APP_TERMINATE_TIMEOUT_SEC];
+      // pending) - see -fb_terminateTestedApplicationWithTimeout:generation: - so it's safe to
+      // report this teardown as finished as soon as this returns.
+      [self fb_terminateTestedApplicationWithTimeout:FB_APP_TERMINATE_TIMEOUT_SEC generation:generation];
     }
   } @finally {
     [teardownCondition lock];
-    _isTeardownInProgress = NO;
+    _activeTeardownCount--;
+    // Unconditional: waiters re-check the count, so a wake-up mid-teardown just puts them back.
     [teardownCondition broadcast];
     [teardownCondition unlock];
   }
@@ -394,7 +470,7 @@ static BOOL _isTeardownInProgress = NO;
 // `timeout` - but a "given up on" call must never still terminate whatever's running by the time
 // main gets to it (e.g. a replacement session's app), so cancellation and the actual terminate
 // call share a lock: whichever gets there first - the dispatched block, or the timeout - wins.
-- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout
+- (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout generation:(NSUInteger)generation
 {
   XCUIApplication *application = self.testedApplication;
   NSObject *lock = [NSObject new];
@@ -402,11 +478,16 @@ static BOOL _isTeardownInProgress = NO;
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_main_queue(), ^{
     @synchronized (lock) {
-      if (isAllowedToTerminate) {
+      // Re-checked here, not before dispatching: this block can sit on a busy main queue past the
+      // teardown wait, and a replacement usually runs the same bundle ID as the app to terminate.
+      // The claim is held across -terminate, so no replacement can take the next generation mid-call.
+      if (isAllowedToTerminate && [self.class beginTerminationForGeneration:generation]) {
         @try {
           [application terminate];
         } @catch (NSException *e) {
           [FBLogger logFmt:@"%@", e.description];
+        } @finally {
+          [self.class endTermination];
         }
       }
     }
