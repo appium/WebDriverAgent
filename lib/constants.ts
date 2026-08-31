@@ -22,4 +22,4 @@ export const WDA_UPGRADE_TIMESTAMP_PATH = path.join('.appium', 'webdriveragent',
  * from unrelated ones (e.g. other WDA-based test runners) that happen to target the
  * same device udid.
  */
-export const XCODEBUILD_PROCESS_MARKER = 'APPIUM_XCUITEST_DRIVER_WDA_MARKER=1';
+export const XCODEBUILD_PROCESS_MARKER = 'APPIUM_XCODEBUILD_WDA_MARKER=1';

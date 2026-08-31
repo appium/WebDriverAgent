@@ -1,8 +1,8 @@
 import {waitForCondition} from 'asyncbox';
 import {exec} from 'teen_process';
 
-import {log} from '../logger.js';
 import {XCODEBUILD_PROCESS_MARKER} from '../constants.js';
+import {log} from '../logger.js';
 
 /**
  * Find and terminate all processes matching the given pgrep pattern.
