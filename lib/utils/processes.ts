@@ -2,14 +2,20 @@ import {waitForCondition} from 'asyncbox';
 import {exec} from 'teen_process';
 
 import {log} from '../logger.js';
+import {XCODEBUILD_PROCESS_MARKER} from '../constants.js';
 
 /**
  * Find and terminate all processes matching the given pgrep pattern.
+ *
+ * @param pgrepPattern - Pattern used to find candidate processes.
+ * @param cmdlineIncludes - If given, a candidate is only killed if its full
+ * command line also contains this substring. Used to narrow a broad pgrep
+ * match (e.g. by device udid) down to processes this package actually started.
  */
-export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
+export async function killAppUsingPattern(pgrepPattern: string, cmdlineIncludes?: string): Promise<void> {
   const signals = [2, 15, 9];
   for (const signal of signals) {
-    const matchedPids = await getPIDsUsingPattern(pgrepPattern);
+    const matchedPids = await getPIDsUsingPattern(pgrepPattern, cmdlineIncludes);
     if (matchedPids.length === 0) {
       return;
     }
@@ -52,6 +58,12 @@ export async function killAppUsingPattern(pgrepPattern: string): Promise<void> {
 
 /**
  * Kills running XCTest processes for the particular device.
+ *
+ * The `xcodebuild` pattern is additionally scoped to processes this package started
+ * (see {@link XCODEBUILD_PROCESS_MARKER}), so other XCTest-based tools targeting the
+ * same udid (e.g. a separately managed WebDriverAgent instance) are left alone.
+ * The XCTRunner/xctest patterns below cannot be scoped the same way, since those
+ * processes do not inherit xcodebuild's command line.
  */
 export async function resetTestProcesses(udid: string, isSimulator: boolean): Promise<void> {
   const processPatterns = [`xcodebuild.*${udid}`];
@@ -61,7 +73,37 @@ export async function resetTestProcesses(udid: string, isSimulator: boolean): Pr
     processPatterns.push(`xctest.*${udid}`);
   }
   log.debug(`Killing running processes '${processPatterns.join(', ')}' for the device ${udid}...`);
-  await Promise.all(processPatterns.map(killAppUsingPattern));
+  await Promise.all(
+    processPatterns.map((pattern) =>
+      killAppUsingPattern(pattern, pattern.startsWith('xcodebuild') ? XCODEBUILD_PROCESS_MARKER : undefined),
+    ),
+  );
+}
+
+/**
+ * Filters a list of PIDs down to those whose full command line satisfies the
+ * given lambda. PIDs that have already exited are silently dropped.
+ */
+async function filterPIDsByCommandLine(
+  pids: string[],
+  filteringFunc: (cmdline: string) => boolean | Promise<boolean>,
+): Promise<string[]> {
+  const filtered = await Promise.all(
+    pids.map(async (pid) => {
+      let stdout: string;
+      try {
+        ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
+      } catch (e: any) {
+        if (e.code === 1) {
+          // The process does not exist anymore, there's nothing to filter
+          return null;
+        }
+        throw e;
+      }
+      return (await filteringFunc(stdout)) ? pid : null;
+    }),
+  );
+  return filtered.filter((pid): pid is string => Boolean(pid));
 }
 
 /**
@@ -97,32 +139,18 @@ export async function getPIDsListeningOnPort(
   if (typeof filteringFunc !== 'function') {
     return result;
   }
-  const filtered = await Promise.all(
-    result.map(async (pid) => {
-      let stdout: string;
-      try {
-        ({stdout} = await exec('ps', ['-p', pid, '-o', 'command']));
-      } catch (e: any) {
-        if (e.code === 1) {
-          // The process does not exist anymore, there's nothing to filter
-          return null;
-        }
-        throw e;
-      }
-      return (await filteringFunc(stdout)) ? pid : null;
-    }),
-  );
-  return filtered.filter((pid): pid is string => Boolean(pid));
+  return await filterPIDsByCommandLine(result, filteringFunc);
 }
 
-async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
+async function getPIDsUsingPattern(pattern: string, cmdlineIncludes?: string): Promise<string[]> {
   const args = [
     '-if', // case insensitive, full cmdline match
     pattern,
   ];
+  let pids: string[];
   try {
     const {stdout} = await exec('pgrep', args);
-    return stdout
+    pids = stdout
       .split(/\s+/)
       .map((x) => parseInt(x, 10))
       .filter(Number.isInteger)
@@ -131,4 +159,8 @@ async function getPIDsUsingPattern(pattern: string): Promise<string[]> {
     log.debug(`'pgrep ${args.join(' ')}' didn't detect any matching processes. Return code: ${err.code}`);
     return [];
   }
+  if (!cmdlineIncludes || pids.length === 0) {
+    return pids;
+  }
+  return await filterPIDsByCommandLine(pids, (cmdline) => cmdline.includes(cmdlineIncludes));
 }

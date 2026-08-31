@@ -5,7 +5,7 @@ import type {AppiumLogger, StringRecord} from '@appium/types';
 import {retryInterval} from 'asyncbox';
 import {SubProcess, exec} from 'teen_process';
 
-import {WDA_RUNNER_BUNDLE_ID} from './constants.js';
+import {WDA_RUNNER_BUNDLE_ID, XCODEBUILD_PROCESS_MARKER} from './constants.js';
 import {log as defaultLogger} from './logger.js';
 import type {NoSessionProxy} from './no-session-proxy.js';
 import type {
@@ -430,6 +430,10 @@ export class XcodeBuild {
     // Below option slightly reduces build time in debug build
     // with preventing to generate `/Index/DataStore` which is used by development
     args.push('COMPILER_INDEX_STORE_ENABLE=NO');
+
+    // Tags this process so resetTestProcesses() can kill only xcodebuild instances
+    // this package started, not unrelated ones sharing the same device udid.
+    args.push(XCODEBUILD_PROCESS_MARKER);
 
     return {cmd, args};
   }
