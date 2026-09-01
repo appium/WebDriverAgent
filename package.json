@@ -67,11 +67,11 @@
     "@appium/base-driver": "^10.8.0",
     "@appium/strongbox": "^2.0.0",
     "@appium/support": "^7.2.6",
-    "appium-ios-simulator": "^9.0.0",
+    "appium-ios-simulator": "^9.1.3",
     "async-lock": "^1.0.0",
-    "asyncbox": "^6.1.0",
-    "axios": "^1.16.0",
-    "teen_process": "^4.0.7"
+    "asyncbox": "^6.4.3",
+    "axios": "^1.18.0",
+    "teen_process": "^4.2.0"
   },
   "devDependencies": {
     "@appium/oxc-config": "^1.1.0",
@@ -81,7 +81,7 @@
     "@types/async-lock": "^1.4.2",
     "@types/node": "^26.0.0",
     "@types/sinon": "^22.0.0",
-    "appium-xcode": "^7.0.0",
+    "appium-xcode": "^7.1.1",
     "node-simctl": "^9.0.0",
     "semver": "^7.3.7",
     "sinon": "^22.0.0"
