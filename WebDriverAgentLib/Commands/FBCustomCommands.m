@@ -53,8 +53,8 @@
     [[FBRoute GET:@"/wda/locked"] respondWithTarget:self action:@selector(handleIsLocked:)],
     [[FBRoute GET:@"/wda/screen"] respondWithTarget:self action:@selector(handleGetScreen:)],
     [[FBRoute GET:@"/wda/screen"].withoutSession respondWithTarget:self action:@selector(handleGetScreen:)],
-    [[FBRoute GET:@"/wda/screens"] respondWithTarget:self action:@selector(handleGetScreens:)],
-    [[FBRoute GET:@"/wda/screens"].withoutSession respondWithTarget:self action:@selector(handleGetScreens:)],
+    [[FBRoute GET:@"/wda/screens"].standalone respondWithTarget:self action:@selector(handleGetScreens:)],
+    [[FBRoute GET:@"/wda/screens"].withoutSession.standalone respondWithTarget:self action:@selector(handleGetScreens:)],
     [[FBRoute GET:@"/wda/activeAppInfo"] respondWithTarget:self action:@selector(handleActiveAppInfo:)],
     [[FBRoute GET:@"/wda/activeAppInfo"].withoutSession respondWithTarget:self action:@selector(handleActiveAppInfo:)],
 #if !TARGET_OS_TV && !TARGET_OS_WATCH // tvOS/watchOS do not provide relevant APIs
