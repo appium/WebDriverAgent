@@ -17,6 +17,10 @@
 #import "XCUIDevice+FBRotation.h"
 #import "FBRunLoopSpinner.h"
 #import "FBXCodeCompatibility.h"
+#import "FBW3CActionsSynthesizer.h"
+#import "XCSynthesizedEventRecord.h"
+#import "XCPointerEventPath.h"
+#import "XCPointerEvent.h"
 
 @interface FBW3CTouchActionsIntegrationTestsPart1 : FBIntegrationTestCase
 @end
@@ -185,21 +189,6 @@
         },
       ],
     
-    // Chain element where action items start with an incorrect item
-    @[@{
-        @"type": @"pointer",
-        @"id": @"finger1",
-        @"parameters": @{@"pointerType": @"touch"},
-        @"actions": @[
-            @{@"type": @"pause", @"duration": @100},
-            @{@"type": @"pointerMove", @"duration": @0, @"x": @1, @"y": @1},
-            @{@"type": @"pointerDown"},
-            @{@"type": @"pause", @"duration": @100},
-            @{@"type": @"pointerUp"},
-            ],
-        },
-      ],
-    
     // Chain element where pointerMove action item does not contain coordinates
     @[@{
         @"type": @"pointer",
@@ -297,6 +286,69 @@
       },
     ];
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
+}
+
+- (void)testLeadingZeroDurationPauseDoesNotAddExtraTouch
+{
+  // A leading pause must not defeat the down-after-move dedup logic in
+  // FBPointerDownItem and make WDA synthesize a second, separate touch-down
+  // for the same finger. Inspect the actual synthesized XCTest event stream
+  // (without dispatching it) rather than only checking the gesture's visible
+  // side effect, since a duplicate touch at the same point may still produce
+  // the same visible outcome.
+  XCUIElement *element = self.testedApplication.buttons[FBShowAlertButtonName];
+  NSDictionary<NSString *, id> *(^sequenceWithLeadingPause)(BOOL) = ^NSDictionary<NSString *, id> *(BOOL withLeadingPause) {
+    NSMutableArray<NSDictionary<NSString *, id> *> *actions = [NSMutableArray array];
+    if (withLeadingPause) {
+      [actions addObject:@{@"type": @"pause", @"duration": @0}];
+    }
+    [actions addObjectsFromArray:@[
+      @{@"type": @"pointerMove", @"duration": @0, @"origin": element, @"x": @0, @"y": @0},
+      @{@"type": @"pointerDown"},
+      @{@"type": @"pause", @"duration": @100},
+      @{@"type": @"pointerUp"},
+      ]];
+    return @{
+      @"type": @"pointer",
+      @"id": @"finger1",
+      @"parameters": @{@"pointerType": @"touch"},
+      @"actions": actions.copy,
+      };
+  };
+
+  NSError *error;
+  FBW3CActionsSynthesizer *baselineSynthesizer =
+  [[FBW3CActionsSynthesizer alloc] initWithActions:@[sequenceWithLeadingPause(NO)]
+                                     forApplication:self.testedApplication
+                                       elementCache:nil
+                                              error:&error];
+  XCTAssertNotNil(baselineSynthesizer);
+  XCSynthesizedEventRecord *baselineRecord = [baselineSynthesizer synthesizeWithError:&error];
+  XCTAssertNotNil(baselineRecord, @"%@", error);
+
+  FBW3CActionsSynthesizer *pausedSynthesizer =
+  [[FBW3CActionsSynthesizer alloc] initWithActions:@[sequenceWithLeadingPause(YES)]
+                                     forApplication:self.testedApplication
+                                       elementCache:nil
+                                              error:&error];
+  XCTAssertNotNil(pausedSynthesizer);
+  XCSynthesizedEventRecord *pausedRecord = [pausedSynthesizer synthesizeWithError:&error];
+  XCTAssertNotNil(pausedRecord, @"%@", error);
+
+  XCTAssertEqual(baselineRecord.eventPaths.count, (NSUInteger)1);
+  XCTAssertEqual(pausedRecord.eventPaths.count, baselineRecord.eventPaths.count);
+
+  XCPointerEventPath *baselinePath = baselineRecord.eventPaths.firstObject;
+  XCPointerEventPath *pausedPath = pausedRecord.eventPaths.firstObject;
+  XCTAssertEqual(pausedPath.pointerEvents.count, baselinePath.pointerEvents.count);
+  for (NSUInteger i = 0; i < baselinePath.pointerEvents.count; i++) {
+    XCPointerEvent *baselineEvent = baselinePath.pointerEvents[i];
+    XCPointerEvent *pausedEvent = pausedPath.pointerEvents[i];
+    XCTAssertEqual(pausedEvent.eventType, baselineEvent.eventType);
+    XCTAssertEqualWithAccuracy(pausedEvent.offset, baselineEvent.offset, 0.001);
+    XCTAssertEqualWithAccuracy(pausedEvent.coordinate.x, baselineEvent.coordinate.x, 0.001);
+    XCTAssertEqualWithAccuracy(pausedEvent.coordinate.y, baselineEvent.coordinate.y, 0.001);
+  }
 }
 
 - (void)testDoubleTap

@@ -205,9 +205,19 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                  currentItemIndex:(NSUInteger)currentItemIndex
                                             error:(NSError **)error
 {
-  if (nil != eventPath && currentItemIndex == 1) {
+  if (nil != eventPath && currentItemIndex >= 1) {
     FBW3CGestureItem *preceedingItem = [allItems objectAtIndex:currentItemIndex - 1];
-    if ([preceedingItem isKindOfClass:FBPointerMoveItem.class]) {
+    // Only skip creating a new touch if the preceding pointerMove is the one that
+    // implicitly opened this touch, i.e. nothing but (possibly zero-duration) pauses
+    // came before it. Pauses never create an event path themselves.
+    BOOL isPreceedingMoveTheFirstRealItem = YES;
+    for (NSInteger index = (NSInteger)currentItemIndex - 2; index >= 0; index--) {
+      if (![[allItems objectAtIndex:index] isKindOfClass:FBPointerPauseItem.class]) {
+        isPreceedingMoveTheFirstRealItem = NO;
+        break;
+      }
+    }
+    if ([preceedingItem isKindOfClass:FBPointerMoveItem.class] && isPreceedingMoveTheFirstRealItem) {
       return @[];
     }
   }
