@@ -320,6 +320,16 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   return FB_ACTION_ITEM_TYPE_PAUSE;
 }
 
+- (nullable XCUICoordinate *)positionWithError:(NSError **)error
+{
+  // Unlike other gesture items, a pause never touches the screen, so it may
+  // legally be the first item in a sequence (e.g. used by clients to align
+  // ticks across multiple pointers/devices)
+  return self.previousItem.atPosition ?: [self hitpointWithElement:nil
+                                                      positionOffset:[NSValue valueWithCGPoint:CGPointZero]
+                                                               error:error];
+}
+
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath
                                          allItems:(NSArray *)allItems
                                  currentItemIndex:(NSUInteger)currentItemIndex

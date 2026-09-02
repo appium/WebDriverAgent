@@ -120,5 +120,40 @@
   [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
 }
 
+- (void)testTwoFingersTapWithLeadingZeroDurationPause
+{
+  // Selenium clients pad shorter action sequences with a zero-duration pause
+  // so that all pointers/devices end up with the same number of ticks
+  XCUIElement *element = self.testedApplication.buttons[FBShowAlertButtonName];
+  NSArray<NSDictionary<NSString *, id> *> *gesture =
+  @[
+    @{
+      @"type": @"pointer",
+      @"id": @"finger1",
+      @"parameters": @{@"pointerType": @"touch"},
+      @"actions": @[
+          @{@"type": @"pointerMove", @"duration": @0, @"origin": element, @"x": @0, @"y": @0},
+          @{@"type": @"pointerDown"},
+          @{@"type": @"pause", @"duration": @100},
+          @{@"type": @"pointerUp"},
+          ],
+      },
+    @{
+      @"type": @"pointer",
+      @"id": @"finger2",
+      @"parameters": @{@"pointerType": @"touch"},
+      @"actions": @[
+          @{@"type": @"pause", @"duration": @0},
+          @{@"type": @"pointerMove", @"duration": @0, @"origin": element, @"x": @0, @"y": @0},
+          @{@"type": @"pointerDown"},
+          @{@"type": @"pause", @"duration": @100},
+          @{@"type": @"pointerUp"},
+          ],
+      },
+    ];
+
+  [self verifyGesture:gesture orientation:UIDeviceOrientationPortrait];
+}
+
 @end
 
