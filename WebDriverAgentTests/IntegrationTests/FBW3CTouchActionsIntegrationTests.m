@@ -231,6 +231,37 @@
         },
       ],
     
+    // Chain element where a leading pause is followed directly by pointerDown,
+    // with no real pointerMove ever establishing a position
+    @[@{
+        @"type": @"pointer",
+        @"id": @"finger1",
+        @"parameters": @{@"pointerType": @"touch"},
+        @"actions": @[
+            @{@"type": @"pause", @"duration": @0},
+            @{@"type": @"pointerDown"},
+            @{@"type": @"pause", @"duration": @100},
+            @{@"type": @"pointerUp"},
+            ],
+        },
+      ],
+
+    // Chain element where a leading pause is followed directly by a relative
+    // pointerMove, with no real preceding position to be relative to
+    @[@{
+        @"type": @"pointer",
+        @"id": @"finger1",
+        @"parameters": @{@"pointerType": @"touch"},
+        @"actions": @[
+            @{@"type": @"pause", @"duration": @0},
+            @{@"type": @"pointerMove", @"duration": @0, @"origin": @"pointer"},
+            @{@"type": @"pointerDown"},
+            @{@"type": @"pause", @"duration": @100},
+            @{@"type": @"pointerUp"},
+            ],
+        },
+      ],
+
     // Chain element where action items start with an incorrect one, because the correct one is canceled
     @[@{
         @"type": @"pointer",

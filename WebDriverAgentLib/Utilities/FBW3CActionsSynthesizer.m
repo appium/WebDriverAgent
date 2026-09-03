@@ -133,7 +133,8 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     }
     self.duration = durationObj.doubleValue;
     XCUICoordinate *position = [self positionWithError:error];
-    if (nil == position) {
+    // A pause may legally have no position yet (nil position, no error set)
+    if (nil == position && error && nil != *error) {
       return nil;
     }
     self.atPosition = position;
@@ -143,7 +144,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (nullable XCUICoordinate *)positionWithError:(NSError **)error
 {
-  if (nil == self.previousItem) {
+  if (nil == self.previousItem || nil == self.previousItem.atPosition) {
     NSString *errorDescription = [NSString stringWithFormat:@"The '%@' action item must be preceded by %@ item", self.actionItem, FB_ACTION_ITEM_TYPE_POINTER_MOVE];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:errorDescription] build];
@@ -290,7 +291,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   
   // origin == FB_ORIGIN_TYPE_POINTER
-  if (nil == self.previousItem) {
+  if (nil == self.previousItem || nil == self.previousItem.atPosition) {
     NSString *errorDescription = [NSString stringWithFormat:@"There is no previous item for '%@' action item, however %@ is set to '%@'", self.actionItem, FB_ACTION_ITEM_KEY_ORIGIN, FB_ORIGIN_TYPE_POINTER];
     if (error) {
       *error = [[FBErrorBuilder.builder withDescription:errorDescription] build];
@@ -332,12 +333,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (nullable XCUICoordinate *)positionWithError:(NSError **)error
 {
-  // Unlike other gesture items, a pause never touches the screen, so it may
-  // legally be the first item in a sequence (e.g. used by clients to align
-  // ticks across multiple pointers/devices)
-  return self.previousItem.atPosition ?: [self hitpointWithElement:nil
-                                                      positionOffset:[NSValue valueWithCGPoint:CGPointZero]
-                                                               error:error];
+  // A pause has no position of its own; proxy whatever real move preceded
+  // it, or nil (not a fabricated point) if none has run yet
+  return self.previousItem.atPosition;
 }
 
 - (NSArray<XCPointerEventPath *> *)addToEventPath:(XCPointerEventPath *)eventPath
