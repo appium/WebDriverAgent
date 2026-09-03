@@ -676,7 +676,7 @@
       if ([modifiers isKindOfClass:NSNumber.class]) {
         modifierFlags = [(NSNumber *)modifiers unsignedIntValue];
       }
-      NSString *keyValue = [FBKeyboard keyValueForName:item] ?: key;
+      NSString *keyValue = [FBKeyboard keyValueForName:key] ?: key;
       [destination typeKey:keyValue modifierFlags:(XCUIKeyModifierFlags)modifierFlags];
     } else {
       NSString *message = @"All items of the 'keys' array must be either dictionaries or strings";

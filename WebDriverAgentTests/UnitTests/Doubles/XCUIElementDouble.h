@@ -45,8 +45,11 @@
 - (id _Nonnull)fb_standardSnapshot;
 - (id _Nonnull)fb_customSnapshot;
 - (nullable id)query;
+- (void)typeKey:(nonnull NSString *)key modifierFlags:(NSUInteger)modifierFlags;
 
 // Checks
 @property (nonatomic, assign, readonly) BOOL didResolve;
+@property (nonatomic, copy, readonly, nonnull) NSArray<NSString *> *typedKeys;
+@property (nonatomic, assign, readonly) NSUInteger lastTypedModifierFlags;
 
 @end
