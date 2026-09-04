@@ -54,7 +54,7 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     /*
      There is an XCTest bug that application.frame property returns exchanged dimensions for landscape mode.
-     This verification is just to make sure the bug is still there (since height is never greater than width in landscape) 
+     This verification is just to make sure the bug is still there (since height is never greater than width in landscape)
      and to make it still working properly after XCTest itself starts to respect landscape mode.
      */
     if (actualSize.height > actualSize.width) {
@@ -63,7 +63,9 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
   }
   return actualSize;
 }
+#endif
 
+#if !TARGET_OS_TV
 XCUICoordinate *FBCoordinateWithAnchorOffset(XCUIElement *element,
                                               CGVector anchorOffset,
                                               CGVector pointsOffset,

@@ -37,7 +37,9 @@ BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold);
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
 /*! Inverts size if necessary to match current screen orientation */
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation);
+#endif
 
+#if !TARGET_OS_TV
 /*!
  Builds a coordinate for the given element from a raw points offset measured from a
  normalized anchor point within the element's own frame - e.g. (0, 0) for an offset
