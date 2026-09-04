@@ -11,6 +11,7 @@
 #if !TARGET_OS_TV
 
 #import "FBErrorBuilder.h"
+#import "FBMathUtils.h"
 #import "XCUICoordinate.h"
 #import "XCUIDevice.h"
 
@@ -36,8 +37,10 @@
   } else {
     CGVector offset = CGVectorMake(relativeCoordinate.CGPointValue.x,
                                    relativeCoordinate.CGPointValue.y);
-    XCUICoordinate *hitPoint = [[self coordinateWithNormalizedOffset:CGVectorMake(0, 0)]
-                                coordinateWithOffset:offset];
+    XCUICoordinate *hitPoint = FBCoordinateWithAnchorOffset(self, CGVectorMake(0, 0), offset, error);
+    if (nil == hitPoint) {
+      return NO;
+    }
     if (nil == pressure || nil == duration) {
       [hitPoint forcePress];
     } else {

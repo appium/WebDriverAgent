@@ -162,7 +162,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     return [super hitpointWithElement:element positionOffset:positionOffset error:error];
   }
 
-  // An offset relative to the element is defined
+  // An offset relative to the element is defined.
   if (CGRectIsEmpty(element.frame)) {
     [FBLogger log:self.application.fb_descriptionRepresentation];
     NSString *description = [NSString stringWithFormat:@"The element '%@' is not visible on the screen and thus is not interactable",
@@ -174,9 +174,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
 
   // W3C standard requires that relative element coordinates start at the center of the element's rectangle
-  CGVector offset = CGVectorMake(positionOffset.CGPointValue.x, positionOffset.CGPointValue.y);
   // TODO: Shall we throw an exception if hitPoint is out of the element frame?
-  return [[element coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)] coordinateWithOffset:offset];
+  CGVector offset = CGVectorMake(positionOffset.CGPointValue.x, positionOffset.CGPointValue.y);
+  return FBCoordinateWithAnchorOffset((XCUIElement *)element, CGVectorMake(0.5, 0.5), offset, error);
 }
 
 @end

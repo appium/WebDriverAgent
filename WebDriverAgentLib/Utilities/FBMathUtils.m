@@ -8,7 +8,10 @@
 
 #import "FBMathUtils.h"
 
+#import "FBErrorBuilder.h"
 #import "FBMacros.h"
+#import "XCUICoordinate.h"
+#import "XCUIElement.h"
 
 CGFloat FBDefaultFrameFuzzyThreshold = 2.0;
 
@@ -59,5 +62,24 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
     }
   }
   return actualSize;
+}
+
+XCUICoordinate *FBCoordinateWithAnchorOffset(XCUIElement *element,
+                                              CGVector anchorOffset,
+                                              CGVector pointsOffset,
+                                              NSError **error)
+{
+  // Read the frame once: checking CGRectIsEmpty and then re-reading element.frame for the
+  // divide below are two separate live round-trips, which a frame could collapse between.
+  CGRect frame = element.frame;
+  if (CGRectIsEmpty(frame)) {
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description]
+     buildError:error];
+    return nil;
+  }
+  CGVector normalizedOffset = CGVectorMake(anchorOffset.dx + pointsOffset.dx / frame.size.width,
+                                           anchorOffset.dy + pointsOffset.dy / frame.size.height);
+  return [element coordinateWithNormalizedOffset:normalizedOffset];
 }
 #endif

@@ -353,14 +353,23 @@
 + (id<FBResponsePayload>)handlePressAndDragCoordinateWithVelocity:(FBRouteRequest *)request
 {
   XCUIApplication *application = request.session.activeApplication;
+  NSError *error;
   CGVector startOffset = CGVectorMake((CGFloat)[request.arguments[@"fromX"] doubleValue],
                                      (CGFloat)[request.arguments[@"fromY"] doubleValue]);
   XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset
-                                                                    element:application];
+                                                                    element:application
+                                                                      error:&error];
+  if (nil == startCoordinate) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   CGVector endOffset = CGVectorMake((CGFloat)[request.arguments[@"toX"] doubleValue],
                                     (CGFloat)[request.arguments[@"toY"] doubleValue]);
   XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset
-                                                                  element:application];
+                                                                  element:application
+                                                                    error:&error];
+  if (nil == endCoordinate) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   [startCoordinate pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
                thenDragToCoordinate:endCoordinate
                        withVelocity:[request.arguments[@"velocity"] doubleValue]
@@ -433,12 +442,19 @@
 + (id<FBResponsePayload>)handleDrag:(FBRouteRequest *)request
 {
   XCUIElement *target = [self targetFromRequest:request];
+  NSError *error;
   CGVector startOffset = CGVectorMake([request.arguments[@"fromX"] doubleValue],
                                       [request.arguments[@"fromY"] doubleValue]);
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset element:target];
+  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithOffset:startOffset element:target error:&error];
+  if (nil == startCoordinate) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   CGVector endOffset = CGVectorMake([request.arguments[@"toX"] doubleValue],
                                     [request.arguments[@"toY"] doubleValue]);
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset element:target];
+  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithOffset:endOffset element:target error:&error];
+  if (nil == endCoordinate) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
   [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
   return FBResponseWithOK();
@@ -659,12 +675,15 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
 
  @param offset absolute screen offset for the given application
  @param element the element instance to perform the gesture on
- @return translated gesture coordinates ready to be passed to XCUICoordinate methods
+ @param error Error instance if any
+ @return translated gesture coordinates ready to be passed to XCUICoordinate methods, or
+ nil if the element is not visible on the screen
  */
-+ (XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset
-                                        element:(XCUIElement *)element
++ (nullable XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset
+                                                  element:(XCUIElement *)element
+                                                    error:(NSError **)error
 {
-  return [[element coordinateWithNormalizedOffset:CGVectorMake(0, 0)] coordinateWithOffset:offset];
+  return FBCoordinateWithAnchorOffset(element, CGVectorMake(0, 0), offset, error);
 }
 
 /**
@@ -688,7 +707,8 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
     return nil;
   }
   return [self gestureCoordinateWithOffset:CGVectorMake(x.doubleValue, y.doubleValue)
-                                   element:[self targetFromRequest:request]];
+                                   element:[self targetFromRequest:request]
+                                     error:error];
 }
 
 /**
