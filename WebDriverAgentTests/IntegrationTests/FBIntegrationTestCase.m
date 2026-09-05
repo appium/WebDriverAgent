@@ -162,4 +162,14 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count == 0);
 }
 
+- (void)skipUnlessWindowSizeMismatchesDevice
+{
+  CGSize appSize = self.testedApplication.frame.size;
+  CGSize deviceSize = self.springboard.frame.size;
+  if (fabs(appSize.width - deviceSize.width) < 1 && fabs(appSize.height - deviceSize.height) < 1) {
+    XCTSkip(@"App window size matches SpringBoard's on this build/device, so it does not "
+            "reproduce the compatibility-mode mismatch from appium/appium#16185");
+  }
+}
+
 @end

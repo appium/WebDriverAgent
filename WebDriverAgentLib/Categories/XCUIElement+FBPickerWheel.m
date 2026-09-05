@@ -25,8 +25,9 @@ static const NSTimeInterval VALUE_CHANGE_TIMEOUT = 2;
 {
   id<FBXCElementSnapshot> snapshot = [self fb_standardSnapshot];
   NSString *previousValue = snapshot.value;
-  XCUICoordinate *startCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
-  XCUICoordinate *endCoord = [startCoord coordinateWithOffset:CGVectorMake(0.0, relativeHeightOffset * snapshot.frame.size.height)];
+  // Stay in normalized offsets end-to-end: XCTest never rescales a composed raw
+  // coordinateWithOffset: for compatibility-mode windows (appium/appium#16185).
+  XCUICoordinate *endCoord = [self coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5 + relativeHeightOffset)];
   // If picker value is reflected in its accessiblity id
   // then fetching of the next snapshot may fail with StaleElementReferenceError
   // because we bound elements by their accessbility ids by default.

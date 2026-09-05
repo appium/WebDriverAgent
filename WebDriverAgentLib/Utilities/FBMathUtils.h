@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 
 @class XCUIApplication;
+@class XCUICoordinate;
+@class XCUIElement;
+
+NS_ASSUME_NONNULL_BEGIN
 
 extern CGFloat FBDefaultFrameFuzzyThreshold;
 
@@ -34,3 +38,27 @@ BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold);
 /*! Inverts size if necessary to match current screen orientation */
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation);
 #endif
+
+#if !TARGET_OS_TV
+/*!
+ Builds a coordinate for the given element from a raw points offset measured from a
+ normalized anchor point within the element's own frame - e.g. (0, 0) for an offset
+ relative to the top-left corner, (0.5, 0.5) for one relative to the center, as W3C
+ actions use. The offset is normalized against the element's wdFrame (the same
+ WDA-reported coordinate space pointsOffset itself is measured in) instead of being
+ passed through as a raw points offset, which XCTest never rescales for
+ compatibility-mode windows (see appium/appium#16185).
+
+ @param element the element to anchor the coordinate to
+ @param anchorOffset normalized offset of the anchor point within the element's wdFrame
+ @param pointsOffset raw points offset from the anchor point, in wdFrame's coordinate space
+ @param error populated if the element's frame is empty (not visible on the screen)
+ @return the resulting coordinate, or nil if the element's frame is empty
+ */
+XCUICoordinate * _Nullable FBCoordinateWithAnchorOffset(XCUIElement *element,
+                                                         CGVector anchorOffset,
+                                                         CGVector pointsOffset,
+                                                         NSError **error);
+#endif
+
+NS_ASSUME_NONNULL_END

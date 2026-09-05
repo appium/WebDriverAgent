@@ -8,7 +8,11 @@
 
 #import "FBMathUtils.h"
 
+#import "FBErrorBuilder.h"
 #import "FBMacros.h"
+#import "XCUICoordinate.h"
+#import "XCUIElement.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 CGFloat FBDefaultFrameFuzzyThreshold = 2.0;
 
@@ -51,7 +55,7 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {
     /*
      There is an XCTest bug that application.frame property returns exchanged dimensions for landscape mode.
-     This verification is just to make sure the bug is still there (since height is never greater than width in landscape) 
+     This verification is just to make sure the bug is still there (since height is never greater than width in landscape)
      and to make it still working properly after XCTest itself starts to respect landscape mode.
      */
     if (actualSize.height > actualSize.width) {
@@ -59,5 +63,26 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
     }
   }
   return actualSize;
+}
+#endif
+
+#if !TARGET_OS_TV
+XCUICoordinate *FBCoordinateWithAnchorOffset(XCUIElement *element,
+                                              CGVector anchorOffset,
+                                              CGVector pointsOffset,
+                                              NSError **error)
+{
+  // wdFrame matches the coordinate space pointsOffset was measured in; element.frame alone
+  // can already be pre-scaled for a compatibility-mode window mismatch, double-applying it.
+  CGRect frame = element.wdFrame;
+  if (CGRectIsEmpty(frame)) {
+    [[[FBErrorBuilder builder]
+      withDescriptionFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description]
+     buildError:error];
+    return nil;
+  }
+  CGVector normalizedOffset = CGVectorMake(anchorOffset.dx + pointsOffset.dx / frame.size.width,
+                                           anchorOffset.dy + pointsOffset.dy / frame.size.height);
+  return [element coordinateWithNormalizedOffset:normalizedOffset];
 }
 #endif
