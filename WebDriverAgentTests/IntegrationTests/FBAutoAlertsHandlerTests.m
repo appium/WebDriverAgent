@@ -27,6 +27,10 @@
 {
   [super setUp];
 
+  if (FBIntegrationTestCase.isRunningInCI) {
+    XCTSkip(@"Flaky on slow CI machines");
+  }
+
   [self launchApplication];
   [self goToAlertsPage];
 
@@ -35,7 +39,9 @@
 
 - (void)tearDown
 {
-  [self clearAlert];
+  if (!FBIntegrationTestCase.isRunningInCI) {
+    [self clearAlert];
+  }
 
   if (self.session) {
     [self.session kill];
@@ -46,10 +52,6 @@
 
 - (void)testAutoAcceptingOfAlerts
 {
-  if (FBIntegrationTestCase.isRunningInCI) {
-    XCTSkip(@"Flaky on slow CI machines");
-  }
-
   self.session = [FBSession
                   initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"accept"];
@@ -62,10 +64,6 @@
 
 - (void)testAutoDismissingOfAlerts
 {
-  if (FBIntegrationTestCase.isRunningInCI) {
-    XCTSkip(@"Flaky on slow CI machines");
-  }
-
   self.session = [FBSession
                   initWithApplication:XCUIApplication.fb_activeApplication
                   defaultAlertAction:@"dismiss"];
