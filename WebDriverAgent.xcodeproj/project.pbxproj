@@ -1269,6 +1269,7 @@
 		FEC3A97A4929115A192F947A /* XCUIDeviceEventAndStateInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 003AAAB9CB5FB38E45E05F6F /* XCUIDeviceEventAndStateInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FFA7672B731B57AB9283DD40 /* FBXCElementSnapshotWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 13DE7A53287CA1EC003243C6 /* FBXCElementSnapshotWrapper.h */; };
 		FFD70914E6D8CE5D4FED4B69 /* XCUIAXNotificationHandling-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EA96C2FEDE73CB5148BA4949 /* XCUIAXNotificationHandling-Protocol.h */; };
+		C01249000000000000000003 /* FBCoordinateProbeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C01249000000000000000002 /* FBCoordinateProbeViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1959,6 +1960,8 @@
 		FCD1815F2BF21CA0936B04E1 /* XCTMessagingRole_SiriAutomation-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_SiriAutomation-Protocol.h"; sourceTree = "<group>"; };
 		FDB15E393EA0850C004D26B2 /* XCTScreenCapturePolicy.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTScreenCapturePolicy.h; sourceTree = "<group>"; };
 		FF8E3B470FC9639D5F18E2EA /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C01249000000000000000001 /* FBCoordinateProbeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBCoordinateProbeViewController.h; sourceTree = "<group>"; };
+		C01249000000000000000002 /* FBCoordinateProbeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBCoordinateProbeViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2732,6 +2735,8 @@
 				EE55B3231D1D5388003AAAEC /* FBTableDataSource.m */,
 				EE9B76841CF7997600275851 /* ViewController.h */,
 				EE9B76851CF7997600275851 /* ViewController.m */,
+				C01249000000000000000001 /* FBCoordinateProbeViewController.h */,
+				C01249000000000000000002 /* FBCoordinateProbeViewController.m */,
 				315A14FF2518CB8700A3A064 /* TouchableView.h */,
 				315A15002518CB8700A3A064 /* TouchableView.m */,
 				315A15052518CC2800A3A064 /* TouchSpotView.h */,
@@ -4851,6 +4856,7 @@
 				315A15072518CC2800A3A064 /* TouchSpotView.m in Sources */,
 				EE9B76911CF7997600275851 /* main.m in Sources */,
 				EE9B768F1CF7997600275851 /* ViewController.m in Sources */,
+				C01249000000000000000003 /* FBCoordinateProbeViewController.m in Sources */,
 				315A15012518CB8700A3A064 /* TouchableView.m in Sources */,
 				315A150A2518D6F400A3A064 /* TouchViewController.m in Sources */,
 				ADDA07241D6BB2BF001700AC /* FBScrollViewController.m in Sources */,

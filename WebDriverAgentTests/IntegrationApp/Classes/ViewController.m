@@ -7,6 +7,7 @@
  */
 
 #import "ViewController.h"
+#import "FBCoordinateProbeViewController.h"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *orentationLabel;
@@ -28,6 +29,18 @@
                                              target:self
                                            selector:@selector(handleCustomAction:)];
   self.button.accessibilityCustomActions = @[action1, action2];
+
+  UIBarButtonItem *probeButton = [[UIBarButtonItem alloc] initWithTitle:@"Coordinate Probe"
+                                                               style:UIBarButtonItemStylePlain
+                                                              target:self
+                                                              action:@selector(showCoordinateProbe)];
+  probeButton.accessibilityIdentifier = @"coordinate-probe";
+  self.navigationItem.rightBarButtonItem = probeButton;
+}
+
+- (void)showCoordinateProbe
+{
+  [self.navigationController pushViewController:[FBCoordinateProbeViewController new] animated:NO];
 }
 
 - (BOOL)handleCustomAction:(UIAccessibilityCustomAction *)action
