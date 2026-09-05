@@ -29,16 +29,9 @@
                                              target:self
                                            selector:@selector(handleCustomAction:)];
   self.button.accessibilityCustomActions = @[action1, action2];
-
-  UIBarButtonItem *probeButton = [[UIBarButtonItem alloc] initWithTitle:@"Coordinate Probe"
-                                                               style:UIBarButtonItemStylePlain
-                                                              target:self
-                                                              action:@selector(showCoordinateProbe)];
-  probeButton.accessibilityIdentifier = @"coordinate-probe";
-  self.navigationItem.rightBarButtonItem = probeButton;
 }
 
-- (void)showCoordinateProbe
+- (IBAction)showCoordinateProbe:(id)sender
 {
   [self.navigationController pushViewController:[FBCoordinateProbeViewController new] animated:NO];
 }

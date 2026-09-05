@@ -1,6 +1,6 @@
 # Coordinate probe
 
-Open **Coordinate Probe** from the IntegrationApp home screen's navigation bar.
+Open **Coordinate Probe** below **DeepHierarchy** on the IntegrationApp home screen.
 Use the standard Back button to return to the existing fixtures. Opening the probe
 creates a fresh measurement session.
 

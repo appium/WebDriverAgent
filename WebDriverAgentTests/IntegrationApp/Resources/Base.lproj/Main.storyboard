@@ -83,6 +83,17 @@
                                     <action selector="goToDeepHierarchy:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dHi-03-Act"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cPr-01-Btn">
+                                <rect key="frame" x="139" y="418" width="136" height="30"/>
+                                <accessibility key="accessibilityConfiguration" identifier="coordinate-probe"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="cPr-02-Hgt"/>
+                                </constraints>
+                                <state key="normal" title="Coordinate Probe"/>
+                                <connections>
+                                    <action selector="showCoordinateProbe:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cPr-03-Act"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <accessibility key="accessibilityConfiguration" label="MainView"/>
@@ -101,6 +112,8 @@
                             <constraint firstItem="M2N-Yn-ytb" firstAttribute="top" secondItem="YgP-SF-TkS" secondAttribute="bottom" constant="8" id="tMN-gl-smg"/>
                             <constraint firstItem="dHi-01-Btn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dHi-04-Cnt"/>
                             <constraint firstItem="dHi-01-Btn" firstAttribute="top" secondItem="1Ht-AF-MGW" secondAttribute="bottom" constant="8" id="dHi-05-Top"/>
+                            <constraint firstItem="cPr-01-Btn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cPr-04-Cnt"/>
+                            <constraint firstItem="cPr-01-Btn" firstAttribute="top" secondItem="dHi-01-Btn" secondAttribute="bottom" constant="8" id="cPr-05-Top"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="dmu-Fe-aoT"/>
