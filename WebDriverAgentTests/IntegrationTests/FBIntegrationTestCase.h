@@ -91,4 +91,11 @@ extern NSArray<NSString *> *const FBMainViewButtonLabels;
  */
 - (void)resetOrientation;
 
+/**
+ appium/appium#16185: skips the current test unless the app's window size actually
+ differs from SpringBoard's, e.g. an iPhone-only app on iPad (built with
+ TARGETED_DEVICE_FAMILY=1).
+ */
+- (void)skipUnlessWindowSizeMismatchesDevice;
+
 @end

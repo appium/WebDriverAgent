@@ -11,6 +11,7 @@
 #import "FBIntegrationTestCase.h"
 
 #import "FBElementCache.h"
+#import "FBMathUtils.h"
 #import "FBTestMacros.h"
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
@@ -103,18 +104,6 @@
   [self verifyTapByCoordinatesWithOrientation:UIDeviceOrientationPortraitUpsideDown];
 }
 
-// appium/appium#16185: skips unless the app's window size actually differs from
-// SpringBoard's, e.g. an iPhone-only app on iPad (built with TARGETED_DEVICE_FAMILY=1).
-- (void)skipUnlessWindowSizeMismatchesDevice
-{
-  CGSize appSize = self.testedApplication.frame.size;
-  CGSize deviceSize = self.springboard.frame.size;
-  if (fabs(appSize.width - deviceSize.width) < 1 && fabs(appSize.height - deviceSize.height) < 1) {
-    XCTSkip(@"App window size matches SpringBoard's on this build/device, so it does not "
-            "reproduce the compatibility-mode mismatch from appium/appium#16185");
-  }
-}
-
 // Element-less absolute offsets are never rescaled by XCTest's XCUICoordinate (verified by
 // disassembling XCUIAutomation.framework), so this still fails under a window-size mismatch.
 - (void)testTapAtElementRectCenterUnderWindowSizeMismatch
@@ -138,11 +127,42 @@
   });
 }
 
+@end
+
+// The Touch page's touchable view records each touch-down's location, in its own bounds
+// coordinate space, as its accessibility value - a ground truth unaffected by any
+// window-level scaling, letting these tests assert on exact landing position rather than
+// just on whether a tap happened to land inside some (possibly large) target.
+@interface FBElementOffsetTapTest : FBIntegrationTestCase
+@end
+
+@implementation FBElementOffsetTapTest
+
+- (void)setUp
+{
+  [super setUp];
+  [self launchApplication];
+  [self goToTouchPage];
+}
+
+- (CGPoint)lastTouchLocationOf:(XCUIElement *)touchable
+{
+  NSString *value = touchable.value;
+  NSArray<NSString *> *components = [value componentsSeparatedByString:@","];
+  return CGPointMake(components.firstObject.doubleValue, components.lastObject.doubleValue);
+}
+
 // FBW3CActionsSynthesizer normalizes element-relative offsets against the element's own
-// frame, so this keeps landing correctly under the same window-size mismatch.
+// frame, so this keeps landing at the intended point under a window-size mismatch
+// (appium/appium#16185), unlike an element-less absolute offset.
 - (void)testTapWithElementOffsetUnderWindowSizeMismatch
 {
   [self skipUnlessWindowSizeMismatchesDevice];
+
+  XCUIElement *touchable = self.testedApplication.otherElements[@"touchableView"];
+  CGSize size = touchable.wdFrame.size;
+  CGVector offset = CGVectorMake(size.width / 4, -size.height / 4);
+  CGPoint expectedLocation = CGPointMake(size.width / 2 + offset.dx, size.height / 2 + offset.dy);
 
   NSArray<NSDictionary<NSString *, id> *> *gesture =
   @[@{
@@ -150,7 +170,7 @@
       @"id": @"finger1",
       @"parameters": @{@"pointerType": @"touch"},
       @"actions": @[
-          @{@"type": @"pointerMove", @"duration": @0, @"origin": self.testedApplication.buttons[FBShowAlertButtonName], @"x": @5, @"y": @5},
+          @{@"type": @"pointerMove", @"duration": @0, @"origin": touchable, @"x": @(offset.dx), @"y": @(offset.dy)},
           @{@"type": @"pointerDown"},
           @{@"type": @"pause", @"duration": @50},
           @{@"type": @"pointerUp"},
@@ -159,7 +179,8 @@
     ];
   NSError *error;
   XCTAssertTrue([self.testedApplication fb_performW3CActions:gesture elementCache:nil error:&error]);
-  FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
+
+  FBAssertWaitTillBecomesTrue(FBPointFuzzyEqualToPoint([self lastTouchLocationOf:touchable], expectedLocation, 5.0));
 }
 
 @end

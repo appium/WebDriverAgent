@@ -12,6 +12,7 @@
 #import "FBMacros.h"
 #import "XCUICoordinate.h"
 #import "XCUIElement.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 CGFloat FBDefaultFrameFuzzyThreshold = 2.0;
 
@@ -71,9 +72,9 @@ XCUICoordinate *FBCoordinateWithAnchorOffset(XCUIElement *element,
                                               CGVector pointsOffset,
                                               NSError **error)
 {
-  // Read the frame once: checking CGRectIsEmpty and then re-reading element.frame for the
-  // divide below are two separate live round-trips, which a frame could collapse between.
-  CGRect frame = element.frame;
+  // wdFrame matches the coordinate space pointsOffset was measured in; element.frame alone
+  // can already be pre-scaled for a compatibility-mode window mismatch, double-applying it.
+  CGRect frame = element.wdFrame;
   if (CGRectIsEmpty(frame)) {
     [[[FBErrorBuilder builder]
       withDescriptionFormat:@"The element '%@' is not visible on the screen and thus is not interactable", element.description]
