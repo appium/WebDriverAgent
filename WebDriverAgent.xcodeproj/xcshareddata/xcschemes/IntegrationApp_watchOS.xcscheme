@@ -46,6 +46,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9D6B02D8FC050BAF7159284F"
             BuildableName = "IntegrationApp_watchOS.app"
+            BlueprintName = "IntegrationApp_watchOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,6 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9D6B02D8FC050BAF7159284F"
             BuildableName = "IntegrationApp_watchOS.app"
+            BlueprintName = "IntegrationApp_watchOS"
             ReferencedContainer = "container:WebDriverAgent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

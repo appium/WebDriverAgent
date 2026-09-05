@@ -7,6 +7,7 @@
  */
 
 #import "ViewController.h"
+#import "FBCoordinateProbeViewController.h"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *orentationLabel;
@@ -28,6 +29,11 @@
                                              target:self
                                            selector:@selector(handleCustomAction:)];
   self.button.accessibilityCustomActions = @[action1, action2];
+}
+
+- (IBAction)showCoordinateProbe:(id)sender
+{
+  [self.navigationController pushViewController:[FBCoordinateProbeViewController new] animated:NO];
 }
 
 - (BOOL)handleCustomAction:(UIAccessibilityCustomAction *)action

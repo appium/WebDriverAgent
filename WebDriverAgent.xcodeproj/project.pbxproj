@@ -932,6 +932,7 @@
 		BEA2FA45BED17FE03010FECD /* FBFindElementCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9AB7581CAEDF0C008C271F /* FBFindElementCommands.h */; };
 		BF9B191D841681A571BAFED1 /* _XCTestObservationPrivate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = C840A8703A7C8D48897E158A /* _XCTestObservationPrivate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BFF5D9B9446DD542E5D6017D /* XCTTagSelection.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E2092D85A7C691F157B1971 /* XCTTagSelection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C01249000000000000000003 /* FBCoordinateProbeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C01249000000000000000002 /* FBCoordinateProbeViewController.m */; };
 		C040AE5F2E3B934E8EEAEE0F /* XCUIApplicationProcessDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FCB89739438814F43BCA24 /* XCUIApplicationProcessDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C07F140AF96143A0A5CAA2B0 /* XCTestCaseDiscoveryUIAutomationDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E29888B75A756D1CCD21604C /* XCTestCaseDiscoveryUIAutomationDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C1414C29C836902466C4D6DB /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A80A1C12FA9899367D316E8C /* XCTestCastMethodNamesUIAutomationDelegate-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1748,6 +1749,8 @@
 		B8A163261EFA440E42CA6AC1 /* XCTRunnerDaemonSessionUIAutomationDelegate-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTRunnerDaemonSessionUIAutomationDelegate-Protocol.h"; sourceTree = "<group>"; };
 		B98A9F937EF98D6359FCCC7A /* XCTRuntimeIssueDetectionPolicy.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTRuntimeIssueDetectionPolicy.h; sourceTree = "<group>"; };
 		BCED63DFD03326F6351165FE /* WDAFindIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAFindIntegrationTests.swift; sourceTree = "<group>"; };
+		C01249000000000000000001 /* FBCoordinateProbeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBCoordinateProbeViewController.h; sourceTree = "<group>"; };
+		C01249000000000000000002 /* FBCoordinateProbeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBCoordinateProbeViewController.m; sourceTree = "<group>"; };
 		C840A8703A7C8D48897E158A /* _XCTestObservationPrivate-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "_XCTestObservationPrivate-Protocol.h"; sourceTree = "<group>"; };
 		C878996F07A9B26E66FC4EAC /* WDAClickIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WDAClickIntegrationTests.swift; sourceTree = "<group>"; };
 		C8FB547322D3949C00B69954 /* LSApplicationWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSApplicationWorkspace.h; sourceTree = "<group>"; };
@@ -2732,6 +2735,8 @@
 				EE55B3231D1D5388003AAAEC /* FBTableDataSource.m */,
 				EE9B76841CF7997600275851 /* ViewController.h */,
 				EE9B76851CF7997600275851 /* ViewController.m */,
+				C01249000000000000000001 /* FBCoordinateProbeViewController.h */,
+				C01249000000000000000002 /* FBCoordinateProbeViewController.m */,
 				315A14FF2518CB8700A3A064 /* TouchableView.h */,
 				315A15002518CB8700A3A064 /* TouchableView.m */,
 				315A15052518CC2800A3A064 /* TouchSpotView.h */,
@@ -4851,6 +4856,7 @@
 				315A15072518CC2800A3A064 /* TouchSpotView.m in Sources */,
 				EE9B76911CF7997600275851 /* main.m in Sources */,
 				EE9B768F1CF7997600275851 /* ViewController.m in Sources */,
+				C01249000000000000000003 /* FBCoordinateProbeViewController.m in Sources */,
 				315A15012518CB8700A3A064 /* TouchableView.m in Sources */,
 				315A150A2518D6F400A3A064 /* TouchViewController.m in Sources */,
 				ADDA07241D6BB2BF001700AC /* FBScrollViewController.m in Sources */,
