@@ -34,6 +34,7 @@ NSArray<NSString *> *const FBMainViewButtonLabels = @[
   @"Scrolling",
   @"Touch",
   @"DeepHierarchy",
+  @"Coordinate Probe",
 ];
 
 @interface FBIntegrationTestCase ()
