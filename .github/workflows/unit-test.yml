@@ -30,5 +30,3 @@ jobs:
       name: Run format check
     - run: npm run test
       name: Run unit tests
-    - run: node --test Scripts/ci/*.test.mjs
-      name: Test simulator provisioning

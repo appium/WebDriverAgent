@@ -1,8 +1,6 @@
 XC_PROJECT = File.absolute_path('../WebDriverAgent.xcodeproj')
 
 lane :test do
-  simulator_udid = ENV['SIMULATOR_UDID']
-  prepared_simulator = simulator_udid && !simulator_udid.empty?
   # https://docs.fastlane.tools/actions/scan/
   run_tests(
     project: XC_PROJECT,
@@ -10,9 +8,6 @@ lane :test do
     scheme: ENV['SCHEME'],
     sdk: ENV['SDK'],
     device: ENV['DEVICE'],
-    destination: prepared_simulator ? "id=#{simulator_udid}" : nil,
-    # Keep CI on the simulator that the workflow has already booted and settled.
-    parallel_testing: prepared_simulator ? false : nil,
     number_of_retries: 3,
     skip_testing: ENV.fetch('SKIP_TESTING', '')
       .split(',')

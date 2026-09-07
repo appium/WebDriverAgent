@@ -134,14 +134,6 @@ jobs:
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
-      - name: Ensure build simulator exists
-        if: matrix.config.dest == 'tv' || matrix.config.dest == 'watch'
-        id: buildSimulator
-        run: node Scripts/ci/ensure-simulator.mjs "$SIMULATOR_OS" "$SIMULATOR_VERSION" "$SIMULATOR_MODEL"
-        env:
-          SIMULATOR_OS: ${{ matrix.config.sdk == 'tv_sim' && 'tvOS' || 'watchOS' }}
-          SIMULATOR_VERSION: ${{ matrix.config.tv_version || matrix.config.watch_version }}
-          SIMULATOR_MODEL: ${{ matrix.config.tv_model || matrix.config.watch_model }}
       - name: Build
         run: ./Scripts/build.sh
         env:
@@ -150,7 +142,6 @@ jobs:
           SDK: ${{ matrix.config.sdk }}
           DEST: ${{ matrix.config.dest }}
           CODE_SIGN: ${{ matrix.config.code_sign }}
-          SIMULATOR_UDID: ${{ steps.buildSimulator.outputs.udid }}
           IPHONE_MODEL: ${{ matrix.config.iphone_model }}
           IPAD_MODEL: ${{ matrix.config.ipad_model }}
           IOS_VERSION: ${{ matrix.config.ios_version }}
@@ -224,32 +215,18 @@ jobs:
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
-      - name: Ensure test simulator exists
-        id: testSimulator
-        run: node Scripts/ci/ensure-simulator.mjs "$SIMULATOR_OS" "$SIMULATOR_VERSION" "$SIMULATOR_MODEL"
-        env:
-          SIMULATOR_OS: ${{ matrix.config.sdk == 'watch_sim' && 'watchOS' || matrix.config.sdk == 'tv_sim' && 'tvOS' || 'iOS' }}
-          SIMULATOR_VERSION: ${{ matrix.config.ios_version || matrix.config.tv_version || matrix.config.watch_version }}
-          SIMULATOR_MODEL: ${{ matrix.config.dest == 'iphone' && matrix.config.iphone_model || matrix.config.dest == 'ipad' && matrix.config.ipad_model || matrix.config.tv_model || matrix.config.watch_model }}
-      - name: Start Simulator UI
-        run: |
-          if [ "${XCODE_VERSION%%.*}" -ge 27 ]; then
-            open -Fn "$(xcode-select --print-path)/../Applications/DeviceHub.app"
-          else
-            open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
-          fi
-        env:
-          XCODE_VERSION: ${{ matrix.config.xcode_version }}
-      - name: Boot test simulator
-        id: prepareSimulator
-        uses: futureware-tech/simulator-action@v5
-        with:
-          udid: ${{ steps.testSimulator.outputs.udid }}
-          wait_for_boot: true
-      - name: Wait for simulator services to settle
-        run: node Scripts/ci/wait-for-simulator-idle.mjs "$SIMULATOR_UDID"
-        env:
-          SIMULATOR_UDID: ${{ steps.prepareSimulator.outputs.udid }}
+      # - name: Start iOS Simulator UI
+      #   run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+      # - name: Prepare iOS simulator
+      #   id: prepareSimulator
+      #   uses: futureware-tech/simulator-action@v4
+      #   with:
+      #     model: "${{ matrix.config.dest == 'iphone' && matrix.config.iphone_model || matrix.config.ipad_model }}"
+      #     os_version: "${{ matrix.config.ios_version }}"
+      #     shutdown_after_job: false
+      #     wait_for_boot: true
+      # - name: Finalize iOS simulator boot
+      #   run: xcrun --sdk iphonesimulator --show-sdk-version
       - name: Run integration test
         run: ./Scripts/build.sh
         env:
@@ -265,12 +242,5 @@ jobs:
           WATCH_MODEL: ${{ matrix.config.watch_model }}
           WATCH_VERSION: ${{ matrix.config.watch_version }}
           SKIP_TESTING: ${{ startsWith(matrix.config.ios_version, '27.') && matrix.config.action == 'int_test_3' && 'IntegrationTests_3/FBForceTouchTests/testForceTap' || '' }}
-          SIMULATOR_UDID: ${{ steps.prepareSimulator.outputs.udid }}
           FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 600
           FASTLANE_XCODEBUILD_SETTINGS_RETRIES: 2
-      - name: Upload failed test logs
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.config.name }}-logs
-          path: ~/Library/Logs/scan

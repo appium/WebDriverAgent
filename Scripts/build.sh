@@ -32,12 +32,6 @@ function define_xc_macros() {
     "watch_generic" ) XC_DESTINATION="generic/platform=watchOS" XC_MACROS="${XC_MACROS} ARCHS=arm64";; # watchOS only supports arm64
   esac
 
-  # CI can provision a simulator explicitly instead of relying on a preinstalled
-  # device with the requested name. Use that exact destination when supplied.
-  if [[ -n "${SIMULATOR_UDID:-}" ]]; then
-    XC_DESTINATION="id=${SIMULATOR_UDID}"
-  fi
-
   case "$ACTION" in
     "build" ) XC_ACTION="build";;
     "analyze" )
