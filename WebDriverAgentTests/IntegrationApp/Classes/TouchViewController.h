@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TouchViewController : UIViewController
+@interface TouchViewController : UIViewController <TouchableViewDelegate>
 
 @property (weak, nonatomic) IBOutlet TouchableView *touchable;
 @property (weak, nonatomic) IBOutlet UILabel *numberOfTapsLabel;

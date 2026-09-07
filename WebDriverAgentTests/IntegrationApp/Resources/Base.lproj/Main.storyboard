@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -142,7 +143,7 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <accessibility key="accessibilityConfiguration" identifier="touchableView"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="C6B-Wo-jWm" secondAttribute="height" multiplier="288:269" id="LeW-u7-tWl"/>
+                                    <constraint firstAttribute="width" secondItem="C6B-Wo-jWm" secondAttribute="height" multiplier="288:269" priority="749" id="LeW-u7-tWl"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Taps" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IV8-Ak-Z8e">
@@ -160,17 +161,19 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="tch-sa-Area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="C6B-Wo-jWm" firstAttribute="top" secondItem="gEY-Ha-hqz" secondAttribute="bottom" constant="8" id="1PW-tn-oTF"/>
-                            <constraint firstAttribute="trailing" secondItem="IV8-Ak-Z8e" secondAttribute="trailing" constant="144" id="5Tn-XG-5OD"/>
-                            <constraint firstAttribute="trailing" secondItem="Q4X-EY-aSL" secondAttribute="trailing" constant="130" id="6Rr-L0-eoR"/>
-                            <constraint firstItem="IV8-Ak-Z8e" firstAttribute="firstBaseline" secondItem="C6B-Wo-jWm" secondAttribute="baseline" constant="24.5" symbolType="layoutAnchor" id="77y-Kf-c0Y"/>
-                            <constraint firstAttribute="trailing" secondItem="C6B-Wo-jWm" secondAttribute="trailing" constant="16" id="CaC-dk-dbo"/>
-                            <constraint firstItem="Q4X-EY-aSL" firstAttribute="leading" secondItem="aEY-AK-0k9" secondAttribute="leading" constant="125" id="Ych-oZ-hmA"/>
-                            <constraint firstItem="Q4X-EY-aSL" firstAttribute="top" secondItem="IV8-Ak-Z8e" secondAttribute="bottom" constant="7.5" id="ktv-kW-VWI"/>
-                            <constraint firstItem="C6B-Wo-jWm" firstAttribute="leading" secondItem="aEY-AK-0k9" secondAttribute="leading" constant="16" id="pI7-Ds-hXG"/>
-                            <constraint firstItem="IV8-Ak-Z8e" firstAttribute="leading" secondItem="aEY-AK-0k9" secondAttribute="leading" constant="139" id="vbu-wn-Qvc"/>
+                            <constraint firstItem="C6B-Wo-jWm" firstAttribute="top" secondItem="tch-sa-Area" secondAttribute="top" constant="8" id="1PW-tn-oTF"/>
+                            <constraint firstItem="C6B-Wo-jWm" firstAttribute="leading" secondItem="tch-sa-Area" secondAttribute="leading" constant="16" id="pI7-Ds-hXG"/>
+                            <constraint firstItem="tch-sa-Area" firstAttribute="trailing" secondItem="C6B-Wo-jWm" secondAttribute="trailing" constant="16" id="CaC-dk-dbo"/>
+                            <constraint firstItem="IV8-Ak-Z8e" firstAttribute="top" secondItem="C6B-Wo-jWm" secondAttribute="bottom" constant="8" id="77y-Kf-c0Y"/>
+                            <constraint firstItem="IV8-Ak-Z8e" firstAttribute="leading" secondItem="C6B-Wo-jWm" secondAttribute="leading" id="vbu-wn-Qvc"/>
+                            <constraint firstItem="IV8-Ak-Z8e" firstAttribute="trailing" secondItem="C6B-Wo-jWm" secondAttribute="trailing" id="5Tn-XG-5OD"/>
+                            <constraint firstItem="Q4X-EY-aSL" firstAttribute="top" secondItem="IV8-Ak-Z8e" secondAttribute="bottom" constant="8" id="ktv-kW-VWI"/>
+                            <constraint firstItem="Q4X-EY-aSL" firstAttribute="leading" secondItem="C6B-Wo-jWm" secondAttribute="leading" id="Ych-oZ-hmA"/>
+                            <constraint firstItem="Q4X-EY-aSL" firstAttribute="trailing" secondItem="C6B-Wo-jWm" secondAttribute="trailing" id="6Rr-L0-eoR"/>
+                            <constraint firstItem="tch-sa-Area" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Q4X-EY-aSL" secondAttribute="bottom" constant="8" id="tch-btm-Fit"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="fDl-EC-1lc"/>

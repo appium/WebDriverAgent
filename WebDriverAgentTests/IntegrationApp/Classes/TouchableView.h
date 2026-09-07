@@ -21,8 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TouchableView : UIView
 
 @property (nonatomic) NSMutableDictionary<NSNumber*, TouchSpotView*> *touchViews;
+// Cumulative completed contacts; cancelled contacts are excluded.
 @property (nonatomic) int numberOFTaps;
-@property (nonatomic) id delegate;
+@property (nonatomic, weak, nullable) id<TouchableViewDelegate> delegate;
 
 @end
 

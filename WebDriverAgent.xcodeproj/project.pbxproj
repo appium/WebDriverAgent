@@ -1270,6 +1270,10 @@
 		FEC3A97A4929115A192F947A /* XCUIDeviceEventAndStateInterface-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 003AAAB9CB5FB38E45E05F6F /* XCUIDeviceEventAndStateInterface-Protocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FFA7672B731B57AB9283DD40 /* FBXCElementSnapshotWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 13DE7A53287CA1EC003243C6 /* FBXCElementSnapshotWrapper.h */; };
 		FFD70914E6D8CE5D4FED4B69 /* XCUIAXNotificationHandling-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EA96C2FEDE73CB5148BA4949 /* XCUIAXNotificationHandling-Protocol.h */; };
+		6C07E44E139D41D6BA092F39 /* FBTouchableViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D04760558C64B8EB69380E0 /* FBTouchableViewTests.m */; };
+		C15E49E6B6924191BAAD9FDF /* FBIntegrationAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27B518E261C14E29B943AB9B /* FBIntegrationAppTests.m */; };
+		81E462B8A75F497CBFC6FD8B /* TouchableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 315A15002518CB8700A3A064 /* TouchableView.m */; };
+		B6DE70BFF27148BDAC72F80C /* TouchSpotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 315A15062518CC2800A3A064 /* TouchSpotView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1962,6 +1966,8 @@
 		FCD1815F2BF21CA0936B04E1 /* XCTMessagingRole_SiriAutomation-Protocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "XCTMessagingRole_SiriAutomation-Protocol.h"; sourceTree = "<group>"; };
 		FDB15E393EA0850C004D26B2 /* XCTScreenCapturePolicy.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = XCTScreenCapturePolicy.h; sourceTree = "<group>"; };
 		FF8E3B470FC9639D5F18E2EA /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1D04760558C64B8EB69380E0 /* FBTouchableViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTouchableViewTests.m; sourceTree = "<group>"; };
+		27B518E261C14E29B943AB9B /* FBIntegrationAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBIntegrationAppTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2632,6 +2638,7 @@
 		EE9B76541CF7987300275851 /* IntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
+				27B518E261C14E29B943AB9B /* FBIntegrationAppTests.m */,
 				EE9B76991CF799F400275851 /* FBAlertTests.m */,
 				719CD8FE2126C90200C7D0C2 /* FBAutoAlertsHandlerTests.m */,
 				EE26409C1D0EBA25009BE6B0 /* FBElementAttributeTests.m */,
@@ -2675,6 +2682,7 @@
 		EE9B76561CF7987300275851 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				1D04760558C64B8EB69380E0 /* FBTouchableViewTests.m */,
 				ADBC39951D07840300327304 /* Doubles */,
 				71A7EAFB1E229302001DA4F2 /* FBClassChainTests.m */,
 				EEE16E961D33A25500172525 /* FBConfigurationTests.m */,
@@ -4814,6 +4822,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6DE70BFF27148BDAC72F80C /* TouchSpotView.m in Sources */,
+				81E462B8A75F497CBFC6FD8B /* TouchableView.m in Sources */,
+				6C07E44E139D41D6BA092F39 /* FBTouchableViewTests.m in Sources */,
 				713352FD26CEF31D00523CBC /* FBLRUCacheTests.m in Sources */,
 				EE3F8CFE1D08AA17006F02CE /* FBRunLoopSpinnerTests.m in Sources */,
 				A09D847635CA4C155583B967 /* FBXCAXClientProxyTests.m in Sources */,
@@ -4869,6 +4880,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C15E49E6B6924191BAAD9FDF /* FBIntegrationAppTests.m in Sources */,
 				EE26409D1D0EBA25009BE6B0 /* FBElementAttributeTests.m in Sources */,
 				7119E1EC1E891F8600D0B125 /* FBPickerWheelSelectTests.m in Sources */,
 				71ACF5B8242F2FDC00F0AAD4 /* FBSafariAlertTests.m in Sources */,
