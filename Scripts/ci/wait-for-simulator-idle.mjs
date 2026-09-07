@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
-import {exec} from 'teen_process';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+
+const exec = promisify(execFile);
 
 // `simctl bootstatus` only waits for SpringBoard to become reachable; the simulator's launchd then
 // spends tens of seconds to over a minute spawning ~150-250 background daemons, and CPU contention
@@ -68,7 +71,9 @@ async function main(udid) {
  * @returns {Promise<number|null>}
  */
 async function sumChildProcessCpu(udid) {
-  const {stdout: psOutput} = await exec('ps', ['-Aww', '-o', 'pid=,ppid=,pcpu=,command=']);
+  const {stdout: psOutput} = await exec('ps', ['-Aww', '-o', 'pid=,ppid=,pcpu=,command='], {
+    maxBuffer: 10 * 1024 * 1024,
+  });
   let launchdSimPid = null;
   for (const line of psOutput.split('\n')) {
     if (line.includes('launchd_sim') && line.includes(udid)) {

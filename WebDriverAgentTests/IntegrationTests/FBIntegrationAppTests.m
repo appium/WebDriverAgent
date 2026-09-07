@@ -47,10 +47,19 @@
   NSUInteger count = 0;
   for (NSNumber *orientation in orientations) {
     [self rotateTo:orientation.integerValue];
+    // XCTest can report idle before the rotation animation finishes. Re-read
+    // the geometry until the controls have reached their on-screen layout.
+    FBAssertWaitTillBecomesTrue(
+      CGRectContainsRect(self.testedApplication.frame, canvas.frame)
+      && CGRectContainsRect(self.testedApplication.frame, taps.frame)
+      && CGRectContainsRect(self.testedApplication.frame, touches.frame));
     CGRect screen = self.testedApplication.frame;
-    XCTAssertTrue(CGRectContainsRect(screen, canvas.frame));
-    XCTAssertTrue(CGRectContainsRect(screen, taps.frame));
-    XCTAssertTrue(CGRectContainsRect(screen, touches.frame));
+    XCTAssertTrue(CGRectContainsRect(screen, canvas.frame), @"Screen: %@; canvas: %@",
+                  NSStringFromCGRect(screen), NSStringFromCGRect(canvas.frame));
+    XCTAssertTrue(CGRectContainsRect(screen, taps.frame), @"Screen: %@; taps: %@",
+                  NSStringFromCGRect(screen), NSStringFromCGRect(taps.frame));
+    XCTAssertTrue(CGRectContainsRect(screen, touches.frame), @"Screen: %@; touches: %@",
+                  NSStringFromCGRect(screen), NSStringFromCGRect(touches.frame));
     XCTAssertGreaterThan(CGRectGetHeight(canvas.frame), 0);
     [canvas tap];
     NSString *expectedTaps = [NSString stringWithFormat:@"%lu", (unsigned long)++count];

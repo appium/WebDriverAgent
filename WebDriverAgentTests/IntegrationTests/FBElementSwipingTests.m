@@ -93,10 +93,10 @@
 - (void)setUp
 {
   [super setUp];
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self openScrollView];
-  });
+  // Each test (and retry) must start at row zero, not at the previous test's
+  // scroll offset. A velocity-based swipe need not undo an earlier swipe.
+  [self resetOrientation];
+  [self openScrollView];
 }
 
 - (void)testSwipeUp
