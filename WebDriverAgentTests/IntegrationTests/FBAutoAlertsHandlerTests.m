@@ -27,6 +27,12 @@
 {
   [super setUp];
 
+  // Both tests skip in CI. Do not launch the app before reaching their skip
+  // checks: a launch timeout would turn an intended skip into a failure.
+  if (FBIntegrationTestCase.isRunningInCI) {
+    return;
+  }
+
   [self launchApplication];
   [self goToAlertsPage];
 
@@ -35,7 +41,9 @@
 
 - (void)tearDown
 {
-  [self clearAlert];
+  if (!FBIntegrationTestCase.isRunningInCI) {
+    [self clearAlert];
+  }
 
   if (self.session) {
     [self.session kill];
