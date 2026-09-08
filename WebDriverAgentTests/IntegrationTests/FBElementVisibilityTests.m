@@ -13,6 +13,7 @@
 #import "FBTestMacros.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIElement+FBIsVisible.h"
+#import "XCUIElement+FBUtilities.h"
 
 @interface FBElementVisibilityTests : FBIntegrationTestCase
 @end
@@ -26,14 +27,15 @@
   }
   [self launchApplication];
   [self goToSpringBoardFirstPage];
+  [self.springboard fb_waitUntilStable];
 
-  // Check Icons on first screen
-  // Note: Calender app exits 2 (an app icon + a widget) exist on the home screen
-  // on iOS 15+. The firstMatch is for it.
-  XCTAssertTrue(self.springboard.icons[@"Calendar"].firstMatch.fb_isVisible);
-  XCTAssertTrue(self.springboard.icons[@"Reminders"].fb_isVisible);
+  // Calendar can match both its app icon and a widget on iOS 15+.
+  FBAssertWaitTillBecomesTrue(self.springboard.icons[@"Calendar"].firstMatch.fb_isVisible);
+  // Safari is in the dock; Reminders is not reliably visible on the first page
+  // of CI simulators. Wait for the Home transition before checking visibility.
+  FBAssertWaitTillBecomesTrue(self.springboard.icons[@"Safari"].firstMatch.fb_isVisible);
 
-  // Check Icons on second screen screen
+  // Check the fixture icon on another page.
   XCTAssertFalse(self.springboard.icons[@"IntegrationApp"].firstMatch.fb_isVisible);
 }
 

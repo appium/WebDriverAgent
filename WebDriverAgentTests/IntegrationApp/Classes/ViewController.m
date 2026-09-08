@@ -7,6 +7,7 @@
  */
 
 #import "ViewController.h"
+#import "FBCoordinateProbeViewController.h"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *orentationLabel;
@@ -28,6 +29,11 @@
                                              target:self
                                            selector:@selector(handleCustomAction:)];
   self.button.accessibilityCustomActions = @[action1, action2];
+}
+
+- (IBAction)showCoordinateProbe:(id)sender
+{
+  [self.navigationController pushViewController:[FBCoordinateProbeViewController new] animated:NO];
 }
 
 - (BOOL)handleCustomAction:(UIAccessibilityCustomAction *)action
@@ -57,13 +63,13 @@
   // lay out. This page exists purely as a fixture for exercising element
   // lookups (e.g. class chain locators) against a deep accessibility tree.
   UIViewController *deepHierarchyViewController = [UIViewController new];
-  deepHierarchyViewController.view.backgroundColor = UIColor.whiteColor;
+  deepHierarchyViewController.view.backgroundColor = UIColor.systemBackgroundColor;
   deepHierarchyViewController.view.accessibilityIdentifier = @"DeepHierarchyPage";
 
   NSInteger depth = 70;
   // A plain UILabel sibling, not part of the nested chain below, so the
   // fixture stays recognizable to a human glancing at the simulator instead
-  // of showing a blank white screen.
+  // of showing a blank screen.
   UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 60, CGRectGetWidth(UIScreen.mainScreen.bounds) - 40, 60)];
   titleLabel.text = [NSString stringWithFormat:@"Deep Hierarchy\n%ld nested elements", (long)depth];
   titleLabel.numberOfLines = 2;

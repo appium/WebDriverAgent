@@ -21,14 +21,10 @@
 
 @implementation FBConfigurationTests
 
-- (void)setUp
-{
-  [super setUp];
-  [self launchApplication];
-}
-
 - (void)testReduceMotion
 {
+  [self launchApplication];
+
   BOOL defaultReduceMotionEnabled = FBConfiguration.sharedInstance.reduceMotionEnabled;
 
   FBConfiguration.sharedInstance.reduceMotionEnabled = YES;
@@ -43,6 +39,9 @@
   if (FBIntegrationTestCase.isRunningInCI) {
     XCTSkip(@"Deliberately freezes the app for several seconds, too slow/flaky for CI");
   }
+
+  // Launch only after the CI skip so a skipped test cannot time out in app startup.
+  [self launchApplication];
 
   NSTimeInterval previousDeadline = FBConfiguration.sharedInstance.accessibilityDeadline;
   // Also bounds any snapshot-based wait -tap itself may perform once the app is stuck.

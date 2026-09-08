@@ -34,12 +34,11 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-  self.numberOFTaps += 1;
-  [self.delegate shouldHandleTouchesNumber:(int)touches.count];
   for (UITouch *touch in touches)
   {
     [self createViewForTouch:touch];
   }
+  [self.delegate shouldHandleTouchesNumber:(int)self.touchViews.count];
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
@@ -56,8 +55,13 @@
 {
   for (UITouch *touch in touches)
   {
+    // Count completed contacts, independently of how UIKit batches callbacks.
+    if ([self viewForTouch:touch] != nil) {
+      self.numberOFTaps += 1;
+    }
     [self removeViewForTouch:touch];
   }
+  [self.delegate shouldHandleTouchesNumber:(int)self.touchViews.count];
   [self.delegate shouldHandleTapsNumber:self.numberOFTaps];
 }
 
@@ -67,6 +71,7 @@
   {
     [self removeViewForTouch:touch];
   }
+  [self.delegate shouldHandleTouchesNumber:(int)self.touchViews.count];
 }
 
 - (void)createViewForTouch:(UITouch *)touch

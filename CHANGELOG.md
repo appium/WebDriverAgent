@@ -1,3 +1,15 @@
+## [16.12.5](https://github.com/appium/WebDriverAgent/compare/v16.12.4...v16.12.5) (2026-09-07)
+
+### Bug Fixes
+
+* touch and scroll related view issue in IntegrationApp ([#1253](https://github.com/appium/WebDriverAgent/issues/1253)) ([34859e9](https://github.com/appium/WebDriverAgent/commit/34859e9b443c184505206576b3b531d85d2afbcf))
+
+## [16.12.4](https://github.com/appium/WebDriverAgent/compare/v16.12.3...v16.12.4) (2026-09-06)
+
+### Miscellaneous Chores
+
+* add coordinate screen in the integration app ([#1251](https://github.com/appium/WebDriverAgent/issues/1251)) ([de6acac](https://github.com/appium/WebDriverAgent/commit/de6acac7ebbaf70915f0c09093e3a12623efcea2))
+
 ## [16.12.3](https://github.com/appium/WebDriverAgent/compare/v16.12.2...v16.12.3) (2026-09-04)
 
 ### Bug Fixes
