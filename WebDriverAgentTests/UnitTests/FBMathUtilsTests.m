@@ -110,4 +110,42 @@
   XCTAssertTrue(FBSizeFuzzyEqualToSize(screenSizeLandscape, FBAdjustDimensionsForApplication(screenSizeLandscape, UIInterfaceOrientationLandscapeRight), t));
 }
 
+- (void)testScrollGestureOffsetsWithMatchingFrames
+{
+  CGRect frame = CGRectMake(20, 200, 300, 400);
+  CGVector proportion = CGVectorMake(0.5, 0.75);
+  CGVector vector = CGVectorMake(0, -200);
+  CGVector startOffset, endOffset;
+  XCTAssertTrue(FBScrollGestureOffsets(frame, frame, proportion, vector, &startOffset, &endOffset));
+  XCTAssertTrue(FBVectorFuzzyEqualToVector(startOffset, CGVectorMake(0.5, 0.75), 0.01));
+  XCTAssertTrue(FBVectorFuzzyEqualToVector(endOffset, CGVectorMake(0.5, 0.25), 0.01));
+}
+
+- (void)testScrollGestureOffsetsWithRescaledAnchorFrame
+{
+  // Simulates a compatibility-mode window: anchorFrame is scrollingFrame scaled by ~2.19x,
+  // same origin - offsets should still land within [0, 1] instead of drifting outside it.
+  CGRect scrollingFrame = CGRectMake(20, 202, 335, 420);
+  CGRect anchorFrame = CGRectMake(20, 202, 733, 920);
+  CGVector proportion = CGVectorMake(0.5, 0.75);
+  CGVector vector = CGVectorMake(0, -250);
+  CGVector startOffset, endOffset;
+  XCTAssertTrue(FBScrollGestureOffsets(scrollingFrame, anchorFrame, proportion, vector, &startOffset, &endOffset));
+  XCTAssertTrue(startOffset.dx >= 0 && startOffset.dx <= 1);
+  XCTAssertTrue(startOffset.dy >= 0 && startOffset.dy <= 1);
+  XCTAssertTrue(endOffset.dx >= 0 && endOffset.dx <= 1);
+  XCTAssertTrue(endOffset.dy >= 0 && endOffset.dy <= 1);
+}
+
+- (void)testScrollGestureOffsetsWithEmptyFrame
+{
+  CGVector startOffset = CGVectorMake(-1, -1);
+  CGVector endOffset = CGVectorMake(-1, -1);
+  XCTAssertFalse(FBScrollGestureOffsets(CGRectZero, CGRectMake(0, 0, 100, 100), CGVectorMake(0.5, 0.5), CGVectorMake(0, -50), &startOffset, &endOffset));
+  XCTAssertFalse(FBScrollGestureOffsets(CGRectMake(0, 0, 100, 100), CGRectZero, CGVectorMake(0.5, 0.5), CGVectorMake(0, -50), &startOffset, &endOffset));
+  // Untouched on failure
+  XCTAssertTrue(startOffset.dx == -1 && startOffset.dy == -1);
+  XCTAssertTrue(endOffset.dx == -1 && endOffset.dy == -1);
+}
+
 @end

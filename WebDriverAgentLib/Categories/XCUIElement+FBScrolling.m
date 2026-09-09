@@ -374,26 +374,18 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
                                                              error:(NSError **)error
 {
   CGRect scrollingFrame = self.scrollingFrame;
-  CGRect anchorFrame = anchorElement.frame;
+  // wdFrame matches scrollingFrame's coordinate space; raw .frame can be pre-scaled or
+  // dimension-swapped and drift out of sync with it (appium/appium#16185).
+  CGRect anchorFrame = anchorElement.wdFrame;
   if (CGRectIsEmpty(scrollingFrame) || CGRectIsEmpty(anchorFrame)) {
     return [[[FBErrorBuilder builder]
              withDescriptionFormat:@"Cannot compute a scroll gesture for '%@': its frame is empty", self.fb_description]
             buildError:error];
   }
 
-  // Compute the touch-down/up points within the (possibly clipped) scrolling frame as
-  // before, then express them as fractions of the anchor element's own frame instead of
-  // raw points, which XCTest never rescales for compatibility-mode windows
-  // (appium/appium#16185). When scrollingFrame == anchorFrame this resolves to the exact
-  // same absolute point as before; it only differs once XCTest itself rescales anchorFrame.
   CGVector proportion = [self fb_normalizedHitPointOffsetForScrollingVector:vector];
-  CGPoint startPoint = CGPointMake((CGFloat)floor(scrollingFrame.origin.x + scrollingFrame.size.width * proportion.dx),
-                                   (CGFloat)floor(scrollingFrame.origin.y + scrollingFrame.size.height * proportion.dy));
-  CGPoint endPoint = CGPointMake((CGFloat)floor(startPoint.x + vector.dx), (CGFloat)floor(startPoint.y + vector.dy));
-  CGVector startOffset = CGVectorMake((startPoint.x - anchorFrame.origin.x) / anchorFrame.size.width,
-                                      (startPoint.y - anchorFrame.origin.y) / anchorFrame.size.height);
-  CGVector endOffset = CGVectorMake((endPoint.x - anchorFrame.origin.x) / anchorFrame.size.width,
-                                    (endPoint.y - anchorFrame.origin.y) / anchorFrame.size.height);
+  CGVector startOffset, endOffset;
+  FBScrollGestureOffsets(scrollingFrame, anchorFrame, proportion, vector, &startOffset, &endOffset);
   XCUICoordinate *startCoordinate = [anchorElement coordinateWithNormalizedOffset:startOffset];
   XCUICoordinate *endCoordinate = [anchorElement coordinateWithNormalizedOffset:endOffset];
 

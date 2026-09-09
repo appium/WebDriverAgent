@@ -86,3 +86,24 @@ XCUICoordinate *FBCoordinateWithAnchorOffset(XCUIElement *element,
   return [element coordinateWithNormalizedOffset:normalizedOffset];
 }
 #endif
+
+BOOL FBScrollGestureOffsets(CGRect scrollingFrame,
+                            CGRect anchorFrame,
+                            CGVector proportion,
+                            CGVector vector,
+                            CGVector *startOffset,
+                            CGVector *endOffset)
+{
+  if (CGRectIsEmpty(scrollingFrame) || CGRectIsEmpty(anchorFrame)) {
+    return NO;
+  }
+
+  CGPoint startPoint = CGPointMake((CGFloat)floor(scrollingFrame.origin.x + scrollingFrame.size.width * proportion.dx),
+                                   (CGFloat)floor(scrollingFrame.origin.y + scrollingFrame.size.height * proportion.dy));
+  CGPoint endPoint = CGPointMake((CGFloat)floor(startPoint.x + vector.dx), (CGFloat)floor(startPoint.y + vector.dy));
+  *startOffset = CGVectorMake((startPoint.x - anchorFrame.origin.x) / anchorFrame.size.width,
+                              (startPoint.y - anchorFrame.origin.y) / anchorFrame.size.height);
+  *endOffset = CGVectorMake((endPoint.x - anchorFrame.origin.x) / anchorFrame.size.width,
+                            (endPoint.y - anchorFrame.origin.y) / anchorFrame.size.height);
+  return YES;
+}

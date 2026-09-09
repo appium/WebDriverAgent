@@ -61,4 +61,29 @@ XCUICoordinate * _Nullable FBCoordinateWithAnchorOffset(XCUIElement *element,
                                                          NSError **error);
 #endif
 
+/*!
+ Computes the normalized (0.0-1.0) start/end offsets of a scroll drag gesture whose
+ touch-down/up points fall within scrollingFrame, expressed relative to anchorFrame -
+ the coordinate space the resulting offsets get resolved against (e.g. via
+ -[XCUIElement coordinateWithNormalizedOffset:]). scrollingFrame and anchorFrame are
+ usually the same rect, but scrollingFrame may be clipped to a visible sub-region, and/or
+ the two may come from frame sources XCTest doesn't keep in sync (see appium/appium#16185)
+ - passing mismatched frames here reproduces that bug rather than fixing it.
+
+ @param scrollingFrame the (possibly clipped) frame to compute the touch-down/up points within
+ @param anchorFrame the frame startOffset/endOffset get normalized against
+ @param proportion normalized touch-down position within scrollingFrame, e.g. from
+        -fb_normalizedHitPointOffsetForScrollingVector:
+ @param vector the scroll vector, in scrollingFrame's coordinate space
+ @param startOffset populated with the normalized start offset; untouched if NO is returned
+ @param endOffset populated with the normalized end offset; untouched if NO is returned
+ @return NO if either frame is empty
+ */
+BOOL FBScrollGestureOffsets(CGRect scrollingFrame,
+                            CGRect anchorFrame,
+                            CGVector proportion,
+                            CGVector vector,
+                            CGVector *startOffset,
+                            CGVector *endOffset);
+
 NS_ASSUME_NONNULL_END
