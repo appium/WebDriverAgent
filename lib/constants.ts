@@ -13,6 +13,9 @@ export const PLATFORM_NAME_IOS = 'iOS';
 
 export const SDK_DEVICE = 'iphoneos';
 
+/**
+ * @deprecated The WDA upgrade timestamp path is no longer used.
+ */
 export const WDA_UPGRADE_TIMESTAMP_PATH = path.join('.appium', 'webdriveragent', 'upgrade.time');
 
 /**

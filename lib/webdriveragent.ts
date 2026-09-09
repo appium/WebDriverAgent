@@ -7,12 +7,7 @@ import type {AppiumLogger, StringRecord} from '@appium/types';
 import AsyncLock from 'async-lock';
 import {waitForCondition} from 'asyncbox';
 
-import {
-  WDA_RUNNER_BUNDLE_ID,
-  WDA_BASE_URL,
-  WDA_UPGRADE_TIMESTAMP_PATH,
-  DEFAULT_TEST_BUNDLE_SUFFIX,
-} from './constants.js';
+import {WDA_RUNNER_BUNDLE_ID, WDA_BASE_URL, DEFAULT_TEST_BUNDLE_SUFFIX} from './constants.js';
 import {log as defaultLogger} from './logger.js';
 import {NoSessionProxy} from './no-session-proxy.js';
 import type {
@@ -588,20 +583,13 @@ export class WebDriverAgent {
     const boxItem = await box.createItem<string>(RECENT_MODULE_VERSION_ITEM_NAME);
     let recentModuleVersion = boxItem.value;
     if (recentModuleVersion === undefined) {
-      const timestampPath = path.resolve(process.env.HOME ?? '', WDA_UPGRADE_TIMESTAMP_PATH);
-      if (await fs.exists(timestampPath)) {
-        // Migrate the legacy marker only when no version has been persisted yet.
-        // TODO: Replace the hardcoded version used for migration from the legacy timestamp file.
-        recentModuleVersion = '5.0.0';
-      } else {
-        this.log.info('There is no need to perform the project cleanup. A fresh install has been detected');
-        try {
-          await boxItem.write(packageInfo.version);
-        } catch (e: any) {
-          this.log.warn(`The actual module version cannot be persisted: ${e.message}`);
-        }
-        return;
+      this.log.info('There is no need to perform the project cleanup. A fresh install has been detected');
+      try {
+        await boxItem.write(packageInfo.version);
+      } catch (e: any) {
+        this.log.warn(`The actual module version cannot be persisted: ${e.message}`);
       }
+      return;
     }
 
     try {

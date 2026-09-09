@@ -8,7 +8,6 @@ import {strongbox} from '@appium/strongbox';
 import {fs} from '@appium/support';
 import sinon from 'sinon';
 
-import {WDA_UPGRADE_TIMESTAMP_PATH} from '../../lib/constants.js';
 import {BOOTSTRAP_PATH} from '../../lib/utils/index.js';
 
 let container: string;
@@ -36,7 +35,7 @@ describe('WDA project cleanup persistence', function () {
     sandbox = sinon.createSandbox();
     legacyMarker = sandbox
       .stub(fs, 'exists')
-      .withArgs(path.resolve(process.env.HOME ?? '', WDA_UPGRADE_TIMESTAMP_PATH))
+      .withArgs(path.resolve(process.env.HOME ?? '', '.appium', 'webdriveragent', 'upgrade.time'))
       .resolves(false);
   });
 
@@ -83,16 +82,16 @@ describe('WDA project cleanup persistence', function () {
     sandbox.assert.notCalled(legacyMarker);
   });
 
-  it('migrates a legacy installation once even when its marker remains', async function () {
+  it('initializes missing version state without consulting a legacy marker', async function () {
     legacyMarker.resolves(true);
     const first = newAgent();
     await first.run();
-    sandbox.assert.calledOnce(first.clean);
+    sandbox.assert.notCalled(first.clean);
     assert.equal(await persistedVersion(), packageInfo.version);
     const second = newAgent();
     await second.run();
     sandbox.assert.notCalled(second.clean);
-    sandbox.assert.calledOnce(legacyMarker);
+    sandbox.assert.notCalled(legacyMarker);
   });
 
   it('initializes a fresh installation without cleaning', async function () {
@@ -101,7 +100,7 @@ describe('WDA project cleanup persistence', function () {
       await agent.run();
       sandbox.assert.notCalled(agent.clean);
     }
-    sandbox.assert.calledOnce(legacyMarker);
+    sandbox.assert.notCalled(legacyMarker);
     assert.equal(await persistedVersion(), packageInfo.version);
   });
 
