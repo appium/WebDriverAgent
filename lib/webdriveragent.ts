@@ -591,6 +591,7 @@ export class WebDriverAgent {
       const timestampPath = path.resolve(process.env.HOME ?? '', WDA_UPGRADE_TIMESTAMP_PATH);
       if (await fs.exists(timestampPath)) {
         // Migrate the legacy marker only when no version has been persisted yet.
+        // TODO: Replace the hardcoded version used for migration from the legacy timestamp file.
         recentModuleVersion = '5.0.0';
       } else {
         this.log.info('There is no need to perform the project cleanup. A fresh install has been detected');
