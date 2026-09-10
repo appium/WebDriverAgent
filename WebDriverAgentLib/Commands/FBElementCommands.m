@@ -74,7 +74,8 @@
     [[FBRoute GET:@"/element/:uuid/attribute/focused"] respondWithTarget:self action:@selector(handleGetFocused:)],
     [[FBRoute POST:@"/wda/element/:uuid/focuse"] respondWithTarget:self action:@selector(handleFocuse:)],
 #elif !TARGET_OS_WATCH
-    // Gesture synthesis isn't supported on watchOS - only /element/:uuid/click is available.
+    // Gesture synthesis isn't supported on watchOS; the routes below all rely on it. Swipe is
+    // the exception and is registered for watchOS separately, at the end of this list.
     [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
     [[FBRoute POST:@"/wda/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
 
@@ -116,6 +117,13 @@
     [[FBRoute POST:@"/wda/tap"] respondWithTarget:self action:@selector(handleTap:)],
 
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
+#endif
+#if TARGET_OS_WATCH
+    // Swiping does not need gesture synthesis: XCUIElement declares swipeUp/Down/Left/Right on
+    // watchOS, and -fb_swipeWithDirection:velocity: calls them directly. handleSwipe: is already
+    // compiled here (it lives in the non-tvOS branch below), so only the route was missing.
+    [[FBRoute POST:@"/wda/element/:uuid/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
+    [[FBRoute POST:@"/wda/swipe"] respondWithTarget:self action:@selector(handleSwipe:)],
 #endif
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
   ];
