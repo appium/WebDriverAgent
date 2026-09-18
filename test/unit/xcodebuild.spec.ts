@@ -4,6 +4,7 @@ import {describe, it, beforeEach, mock} from 'node:test';
 import * as teenProcess from 'teen_process';
 
 import type {XcodeBuildArgs} from '../../lib/types.js';
+import * as utilsIndex from '../../lib/utils/index.js';
 
 let currentExec: (...args: any[]) => any = async () => ({stdout: '', stderr: ''});
 
@@ -11,6 +12,15 @@ mock.module('teen_process', {
   namedExports: {
     ...teenProcess,
     exec: (...args: any[]) => currentExec(...args),
+  },
+});
+
+let currentSetXctestrunFile: (...args: any[]) => any = async () => '/fake/WebDriverAgentRunner.xctestrun';
+
+mock.module('../../lib/utils/index.js', {
+  namedExports: {
+    ...utilsIndex,
+    setXctestrunFile: (...args: any[]) => currentSetXctestrunFile(...args),
   },
 });
 
@@ -111,5 +121,44 @@ describe('XcodeBuild real-device udid case resolution', function () {
     const resolved = await (xcodebuild as any).resolveXcodeDeviceUdid();
     const {args} = (xcodebuild as any).getCommand(false, resolved);
     assert.ok(args.includes('id=00008030-000A49391460202E'));
+  });
+
+  it("bounds 'xcodebuild -showdestinations' with a timeout", async function () {
+    let capturedOpts: any;
+    currentExec = async (_cmd: string, _args: string[], opts: any) => {
+      capturedOpts = opts;
+      return {stdout: SHOWDESTINATIONS_OUTPUT, stderr: ''};
+    };
+    const xcodebuild = makeXcodeBuild('00008030-000a49391460202e', true);
+    await (xcodebuild as any).resolveXcodeDeviceUdid();
+    assert.ok(typeof capturedOpts?.timeout === 'number' && capturedOpts.timeout > 0);
+  });
+
+  it('falls back to the given udid when resolution times out', async function () {
+    currentExec = async () => {
+      throw new Error("Command 'xcodebuild ...' timed out after 15000ms");
+    };
+    const xcodebuild = makeXcodeBuild('some-udid', true);
+    const resolved = await (xcodebuild as any).resolveXcodeDeviceUdid();
+    assert.strictEqual(resolved, 'some-udid');
+  });
+
+  it("keeps the caller's udid casing for the .xctestrun file lookup, unaffected by resolution", async function () {
+    let capturedDeviceInfo: any;
+    currentSetXctestrunFile = async ({deviceInfo}: any) => {
+      capturedDeviceInfo = deviceInfo;
+      return '/fake/WebDriverAgentRunner.xctestrun';
+    };
+    const xcodebuild = new XcodeBuild(
+      {udid: '00008030-000a49391460202e'},
+      {
+        realDevice: true,
+        agentPath: '/fake/WebDriverAgent.xcodeproj',
+        bootstrapPath: '/fake',
+        useXctestrunFile: true,
+      },
+    );
+    await xcodebuild.init({} as any);
+    assert.strictEqual(capturedDeviceInfo.udid, '00008030-000a49391460202e');
   });
 });

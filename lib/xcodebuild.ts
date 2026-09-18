@@ -26,6 +26,9 @@ import {
 
 const DEFAULT_SIGNING_ID = 'iPhone Developer';
 const PREBUILD_DELAY = 0;
+// Bounds the best-effort udid case lookup so a hung 'xcodebuild -showdestinations' cannot stall
+// session startup past wdaLaunchTimeout, which does not cover this step.
+const XCODE_DEVICE_UDID_RESOLUTION_TIMEOUT_MS = 15000;
 
 const ERROR_WRITING_ATTACHMENT = 'Error writing attachment data to file';
 const ERROR_COPYING_ATTACHMENT = 'Error copying testing attachment';
@@ -139,9 +142,11 @@ export class XcodeBuild {
     this.noSessionProxy = noSessionProxy;
 
     if (this.useXctestrunFile) {
+      // Keep the caller's udid casing: the canonical case is only for '-destination id=';
+      // switching it here would orphan an existing .xctestrun file on case-sensitive filesystems.
       const deviceInfo = {
         isRealDevice: !!this.realDevice,
-        udid: await this.resolveXcodeDeviceUdid(),
+        udid: this.device.udid,
         platformVersion: this.platformVersion || '',
         platformName: this.platformName || '',
       };
@@ -364,8 +369,8 @@ export class XcodeBuild {
    * `-showdestinations` listing reports it in, so the `-destination id=` argument this class
    * builds does not depend on whatever case the caller happened to pass in — different Apple
    * tooling doesn't agree on udid letter case. Falls back to `device.udid` unchanged on any
-   * failure, or when no destination matches. A no-op for simulators, whose udid is already
-   * canonical by construction.
+   * failure, timeout, or when no destination matches. A no-op for simulators, whose udid is
+   * already canonical by construction.
    */
   private resolveXcodeDeviceUdid(): Promise<string> {
     if (!this.realDevice) {
@@ -384,7 +389,9 @@ export class XcodeBuild {
     const runnerScheme = `WebDriverAgentRunner${getPlatformSchemeSuffix(this.platformName || '')}`;
     let stdout: string;
     try {
-      ({stdout} = await exec('xcodebuild', ['-showdestinations', '-project', this.agentPath, '-scheme', runnerScheme]));
+      ({stdout} = await exec('xcodebuild', ['-showdestinations', '-project', this.agentPath, '-scheme', runnerScheme], {
+        timeout: XCODE_DEVICE_UDID_RESOLUTION_TIMEOUT_MS,
+      }));
     } catch (err: any) {
       this.log.debug(
         `Cannot list xcodebuild destinations to resolve the canonical udid case for '${this.device.udid}'. ` +
