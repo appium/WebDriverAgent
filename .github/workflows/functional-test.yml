@@ -41,7 +41,7 @@ jobs:
             XCODE_VERSION: '27.0'
             PLATFORM_NAME: 'watchOS'
             PLATFORM_VERSION: '27.0'
-            DEVICE_NAME: 'Apple Watch Series 11 (46mm)'
+            DEVICE_NAME: 'Apple Watch Series 12 (46mm)'
           - HOST_OS: 'macos-15'
             XCODE_VERSION: '16.4'
             PLATFORM_NAME: 'watchOS'
