@@ -13,6 +13,9 @@
 #endif
 #import <XCTest/XCUIDevice.h>
 #import <CoreLocation/CoreLocation.h>
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+#import <UIKit/UIKit.h>
+#endif
 
 #import "FBConfiguration.h"
 #import "FBKeyboard.h"
@@ -80,6 +83,10 @@
     [[FBRoute POST:@"/wda/device/appearance"].withoutSession respondWithTarget:self action:@selector(handleSetDeviceAppearance:)],
     [[FBRoute GET:@"/wda/device/location"] respondWithTarget:self action:@selector(handleGetLocation:)],
     [[FBRoute GET:@"/wda/device/location"].withoutSession respondWithTarget:self action:@selector(handleGetLocation:)],
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+    [[FBRoute POST:@"/wda/device/location/authorization"] respondWithTarget:self action:@selector(handleRequestLocationAuthorization:)],
+    [[FBRoute POST:@"/wda/device/location/authorization"].withoutSession respondWithTarget:self action:@selector(handleRequestLocationAuthorization:)],
+#endif
 #if !TARGET_OS_TV // tvOS does not provide relevant APIs
 #if !TARGET_OS_WATCH
 #if __clang_major__ >= 15
@@ -392,9 +399,62 @@
   return FBResponseWithOK();
 }
 
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
++ (CLLocationManager *)locationAuthorizationManager
+{
+  // Authorization is asynchronous. Keep the manager alive across requests so
+  // returning the HTTP response does not dismiss the system permission prompt.
+  // This manager only requests permission; it never starts location updates.
+  static CLLocationManager *manager;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    manager = [[CLLocationManager alloc] init];
+  });
+  return manager;
+}
+
++ (UIApplicationState)locationAuthorizationApplicationState
+{
+  return UIApplication.sharedApplication.applicationState;
+}
+
++ (id<FBResponsePayload>)handleRequestLocationAuthorization:(FBRouteRequest *)request
+{
+  id access = request.arguments[@"access"];
+  if (![@"whenInUse" isEqual:access] && ![@"always" isEqual:access]) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:
+                                @"'access' must be either 'whenInUse' or 'always'"
+                                                                     traceback:nil]);
+  }
+
+  CLLocationManager *manager = [self locationAuthorizationManager];
+  CLAuthorizationStatus status = manager.authorizationStatus;
+  BOOL wantsAlways = [@"always" isEqual:access];
+  BOOL canRequest = status == kCLAuthorizationStatusNotDetermined
+    || (wantsAlways && status == kCLAuthorizationStatusAuthorizedWhenInUse);
+  if (canRequest) {
+    if ([self locationAuthorizationApplicationState] != UIApplicationStateActive) {
+      return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:
+                                  @"Bring the WebDriverAgent runner to the foreground before requesting location authorization"
+                                                                           traceback:nil]);
+    }
+    if (wantsAlways) {
+      [manager requestAlwaysAuthorization];
+    } else {
+      [manager requestWhenInUseAuthorization];
+    }
+  }
+
+  // Do not wait for user interaction: the client must remain able to handle
+  // the alert. This is the status before the asynchronous permission request.
+  return FBResponseWithObject(@{@"authorizationStatus": @(status)});
+}
+#endif
+
 /**
  Returns device location data.
- It requires to configure location access permission by manual.
+ Location access must already be authorized. On iOS, use
+ POST /wda/device/location/authorization to request permission explicitly.
  The response of 'latitude', 'longitude' and 'altitude' are always zero (0) without authorization.
  'authorizationStatus' indicates current authorization status. '3' is 'Always'.
  https://developer.apple.com/documentation/corelocation/clauthorizationstatus
