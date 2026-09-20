@@ -74,6 +74,7 @@
     "teen_process": "^4.2.0"
   },
   "devDependencies": {
+    "@appium/coresim": "^1.4.0",
     "@appium/oxc-config": "^1.1.0",
     "@appium/semantic-release-config": "^1.1.0",
     "@appium/tsconfig": "^1.2.0",
@@ -82,7 +83,6 @@
     "@types/node": "^26.0.0",
     "@types/sinon": "^22.0.0",
     "appium-xcode": "^7.1.1",
-    "node-simctl": "^9.0.0",
     "semver": "^7.3.7",
     "sinon": "^22.0.0"
   },

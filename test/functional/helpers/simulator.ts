@@ -1,4 +1,4 @@
-import {Simctl} from 'node-simctl';
+import {NativeSimctl, SimDeviceState} from '@appium/coresim';
 
 import type {AppleDevice} from '../../../lib/types.js';
 import {DEVICE_NAME} from '../desired.js';
@@ -28,17 +28,17 @@ export async function getTargetDevice(): Promise<AppleDevice> {
     return {udid: process.env.SIMULATOR_UDID};
   }
 
-  const simctl = new Simctl();
-  const allDevices = Object.values(await simctl.getDevices()).flat();
+  const simctl = new NativeSimctl();
+  const allDevices = await simctl.getDevices();
   const device = allDevices.find((d) => d.name === DEVICE_NAME);
   if (!device) {
     const available = [...new Set(allDevices.map((d) => d.name))].sort().join(', ');
     throw new Error(`No simulator named '${DEVICE_NAME}' exists. Available simulators: ${available || '(none)'}`);
   }
 
-  if (device.state !== 'Booted') {
-    simctl.udid = device.udid;
-    await simctl.startBootMonitor({shouldPreboot: true, timeout: LOCAL_SIM_BOOT_TIMEOUT_MS});
+  if (device.state !== SimDeviceState.Booted) {
+    await simctl.bootDevice(device.udid);
+    await simctl.waitForBoot(device.udid, {timeoutMs: LOCAL_SIM_BOOT_TIMEOUT_MS});
   }
 
   return {udid: device.udid};
