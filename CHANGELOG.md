@@ -1,3 +1,9 @@
+## [16.12.9](https://github.com/appium/WebDriverAgent/compare/v16.12.8...v16.12.9) (2026-09-19)
+
+### Bug Fixes
+
+* resolve real device udid to xcodebuild's own case before building '-destination id=' ([#1260](https://github.com/appium/WebDriverAgent/issues/1260)) ([c220f4d](https://github.com/appium/WebDriverAgent/commit/c220f4d92a70761e0fe1df936740cc04d9bafdc4))
+
 ## [16.12.8](https://github.com/appium/WebDriverAgent/compare/v16.12.7...v16.12.8) (2026-09-11)
 
 ### Bug Fixes
