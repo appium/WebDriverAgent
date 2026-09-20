@@ -418,6 +418,38 @@
   return UIApplication.sharedApplication.applicationState;
 }
 
+/**
+ Requests location permission for the runner via POST /wda/device/location/authorization.
+ This endpoint is iOS-only and also supports
+ POST /session/:sessionID/wda/device/location/authorization.
+ The 'access' argument must be either 'whenInUse' or 'always'.
+ Before the first permission request, the runner may not appear in Location Services settings.
+
+ Keep the runner in the foreground for requests that can display a permission prompt.
+ For example, use Appium's mobile: activateApp with the installed runner's bundle identifier,
+ including its .xctrunner suffix where applicable. WDA does not activate itself or accept
+ permission prompts automatically. Requests that could display a prompt fail if it is not active.
+ The initial iOS prompt does not offer an Always option. To request an explicit upgrade:
+ 1. Send {"access":"whenInUse"} and choose Allow While Using App on the device.
+    Do not choose Allow Once: iOS ignores Always requests during that temporary authorization.
+ 2. After answering the first prompt, send {"access":"always"} with the runner still active.
+    If iOS offers an upgrade prompt, choose Change to Always Allow.
+ If no upgrade prompt appears, check Settings -> Privacy & Security -> Location Services
+ -> the installed WebDriverAgent runner and select Always if available.
+ Denied access must be changed in Settings; restricted access may require changing device restrictions.
+ Permissions may need configuring again after a privacy reset or runner identity change.
+
+ Example requests sent directly to WDA (replace localhost:8100 with your WDA address):
+ curl -X POST http://localhost:8100/wda/device/location/authorization -H 'Content-Type: application/json' -d '{"access":"whenInUse"}'
+ After answering the first prompt, request the upgrade:
+ curl -X POST http://localhost:8100/wda/device/location/authorization -H 'Content-Type: application/json' -d '{"access":"always"}'
+
+ Requesting Always directly from an undetermined state can yield provisional Always
+ authorization, which also reports status 3; this does not confirm an explicit Always upgrade.
+ Returns the authorizationStatus observed before requesting permission, without waiting
+ for the user to answer. Read GET /wda/device/location after answering to check the new status.
+ See https://developer.apple.com/documentation/corelocation/cllocationmanager/requestalwaysauthorization()
+ */
 + (id<FBResponsePayload>)handleRequestLocationAuthorization:(FBRouteRequest *)request
 {
   id access = request.arguments[@"access"];
@@ -452,17 +484,21 @@
 #endif
 
 /**
- Returns device location data.
+ Returns device location data via GET /wda/device/location without requesting permission.
  Location access must already be authorized. On iOS, use
  POST /wda/device/location/authorization to request permission explicitly.
+ See handleRequestLocationAuthorization: for the two-step When In Use to Always flow
+ and the Allow Once limitation.
  The response of 'latitude', 'longitude' and 'altitude' are always zero (0) without authorization.
  'authorizationStatus' indicates current authorization status. '3' is 'Always'.
  https://developer.apple.com/documentation/corelocation/clauthorizationstatus
 
- Settings -> Privacy -> Location Service -> WebDriverAgent-Runner -> Always
-
+ After configuring authorization, return to the app under test and call Appium's
+ getGeoLocation or GET /wda/device/location.
  The return value could be zero even if the permission is set to 'Always'
  since the location service needs some time to update the location data.
+ Readings may also be cached; this endpoint does not guarantee a fresh GPS fix
+ after resetting a simulated location.
  */
 + (id<FBResponsePayload>)handleGetLocation:(FBRouteRequest *)request
 {
