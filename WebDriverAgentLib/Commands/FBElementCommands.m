@@ -22,6 +22,7 @@
 #import "FBRuntimeUtils.h"
 #import "NSPredicate+FBFormat.h"
 #import "XCTestPrivateSymbols.h"
+#import "XCUIApplication+FBTouchAction.h"
 #import "XCUICoordinate.h"
 #import "XCUIDevice.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -370,10 +371,14 @@
   if (nil == endCoordinate) {
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
-  [startCoordinate pressForDuration:[request.arguments[@"pressDuration"] doubleValue]
-               thenDragToCoordinate:endCoordinate
-                       withVelocity:[request.arguments[@"velocity"] doubleValue]
-                thenHoldForDuration:[request.arguments[@"holdDuration"] doubleValue]];
+  if (![application fb_pressAtCoordinate:startCoordinate
+                             forDuration:[request.arguments[@"pressDuration"] doubleValue]
+                    thenDragToCoordinate:endCoordinate
+                            withVelocity:[request.arguments[@"velocity"] doubleValue]
+                     thenHoldForDuration:[request.arguments[@"holdDuration"] doubleValue]
+                                   error:&error]) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   return FBResponseWithOK();
 }
 
@@ -456,7 +461,17 @@
     return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
   }
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
+  XCUIApplication *application = [target isKindOfClass:XCUIApplication.class]
+    ? (XCUIApplication *)target
+    : target.application;
+  if (![application fb_pressAtCoordinate:startCoordinate
+                             forDuration:duration
+                    thenDragToCoordinate:endCoordinate
+                            withVelocity:XCUIGestureVelocityDefault
+                     thenHoldForDuration:0
+                                   error:&error]) {
+    return FBResponseWithStatus([FBCommandStatus invalidElementStateErrorWithMessage:error.description traceback:nil]);
+  }
   return FBResponseWithOK();
 }
 
