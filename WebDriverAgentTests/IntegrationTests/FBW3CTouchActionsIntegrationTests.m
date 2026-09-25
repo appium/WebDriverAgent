@@ -9,6 +9,9 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBConfiguration.h"
+#import "FBMathUtils.h"
+#import "FBScreen.h"
 
 #import "XCUIElement.h"
 #import "XCUIDevice.h"
@@ -21,6 +24,7 @@
 #import "XCSynthesizedEventRecord.h"
 #import "XCPointerEventPath.h"
 #import "XCPointerEvent.h"
+#import "XCUIScreen.h"
 
 @interface FBW3CTouchActionsIntegrationTestsPart1 : FBIntegrationTestCase
 @end
@@ -53,9 +57,98 @@
 
 - (void)tearDown
 {
+  FBConfiguration.sharedInstance.currentDisplayId = nil;
   [self clearAlert];
   [self resetOrientation];
   [super tearDown];
+}
+
+- (nullable XCSynthesizedEventRecord *)tapRecordWithError:(NSError **)error
+{
+  NSArray *gesture = @[@{
+    @"type": @"pointer", @"id": @"finger", @"parameters": @{@"pointerType": @"touch"},
+    @"actions": @[
+      @{@"type": @"pointerMove", @"x": @100, @"y": @100, @"duration": @0},
+      @{@"type": @"pointerDown", @"button": @0},
+      @{@"type": @"pointerUp", @"button": @0},
+    ],
+  }];
+  FBW3CActionsSynthesizer *synthesizer = [[FBW3CActionsSynthesizer alloc] initWithActions:gesture
+                                                                           forApplication:self.testedApplication
+                                                                             elementCache:nil
+                                                                                    error:error];
+  return [synthesizer synthesizeWithError:error];
+}
+
+- (NSArray<XCPointerEvent *> *)pointerEventsOfRecord:(XCSynthesizedEventRecord *)record
+{
+  XCPointerEventPath *eventPath = record.eventPaths.firstObject;
+  return eventPath.pointerEvents;
+}
+
+- (void)testMainDisplaySettingKeepsDefaultCoordinates
+{
+  for (NSNumber *orientation in @[@(UIDeviceOrientationPortrait),
+                                  @(UIDeviceOrientationLandscapeLeft),
+                                  @(UIDeviceOrientationLandscapeRight)]) {
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation.integerValue];
+    NSError *error = nil;
+    FBConfiguration.sharedInstance.currentDisplayId = nil;
+    XCSynthesizedEventRecord *baseline = [self tapRecordWithError:&error];
+    FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
+    XCSynthesizedEventRecord *selected = [self tapRecordWithError:&error];
+    XCTAssertNotNil(baseline);
+    XCTAssertNotNil(selected);
+    XCTAssertNil(error);
+    NSArray<XCPointerEvent *> *baselineEvents = [self pointerEventsOfRecord:baseline];
+    NSArray<XCPointerEvent *> *selectedEvents = [self pointerEventsOfRecord:selected];
+    XCTAssertEqual(baselineEvents.count, selectedEvents.count);
+    for (NSUInteger i = 0; i < baselineEvents.count; i++) {
+      XCTAssertTrue(CGPointEqualToPoint(baselineEvents[i].coordinate, selectedEvents[i].coordinate));
+    }
+  }
+}
+
+- (void)testUnavailableDisplaySettingIsRejected
+{
+  long long maxID = 0;
+  for (NSDictionary<NSString *, id> *screen in [FBScreen screensWithError:nil]) {
+    maxID = MAX(maxID, [screen[@"displayId"] longLongValue]);
+  }
+  FBConfiguration.sharedInstance.currentDisplayId = @(maxID + 1);
+  NSError *error = nil;
+  XCTAssertNil([self tapRecordWithError:&error]);
+  XCTAssertNotNil(error);
+}
+
+- (void)testSecondaryDisplaySetting
+{
+  XCUIScreen *secondary = nil;
+  for (XCUIScreen *screen in [XCUIDevice.sharedDevice screensOrError:nil]) {
+    if (!screen.isMainScreen) {
+      secondary = screen;
+      break;
+    }
+  }
+  if (nil == secondary) {
+    XCTSkip(@"The device has no secondary display");
+  }
+  NSError *error = nil;
+  XCSynthesizedEventRecord *baseline = [self tapRecordWithError:&error];
+  FBConfiguration.sharedInstance.currentDisplayId = @(secondary.displayID);
+  XCSynthesizedEventRecord *selected = [self tapRecordWithError:&error];
+  XCTAssertNotNil(selected);
+  XCTAssertNil(error);
+  XCTAssertEqual(selected.displayID, (unsigned long long)secondary.displayID);
+  XCUIScreen *main = XCUIScreen.mainScreen;
+  CGPoint offset = FBDisplayCoordinateOffset(
+    CGSizeMake(main.bounds.size.width / main.scale, main.bounds.size.height / main.scale),
+    CGSizeMake(secondary.bounds.size.width / secondary.scale, secondary.bounds.size.height / secondary.scale),
+    selected.interfaceOrientation);
+  CGPoint expected = [self pointerEventsOfRecord:baseline].firstObject.coordinate;
+  CGPoint actual = [self pointerEventsOfRecord:selected].firstObject.coordinate;
+  XCTAssertEqual(actual.x, expected.x + offset.x);
+  XCTAssertEqual(actual.y, expected.y + offset.y);
 }
 
 - (void)testErroneousGestures

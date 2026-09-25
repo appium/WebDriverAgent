@@ -37,6 +37,14 @@ BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold);
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
 /*! Inverts size if necessary to match current screen orientation */
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation);
+
+/*!
+ Offsets XCTest screenPoint coordinates for an explicitly selected display.
+ XCTest rotates these coordinates using the main screen's dimensions even when
+ the synthesized event record targets another display. Sizes are in points.
+ */
+CGPoint FBDisplayCoordinateOffset(CGSize mainSize, CGSize displaySize,
+                                  UIInterfaceOrientation orientation);
 #endif
 
 #if !TARGET_OS_TV
