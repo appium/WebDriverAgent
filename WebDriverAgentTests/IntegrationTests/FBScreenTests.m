@@ -9,7 +9,10 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBConfiguration.h"
 #import "FBScreen.h"
+#import "FBScreenshot.h"
+#import "XCUIScreen.h"
 
 @interface FBScreenTests : FBIntegrationTestCase
 @end
@@ -20,6 +23,12 @@
 {
   [super setUp];
   [self launchApplication];
+}
+
+- (void)tearDown
+{
+  FBConfiguration.sharedInstance.currentDisplayId = nil;
+  [super tearDown];
 }
 
 - (void)testDisplayID
@@ -48,6 +57,57 @@
   XCTAssertNotNil(mainScreen[@"scale"]);
   XCTAssertNotNil(mainScreen[@"bounds"]);
   XCTAssertNotNil(mainScreen[@"traits"]);
+}
+
+- (void)testScreenWithDisplayID
+{
+  NSError *error = nil;
+  XCUIScreen *screen = [FBScreen screenWithDisplayID:[FBScreen displayID] error:&error];
+  XCTAssertNil(error);
+  XCTAssertEqual(screen.displayID, [FBScreen displayID]);
+
+  XCTAssertNil([FBScreen screenWithDisplayID:[self unknownDisplayID] error:&error]);
+  XCTAssertNotNil(error);
+}
+
+- (void)testCurrentScreenDefaultsToMainScreen
+{
+  NSError *error = nil;
+  XCTAssertTrue([FBScreen currentScreenWithError:&error].isMainScreen);
+  XCTAssertNil(error);
+}
+
+- (void)testCurrentScreenFollowsSetting
+{
+  FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
+  NSError *error = nil;
+  XCTAssertEqual([FBScreen currentScreenWithError:&error].displayID, [FBScreen displayID]);
+  XCTAssertNil(error);
+  XCTAssertNotNil([FBScreenshot takeInOriginalResolutionWithQuality:0 error:&error]);
+  XCTAssertNil(error);
+
+  FBConfiguration.sharedInstance.currentDisplayId = @([self unknownDisplayID]);
+  XCTAssertNil([FBScreen currentScreenWithError:&error]);
+  XCTAssertNotNil(error);
+  error = nil;
+  XCTAssertNil([FBScreenshot takeInOriginalResolutionWithQuality:0 error:&error]);
+  XCTAssertNotNil(error);
+}
+
+- (void)testSessionResetClearsCurrentDisplay
+{
+  FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
+  [FBConfiguration.sharedInstance resetSessionSettings];
+  XCTAssertNil(FBConfiguration.sharedInstance.currentDisplayId);
+}
+
+- (long long)unknownDisplayID
+{
+  long long maxID = 0;
+  for (NSDictionary<NSString *, id> *screen in [FBScreen screensWithError:nil]) {
+    maxID = MAX(maxID, [screen[@"displayId"] longLongValue]);
+  }
+  return maxID + 1;
 }
 
 - (void)testScreenScale
