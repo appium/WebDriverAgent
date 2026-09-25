@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FBScreenshot : NSObject
 
 /**
- Retrieves non-scaled screenshot of the whole screen
+ Retrieves non-scaled screenshot of the display selected by the currentDisplayId setting
 
  @param quality The number in range 0-3, where 0 is PNG (lossless), 3 is HEIC (lossless), 1- low quality JPEG and 2 - high quality JPEG
  @param error If there is an error, upon return contains an NSError object that describes the problem.
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    error:(NSError **)error;
 
 /**
- Retrieves non-scaled screenshot of the whole screen
+ Retrieves non-scaled screenshot of the display selected by the currentDisplayId setting
 
  @param screenID The screen identifier to take the screenshot from
  @param compressionQuality Normalized screenshot quality value in range 0..1, where 1 is the best quality

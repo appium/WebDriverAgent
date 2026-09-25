@@ -18,6 +18,23 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSArray<NSDictionary<NSString *, id> *> *)screensWithError:(NSError **)error;
 
 /**
+ The display with the given identifier
+
+ @param displayID The display identifier, as returned by screensWithError:
+ @param error Set if the display is not available
+ @return The matching display or nil
+ */
++ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID error:(NSError **)error;
+
+/**
+ The display selected by the currentDisplayId setting, or the main display if the setting is not set
+
+ @param error Set if the selected display is no longer available
+ @return The selected display or nil
+ */
++ (nullable XCUIScreen *)currentScreenWithError:(NSError **)error;
+
+/**
  The identifier of the main device's display
  */
 + (long long)displayID;
