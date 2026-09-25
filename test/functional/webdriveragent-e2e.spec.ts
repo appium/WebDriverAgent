@@ -5,6 +5,7 @@ import {describe, before, afterEach, it} from 'node:test';
 import type {AppleDevice} from '../../lib/types.js';
 import {WebDriverAgent} from '../../lib/webdriveragent.js';
 import {PLATFORM_NAME, PLATFORM_VERSION} from './desired.js';
+import {assertCurrentDisplayIdSetting} from './helpers/display-settings.js';
 import {getTargetDevice} from './helpers/simulator.js';
 
 const WDA_BASE_URL = 'http://localhost:8100';
@@ -59,6 +60,9 @@ async function assertSessionScopedSourceWorks(): Promise<void> {
     assert.equal(sessionSourceResponse.status, 200);
     const sessionSource = (await sessionSourceResponse.json()) as {value: string};
     assert.ok(sessionSource.value.length > 0, 'expected session-scoped /source to return non-empty page source');
+    if (PLATFORM_NAME.toLowerCase() === 'ios') {
+      await assertCurrentDisplayIdSetting(WDA_BASE_URL, wdaSessionId);
+    }
   } finally {
     await fetch(`${WDA_BASE_URL}/session/${wdaSessionId}`, {method: 'DELETE'});
   }

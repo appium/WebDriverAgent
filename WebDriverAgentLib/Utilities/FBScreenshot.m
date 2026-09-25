@@ -15,6 +15,7 @@
 #import "FBImageProcessor.h"
 #import "FBLogger.h"
 #import "FBMacros.h"
+#import "FBScreen.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
@@ -60,8 +61,11 @@ NSString *formatTimeInterval(NSTimeInterval interval) {
 + (NSData *)takeInOriginalResolutionWithQuality:(NSUInteger)quality
                                           error:(NSError **)error
 {
-  XCUIScreen *mainScreen = XCUIScreen.mainScreen;
-  return [self.class takeWithScreenID:mainScreen.displayID
+  XCUIScreen *screen = [FBScreen currentScreenWithError:error];
+  if (nil == screen) {
+    return nil;
+  }
+  return [self.class takeWithScreenID:screen.displayID
                                 scale:SCREENSHOT_SCALE
                    compressionQuality:[self.class compressionQualityWithQuality:quality]
                             sourceUTI:[self.class imageUtiWithQuality:quality]

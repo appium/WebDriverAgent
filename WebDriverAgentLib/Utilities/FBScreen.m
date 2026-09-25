@@ -7,6 +7,8 @@
  */
 
 #import "FBScreen.h"
+#import "FBConfiguration.h"
+#import "FBErrorBuilder.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "FBXCodeCompatibility.h"
 #import "XCUIDevice.h"
@@ -38,6 +40,31 @@
     }];
   }
   return result.copy;
+}
+
++ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID error:(NSError **)error
+{
+  NSArray<XCUIScreen *> *screens = [XCUIDevice.sharedDevice screensOrError:error];
+  if (nil == screens) {
+    return nil;
+  }
+  for (XCUIScreen *screen in screens) {
+    if (screen.displayID == displayID) {
+      return screen;
+    }
+  }
+  [[FBErrorBuilder.builder withDescriptionFormat:@"No display with id %lld is available. Call /wda/screens to list the available displays", displayID]
+   buildError:error];
+  return nil;
+}
+
++ (nullable XCUIScreen *)currentScreenWithError:(NSError **)error
+{
+  NSNumber *displayID = FBConfiguration.sharedInstance.currentDisplayId;
+  if (nil == displayID) {
+    return XCUIScreen.mainScreen;
+  }
+  return [self screenWithDisplayID:displayID.longLongValue error:error];
 }
 
 + (long long)displayID
