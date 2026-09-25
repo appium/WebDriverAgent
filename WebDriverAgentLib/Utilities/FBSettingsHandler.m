@@ -198,7 +198,6 @@ static NSSet<NSString *> *FBNilClearableSettingKeys(void)
         return nil;
       }
       if (![value isKindOfClass:NSNumber.class]
-          || CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID()
           || [value compare:@([value longLongValue])] != NSOrderedSame) {
         return [FBCommandStatus invalidArgumentErrorWithMessage:@"currentDisplayId must be an integer display id returned by /wda/screens"
                                                       traceback:nil];

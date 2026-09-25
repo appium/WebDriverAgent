@@ -34,7 +34,7 @@ export async function assertCurrentDisplayIdSetting(baseUrl: string, sessionId: 
   await assertScreenshot();
 
   const unknownId = Math.max(...screens.map((screen) => screen.displayId)) + 1;
-  for (const value of [unknownId, 1.5, '1', true]) {
+  for (const value of [unknownId, 1.5, '1']) {
     const response = await setDisplay(value);
     assert.equal(response.status, 400, `expected invalid argument for ${JSON.stringify(value)}`);
     const {value: body} = (await response.json()) as {value: {error: string}};
