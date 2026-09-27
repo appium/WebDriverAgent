@@ -24,7 +24,6 @@
     "build/lib",
     "Scripts/build.sh",
     "Scripts/embed-runner-icon.sh",
-    "Scripts/embed-simulator-dependencies.sh",
     "Scripts/*.mjs",
     "Configurations",
     "PrivateHeaders",
