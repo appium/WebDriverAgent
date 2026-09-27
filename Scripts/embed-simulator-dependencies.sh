@@ -92,10 +92,12 @@ for ((index = 0; index < ${#QUEUE[@]}; index++)); do
   done < <(printf '%s\n' "$dependencies" | sed -n 's/^[[:space:]]*@rpath\/\(.*\) (compatibility version.*$/\1/p')
 done
 
-if [ ${#ADDED[@]} -gt 0 ] && [ -d "$RUNNER_APP/_CodeSignature" ]; then
+if [ -d "$RUNNER_APP/_CodeSignature" ]; then
   # Simulator runners use ad-hoc signing. Preserve the host's entitlements.
-  for item in "${ADDED[@]}"; do
+  for item in ${ADDED[@]+"${ADDED[@]}"}; do
     codesign --force --sign - "$item"
   done
+  # Xcode can refresh the host template during incremental builds even when
+  # all dependencies are already present. Refresh its signature in that case.
   codesign --force --sign - --preserve-metadata=identifier,entitlements "$RUNNER_APP"
 fi

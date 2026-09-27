@@ -61,6 +61,9 @@ bash "$SCRIPT"
 test -f "$APP/Frameworks/Testing.framework/preserved.txt"
 test -f "$APP/Frameworks/lib_TestingInterop.dylib"
 test "$(wc -l < "$SIGN_LOG" | tr -d ' ')" = 3
+: > "$SIGN_LOG"
+bash "$SCRIPT"
+test "$(wc -l < "$SIGN_LOG" | tr -d ' ')" = 1 # Refresh host on incremental builds.
 
 # Failure must not remove pre-existing frameworks or leave added files.
 reset_app
