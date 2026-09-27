@@ -134,6 +134,9 @@ jobs:
       - uses: ./.github/actions/xcode-setup
         with:
           xcode_version: ${{ matrix.config.xcode_version }}
+      - name: Test simulator dependency packaging
+        if: matrix.config.target == 'runner'
+        run: bash test/scripts/embed-simulator-dependencies.sh
       - name: Build
         run: ./Scripts/build.sh
         env:
