@@ -27,35 +27,41 @@
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
 
 /**
- Maps a drag XCUIGestureVelocity to the speed XCTest drags at, or returns 0 if the velocity is
- invalid. XCTest calls the result "pixels per second", but divides the distance between the two
- screen points (which are in points) by it. Prefers XCTest's own (exported, but undeclared) mapping
- function, so any future change to its presets is picked up; falls back to the values it returns now.
+ Maps a drag XCUIGestureVelocity to the speed XCTest drags at. XCTest calls the result "pixels per
+ second", but divides the distance between the two screen points (which are in points) by it.
+ Prefers XCTest's own (exported, but undeclared) mapping function, so any future change to its
+ presets is picked up; falls back to the values it returns now.
+
+ @throws FBInvalidArgumentException if the velocity is neither one of the XCUIGestureVelocity
+ presets nor a positive finite number
  */
 static CGFloat FBPointsPerSecondForDragVelocity(XCUIGestureVelocity velocity)
 {
-  BOOL isPreset = FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityDefault, 0)
-    || FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocitySlow, 0)
-    || FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityFast, 0);
-  if (!isPreset && !(isfinite(velocity) && velocity > 0)) {
-    // XCTest itself raises for such values ("Velocity must be a value greater than 0")
-    return 0;
+  BOOL isDefault = FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityDefault, 0);
+  BOOL isSlow = FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocitySlow, 0);
+  BOOL isFast = FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityFast, 0);
+  if (!isDefault && !isSlow && !isFast && !(isfinite(velocity) && velocity > 0)) {
+    NSString *reason = [NSString stringWithFormat:@"%@ is an invalid drag velocity. It must be greater than 0", @(velocity)];
+    @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:nil];
   }
   static double (*xctestMapping)(double) = NULL;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     xctestMapping = (double (*)(double))dlsym(RTLD_DEFAULT, "XCUIPixelsPerSecondForDragGestureVelocity");
+    if (NULL == xctestMapping) {
+      [FBLogger log:@"Could not find XCUIPixelsPerSecondForDragGestureVelocity. Using built-in drag velocity presets instead"];
+    }
   });
   if (NULL != xctestMapping) {
     return (CGFloat)xctestMapping(velocity);
   }
-  if (FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocitySlow, 0)) {
+  if (isSlow) {
     return 250;
   }
-  if (FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityFast, 0)) {
+  if (isFast) {
     return 750;
   }
-  return FBFloatFuzzyEqualToFloat(velocity, XCUIGestureVelocityDefault, 0) ? 500 : velocity;
+  return isDefault ? 500 : velocity;
 }
 
 static BOOL FBIsFinitePoint(CGPoint point)
@@ -116,11 +122,7 @@ static BOOL FBIsFinitePoint(CGPoint point)
                        error:(NSError **)error
 {
   CGFloat pointsPerSecond = FBPointsPerSecondForDragVelocity(velocity);
-  if (pointsPerSecond <= 0) {
-    NSString *reason = [NSString stringWithFormat:@"%@ is an invalid drag velocity. It must be greater than 0", @(velocity)];
-    @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:nil];
-  }
-  if (!(isfinite(pressDuration) && pressDuration >= 0) || !(isfinite(holdDuration) && holdDuration >= 0)) {
+  if (!isfinite(pressDuration) || pressDuration < 0 || !isfinite(holdDuration) || holdDuration < 0) {
     NSString *reason = [NSString stringWithFormat:@"Drag press and hold durations must be non-negative numbers of seconds. Got %@ and %@", @(pressDuration), @(holdDuration)];
     @throw [NSException exceptionWithName:FBInvalidArgumentException reason:reason userInfo:nil];
   }
