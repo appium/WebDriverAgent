@@ -9,16 +9,12 @@ xcodebuild clean build-for-testing \
 
 pushd $WD
 
-# The reason why here excludes several frameworks are:
-# - to remove test packages to refer to the device local instead of embedded ones
-#   XCTAutomationSupport.framework, XCTest.framewor, XCTestCore.framework,
-#   XCUIAutomation.framework, XCUnit.framework.
-#   This can be excluded only for real devices.
-# - Xcode 16 started generating 5.9MB of 'Testing.framework', but it might not be necessary for WDA.
-# - libXCTestSwiftSupport is used for Swift testing. WDA doesn't include Swift stuff, thus this is not needed.
+# Exclude all libraries in the runner app's top-level Frameworks directory so
+# XCTest dependencies resolve from the real device's developer support libraries
+# instead of the copies bundled by Xcode. This also covers new dependencies added
+# by future Xcode versions. This exclusion is only for real-device builds.
+# Keep WebDriverAgentLib.framework inside PlugIns/*.xctest/Frameworks.
 zip -r $ZIP_PKG_NAME $SCHEME-Runner.app \
-    -x "$SCHEME-Runner.app/Frameworks/XC*.framework*" \
-       "$SCHEME-Runner.app/Frameworks/Testing.framework*" \
-       "$SCHEME-Runner.app/Frameworks/libXCTestSwiftSupport.dylib"
+    -x "$SCHEME-Runner.app/Frameworks/*"
 popd
 mv $WD/$ZIP_PKG_NAME ./
