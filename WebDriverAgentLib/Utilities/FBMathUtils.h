@@ -43,7 +43,7 @@ CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientatio
  XCTest rotates these coordinates using the main screen's dimensions even when
  the synthesized event record targets another display. Sizes are in points.
  */
-CGPoint FBDisplayCoordinateOffset(CGSize mainSize, CGSize displaySize,
+CGVector FBDisplayCoordinateOffset(CGSize mainSize, CGSize displaySize,
                                   UIInterfaceOrientation orientation);
 #endif
 

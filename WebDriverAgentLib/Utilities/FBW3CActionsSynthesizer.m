@@ -856,7 +856,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     return nil;
   }
   XCSynthesizedEventRecord *eventRecord;
-  CGPoint displayCorrection = CGPointZero;
+  CGVector displayCorrection = CGVectorMake(0, 0);
   if (screen.isMainScreen) {
     eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
                                             interfaceOrientation:self.application.interfaceOrientation];
@@ -871,6 +871,9 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
     eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
                                                        displayID:(unsigned long long)screen.displayID
                                             interfaceOrientation:self.application.interfaceOrientation];
+    // XCUICoordinate.screenPoint uses the main display's size when rotating
+    // coordinates. Selecting an event display does not change that transform;
+    // compensate for the difference before dispatching to the selected display.
     XCUIScreen *mainScreen = XCUIScreen.mainScreen;
     displayCorrection = FBDisplayCoordinateOffset(
       CGSizeMake(mainScreen.bounds.size.width / mainScreen.scale, mainScreen.bounds.size.height / mainScreen.scale),
@@ -918,10 +921,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return nil;
     }
     for (XCPointerEventPath *eventPath in eventPaths) {
-      if (!CGPointEqualToPoint(displayCorrection, CGPointZero)) {
+      if (displayCorrection.dx != 0 || displayCorrection.dy != 0) {
         for (XCPointerEvent *pointerEvent in eventPath.pointerEvents) {
           CGPoint point = pointerEvent.coordinate;
-          pointerEvent.coordinate = CGPointMake(point.x + displayCorrection.x, point.y + displayCorrection.y);
+          pointerEvent.coordinate = CGPointMake(point.x + displayCorrection.dx, point.y + displayCorrection.dy);
         }
       }
       [eventRecord addPointerEventPath:eventPath];

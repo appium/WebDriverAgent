@@ -109,17 +109,17 @@ BOOL FBScrollGestureOffsets(CGRect scrollingFrame,
 }
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
-CGPoint FBDisplayCoordinateOffset(CGSize mainSize, CGSize displaySize,
+CGVector FBDisplayCoordinateOffset(CGSize mainSize, CGSize displaySize,
                                   UIInterfaceOrientation orientation)
 {
-  CGPoint offset = CGPointZero;
+  CGVector offset = CGVectorMake(0, 0);
   if (orientation == UIInterfaceOrientationLandscapeRight
       || orientation == UIInterfaceOrientationPortraitUpsideDown) {
-    offset.x = displaySize.width - mainSize.width;
+    offset.dx = displaySize.width - mainSize.width;
   }
   if (orientation == UIInterfaceOrientationLandscapeLeft
       || orientation == UIInterfaceOrientationPortraitUpsideDown) {
-    offset.y = displaySize.height - mainSize.height;
+    offset.dy = displaySize.height - mainSize.height;
   }
   return offset;
 }

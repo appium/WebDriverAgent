@@ -141,14 +141,14 @@
   XCTAssertNil(error);
   XCTAssertEqual(selected.displayID, (unsigned long long)secondary.displayID);
   XCUIScreen *main = XCUIScreen.mainScreen;
-  CGPoint offset = FBDisplayCoordinateOffset(
+  CGVector offset = FBDisplayCoordinateOffset(
     CGSizeMake(main.bounds.size.width / main.scale, main.bounds.size.height / main.scale),
     CGSizeMake(secondary.bounds.size.width / secondary.scale, secondary.bounds.size.height / secondary.scale),
     selected.interfaceOrientation);
   CGPoint expected = [self pointerEventsOfRecord:baseline].firstObject.coordinate;
   CGPoint actual = [self pointerEventsOfRecord:selected].firstObject.coordinate;
-  XCTAssertEqual(actual.x, expected.x + offset.x);
-  XCTAssertEqual(actual.y, expected.y + offset.y);
+  XCTAssertEqual(actual.x, expected.x + offset.dx);
+  XCTAssertEqual(actual.y, expected.y + offset.dy);
 }
 
 - (void)testErroneousGestures

@@ -166,14 +166,15 @@
   ];
   for (NSUInteger i = 0; i < orientations.count; i++) {
     UIInterfaceOrientation orientation = orientations[i].integerValue;
-    XCTAssertTrue(CGPointEqualToPoint(
-      FBDisplayCoordinateOffset(mainSize, innerSize, orientation),
-      expected[i].CGPointValue));
-    XCTAssertTrue(CGPointEqualToPoint(
-      FBDisplayCoordinateOffset(mainSize, mainSize, orientation), CGPointZero));
-    CGPoint reverse = FBDisplayCoordinateOffset(innerSize, mainSize, orientation);
-    XCTAssertEqual(reverse.x, -expected[i].CGPointValue.x);
-    XCTAssertEqual(reverse.y, -expected[i].CGPointValue.y);
+    CGVector offset = FBDisplayCoordinateOffset(mainSize, innerSize, orientation);
+    XCTAssertEqual(offset.dx, expected[i].CGPointValue.x);
+    XCTAssertEqual(offset.dy, expected[i].CGPointValue.y);
+    CGVector sameDisplay = FBDisplayCoordinateOffset(mainSize, mainSize, orientation);
+    XCTAssertEqual(sameDisplay.dx, 0);
+    XCTAssertEqual(sameDisplay.dy, 0);
+    CGVector reverse = FBDisplayCoordinateOffset(innerSize, mainSize, orientation);
+    XCTAssertEqual(reverse.dx, -expected[i].CGPointValue.x);
+    XCTAssertEqual(reverse.dy, -expected[i].CGPointValue.y);
   }
 }
 

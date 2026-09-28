@@ -72,8 +72,9 @@
   for (NSDictionary<NSString *, id> *availableScreen in [FBScreen screensWithError:nil]) {
     [availableIDs addObject:availableScreen[@"displayId"]];
   }
-  XCTAssertTrue([error.localizedDescription containsString:
-    [NSString stringWithFormat:@"Available display ids: [%@]", [availableIDs componentsJoinedByString:@", "]]]);
+  NSString *availableDisplays = [NSString stringWithFormat:@"Available display ids: [%@]",
+                                [availableIDs componentsJoinedByString:@", "]];
+  XCTAssertTrue([error.localizedDescription containsString:availableDisplays]);
 }
 
 - (void)testCurrentScreenDefaultsToMainScreen
