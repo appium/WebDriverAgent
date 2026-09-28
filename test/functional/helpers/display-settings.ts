@@ -34,11 +34,12 @@ export async function assertCurrentDisplayIdSetting(baseUrl: string, sessionId: 
   await assertScreenshot();
 
   const unknownId = Math.max(...screens.map((screen) => screen.displayId)) + 1;
-  for (const value of [unknownId, 1.5, '1']) {
+  for (const value of [true, false, unknownId, 1.5, '1']) {
     const response = await setDisplay(value);
     assert.equal(response.status, 400, `expected invalid argument for ${JSON.stringify(value)}`);
     const {value: body} = (await response.json()) as {value: {error: string}};
     assert.equal(body.error, 'invalid argument');
+    assert.equal(await getDisplay(), main.displayId, 'invalid input must not change the display');
   }
   assert.equal(await getDisplay(), main.displayId);
 

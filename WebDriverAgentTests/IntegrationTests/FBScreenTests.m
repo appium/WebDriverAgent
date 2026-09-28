@@ -68,6 +68,12 @@
 
   XCTAssertNil([FBScreen screenWithDisplayID:[self unknownDisplayID] error:&error]);
   XCTAssertNotNil(error);
+  NSMutableArray<NSNumber *> *availableIDs = [NSMutableArray array];
+  for (NSDictionary<NSString *, id> *availableScreen in [FBScreen screensWithError:nil]) {
+    [availableIDs addObject:availableScreen[@"displayId"]];
+  }
+  XCTAssertTrue([error.localizedDescription containsString:
+    [NSString stringWithFormat:@"Available display ids: [%@]", [availableIDs componentsJoinedByString:@", "]]]);
 }
 
 - (void)testCurrentScreenDefaultsToMainScreen
