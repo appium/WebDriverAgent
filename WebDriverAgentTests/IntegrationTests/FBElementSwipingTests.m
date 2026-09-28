@@ -15,6 +15,7 @@
 #import "XCUIElement+FBSwiping.h"
 #import "FBExceptions.h"
 #import "XCUIApplication+FBTouchAction.h"
+#import "XCSynthesizedEventRecord.h"
 #import "XCUICoordinate.h"
 
 @interface FBElementSwipingTests : FBIntegrationTestCase
@@ -188,6 +189,21 @@
                                                         error:&error]);
   XCTAssertTrue([error.localizedDescription containsString:@"Cannot resolve the on-screen position"]);
   FBAssertVisibleCell(@"0");
+}
+
+- (void)testPressDragEventKeepsDisplayIDAndTiming
+{
+  XCSynthesizedEventRecord *event = [XCUIApplication fb_pressDragEventFromPoint:CGPointMake(100, 500)
+                                                                    forDuration:0.3
+                                                                        toPoint:CGPointMake(100, 100)
+                                                                pointsPerSecond:500
+                                                            thenHoldForDuration:0.1
+                                                                      displayID:42
+                                                           interfaceOrientation:UIInterfaceOrientationPortrait];
+  XCTAssertEqual(event.displayID, 42ULL);
+  XCTAssertEqual(event.eventPaths.count, 1U);
+  // 0.3 s press + 400 pt / 500 pt per s drag + 0.1 s hold
+  XCTAssertEqualWithAccuracy(event.maximumOffset, 1.2, 0.0001);
 }
 
 - (void)testPressAndDragRejectsInvalidVelocity

@@ -10,6 +10,8 @@
 #import <XCTest/XCTest.h>
 #import "FBElementCache.h"
 
+@class XCSynthesizedEventRecord;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIApplication (FBTouchAction)
@@ -50,6 +52,30 @@ NS_ASSUME_NONNULL_BEGIN
                 withVelocity:(XCUIGestureVelocity)velocity
          thenHoldForDuration:(NSTimeInterval)holdDuration
                        error:(NSError * _Nullable*)error;
+
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+/**
+ Builds the synthesized event used by
+ -fb_pressAtCoordinate:forDuration:thenDragToCoordinate:withVelocity:thenHoldForDuration:error:
+ from already resolved screen points. Exposed for testing.
+
+ @param startPoint The screen point to press at
+ @param pressDuration How long to hold still at startPoint before dragging, in seconds
+ @param endPoint The screen point to drag to
+ @param pointsPerSecond The drag speed
+ @param holdDuration How long to hold still at endPoint before lifting, in seconds
+ @param displayID The display to send the gesture to (0 is the main display)
+ @param interfaceOrientation The interface orientation the points are expressed in
+ @return The event record, ready to be synthesized
+ */
++ (XCSynthesizedEventRecord *)fb_pressDragEventFromPoint:(CGPoint)startPoint
+                                             forDuration:(NSTimeInterval)pressDuration
+                                                 toPoint:(CGPoint)endPoint
+                                         pointsPerSecond:(CGFloat)pointsPerSecond
+                                     thenHoldForDuration:(NSTimeInterval)holdDuration
+                                               displayID:(long long)displayID
+                                    interfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
+#endif
 
 @end
 

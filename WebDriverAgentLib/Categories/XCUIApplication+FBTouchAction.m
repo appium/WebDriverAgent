@@ -22,6 +22,7 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCPointerEventPath.h"
 #import "XCSynthesizedEventRecord.h"
+#import "XCUIElement.h"
 #import "XCUIElement+FBUtilities.h"
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
@@ -140,6 +141,34 @@ static BOOL FBIsFinitePoint(CGPoint point)
             buildError:error];
   }
 
+  // Like XCTest, target the display of the element the start coordinate belongs to. displayID
+  // only reads the element's last snapshot, which resolving screenPoint above has just refreshed.
+  XCUIElement *referencedElement = startCoordinate.referencedElement;
+  long long displayID = [referencedElement respondsToSelector:@selector(displayID)]
+    ? referencedElement.displayID
+    : 0;
+  XCSynthesizedEventRecord *event = [self.class fb_pressDragEventFromPoint:startPoint
+                                                               forDuration:pressDuration
+                                                                   toPoint:endPoint
+                                                           pointsPerSecond:pointsPerSecond
+                                                       thenHoldForDuration:holdDuration
+                                                                 displayID:displayID
+                                                      interfaceOrientation:self.interfaceOrientation];
+  if (![self fb_synthesizeEvent:event error:error]) {
+    return NO;
+  }
+  [self fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.animationCoolOffTimeout];
+  return YES;
+}
+
++ (XCSynthesizedEventRecord *)fb_pressDragEventFromPoint:(CGPoint)startPoint
+                                             forDuration:(NSTimeInterval)pressDuration
+                                                 toPoint:(CGPoint)endPoint
+                                         pointsPerSecond:(CGFloat)pointsPerSecond
+                                     thenHoldForDuration:(NSTimeInterval)holdDuration
+                                               displayID:(long long)displayID
+                                    interfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
   // Mirrors XCTest's own press-hold-drag event builder
   XCPointerEventPath *path = [[XCPointerEventPath alloc] initForTouchAtPoint:startPoint offset:0];
   if (pressDuration > 0) {
@@ -150,14 +179,14 @@ static BOOL FBIsFinitePoint(CGPoint point)
   [path moveToPoint:endPoint atOffset:dragEndOffset];
   [path liftUpAtOffset:dragEndOffset + holdDuration];
 
-  XCSynthesizedEventRecord *event = [[XCSynthesizedEventRecord alloc] initWithName:@"Press, drag and hold"
-                                                              interfaceOrientation:self.interfaceOrientation];
+  NSString *name = @"Press, drag and hold";
+  XCSynthesizedEventRecord *event = [XCSynthesizedEventRecord instancesRespondToSelector:@selector(initWithName:displayID:interfaceOrientation:)]
+    ? [[XCSynthesizedEventRecord alloc] initWithName:name
+                                           displayID:(unsigned long long)displayID
+                                interfaceOrientation:interfaceOrientation]
+    : [[XCSynthesizedEventRecord alloc] initWithName:name interfaceOrientation:interfaceOrientation];
   [event addPointerEventPath:path];
-  if (![self fb_synthesizeEvent:event error:error]) {
-    return NO;
-  }
-  [self fb_waitUntilStableWithTimeout:FBConfiguration.sharedInstance.animationCoolOffTimeout];
-  return YES;
+  return event;
 }
 
 - (BOOL)fb_synthesizeEvent:(XCSynthesizedEventRecord *)event error:(NSError *__autoreleasing*)error
