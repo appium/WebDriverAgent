@@ -137,6 +137,8 @@
     } else if (nw_connection_state_failed == state || nw_connection_state_cancelled == state) {
       __strong typeof(weakSelf) strongSelf = weakSelf;
       [strongSelf handleDisconnectForConnection:connection];
+      // A failed connection keeps its socket until cancelled (a no-op once cancelled).
+      nw_connection_cancel(connection);
     }
   });
   nw_connection_start(connection);
@@ -167,7 +169,14 @@
         }
       }
     }
-    if (nil != receiveError || (isComplete && nil == content)) {
+    if (nil != receiveError) {
+      [strongSelf handleDisconnectForConnection:connection];
+      nw_connection_cancel(connection);
+      return;
+    }
+    if (isComplete && nil == content) {
+      // The peer is done sending but may still be reading - a half-closed client awaits its
+      // response - so the delegate cancels the connection once it has nothing left to send.
       [strongSelf handleDisconnectForConnection:connection];
       return;
     }

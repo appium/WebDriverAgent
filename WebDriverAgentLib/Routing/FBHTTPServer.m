@@ -340,11 +340,17 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
 - (void)didClientDisconnect:(nw_connection_t)client
 {
+  BOOL isAwaitingResponse;
   @synchronized (self.connectionBuffers) {
+    isAwaitingResponse = [self.connectionsAwaitingResponse containsObject:client];
     [self.connectionBuffers removeObjectForKey:client];
     [self.pendingRequestHeaders removeObjectForKey:client];
-    [self.connectionsAwaitingResponse removeObject:client];
     [self.incompleteRequestStarts removeObjectForKey:client];
+  }
+  // A client that only stopped sending may still read the response to its in-flight request, so
+  // that response's send completion closes the connection instead (it finds no buffer left).
+  if (!isAwaitingResponse) {
+    nw_connection_cancel(client);
   }
 }
 
@@ -881,13 +887,20 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
         if (nil == queuedSelf) {
           return;
         }
+        BOOL isDisconnected;
         @synchronized (queuedSelf.connectionBuffers) {
           [queuedSelf.connectionsAwaitingResponse removeObject:client];
+          isDisconnected = nil == [queuedSelf.connectionBuffers objectForKey:client];
           // Mid-request connections get their window from when parsing could resume, not from the
           // previous request. Absent entries stay absent, so idle keep-alives remain exempt.
           if (nil != [queuedSelf.incompleteRequestStarts objectForKey:client]) {
             [queuedSelf.incompleteRequestStarts setObject:[NSDate date] forKey:client];
           }
+        }
+        if (isDisconnected) {
+          // The peer stopped sending while this request was in flight - see -didClientDisconnect:.
+          [queuedSelf closeClient:client];
+          return;
         }
         [queuedSelf processBufferForClient:client];
       });

@@ -221,6 +221,8 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     [self.listeningClients removeObject:client];
     [self.pendingFrameCounts removeObjectForKey:client];
   }
+  // Nothing is owed to a client that stopped listening, so its socket can go right away.
+  nw_connection_cancel(client);
   [FBLogger log:@"Disconnected a client from screenshots broadcast"];
 }
 
