@@ -53,7 +53,12 @@
       return screen;
     }
   }
-  [[FBErrorBuilder.builder withDescriptionFormat:@"No display with id %lld is available. Call /wda/screens to list the available displays", displayID]
+  NSMutableArray<NSNumber *> *availableIDs = [NSMutableArray arrayWithCapacity:screens.count];
+  for (XCUIScreen *screen in screens) {
+    [availableIDs addObject:@(screen.displayID)];
+  }
+  [[FBErrorBuilder.builder withDescriptionFormat:@"No display with id %lld is available. Available display ids: [%@]",
+    displayID, [availableIDs componentsJoinedByString:@", "]]
    buildError:error];
   return nil;
 }
