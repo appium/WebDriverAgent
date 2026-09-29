@@ -180,10 +180,12 @@ static NSString *const topNodeIndexPath = @"top";
   @try {
     buffer = xmlBufferCreate();
     if (NULL == buffer) {
+      [FBLogger log:@"Failed to invoke libxml2>xmlBufferCreate"];
       return nil;
     }
     writer = xmlNewTextWriterMemory(buffer, 0);
     if (NULL == writer) {
+      [FBLogger log:@"Failed to invoke libxml2>xmlNewTextWriterMemory"];
       return nil;
     }
     xmlTextWriterSetIndent(writer, 1);
@@ -223,7 +225,7 @@ static NSString *const topNodeIndexPath = @"top";
       if (rc >= 0) {
         rc = xmlTextWriterEndDocument(writer);
         if (rc < 0) {
-          [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathNewContext. Error code: %d", rc];
+          [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndDocument. Error code: %d", rc];
         }
       }
     }
@@ -234,8 +236,12 @@ static NSString *const topNodeIndexPath = @"top";
                                   length:(NSUInteger)xmlBufferLength(buffer)
                                 encoding:NSUTF8StringEncoding];
   } @finally {
-    xmlFreeTextWriter(writer);
-    xmlBufferFree(buffer);
+    if (NULL != writer) {
+      xmlFreeTextWriter(writer);
+    }
+    if (NULL != buffer) {
+      xmlBufferFree(buffer);
+    }
   }
 }
 
@@ -325,10 +331,18 @@ static NSString *const topNodeIndexPath = @"top";
     }
     return matchingSnapshots;
   } @finally {
-    xmlXPathFreeObject(queryResult);
-    xmlXPathFreeObject(contextNodeQueryResult);
-    xmlFreeTextWriter(writer);
-    xmlFreeDoc(doc);
+    if (NULL != queryResult) {
+      xmlXPathFreeObject(queryResult);
+    }
+    if (NULL != contextNodeQueryResult) {
+      xmlXPathFreeObject(contextNodeQueryResult);
+    }
+    if (NULL != writer) {
+      xmlFreeTextWriter(writer);
+    }
+    if (NULL != doc) {
+      xmlFreeDoc(doc);
+    }
   }
 }
 
