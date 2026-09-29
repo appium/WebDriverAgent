@@ -14,6 +14,7 @@
 #import <unistd.h>
 
 #import "FBHTTPServer.h"
+#import "FBTCPSocket.h"
 
 static atomic_int gFramingProbeHits;
 
@@ -240,6 +241,32 @@ static NSString *FBCompleteResponse(NSData *data)
     XCTAssertTrue([response containsString:@"pong"], @"%@", response);
   }
   XCTAssertEqual([self serverSocketCountSettlingAt:baseline], baseline);
+}
+
+- (void)testEofWaitsForPreviouslyReceivedBytesToBeParsed
+{
+  FBHTTPServer *server = [FBHTTPServer new];
+  __block NSUInteger calls = 0;
+  [server get:@"/probe" withBlock:^(RouteRequest *request, RouteResponse *response) {
+    calls++;
+  }];
+  dispatch_queue_t queue = [server valueForKey:@"bufferProcessingQueue"];
+  nw_connection_t client = nw_connection_create(nw_endpoint_create_host("127.0.0.1", "1"),
+    nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION));
+  id<FBTCPSocketDelegate> delegate = (id)server;
+  [delegate didClientConnect:client];
+  dispatch_suspend(queue);
+  @try {
+    NSData *data = [@"GET /probe HTTP/1.1\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding];
+    [delegate client:client didReceiveData:data];
+    [delegate didClientDisconnect:client];
+  } @finally {
+    dispatch_resume(queue);
+  }
+  dispatch_sync(queue, ^{});
+  XCTAssertEqual(calls, 1u);
+  [server stop:YES];
+  nw_connection_cancel(client);
 }
 
 - (void)testHalfClosedClientGetsItsResponseAndIsThenClosed

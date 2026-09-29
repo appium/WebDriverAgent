@@ -340,18 +340,28 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 
 - (void)didClientDisconnect:(nw_connection_t)client
 {
-  BOOL isAwaitingResponse;
-  @synchronized (self.connectionBuffers) {
-    isAwaitingResponse = [self.connectionsAwaitingResponse containsObject:client];
-    [self.connectionBuffers removeObjectForKey:client];
-    [self.pendingRequestHeaders removeObjectForKey:client];
-    [self.incompleteRequestStarts removeObjectForKey:client];
-  }
-  // A client that only stopped sending may still read the response to its in-flight request, so
-  // that response's send completion closes the connection instead (it finds no buffer left).
-  if (!isAwaitingResponse) {
-    nw_connection_cancel(client);
-  }
+  // EOF must follow every receive already queued for this client. Otherwise it can
+  // remove the buffer before those bytes have even been appended and parsed.
+  __weak typeof(self) weakSelf = self;
+  dispatch_async(self.bufferProcessingQueue, ^{
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    if (nil == strongSelf) {
+      nw_connection_cancel(client);
+      return;
+    }
+    BOOL isAwaitingResponse;
+    @synchronized (strongSelf.connectionBuffers) {
+      isAwaitingResponse = [strongSelf.connectionsAwaitingResponse containsObject:client];
+      [strongSelf.connectionBuffers removeObjectForKey:client];
+      [strongSelf.pendingRequestHeaders removeObjectForKey:client];
+      [strongSelf.incompleteRequestStarts removeObjectForKey:client];
+    }
+    // A client that only stopped sending may still read the response to its in-flight request, so
+    // that response's send completion closes the connection instead (it finds no buffer left).
+    if (!isAwaitingResponse) {
+      nw_connection_cancel(client);
+    }
+  });
 }
 
 - (void)client:(nw_connection_t)client didReceiveData:(NSData *)data
