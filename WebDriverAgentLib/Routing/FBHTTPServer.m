@@ -13,6 +13,7 @@
 #import "FBLogger.h"
 #import "FBResponsePayload.h"
 #import "FBTCPSocket.h"
+#import "FBSession.h"
 
 static NSData *FBCRLFCRLFData(void)
 {
@@ -131,10 +132,6 @@ static BOOL FBParseContentLength(NSString *value, NSUInteger *outLength)
 // standalone or not (except DELETE /session itself - see -dispatchMethod:). See
 // -abandonPendingRequestsForSessionID:. Guarded by @synchronized(self.pendingSessionRequests).
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet<FBPendingRequest *> *> *pendingSessionRequests;
-// Already-abandoned sessions mapped to the response they were abandoned with, so a request parsed
-// after that point is answered at once instead of queueing for a session that is gone. Kept for
-// the server's lifetime; ids are UUIDs. Guarded by @synchronized(self.pendingSessionRequests).
-@property (nonatomic, strong) NSMutableDictionary<NSString *, RouteResponse *> *abandonedSessionResponses;
 // When each connection started waiting for its current request. The reaper closes connections
 // whose entry outlives FBIncompleteRequestTimeout; idle keep-alive connections have no entry and
 // are exempt. Guarded by @synchronized(self.connectionBuffers).
@@ -163,7 +160,6 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
     _connectionsAwaitingResponse = [NSMutableSet set];
     _standaloneWaiters = [NSMutableDictionary dictionary];
     _pendingSessionRequests = [NSMutableDictionary dictionary];
-    _abandonedSessionResponses = [NSMutableDictionary dictionary];
     _incompleteRequestStarts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                      valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
   }
@@ -729,9 +725,15 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
 - (nullable RouteResponse *)trackPendingRequest:(FBPendingRequest *)pendingRequest forSessionID:(NSString *)sessionID
 {
   @synchronized (self.pendingSessionRequests) {
-    RouteResponse *abandonedResponse = self.abandonedSessionResponses[sessionID];
-    if (nil != abandonedResponse) {
-      return abandonedResponse;
+    // Checking the current session under this lock closes the admission/teardown
+    // race without retaining a tombstone and a full response for every past UUID.
+    // -kill clears the active session before posting its abandonment notification.
+    if (nil == [FBSession sessionWithIdentifier:sessionID]) {
+      RouteResponse *response = [RouteResponse new];
+      [FBResponseWithStatus([FBCommandStatus noSuchDriverErrorWithMessage:@"Session does not exist"
+                                                               traceback:nil]) dispatchWithResponse:response];
+      [self applyDefaultHeadersToResponse:response];
+      return response;
     }
     NSMutableSet<FBPendingRequest *> *pendingRequests = self.pendingSessionRequests[sessionID];
     if (nil == pendingRequests) {
@@ -766,8 +768,6 @@ static const int64_t FBStaleConnectionSweepIntervalSec = 10;
   @synchronized (self.pendingSessionRequests) {
     pendingRequests = [self.pendingSessionRequests[sessionID] copy];
     [self.pendingSessionRequests removeObjectForKey:sessionID];
-    // Recorded before the lock is dropped, so requests admitted from here on are rejected.
-    self.abandonedSessionResponses[sessionID] = response;
   }
   for (FBPendingRequest *pendingRequest in pendingRequests) {
     [self writeResponse:response toClient:pendingRequest.client];
