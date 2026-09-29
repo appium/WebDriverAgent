@@ -21,6 +21,25 @@
 
 @implementation FBXPathTests
 
+- (void)testXPathRegexFlagsAffectEvaluation
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"a\nb";
+  xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*[@label]"];
+  @try {
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//*/@label, 'a.b', 's')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(//*/@label, '^b', 'm')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches('ab', 'a b', 'x')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches('a#b', 'a#b', 'x')" document:doc]);
+    XCTAssertTrue([self xpathBooleanResultForQuery:@"matches(' ', '[ ]', 'x')" document:doc]);
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace('abc', '.', 'X', 'q')" document:doc], @"abc");
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace('a.b', '.', '$1', 'q')" document:doc], @"a$1b");
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"replace('A B', 'a b', 'X', 'qix')" document:doc], @"X");
+  } @finally {
+    xmlFreeDoc(doc);
+  }
+}
+
 - (NSString *)xmlStringWithElement:(id<FBXCElementSnapshot>)snapshot
                         xpathQuery:(nullable NSString *)query
                excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes

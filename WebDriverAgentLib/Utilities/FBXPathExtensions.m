@@ -102,7 +102,35 @@ static NSRegularExpressionOptions FBXPathRegexOptionsFromFlags(NSString *flags)
   if (nil != flags && [flags rangeOfString:@"i"].location != NSNotFound) {
     options |= NSRegularExpressionCaseInsensitive;
   }
+  if ([flags containsString:@"m"]) {
+    options |= NSRegularExpressionAnchorsMatchLines;
+  }
+  if ([flags containsString:@"s"]) {
+    options |= NSRegularExpressionDotMatchesLineSeparators;
+  }
   return options;
+}
+
+// XPath's x flag ignores XML whitespace outside character classes. ICU's
+// AllowCommentsAndWhitespace would additionally interpret # as a comment.
+static NSString *FBXPathPatternWithoutWhitespace(NSString *pattern)
+{
+  NSMutableString *result = [NSMutableString string];
+  NSUInteger classDepth = 0;
+  BOOL escaped = NO;
+  for (NSUInteger index = 0; index < pattern.length; index++) {
+    unichar c = [pattern characterAtIndex:index];
+    if (!escaped) {
+      if (c == '[') { classDepth++; }
+      if (c == ']' && classDepth > 0) { classDepth--; }
+      if (classDepth == 0 && (c == ' ' || c == '\t' || c == '\r' || c == '\n')) {
+        continue;
+      }
+    }
+    [result appendString:[NSString stringWithCharacters:&c length:1]];
+    escaped = !escaped && c == '\\';
+  }
+  return result;
 }
 
 static NSRegularExpression *FBXPathRegexWithPattern(NSString *pattern,
@@ -113,6 +141,12 @@ static NSRegularExpression *FBXPathRegexWithPattern(NSString *pattern,
   if (!FBXPathFlagsAreValid(flags, allowsQFlag)) {
     FBXPathSetEvaluationError(ctxt, XPATH_EXPR_ERROR, @"Invalid regular expression flags");
     return nil;
+  }
+
+  if ([flags containsString:@"q"]) {
+    pattern = [NSRegularExpression escapedPatternForString:pattern];
+  } else if ([flags containsString:@"x"]) {
+    pattern = FBXPathPatternWithoutWhitespace(pattern);
   }
 
   NSError *error = nil;
@@ -345,6 +379,9 @@ static void FBXPathReplaceFunction(xmlXPathParserContextPtr ctxt, int nargs)
     return;
   }
 
+  if ([flags containsString:@"q"]) {
+    replacement = [NSRegularExpression escapedTemplateForString:replacement];
+  }
   NSRange range = NSMakeRange(0, input.length);
   NSString *result = [regex stringByReplacingMatchesInString:input
                                                      options:FBXPathNoMatchingOptions
