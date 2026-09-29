@@ -48,6 +48,17 @@ static void FBReviewDeregisterNode(xmlNodePtr node)
 
 @implementation FBXPathTests
 
+- (void)testDirectXmlWriterPreservesEscapingAndFormatting
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"line one\nline two\t& < > \" йоло";
+  snapshot.value = @"value";
+  NSString *expected = [[self xmlStringWithElement:(id)snapshot xpathQuery:nil excludingAttributes:nil]
+    stringByReplacingOccurrencesOfString:@" private_indexPath=\"top\"" withString:@""];
+  NSString *actual = [FBXPath xmlStringWithRootElement:(id)snapshot options:nil];
+  XCTAssertEqualObjects(actual, expected);
+}
+
 - (void)testXmlDocumentsAreFreedWhenSnapshotAttributesThrow
 {
   for (NSNumber *isLookup in @[@NO, @YES]) {
@@ -64,7 +75,9 @@ static void FBReviewDeregisterNode(xmlNodePtr node)
         XCTAssertThrowsSpecificNamed([FBXPath xmlStringWithRootElement:snapshot options:nil],
                                      NSException, @"SnapshotAttributeFailure");
       }
-      XCTAssertGreaterThan(FBReviewCreatedDocs, 0u);
+      if (isLookup.boolValue) {
+        XCTAssertGreaterThan(FBReviewCreatedDocs, 0u);
+      }
       XCTAssertEqual(FBReviewCreatedDocs, FBReviewFreedDocs);
     } @finally {
       xmlRegisterNodeDefault(FBReviewPreviousRegister);

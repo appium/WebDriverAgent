@@ -175,14 +175,19 @@ static NSString *const topNodeIndexPath = @"top";
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
                                         options:(nullable FBXMLGenerationOptions *)options
 {
-  xmlDocPtr doc = NULL;
+  xmlBufferPtr buffer = NULL;
   xmlTextWriterPtr writer = NULL;
-  xmlChar *xmlbuff = NULL;
   @try {
-    writer = xmlNewTextWriterDoc(&doc, 0);
+    buffer = xmlBufferCreate();
+    if (NULL == buffer) {
+      return nil;
+    }
+    writer = xmlNewTextWriterMemory(buffer, 0);
     if (NULL == writer) {
       return nil;
     }
+    xmlTextWriterSetIndent(writer, 1);
+    xmlTextWriterSetIndentString(writer, BAD_CAST "  ");
     int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
     if (rc < 0) {
       [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
@@ -225,16 +230,12 @@ static NSString *const topNodeIndexPath = @"top";
     if (rc < 0) {
       return nil;
     }
-    int buffersize;
-    xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
-    NSString *result = NULL == xmlbuff ? nil : [[NSString alloc] initWithBytes:xmlbuff
-                                                                      length:(NSUInteger)buffersize
-                                                                    encoding:NSUTF8StringEncoding];
-    return result;
+    return [[NSString alloc] initWithBytes:xmlBufferContent(buffer)
+                                  length:(NSUInteger)xmlBufferLength(buffer)
+                                encoding:NSUTF8StringEncoding];
   } @finally {
-    xmlFree(xmlbuff);
     xmlFreeTextWriter(writer);
-    xmlFreeDoc(doc);
+    xmlBufferFree(buffer);
   }
 }
 
