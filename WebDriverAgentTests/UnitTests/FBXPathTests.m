@@ -16,10 +16,62 @@
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCTestPrivateSymbols.h"
 
+// libxml's node callbacks are thread-local; restore any existing callbacks after each probe.
+static __thread NSUInteger FBReviewCreatedDocs;
+static __thread NSUInteger FBReviewFreedDocs;
+static __thread xmlRegisterNodeFunc FBReviewPreviousRegister;
+static __thread xmlDeregisterNodeFunc FBReviewPreviousDeregister;
+
+static void FBReviewRegisterNode(xmlNodePtr node)
+{
+  if (node->type == XML_DOCUMENT_NODE) { FBReviewCreatedDocs++; }
+  if (NULL != FBReviewPreviousRegister) { FBReviewPreviousRegister(node); }
+}
+
+static void FBReviewDeregisterNode(xmlNodePtr node)
+{
+  if (node->type == XML_DOCUMENT_NODE) { FBReviewFreedDocs++; }
+  if (NULL != FBReviewPreviousDeregister) { FBReviewPreviousDeregister(node); }
+}
+
+@interface FBThrowingLabelSnapshot : XCElementSnapshotDouble
+@end
+@implementation FBThrowingLabelSnapshot
+- (NSString *)label
+{
+  @throw [NSException exceptionWithName:@"SnapshotAttributeFailure" reason:@"test" userInfo:nil];
+}
+@end
+
 @interface FBXPathTests : XCTestCase
 @end
 
 @implementation FBXPathTests
+
+- (void)testXmlDocumentsAreFreedWhenSnapshotAttributesThrow
+{
+  for (NSNumber *isLookup in @[@NO, @YES]) {
+    FBReviewCreatedDocs = 0;
+    FBReviewFreedDocs = 0;
+    FBReviewPreviousRegister = xmlRegisterNodeDefault(FBReviewRegisterNode);
+    FBReviewPreviousDeregister = xmlDeregisterNodeDefault(FBReviewDeregisterNode);
+    @try {
+      id<FBElement> snapshot = (id)[FBThrowingLabelSnapshot new];
+      if (isLookup.boolValue) {
+        XCTAssertThrowsSpecificNamed([FBXPath matchesWithRootElement:snapshot forQuery:@"//*[@label]"],
+                                     NSException, @"SnapshotAttributeFailure");
+      } else {
+        XCTAssertThrowsSpecificNamed([FBXPath xmlStringWithRootElement:snapshot options:nil],
+                                     NSException, @"SnapshotAttributeFailure");
+      }
+      XCTAssertGreaterThan(FBReviewCreatedDocs, 0u);
+      XCTAssertEqual(FBReviewCreatedDocs, FBReviewFreedDocs);
+    } @finally {
+      xmlRegisterNodeDefault(FBReviewPreviousRegister);
+      xmlDeregisterNodeDefault(FBReviewPreviousDeregister);
+    }
+  }
+}
 
 - (NSString *)xmlStringWithElement:(id<FBXCElementSnapshot>)snapshot
                         xpathQuery:(nullable NSString *)query
