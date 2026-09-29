@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*! Pointer to the next node */
 @property (nonatomic, nullable) LRUCacheNode *next;
 /*! Pointer to the previous node */
-@property (nonatomic, nullable) LRUCacheNode *prev;
+@property (nonatomic, weak, nullable) LRUCacheNode *prev;
 
 /**
  Factory method to create a new cache node with the given value and key
