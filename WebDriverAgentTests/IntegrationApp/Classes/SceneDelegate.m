@@ -10,7 +10,40 @@
 
 @implementation SceneDelegate
 
+- (void)showIdentifierLookupFixture
+{
+  UIViewController *controller = [UIViewController new];
+  controller.view.backgroundColor = UIColor.whiteColor;
+  controller.view.accessibilityIdentifier = @"IdentifierLookupFixture";
+  NSArray *identifiers = @[@"something", @"different", @"", NSNull.null, @"something", @"", NSNull.null, @"quote'\"é", NSNull.null];
+  NSArray<NSString *> *labels = @[@"other label", @"something", @"something", @"something", @"something", @"", @"", @"quoted", @"日本語"];
+  NSMutableArray<UILabel *> *labelViews = [NSMutableArray array];
+  for (NSUInteger i = 0; i < identifiers.count; i++) {
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(20, 90 + i * 40, 300, 35)];
+    label.text = [NSString stringWithFormat:@"Fixture %lu", (unsigned long)i];
+    label.accessibilityIdentifier = identifiers[i] == NSNull.null ? nil : identifiers[i];
+    label.accessibilityLabel = labels[i];
+    label.isAccessibilityElement = YES;
+    [labelViews addObject:label];
+    [controller.view addSubview:label];
+  }
+  UIButton *mutate = [UIButton buttonWithType:UIButtonTypeSystem];
+  mutate.frame = CGRectMake(20, 470, 220, 40);
+  [mutate setTitle:@"Change identifier" forState:UIControlStateNormal];
+  mutate.accessibilityIdentifier = @"mutateIdentifier";
+  [mutate addAction:[UIAction actionWithHandler:^(__kindof UIAction *action) {
+    labelViews[0].accessibilityIdentifier = @"changed";
+  }] forControlEvents:UIControlEventTouchUpInside];
+  [controller.view addSubview:mutate];
+  self.window.rootViewController = controller;
+  [self.window makeKeyAndVisible];
+}
+
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+  if ([NSProcessInfo.processInfo.arguments containsObject:@"--identifier-lookup-test"]) {
+    [self showIdentifierLookupFixture];
+    return;
+  }
   // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
   // If using a storyboard, the `window` property will automatically be set and attached to the scene.
   // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession:` instead).

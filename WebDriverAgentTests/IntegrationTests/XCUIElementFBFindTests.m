@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBConfiguration.h"
 #import "FBElementUtils.h"
 #import "FBExceptions.h"
 #import "FBTestMacros.h"
@@ -555,6 +556,89 @@
                                                                    shouldReturnAfterFirstMatch:NO];
   XCTAssertEqual(matches.count, 1);
   XCTAssertEqualObjects(matches.firstObject.label, @"View 19");
+}
+
+@end
+
+
+@interface XCUIElementFBFindTests_IdentifierSemantics : FBIntegrationTestCase
+@end
+
+@implementation XCUIElementFBFindTests_IdentifierSemantics
+
+- (void)setUp
+{
+  [super setUp];
+  self.testedApplication.launchArguments = @[@"--identifier-lookup-test"];
+  [self.testedApplication launch];
+  XCTAssertTrue([self.testedApplication.otherElements[@"IdentifierLookupFixture"] waitForExistenceWithTimeout:5]);
+}
+
+- (void)tearDown
+{
+  [self.testedApplication terminate];
+  [super tearDown];
+}
+
+- (void)testIdentifierTakesPrecedenceOverLabel
+{
+  NSArray<XCUIElement *> *matches = [self.testedApplication fb_descendantsMatchingIdentifier:@"something"
+                                                              shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(matches.count, 4);
+  XCTAssertEqualObjects([matches valueForKey:@"label"], (@[@"other label", @"something", @"something", @"something"]));
+  XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"different" shouldReturnAfterFirstMatch:NO].count, 1);
+  // A matching label must not override a different, nonempty identifier.
+  XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"other label" shouldReturnAfterFirstMatch:NO].count, 0);
+}
+
+- (void)testEmptyMissingQuotedAndUnicodeIdentifiers
+{
+  for (NSNumber *firstMatch in @[@NO, @YES]) {
+    XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 0);
+    XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"missing-target" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 0);
+    XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"quote'\"é" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 1);
+    XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"日本語" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 1);
+  }
+}
+
+- (void)testFirstMatchAndParentScopeWithBothBindings
+{
+  BOOL previousBinding = FBConfiguration.sharedInstance.boundElementsByIndex;
+  @try {
+    for (NSNumber *indexed in @[@NO, @YES]) {
+      FBConfiguration.sharedInstance.boundElementsByIndex = indexed.boolValue;
+      // Use the element returned by WDA lookup, as the element-scoped endpoint does.
+      XCUIElement *parent = [self.testedApplication fb_descendantsMatchingIdentifier:@"IdentifierLookupFixture"
+                                                          shouldReturnAfterFirstMatch:YES].firstObject;
+      XCTAssertNotNil(parent);
+      // The HTTP endpoint resolves the parent when registering its element ID.
+      XCTAssertNotNil(parent.fb_uid);
+      NSArray<XCUIElement *> *matches = [parent fb_descendantsMatchingIdentifier:@"something" shouldReturnAfterFirstMatch:NO];
+      NSArray<XCUIElement *> *first = [parent fb_descendantsMatchingIdentifier:@"something" shouldReturnAfterFirstMatch:YES];
+      XCTAssertEqual(matches.count, 4);
+      XCTAssertEqual(first.count, 1);
+      XCTAssertEqualObjects(first.firstObject.fb_uid, matches.firstObject.fb_uid);
+      NSArray<XCUIElement *> *selfMatches = [parent fb_descendantsMatchingIdentifier:@"IdentifierLookupFixture" shouldReturnAfterFirstMatch:NO];
+      XCTAssertEqual(selfMatches.count, 1);
+      XCTAssertEqualObjects(selfMatches.firstObject.fb_uid, parent.fb_uid);
+    }
+  } @finally {
+    FBConfiguration.sharedInstance.boundElementsByIndex = previousBinding;
+  }
+}
+
+- (void)testIdentifierChangesAreObserved
+{
+  NSArray<XCUIElement *> *before = [self.testedApplication fb_descendantsMatchingIdentifier:@"something" shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(before.count, 4);
+  NSArray<NSString *> *beforeIds = [before valueForKey:@"fb_uid"];
+  [self.testedApplication.buttons[@"mutateIdentifier"] tap];
+  NSArray<XCUIElement *> *after = [self.testedApplication fb_descendantsMatchingIdentifier:@"something" shouldReturnAfterFirstMatch:NO];
+  NSArray<XCUIElement *> *changed = [self.testedApplication fb_descendantsMatchingIdentifier:@"changed" shouldReturnAfterFirstMatch:NO];
+  XCTAssertEqual(after.count, 3);
+  XCTAssertEqual(changed.count, 1);
+  XCTAssertEqualObjects([after valueForKey:@"fb_uid"], [beforeIds subarrayWithRange:NSMakeRange(1, 3)]);
+  XCTAssertEqualObjects(changed.firstObject.fb_uid, beforeIds.firstObject);
 }
 
 @end

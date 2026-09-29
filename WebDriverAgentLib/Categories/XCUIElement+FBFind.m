@@ -120,14 +120,23 @@
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
                                  shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
-  NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id<FBXCElementSnapshot> snapshot,
-                                                                 NSDictionary<NSString *,id> * _Nullable bindings) {
-    @autoreleasepool {
-      return [[FBXCElementSnapshotWrapper wdNameWithSnapshot:snapshot] isEqualToString:accessibilityId];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:
+    @"(identifier != nil AND identifier != '' AND identifier == %@) OR "
+     "((identifier == nil OR identifier == '') AND label != nil AND label != '' AND label == %@)",
+    accessibilityId, accessibilityId];
+  XCUIElementQuery *query = [[self.fb_query descendantsMatchingType:XCUIElementTypeAny]
+    matchingPredicate:predicate];
+  NSMutableArray<XCUIElement *> *result = [NSMutableArray arrayWithArray:
+    [self.class fb_extractMatchingElementsFromQuery:query
+                       shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch]];
+  id<FBXCElementSnapshot> cachedSnapshot = [self fb_cachedSnapshotWithQuery:query];
+  if ([predicate evaluateWithObject:cachedSnapshot]) {
+    if (shouldReturnAfterFirstMatch || result.count == 0) {
+      return @[self];
     }
-  }];
-  return [self fb_descendantsMatchingPredicate:predicate
-                   shouldReturnAfterFirstMatch:shouldReturnAfterFirstMatch];
+    [result insertObject:self atIndex:0];
+  }
+  return result.copy;
 }
 
 @end
