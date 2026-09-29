@@ -1,3 +1,9 @@
+## [16.12.11](https://github.com/appium/WebDriverAgent/compare/v16.12.10...v16.12.11) (2026-09-28)
+
+### Bug Fixes
+
+* embed simulator XCTest dependencies with native copy phase ([#1271](https://github.com/appium/WebDriverAgent/issues/1271)) ([b884dc6](https://github.com/appium/WebDriverAgent/commit/b884dc609fa345bb725123666de5aa0368b34594))
+
 ## [16.12.10](https://github.com/appium/WebDriverAgent/compare/v16.12.9...v16.12.10) (2026-09-21)
 
 ### Miscellaneous Chores

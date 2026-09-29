@@ -1274,6 +1274,16 @@
 		C15E49E6B6924191BAAD9FDF /* FBIntegrationAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27B518E261C14E29B943AB9B /* FBIntegrationAppTests.m */; };
 		81E462B8A75F497CBFC6FD8B /* TouchableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 315A15002518CB8700A3A064 /* TouchableView.m */; };
 		B6DE70BFF27148BDAC72F80C /* TouchSpotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 315A15062518CC2800A3A064 /* TouchSpotView.m */; };
+		737628A3FBFE97F1E490070D /* lib_TestingInterop.dylib in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 69DCC1A35D6E7F76ED7E5064 /* lib_TestingInterop.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE9AE04111F7F86087B429BB /* _Testing_Foundation.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 80FF013023DA790D7335C7E4 /* _Testing_Foundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E8F2269044A980BC2C5A79CD /* XCTest.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = A3940554008696B8F883806E /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2EC0107C59E570B838807043 /* XCTestCore.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = F3A56B29D99E7213B521EA3B /* XCTestCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		878EDD87BBEFA84E79CFF2E9 /* XCUIAutomation.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 890A5CECE84C593C258538D5 /* XCUIAutomation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5FDA742E4C50A1CB00426C30 /* XCTAutomationSupport.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 1978D67BE43DBBE644BC060F /* XCTAutomationSupport.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7BF14D2961A17874A9D98D23 /* Testing.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 383EDCC8A7DB02466080DD07 /* Testing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		77D6E2ADDCA4B3699EC5D998 /* ResultDataPublisher.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 4A87FE3382A533B8DEB7058B /* ResultDataPublisher.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		31DD0D697B49CF2268088116 /* XCTestSupport.framework in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 68610745541FC52D7D4871B9 /* XCTestSupport.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F90EE9F08FCA503CB848FFA9 /* libXCTestSwiftSupport.dylib in Embed XCTest dependencies */ = {isa = PBXBuildFile; fileRef = 74FB18A20255DDF3F2C5FD18 /* libXCTestSwiftSupport.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1416,6 +1426,26 @@
 				AD35D06C1CF1C35500870A75 /* WebDriverAgentLib.framework in Copy frameworks */,
 			);
 			name = "Copy frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6286A89102F10539DCB20F0 /* Embed XCTest dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME)-Runner.app/Frameworks";
+			dstSubfolderSpec = 0;
+			files = (
+				737628A3FBFE97F1E490070D /* lib_TestingInterop.dylib in Embed XCTest dependencies */,
+				DE9AE04111F7F86087B429BB /* _Testing_Foundation.framework in Embed XCTest dependencies */,
+				E8F2269044A980BC2C5A79CD /* XCTest.framework in Embed XCTest dependencies */,
+				2EC0107C59E570B838807043 /* XCTestCore.framework in Embed XCTest dependencies */,
+				878EDD87BBEFA84E79CFF2E9 /* XCUIAutomation.framework in Embed XCTest dependencies */,
+				5FDA742E4C50A1CB00426C30 /* XCTAutomationSupport.framework in Embed XCTest dependencies */,
+				7BF14D2961A17874A9D98D23 /* Testing.framework in Embed XCTest dependencies */,
+				77D6E2ADDCA4B3699EC5D998 /* ResultDataPublisher.framework in Embed XCTest dependencies */,
+				31DD0D697B49CF2268088116 /* XCTestSupport.framework in Embed XCTest dependencies */,
+				F90EE9F08FCA503CB848FFA9 /* libXCTestSwiftSupport.dylib in Embed XCTest dependencies */,
+			);
+			name = "Embed XCTest dependencies";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -1968,6 +1998,16 @@
 		FF8E3B470FC9639D5F18E2EA /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D04760558C64B8EB69380E0 /* FBTouchableViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBTouchableViewTests.m; sourceTree = "<group>"; };
 		27B518E261C14E29B943AB9B /* FBIntegrationAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FBIntegrationAppTests.m; sourceTree = "<group>"; };
+		69DCC1A35D6E7F76ED7E5064 /* lib_TestingInterop.dylib */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = lib_TestingInterop.dylib; path = Developer/usr/lib/lib_TestingInterop.dylib; sourceTree = PLATFORM_DIR; };
+		80FF013023DA790D7335C7E4 /* _Testing_Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = _Testing_Foundation.framework; path = Developer/Library/Frameworks/_Testing_Foundation.framework; sourceTree = PLATFORM_DIR; };
+		A3940554008696B8F883806E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Developer/Library/Frameworks/XCTest.framework; sourceTree = PLATFORM_DIR; };
+		F3A56B29D99E7213B521EA3B /* XCTestCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTestCore.framework; path = Developer/Library/PrivateFrameworks/XCTestCore.framework; sourceTree = PLATFORM_DIR; };
+		890A5CECE84C593C258538D5 /* XCUIAutomation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCUIAutomation.framework; path = Developer/Library/Frameworks/XCUIAutomation.framework; sourceTree = PLATFORM_DIR; };
+		1978D67BE43DBBE644BC060F /* XCTAutomationSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTAutomationSupport.framework; path = Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework; sourceTree = PLATFORM_DIR; };
+		383EDCC8A7DB02466080DD07 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Developer/Library/Frameworks/Testing.framework; sourceTree = PLATFORM_DIR; };
+		4A87FE3382A533B8DEB7058B /* ResultDataPublisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ResultDataPublisher.framework; path = Developer/Library/PrivateFrameworks/ResultDataPublisher.framework; sourceTree = PLATFORM_DIR; };
+		68610745541FC52D7D4871B9 /* XCTestSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTestSupport.framework; path = Developer/Library/PrivateFrameworks/XCTestSupport.framework; sourceTree = PLATFORM_DIR; };
+		74FB18A20255DDF3F2C5FD18 /* libXCTestSwiftSupport.dylib */ = {isa = PBXFileReference; lastKnownFileType = compiled.mach-o.dylib; name = libXCTestSwiftSupport.dylib; path = Developer/usr/lib/libXCTestSwiftSupport.dylib; sourceTree = PLATFORM_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2203,6 +2243,7 @@
 		716C9341224D5369004B8542 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				EAC44F487A3346C1B07E2994 /* Simulator XCTest dependencies */,
 				7155B423224D5B980042A993 /* XCTest.framework */,
 				716C9344224D53FC004B8542 /* XCTAutomationSupport.framework */,
 				716C9343224D53DF004B8542 /* libAccessibility.tbd */,
@@ -2963,6 +3004,23 @@
 				A87AE5544E9A5CA7C9168DDF /* SceneDelegate.m */,
 			);
 			path = IntegrationApp_tvOS;
+			sourceTree = "<group>";
+		};
+		EAC44F487A3346C1B07E2994 /* Simulator XCTest dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				69DCC1A35D6E7F76ED7E5064 /* lib_TestingInterop.dylib */,
+				80FF013023DA790D7335C7E4 /* _Testing_Foundation.framework */,
+				A3940554008696B8F883806E /* XCTest.framework */,
+				F3A56B29D99E7213B521EA3B /* XCTestCore.framework */,
+				890A5CECE84C593C258538D5 /* XCUIAutomation.framework */,
+				1978D67BE43DBBE644BC060F /* XCTAutomationSupport.framework */,
+				383EDCC8A7DB02466080DD07 /* Testing.framework */,
+				4A87FE3382A533B8DEB7058B /* ResultDataPublisher.framework */,
+				68610745541FC52D7D4871B9 /* XCTestSupport.framework */,
+				74FB18A20255DDF3F2C5FD18 /* libXCTestSwiftSupport.dylib */,
+			);
+			name = "Simulator XCTest dependencies";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -4144,6 +4202,7 @@
 				EEF988271C486603005CA669 /* Frameworks */,
 				EEF988281C486603005CA669 /* Resources */,
 				EE93CFF41CCA501300708122 /* Copy frameworks */,
+				D6286A89102F10539DCB20F0 /* Embed XCTest dependencies */,
 				015926D657880CF9D0F58092 /* Headers */,
 			);
 			buildRules = (
@@ -6145,6 +6204,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "$(inherited) $(WDA_XCTEST_EXCLUDED_$(XCODE_VERSION_MAJOR))";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "$(inherited) $(WDA_XCTEST_EXCLUDED_1600)";
+				/* Reuse Xcode 26 framework embedding; add only its missing dependencies. */
+				WDA_XCTEST_EXCLUDED_2600 = "XCTest.framework XCTestCore.framework XCUIAutomation.framework XCTAutomationSupport.framework Testing.framework ResultDataPublisher.framework XCTestSupport.framework libXCTestSwiftSupport.dylib";
+				/* Xcode 16 does not need the additional Swift Testing dependencies. */
+				WDA_XCTEST_EXCLUDED_1600 = "$(WDA_XCTEST_EXCLUDED_2600) lib_TestingInterop.dylib _Testing_Foundation.framework";
+
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -6199,6 +6265,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EEE5CABF1C80361500CBBDD9 /* IOSSettings.xcconfig */;
 			buildSettings = {
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "$(inherited) $(WDA_XCTEST_EXCLUDED_$(XCODE_VERSION_MAJOR))";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "$(inherited) $(WDA_XCTEST_EXCLUDED_1600)";
+				/* Reuse Xcode 26 framework embedding; add only its missing dependencies. */
+				WDA_XCTEST_EXCLUDED_2600 = "XCTest.framework XCTestCore.framework XCUIAutomation.framework XCTAutomationSupport.framework Testing.framework ResultDataPublisher.framework XCTestSupport.framework libXCTestSwiftSupport.dylib";
+				/* Xcode 16 does not need the additional Swift Testing dependencies. */
+				WDA_XCTEST_EXCLUDED_1600 = "$(WDA_XCTEST_EXCLUDED_2600) lib_TestingInterop.dylib _Testing_Foundation.framework";
+
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_STATIC_ANALYZER_MODE = deep;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
