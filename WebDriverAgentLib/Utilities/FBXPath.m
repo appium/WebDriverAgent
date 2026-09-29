@@ -21,6 +21,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBCaching.h"
 #import "XCUIElement+FBUtilities.h"
+#import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
 #import "XCTestPrivateSymbols.h"
 #import "FBElementHelpers.h"
@@ -504,6 +505,32 @@ static NSString *const topNodeIndexPath = @"top";
                      indexPath:(nullable NSString *)indexPath
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
 {
+  FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:element];
+  NSSet<Class> *requested = includedAttributes ?: [NSSet setWithArray:FBElementAttribute.supportedAttributes];
+  NSMutableDictionary<NSString *, NSNumber *> *prefetch = [NSMutableDictionary dictionary];
+  if ([requested containsObject:FBVisibleAttribute.class]
+      && nil == element.additionalAttributes[FB_XCAXAIsVisibleAttribute]
+      && ![wrapped fb_hasVisibleDescendants]) {
+    prefetch[FB_XCAXAIsVisibleAttributeName] = FB_XCAXAIsVisibleAttribute;
+  }
+  BOOL isTextInput = element.elementType == XCUIElementTypeTextField
+    || element.elementType == XCUIElementTypeSecureTextField;
+  if ([requested containsObject:FBNativeAccessibilityElementAttribute.class]
+      || ([requested containsObject:FBAccessibleAttribute.class] && !isTextInput)) {
+    prefetch[FB_XCAXAIsElementAttributeName] = FB_XCAXAIsElementAttribute;
+  }
+  if (FBDoesElementSupportMinMaxValue(element.elementType)) {
+    if ([requested containsObject:FBMinValueAttribute.class]) {
+      prefetch[FB_XCAXACustomMinValueAttributeName] = FB_XCAXACustomMinValueAttribute;
+    }
+    if ([requested containsObject:FBMaxValueAttribute.class]) {
+      prefetch[FB_XCAXACustomMaxValueAttributeName] = FB_XCAXACustomMaxValueAttribute;
+    }
+  }
+  if ([requested containsObject:FBCustomActionsAttribute.class]) {
+    prefetch[FB_XCAXACustomActionsAttributeName] = FB_XCAXACustomActionsAttribute;
+  }
+  [wrapped fb_prefetchAttributes:prefetch];
   for (Class attributeCls in FBElementAttribute.supportedAttributes) {
     // include all supported attributes by default unless enumerated explicitly
     if (includedAttributes && ![includedAttributes containsObject:attributeCls]) {

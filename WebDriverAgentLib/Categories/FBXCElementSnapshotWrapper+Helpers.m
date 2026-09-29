@@ -67,18 +67,42 @@ inline static BOOL isSnapshotTypeAmongstGivenTypes(id<FBXCElementSnapshot> snaps
   return snapshot;
 }
 
-- (id)fb_attributeValue:(NSString *)attribute
-                  error:(NSError **)error
+- (id)fb_attributeValue:(NSString *)attribute error:(NSError **)error
+{
+  return [self fb_attributeValues:@[attribute] error:error][attribute];
+}
+
+- (NSDictionary *)fb_attributeValues:(NSArray<NSString *> *)attributes error:(NSError **)error
 {
   NSDate *start = [NSDate date];
   NSDictionary *result = [FBXCAXClientProxy.sharedClient attributesForElement:[self accessibilityElement]
-                                                                   attributes:@[attribute]
-                                                                        error:error];
+                                                                   attributes:attributes error:error];
   NSTimeInterval elapsed = ABS([start timeIntervalSinceNow]);
   if (elapsed > ATTRIBUTE_FETCH_WARN_TIME_LIMIT) {
-    NSLog(@"! Fetching of %@ value for %@ took %@s", attribute, self.fb_description, @(elapsed));
+    NSLog(@"! Fetching of %@ values for %@ took %@s", attributes, self.fb_description, @(elapsed));
   }
-  return [result objectForKey:attribute];
+  return result;
+}
+
+- (void)fb_prefetchAttributes:(NSDictionary<NSString *, NSNumber *> *)attributes
+{
+  NSMutableArray<NSString *> *missing = [NSMutableArray array];
+  for (NSString *name in attributes) {
+    NSNumber *attributeID = attributes[name];
+    if (nil != attributeID && nil == self.additionalAttributes[attributeID]) {
+      [missing addObject:name];
+    }
+  }
+  // A single missing value is best left to its existing lazy getter.
+  if (missing.count < 2) { return; }
+  NSDictionary *values = [self fb_attributeValues:missing error:nil];
+  NSMutableDictionary *updated = [NSMutableDictionary dictionaryWithDictionary:self.additionalAttributes ?: @{}];
+  for (NSString *name in missing) {
+    id value = values[name];
+    NSNumber *attributeID = attributes[name];
+    if (nil != attributeID && nil != value && value != NSNull.null) { updated[attributeID] = value; }
+  }
+  self.snapshot.additionalAttributes = updated.copy;
 }
 
 inline static BOOL areValuesEqual(id value1, id value2);

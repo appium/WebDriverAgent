@@ -16,10 +16,55 @@
 #import "FBXCElementSnapshotWrapper+Helpers.h"
 #import "XCTestPrivateSymbols.h"
 
+@interface FBXCElementSnapshotWrapper (BatchAttributeTests)
+- (instancetype)initWithSnapshot:(id<FBXCElementSnapshot>)snapshot;
+@end
+
+@interface FBBatchAttributeSnapshot : FBXCElementSnapshotWrapper
+@property (nonatomic) NSUInteger fetchCount;
+@property (nonatomic, copy) NSArray<NSString *> *requestedNames;
+@property (nonatomic, copy) NSDictionary *attributeValues;
+@end
+@implementation FBBatchAttributeSnapshot
+- (NSDictionary *)fb_attributeValues:(NSArray<NSString *> *)attributes error:(NSError **)error
+{
+  self.fetchCount++;
+  self.requestedNames = attributes;
+  return self.attributeValues;
+}
+@end
+
 @interface FBXPathTests : XCTestCase
 @end
 
 @implementation FBXPathTests
+
+- (void)testMissingAttributesAreBatchedAndCachedOnTheSnapshot
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  FBBatchAttributeSnapshot *wrapped = [[FBBatchAttributeSnapshot alloc] initWithSnapshot:(id)snapshot];
+  wrapped.attributeValues = @{FB_XCAXAIsVisibleAttributeName: @NO, FB_XCAXAIsElementAttributeName: @YES};
+  NSDictionary *attributes = @{FB_XCAXAIsVisibleAttributeName: FB_XCAXAIsVisibleAttribute,
+                               FB_XCAXAIsElementAttributeName: FB_XCAXAIsElementAttribute};
+  [wrapped fb_prefetchAttributes:attributes];
+  XCTAssertEqual(wrapped.fetchCount, 1u);
+  XCTAssertEqual(wrapped.requestedNames.count, 2u);
+  XCTAssertEqualObjects(snapshot.additionalAttributes[FB_XCAXAIsVisibleAttribute], @NO);
+  XCTAssertEqualObjects(snapshot.additionalAttributes[FB_XCAXAIsElementAttribute], @YES);
+  [wrapped fb_prefetchAttributes:attributes];
+  XCTAssertEqual(wrapped.fetchCount, 1u);
+}
+
+- (void)testFailedBatchDoesNotInventAttributeValues
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  FBBatchAttributeSnapshot *wrapped = [[FBBatchAttributeSnapshot alloc] initWithSnapshot:(id)snapshot];
+  [wrapped fb_prefetchAttributes:@{FB_XCAXAIsVisibleAttributeName: FB_XCAXAIsVisibleAttribute,
+                                  FB_XCAXAIsElementAttributeName: FB_XCAXAIsElementAttribute}];
+  XCTAssertEqual(wrapped.fetchCount, 1u);
+  XCTAssertNil(snapshot.additionalAttributes[FB_XCAXAIsVisibleAttribute]);
+  XCTAssertNil(snapshot.additionalAttributes[FB_XCAXAIsElementAttribute]);
+}
 
 - (NSString *)xmlStringWithElement:(id<FBXCElementSnapshot>)snapshot
                         xpathQuery:(nullable NSString *)query

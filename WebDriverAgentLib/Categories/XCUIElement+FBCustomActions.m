@@ -51,7 +51,7 @@
   }
   
   NSError *error = nil;
-  id raw = [self fb_attributeValue:attributeName error:&error];
+  id raw = cached ?: [self fb_attributeValue:attributeName error:&error];
   if (raw == nil) {
     [FBLogger logFmt: @"[FBCustomActions] Cannot determine string value for %@: %@",
      attributeName, error.localizedDescription];

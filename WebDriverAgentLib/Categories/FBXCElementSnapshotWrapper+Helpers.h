@@ -12,6 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBXCElementSnapshotWrapper (Helpers)
 
+/** Fetches several AX properties in one request. */
+- (nullable NSDictionary *)fb_attributeValues:(NSArray<NSString *> *)attributes error:(NSError **)error;
+
+/** Caches missing requested attributes on this snapshot; failed values remain lazy. */
+- (void)fb_prefetchAttributes:(NSDictionary<NSString *, NSNumber *> *)attributes;
+
 /**
  Returns an array of descendants matching given type
 

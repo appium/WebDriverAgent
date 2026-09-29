@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FBXCElementSnapshotWrapper (FBIsVisible)
 
+/*! Whether a descendant already has a cached visible flag. Does not query AX. */
+- (BOOL)fb_hasVisibleDescendants;
+
 /*! Whether or not the element is visible */
 @property (atomic, readonly) BOOL fb_isVisible;
 
