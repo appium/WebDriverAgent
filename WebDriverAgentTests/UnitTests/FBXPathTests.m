@@ -21,6 +21,35 @@
 
 @implementation FBXPathTests
 
+- (void)testExplicitAndAbbreviatedAttributeAxesSelectTheSameNodes
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"OK";
+  for (NSString *query in @[@"//*[@label='OK']", @"//*[attribute::label='OK']",
+                            @"//*[attribute :: label='OK']", @"//*[attribute::*='OK']",
+                            @"//*[@*[name()='label']='OK']"]) {
+    xmlDocPtr doc = [self documentForSnapshot:snapshot query:query];
+    @try {
+      NSString *booleanQuery = [NSString stringWithFormat:@"boolean(%@)", query];
+      XCTAssertTrue([self xpathBooleanResultForQuery:booleanQuery document:doc], @"%@", query);
+    } @finally {
+      xmlFreeDoc(doc);
+    }
+  }
+}
+
+- (void)testAttributeProjectionIncludesAttributeAtEndOfExpression
+{
+  XCElementSnapshotDouble *snapshot = [XCElementSnapshotDouble new];
+  snapshot.label = @"OK";
+  xmlDocPtr doc = [self documentForSnapshot:snapshot query:@"//*/@label"];
+  @try {
+    XCTAssertEqualObjects([self xpathStringResultForQuery:@"//*/@label" document:doc], @"OK");
+  } @finally {
+    xmlFreeDoc(doc);
+  }
+}
+
 - (NSString *)xmlStringWithElement:(id<FBXCElementSnapshot>)snapshot
                         xpathQuery:(nullable NSString *)query
                excludingAttributes:(nullable NSArray<NSString *> *)excludedAttributes

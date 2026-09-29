@@ -381,14 +381,35 @@ static NSString *const topNodeIndexPath = @"top";
 
 + (NSSet<Class> *)elementAttributesWithXPathQuery:(NSString *)query
 {
-  if ([query rangeOfString:@"[^\\w@]@\\*[^\\w]" options:NSRegularExpressionSearch].location != NSNotFound) {
-    // read all element attributes if 'star' attribute name pattern is used in xpath query
-    return [NSSet setWithArray:FBElementAttribute.supportedAttributes];
-  }
+  // Ignore attribute-looking text inside XPath string literals. Attribute tests
+  // accept both the abbreviated @name and the explicit attribute::name axis.
+  static NSRegularExpression *literals;
+  static NSRegularExpression *attributes;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    literals = [NSRegularExpression regularExpressionWithPattern:@"'[^']*'|\"[^\"]*\""
+                                                         options:(NSRegularExpressionOptions)0 error:nil];
+    attributes = [NSRegularExpression regularExpressionWithPattern:@"(?:@\\s*|\\battribute\\s*::\\s*)(\\*|[\\w.-]+)"
+                                                           options:(NSRegularExpressionOptions)0 error:nil];
+  });
+  NSString *expression = [literals stringByReplacingMatchesInString:query
+                                                            options:(NSMatchingOptions)0
+                                                              range:NSMakeRange(0, query.length)
+                                                       withTemplate:@"''"];
   NSMutableSet<Class> *result = [NSMutableSet set];
-  for (Class attributeCls in FBElementAttribute.supportedAttributes) {
-    if ([query rangeOfString:[NSString stringWithFormat:@"[^\\w@]@%@[^\\w]", [attributeCls name]] options:NSRegularExpressionSearch].location != NSNotFound) {
-      [result addObject:attributeCls];
+  for (NSTextCheckingResult *match in [attributes matchesInString:expression
+                                                         options:(NSMatchingOptions)0
+                                                           range:NSMakeRange(0, expression.length)]) {
+    NSString *name = [expression substringWithRange:[match rangeAtIndex:1]];
+    // node() on the attribute axis, like *, can inspect any attribute.
+    if ([name isEqualToString:@"*"] || [name isEqualToString:@"node"]) {
+      return [NSSet setWithArray:FBElementAttribute.supportedAttributes];
+    }
+    for (Class attributeCls in FBElementAttribute.supportedAttributes) {
+      if ([name isEqualToString:[attributeCls name]]) {
+        [result addObject:attributeCls];
+        break;
+      }
     }
   }
   return result.copy;
