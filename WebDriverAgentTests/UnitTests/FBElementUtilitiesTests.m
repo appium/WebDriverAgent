@@ -12,11 +12,46 @@
 #import "FBElement.h"
 #import "XCUIElementDouble.h"
 #import "FBElementUtils.h"
+#import "XCUIElementQuery+FBHelpers.h"
+#import "XCElementSnapshotDouble.h"
+
+@interface FBCountedDescendantsSnapshot : XCElementSnapshotDouble
+@property (nonatomic) NSUInteger descendantReads;
+@end
+@implementation FBCountedDescendantsSnapshot
+- (NSArray *)_allDescendants { self.descendantReads++; return @[]; }
+@end
 
 @interface FBElementUtilitiesTests : XCTestCase
 @end
 
 @implementation FBElementUtilitiesTests
+
+- (void)testSnapshotContextFlattensEachRootOnlyOnce
+{
+  FBQuerySnapshotContext *context = [FBQuerySnapshotContext new];
+  FBCountedDescendantsSnapshot *first = [FBCountedDescendantsSnapshot new];
+  FBCountedDescendantsSnapshot *next = [FBCountedDescendantsSnapshot new];
+  XCTAssertEqual([context snapshotsForRoot:(id)first], [context snapshotsForRoot:(id)first]);
+  XCTAssertEqual(first.descendantReads, 1u);
+  XCTAssertEqual([context snapshotsForRoot:(id)next].firstObject, next);
+  XCTAssertEqual(next.descendantReads, 1u);
+  FBQuerySnapshotContext *nextRequest = [FBQuerySnapshotContext new];
+  [nextRequest snapshotsForRoot:(id)first];
+  XCTAssertEqual(first.descendantReads, 2u);
+}
+
+- (void)testSnapshotContextReleasesRootsAtTheEndOfTheRequest
+{
+  __weak FBCountedDescendantsSnapshot *weakRoot;
+  @autoreleasepool {
+    FBQuerySnapshotContext *context = [FBQuerySnapshotContext new];
+    FBCountedDescendantsSnapshot *root = [FBCountedDescendantsSnapshot new];
+    weakRoot = root;
+    [context snapshotsForRoot:(id)root];
+  }
+  XCTAssertNil(weakRoot);
+}
 
 - (void)testTypesFiltering {
   NSMutableArray *elements = [NSMutableArray new];

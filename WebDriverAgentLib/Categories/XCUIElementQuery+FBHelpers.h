@@ -11,6 +11,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Request-local scratch data. Discard after element response conversion; never
+ share across UI actions or commands. Root identity separates snapshot generations. */
+@interface FBQuerySnapshotContext : NSObject
+- (NSOrderedSet *)snapshotsForRoot:(id<FBXCElementSnapshot>)root;
+@end
+
 @interface XCUIElementQuery (FBHelpers)
 
 /**
@@ -22,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return Either the cached snapshot or nil
  */
 - (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot;
+
+- (nullable id<FBXCElementSnapshot>)fb_cachedSnapshotWithContext:(nullable FBQuerySnapshotContext *)context;
 
 @end
 

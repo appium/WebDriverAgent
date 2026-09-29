@@ -16,10 +16,13 @@
 #import "FBMacros.h"
 #import "FBProtocolHelpers.h"
 #import "XCUIElementQuery.h"
+#import "XCUIElementQuery+FBHelpers.h"
 #import "XCUIElement+FBResolve.h"
 #import "XCUIElement+FBUID.h"
 #import "XCUIElement+FBUtilities.h"
 #import "XCUIElement+FBWebDriverAttributes.h"
+
+static NSDictionary *FBDictionaryResponseWithContext(XCUIElement *element, BOOL compact, FBQuerySnapshotContext *context);
 
 NSString *arbitraryAttrPrefix = @"attribute/";
 
@@ -33,7 +36,7 @@ id<FBResponsePayload> FBResponseWithObject(id object)
   return FBResponseWithStatus([FBCommandStatus okWithValue:object]);
 }
 
-XCUIElement *maybeStable(XCUIElement *element)
+static XCUIElement *FBMaybeStableWithContext(XCUIElement *element, FBQuerySnapshotContext *context)
 {
   BOOL useNativeCachingStrategy = nil == FBSession.activeSession
     ? YES
@@ -44,13 +47,18 @@ XCUIElement *maybeStable(XCUIElement *element)
 
   XCUIElement *result = element;
   id<FBXCElementSnapshot> snapshot = element.lastSnapshot
-    ?: element.fb_cachedSnapshot
+    ?: [element.query fb_cachedSnapshotWithContext:context]
     ?: [element fb_standardSnapshot];
   NSString *uid = [FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot];
   if (nil != uid) {
     result = [element fb_stableInstanceWithUid:uid];
   }
   return result;
+}
+
+XCUIElement *maybeStable(XCUIElement *element)
+{
+  return FBMaybeStableWithContext(element, nil);
 }
 
 id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElementCache *elementCache, BOOL compact)
@@ -64,9 +72,10 @@ id<FBResponsePayload> FBResponseWithCachedElement(XCUIElement *element, FBElemen
 id<FBResponsePayload> FBResponseWithCachedElements(NSArray<XCUIElement *> *elements, FBElementCache *elementCache, BOOL compact)
 {
   NSMutableArray *elementsResponse = [NSMutableArray array];
+  FBQuerySnapshotContext *context = [FBQuerySnapshotContext new];
   for (XCUIElement *element in elements) {
-    [elementCache storeElement:maybeStable(element)];
-    [elementsResponse addObject:FBDictionaryResponseWithElement(element, compact)];
+    [elementCache storeElement:FBMaybeStableWithContext(element, context)];
+    [elementsResponse addObject:FBDictionaryResponseWithContext(element, compact, context)];
     element.lastSnapshot = nil;
   }
   return FBResponseWithStatus([FBCommandStatus okWithValue:elementsResponse]);
@@ -105,12 +114,17 @@ id<FBResponsePayload> FBResponseWithStatus(FBCommandStatus *status)
                                             httpStatusCode:status.statusCode];
 }
 
-inline NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact)
+NSDictionary *FBDictionaryResponseWithElement(XCUIElement *element, BOOL compact)
+{
+  return FBDictionaryResponseWithContext(element, compact, nil);
+}
+
+static NSDictionary *FBDictionaryResponseWithContext(XCUIElement *element, BOOL compact, FBQuerySnapshotContext *context)
 {
   __block NSDictionary *elementResponse = nil;
   @autoreleasepool {
     id<FBXCElementSnapshot> snapshot = element.lastSnapshot
-      ?: element.fb_cachedSnapshot
+      ?: [element.query fb_cachedSnapshotWithContext:context]
       ?: [element fb_customSnapshot];
     NSDictionary *compactResult = FBToElementDict((NSString *)[FBXCElementSnapshotWrapper wdUIDWithSnapshot:snapshot]);
     if (compact) {

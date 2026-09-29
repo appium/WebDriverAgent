@@ -13,9 +13,41 @@
 #import "FBXCElementSnapshot.h"
 #import "XCTElementSetTransformer-Protocol.h"
 
+@interface FBQuerySnapshotContext ()
+@property (nonatomic) NSMapTable<id, NSOrderedSet *> *roots;
+@end
+
+@implementation FBQuerySnapshotContext
+- (instancetype)init
+{
+  if ((self = [super init])) {
+    _roots = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPointerPersonality)
+                                  valueOptions:NSPointerFunctionsStrongMemory];
+  }
+  return self;
+}
+
+- (NSOrderedSet *)snapshotsForRoot:(id<FBXCElementSnapshot>)root
+{
+  NSOrderedSet *result = [self.roots objectForKey:root];
+  if (nil == result) {
+    NSMutableArray *snapshots = [NSMutableArray arrayWithObject:root];
+    [snapshots addObjectsFromArray:root._allDescendants];
+    result = [NSOrderedSet orderedSetWithArray:snapshots];
+    [self.roots setObject:result forKey:root];
+  }
+  return result;
+}
+@end
+
 @implementation XCUIElementQuery (FBHelpers)
 
 - (nullable id<FBXCElementSnapshot>)fb_cachedSnapshot
+{
+  return [self fb_cachedSnapshotWithContext:nil];
+}
+
+- (nullable id<FBXCElementSnapshot>)fb_cachedSnapshotWithContext:(nullable FBQuerySnapshotContext *)context
 {
   id<FBXCElementSnapshot> rootElementSnapshot = self.rootElementSnapshot;
   if (nil == rootElementSnapshot) {
@@ -29,9 +61,7 @@
     inputQuery = inputQuery.inputQuery;
   }
 
-  NSMutableArray *snapshots = [NSMutableArray arrayWithObject:rootElementSnapshot];
-  [snapshots addObjectsFromArray:rootElementSnapshot._allDescendants];
-  NSOrderedSet *matchingSnapshots = [NSOrderedSet orderedSetWithArray:snapshots];
+  NSOrderedSet *matchingSnapshots = [(context ?: [FBQuerySnapshotContext new]) snapshotsForRoot:rootElementSnapshot];
   @try {
     for (id<XCTElementSetTransformer> transformer in transformersChain) {
       matchingSnapshots = (NSOrderedSet *)[transformer transform:matchingSnapshots
