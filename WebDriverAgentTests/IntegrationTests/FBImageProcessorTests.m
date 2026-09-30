@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FBImageProcessor.h"
+@import UniformTypeIdentifiers;
 #import "FBIntegrationTestCase.h"
 
 
@@ -80,3 +81,36 @@
 
 @end
 
+
+
+// Synthetic images keep these renderer regressions independent of the app's screen.
+@interface FBImageRendererScalingTests : XCTestCase
+@end
+
+@implementation FBImageRendererScalingTests
+
+- (void)testOrientationFixDoesNotApplyScalingTwice
+{
+  for (NSNumber *sourceScale in @[@1, @2, @3]) {
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat new];
+    format.scale = sourceScale.doubleValue;
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
+      initWithSize:CGSizeMake(120, 80) format:format];
+    NSData *data = [renderer PNGDataWithActions:^(UIGraphicsImageRendererContext *context) {
+      [UIColor.redColor setFill];
+      [context fillRect:CGRectMake(0, 0, 120, 80)];
+    }];
+    FBImageProcessor *processor = [FBImageProcessor new];
+    NSData *scaled = [processor scaledImageWithData:data
+                                               uti:UTTypePNG
+                                     scalingFactor:0.5
+                                compressionQuality:1.0
+                                             error:nil];
+    UIImage *image = [UIImage imageWithData:scaled];
+    XCTAssertNotNil(image);
+    XCTAssertEqual(CGImageGetWidth(image.CGImage), (size_t)(60 * sourceScale.integerValue));
+    XCTAssertEqual(CGImageGetHeight(image.CGImage), (size_t)(40 * sourceScale.integerValue));
+  }
+}
+
+@end

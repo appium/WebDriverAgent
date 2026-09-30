@@ -357,6 +357,7 @@ static NSString *const axSettingsClassName = @"AXSettings";
   FBSetCustomParameterForElementSnapshot(FBSnapshotMaxChildrenKey, @INT_MAX);
   self.useClearTextShortcut = YES;
   self.limitXpathContextScope = YES;
+  self.currentDisplayId = nil;
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
   self.screenshotOrientationStorage = UIInterfaceOrientationUnknown;
 #endif

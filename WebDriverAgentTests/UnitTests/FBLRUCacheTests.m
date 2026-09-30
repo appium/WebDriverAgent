@@ -15,6 +15,40 @@
 
 @implementation FBLRUCacheTests
 
+- (void)testDestroyingCacheReleasesAllValues
+{
+  __weak NSObject *firstValue;
+  __weak NSObject *secondValue;
+  @autoreleasepool {
+    LRUCache *cache = [[LRUCache alloc] initWithCapacity:2];
+    NSObject *first = [NSObject new];
+    NSObject *second = [NSObject new];
+    firstValue = first;
+    secondValue = second;
+    [cache setObject:first forKey:@"first"];
+    [cache setObject:second forKey:@"second"];
+    XCTAssertNotNil([cache objectForKey:@"first"]);
+  }
+  XCTAssertNil(firstValue);
+  XCTAssertNil(secondValue);
+}
+
+- (void)testRemovingValueReleasesItWhileCacheRemainsAlive
+{
+  LRUCache *cache = [[LRUCache alloc] initWithCapacity:3];
+  __weak NSObject *removedValue;
+  @autoreleasepool {
+    NSObject *value = [NSObject new];
+    removedValue = value;
+    [cache setObject:@"oldest" forKey:@"oldest"];
+    [cache setObject:value forKey:@"removed"];
+    [cache setObject:@"newest" forKey:@"newest"];
+    [cache removeObjectForKey:@"removed"];
+  }
+  XCTAssertNil(removedValue);
+  XCTAssertEqualObjects(cache.allObjects, (@[@"newest", @"oldest"]));
+}
+
 - (void)assertArray:(NSArray *)array1 equalsTo:(NSArray *)array2
 {
   XCTAssertEqualObjects(array1, array2);

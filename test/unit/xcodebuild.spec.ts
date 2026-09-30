@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {EventEmitter} from 'node:events';
 import {describe, it, beforeEach, mock} from 'node:test';
 
 import * as teenProcess from 'teen_process';
@@ -160,5 +161,70 @@ describe('XcodeBuild real-device udid case resolution', function () {
     );
     await xcodebuild.init({} as any);
     assert.strictEqual(capturedDeviceInfo.udid, '00008030-000a49391460202e');
+  });
+});
+
+describe('XcodeBuild readiness after a previous process exits', function () {
+  function setup() {
+    const build = new XcodeBuild(
+      {udid: 'sim-udid'},
+      {
+        realDevice: false,
+        agentPath: '/fake',
+        bootstrapPath: '/fake',
+        prebuildDelay: 0,
+      },
+    );
+    const processes: EventEmitter[] = [];
+    let statusCalls = 0;
+    const status = {ready: true};
+    (build as any).noSessionProxy = {
+      timeout: 5000,
+      command: async () => {
+        statusCalls++;
+        return status;
+      },
+    };
+    (build as any).createSubProcess = async (buildOnly: boolean) => {
+      const process = new EventEmitter();
+      processes.push(process);
+      (process as any).start = async () => {
+        if (buildOnly) {
+          process.emit('exit', 0, null);
+        }
+      };
+      return process;
+    };
+    return {build, processes, status, statusCalls: () => statusCalls};
+  }
+
+  it('checks status after a successful prebuild', async function () {
+    const fixture = setup();
+    await fixture.build.prebuild();
+    assert.deepStrictEqual(await fixture.build.start(), fixture.status);
+    assert.strictEqual(fixture.statusCalls(), 1);
+  });
+
+  it('checks status again when restarting the same instance', async function () {
+    const fixture = setup();
+    await fixture.build.start();
+    fixture.processes[0].emit('exit', 0, null);
+    assert.deepStrictEqual(await fixture.build.start(), fixture.status);
+    assert.strictEqual(fixture.statusCalls(), 2);
+  });
+
+  it('does not let an old process exit mark the new process as exited', async function () {
+    const fixture = setup();
+    await fixture.build.start();
+    const create = (fixture.build as any).createSubProcess;
+    (fixture.build as any).createSubProcess = async (buildOnly: boolean) => {
+      const process = await create(buildOnly);
+      process.start = async () => {
+        fixture.processes[0].emit('exit', 0, null);
+      };
+      return process;
+    };
+    assert.deepStrictEqual(await fixture.build.start(), fixture.status);
+    assert.strictEqual(fixture.statusCalls(), 2);
   });
 });
