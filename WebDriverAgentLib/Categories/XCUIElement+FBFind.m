@@ -120,6 +120,10 @@
 - (NSArray<XCUIElement *> *)fb_descendantsMatchingIdentifier:(NSString *)accessibilityId
                                  shouldReturnAfterFirstMatch:(BOOL)shouldReturnAfterFirstMatch
 {
+  // Standard snapshot attributes let XCTest evaluate a structured predicate
+  // without WDA's per-snapshot block callback, while preserving wdName semantics.
+  // Local benchmarks showed lower end-to-end lookup latency; see measurements
+  // and regression checks in https://github.com/appium/WebDriverAgent/pull/1286.
   NSPredicate *predicate = [NSPredicate predicateWithFormat:
     @"(identifier != nil AND identifier != '' AND identifier == %@) OR "
      "((identifier == nil OR identifier == '') AND label != nil AND label != '' AND label == %@)",
