@@ -591,10 +591,39 @@
   XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"other label" shouldReturnAfterFirstMatch:NO].count, 0);
 }
 
-- (void)testEmptyMissingQuotedAndUnicodeIdentifiers
+- (void)testEmptyIdentifierDoesNotMatchEmptyAccessibilityId
+{
+  // The fixture has an empty identifier with a nonempty label at index 2,
+  // and an empty identifier with an empty label at index 5.
+  XCUIElement *labelFallback = [self.testedApplication.staticTexts elementBoundByIndex:2];
+  XCUIElement *unnamed = [self.testedApplication.staticTexts elementBoundByIndex:5];
+  XCTAssertEqualObjects(labelFallback.identifier, @"");
+  XCTAssertEqualObjects(labelFallback.label, @"something");
+  XCTAssertEqualObjects(unnamed.identifier, @"");
+  XCTAssertEqualObjects(unnamed.label, @"");
+
+  // Regression guard for "identifier != nil AND identifier != ''": the old
+  // wdName lookup used the nonempty label, or nil when both fields were empty.
+  // Thus an empty query matched neither element. Checking only identifier != nil
+  // would instead let identifier == @"" match both, changing existing behavior.
+  BOOL previousFirstMatch = FBConfiguration.sharedInstance.useFirstMatch;
+  @try {
+    for (NSNumber *useFirstMatch in @[@NO, @YES]) {
+      FBConfiguration.sharedInstance.useFirstMatch = useFirstMatch.boolValue;
+      for (NSNumber *firstMatch in @[@NO, @YES]) {
+        XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@""
+                                                  shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 0,
+                       @"An empty accessibility ID must not match empty identifiers, even when they are non-nil");
+      }
+    }
+  } @finally {
+    FBConfiguration.sharedInstance.useFirstMatch = previousFirstMatch;
+  }
+}
+
+- (void)testMissingQuotedAndUnicodeIdentifiers
 {
   for (NSNumber *firstMatch in @[@NO, @YES]) {
-    XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 0);
     XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"missing-target" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 0);
     XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"quote'\"é" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 1);
     XCTAssertEqual([self.testedApplication fb_descendantsMatchingIdentifier:@"日本語" shouldReturnAfterFirstMatch:firstMatch.boolValue].count, 1);
