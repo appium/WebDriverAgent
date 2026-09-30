@@ -36,7 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)client:(nw_connection_t)client didReceiveData:(NSData *)data;
 
 /**
- The callback which is fired when TCP client disconnects
+ The callback which is fired when TCP client disconnects or finishes sending
+
+ A connection that failed is cancelled by the socket. One whose peer only finished sending stays
+ writable (the peer may be awaiting a response), and the delegate must cancel it once it has
+ nothing left to send - an uncancelled connection keeps its socket open.
 
  @param client The actual disconnected client
  */

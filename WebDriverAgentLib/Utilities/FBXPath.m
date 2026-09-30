@@ -175,154 +175,175 @@ static NSString *const topNodeIndexPath = @"top";
 + (nullable NSString *)xmlStringWithRootElement:(id<FBElement>)root
                                         options:(nullable FBXMLGenerationOptions *)options
 {
-  xmlDocPtr doc;
-  xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
-  int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
-  if (rc < 0) {
-    [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
-  } else {
-    BOOL hasScope = nil != options.scope && [options.scope length] > 0;
-    if (hasScope) {
-      rc = xmlTextWriterStartElement(writer,
-                                     (xmlChar *)[[self safeXmlStringWithString:options.scope] UTF8String]);
-      if (rc < 0) {
-        [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", options.scope, rc];
+  xmlBufferPtr buffer = NULL;
+  xmlTextWriterPtr writer = NULL;
+  @try {
+    buffer = xmlBufferCreate();
+    if (NULL == buffer) {
+      [FBLogger log:@"Failed to invoke libxml2>xmlBufferCreate"];
+      return nil;
+    }
+    writer = xmlNewTextWriterMemory(buffer, 0);
+    if (NULL == writer) {
+      [FBLogger log:@"Failed to invoke libxml2>xmlNewTextWriterMemory"];
+      return nil;
+    }
+    xmlTextWriterSetIndent(writer, 1);
+    xmlTextWriterSetIndentString(writer, BAD_CAST "  ");
+    int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
+    if (rc < 0) {
+      [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
+    } else {
+      BOOL hasScope = nil != options.scope && [options.scope length] > 0;
+      if (hasScope) {
+        rc = xmlTextWriterStartElement(writer,
+                                       (xmlChar *)[[self safeXmlStringWithString:options.scope] UTF8String]);
+        if (rc < 0) {
+          [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartElement for the tag value '%@'. Error code: %d", options.scope, rc];
+        }
+      }
+
+      if (rc >= 0) {
+        [self waitUntilStableWithElement:root];
+        // If 'includeHittableInPageSource' setting is enabled, then use native snapshots
+        // to calculate a more accurate value for the 'hittable' attribute.
+        rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root
+                                                          useNative:FBConfiguration.sharedInstance.includeHittableInPageSource]
+                                             writer:writer
+                                       elementStore:nil
+                                              query:nil
+                                excludingAttributes:options.excludedAttributes];
+      }
+
+      if (rc >= 0 && hasScope) {
+        rc = xmlTextWriterEndElement(writer);
+        if (rc < 0) {
+          [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndElement. Error code: %d", rc];
+        }
+      }
+
+      if (rc >= 0) {
+        rc = xmlTextWriterEndDocument(writer);
+        if (rc < 0) {
+          [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndDocument. Error code: %d", rc];
+        }
       }
     }
-
-    if (rc >= 0) {
-      [self waitUntilStableWithElement:root];
-      // If 'includeHittableInPageSource' setting is enabled, then use native snapshots
-      // to calculate a more accurate value for the 'hittable' attribute.
-      rc = [self xmlRepresentationWithRootElement:[self snapshotWithRoot:root
-                                                        useNative:FBConfiguration.sharedInstance.includeHittableInPageSource]
-                                           writer:writer
-                                     elementStore:nil
-                                            query:nil
-                              excludingAttributes:options.excludedAttributes];
+    if (rc < 0) {
+      return nil;
     }
-
-    if (rc >= 0 && hasScope) {
-      rc = xmlTextWriterEndElement(writer);
-      if (rc < 0) {
-        [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndElement. Error code: %d", rc];
-      }
+    return [[NSString alloc] initWithBytes:xmlBufferContent(buffer)
+                                  length:(NSUInteger)xmlBufferLength(buffer)
+                                encoding:NSUTF8StringEncoding];
+  } @finally {
+    if (NULL != writer) {
+      xmlFreeTextWriter(writer);
     }
-
-    if (rc >= 0) {
-      rc = xmlTextWriterEndDocument(writer);
-      if (rc < 0) {
-        [FBLogger logFmt:@"Failed to invoke libxml2>xmlXPathNewContext. Error code: %d", rc];
-      }
+    if (NULL != buffer) {
+      xmlBufferFree(buffer);
     }
   }
-  if (rc < 0) {
-    xmlFreeTextWriter(writer);
-    xmlFreeDoc(doc);
-    return nil;
-  }
-  int buffersize;
-  xmlChar *xmlbuff;
-  xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
-  xmlFreeTextWriter(writer);
-  xmlFreeDoc(doc);
-  NSString *result = [NSString stringWithCString:(const char *)xmlbuff encoding:NSUTF8StringEncoding];
-  xmlFree(xmlbuff);
-  return result;
 }
 
 + (NSArray<id<FBXCElementSnapshot>> *)matchesWithRootElement:(id<FBElement>)root
                                                     forQuery:(NSString *)xpathQuery
 {
-  xmlDocPtr doc;
-
-  xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
-  if (NULL == writer) {
-    [FBLogger logFmt:@"Failed to invoke libxml2>xmlNewTextWriterDoc for XPath query \"%@\"", xpathQuery];
-    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
-  }
-  NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
-  int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
-  id<FBXCElementSnapshot> lookupScopeSnapshot = nil;
-  id<FBXCElementSnapshot> contextRootSnapshot = nil;
-  BOOL useNativeSnapshot = nil == xpathQuery
-    ? NO
-    : [[self.class elementAttributesWithXPathQuery:xpathQuery] containsObject:FBHittableAttribute.class];
-  if (rc < 0) {
-    [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
-  } else {
-    [self waitUntilStableWithElement:root];
-    if (FBConfiguration.sharedInstance.limitXpathContextScope) {
-      lookupScopeSnapshot = [self snapshotWithRoot:root useNative:useNativeSnapshot];
+  xmlDocPtr doc = NULL;
+  xmlTextWriterPtr writer = NULL;
+  xmlXPathObjectPtr contextNodeQueryResult = NULL;
+  xmlXPathObjectPtr queryResult = NULL;
+  @try {
+    writer = xmlNewTextWriterDoc(&doc, 0);
+    if (NULL == writer) {
+      [FBLogger logFmt:@"Failed to invoke libxml2>xmlNewTextWriterDoc for XPath query \"%@\"", xpathQuery];
+      return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
+    }
+    NSMutableDictionary *elementStore = [NSMutableDictionary dictionary];
+    int rc = xmlTextWriterStartDocument(writer, NULL, _UTF8Encoding, NULL);
+    id<FBXCElementSnapshot> lookupScopeSnapshot = nil;
+    id<FBXCElementSnapshot> contextRootSnapshot = nil;
+    BOOL useNativeSnapshot = nil == xpathQuery
+      ? NO
+      : [[self.class elementAttributesWithXPathQuery:xpathQuery] containsObject:FBHittableAttribute.class];
+    if (rc < 0) {
+      [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterStartDocument. Error code: %d", rc];
     } else {
-      if ([root isKindOfClass:XCUIElement.class]) {
-        lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]
-                                           useNative:useNativeSnapshot];
-        // root.lastSnapshot may be stale leftover from an unrelated earlier command.
-        contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
-          ? nil
-          : ([(XCUIElement *)root fb_cachedSnapshot] ?: [self snapshotWithRoot:(XCUIElement *)root
-                                                                     useNative:useNativeSnapshot]);
+      [self waitUntilStableWithElement:root];
+      if (FBConfiguration.sharedInstance.limitXpathContextScope) {
+        lookupScopeSnapshot = [self snapshotWithRoot:root useNative:useNativeSnapshot];
       } else {
-        lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
-        contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
-        while (nil != lookupScopeSnapshot.parent) {
-          lookupScopeSnapshot = lookupScopeSnapshot.parent;
+        if ([root isKindOfClass:XCUIElement.class]) {
+          lookupScopeSnapshot = [self snapshotWithRoot:[(XCUIElement *)root application]
+                                             useNative:useNativeSnapshot];
+          // root.lastSnapshot may be stale leftover from an unrelated earlier command.
+          contextRootSnapshot = [root isKindOfClass:XCUIApplication.class]
+            ? nil
+            : ([(XCUIElement *)root fb_cachedSnapshot] ?: [self snapshotWithRoot:(XCUIElement *)root
+                                                                       useNative:useNativeSnapshot]);
+        } else {
+          lookupScopeSnapshot = (id<FBXCElementSnapshot>)root;
+          contextRootSnapshot = nil == lookupScopeSnapshot.parent ? nil : (id<FBXCElementSnapshot>)root;
+          while (nil != lookupScopeSnapshot.parent) {
+            lookupScopeSnapshot = lookupScopeSnapshot.parent;
+          }
+        }
+      }
+
+      rc = [self xmlRepresentationWithRootElement:lookupScopeSnapshot
+                                           writer:writer
+                                     elementStore:elementStore
+                                            query:xpathQuery
+                              excludingAttributes:nil];
+      if (rc >= 0) {
+        rc = xmlTextWriterEndDocument(writer);
+        if (rc < 0) {
+          [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndDocument. Error code: %d", rc];
         }
       }
     }
+    if (rc < 0) {
+      return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
+    }
 
-    rc = [self xmlRepresentationWithRootElement:lookupScopeSnapshot
-                                         writer:writer
-                                   elementStore:elementStore
-                                          query:xpathQuery
-                            excludingAttributes:nil];
-    if (rc >= 0) {
-      rc = xmlTextWriterEndDocument(writer);
-      if (rc < 0) {
-        [FBLogger logFmt:@"Failed to invoke libxml2>xmlTextWriterEndDocument. Error code: %d", rc];
+    contextNodeQueryResult = [self matchNodeInDocument:doc
+                                                            elementStore:elementStore.copy
+                                                             forSnapshot:contextRootSnapshot];
+    xmlNodePtr contextNode = NULL;
+    if (NULL != contextNodeQueryResult) {
+      xmlNodeSetPtr nodeSet = contextNodeQueryResult->nodesetval;
+      if (!xmlXPathNodeSetIsEmpty(nodeSet)) {
+        contextNode = nodeSet->nodeTab[0];
       }
     }
-  }
-  if (rc < 0) {
-    xmlFreeTextWriter(writer);
-    xmlFreeDoc(doc);
-    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
-  }
+    NSString *evaluationError = nil;
+    queryResult = [self evaluate:xpathQuery
+                                          document:doc
+                                       contextNode:contextNode
+                                      errorMessage:&evaluationError];
+    if (NULL == queryResult) {
+      return [self throwException:FBInvalidXPathException forQuery:xpathQuery detail:evaluationError];
+    }
 
-  xmlXPathObjectPtr contextNodeQueryResult = [self matchNodeInDocument:doc
-                                                          elementStore:elementStore.copy
-                                                           forSnapshot:contextRootSnapshot];
-  xmlNodePtr contextNode = NULL;
-  if (NULL != contextNodeQueryResult) {
-    xmlNodeSetPtr nodeSet = contextNodeQueryResult->nodesetval;
-    if (!xmlXPathNodeSetIsEmpty(nodeSet)) {
-      contextNode = nodeSet->nodeTab[0];
+    NSArray *matchingSnapshots = [self collectMatchingSnapshots:queryResult->nodesetval
+                                                   elementStore:elementStore];
+    if (nil == matchingSnapshots) {
+      return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
+    }
+    return matchingSnapshots;
+  } @finally {
+    if (NULL != queryResult) {
+      xmlXPathFreeObject(queryResult);
+    }
+    if (NULL != contextNodeQueryResult) {
+      xmlXPathFreeObject(contextNodeQueryResult);
+    }
+    if (NULL != writer) {
+      xmlFreeTextWriter(writer);
+    }
+    if (NULL != doc) {
+      xmlFreeDoc(doc);
     }
   }
-  NSString *evaluationError = nil;
-  xmlXPathObjectPtr queryResult = [self evaluate:xpathQuery
-                                        document:doc
-                                     contextNode:contextNode
-                                    errorMessage:&evaluationError];
-  if (NULL != contextNodeQueryResult) {
-    xmlXPathFreeObject(contextNodeQueryResult);
-  }
-  if (NULL == queryResult) {
-    xmlFreeTextWriter(writer);
-    xmlFreeDoc(doc);
-    return [self throwException:FBInvalidXPathException forQuery:xpathQuery detail:evaluationError];
-  }
-
-  NSArray *matchingSnapshots = [self collectMatchingSnapshots:queryResult->nodesetval
-                                                 elementStore:elementStore];
-  xmlXPathFreeObject(queryResult);
-  xmlFreeTextWriter(writer);
-  xmlFreeDoc(doc);
-  if (nil == matchingSnapshots) {
-    return [self throwException:FBXPathQueryEvaluationException forQuery:xpathQuery];
-  }
-  return matchingSnapshots;
 }
 
 + (NSArray *)collectMatchingSnapshots:(xmlNodeSetPtr)nodeSet
@@ -504,6 +525,18 @@ static NSString *const topNodeIndexPath = @"top";
                      indexPath:(nullable NSString *)indexPath
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
 {
+  return [self recordElementAttributes:writer forElement:element indexPath:indexPath
+                   includedAttributes:includedAttributes siblingIndex:nil];
+}
+
++ (int)recordElementAttributes:(xmlTextWriterPtr)writer
+                    forElement:(id<FBXCElementSnapshot>)element
+                     indexPath:(nullable NSString *)indexPath
+            includedAttributes:(nullable NSSet<Class> *)includedAttributes
+                  siblingIndex:(nullable NSNumber *)siblingIndex
+{
+  FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:element];
+  NSDictionary *rect = nil;
   for (Class attributeCls in FBElementAttribute.supportedAttributes) {
     // include all supported attributes by default unless enumerated explicitly
     if (includedAttributes && ![includedAttributes containsObject:attributeCls]) {
@@ -519,8 +552,15 @@ static NSString *const topNodeIndexPath = @"top";
         !FBDoesElementSupportMinMaxValue(element.elementType)) {
       continue;
     }
-    int rc = [attributeCls recordWithWriter:writer
-                                 forElement:[FBXCElementSnapshotWrapper ensureWrapped:element]];
+    int rc;
+    if (attributeCls == FBIndexAttribute.class && nil != siblingIndex) {
+      rc = [attributeCls recordWithWriter:writer forValue:siblingIndex.stringValue];
+    } else if ([attributeCls isSubclassOfClass:FBDimensionAttribute.class]) {
+      rect = rect ?: wrapped.wdRect;
+      rc = [attributeCls recordWithWriter:writer forValue:[rect[[attributeCls name]] description]];
+    } else {
+      rc = [attributeCls recordWithWriter:writer forElement:wrapped];
+    }
     if (rc < 0) {
       return rc;
     }
@@ -560,6 +600,17 @@ static NSString *const topNodeIndexPath = @"top";
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
                         writer:(xmlTextWriterPtr)writer
 {
+  return [self writeXmlWithRootElement:root indexPath:indexPath elementStore:elementStore
+                   includedAttributes:includedAttributes writer:writer siblingIndex:nil];
+}
+
++ (int)writeXmlWithRootElement:(id<FBXCElementSnapshot>)root
+                     indexPath:(nullable NSString *)indexPath
+                  elementStore:(nullable NSMutableDictionary *)elementStore
+            includedAttributes:(nullable NSSet<Class> *)includedAttributes
+                        writer:(xmlTextWriterPtr)writer
+                  siblingIndex:(nullable NSNumber *)siblingIndex
+{
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
   NSArray<id<FBXCElementSnapshot>> *children = root.children;
@@ -578,7 +629,8 @@ static NSString *const topNodeIndexPath = @"top";
   rc = [self recordElementAttributes:writer
                           forElement:root
                            indexPath:indexPath
-                  includedAttributes:includedAttributes];
+                  includedAttributes:includedAttributes
+                        siblingIndex:siblingIndex];
   if (rc < 0) {
     return rc;
   }
@@ -594,7 +646,8 @@ static NSString *const topNodeIndexPath = @"top";
                                indexPath:newIndexPath
                             elementStore:elementStore
                       includedAttributes:includedAttributes
-                                  writer:writer];
+                                  writer:writer
+                            siblingIndex:@(i)];
       if (rc < 0) {
         return rc;
       }

@@ -1,3 +1,53 @@
+## [16.13.5](https://github.com/appium/WebDriverAgent/compare/v16.13.4...v16.13.5) (2026-09-30)
+
+### Performance Improvements
+
+* stream page-source XML with exception-safe resource cleanup ([#1276](https://github.com/appium/WebDriverAgent/issues/1276)) ([4e8639b](https://github.com/appium/WebDriverAgent/commit/4e8639bf73f962591e3e7b3be211f289a19ebf84))
+
+## [16.13.4](https://github.com/appium/WebDriverAgent/compare/v16.13.3...v16.13.4) (2026-09-30)
+
+### Performance Improvements
+
+* use native predicates for accessibility id lookups ([#1286](https://github.com/appium/WebDriverAgent/issues/1286)) ([2ceb940](https://github.com/appium/WebDriverAgent/commit/2ceb940939c2033cb37b846962a966d42bb0ddab))
+
+## [16.13.3](https://github.com/appium/WebDriverAgent/compare/v16.13.2...v16.13.3) (2026-09-30)
+
+### Bug Fixes
+
+* reject stale sessions without retaining past responses ([#1282](https://github.com/appium/WebDriverAgent/issues/1282)) ([f245ffb](https://github.com/appium/WebDriverAgent/commit/f245ffb4e6906143384410cf312abc5bcedf5486))
+
+## [16.13.2](https://github.com/appium/WebDriverAgent/compare/v16.13.1...v16.13.2) (2026-09-30)
+
+### Bug Fixes
+
+* process received HTTP bytes before handling EOF ([#1277](https://github.com/appium/WebDriverAgent/issues/1277)) ([203fc4f](https://github.com/appium/WebDriverAgent/commit/203fc4f012ab1d90caf0127fe85f119ad85cb0e8))
+
+## [16.13.1](https://github.com/appium/WebDriverAgent/compare/v16.13.0...v16.13.1) (2026-09-30)
+
+### Performance Improvements
+
+* reuse sibling indices and geometry during XML serialization ([#1283](https://github.com/appium/WebDriverAgent/issues/1283)) ([f352660](https://github.com/appium/WebDriverAgent/commit/f352660deb52728c195a875b4172e38e1a1496b8))
+
+## [16.13.0](https://github.com/appium/WebDriverAgent/compare/v16.12.11...v16.13.0) (2026-09-30)
+
+### Features
+
+* add currentDisplayId setting for screenshots ([#1267](https://github.com/appium/WebDriverAgent/issues/1267)) ([c9366a2](https://github.com/appium/WebDriverAgent/commit/c9366a227b6de19381c96d56a548e9fb53d77dba))
+
+### Bug Fixes
+
+* apply screenshot scaling once when correcting orientation ([#1278](https://github.com/appium/WebDriverAgent/issues/1278)) ([17fd4d0](https://github.com/appium/WebDriverAgent/commit/17fd4d059c351d73384604be40bbade4a03be9a9))
+* avoid infinite-point assertion and hang in coordinate drag gestures ([#1270](https://github.com/appium/WebDriverAgent/issues/1270)) ([c9290a0](https://github.com/appium/WebDriverAgent/commit/c9290a01a63fa195c8aba35c9f0cdad1cd9a6d64)), closes [#1056](https://github.com/appium/WebDriverAgent/issues/1056)
+* cancel connections that end on the client side ([#1273](https://github.com/appium/WebDriverAgent/issues/1273)) ([261c08d](https://github.com/appium/WebDriverAgent/commit/261c08d53917b138eaf2f7d8a744d1151fe3bc8d))
+* isolate xcodebuild readiness state between launches ([#1275](https://github.com/appium/WebDriverAgent/issues/1275)) ([ccc46fe](https://github.com/appium/WebDriverAgent/commit/ccc46fe6de1871a020205488533c1d5b9b7dc756))
+* release LRU cache values when the cache is destroyed ([#1274](https://github.com/appium/WebDriverAgent/issues/1274)) ([fb52865](https://github.com/appium/WebDriverAgent/commit/fb5286515584157659ed86bccdbb64bc3094d91f))
+
+## [16.12.11](https://github.com/appium/WebDriverAgent/compare/v16.12.10...v16.12.11) (2026-09-28)
+
+### Bug Fixes
+
+* embed simulator XCTest dependencies with native copy phase ([#1271](https://github.com/appium/WebDriverAgent/issues/1271)) ([b884dc6](https://github.com/appium/WebDriverAgent/commit/b884dc609fa345bb725123666de5aa0368b34594))
+
 ## [16.12.10](https://github.com/appium/WebDriverAgent/compare/v16.12.9...v16.12.10) (2026-09-21)
 
 ### Miscellaneous Chores

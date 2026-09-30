@@ -74,7 +74,6 @@ export class XcodeBuild {
   private readonly resultBundlePath?: string;
   private readonly resultBundleVersion?: string;
   private _didBuildFail: boolean;
-  private _didProcessExit: boolean;
   private readonly _buildSettingsPromises = new Map<string, Promise<XcodeBuildSettings | undefined>>();
   private noSessionProxy?: NoSessionProxy;
   private xctestrunFilePath?: string;
@@ -130,7 +129,6 @@ export class XcodeBuild {
     this.resultBundleVersion = args.resultBundleVersion;
 
     this._didBuildFail = false;
-    this._didProcessExit = false;
   }
 
   /**
@@ -250,11 +248,13 @@ export class XcodeBuild {
       throw new Error('xcodebuild subprocess was not created');
     }
     const xcodebuild = this.xcodebuild;
+    // Exit state belongs to this invocation, including build-only invocations.
+    let didProcessExit = false;
     return await new Promise<StringRecord | void>((resolve, reject) => {
       xcodebuild.once('exit', (code, signal) => {
         xcodeLog.error(`xcodebuild exited with code '${code}' and signal '${signal}'`);
         xcodebuild.removeAllListeners();
-        this._didProcessExit = true;
+        didProcessExit = true;
         if (this._didBuildFail || (!signal && code !== 0)) {
           let errorMessage =
             `xcodebuild failed with code ${code}.` +
@@ -285,7 +285,7 @@ export class XcodeBuild {
           }
           await xcodebuild.start(true);
           if (!buildOnly) {
-            const result = await this.waitForStart(timer);
+            const result = await this.waitForStart(timer, () => didProcessExit);
             resolve(result ?? undefined);
           }
         } catch (err: any) {
@@ -553,7 +553,7 @@ export class XcodeBuild {
     return xcodebuild;
   }
 
-  private async waitForStart(timer: timing.Timer): Promise<StringRecord | null> {
+  private async waitForStart(timer: timing.Timer, didProcessExit: () => boolean): Promise<StringRecord | null> {
     // try to connect once every 0.5 seconds, until `launchTimeout` is up
     const timeout = this.launchTimeout || 60000; // Default to 60 seconds if not set
     this.log.debug(`Waiting up to ${timeout}ms for WebDriverAgent to start`);
@@ -565,7 +565,7 @@ export class XcodeBuild {
       }
       const noSessionProxy = this.noSessionProxy;
       await retryInterval(retries, 1000, async () => {
-        if (this._didProcessExit) {
+        if (didProcessExit()) {
           // there has been an error elsewhere and we need to short-circuit
           return currentStatus;
         }
@@ -585,7 +585,7 @@ export class XcodeBuild {
         }
       });
 
-      if (this._didProcessExit) {
+      if (didProcessExit()) {
         // there has been an error elsewhere and we need to short-circuit
         return currentStatus;
       }
