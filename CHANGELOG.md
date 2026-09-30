@@ -1,3 +1,9 @@
+## [16.13.6](https://github.com/appium/WebDriverAgent/compare/v16.13.5...v16.13.6) (2026-09-30)
+
+### Bug Fixes
+
+* restore stability wait settings when quiescence throws ([#1281](https://github.com/appium/WebDriverAgent/issues/1281)) ([bcc434c](https://github.com/appium/WebDriverAgent/commit/bcc434c08127c370c0cb05ce1dc9f4cea9f98559))
+
 ## [16.13.5](https://github.com/appium/WebDriverAgent/compare/v16.13.4...v16.13.5) (2026-09-30)
 
 ### Performance Improvements
