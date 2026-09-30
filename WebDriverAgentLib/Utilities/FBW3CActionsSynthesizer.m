@@ -15,6 +15,7 @@
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBProtocolHelpers.h"
+#import "FBScreen.h"
 #import "FBW3CActionsHelpers.h"
 #import "FBXCodeCompatibility.h"
 #import "FBXCTestDaemonsProxy.h"
@@ -28,6 +29,7 @@
 #import "XCSynthesizedEventRecord.h"
 #import "XCPointerEventPath.h"
 #import "XCPointerEvent.h"
+#import "XCUIScreen.h"
 
 
 static NSString *const FB_KEY_TYPE = @"type";
@@ -849,9 +851,35 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (nullable XCSynthesizedEventRecord *)synthesizeWithError:(NSError **)error
 {
-  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc]
-                                           initWithName:@"W3C Touch Action"
-                                           interfaceOrientation:self.application.interfaceOrientation];
+  XCUIScreen *screen = [FBScreen currentScreenWithError:error];
+  if (nil == screen) {
+    return nil;
+  }
+  XCSynthesizedEventRecord *eventRecord;
+  CGVector displayCorrection = CGVectorMake(0, 0);
+  if (screen.isMainScreen) {
+    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
+                                            interfaceOrientation:self.application.interfaceOrientation];
+  } else {
+    if (![XCSynthesizedEventRecord instancesRespondToSelector:@selector(initWithName:displayID:interfaceOrientation:)]) {
+      if (error) {
+        *error = [[FBErrorBuilder.builder
+                   withDescription:@"Actions on a display other than the main one are not supported by this XCTest version"] build];
+      }
+      return nil;
+    }
+    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
+                                                       displayID:(unsigned long long)screen.displayID
+                                            interfaceOrientation:self.application.interfaceOrientation];
+    // XCUICoordinate.screenPoint uses the main display's size when rotating
+    // coordinates. Selecting an event display does not change that transform;
+    // compensate for the difference before dispatching to the selected display.
+    XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+    displayCorrection = FBDisplayCoordinateOffset(
+      CGSizeMake(mainScreen.bounds.size.width / mainScreen.scale, mainScreen.bounds.size.height / mainScreen.scale),
+      CGSizeMake(screen.bounds.size.width / screen.scale, screen.bounds.size.height / screen.scale),
+      eventRecord.interfaceOrientation);
+  }
   NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *actionsMapping = [NSMutableDictionary new];
   NSMutableArray<NSString *> *actionIds = [NSMutableArray new];
   for (NSDictionary<NSString *, id> *action in self.actions) {
@@ -893,6 +921,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       return nil;
     }
     for (XCPointerEventPath *eventPath in eventPaths) {
+      if (displayCorrection.dx != 0 || displayCorrection.dy != 0) {
+        for (XCPointerEvent *pointerEvent in eventPath.pointerEvents) {
+          CGPoint point = pointerEvent.coordinate;
+          pointerEvent.coordinate = CGPointMake(point.x + displayCorrection.dx, point.y + displayCorrection.dy);
+        }
+      }
       [eventRecord addPointerEventPath:eventPath];
     }
   }
