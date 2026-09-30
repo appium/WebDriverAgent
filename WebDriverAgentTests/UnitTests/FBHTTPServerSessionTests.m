@@ -13,6 +13,7 @@
 #import <sys/socket.h>
 
 #import "FBHTTPServer.h"
+#import "FBSession-Private.h"
 
 static atomic_int gSessionProbeHits;
 
@@ -23,10 +24,26 @@ static atomic_int gSessionProbeHits;
 
 @implementation FBHTTPServerSessionTests
 
+- (void)testAbandonmentDoesNotRetainResponsesAfterPendingRequestsDrain
+{
+  __weak RouteResponse *weakResponse;
+  @autoreleasepool {
+    RouteResponse *response = [RouteResponse new];
+    [response respondWithString:@"deleted"];
+    weakResponse = response;
+    for (NSUInteger index = 0; index < 1000; index++) {
+      [self.server abandonPendingRequestsForSessionID:[NSString stringWithFormat:@"old-%lu", (unsigned long)index]
+                                         withResponse:response];
+    }
+  }
+  XCTAssertNil(weakResponse);
+}
+
 - (void)setUp
 {
   [super setUp];
   atomic_store(&gSessionProbeHits, 0);
+  [FBSession initWithApplication:nil].identifier = @"live-session";
   self.server = [FBHTTPServer new];
   [self.server get:@"/session/:sessionID/probe" withBlock:^(RouteRequest *request, RouteResponse *response) {
     atomic_fetch_add(&gSessionProbeHits, 1);
@@ -42,6 +59,7 @@ static atomic_int gSessionProbeHits;
 {
   [self.server stop:NO];
   self.server = nil;
+  [FBSession.activeSession kill];
   [super tearDown];
 }
 
@@ -93,14 +111,14 @@ static atomic_int gSessionProbeHits;
 
   NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[@"GET /session/dead-session/probe HTTP/1.1\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]
                                             timeout:5.0];
-  XCTAssertTrue([response containsString:@"session-was-deleted"], @"%@", response);
+  XCTAssertTrue([response containsString:@"invalid session id"], @"%@", response);
   XCTAssertEqual(atomic_load(&gSessionProbeHits), 0, @"the route must not run for a deleted session");
 }
 
 - (void)testAbandonedSessionIsRememberedAfterManyLaterAbandonments
 {
-  // Abandoned ids are kept for the server's lifetime; evicting them would let a stale request
-  // queue on a possibly wedged route queue again, which is the hang this rejection prevents.
+  // A stale UUID must still be rejected after arbitrarily many other sessions,
+  // without needing to remember every deleted UUID.
   RouteResponse *abandonedResponse = [RouteResponse new];
   [abandonedResponse respondWithString:@"session-was-deleted"];
   [self.server abandonPendingRequestsForSessionID:@"dead-session" withResponse:abandonedResponse];
@@ -113,7 +131,7 @@ static atomic_int gSessionProbeHits;
 
   NSString *response = [self responseForRawPayload:(NSData * _Nonnull)[@"GET /session/dead-session/probe HTTP/1.1\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]
                                             timeout:5.0];
-  XCTAssertTrue([response containsString:@"session-was-deleted"], @"%@", response);
+  XCTAssertTrue([response containsString:@"invalid session id"], @"%@", response);
   XCTAssertEqual(atomic_load(&gSessionProbeHits), 0, @"the route must not run for a deleted session");
 }
 

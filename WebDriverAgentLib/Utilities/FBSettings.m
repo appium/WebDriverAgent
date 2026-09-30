@@ -42,3 +42,4 @@ NSString* const FB_SETTING_INCLUDE_NATIVE_ACCESSIBILITY_ELEMENT_IN_PAGE_SOURCE =
 NSString* const FB_SETTING_INCLUDE_MIN_MAX_VALUE_IN_PAGE_SOURCE = @"includeMinMaxValueInPageSource";
 NSString* const FB_SETTING_INCLUDE_CUSTOM_ACTIONS_IN_PAGE_SOURCE = @"includeCustomActionsInPageSource";
 NSString* const FB_SETTING_ENFORCE_CUSTOM_SNAPSHOTS = @"enforceCustomSnapshots";
+NSString* const FB_SETTING_CURRENT_DISPLAY_ID = @"currentDisplayId";

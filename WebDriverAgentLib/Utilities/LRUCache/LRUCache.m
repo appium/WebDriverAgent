@@ -80,7 +80,7 @@
   }
   LRUCacheNode *nextNode = node.next;
   if (nil != nextNode) {
-    nextNode.prev = node.prev;
+    nextNode.prev = previousNode;
   }
   if (node == self.tailNode) {
     self.tailNode = previousNode;
@@ -94,19 +94,22 @@
     return;
   }
 
+  LRUCacheNode *previousNode = node.prev;
   if (nil != node.next) {
-    node.next.prev = node.prev;
+    node.next.prev = previousNode;
   }
   if (node == self.headNode) {
     self.headNode = node.next;
   }
-  if (nil != node.prev) {
-    node.prev.next = node.next;
+  if (nil != previousNode) {
+    previousNode.next = node.next;
   }
   if (node == self.tailNode) {
-    self.tailNode = node.prev;
+    self.tailNode = previousNode;
   }
   [self.store removeObjectForKey:(id)node.key];
+  node.next = nil;
+  node.prev = nil;
 }
 
 - (nullable LRUCacheNode *)addNodeToHead:(nullable LRUCacheNode *)node

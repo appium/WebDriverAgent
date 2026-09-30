@@ -368,6 +368,12 @@ typedef NS_ENUM(NSInteger, FBConfigurationKeyboardPreference) {
  */
 @property (atomic, assign) BOOL enforceCustomSnapshots;
 
+/**
+ * The identifier of the display targeted by screenshots.
+ * nil means the main display. Reset to nil for each new session.
+ */
+@property (atomic, copy, nullable) NSNumber *currentDisplayId;
+
 @end
 
 NS_ASSUME_NONNULL_END

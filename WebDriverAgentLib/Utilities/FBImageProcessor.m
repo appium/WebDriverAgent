@@ -144,7 +144,9 @@ const CGFloat FBMaxCompressionQuality = 1.0f;
     }
   
     UIGraphicsImageRendererFormat *format = [[UIGraphicsImageRendererFormat alloc] init];
-    format.scale = scalingFactor;
+    // scaledSize already applies the requested factor in points. Preserve the
+    // image's pixels-per-point scale instead of applying that factor twice.
+    format.scale = image.scale;
     UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:scaledSize
                                                                                format:format];
     UIImageOrientation desiredOrientation = orientation == nil

@@ -525,6 +525,18 @@ static NSString *const topNodeIndexPath = @"top";
                      indexPath:(nullable NSString *)indexPath
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
 {
+  return [self recordElementAttributes:writer forElement:element indexPath:indexPath
+                   includedAttributes:includedAttributes siblingIndex:nil];
+}
+
++ (int)recordElementAttributes:(xmlTextWriterPtr)writer
+                    forElement:(id<FBXCElementSnapshot>)element
+                     indexPath:(nullable NSString *)indexPath
+            includedAttributes:(nullable NSSet<Class> *)includedAttributes
+                  siblingIndex:(nullable NSNumber *)siblingIndex
+{
+  FBXCElementSnapshotWrapper *wrapped = [FBXCElementSnapshotWrapper ensureWrapped:element];
+  NSDictionary *rect = nil;
   for (Class attributeCls in FBElementAttribute.supportedAttributes) {
     // include all supported attributes by default unless enumerated explicitly
     if (includedAttributes && ![includedAttributes containsObject:attributeCls]) {
@@ -540,8 +552,15 @@ static NSString *const topNodeIndexPath = @"top";
         !FBDoesElementSupportMinMaxValue(element.elementType)) {
       continue;
     }
-    int rc = [attributeCls recordWithWriter:writer
-                                 forElement:[FBXCElementSnapshotWrapper ensureWrapped:element]];
+    int rc;
+    if (attributeCls == FBIndexAttribute.class && nil != siblingIndex) {
+      rc = [attributeCls recordWithWriter:writer forValue:siblingIndex.stringValue];
+    } else if ([attributeCls isSubclassOfClass:FBDimensionAttribute.class]) {
+      rect = rect ?: wrapped.wdRect;
+      rc = [attributeCls recordWithWriter:writer forValue:[rect[[attributeCls name]] description]];
+    } else {
+      rc = [attributeCls recordWithWriter:writer forElement:wrapped];
+    }
     if (rc < 0) {
       return rc;
     }
@@ -581,6 +600,17 @@ static NSString *const topNodeIndexPath = @"top";
             includedAttributes:(nullable NSSet<Class> *)includedAttributes
                         writer:(xmlTextWriterPtr)writer
 {
+  return [self writeXmlWithRootElement:root indexPath:indexPath elementStore:elementStore
+                   includedAttributes:includedAttributes writer:writer siblingIndex:nil];
+}
+
++ (int)writeXmlWithRootElement:(id<FBXCElementSnapshot>)root
+                     indexPath:(nullable NSString *)indexPath
+                  elementStore:(nullable NSMutableDictionary *)elementStore
+            includedAttributes:(nullable NSSet<Class> *)includedAttributes
+                        writer:(xmlTextWriterPtr)writer
+                  siblingIndex:(nullable NSNumber *)siblingIndex
+{
   NSAssert((indexPath == nil && elementStore == nil) || (indexPath != nil && elementStore != nil), @"Either both or none of indexPath and elementStore arguments should be equal to nil", nil);
 
   NSArray<id<FBXCElementSnapshot>> *children = root.children;
@@ -599,7 +629,8 @@ static NSString *const topNodeIndexPath = @"top";
   rc = [self recordElementAttributes:writer
                           forElement:root
                            indexPath:indexPath
-                  includedAttributes:includedAttributes];
+                  includedAttributes:includedAttributes
+                        siblingIndex:siblingIndex];
   if (rc < 0) {
     return rc;
   }
@@ -615,7 +646,8 @@ static NSString *const topNodeIndexPath = @"top";
                                indexPath:newIndexPath
                             elementStore:elementStore
                       includedAttributes:includedAttributes
-                                  writer:writer];
+                                  writer:writer
+                            siblingIndex:@(i)];
       if (rc < 0) {
         return rc;
       }
