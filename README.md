@@ -29,40 +29,8 @@ More about how to start WebDriverAgent [here](https://github.com/facebook/WebDri
 
 ## Multiple displays
 
-On devices such as iPhone Duo, `GET /wda/screens` lists the available displays.
-Set `currentDisplayId` through `POST /session/:sessionId/appium/settings` to select
-one of these IDs. Do not assume that the main display is the currently visible
-one after folding or unfolding the device.
-
-The setting selects the display for screenshots, MJPEG frames, and newly started
-XCTest screen recordings. MJPEG follows setting changes on the existing
-connection; an in-progress recording keeps the display selected when it started.
-An unavailable display causes screenshots and recording requests to fail; MJPEG
-pauses frame delivery until a valid display is selected. Set `currentDisplayId`
-to `null` to restore the main display. WDA does not automatically switch this
-setting when the device changes pose.
-
-XCTest's active-app point lookup only targets the main display. When a secondary
-display is selected, WDA uses its active-app fallback instead of that point lookup.
-This is not display-specific app filtering: set `defaultActiveApplication` to the
-app's bundle ID when multiple foreground apps make the result ambiguous. An app
-specified when creating the session retains its existing priority.
-
-W3C coordinate actions require the separate display-aware actions support tracked
-in [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
-
-### Simulated hinge angle
-
-On an iPhone Duo simulator, `POST /session/:sessionId/wda/device/hingeAngle` with
-`{"angle": 90}` sends a hinge event without operating Device Hub's UI. The angle
-must be a finite number from `0` (closed) to `180` (fully open); fractional values
-are supported. This uses the simulator's private HID protocol verified with
-Xcode 27.1 and is currently limited to model `iPhone19,4`. Other simulators and
-physical devices return `unsupported operation`.
-
-The response confirms event dispatch. Wait for the expected app layout before
-continuing, since folding completes asynchronously. The command does not rotate
-the device or update `currentDisplayId`; select the desired display separately.
+See [Multiple displays](docs/multiple-displays.md) for display selection, capture,
+active-app detection, and simulated hinge control.
 
 ## Known Issues
 

@@ -789,7 +789,7 @@
   }
   if (!XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
-      @"Simulated hinge angle is only supported on the iPhone Duo simulator" traceback:nil]);
+      @"The device does not report an available hinge" traceback:nil]);
   }
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_setSimulatedHingeAngle:[angle doubleValue] error:&error]) {

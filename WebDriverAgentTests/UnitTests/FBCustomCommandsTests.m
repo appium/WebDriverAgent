@@ -103,7 +103,7 @@
 
 - (void)testHingeAngleRejectsUnsupportedDevices
 {
-  XCTSkipIf(XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle, @"Requires a device without a simulated hinge");
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle, @"Requires a device without an available hinge");
   for (NSNumber *angle in @[@0, @90, @180]) {
     XCTAssertEqualObjects([self hingeResponseWithArguments:@{@"angle": angle}][@"value"][@"error"],
                           @"unsupported operation");

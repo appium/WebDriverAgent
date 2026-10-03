@@ -25,6 +25,12 @@
 #import "FBXCTestDaemonsProxy.h"
 #import "XCUIDevice.h"
 
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+@protocol FBAngleManager <NSObject>
++ (BOOL)isAvailable;
+@end
+#endif
+
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
 
@@ -479,10 +485,20 @@ static bool fb_isLocked;
 
 - (BOOL)fb_supportsSimulatedHingeAngle
 {
-#if TARGET_OS_SIMULATOR && !TARGET_OS_TV && !TARGET_OS_WATCH
-  // This vendor event is specific to Duo's simulated hardware. Do not send it
-  // to physical devices or assume every device with multiple screens supports it.
-  return [NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"] isEqualToString:@"iPhone19,4"];
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+  static Class<FBAngleManager> angleManagerClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    if (NULL != dlopen("/System/Library/Frameworks/CoreMotion.framework/CoreMotion", RTLD_LAZY)) {
+      angleManagerClass = NSClassFromString(@"CMAngleManager");
+    }
+  });
+  if (![angleManagerClass respondsToSelector:@selector(isAvailable)]) {
+    return NO;
+  }
+  // Hinge availability permits an injection attempt; it does not guarantee
+  // that the device accepts the vendor event. Physical devices are unverified.
+  return [angleManagerClass isAvailable];
 #else
   return NO;
 #endif
@@ -494,9 +510,9 @@ static bool fb_isLocked;
     return [[FBErrorBuilder.builder withDescription:@"Hinge angle must be a finite number between 0 and 180 degrees"] buildError:error];
   }
   if (!self.fb_supportsSimulatedHingeAngle) {
-    return [[FBErrorBuilder.builder withDescription:@"Simulated hinge angle is only supported on the iPhone Duo simulator"] buildError:error];
+    return [[FBErrorBuilder.builder withDescription:@"The device does not report an available hinge"] buildError:error];
   }
-#if TARGET_OS_SIMULATOR && !TARGET_OS_TV && !TARGET_OS_WATCH
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
   static CFDataRef (*serialize)(CFTypeRef, CFOptionFlags);
   static CFTypeRef (*createEvent)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, uint8_t *, CFIndex, uint32_t);
   static CFTypeRef (*createClient)(CFAllocatorRef);
@@ -512,7 +528,7 @@ static bool fb_isLocked;
     }
   });
   if (NULL == serialize || NULL == createEvent || NULL == createClient || NULL == dispatchEvent) {
-    return [[FBErrorBuilder.builder withDescription:@"The simulator runtime does not provide the required IOKit HID APIs"] buildError:error];
+    return [[FBErrorBuilder.builder withDescription:@"The runtime does not provide the required IOKit HID APIs"] buildError:error];
   }
   // Matches Device Hub's hinge-slider-control payload (Xcode 27.1). It is an
   // IOCF binary serialization, not an NSPropertyListSerialization binary plist.
