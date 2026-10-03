@@ -14,7 +14,7 @@
 #import "FBSession.h"
 #import "FBResponsePayload.h"
 #import "RouteResponse.h"
-#import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBHinge.h"
 #import "Doubles/XCUIElementDouble.h"
 
 #if !TARGET_OS_TV && __clang_major__ >= 15
