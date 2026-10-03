@@ -10,13 +10,12 @@
 WebDriverAgent is a [WebDriver server](https://w3c.github.io/webdriver/webdriver-spec.html) implementation for iOS that can be used to remote control iOS devices. It allows you to launch & kill applications, tap & scroll views or confirm view presence on a screen. This makes it a perfect tool for application end-to-end testing or general purpose device automation. It works by linking `XCTest.framework` and calling Apple's API to execute commands directly on a device. WebDriverAgent is developed for end-to-end testing and is successfully adopted by [Appium](http://appium.io) via [XCUITest driver](https://github.com/appium/appium-xcuitest-driver).
 
 ## Features
-
-- Both iOS and tvOS platforms are supported with devices & simulators
-- Implements most of [WebDriver Spec](https://w3c.github.io/webdriver/webdriver-spec.html)
-- Implements part of [Mobile JSON Wire Protocol Spec](https://github.com/SeleniumHQ/mobile-spec/blob/master/spec-draft.md)
-- USB support for devices is implemented via [appium-ios-device](https://github.com/appium/appium-ios-device) library and has zero dependencies on third-party tools.
-- Easy development cycle as it can be launched & debugged directly via Xcode
-- Use [Mac2Driver](https://github.com/appium/appium-mac2-driver) to automate macOS apps
+* Both iOS and tvOS platforms are supported with devices & simulators
+* Implements most of [WebDriver Spec](https://w3c.github.io/webdriver/webdriver-spec.html)
+* Implements part of [Mobile JSON Wire Protocol Spec](https://github.com/SeleniumHQ/mobile-spec/blob/master/spec-draft.md)
+* USB support for devices is implemented via [appium-ios-device](https://github.com/appium/appium-ios-device) library and has zero dependencies on third-party tools.
+* Easy development cycle as it can be launched & debugged directly via Xcode
+* Use [Mac2Driver](https://github.com/appium/appium-mac2-driver) to automate macOS apps
 
 ## Getting Started On This Repository
 
