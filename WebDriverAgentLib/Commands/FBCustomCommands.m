@@ -784,9 +784,9 @@
 
 + (id<FBResponsePayload>)handleGetSimulatedHingeAngle:(FBRouteRequest *)request
 {
-  if (!XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle) {
+  if (!XCUIDevice.sharedDevice.fb_supportsHingeAngleReading) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
-      @"The device does not report an available hinge" traceback:nil]);
+      @"Hinge angle reading is unavailable on this device" traceback:nil]);
   }
   NSError *error;
   NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
@@ -802,9 +802,9 @@
     return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:
       @"'angle' must be a finite number between 0 and 180 degrees" traceback:nil]);
   }
-  if (!XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle) {
+  if (!XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
-      @"The device does not report an available hinge" traceback:nil]);
+      @"Hinge angle injection requires an available hinge and the IOKit HID APIs" traceback:nil]);
   }
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_setSimulatedHingeAngle:[angle doubleValue] error:&error]) {

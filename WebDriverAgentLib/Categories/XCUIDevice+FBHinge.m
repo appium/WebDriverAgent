@@ -35,6 +35,7 @@ typedef void (*FBIOHIDEventSystemClientDispatchEvent)(CFTypeRef client, CFTypeRe
 @protocol FBAngleManager <NSObject>
 + (instancetype)new;
 + (BOOL)isAvailable;
++ (BOOL)instancesRespondToSelector:(SEL)selector;
 - (void)startAngleUpdatesToQueue:(NSOperationQueue *)queue handler:(void (^)(id<FBAngle>))handler;
 - (void)stopAngleUpdates;
 @end
@@ -50,20 +51,58 @@ static Class<FBAngleManager> FBAngleManagerClass(void)
   });
   return angleManagerClass;
 }
+
+static BOOL FBHasAvailableHinge(void)
+{
+  Class<FBAngleManager> managerClass = FBAngleManagerClass();
+  return [managerClass respondsToSelector:@selector(isAvailable)] && [managerClass isAvailable];
+}
+
+typedef struct {
+  FBIOCFSerialize serialize;
+  FBIOHIDEventCreateVendorDefinedEvent createEvent;
+  FBIOHIDEventSystemClientCreate createClient;
+  FBIOHIDEventSystemClientDispatchEvent dispatchEvent;
+} FBHingeInjectionAPI;
+
+static const FBHingeInjectionAPI *FBHingeInjectionFunctions(void)
+{
+  static FBHingeInjectionAPI api;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    void *handle = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
+    if (NULL != handle) {
+      api.serialize = (FBIOCFSerialize)dlsym(handle, "IOCFSerialize");
+      api.createEvent = (FBIOHIDEventCreateVendorDefinedEvent)dlsym(handle, "IOHIDEventCreateVendorDefinedEvent");
+      api.createClient = (FBIOHIDEventSystemClientCreate)dlsym(handle, "IOHIDEventSystemClientCreate");
+      api.dispatchEvent = (FBIOHIDEventSystemClientDispatchEvent)dlsym(handle, "IOHIDEventSystemClientDispatchEvent");
+    }
+  });
+  return NULL != api.serialize && NULL != api.createEvent
+    && NULL != api.createClient && NULL != api.dispatchEvent ? &api : NULL;
+}
 #endif
 
 @implementation XCUIDevice (FBHinge)
 
-- (BOOL)fb_supportsSimulatedHingeAngle
+- (BOOL)fb_supportsHingeAngleReading
 {
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
-  Class<FBAngleManager> angleManagerClass = FBAngleManagerClass();
-  if (![angleManagerClass respondsToSelector:@selector(isAvailable)]) {
-    return NO;
-  }
-  // Hinge availability permits an injection attempt; it does not guarantee
-  // that the device accepts the vendor event. Physical devices are unverified.
-  return [angleManagerClass isAvailable];
+  Class<FBAngleManager> managerClass = FBAngleManagerClass();
+  return FBHasAvailableHinge()
+    && [managerClass instancesRespondToSelector:@selector(startAngleUpdatesToQueue:handler:)]
+    && [managerClass instancesRespondToSelector:@selector(stopAngleUpdates)];
+#else
+  return NO;
+#endif
+}
+
+- (BOOL)fb_canAttemptSimulatedHingeAngleInjection
+{
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+  // Sensor presence and local APIs permit an attempt, not proof that the
+  // device's receiver accepts the vendor event. Physical devices are unverified.
+  return FBHasAvailableHinge() && NULL != FBHingeInjectionFunctions();
 #else
   return NO;
 #endif
@@ -71,17 +110,12 @@ static Class<FBAngleManager> FBAngleManagerClass(void)
 
 - (nullable NSNumber *)fb_getSimulatedHingeAngle:(NSError **)error
 {
-  if (!self.fb_supportsSimulatedHingeAngle) {
-    [[FBErrorBuilder.builder withDescription:@"The device does not report an available hinge"] buildError:error];
+  if (!self.fb_supportsHingeAngleReading) {
+    [[FBErrorBuilder.builder withDescription:@"Hinge angle reading is unavailable on this device"] buildError:error];
     return nil;
   }
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
   id<FBAngleManager> manager = [FBAngleManagerClass() new];
-  if (![manager respondsToSelector:@selector(startAngleUpdatesToQueue:handler:)]
-      || ![manager respondsToSelector:@selector(stopAngleUpdates)]) {
-    [[FBErrorBuilder.builder withDescription:@"The runtime does not provide the required hinge angle reading APIs"] buildError:error];
-    return nil;
-  }
   NSOperationQueue *queue = [NSOperationQueue new];
   queue.maxConcurrentOperationCount = 1;
   NSCondition *condition = [NSCondition new];
@@ -130,27 +164,11 @@ static Class<FBAngleManager> FBAngleManagerClass(void)
   if (!isfinite(angle) || angle < 0 || angle > 180) {
     return [[FBErrorBuilder.builder withDescription:@"Hinge angle must be a finite number between 0 and 180 degrees"] buildError:error];
   }
-  if (!self.fb_supportsSimulatedHingeAngle) {
-    return [[FBErrorBuilder.builder withDescription:@"The device does not report an available hinge"] buildError:error];
+  if (!self.fb_canAttemptSimulatedHingeAngleInjection) {
+    return [[FBErrorBuilder.builder withDescription:@"Hinge angle injection requires an available hinge and the IOKit HID APIs"] buildError:error];
   }
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
-  static FBIOCFSerialize serialize;
-  static FBIOHIDEventCreateVendorDefinedEvent createEvent;
-  static FBIOHIDEventSystemClientCreate createClient;
-  static FBIOHIDEventSystemClientDispatchEvent dispatchEvent;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    void *handle = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
-    if (NULL != handle) {
-      serialize = (FBIOCFSerialize)dlsym(handle, "IOCFSerialize");
-      createEvent = (FBIOHIDEventCreateVendorDefinedEvent)dlsym(handle, "IOHIDEventCreateVendorDefinedEvent");
-      createClient = (FBIOHIDEventSystemClientCreate)dlsym(handle, "IOHIDEventSystemClientCreate");
-      dispatchEvent = (FBIOHIDEventSystemClientDispatchEvent)dlsym(handle, "IOHIDEventSystemClientDispatchEvent");
-    }
-  });
-  if (NULL == serialize || NULL == createEvent || NULL == createClient || NULL == dispatchEvent) {
-    return [[FBErrorBuilder.builder withDescription:@"The runtime does not provide the required IOKit HID APIs"] buildError:error];
-  }
+  const FBHingeInjectionAPI *api = FBHingeInjectionFunctions();
   // Matches Device Hub's hinge-slider-control payload (Xcode 27.1). It is an
   // IOCF binary serialization, not an NSPropertyListSerialization binary plist.
   NSDictionary *payload = @{
@@ -159,17 +177,17 @@ static Class<FBAngleManager> FBAngleManagerClass(void)
     @"type": @"range",
     @"value": @(angle),
   };
-  CFDataRef data = serialize((__bridge CFTypeRef)payload, 1);
+  CFDataRef data = api->serialize((__bridge CFTypeRef)payload, 1);
   if (NULL == data) {
     return [[FBErrorBuilder.builder withDescription:@"Cannot serialize the simulated hinge event"] buildError:error];
   }
-  CFTypeRef event = createEvent(kCFAllocatorDefault, mach_absolute_time(), 0xff61, 0x5b, 0,
-                               (uint8_t *)CFDataGetBytePtr(data), CFDataGetLength(data), 0);
+  CFTypeRef event = api->createEvent(kCFAllocatorDefault, mach_absolute_time(), 0xff61, 0x5b, 0,
+                                    (uint8_t *)CFDataGetBytePtr(data), CFDataGetLength(data), 0);
   CFRelease(data);
-  CFTypeRef client = createClient(kCFAllocatorDefault);
+  CFTypeRef client = api->createClient(kCFAllocatorDefault);
   BOOL canDispatch = NULL != event && NULL != client;
   if (canDispatch) {
-    dispatchEvent(client, event);
+    api->dispatchEvent(client, event);
   }
   if (NULL != event) {
     CFRelease(event);

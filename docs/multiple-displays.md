@@ -29,22 +29,27 @@ On an iPhone Duo simulator, `POST /session/:sessionId/wda/device/hingeAngle` wit
 `{"angle": 90}` sends a hinge event without operating Device Hub's UI. The angle
 must be a finite number from `0` (closed) to `180` (fully open); fractional values
 are supported. This uses a private HID protocol verified with Xcode 27.1 on the
-iPhone Duo simulator. WDA checks runtime hinge availability instead of a fixed
-model identifier and permits injection attempts on physical devices as well.
-Physical-device behavior is unverified. Devices without an available hinge,
-tvOS, and watchOS return `unsupported operation`.
+iPhone Duo simulator. POST checks for a hinge and the required IOKit serialization,
+event creation, and dispatch APIs. This permits an injection attempt; it does not
+establish that the device accepts this vendor payload. Physical devices may attempt
+injection when those prerequisites exist, but event acceptance and the resulting
+angle/layout changes on a physical Duo remain unverified. Devices without these
+prerequisites, tvOS, and watchOS return `unsupported operation`.
 
-The response confirms event dispatch, not that the device applied the angle. Wait for the expected app layout before
-continuing, since folding completes asynchronously. The command does not rotate
+The response confirms event dispatch, not that the device applied the angle.
+Wait for the expected app layout before continuing, since folding completes
+asynchronously. The command does not rotate
 the device or update `currentDisplayId`; select the desired display separately.
 
 `GET /session/:sessionId/wda/device/hingeAngle` reads the current angle in degrees
 and returns a numeric value, for example `{"value": 90.5}`. It reads CoreMotion
 rather than remembering the last angle sent by WDA, so changes made outside WDA
 are reflected too. The request waits up to five seconds for a valid reading and
-returns an error if none arrives. Devices without an available hinge return
-`unsupported operation`. A reading during a fold may reflect an intermediate
-angle; it does not wait for the transition to finish.
+returns an error if none arrives. GET separately checks for a hinge and the
+CoreMotion subscription APIs; it does not depend on the IOKit injection APIs.
+Devices without these reading prerequisites return `unsupported operation`.
+A reading during a fold may reflect an intermediate angle; it does not wait for
+the transition to finish.
 
 Both hinge angle endpoints are also available without a session:
 `GET /wda/device/hingeAngle` and `POST /wda/device/hingeAngle`. They operate on

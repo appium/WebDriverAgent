@@ -42,25 +42,52 @@
   return result.copy;
 }
 
-+ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID error:(NSError **)error
+// Kept separate from sharedDevice so legacy lookup behavior can be tested.
++ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID
+                                    device:(XCUIDevice *)device
+                                     error:(NSError **)error
 {
-  NSArray<XCUIScreen *> *screens = [XCUIDevice.sharedDevice screensOrError:error];
-  if (nil == screens) {
-    return nil;
-  }
-  for (XCUIScreen *screen in screens) {
-    if (screen.displayID == displayID) {
+  BOOL hasNativeLookup = [device respondsToSelector:@selector(screenWithDisplayID:orError:)];
+  BOOL needsEnumeratedLookup = !hasNativeLookup;
+  NSError *lookupError = nil;
+  if (hasNativeLookup) {
+    XCUIScreen *screen = [device screenWithDisplayID:displayID orError:&lookupError];
+    if (nil != screen && !CGRectIsEmpty(screen.bounds)) {
       return screen;
     }
+    // XCTest may return a zero-sized placeholder for an inactive wireless
+    // display which screensOrError: omits. Confirm its availability by listing.
+    needsEnumeratedLookup = nil != screen;
+  }
+  // Enumerate only for legacy/placeholder lookups or to enrich a lookup error.
+  NSError *enumerationError = nil;
+  NSArray<XCUIScreen *> *screens = [device screensOrError:&enumerationError];
+  if (nil == screens) {
+    if (NULL != error) {
+      *error = lookupError ?: enumerationError;
+    }
+    return nil;
   }
   NSMutableArray<NSNumber *> *availableIDs = [NSMutableArray arrayWithCapacity:screens.count];
   for (XCUIScreen *screen in screens) {
+    if (needsEnumeratedLookup && screen.displayID == displayID) {
+      return screen;
+    }
     [availableIDs addObject:@(screen.displayID)];
   }
-  [[FBErrorBuilder.builder withDescriptionFormat:@"No display with id %lld is available. Available display ids: [%@]",
-    displayID, [availableIDs componentsJoinedByString:@", "]]
-   buildError:error];
+  FBErrorBuilder *builder = [FBErrorBuilder.builder withDescriptionFormat:
+    @"No display with id %lld is available. Available display ids: [%@]",
+    displayID, [availableIDs componentsJoinedByString:@", "]];
+  if (nil != lookupError) {
+    [builder withInnerError:lookupError];
+  }
+  [builder buildError:error];
   return nil;
+}
+
++ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID error:(NSError **)error
+{
+  return [self screenWithDisplayID:displayID device:XCUIDevice.sharedDevice error:error];
 }
 
 + (nullable XCUIScreen *)currentScreenWithError:(NSError **)error

@@ -97,7 +97,7 @@
 {
   NSError *error = nil;
   NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
-  BOOL available = XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle;
+  BOOL available = XCUIDevice.sharedDevice.fb_supportsHingeAngleReading;
   if (available) {
     XCTAssertNotNil(angle);
     XCTAssertNil(error);
@@ -132,7 +132,7 @@
 
 - (void)testHingeAngleRejectsUnsupportedDevices
 {
-  XCTSkipIf(XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle, @"Requires a device without an available hinge");
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a device without an available hinge");
   for (NSNumber *angle in @[@0, @90, @180]) {
     XCTAssertEqualObjects([self hingeResponseWithArguments:@{@"angle": angle}][@"value"][@"error"],
                           @"unsupported operation");

@@ -12,11 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XCUIDevice (FBHinge)
 
+/** Whether a hinge and the CoreMotion angle-reading APIs are available. */
+- (BOOL)fb_supportsHingeAngleReading;
+
 /**
- Whether the runtime reports an available hinge, permitting an injection attempt.
- This does not guarantee that the device accepts simulated hinge events.
+ Whether a hinge and the IOKit APIs needed to attempt injection are available.
+ This does not guarantee event acceptance, particularly on physical devices.
  */
-- (BOOL)fb_supportsSimulatedHingeAngle;
+- (BOOL)fb_canAttemptSimulatedHingeAngleInjection;
 
 /**
  Reads the current hinge angle in degrees, including changes made outside WDA.
