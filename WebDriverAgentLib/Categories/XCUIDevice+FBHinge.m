@@ -175,6 +175,10 @@ static const FBHingeInjectionAPI *FBHingeInjectionFunctions(void)
     return [[FBErrorBuilder.builder withDescription:@"Hinge angle injection requires an available hinge and the IOKit HID APIs"] buildError:error];
   }
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
+  // WDA's fb_performIOHIDEventWithPage:usage:duration:error: uses XCDeviceEvent
+  // with page, usage, and duration only. The XCDeviceEvent interfaces checked
+  // in Xcode 27.1 provide no way to attach the vendor payload containing the
+  // hinge angle, so this command creates and dispatches an IOKit event directly.
   const FBHingeInjectionAPI *api = FBHingeInjectionFunctions();
   // Matches Device Hub's hinge-slider-control payload (Xcode 27.1). It is an
   // IOCF binary serialization, not an NSPropertyListSerialization binary plist.
