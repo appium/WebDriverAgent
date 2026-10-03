@@ -74,6 +74,7 @@
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
+    [[FBRoute POST:@"/wda/device/hingeAngle"] respondWithTarget:self action:@selector(handleSetSimulatedHingeAngle:)],
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
@@ -775,6 +776,26 @@
                                                                traceback:nil]);
   }
   return FBResponseWithObject(result);
+}
+
++ (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request
+{
+  id angle = request.arguments[@"angle"];
+  if (![angle isKindOfClass:NSNumber.class]
+      || CFGetTypeID((__bridge CFTypeRef)angle) == CFBooleanGetTypeID()
+      || !isfinite([angle doubleValue]) || [angle doubleValue] < 0 || [angle doubleValue] > 180) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:
+      @"'angle' must be a finite number between 0 and 180 degrees" traceback:nil]);
+  }
+  if (!XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
+      @"Simulated hinge angle is only supported on the iPhone Duo simulator" traceback:nil]);
+  }
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_setSimulatedHingeAngle:[angle doubleValue] error:&error]) {
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithOK();
 }
 
 @end

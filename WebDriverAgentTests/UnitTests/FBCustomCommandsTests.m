@@ -12,12 +12,16 @@
 #import "FBElementCache.h"
 #import "FBRouteRequest-Private.h"
 #import "FBSession.h"
+#import "FBResponsePayload.h"
+#import "RouteResponse.h"
+#import "XCUIDevice+FBHelpers.h"
 #import "Doubles/XCUIElementDouble.h"
 
 #if !TARGET_OS_TV && __clang_major__ >= 15
 
 @interface FBCustomCommands (FBWDATestable)
 + (id<FBResponsePayload>)handleKeyboardInput:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request;
 @end
 
 @interface FBCustomCommandsTests : XCTestCase
@@ -76,6 +80,34 @@
   [FBCustomCommands handleKeyboardInput:request];
   XCTAssertEqualObjects(element.typedKeys, @[XCUIKeyboardKeyTab]);
   XCTAssertEqual(element.lastTypedModifierFlags, 2);
+}
+
+- (NSDictionary *)hingeResponseWithArguments:(NSDictionary *)arguments
+{
+  FBRouteRequest *request = [FBRouteRequest routeRequestWithURL:[NSURL URLWithString:@"http://localhost:8100/"]
+                                                  parameters:@{}
+                                                   arguments:arguments];
+  RouteResponse *response = [RouteResponse new];
+  [[FBCustomCommands handleSetSimulatedHingeAngle:request] dispatchWithResponse:response];
+  return [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil];
+}
+
+- (void)testHingeAngleRejectsInvalidArguments
+{
+  for (id value in @[@(-1), @181, @YES, @"90", NSNull.null, @(NAN), @(INFINITY)]) {
+    NSDictionary *response = [self hingeResponseWithArguments:@{@"angle": value}];
+    XCTAssertEqualObjects(response[@"value"][@"error"], @"invalid argument");
+  }
+  XCTAssertEqualObjects([self hingeResponseWithArguments:@{}][@"value"][@"error"], @"invalid argument");
+}
+
+- (void)testHingeAngleRejectsUnsupportedDevices
+{
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle, @"Requires a device without a simulated hinge");
+  for (NSNumber *angle in @[@0, @90, @180]) {
+    XCTAssertEqualObjects([self hingeResponseWithArguments:@{@"angle": angle}][@"value"][@"error"],
+                          @"unsupported operation");
+  }
 }
 
 @end

@@ -13,6 +13,10 @@
 #endif
 
 #import "FBErrorBuilder.h"
+#import "FBScreen.h"
+#import "FBConfiguration.h"
+#import "FBExceptions.h"
+#import "XCUIScreen.h"
 #import "FBLogger.h"
 #import "FBXCTestDaemonsProxy.h"
 #import "XCTMessagingChannel_RunnerToDaemon-Protocol.h"
@@ -45,6 +49,22 @@
 
 + (id<FBXCAccessibilityElement>)axElementWithPoint:(CGPoint)point
 {
+  if (nil != FBConfiguration.sharedInstance.currentDisplayId) {
+    NSError *error;
+    XCUIScreen *screen = [FBScreen currentScreenWithError:&error];
+    if (nil == screen) {
+      @throw [NSException exceptionWithName:FBInvalidArgumentException
+                                    reason:error.localizedDescription
+                                  userInfo:nil];
+    }
+    // XCTest's point lookup has no display parameter and always hits the main
+    // display. On Duo this can select the outer SpringBoard while the app is
+    // foreground on the inner display. Let callers use their active-app fallback
+    // instead of treating an element from a different display as authoritative.
+    if (!screen.isMainScreen) {
+      return nil;
+    }
+  }
   __block id<FBXCAccessibilityElement> onScreenElement = nil;
   id<XCTMessagingChannel_RunnerToDaemon> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
