@@ -14,13 +14,14 @@
 #import "FBSession.h"
 #import "FBResponsePayload.h"
 #import "RouteResponse.h"
-#import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBHinge.h"
 #import "Doubles/XCUIElementDouble.h"
 
 #if !TARGET_OS_TV && __clang_major__ >= 15
 
 @interface FBCustomCommands (FBWDATestable)
 + (id<FBResponsePayload>)handleKeyboardInput:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleGetSimulatedHingeAngle:(FBRouteRequest *)request;
 + (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request;
 @end
 
@@ -92,6 +93,34 @@
   return [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil];
 }
 
+- (void)testHingeAngleReading
+{
+  NSError *error = nil;
+  NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
+  BOOL available = XCUIDevice.sharedDevice.fb_supportsHingeAngleReading;
+  if (available) {
+    XCTAssertNotNil(angle);
+    XCTAssertNil(error);
+    XCTAssertTrue(isfinite(angle.doubleValue));
+  } else {
+    XCTAssertNil(angle);
+    XCTAssertNotNil(error);
+  }
+
+  FBRouteRequest *request = [FBRouteRequest routeRequestWithURL:[NSURL URLWithString:@"http://localhost:8100/"]
+                                                  parameters:@{}
+                                                   arguments:@{}];
+  RouteResponse *response = [RouteResponse new];
+  [[FBCustomCommands handleGetSimulatedHingeAngle:request] dispatchWithResponse:response];
+  NSDictionary *body = [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil];
+  if (available) {
+    XCTAssertTrue([body[@"value"] isKindOfClass:NSNumber.class]);
+    XCTAssertTrue(isfinite([body[@"value"] doubleValue]));
+  } else {
+    XCTAssertEqualObjects(body[@"value"][@"error"], @"unsupported operation");
+  }
+}
+
 - (void)testHingeAngleRejectsInvalidArguments
 {
   for (id value in @[@(-1), @181, @YES, @"90", NSNull.null, @(NAN), @(INFINITY)]) {
@@ -103,7 +132,7 @@
 
 - (void)testHingeAngleRejectsUnsupportedDevices
 {
-  XCTSkipIf(XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle, @"Requires a device without a simulated hinge");
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a device without an available hinge");
   for (NSNumber *angle in @[@0, @90, @180]) {
     XCTAssertEqualObjects([self hingeResponseWithArguments:@{@"angle": angle}][@"value"][@"error"],
                           @"unsupported operation");

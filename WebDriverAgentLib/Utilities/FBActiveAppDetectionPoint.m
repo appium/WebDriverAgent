@@ -61,7 +61,7 @@
     // display. On Duo this can select the outer SpringBoard while the app is
     // foreground on the inner display. Let callers use their active-app fallback
     // instead of treating an element from a different display as authoritative.
-    if (!screen.isMainScreen) {
+    if (screen.displayID != XCUIScreen.mainScreen.displayID) {
       return nil;
     }
   }

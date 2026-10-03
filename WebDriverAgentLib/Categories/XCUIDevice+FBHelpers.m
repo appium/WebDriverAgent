@@ -12,8 +12,6 @@
 #import <ifaddrs.h>
 #include <notify.h>
 #import <objc/runtime.h>
-#import <dlfcn.h>
-#import <mach/mach_time.h>
 
 #import "FBErrorBuilder.h"
 #import "FBImageUtils.h"
@@ -476,74 +474,5 @@ static bool fb_isLocked;
   return [FBXCTestDaemonsProxy clearSimulatedLocation:error];
 }
 #endif
-
-- (BOOL)fb_supportsSimulatedHingeAngle
-{
-#if TARGET_OS_SIMULATOR && !TARGET_OS_TV && !TARGET_OS_WATCH
-  // This vendor event is specific to Duo's simulated hardware. Do not send it
-  // to physical devices or assume every device with multiple screens supports it.
-  return [NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"] isEqualToString:@"iPhone19,4"];
-#else
-  return NO;
-#endif
-}
-
-- (BOOL)fb_setSimulatedHingeAngle:(double)angle error:(NSError **)error
-{
-  if (!isfinite(angle) || angle < 0 || angle > 180) {
-    return [[FBErrorBuilder.builder withDescription:@"Hinge angle must be a finite number between 0 and 180 degrees"] buildError:error];
-  }
-  if (!self.fb_supportsSimulatedHingeAngle) {
-    return [[FBErrorBuilder.builder withDescription:@"Simulated hinge angle is only supported on the iPhone Duo simulator"] buildError:error];
-  }
-#if TARGET_OS_SIMULATOR && !TARGET_OS_TV && !TARGET_OS_WATCH
-  static CFDataRef (*serialize)(CFTypeRef, CFOptionFlags);
-  static CFTypeRef (*createEvent)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, uint8_t *, CFIndex, uint32_t);
-  static CFTypeRef (*createClient)(CFAllocatorRef);
-  static void (*dispatchEvent)(CFTypeRef, CFTypeRef);
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    void *handle = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_LAZY);
-    if (NULL != handle) {
-      serialize = (CFDataRef (*)(CFTypeRef, CFOptionFlags))dlsym(handle, "IOCFSerialize");
-      createEvent = (CFTypeRef (*)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, uint8_t *, CFIndex, uint32_t))dlsym(handle, "IOHIDEventCreateVendorDefinedEvent");
-      createClient = (CFTypeRef (*)(CFAllocatorRef))dlsym(handle, "IOHIDEventSystemClientCreate");
-      dispatchEvent = (void (*)(CFTypeRef, CFTypeRef))dlsym(handle, "IOHIDEventSystemClientDispatchEvent");
-    }
-  });
-  if (NULL == serialize || NULL == createEvent || NULL == createClient || NULL == dispatchEvent) {
-    return [[FBErrorBuilder.builder withDescription:@"The simulator runtime does not provide the required IOKit HID APIs"] buildError:error];
-  }
-  // Matches Device Hub's hinge-slider-control payload (Xcode 27.1). It is an
-  // IOCF binary serialization, not an NSPropertyListSerialization binary plist.
-  NSDictionary *payload = @{
-    @"provider": @"com.apple.Virtualization.VirtualMachines",
-    @"source": @"hinge-slider-control",
-    @"type": @"range",
-    @"value": @(angle),
-  };
-  CFDataRef data = serialize((__bridge CFTypeRef)payload, 1);
-  if (NULL == data) {
-    return [[FBErrorBuilder.builder withDescription:@"Cannot serialize the simulated hinge event"] buildError:error];
-  }
-  CFTypeRef event = createEvent(kCFAllocatorDefault, mach_absolute_time(), 0xff61, 0x5b, 0,
-                               (uint8_t *)CFDataGetBytePtr(data), CFDataGetLength(data), 0);
-  CFRelease(data);
-  CFTypeRef client = createClient(kCFAllocatorDefault);
-  BOOL canDispatch = NULL != event && NULL != client;
-  if (canDispatch) {
-    dispatchEvent(client, event);
-  }
-  if (NULL != event) {
-    CFRelease(event);
-  }
-  if (NULL != client) {
-    CFRelease(client);
-  }
-  return canDispatch || [[FBErrorBuilder.builder withDescription:@"Cannot create the simulated hinge HID event or client"] buildError:error];
-#else
-  return NO;
-#endif
-}
 
 @end

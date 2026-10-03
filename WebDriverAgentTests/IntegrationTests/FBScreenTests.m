@@ -19,6 +19,52 @@
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBScrolling.h"
 
+@interface FBScreen (FBLookupTesting)
++ (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID device:(id)device error:(NSError **)error;
+@end
+
+@interface FBEmptyScreenDouble : NSObject
+@property (nonatomic) CGRect bounds;
+@end
+@implementation FBEmptyScreenDouble
+@end
+
+@interface FBScreenDeviceDouble : NSObject
+@property (nonatomic) BOOL nativeLookupAvailable;
+@property (nonatomic) BOOL enumerationUnavailable;
+@property (nonatomic) NSUInteger enumerationCount;
+@property (nonatomic, strong) XCUIScreen *nativeScreen;
+@property (nonatomic, strong) NSArray<XCUIScreen *> *screens;
+@property (nonatomic, strong) NSError *lookupError;
+@property (nonatomic, strong) NSError *enumerationError;
+@end
+
+@implementation FBScreenDeviceDouble
+- (BOOL)respondsToSelector:(SEL)selector
+{
+  if (selector == NSSelectorFromString(@"screensOrError:") && self.enumerationUnavailable) {
+    return NO;
+  }
+  return selector == @selector(screenWithDisplayID:orError:)
+    ? self.nativeLookupAvailable : [super respondsToSelector:selector];
+}
+- (XCUIScreen *)screenWithDisplayID:(long long)displayID orError:(NSError **)error
+{
+  if (NULL != error) {
+    *error = self.lookupError;
+  }
+  return self.nativeScreen;
+}
+- (NSArray<XCUIScreen *> *)screensOrError:(NSError **)error
+{
+  self.enumerationCount++;
+  if (NULL != error) {
+    *error = self.enumerationError;
+  }
+  return self.screens;
+}
+@end
+
 @interface FBScreenTests : FBIntegrationTestCase
 @end
 
@@ -67,9 +113,13 @@
 - (void)testScreenWithDisplayID
 {
   NSError *error = nil;
-  XCUIScreen *screen = [FBScreen screenWithDisplayID:[FBScreen displayID] error:&error];
-  XCTAssertNil(error);
-  XCTAssertEqual(screen.displayID, [FBScreen displayID]);
+  for (NSDictionary<NSString *, id> *entry in [FBScreen screensWithError:&error]) {
+    long long displayID = [entry[@"displayId"] longLongValue];
+    XCUIScreen *screen = [FBScreen screenWithDisplayID:displayID error:&error];
+    XCTAssertNotNil(screen);
+    XCTAssertNil(error);
+    XCTAssertEqual(screen.displayID, displayID);
+  }
 
   XCTAssertNil([FBScreen screenWithDisplayID:[self unknownDisplayID] error:&error]);
   XCTAssertNotNil(error);
@@ -80,6 +130,84 @@
   NSString *availableDisplays = [NSString stringWithFormat:@"Available display ids: [%@]",
                                 [availableIDs componentsJoinedByString:@", "]];
   XCTAssertTrue([error.localizedDescription containsString:availableDisplays]);
+}
+
+- (void)testNativeScreenLookupDoesNotEnumerateOnSuccess
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.nativeLookupAvailable = YES;
+  device.nativeScreen = XCUIScreen.mainScreen;
+  NSError *error = nil;
+  XCTAssertEqualObjects([FBScreen screenWithDisplayID:device.nativeScreen.displayID device:device error:&error],
+                        device.nativeScreen);
+  XCTAssertNil(error);
+  XCTAssertEqual(device.enumerationCount, 0UL);
+}
+
+- (void)testNativeScreenPlaceholderMustBeAvailable
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.nativeLookupAvailable = YES;
+  device.nativeScreen = (id)[FBEmptyScreenDouble new];
+  device.screens = @[XCUIScreen.mainScreen];
+  NSError *error = nil;
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertNotNil(error);
+  XCTAssertEqual(device.enumerationCount, 1UL);
+}
+
+- (void)testNativeScreenLookupFailureIncludesAvailableIDs
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.nativeLookupAvailable = YES;
+  device.screens = @[XCUIScreen.mainScreen];
+  device.lookupError = [NSError errorWithDomain:@"NativeLookup" code:1 userInfo:nil];
+  NSError *error = nil;
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertEqual(device.enumerationCount, 1UL);
+  XCTAssertTrue([error.localizedDescription containsString:@"Available display ids"]);
+  XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], device.lookupError);
+}
+
+- (void)testNativeScreenLookupErrorSurvivesEnumerationFailure
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.nativeLookupAvailable = YES;
+  device.lookupError = [NSError errorWithDomain:@"NativeLookup" code:1 userInfo:nil];
+  device.enumerationError = [NSError errorWithDomain:@"Enumeration" code:2 userInfo:nil];
+  NSError *error = nil;
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertEqualObjects(error, device.lookupError);
+}
+
+- (void)testScreenLookupWithoutNativeSelector
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.screens = @[XCUIScreen.mainScreen];
+  NSError *error = nil;
+  XCTAssertEqualObjects([FBScreen screenWithDisplayID:XCUIScreen.mainScreen.displayID device:device error:&error],
+                        XCUIScreen.mainScreen);
+  XCTAssertNil(error);
+  XCTAssertEqual(device.enumerationCount, 1UL);
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertTrue([error.localizedDescription containsString:@"Available display ids"]);
+  device.screens = nil;
+  device.enumerationError = [NSError errorWithDomain:@"Enumeration" code:2 userInfo:nil];
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertEqualObjects(error, device.enumerationError);
+}
+
+- (void)testScreenLookupWithoutDeviceScreenSelectors
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.enumerationUnavailable = YES;
+  NSError *error = nil;
+  XCTAssertEqualObjects([FBScreen screenWithDisplayID:XCUIScreen.mainScreen.displayID device:device error:&error],
+                        XCUIScreen.mainScreen);
+  XCTAssertNil(error);
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertNotNil(error);
+  XCTAssertEqual(device.enumerationCount, 0UL);
 }
 
 - (void)testCurrentScreenDefaultsToMainScreen
