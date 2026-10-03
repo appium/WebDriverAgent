@@ -24,6 +24,9 @@ W3C touch actions target the selected display. Viewport, element, and pointer
 origins can be mixed within one action sequence; element offsets remain relative
 to the element's center. Element scrolling uses the visible area in the same
 coordinate space as the element frame, including on a rotated secondary display.
+WDA scrolling rejects an unavailable selected display instead of using an
+uncorrected frame. Each drag uses one converted scrolling frame; subsequent
+drags refresh the display and orientation.
 
 This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
 

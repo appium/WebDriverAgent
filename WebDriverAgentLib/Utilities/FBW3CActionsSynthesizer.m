@@ -878,7 +878,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   XCSynthesizedEventRecord *eventRecord;
   self.displayCorrection = CGVectorMake(0, 0);
-  if (screen.isMainScreen) {
+  if (screen.displayID == XCUIScreen.mainScreen.displayID) {
     eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
                                             interfaceOrientation:self.application.interfaceOrientation];
   } else {

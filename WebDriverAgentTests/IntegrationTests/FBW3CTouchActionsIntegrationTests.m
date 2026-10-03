@@ -124,16 +124,22 @@
 - (void)testSecondaryDisplaySetting
 {
   XCUIScreen *secondary = nil;
-  for (XCUIScreen *screen in [XCUIDevice.sharedDevice screensOrError:nil]) {
-    if (!screen.isMainScreen) {
-      secondary = screen;
+  NSError *error = nil;
+  NSArray<NSDictionary<NSString *, id> *> *screens = [FBScreen screensWithError:&error];
+  XCTAssertNotNil(screens);
+  XCTAssertNil(error);
+  for (NSDictionary<NSString *, id> *screen in screens) {
+    long long displayID = [screen[@"displayId"] longLongValue];
+    if (displayID != [FBScreen displayID]) {
+      secondary = [FBScreen screenWithDisplayID:displayID error:&error];
+      XCTAssertNotNil(secondary);
+      XCTAssertNil(error);
       break;
     }
   }
   if (nil == secondary) {
     XCTSkip(@"The device has no secondary display");
   }
-  NSError *error = nil;
   XCSynthesizedEventRecord *baseline = [self tapRecordWithError:&error];
   FBConfiguration.sharedInstance.currentDisplayId = @(secondary.displayID);
   XCSynthesizedEventRecord *selected = [self tapRecordWithError:&error];

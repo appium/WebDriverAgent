@@ -9,6 +9,7 @@
 #import "XCUIElement+FBScrolling.h"
 
 #import "FBErrorBuilder.h"
+#import "FBExceptions.h"
 #import "FBLogger.h"
 #import "FBScreen.h"
 #import "FBMacros.h"
@@ -37,16 +38,30 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
 
-static CGRect FBScrollFrameInApplication(CGRect frame, XCUIApplication *application)
+static XCUIScreen *FBScreenForScrolling(void)
 {
-  XCUIScreen *screen = [FBScreen currentScreenWithError:nil];
-  if (nil != screen && !screen.isMainScreen) {
+  NSError *error = nil;
+  XCUIScreen *screen = [FBScreen currentScreenWithError:&error];
+  if (nil == screen) {
+    // Match active-app detection: never continue on a different coordinate space
+    // when the selected display is unavailable, including for void scroll APIs.
+    @throw [NSException exceptionWithName:FBInvalidArgumentException
+                                  reason:error.localizedDescription
+                                userInfo:nil];
+  }
+  return screen;
+}
+
+static CGRect FBScrollFrameInApplication(CGRect frame, XCUIScreen *screen,
+                                        UIInterfaceOrientation orientation)
+{
+  if (screen.displayID != XCUIScreen.mainScreen.displayID) {
     // On secondary displays, XCTest's visibleFrame is in portrait screen
     // coordinates, whereas wdFrame uses the application's current orientation.
     // Rotate the clipped visible rect before normalizing it against the anchor.
     CGSize size = CGSizeMake(CGRectGetWidth(screen.bounds) / screen.scale,
                              CGRectGetHeight(screen.bounds) / screen.scale);
-    frame = FBRectFromPortraitCoordinates(frame, size, application.interfaceOrientation);
+    frame = FBRectFromPortraitCoordinates(frame, size, orientation);
   }
   return frame;
 }
@@ -58,7 +73,7 @@ static CGRect FBScrollFrameInApplication(CGRect frame, XCUIApplication *applicat
 - (BOOL)fb_scrollLeftByNormalizedDistance:(CGFloat)distance anchorElement:(XCUIElement *)anchorElement;
 - (BOOL)fb_scrollRightByNormalizedDistance:(CGFloat)distance anchorElement:(XCUIElement *)anchorElement;
 - (BOOL)fb_scrollByNormalizedVector:(CGVector)normalizedScrollVector anchorElement:(XCUIElement *)anchorElement;
-- (BOOL)fb_scrollByVector:(CGVector)vector anchorElement:(XCUIElement *)anchorElement error:(NSError **)error;
+- (BOOL)fb_scrollByVector:(CGVector)vector inFrame:(CGRect)frame anchorElement:(XCUIElement *)anchorElement error:(NSError **)error;
 
 @end
 
@@ -142,6 +157,7 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
                                        scrollDirection:(FBXCUIElementScrollDirection)scrollDirection
                                                  error:(NSError **)error
 {
+  FBScreenForScrolling();
   FBXCElementSnapshotWrapper *prescrollSnapshot = [FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]];
 
   if (prescrollSnapshot.isWDVisible) {
@@ -276,14 +292,18 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
   // Trying fb_cachedSnapshot first
   FBXCElementSnapshotWrapper *targetCellSnapshotWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]];
   targetCellSnapshot = [targetCellSnapshotWrapped fb_parentCellSnapshot];
+  XCUIScreen *screen = FBScreenForScrolling();
+  UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   CGRect visibleFrame = FBScrollFrameInApplication(
-    [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame, self.application);
+    [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame, screen, orientation);
 
   CGVector scrollVector = CGVectorMake(visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        visibleFrame.size.height - targetCellSnapshot.frame.size.height
                                        );
   scrollViewWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[scrollViewElement fb_customSnapshot]];
+  CGRect scrollingFrame = FBScrollFrameInApplication(scrollViewWrapped.visibleFrame, screen, orientation);
   return [scrollViewWrapped fb_scrollByVector:scrollVector
+                                       inFrame:scrollingFrame
                                 anchorElement:scrollViewElement
                                         error:error];
 }
@@ -315,7 +335,8 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 
 - (CGRect)scrollingFrameWithAnchor:(XCUIElement *)anchorElement
 {
-  return FBScrollFrameInApplication(self.visibleFrame, anchorElement.application);
+  XCUIScreen *screen = FBScreenForScrolling();
+  return FBScrollFrameInApplication(self.visibleFrame, screen, anchorElement.application.interfaceOrientation);
 }
 
 - (BOOL)fb_scrollUpByNormalizedDistance:(CGFloat)distance
@@ -349,31 +370,35 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
   CGVector scrollVector = CGVectorMake(CGRectGetWidth(frame) * normalizedScrollVector.dx,
                                        CGRectGetHeight(frame) * normalizedScrollVector.dy
                                        );
-  return [self fb_scrollByVector:scrollVector anchorElement:anchorElement error:nil];
+  return [self fb_scrollByVector:scrollVector inFrame:frame anchorElement:anchorElement error:nil];
 }
 
 - (BOOL)fb_scrollByVector:(CGVector)vector
+                     inFrame:(CGRect)frame
              anchorElement:(XCUIElement *)anchorElement
                      error:(NSError **)error
 {
-  CGRect frame = [self scrollingFrameWithAnchor:anchorElement];
-  CGVector scrollBoundingVector = CGVectorMake(
-                                               CGRectGetWidth(frame) * FBScrollTouchProportion,
-                                               CGRectGetHeight(frame) * FBScrollTouchProportion
-                                               );
-  scrollBoundingVector.dx = (CGFloat)floor(copysign(scrollBoundingVector.dx, vector.dx));
-  scrollBoundingVector.dy = (CGFloat)floor(copysign(scrollBoundingVector.dy, vector.dy));
-
   NSInteger preciseScrollAttemptsCount = 20;
   CGVector CGZeroVector = CGVectorMake(0, 0);
   BOOL shouldFinishScrolling = NO;
   while (!shouldFinishScrolling) {
+    CGVector scrollBoundingVector = CGVectorMake(
+      (CGFloat)floor(copysign(CGRectGetWidth(frame) * FBScrollTouchProportion, vector.dx)),
+      (CGFloat)floor(copysign(CGRectGetHeight(frame) * FBScrollTouchProportion, vector.dy)));
     CGVector scrollVector = CGVectorMake(fabs(vector.dx) > fabs(scrollBoundingVector.dx) ? scrollBoundingVector.dx : vector.dx,
                                          fabs(vector.dy) > fabs(scrollBoundingVector.dy) ? scrollBoundingVector.dy : vector.dy);
     vector = CGVectorMake(vector.dx - scrollVector.dx, vector.dy - scrollVector.dy);
     shouldFinishScrolling = FBVectorFuzzyEqualToVector(vector, CGZeroVector, 1) || --preciseScrollAttemptsCount <= 0;
-    if (![self fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:scrollVector anchorElement:anchorElement error:error]){
+    if (![self fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:scrollVector
+                                                               inFrame:frame
+                                                         anchorElement:anchorElement
+                                                                 error:error]) {
       return NO;
+    }
+    if (!shouldFinishScrolling) {
+      // Share geometry within a drag, but allow the next drag to observe rotation
+      // or display changes that occurred while the previous drag was executing.
+      frame = [self scrollingFrameWithAnchor:anchorElement];
     }
   }
   return YES;
@@ -389,10 +414,10 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 }
 
 - (BOOL)fb_scrollAncestorScrollViewByVectorWithinScrollViewFrame:(CGVector)vector
+                                                               inFrame:(CGRect)scrollingFrame
                                                      anchorElement:(XCUIElement *)anchorElement
                                                              error:(NSError **)error
 {
-  CGRect scrollingFrame = [self scrollingFrameWithAnchor:anchorElement];
   // wdFrame matches scrollingFrame's coordinate space; raw .frame can be pre-scaled or
   // dimension-swapped and drift out of sync with it (appium/appium#16185).
   CGRect anchorFrame = anchorElement.wdFrame;
