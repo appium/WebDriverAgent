@@ -15,6 +15,8 @@
 #import "FBErrorBuilder.h"
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
+static const NSTimeInterval FBHingeAngleReadingTimeout = 5.0;
+
 typedef CFDataRef (*FBIOCFSerialize)(CFTypeRef object, CFOptionFlags options);
 typedef CFTypeRef (*FBIOHIDEventCreateVendorDefinedEvent)(CFAllocatorRef allocator,
                                                        uint64_t timestamp,
@@ -45,6 +47,8 @@ static Class<FBAngleManager> FBAngleManagerClass(void)
   static Class<FBAngleManager> angleManagerClass;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    // This path also loads on physical devices (verified on an iPad mini).
+    // Framework/class presence does not imply that a hinge sensor is available.
     if (NULL != dlopen("/System/Library/Frameworks/CoreMotion.framework/CoreMotion", RTLD_LAZY)) {
       angleManagerClass = NSClassFromString(@"CMAngleManager");
     }
@@ -65,6 +69,8 @@ typedef struct {
   FBIOHIDEventSystemClientDispatchEvent dispatchEvent;
 } FBHingeInjectionAPI;
 
+// Loads and caches the injection APIs; NULL means at least one is unavailable.
+// Resolving these functions does not dispatch an event or confirm its acceptance.
 static const FBHingeInjectionAPI *FBHingeInjectionFunctions(void)
 {
   static FBHingeInjectionAPI api;
@@ -138,7 +144,7 @@ static const FBHingeInjectionAPI *FBHingeInjectionFunctions(void)
       }
       [condition unlock];
     }];
-    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:5.0];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:FBHingeAngleReadingTimeout];
     [condition lock];
     while (nil == reading) {
       if (![condition waitUntilDate:deadline]) {
@@ -151,7 +157,8 @@ static const FBHingeInjectionAPI *FBHingeInjectionFunctions(void)
     [manager stopAngleUpdates];
   }
   if (nil == result) {
-    [[FBErrorBuilder.builder withDescription:@"Timed out after 5 seconds waiting for a valid hinge angle"] buildError:error];
+    [[FBErrorBuilder.builder withDescriptionFormat:@"Timed out after %g seconds waiting for a valid hinge angle",
+      FBHingeAngleReadingTimeout] buildError:error];
   }
   return result;
 #else
