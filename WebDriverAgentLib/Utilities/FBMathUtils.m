@@ -50,6 +50,27 @@ BOOL FBRectFuzzyEqualToRect(CGRect rect1, CGRect rect2, CGFloat threshold)
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
 
+CGRect FBRectFromPortraitCoordinates(CGRect frame, CGSize screenSize, UIInterfaceOrientation orientation)
+{
+  if (CGRectIsEmpty(frame)) {
+    return frame;
+  }
+  CGFloat width = MIN(screenSize.width, screenSize.height);
+  CGFloat height = MAX(screenSize.width, screenSize.height);
+  switch (orientation) {
+    case UIInterfaceOrientationLandscapeLeft:
+      return CGRectMake(height - CGRectGetMaxY(frame), CGRectGetMinX(frame), frame.size.height, frame.size.width);
+    case UIInterfaceOrientationLandscapeRight:
+      return CGRectMake(CGRectGetMinY(frame), width - CGRectGetMaxX(frame), frame.size.height, frame.size.width);
+    case UIInterfaceOrientationPortraitUpsideDown:
+      return CGRectMake(width - CGRectGetMaxX(frame), height - CGRectGetMaxY(frame), frame.size.width, frame.size.height);
+    case UIInterfaceOrientationUnknown:
+    case UIInterfaceOrientationPortrait:
+    default:
+      return frame;
+  }
+}
+
 CGSize FBAdjustDimensionsForApplication(CGSize actualSize, UIInterfaceOrientation orientation)
 {
   if (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) {

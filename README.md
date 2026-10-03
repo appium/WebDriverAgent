@@ -48,8 +48,12 @@ This is not display-specific app filtering: set `defaultActiveApplication` to th
 app's bundle ID when multiple foreground apps make the result ambiguous. An app
 specified when creating the session retains its existing priority.
 
-W3C coordinate actions require the separate display-aware actions support tracked
-in [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
+W3C touch actions target the selected display. Viewport, element, and pointer
+origins can be mixed within one action sequence; element offsets remain relative
+to the element's center. Element scrolling uses the visible area in the same
+coordinate space as the element frame, including on a rotated secondary display.
+
+This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
 
 ### Simulated hinge angle
 

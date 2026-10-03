@@ -178,4 +178,19 @@
   }
 }
 
+- (void)testPortraitVisibleFrameRotation
+{
+  CGSize size = CGSizeMake(669, 951);
+  CGRect clipped = CGRectMake(200, 100, 300, 400);
+  XCTAssertTrue(CGRectEqualToRect(FBRectFromPortraitCoordinates(clipped, size, UIInterfaceOrientationPortrait), clipped));
+  XCTAssertTrue(CGRectEqualToRect(FBRectFromPortraitCoordinates(clipped, size, UIInterfaceOrientationLandscapeLeft), CGRectMake(451, 200, 400, 300)));
+  XCTAssertTrue(CGRectEqualToRect(FBRectFromPortraitCoordinates(clipped, size, UIInterfaceOrientationLandscapeRight), CGRectMake(100, 169, 400, 300)));
+  XCTAssertTrue(CGRectEqualToRect(FBRectFromPortraitCoordinates(clipped, size, UIInterfaceOrientationPortraitUpsideDown), CGRectMake(169, 451, 300, 400)));
+  // Observed on Duo's inner landscape display: keep the clipping in the same
+  // coordinate space as the element's reported frame.
+  XCTAssertTrue(CGRectEqualToRect(FBRectFromPortraitCoordinates(CGRectMake(236, 104, 379, 827), size, UIInterfaceOrientationLandscapeLeft), CGRectMake(20, 236, 827, 379)));
+  XCTAssertTrue(CGRectIsEmpty(FBRectFromPortraitCoordinates(CGRectZero, size, UIInterfaceOrientationLandscapeLeft)));
+  XCTAssertTrue(CGRectIsNull(FBRectFromPortraitCoordinates(CGRectNull, size, UIInterfaceOrientationLandscapeLeft)));
+}
+
 @end

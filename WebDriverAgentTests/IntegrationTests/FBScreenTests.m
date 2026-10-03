@@ -16,6 +16,8 @@
 #import "FBScreenRecordingRequest.h"
 #import "FBScreenshot.h"
 #import "XCUIScreen.h"
+#import "XCUIApplication+FBTouchAction.h"
+#import "XCUIElement+FBScrolling.h"
 
 @interface FBScreenTests : FBIntegrationTestCase
 @end
@@ -169,6 +171,173 @@
 - (void)testScreenScale
 {
   XCTAssertTrue([FBScreen scale] >= 2);
+}
+
+@end
+
+
+@interface FBDisplayGestureTests : FBIntegrationTestCase
+@property (nonatomic) NSNumber *previousDisplayId;
+@property (nonatomic) XCUIElement *canvas;
+@end
+
+@implementation FBDisplayGestureTests
+
+- (void)setUp
+{
+  [super setUp];
+  self.previousDisplayId = FBConfiguration.sharedInstance.currentDisplayId;
+  [self launchApplication];
+  [self.testedApplication.buttons[@"coordinate-probe"] tap];
+  self.canvas = self.testedApplication.otherElements[@"coordinate-canvas"];
+
+  // The fixture reports the screen it actually occupies. Do not assume the main
+  // screen is active: Duo changes displays when its hinge changes position.
+  NSArray<NSNumber *> *size = [self measurement][@"screenSize"];
+  NSNumber *displayId = nil;
+  for (NSDictionary *screen in [FBScreen screensWithError:nil]) {
+    CGFloat width = [screen[@"bounds"][@"width"] doubleValue] / [screen[@"scale"] doubleValue];
+    CGFloat height = [screen[@"bounds"][@"height"] doubleValue] / [screen[@"scale"] doubleValue];
+    if (fabs(MAX(width, height) - MAX(size[0].doubleValue, size[1].doubleValue)) < 1
+        && fabs(MIN(width, height) - MIN(size[0].doubleValue, size[1].doubleValue)) < 1) {
+      displayId = screen[@"displayId"];
+      break;
+    }
+  }
+  XCTAssertNotNil(displayId, @"Cannot identify the fixture's display");
+  FBConfiguration.sharedInstance.currentDisplayId = displayId;
+}
+
+- (void)tearDown
+{
+  FBConfiguration.sharedInstance.currentDisplayId = self.previousDisplayId;
+  [super tearDown];
+}
+
+- (NSDictionary *)measurement
+{
+  NSString *value = self.testedApplication.staticTexts[@"probe-status"].label;
+  NSError *error = nil;
+  NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
+                                                       options:0 error:&error];
+  XCTAssertNil(error);
+  return result;
+}
+
+- (void)performMoves:(NSArray<NSDictionary *> *)moves expectedEnd:(CGPoint)expected
+{
+  NSUInteger count = [[self measurement][@"count"] unsignedIntegerValue];
+  NSMutableArray *items = [NSMutableArray arrayWithArray:@[
+    moves.firstObject,
+    @{@"type": @"pointerDown", @"button": @0},
+    @{@"type": @"pause", @"duration": @100},
+  ]];
+  if (moves.count > 1) {
+    [items addObjectsFromArray:[moves subarrayWithRange:NSMakeRange(1, moves.count - 1)]];
+  }
+  [items addObject:@{@"type": @"pointerUp", @"button": @0}];
+  NSError *error = nil;
+  NSArray *actions = @[@{
+    @"type": @"pointer", @"id": @"finger", @"parameters": @{@"pointerType": @"touch"}, @"actions": items,
+  }];
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:actions elementCache:nil error:&error], @"%@", error);
+  NSDictionary *result = [self measurement];
+  XCTAssertEqual([result[@"count"] unsignedIntegerValue], count + 1);
+  XCTAssertEqualObjects(result[@"phase"], @"ended");
+  NSArray<NSNumber *> *actual = result[@"last"];
+  XCTAssertEqualWithAccuracy(actual[0].doubleValue, expected.x, 1);
+  XCTAssertEqualWithAccuracy(actual[1].doubleValue, expected.y, 1);
+}
+
+- (NSDictionary *)moveFrom:(id)origin x:(CGFloat)x y:(CGFloat)y duration:(NSUInteger)duration
+{
+  return @{@"type": @"pointerMove", @"origin": origin, @"x": @(x), @"y": @(y), @"duration": @(duration)};
+}
+
+- (void)testViewportAndElementCorners
+{
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  CGFloat width = bounds[0].doubleValue, height = bounds[1].doubleValue;
+  for (NSNumber *x in @[@40, @(width - 40)]) {
+    for (NSNumber *y in @[@40, @(height - 40)]) {
+      CGPoint point = CGPointMake(x.doubleValue, y.doubleValue);
+      [self performMoves:@[[self moveFrom:@"viewport"
+                                       x:frame[0].doubleValue + point.x y:frame[1].doubleValue + point.y duration:0]]
+              expectedEnd:point];
+      [self performMoves:@[[self moveFrom:self.canvas x:point.x - width / 2 y:point.y - height / 2 duration:0]]
+              expectedEnd:point];
+    }
+  }
+}
+
+- (void)testElementHitpoint
+{
+  NSArray<NSNumber *> *bounds = [self measurement][@"canvasBounds"];
+  [self performMoves:@[@{@"type": @"pointerMove", @"origin": self.canvas, @"duration": @0}]
+          expectedEnd:CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2)];
+}
+
+- (void)testPointerRelativeMovesPreserveOriginSpace
+{
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  CGPoint center = CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2);
+  for (NSDictionary *start in @[
+    [self moveFrom:self.canvas x:0 y:0 duration:0],
+    [self moveFrom:@"viewport" x:frame[0].doubleValue + center.x y:frame[1].doubleValue + center.y duration:0],
+  ]) {
+    [self performMoves:@[start,
+                         [self moveFrom:@"pointer" x:0 y:-40 duration:200],
+                         [self moveFrom:@"pointer" x:0 y:-40 duration:200]]
+            expectedEnd:CGPointMake(center.x, center.y - 80)];
+  }
+}
+
+- (void)testMixedOriginsWithinOneTouch
+{
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  CGPoint center = CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2);
+  for (NSNumber *startAtElement in @[@YES, @NO]) {
+    NSDictionary *start = startAtElement.boolValue
+      ? [self moveFrom:self.canvas x:0 y:0 duration:0]
+      : [self moveFrom:@"viewport" x:frame[0].doubleValue + center.x y:frame[1].doubleValue + center.y duration:0];
+    NSDictionary *next = startAtElement.boolValue
+      ? [self moveFrom:@"viewport" x:frame[0].doubleValue + center.x y:frame[1].doubleValue + center.y - 40 duration:200]
+      : [self moveFrom:self.canvas x:0 y:-40 duration:200];
+    [self performMoves:@[start, next, [self moveFrom:@"pointer" x:0 y:-40 duration:200]]
+            expectedEnd:CGPointMake(center.x, center.y - 80)];
+  }
+}
+
+- (void)testScrollRemainsInForegroundAndMovesContent
+{
+  [self.testedApplication.buttons[@"Scroll"] tap];
+  XCUIElement *table = self.testedApplication.tables[@"probe-table"];
+  CGFloat before = [[self measurement][@"scrollY"] doubleValue];
+  [table fb_scrollDownByNormalizedDistance:0.5];
+  XCTAssertEqual(self.testedApplication.state, XCUIApplicationStateRunningForeground);
+  CGFloat after = [[self measurement][@"scrollY"] doubleValue];
+  XCTAssertGreaterThan(after, before + 10);
+  [table fb_scrollUpByNormalizedDistance:0.5];
+  XCTAssertLessThan([[self measurement][@"scrollY"] doubleValue], after - 10);
+}
+
+- (void)testScrollToElementKeepsTheWholeCellVisible
+{
+  [self.testedApplication.buttons[@"Scroll"] tap];
+  XCUIElement *cell = self.testedApplication.cells[@"probe-row-13"];
+  NSError *error = nil;
+  XCTAssertTrue([cell fb_scrollToVisibleWithError:&error], @"%@", error);
+  XCTAssertEqual(self.testedApplication.state, XCUIApplicationStateRunningForeground);
+  NSArray<NSNumber *> *frame = [self measurement][@"canvasWindowRect"];
+  XCTAssertTrue(cell.hittable);
+  XCTAssertGreaterThanOrEqual(CGRectGetMinY(cell.frame), frame[1].doubleValue - 1);
+  XCTAssertLessThanOrEqual(CGRectGetMaxY(cell.frame), frame[1].doubleValue + frame[3].doubleValue + 1);
 }
 
 @end

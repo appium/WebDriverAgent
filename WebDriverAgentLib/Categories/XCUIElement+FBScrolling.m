@@ -10,6 +10,7 @@
 
 #import "FBErrorBuilder.h"
 #import "FBLogger.h"
+#import "FBScreen.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBXCodeCompatibility.h"
@@ -20,6 +21,7 @@
 #import "XCUIElement+FBUID.h"
 #import "XCUIApplication.h"
 #import "XCUICoordinate.h"
+#import "XCUIScreen.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElement+FBVisibleFrame.h"
 #import "XCUIElement.h"
@@ -34,6 +36,20 @@ const CGFloat FBTouchVelocity = 300; // pixels per sec
 const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
+
+static CGRect FBScrollFrameInApplication(CGRect frame, XCUIApplication *application)
+{
+  XCUIScreen *screen = [FBScreen currentScreenWithError:nil];
+  if (nil != screen && !screen.isMainScreen) {
+    // On secondary displays, XCTest's visibleFrame is in portrait screen
+    // coordinates, whereas wdFrame uses the application's current orientation.
+    // Rotate the clipped visible rect before normalizing it against the anchor.
+    CGSize size = CGSizeMake(CGRectGetWidth(screen.bounds) / screen.scale,
+                             CGRectGetHeight(screen.bounds) / screen.scale);
+    frame = FBRectFromPortraitCoordinates(frame, size, application.interfaceOrientation);
+  }
+  return frame;
+}
 
 @interface FBXCElementSnapshotWrapper (FBScrolling)
 
@@ -260,7 +276,8 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
   // Trying fb_cachedSnapshot first
   FBXCElementSnapshotWrapper *targetCellSnapshotWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]];
   targetCellSnapshot = [targetCellSnapshotWrapped fb_parentCellSnapshot];
-  CGRect visibleFrame = [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame;
+  CGRect visibleFrame = FBScrollFrameInApplication(
+    [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame, self.application);
 
   CGVector scrollVector = CGVectorMake(visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        visibleFrame.size.height - targetCellSnapshot.frame.size.height
@@ -296,9 +313,9 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 
 @implementation FBXCElementSnapshotWrapper (FBScrolling)
 
-- (CGRect)scrollingFrame
+- (CGRect)scrollingFrameWithAnchor:(XCUIElement *)anchorElement
 {
-  return self.visibleFrame;
+  return FBScrollFrameInApplication(self.visibleFrame, anchorElement.application);
 }
 
 - (BOOL)fb_scrollUpByNormalizedDistance:(CGFloat)distance
@@ -328,8 +345,9 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 - (BOOL)fb_scrollByNormalizedVector:(CGVector)normalizedScrollVector
                        anchorElement:(XCUIElement *)anchorElement
 {
-  CGVector scrollVector = CGVectorMake(CGRectGetWidth(self.scrollingFrame) * normalizedScrollVector.dx,
-                                       CGRectGetHeight(self.scrollingFrame) * normalizedScrollVector.dy
+  CGRect frame = [self scrollingFrameWithAnchor:anchorElement];
+  CGVector scrollVector = CGVectorMake(CGRectGetWidth(frame) * normalizedScrollVector.dx,
+                                       CGRectGetHeight(frame) * normalizedScrollVector.dy
                                        );
   return [self fb_scrollByVector:scrollVector anchorElement:anchorElement error:nil];
 }
@@ -338,9 +356,10 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
              anchorElement:(XCUIElement *)anchorElement
                      error:(NSError **)error
 {
+  CGRect frame = [self scrollingFrameWithAnchor:anchorElement];
   CGVector scrollBoundingVector = CGVectorMake(
-                                               CGRectGetWidth(self.scrollingFrame) * FBScrollTouchProportion,
-                                               CGRectGetHeight(self.scrollingFrame) * FBScrollTouchProportion
+                                               CGRectGetWidth(frame) * FBScrollTouchProportion,
+                                               CGRectGetHeight(frame) * FBScrollTouchProportion
                                                );
   scrollBoundingVector.dx = (CGFloat)floor(copysign(scrollBoundingVector.dx, vector.dx));
   scrollBoundingVector.dy = (CGFloat)floor(copysign(scrollBoundingVector.dy, vector.dy));
@@ -373,7 +392,7 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
                                                      anchorElement:(XCUIElement *)anchorElement
                                                              error:(NSError **)error
 {
-  CGRect scrollingFrame = self.scrollingFrame;
+  CGRect scrollingFrame = [self scrollingFrameWithAnchor:anchorElement];
   // wdFrame matches scrollingFrame's coordinate space; raw .frame can be pre-scaled or
   // dimension-swapped and drift out of sync with it (appium/appium#16185).
   CGRect anchorFrame = anchorElement.wdFrame;
