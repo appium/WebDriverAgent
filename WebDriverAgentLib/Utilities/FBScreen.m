@@ -13,12 +13,26 @@
 #import "FBXCodeCompatibility.h"
 #import "XCUIDevice.h"
 #import "XCUIScreen.h"
+#import <objc/message.h>
+
+static NSArray<XCUIScreen *> *FBScreensForDevice(id device, NSError **error)
+{
+  SEL selector = NSSelectorFromString(@"screensOrError:");
+  if ([device respondsToSelector:selector]) {
+    return ((NSArray<XCUIScreen *> *(*)(id, SEL, NSError **))objc_msgSend)(device, selector, error);
+  }
+  // Older XCTest versions expose screens on XCUIScreen instead of XCUIDevice.
+  if ([XCUIScreen respondsToSelector:NSSelectorFromString(@"screens")]) {
+    return XCUIScreen.screens;
+  }
+  return @[XCUIScreen.mainScreen];
+}
 
 @implementation FBScreen
 
 + (nullable NSArray<NSDictionary<NSString *, id> *> *)screensWithError:(NSError **)error
 {
-  NSArray<XCUIScreen *> *screens = [XCUIDevice.sharedDevice screensOrError:error];
+  NSArray<XCUIScreen *> *screens = FBScreensForDevice(XCUIDevice.sharedDevice, error);
   if (nil == screens) {
     return nil;
   }
@@ -47,12 +61,14 @@
                                     device:(XCUIDevice *)device
                                      error:(NSError **)error
 {
-  BOOL hasNativeLookup = [device respondsToSelector:@selector(screenWithDisplayID:orError:)];
+  SEL lookupSelector = NSSelectorFromString(@"screenWithDisplayID:orError:");
+  BOOL hasNativeLookup = [device respondsToSelector:lookupSelector];
   BOOL needsEnumeratedLookup = !hasNativeLookup;
   NSError *lookupError = nil;
   if (hasNativeLookup) {
-    XCUIScreen *screen = [device screenWithDisplayID:displayID orError:&lookupError];
-    if (nil != screen && !CGRectIsEmpty(screen.bounds)) {
+    XCUIScreen *screen = ((XCUIScreen *(*)(id, SEL, long long, NSError **))objc_msgSend)(
+      device, lookupSelector, displayID, &lookupError);
+    if ([screen respondsToSelector:NSSelectorFromString(@"bounds")] && !CGRectIsEmpty(screen.bounds)) {
       return screen;
     }
     // XCTest may return a zero-sized placeholder for an inactive wireless
@@ -61,7 +77,7 @@
   }
   // Enumerate only for legacy/placeholder lookups or to enrich a lookup error.
   NSError *enumerationError = nil;
-  NSArray<XCUIScreen *> *screens = [device screensOrError:&enumerationError];
+  NSArray<XCUIScreen *> *screens = FBScreensForDevice(device, &enumerationError);
   if (nil == screens) {
     if (NULL != error) {
       *error = lookupError ?: enumerationError;

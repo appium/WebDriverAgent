@@ -29,6 +29,7 @@
 
 @interface FBScreenDeviceDouble : NSObject
 @property (nonatomic) BOOL nativeLookupAvailable;
+@property (nonatomic) BOOL enumerationUnavailable;
 @property (nonatomic) NSUInteger enumerationCount;
 @property (nonatomic, strong) XCUIScreen *nativeScreen;
 @property (nonatomic, strong) NSArray<XCUIScreen *> *screens;
@@ -39,6 +40,9 @@
 @implementation FBScreenDeviceDouble
 - (BOOL)respondsToSelector:(SEL)selector
 {
+  if (selector == NSSelectorFromString(@"screensOrError:") && self.enumerationUnavailable) {
+    return NO;
+  }
   return selector == @selector(screenWithDisplayID:orError:)
     ? self.nativeLookupAvailable : [super respondsToSelector:selector];
 }
@@ -189,6 +193,19 @@
   device.enumerationError = [NSError errorWithDomain:@"Enumeration" code:2 userInfo:nil];
   XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
   XCTAssertEqualObjects(error, device.enumerationError);
+}
+
+- (void)testScreenLookupWithoutDeviceScreenSelectors
+{
+  FBScreenDeviceDouble *device = [FBScreenDeviceDouble new];
+  device.enumerationUnavailable = YES;
+  NSError *error = nil;
+  XCTAssertEqualObjects([FBScreen screenWithDisplayID:XCUIScreen.mainScreen.displayID device:device error:&error],
+                        XCUIScreen.mainScreen);
+  XCTAssertNil(error);
+  XCTAssertNil([FBScreen screenWithDisplayID:-1 device:device error:&error]);
+  XCTAssertNotNil(error);
+  XCTAssertEqual(device.enumerationCount, 0UL);
 }
 
 - (void)testCurrentScreenDefaultsToMainScreen
