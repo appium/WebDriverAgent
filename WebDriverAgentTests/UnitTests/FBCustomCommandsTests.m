@@ -21,6 +21,7 @@
 
 @interface FBCustomCommands (FBWDATestable)
 + (id<FBResponsePayload>)handleKeyboardInput:(FBRouteRequest *)request;
++ (id<FBResponsePayload>)handleGetSimulatedHingeAngle:(FBRouteRequest *)request;
 + (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request;
 @end
 
@@ -90,6 +91,34 @@
   RouteResponse *response = [RouteResponse new];
   [[FBCustomCommands handleSetSimulatedHingeAngle:request] dispatchWithResponse:response];
   return [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil];
+}
+
+- (void)testHingeAngleReading
+{
+  NSError *error = nil;
+  NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
+  BOOL available = XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle;
+  if (available) {
+    XCTAssertNotNil(angle);
+    XCTAssertNil(error);
+    XCTAssertTrue(isfinite(angle.doubleValue));
+  } else {
+    XCTAssertNil(angle);
+    XCTAssertNotNil(error);
+  }
+
+  FBRouteRequest *request = [FBRouteRequest routeRequestWithURL:[NSURL URLWithString:@"http://localhost:8100/"]
+                                                  parameters:@{}
+                                                   arguments:@{}];
+  RouteResponse *response = [RouteResponse new];
+  [[FBCustomCommands handleGetSimulatedHingeAngle:request] dispatchWithResponse:response];
+  NSDictionary *body = [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil];
+  if (available) {
+    XCTAssertTrue([body[@"value"] isKindOfClass:NSNumber.class]);
+    XCTAssertTrue(isfinite([body[@"value"] doubleValue]));
+  } else {
+    XCTAssertEqualObjects(body[@"value"][@"error"], @"unsupported operation");
+  }
 }
 
 - (void)testHingeAngleRejectsInvalidArguments

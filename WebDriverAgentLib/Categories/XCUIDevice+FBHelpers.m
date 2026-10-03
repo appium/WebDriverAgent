@@ -26,9 +26,29 @@
 #import "XCUIDevice.h"
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
-@protocol FBAngleManager <NSObject>
-+ (BOOL)isAvailable;
+@protocol FBAngle <NSObject>
+- (BOOL)isAngleValid;
+- (float)angleDegrees;
 @end
+
+@protocol FBAngleManager <NSObject>
++ (instancetype)new;
++ (BOOL)isAvailable;
+- (void)startAngleUpdatesToQueue:(NSOperationQueue *)queue handler:(void (^)(id<FBAngle>))handler;
+- (void)stopAngleUpdates;
+@end
+
+static Class<FBAngleManager> FBAngleManagerClass(void)
+{
+  static Class<FBAngleManager> angleManagerClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    if (NULL != dlopen("/System/Library/Frameworks/CoreMotion.framework/CoreMotion", RTLD_LAZY)) {
+      angleManagerClass = NSClassFromString(@"CMAngleManager");
+    }
+  });
+  return angleManagerClass;
+}
 #endif
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
@@ -486,13 +506,7 @@ static bool fb_isLocked;
 - (BOOL)fb_supportsSimulatedHingeAngle
 {
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
-  static Class<FBAngleManager> angleManagerClass;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    if (NULL != dlopen("/System/Library/Frameworks/CoreMotion.framework/CoreMotion", RTLD_LAZY)) {
-      angleManagerClass = NSClassFromString(@"CMAngleManager");
-    }
-  });
+  Class<FBAngleManager> angleManagerClass = FBAngleManagerClass();
   if (![angleManagerClass respondsToSelector:@selector(isAvailable)]) {
     return NO;
   }
@@ -501,6 +515,62 @@ static bool fb_isLocked;
   return [angleManagerClass isAvailable];
 #else
   return NO;
+#endif
+}
+
+- (nullable NSNumber *)fb_getSimulatedHingeAngle:(NSError **)error
+{
+  if (!self.fb_supportsSimulatedHingeAngle) {
+    [[FBErrorBuilder.builder withDescription:@"The device does not report an available hinge"] buildError:error];
+    return nil;
+  }
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+  id<FBAngleManager> manager = [FBAngleManagerClass() new];
+  if (![manager respondsToSelector:@selector(startAngleUpdatesToQueue:handler:)]
+      || ![manager respondsToSelector:@selector(stopAngleUpdates)]) {
+    [[FBErrorBuilder.builder withDescription:@"The runtime does not provide the required hinge angle reading APIs"] buildError:error];
+    return nil;
+  }
+  NSOperationQueue *queue = [NSOperationQueue new];
+  queue.maxConcurrentOperationCount = 1;
+  NSCondition *condition = [NSCondition new];
+  __block NSNumber *reading = nil;
+  NSNumber *result;
+  @try {
+    [manager startAngleUpdatesToQueue:queue handler:^(id<FBAngle> angle) {
+      if (![angle respondsToSelector:@selector(isAngleValid)]
+          || ![angle respondsToSelector:@selector(angleDegrees)] || !angle.isAngleValid) {
+        return;
+      }
+      float degrees = angle.angleDegrees;
+      if (!isfinite(degrees)) {
+        return;
+      }
+      [condition lock];
+      if (nil == reading) {
+        reading = @(degrees);
+        [condition signal];
+      }
+      [condition unlock];
+    }];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:5.0];
+    [condition lock];
+    while (nil == reading) {
+      if (![condition waitUntilDate:deadline]) {
+        break;
+      }
+    }
+    result = reading;
+    [condition unlock];
+  } @finally {
+    [manager stopAngleUpdates];
+  }
+  if (nil == result) {
+    [[FBErrorBuilder.builder withDescription:@"Timed out after 5 seconds waiting for a valid hinge angle"] buildError:error];
+  }
+  return result;
+#else
+  return nil;
 #endif
 }
 

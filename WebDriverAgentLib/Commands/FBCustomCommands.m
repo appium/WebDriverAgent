@@ -74,7 +74,10 @@
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
+    [[FBRoute GET:@"/wda/device/hingeAngle"] respondWithTarget:self action:@selector(handleGetSimulatedHingeAngle:)],
+    [[FBRoute GET:@"/wda/device/hingeAngle"].withoutSession respondWithTarget:self action:@selector(handleGetSimulatedHingeAngle:)],
     [[FBRoute POST:@"/wda/device/hingeAngle"] respondWithTarget:self action:@selector(handleSetSimulatedHingeAngle:)],
+    [[FBRoute POST:@"/wda/device/hingeAngle"].withoutSession respondWithTarget:self action:@selector(handleSetSimulatedHingeAngle:)],
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
@@ -776,6 +779,17 @@
                                                                traceback:nil]);
   }
   return FBResponseWithObject(result);
+}
+
++ (id<FBResponsePayload>)handleGetSimulatedHingeAngle:(FBRouteRequest *)request
+{
+  if (!XCUIDevice.sharedDevice.fb_supportsSimulatedHingeAngle) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
+      @"The device does not report an available hinge" traceback:nil]);
+  }
+  NSError *error;
+  NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
+  return nil == angle ? FBResponseWithUnknownError(error) : FBResponseWithObject(angle);
 }
 
 + (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request

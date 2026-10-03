@@ -37,3 +37,15 @@ tvOS, and watchOS return `unsupported operation`.
 The response confirms event dispatch, not that the device applied the angle. Wait for the expected app layout before
 continuing, since folding completes asynchronously. The command does not rotate
 the device or update `currentDisplayId`; select the desired display separately.
+
+`GET /session/:sessionId/wda/device/hingeAngle` reads the current angle in degrees
+and returns a numeric value, for example `{"value": 90.5}`. It reads CoreMotion
+rather than remembering the last angle sent by WDA, so changes made outside WDA
+are reflected too. The request waits up to five seconds for a valid reading and
+returns an error if none arrives. Devices without an available hinge return
+`unsupported operation`. A reading during a fold may reflect an intermediate
+angle; it does not wait for the transition to finish.
+
+Both hinge angle endpoints are also available without a session:
+`GET /wda/device/hingeAngle` and `POST /wda/device/hingeAngle`. They operate on
+the device and do not require creating an Appium session first.
