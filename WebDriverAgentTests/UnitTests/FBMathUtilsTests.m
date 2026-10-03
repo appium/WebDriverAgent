@@ -148,4 +148,34 @@
   XCTAssertTrue(endOffset.dx == -1 && endOffset.dy == -1);
 }
 
+- (void)testDisplayCoordinateOffsets
+{
+  CGSize mainSize = CGSizeMake(402, 874);
+  CGSize innerSize = CGSizeMake(669, 951);
+  NSArray<NSNumber *> *orientations = @[
+    @(UIInterfaceOrientationPortrait),
+    @(UIInterfaceOrientationLandscapeLeft),
+    @(UIInterfaceOrientationLandscapeRight),
+    @(UIInterfaceOrientationPortraitUpsideDown),
+  ];
+  NSArray<NSValue *> *expected = @[
+    [NSValue valueWithCGPoint:CGPointZero],
+    [NSValue valueWithCGPoint:CGPointMake(0, 77)],
+    [NSValue valueWithCGPoint:CGPointMake(267, 0)],
+    [NSValue valueWithCGPoint:CGPointMake(267, 77)],
+  ];
+  for (NSUInteger i = 0; i < orientations.count; i++) {
+    UIInterfaceOrientation orientation = orientations[i].integerValue;
+    CGVector offset = FBDisplayCoordinateOffset(mainSize, innerSize, orientation);
+    XCTAssertEqual(offset.dx, expected[i].CGPointValue.x);
+    XCTAssertEqual(offset.dy, expected[i].CGPointValue.y);
+    CGVector sameDisplay = FBDisplayCoordinateOffset(mainSize, mainSize, orientation);
+    XCTAssertEqual(sameDisplay.dx, 0);
+    XCTAssertEqual(sameDisplay.dy, 0);
+    CGVector reverse = FBDisplayCoordinateOffset(innerSize, mainSize, orientation);
+    XCTAssertEqual(reverse.dx, -expected[i].CGPointValue.x);
+    XCTAssertEqual(reverse.dy, -expected[i].CGPointValue.y);
+  }
+}
+
 @end
