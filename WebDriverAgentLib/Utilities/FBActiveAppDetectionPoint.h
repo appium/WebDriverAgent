@@ -24,14 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Calculates the accessbility element which is located at the given screen coordinates
  *
  * @param point The screen coordinates
- * @returns The retrieved accessbility element or nil if it cannot be detected
+ * @returns The retrieved accessbility element or nil if it cannot be detected or a secondary display is selected
  */
 + (nullable id<FBXCAccessibilityElement>)axElementWithPoint:(CGPoint)point;
 
 /**
  * Retrieves the accessbility element for the current screen point
  *
- * @returns The retrieved accessbility element or nil if it cannot be detected
+ * @returns The retrieved accessbility element or nil if it cannot be detected or a secondary display is selected
  */
 - (nullable id<FBXCAccessibilityElement>)axElement;
 

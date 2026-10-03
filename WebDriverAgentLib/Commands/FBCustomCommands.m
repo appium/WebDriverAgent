@@ -29,6 +29,7 @@
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "XCUIDevice+FBHinge.h"
 #import "XCUIDevice+FBVoiceOver.h"
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
@@ -74,6 +75,10 @@
     [[FBRoute POST:@"/wda/expectNotification"] respondWithTarget:self action:@selector(handleExpectNotification:)],
     [[FBRoute POST:@"/wda/siri/activate"] respondWithTarget:self action:@selector(handleActivateSiri:)],
     [[FBRoute POST:@"/wda/apps/launchUnattached"].withoutSession respondWithTarget:self action:@selector(handleLaunchUnattachedApp:)],
+    [[FBRoute GET:@"/wda/device/hingeAngle"] respondWithTarget:self action:@selector(handleGetSimulatedHingeAngle:)],
+    [[FBRoute GET:@"/wda/device/hingeAngle"].withoutSession respondWithTarget:self action:@selector(handleGetSimulatedHingeAngle:)],
+    [[FBRoute POST:@"/wda/device/hingeAngle"] respondWithTarget:self action:@selector(handleSetSimulatedHingeAngle:)],
+    [[FBRoute POST:@"/wda/device/hingeAngle"].withoutSession respondWithTarget:self action:@selector(handleSetSimulatedHingeAngle:)],
     [[FBRoute GET:@"/wda/device/info"] respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
     [[FBRoute POST:@"/wda/resetAppAuth"] respondWithTarget:self action:@selector(handleResetAppAuth:)],
     [[FBRoute GET:@"/wda/device/info"].withoutSession respondWithTarget:self action:@selector(handleGetDeviceInfo:)],
@@ -775,6 +780,37 @@
                                                                traceback:nil]);
   }
   return FBResponseWithObject(result);
+}
+
++ (id<FBResponsePayload>)handleGetSimulatedHingeAngle:(FBRouteRequest *)request
+{
+  if (!XCUIDevice.sharedDevice.fb_supportsHingeAngleReading) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
+      @"Hinge angle reading is unavailable on this device" traceback:nil]);
+  }
+  NSError *error;
+  NSNumber *angle = [XCUIDevice.sharedDevice fb_getSimulatedHingeAngle:&error];
+  return nil == angle ? FBResponseWithUnknownError(error) : FBResponseWithObject(angle);
+}
+
++ (id<FBResponsePayload>)handleSetSimulatedHingeAngle:(FBRouteRequest *)request
+{
+  id angle = request.arguments[@"angle"];
+  if (![angle isKindOfClass:NSNumber.class]
+      || CFGetTypeID((__bridge CFTypeRef)angle) == CFBooleanGetTypeID()
+      || !isfinite([angle doubleValue]) || [angle doubleValue] < 0 || [angle doubleValue] > 180) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:
+      @"'angle' must be a finite number between 0 and 180 degrees" traceback:nil]);
+  }
+  if (!XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection) {
+    return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
+      @"Hinge angle injection requires an available hinge and the IOKit HID APIs" traceback:nil]);
+  }
+  NSError *error;
+  if (![XCUIDevice.sharedDevice fb_setSimulatedHingeAngle:[angle doubleValue] error:&error]) {
+    return FBResponseWithUnknownError(error);
+  }
+  return FBResponseWithOK();
 }
 
 @end

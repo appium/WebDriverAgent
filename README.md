@@ -17,6 +17,11 @@ WebDriverAgent is a [WebDriver server](https://w3c.github.io/webdriver/webdriver
  * Easy development cycle as it can be launched & debugged directly via Xcode
  * Use [Mac2Driver](https://github.com/appium/appium-mac2-driver) to automate macOS apps
 
+## Hinge angle
+
+See [Hinge angle](docs/hinge-angle.md) for reading angles, sending simulated hinge
+events, runtime requirements, and physical-device testing feedback.
+
 ## Getting Started On This Repository
 
 You need to have Node.js installed for this project.
@@ -25,6 +30,11 @@ After it is finished you can simply open `WebDriverAgent.xcodeproj` and start `W
 and start sending [requests](https://github.com/facebook/WebDriverAgent/wiki/Queries).
 
 More about how to start WebDriverAgent [here](https://github.com/facebook/WebDriverAgent/wiki/Starting-WebDriverAgent).
+
+## Multiple displays
+
+See [Multiple displays](docs/multiple-displays.md) for display selection, capture,
+and active-app detection.
 
 ## Known Issues
 If you are having some issues please checkout [wiki](https://github.com/facebook/WebDriverAgent/wiki/Common-Issues) first.

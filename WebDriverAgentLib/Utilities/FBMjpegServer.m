@@ -16,6 +16,7 @@
 #import "FBConfiguration.h"
 #import "FBLogger.h"
 #import "FBScreenshot.h"
+#import "FBScreen.h"
 #import "FBImageProcessor.h"
 #import "FBImageUtils.h"
 #import "XCUIScreen.h"
@@ -42,7 +43,6 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
 @property (nonatomic, readonly) dispatch_queue_t backgroundQueue;
 @property (nonatomic, readonly) NSMutableArray<nw_connection_t> *listeningClients;
 @property (nonatomic, readonly) FBImageProcessor *imageProcessor;
-@property (nonatomic, readonly) long long mainScreenID;
 @property (nonatomic, assign) NSUInteger consecutiveScreenshotFailures;
 @property (atomic, assign) BOOL isStreaming;
 @property (nonatomic, assign) NSUInteger sentFramesCount;
@@ -67,7 +67,6 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
     _pendingFrameCounts = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOptions)(NSMapTableObjectPointerPersonality | NSMapTableStrongMemory)
                                                 valueOptions:(NSPointerFunctionsOptions)NSMapTableStrongMemory];
     _imageProcessor = [[FBImageProcessor alloc] init];
-    _mainScreenID = [XCUIScreen.mainScreen displayID];
     dispatch_queue_attr_t queueAttributes = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
     _backgroundQueue = dispatch_queue_create(QUEUE_NAME, queueAttributes);
     __weak typeof(self) weakSelf = self;
@@ -116,7 +115,8 @@ static NSUInteger FBNormalizedMjpegFramerate(NSUInteger framerate)
   NSError *error;
   CGFloat compressionQuality = MAX(FBMinCompressionQuality,
                                    MIN(FBMaxCompressionQuality, (double)FBConfiguration.sharedInstance.mjpegServerScreenshotQuality / 100.0));
-  NSData *screenshotData = [FBScreenshot takeInOriginalResolutionWithScreenID:self.mainScreenID
+  XCUIScreen *screen = [FBScreen currentScreenWithError:&error];
+  NSData *screenshotData = nil == screen ? nil : [FBScreenshot takeInOriginalResolutionWithScreenID:screen.displayID
                                                            compressionQuality:compressionQuality
                                                                           uti:UTTypeJPEG
                                                                       timeout:FRAME_TIMEOUT

@@ -47,6 +47,7 @@ FOUNDATION_EXPORT const unsigned char WebDriverAgentLib_VersionString[];
 #import <WebDriverAgentLib/XCTIssue+FBPatcher.h>
 #import <WebDriverAgentLib/XCUIApplication+FBHelpers.h>
 #import <WebDriverAgentLib/XCUIDevice+FBHelpers.h>
+#import <WebDriverAgentLib/XCUIDevice+FBHinge.h>
 #import <WebDriverAgentLib/XCUIDevice+FBRotation.h>
 #import <WebDriverAgentLib/XCUIDevice+FBVoiceOver.h>
 #import <WebDriverAgentLib/XCUIElement.h>
