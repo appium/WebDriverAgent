@@ -1,3 +1,9 @@
+## [16.14.0](https://github.com/appium/WebDriverAgent/compare/v16.13.6...v16.14.0) (2026-10-04)
+
+### Features
+
+* support Duo hinge control and secondary display capture ([#1287](https://github.com/appium/WebDriverAgent/issues/1287)) ([76d6aa0](https://github.com/appium/WebDriverAgent/commit/76d6aa03e2423290bb05c436afc153bd32878ce0))
+
 ## [16.13.6](https://github.com/appium/WebDriverAgent/compare/v16.13.5...v16.13.6) (2026-09-30)
 
 ### Bug Fixes
