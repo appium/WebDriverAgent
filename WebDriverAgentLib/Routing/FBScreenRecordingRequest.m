@@ -9,6 +9,7 @@
 #import "FBScreenRecordingRequest.h"
 
 #import "FBErrorBuilder.h"
+#import "FBScreen.h"
 #import "XCUIScreen.h"
 
 @implementation FBScreenRecordingRequest
@@ -56,6 +57,10 @@
 
 - (id)toNativeRequestWithError:(NSError **)error
 {
+  XCUIScreen *screen = [FBScreen currentScreenWithError:error];
+  if (nil == screen) {
+    return nil;
+  }
   Class screenRecordingRequestClass = NSClassFromString(@"XCTScreenRecordingRequest");
   if (nil == screenRecordingRequestClass) {
     [[[FBErrorBuilder builder]
@@ -80,8 +85,8 @@
   NSMethodSignature *screenRecordingRequestContructorSignature = [screenRecordingRequestAllocated methodSignatureForSelector:screenRecordingRequestConstructorSelector];
   NSInvocation *screenRecordingRequestInitInvocation = [NSInvocation invocationWithMethodSignature:screenRecordingRequestContructorSignature];
   [screenRecordingRequestInitInvocation setSelector:screenRecordingRequestConstructorSelector];
-  long long mainScreenId = XCUIScreen.mainScreen.displayID;
-  [screenRecordingRequestInitInvocation setArgument:&mainScreenId atIndex:2];
+  long long screenId = screen.displayID;
+  [screenRecordingRequestInitInvocation setArgument:&screenId atIndex:2];
   CGRect fullScreenRect = CGRectNull;
   [screenRecordingRequestInitInvocation setArgument:&fullScreenRect atIndex:3];
   [screenRecordingRequestInitInvocation setArgument:&videoEncoding atIndex:4];
