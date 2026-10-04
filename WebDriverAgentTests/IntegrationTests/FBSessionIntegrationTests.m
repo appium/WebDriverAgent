@@ -9,17 +9,28 @@
 #import <XCTest/XCTest.h>
 
 #import "FBIntegrationTestCase.h"
+#import "FBCapabilities.h"
 #import "FBExceptions.h"
 #import "FBMacros.h"
+#import "FBResponsePayload.h"
 #import "FBSession.h"
+#import "FBSessionCommands.h"
 #import "FBXCodeCompatibility.h"
 #import "FBTestMacros.h"
 #import "FBUnattachedAppLauncher.h"
 #import "XCUIApplication+FBHelpers.h"
+#import "XCUIApplication+FBQuiescence.h"
 #import "XCUIApplication.h"
 
 @interface FBSession (Tests)
 
+@end
+
+@interface FBSessionCommands (FBWDATestable)
++ (nullable id<FBResponsePayload>)prepareApplicationForSessionWithBundleID:(nullable NSString *)bundleID
+                                                                initialUrl:(nullable NSString *)initialUrl
+                                                            capabilities:(NSDictionary<NSString *, id> *)capabilities
+                                                             application:(XCUIApplication *_Nullable *_Nonnull)applicationOut;
 @end
 
 @interface FBSessionIntegrationTests : FBIntegrationTestCase
@@ -99,6 +110,60 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
                                     arguments:nil
                                   environment:nil];
   FBAssertWaitTillBecomesTrue([self.session.activeApplication.bundleID isEqualToString:testedApp.bundleID]);
+}
+
+- (XCUIApplication *)prepareApplicationUnderTestWithoutLaunchingWithCapabilities:(NSDictionary<NSString *, id> *)capabilities
+{
+  NSString *bundleId = (NSString *)self.testedApplication.bundleID;
+  [self.testedApplication terminate];
+  FBAssertWaitTillBecomesTrue(self.testedApplication.state == XCUIApplicationStateNotRunning);
+  [self.session kill];
+
+  XCUIApplication *app = nil;
+  id<FBResponsePayload> errorResponse = [FBSessionCommands prepareApplicationForSessionWithBundleID:bundleId
+                                                                                        initialUrl:nil
+                                                                                      capabilities:capabilities
+                                                                                       application:&app];
+  XCTAssertNil(errorResponse);
+  XCTAssertNotNil(app);
+  XCTAssertEqualObjects(bundleId, app.bundleID);
+  XCTAssertEqual(XCUIApplicationStateNotRunning, app.state);
+
+  self.session = [FBSession initWithApplication:app];
+  return app;
+}
+
+- (void)testApplicationUnderTestCanBeSetWithoutBeingLaunched
+{
+  XCUIApplication *app = [self prepareApplicationUnderTestWithoutLaunchingWithCapabilities:@{
+    FB_CAP_SHOULD_LAUNCH_APP: @NO,
+  }];
+  XCTAssertNotEqualObjects(app.bundleID, self.session.activeApplication.bundleID);
+
+  XCUIApplication *launchedApp = [self.session launchApplicationWithBundleId:(NSString *)app.bundleID
+                                                     shouldWaitForQuiescence:nil
+                                                                   arguments:nil
+                                                                 environment:nil];
+  FBAssertWaitTillBecomesTrue([self.session.activeApplication.bundleID isEqualToString:(NSString *)app.bundleID]);
+  XCTAssertEqual(app, launchedApp);
+  XCTAssertEqual(app, self.session.activeApplication);
+  XCTAssertTrue(launchedApp.fb_shouldWaitForQuiescence);
+}
+
+- (void)testApplicationUnderTestSetWithoutBeingLaunchedRespectsQuiescenceCapability
+{
+  XCUIApplication *app = [self prepareApplicationUnderTestWithoutLaunchingWithCapabilities:@{
+    FB_CAP_SHOULD_LAUNCH_APP: @NO,
+    FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE: @NO,
+  }];
+
+  XCUIApplication *launchedApp = [self.session launchApplicationWithBundleId:(NSString *)app.bundleID
+                                                     shouldWaitForQuiescence:nil
+                                                                   arguments:nil
+                                                                 environment:nil];
+  FBAssertWaitTillBecomesTrue([self.session.activeApplication.bundleID isEqualToString:(NSString *)app.bundleID]);
+  XCTAssertEqual(app, launchedApp);
+  XCTAssertFalse(launchedApp.fb_shouldWaitForQuiescence);
 }
 
 - (void)testLaunchUnattachedApp

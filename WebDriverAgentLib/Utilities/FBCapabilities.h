@@ -29,6 +29,13 @@ extern NSString* const FB_CAP_BUNDLE_ID;
 extern NSString* const FB_CAP_INITIAL_URL;
 /** Whether to enforrce (re)start of the application under test on session startup */
 extern NSString* const FB_CAP_FORCE_APP_LAUNCH;
+/**
+ Whether to launch the application under test on session startup (YES by default).
+ If NO then the application defined by `FB_CAP_BUNDLE_ID` is still set as the application under test,
+ but it is not launched, so it may be launched later with the /wda/apps/launch endpoint.
+ `FB_CAP_FORCE_APP_LAUNCH`, `FB_CAP_INITIAL_URL`, `FB_CAP_ARGUMENTS` and `FB_CAP_ENVIRNOMENT` are ignored in such case.
+ */
+extern NSString* const FB_CAP_SHOULD_LAUNCH_APP;
 /** Whether to wait for quiescence before starting interaction with apps laucnhes in scope of the test session */
 extern NSString* const FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE;
 /** Array of command line arguments to be passed to the application under test */
