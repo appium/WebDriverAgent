@@ -804,7 +804,7 @@
   }
   if (!XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection) {
     return FBResponseWithStatus([FBCommandStatus unsupportedOperationErrorWithMessage:
-      @"Hinge angle injection requires an available hinge and the IOKit HID APIs" traceback:nil]);
+      @"Setting a simulated hinge angle requires a compatible foldable device" traceback:nil]);
   }
   NSError *error;
   if (![XCUIDevice.sharedDevice fb_setSimulatedHingeAngle:[angle doubleValue] error:&error]) {

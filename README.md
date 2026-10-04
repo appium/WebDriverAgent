@@ -29,7 +29,10 @@ More about how to start WebDriverAgent [here](https://github.com/facebook/WebDri
 ## Multiple displays
 
 See [Multiple displays](docs/multiple-displays.md) for display selection, capture,
-active-app detection, and simulated hinge control.
+and active-app detection.
+
+See [Hinge angle](docs/hinge-angle.md) for reading angles, sending simulated hinge
+events, runtime requirements, and physical-device testing feedback.
 
 ## Known Issues
 
