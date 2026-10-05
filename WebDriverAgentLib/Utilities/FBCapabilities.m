@@ -16,7 +16,6 @@ NSString* const FB_CAP_EVENT_LOOP_IDLE_DELAY_SEC = @"eventloopIdleDelaySec";
 NSString* const FB_CAP_BUNDLE_ID = @"bundleId";
 NSString* const FB_CAP_INITIAL_URL = @"initialUrl";
 NSString* const FB_CAP_FORCE_APP_LAUNCH = @"forceAppLaunch";
-NSString* const FB_CAP_SHOULD_LAUNCH_APP = @"shouldLaunchApp";
 NSString* const FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE = @"shouldWaitForQuiescence";
 NSString* const FB_CAP_ARGUMENTS = @"arguments";
 NSString* const FB_CAP_ENVIRNOMENT = @"environment";

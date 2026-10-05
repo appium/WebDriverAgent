@@ -131,7 +131,8 @@
   [request.session launchApplicationWithBundleId:(id)request.arguments[@"bundleId"]
                          shouldWaitForQuiescence:request.arguments[@"shouldWaitForQuiescence"]
                                        arguments:request.arguments[@"arguments"]
-                                     environment:request.arguments[@"environment"]];
+                                     environment:request.arguments[@"environment"]
+                          asApplicationUnderTest:[request.arguments[@"asAppUnderTest"] boolValue]];
   return FBResponseWithOK();
 }
 
@@ -330,14 +331,6 @@
   }
 
   XCUIApplication *app = [[XCUIApplication alloc] initWithBundleIdentifier:(NSString * _Nonnull)bundleID];
-  if (nil != capabilities[FB_CAP_SHOULD_LAUNCH_APP] && ![capabilities[FB_CAP_SHOULD_LAUNCH_APP] boolValue]) {
-    // Apps launched later via /wda/apps/launch inherit this setting from the application under test
-    app.fb_shouldWaitForQuiescence = nil == capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE]
-      || [capabilities[FB_CAP_SHOULD_WAIT_FOR_QUIESCENCE] boolValue];
-    [FBLogger logFmt:@"The application '%@' is set as the application under test without being launched", bundleID];
-    *applicationOut = app;
-    return nil;
-  }
   BOOL forceAppLaunch = nil == capabilities[FB_CAP_FORCE_APP_LAUNCH]
     || [capabilities[FB_CAP_FORCE_APP_LAUNCH] boolValue];
   XCUIApplicationState appState = app.state;
