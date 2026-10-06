@@ -13,6 +13,7 @@
 #import "FBScreen.h"
 #import "FBRunLoopSpinner.h"
 #import "XCUIDevice+FBRotation.h"
+#import "XCUIDevice+FBHinge.h"
 #import "XCUIElement.h"
 #import "FBActiveAppDetectionPoint.h"
 #import "FBExceptions.h"
@@ -356,6 +357,8 @@
 
 - (void)testScreenInfoInBothLandscapeOrientations
 {
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection,
+            @"Foldable orientations are covered by testScreenInfoAcrossFoldStates");
   XCUIElement *window = self.testedApplication.windows.firstMatch;
   (void)window.frame;
   XCTSkipIf(window.screen.displayID != XCUIScreen.mainScreen.displayID,
@@ -383,6 +386,40 @@
       }
       return barHeight > 0 && barHeight < height && fabs(barWidth - width) <= 1;
     }], @"Unexpected landscape screen metadata: %@", info);
+  }
+}
+
+- (void)testScreenInfoAcrossFoldStates
+{
+  XCUIDevice *device = XCUIDevice.sharedDevice;
+  XCTSkipIf(!device.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a foldable simulator");
+  NSError *error = nil;
+  NSNumber *originalAngle = [device fb_getSimulatedHingeAngle:&error];
+  XCTAssertNotNil(originalAngle, @"%@", error);
+  [self addTeardownBlock:^{
+    if (nil != originalAngle) {
+      [device fb_setSimulatedHingeAngle:originalAngle.doubleValue error:nil];
+    }
+  }];
+  for (NSNumber *angle in @[@0, @90, @180, @0]) {
+    [self.testedApplication terminate];
+    XCTAssertTrue([device fb_setSimulatedHingeAngle:angle.doubleValue error:&error], @"%@", error);
+    [self launchApplication];
+    XCUIElement *window = self.testedApplication.windows.firstMatch;
+    CGRect frame = window.frame;
+    FBConfiguration.sharedInstance.currentDisplayId = @(window.screen.displayID);
+    __block NSDictionary *info = nil;
+    XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
+      info = [self screenInfoResponse];
+      double width = [info[@"screenSize"][@"width"] doubleValue];
+      double height = [info[@"screenSize"][@"height"] doubleValue];
+      double barHeight = [info[@"statusBarSize"][@"height"] doubleValue];
+      return nil == info[@"error"] && fabs(width - frame.size.width) <= 1
+        && fabs(height - frame.size.height) <= 1
+        && barHeight >= 0 && barHeight < height
+        && (barHeight == 0 || fabs([info[@"statusBarSize"][@"width"] doubleValue] - width) <= 1)
+        && (angle.doubleValue == 0 || barHeight == 0);
+    }], @"Unexpected screen metadata at hinge angle %@: %@", angle, info);
   }
 }
 
