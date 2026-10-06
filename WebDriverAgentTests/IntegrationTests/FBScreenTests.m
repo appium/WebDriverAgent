@@ -16,6 +16,14 @@
 #import "FBScreenRecordingRequest.h"
 #import "FBScreenshot.h"
 #import "XCUIScreen.h"
+#import "FBCustomCommands.h"
+#import "FBRouteRequest.h"
+#import "FBResponsePayload.h"
+#import "RouteResponse.h"
+
+@interface FBCustomCommands (FBScreenInfoTesting)
++ (id<FBResponsePayload>)handleGetScreen:(FBRouteRequest *)request;
+@end
 
 @interface FBScreen (FBLookupTesting)
 + (nullable XCUIScreen *)screenWithDisplayID:(long long)displayID device:(id)device error:(NSError **)error;
@@ -297,6 +305,61 @@
 - (void)testScreenScale
 {
   XCTAssertTrue([FBScreen scale] >= 2);
+}
+
+- (NSDictionary *)screenInfoResponse
+{
+  FBRouteRequest *request = [FBRouteRequest routeRequestWithURL:[NSURL URLWithString:@"http://localhost:8100/wda/screen"]
+                                                  parameters:@{}
+                                                   arguments:@{}];
+  RouteResponse *response = [RouteResponse new];
+  [[FBCustomCommands handleGetScreen:request] dispatchWithResponse:response];
+  return [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil][@"value"];
+}
+
+- (void)testScreenInfoFollowsDisplaySelectionAndReset
+{
+  for (NSDictionary *screen in [FBScreen screensWithError:nil]) {
+    FBConfiguration.sharedInstance.currentDisplayId = screen[@"displayId"];
+    NSDictionary *info = [self screenInfoResponse];
+    XCTAssertNil(info[@"error"]);
+    XCTAssertEqualObjects(info[@"displayId"], screen[@"displayId"]);
+    XCTAssertEqualObjects(info[@"scale"], screen[@"scale"]);
+    double width = [info[@"screenSize"][@"width"] doubleValue];
+    double height = [info[@"screenSize"][@"height"] doubleValue];
+    double scale = [screen[@"scale"] doubleValue];
+    double expectedWidth = [screen[@"bounds"][@"width"] doubleValue] / scale;
+    double expectedHeight = [screen[@"bounds"][@"height"] doubleValue] / scale;
+    XCTAssertEqualWithAccuracy(MIN(width, height), MIN(expectedWidth, expectedHeight), 0.01);
+    XCTAssertEqualWithAccuracy(MAX(width, height), MAX(expectedWidth, expectedHeight), 0.01);
+    double barHeight = [info[@"statusBarSize"][@"height"] doubleValue];
+    XCTAssertGreaterThanOrEqual(barHeight, 0);
+    XCTAssertLessThan(barHeight, height);
+    if (barHeight > 0) {
+      XCTAssertEqualWithAccuracy([info[@"statusBarSize"][@"width"] doubleValue], width, 1);
+    }
+  }
+  FBConfiguration.sharedInstance.currentDisplayId = nil;
+  XCTAssertEqualObjects([self screenInfoResponse][@"displayId"], @([FBScreen displayID]));
+}
+
+- (void)testScreenInfoRejectsUnavailableDisplay
+{
+  FBConfiguration.sharedInstance.currentDisplayId = @([self unknownDisplayID]);
+  NSDictionary *info = [self screenInfoResponse];
+  XCTAssertEqualObjects(info[@"error"], @"invalid argument");
+  XCTAssertTrue([info[@"message"] containsString:@"Available display ids"]);
+}
+
+- (void)testScreenInfoIncludesTopStatusBarOnSingleDisplay
+{
+  XCTSkipIf([FBScreen screensWithError:nil].count != 1, @"Requires a single-display device");
+  // The integration fixture uses the ordinary visible portrait status bar.
+  // An unresolved XCUIElement has displayID == 0; it must not be filtered out.
+  NSDictionary *info = [self screenInfoResponse];
+  XCTAssertGreaterThan([info[@"statusBarSize"][@"height"] doubleValue], 0);
+  XCTAssertEqualWithAccuracy([info[@"statusBarSize"][@"width"] doubleValue],
+                            [info[@"screenSize"][@"width"] doubleValue], 1);
 }
 
 @end
