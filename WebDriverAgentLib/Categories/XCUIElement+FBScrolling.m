@@ -38,7 +38,7 @@ const CGFloat FBScrollTouchProportion = 0.75f;
 
 #if !TARGET_OS_TV
 
-static XCUIScreen *FBScreenForScrolling(void)
+static void FBValidateScreenForScrolling(void)
 {
   NSError *error = nil;
   XCUIScreen *screen = [FBScreen currentScreenWithError:&error];
@@ -49,7 +49,6 @@ static XCUIScreen *FBScreenForScrolling(void)
                                   reason:error.localizedDescription
                                 userInfo:nil];
   }
-  return screen;
 }
 
 static CGRect FBScrollFrameInApplication(CGRect frame, XCUIScreen *screen,
@@ -350,28 +349,28 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 - (BOOL)fb_scrollUpByNormalizedDistance:(CGFloat)distance
                            anchorElement:(XCUIElement *)anchorElement
 {
-  FBScreenForScrolling();
+  FBValidateScreenForScrolling();
   return [self fb_scrollByNormalizedVector:CGVectorMake(0.0, distance) anchorElement:anchorElement error:nil];
 }
 
 - (BOOL)fb_scrollDownByNormalizedDistance:(CGFloat)distance
                              anchorElement:(XCUIElement *)anchorElement
 {
-  FBScreenForScrolling();
+  FBValidateScreenForScrolling();
   return [self fb_scrollByNormalizedVector:CGVectorMake(0.0, -distance) anchorElement:anchorElement error:nil];
 }
 
 - (BOOL)fb_scrollLeftByNormalizedDistance:(CGFloat)distance
                              anchorElement:(XCUIElement *)anchorElement
 {
-  FBScreenForScrolling();
+  FBValidateScreenForScrolling();
   return [self fb_scrollByNormalizedVector:CGVectorMake(distance, 0.0) anchorElement:anchorElement error:nil];
 }
 
 - (BOOL)fb_scrollRightByNormalizedDistance:(CGFloat)distance
                               anchorElement:(XCUIElement *)anchorElement
 {
-  FBScreenForScrolling();
+  FBValidateScreenForScrolling();
   return [self fb_scrollByNormalizedVector:CGVectorMake(-distance, 0.0) anchorElement:anchorElement error:nil];
 }
 

@@ -870,11 +870,10 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   return [self eventPathsWithKeyAction:actionDescription forActionId:actionId error:error];
 }
 
-- (nullable XCSynthesizedEventRecord *)synthesizeWithError:(NSError **)error
+- (nullable NSArray<NSDictionary<NSString *, id> *> *)validatedActionsWithError:(NSError **)error
 {
-  BOOL requiresDisplay = NO;
   NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *actionsMapping = [NSMutableDictionary new];
-  NSMutableArray<NSString *> *actionIds = [NSMutableArray new];
+  NSMutableArray<NSDictionary<NSString *, id> *> *validatedActions = [NSMutableArray new];
   for (NSDictionary<NSString *, id> *action in self.actions) {
     id actionId = [action objectForKey:FB_KEY_ID];
     if (![actionId isKindOfClass:NSString.class] || 0 == [actionId length]) {
@@ -904,21 +903,33 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       continue;
     }
 
-    if ([action[FB_KEY_TYPE] isEqual:FB_ACTION_TYPE_POINTER]) {
-      for (NSDictionary *item in actionItems) {
-        if (![item[FB_ACTION_ITEM_KEY_TYPE] isEqual:FB_ACTION_ITEM_TYPE_PAUSE]) {
-          requiresDisplay = YES;
-          break;
-        }
-      }
-    }
-
-    [actionIds addObject:actionId];
+    [validatedActions addObject:action];
     [actionsMapping setObject:action forKey:actionId];
   }
+  return validatedActions.copy;
+}
+
+- (BOOL)actionsRequireDisplay:(NSArray<NSDictionary<NSString *, id> *> *)actions
+{
+  for (NSDictionary<NSString *, id> *action in actions) {
+    if (![action[FB_KEY_TYPE] isEqual:FB_ACTION_TYPE_POINTER]) {
+      continue;
+    }
+    for (NSDictionary *item in action[FB_KEY_ACTIONS]) {
+      if (![item[FB_ACTION_ITEM_KEY_TYPE] isEqual:FB_ACTION_ITEM_TYPE_PAUSE]) {
+        return YES;
+      }
+    }
+  }
+  return NO;
+}
+
+- (nullable XCSynthesizedEventRecord *)eventRecordForActions:(NSArray<NSDictionary<NSString *, id> *> *)actions
+                                                     error:(NSError **)error
+{
   // Keyboard and pause-only sequences have no display coordinates. A display
   // disappearing must not prevent these input sources from being synthesized.
-  XCUIScreen *screen = requiresDisplay ? [FBScreen currentScreenWithError:error] : XCUIScreen.mainScreen;
+  XCUIScreen *screen = [self actionsRequireDisplay:actions] ? [FBScreen currentScreenWithError:error] : XCUIScreen.mainScreen;
   if (nil == screen) {
     return nil;
   }
@@ -947,8 +958,21 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       CGSizeMake(screen.bounds.size.width / screen.scale, screen.bounds.size.height / screen.scale),
       eventRecord.interfaceOrientation);
   }
-  for (NSString *actionId in actionIds.copy) {
-    NSDictionary<NSString *, id> *actionDescription = [actionsMapping objectForKey:actionId];
+  return eventRecord;
+}
+
+- (nullable XCSynthesizedEventRecord *)synthesizeWithError:(NSError **)error
+{
+  NSArray<NSDictionary<NSString *, id> *> *actions = [self validatedActionsWithError:error];
+  if (nil == actions) {
+    return nil;
+  }
+  XCSynthesizedEventRecord *eventRecord = [self eventRecordForActions:actions error:error];
+  if (nil == eventRecord) {
+    return nil;
+  }
+  for (NSDictionary<NSString *, id> *actionDescription in actions) {
+    NSString *actionId = actionDescription[FB_KEY_ID];
     NSArray<XCPointerEventPath *> *eventPaths = [self eventPathsWithActionDescription:actionDescription forActionId:actionId error:error];
     if (nil == eventPaths) {
       return nil;
