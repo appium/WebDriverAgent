@@ -9,6 +9,10 @@
 #import "ViewController.h"
 #import "FBCoordinateProbeViewController.h"
 
+#if !TARGET_OS_TV
+#import <WebKit/WebKit.h>
+#endif
+
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *orentationLabel;
 @property (weak, nonatomic) IBOutlet UIButton *button;
@@ -19,6 +23,17 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
+
+#if !TARGET_OS_TV
+  if ([NSProcessInfo.processInfo.arguments containsObject:@"--webview-fixture"]) {
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    webView.autoresizingMask = UIViewAutoresizingFlexibleWidth
+      | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:webView];
+    [webView loadHTMLString:@"<!doctype html><html><body>"
+      "<p>WebContent snapshot fixture</p></body></html>" baseURL:nil];
+  }
+#endif
   
   UIAccessibilityCustomAction *action1 =
   [[UIAccessibilityCustomAction alloc] initWithName:@"Custom Action 1"
