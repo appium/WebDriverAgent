@@ -53,16 +53,18 @@ static XCUIScreen *FBScreenForScrolling(void)
 }
 
 static CGRect FBScrollFrameInApplication(CGRect frame, XCUIScreen *screen,
-                                        UIInterfaceOrientation orientation)
+                                        XCUIApplication *application)
 {
+#if !TARGET_OS_WATCH
   if (screen.displayID != XCUIScreen.mainScreen.displayID) {
     // On secondary displays, XCTest's visibleFrame is in portrait screen
     // coordinates, whereas wdFrame uses the application's current orientation.
     // Rotate the clipped visible rect before normalizing it against the anchor.
     CGSize size = CGSizeMake(CGRectGetWidth(screen.bounds) / screen.scale,
                              CGRectGetHeight(screen.bounds) / screen.scale);
-    frame = FBRectFromPortraitCoordinates(frame, size, orientation);
+    frame = FBRectFromPortraitCoordinates(frame, size, application.interfaceOrientation);
   }
+#endif
   return frame;
 }
 
@@ -293,15 +295,14 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
   FBXCElementSnapshotWrapper *targetCellSnapshotWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[self fb_customSnapshot]];
   targetCellSnapshot = [targetCellSnapshotWrapped fb_parentCellSnapshot];
   XCUIScreen *screen = FBScreenForScrolling();
-  UIInterfaceOrientation orientation = self.application.interfaceOrientation;
   CGRect visibleFrame = FBScrollFrameInApplication(
-    [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame, screen, orientation);
+    [FBXCElementSnapshotWrapper ensureWrapped:targetCellSnapshot].fb_visibleFrame, screen, self.application);
 
   CGVector scrollVector = CGVectorMake(visibleFrame.size.width - targetCellSnapshot.frame.size.width,
                                        visibleFrame.size.height - targetCellSnapshot.frame.size.height
                                        );
   scrollViewWrapped = [FBXCElementSnapshotWrapper ensureWrapped:[scrollViewElement fb_customSnapshot]];
-  CGRect scrollingFrame = FBScrollFrameInApplication(scrollViewWrapped.visibleFrame, screen, orientation);
+  CGRect scrollingFrame = FBScrollFrameInApplication(scrollViewWrapped.visibleFrame, screen, self.application);
   return [scrollViewWrapped fb_scrollByVector:scrollVector
                                        inFrame:scrollingFrame
                                 anchorElement:scrollViewElement
@@ -336,7 +337,7 @@ static XCUIElement *FBLiveElementForSnapshot(id<FBXCElementSnapshot> snapshot, X
 - (CGRect)scrollingFrameWithAnchor:(XCUIElement *)anchorElement
 {
   XCUIScreen *screen = FBScreenForScrolling();
-  return FBScrollFrameInApplication(self.visibleFrame, screen, anchorElement.application.interfaceOrientation);
+  return FBScrollFrameInApplication(self.visibleFrame, screen, anchorElement.application);
 }
 
 - (BOOL)fb_scrollUpByNormalizedDistance:(CGFloat)distance
