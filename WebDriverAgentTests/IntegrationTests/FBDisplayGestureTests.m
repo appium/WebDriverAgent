@@ -11,6 +11,7 @@
 #import "FBIntegrationTestCase.h"
 #import "FBConfiguration.h"
 #import "FBScreen.h"
+#import "FBRunLoopSpinner.h"
 #import "FBExceptions.h"
 #import "FBElementCommands.h"
 
@@ -109,7 +110,7 @@
   return @{@"type": @"pointerMove", @"origin": origin, @"x": @(x), @"y": @(y), @"duration": @(duration)};
 }
 
-- (void)testNativeApplicationCoordinates
+- (void)verifyNativeApplicationCoordinates
 {
   NSDictionary *geometry = [self measurement];
   NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
@@ -129,6 +130,71 @@
       XCTAssertEqualWithAccuracy([result[@"last"][0] doubleValue], x.doubleValue, 1);
       XCTAssertEqualWithAccuracy([result[@"last"][1] doubleValue], y.doubleValue, 1);
     }
+  }
+}
+
+- (void)testNativeApplicationCoordinates
+{
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)testNativeMainDisplayDefaultCoordinates
+{
+  XCTSkipIf(FBConfiguration.sharedInstance.currentDisplayId.longLongValue != [FBScreen displayID],
+            @"Requires the fixture on the main display");
+  FBConfiguration.sharedInstance.currentDisplayId = nil;
+  [self verifyNativeApplicationCoordinates];
+  FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)verifyNativeCoordinatesInOrientation:(UIDeviceOrientation)orientation
+{
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection,
+            @"Foldable orientations are covered by testNativeCoordinatesAcrossFoldStates");
+  UIDeviceOrientation previousOrientation = XCUIDevice.sharedDevice.orientation;
+  [self addTeardownBlock:^{
+    [XCUIDevice.sharedDevice fb_setDeviceInterfaceOrientation:previousOrientation];
+  }];
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_setDeviceInterfaceOrientation:orientation]);
+  XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
+    NSDictionary *geometry = [self measurement];
+    NSArray<NSNumber *> *size = geometry[@"windowSize"];
+    return size[0].doubleValue > size[1].doubleValue
+      && ![geometry[@"rotationInProgress"] boolValue];
+  }]);
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)testNativeCoordinatesInLandscapeLeft
+{
+  [self verifyNativeCoordinatesInOrientation:UIDeviceOrientationLandscapeLeft];
+}
+
+- (void)testNativeCoordinatesInLandscapeRight
+{
+  [self verifyNativeCoordinatesInOrientation:UIDeviceOrientationLandscapeRight];
+}
+
+- (void)testNativeCoordinatesAcrossFoldStates
+{
+  XCUIDevice *device = XCUIDevice.sharedDevice;
+  XCTSkipIf(!device.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a foldable simulator");
+  NSError *error = nil;
+  NSNumber *originalAngle = [device fb_getSimulatedHingeAngle:&error];
+  XCTAssertNotNil(originalAngle, @"%@", error);
+  [self addTeardownBlock:^{
+    if (nil != originalAngle) {
+      [device fb_setSimulatedHingeAngle:originalAngle.doubleValue error:nil];
+    }
+  }];
+  for (NSNumber *angle in @[@0, @90, @180, @0]) {
+    [self.testedApplication terminate];
+    XCTAssertTrue([device fb_setSimulatedHingeAngle:angle.doubleValue error:&error], @"%@", error);
+    [self launchApplication];
+    [self.testedApplication.buttons[@"coordinate-probe"] tap];
+    [self selectFixtureDisplay];
+    [self verifyNativeApplicationCoordinates];
   }
 }
 

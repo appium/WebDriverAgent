@@ -23,6 +23,7 @@ The `probe-status` label exposes `start`, `last`, `phase`, and `count` after a
 touch. `start` and `last` are **canvas-local app points**. It also exposes
 `canvasBounds`, `canvasWindowRect`, `windowSize`, `screenSize`, `scrollY`, and
 `fullyVisibleRows` (row indices whose full rectangles lie inside the table bounds).
+`rotationInProgress` stays true until the fixture's rotation transition completes.
 Geometry is refreshed when the view lays out, including after rotation or window
 resizing. Touch-related fields are absent before the first touch.
 
