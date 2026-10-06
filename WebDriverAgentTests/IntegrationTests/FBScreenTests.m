@@ -321,7 +321,7 @@
   return [NSJSONSerialization JSONObjectWithData:response.responseData options:0 error:nil][@"value"];
 }
 
-- (void)testScreenInfoFollowsDisplaySelectionAndReset
+- (void)testScreenInfoFollowsDisplaySelection
 {
   for (NSDictionary *screen in [FBScreen screensWithError:nil]) {
     FBConfiguration.sharedInstance.currentDisplayId = screen[@"displayId"];
@@ -343,6 +343,13 @@
       XCTAssertEqualWithAccuracy([info[@"statusBarSize"][@"width"] doubleValue], width, 1);
     }
   }
+  // tearDown restores the default display even when an assertion fails.
+}
+
+- (void)testScreenInfoFollowsDisplayReset
+{
+  // Exercise reset independently of the display-selection assertions.
+  FBConfiguration.sharedInstance.currentDisplayId = @([self unknownDisplayID]);
   FBConfiguration.sharedInstance.currentDisplayId = nil;
   XCTAssertEqualObjects([self screenInfoResponse][@"displayId"], @([FBScreen displayID]));
 }
