@@ -176,6 +176,29 @@
   [self verifyNativeCoordinatesInOrientation:UIDeviceOrientationLandscapeRight];
 }
 
+- (void)testNativeCoordinatesRejectMismatchedWindowDisplay
+{
+  NSNumber *fixtureDisplay = FBConfiguration.sharedInstance.currentDisplayId;
+  NSArray<NSNumber *> *frame = [self measurement][@"canvasWindowRect"];
+  BOOL checkedSecondaryDisplay = NO;
+  for (NSDictionary *screen in [FBScreen screensWithError:nil]) {
+    if ([screen[@"isMain"] boolValue] || [screen[@"displayId"] isEqual:fixtureDisplay]) {
+      continue;
+    }
+    checkedSecondaryDisplay = YES;
+    FBConfiguration.sharedInstance.currentDisplayId = screen[@"displayId"];
+    NSError *error = nil;
+    XCUICoordinate *coordinate = [FBElementCommands gestureCoordinateWithOffset:
+      CGVectorMake(frame[0].doubleValue + frame[2].doubleValue / 2,
+                   frame[1].doubleValue + frame[3].doubleValue / 2)
+      element:self.testedApplication error:&error];
+    XCTAssertNil(coordinate, @"A window on display %@ must not satisfy a request for display %@",
+                 fixtureDisplay, screen[@"displayId"]);
+    XCTAssertNotNil(error);
+  }
+  XCTSkipIf(!checkedSecondaryDisplay, @"Requires an available secondary display without the fixture");
+}
+
 - (void)testNativeCoordinatesAcrossFoldStates
 {
   XCUIDevice *device = XCUIDevice.sharedDevice;

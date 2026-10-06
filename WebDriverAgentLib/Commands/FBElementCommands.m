@@ -710,13 +710,16 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
       // A window coordinate keeps XCTest's display affinity and rotation intact.
       CGPoint point = CGPointMake(offset.dx, offset.dy);
       for (XCUIElement *window in [element childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+        // Resolve the window before reading its display affinity: an unresolved
+        // element may report displayID == 0.
+        (void)window.frame;
         CGRect frame = window.wdFrame;
-        if (CGRectContainsPoint(frame, point)) {
+        if (window.screen.displayID == screen.displayID && CGRectContainsPoint(frame, point)) {
           return FBCoordinateWithAnchorOffset(window, CGVectorMake(0, 0),
             CGVectorMake(point.x - frame.origin.x, point.y - frame.origin.y), error);
         }
       }
-      [[[FBErrorBuilder builder] withDescription:@"No application window contains the requested display coordinate"]
+      [[[FBErrorBuilder builder] withDescriptionFormat:@"No application window on display %lld contains the requested coordinate", screen.displayID]
         buildError:error];
       return nil;
     }
