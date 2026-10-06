@@ -22,11 +22,16 @@ specified when creating the session retains its existing priority.
 
 W3C touch actions target the selected display. Viewport, element, and pointer
 origins can be mixed within one action sequence; element offsets remain relative
-to the element's center. Element scrolling uses the visible area in the same
-coordinate space as the element frame, including on a rotated secondary display.
+to the element's center. Element origins require `currentDisplayId` to match the
+element's display; they do not override the selected display. Key-only and
+pause-only sequences do not require the selected display to be available.
+Element scrolling uses the visible area in the same
+coordinate space as the element frame, including on rotated main and secondary displays.
 WDA scrolling rejects an unavailable selected display instead of using an
-uncorrected frame. Each drag uses one converted scrolling frame; subsequent
-drags refresh the display and orientation.
+uncorrected frame. Each normalized scroll keeps its converted frame and vector
+in the same coordinate space across its drags. Keep the device orientation and
+fold state stable until the command completes; change the display setting between
+commands. Scroll-to-visible takes a fresh parent snapshot for each scroll step.
 
 This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
 

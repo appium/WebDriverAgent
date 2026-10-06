@@ -139,6 +139,13 @@
   self.measurement[@"windowSize"] = @[@(window.bounds.size.width), @(window.bounds.size.height)];
   self.measurement[@"screenSize"] = @[@(window.screen.bounds.size.width), @(window.screen.bounds.size.height)];
   self.measurement[@"scrollY"] = @(self.table.contentOffset.y);
+  NSMutableArray<NSNumber *> *fullyVisibleRows = [NSMutableArray new];
+  for (NSIndexPath *indexPath in self.table.indexPathsForVisibleRows) {
+    if (CGRectContainsRect(self.table.bounds, [self.table rectForRowAtIndexPath:indexPath])) {
+      [fullyVisibleRows addObject:@(indexPath.row)];
+    }
+  }
+  self.measurement[@"fullyVisibleRows"] = fullyVisibleRows;
   NSData *data = [NSJSONSerialization dataWithJSONObject:self.measurement
                                                options:NSJSONWritingSortedKeys
                                                  error:nil];

@@ -20,6 +20,8 @@
 
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBScrolling.h"
+#import "XCUIDevice+FBRotation.h"
+#import "XCUIDevice+FBHinge.h"
 
 @interface FBDisplayGestureTests : FBIntegrationTestCase
 @property (nonatomic) NSNumber *previousDisplayId;
@@ -32,10 +34,18 @@
 {
   [super setUp];
   self.previousDisplayId = FBConfiguration.sharedInstance.currentDisplayId;
+  if (!XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection) {
+    [self resetOrientation];
+  }
   [self launchApplication];
   [self.testedApplication.buttons[@"coordinate-probe"] tap];
   self.canvas = self.testedApplication.otherElements[@"coordinate-canvas"];
 
+  [self selectFixtureDisplay];
+}
+
+- (void)selectFixtureDisplay
+{
   // The fixture reports the screen it actually occupies. Do not assume the main
   // screen is active: Duo changes displays when its hinge changes position.
   NSArray<NSNumber *> *size = [self measurement][@"screenSize"];
@@ -187,7 +197,7 @@
   [self.testedApplication.buttons[@"Scroll"] tap];
   XCUIElement *table = self.testedApplication.tables[@"probe-table"];
   CGFloat before = [[self measurement][@"scrollY"] doubleValue];
-  // Exceeds the per-drag limit, exercising geometry refresh between drags.
+  // Exceeds the per-drag limit, exercising multiple drags in one coordinate space.
   [table fb_scrollDownByNormalizedDistance:1.0];
   XCTAssertEqual(self.testedApplication.state, XCUIApplicationStateRunningForeground);
   CGFloat after = [[self measurement][@"scrollY"] doubleValue];
@@ -222,7 +232,8 @@
   @try {
     FBConfiguration.sharedInstance.currentDisplayId = @(-1);
     NSError *error = nil;
-    XCTAssertThrowsSpecificNamed([cell fb_scrollToVisibleWithError:&error], NSException, FBInvalidArgumentException);
+    XCTAssertFalse([cell fb_scrollToVisibleWithError:&error]);
+    XCTAssertNotNil(error);
   } @finally {
     FBConfiguration.sharedInstance.currentDisplayId = displayId;
   }
@@ -239,6 +250,77 @@
   XCTAssertTrue(cell.hittable);
   XCTAssertGreaterThanOrEqual(CGRectGetMinY(cell.frame), frame[1].doubleValue - 1);
   XCTAssertLessThanOrEqual(CGRectGetMaxY(cell.frame), frame[1].doubleValue + frame[3].doubleValue + 1);
+}
+
+- (void)verifyLandscapeScrolling:(UIDeviceOrientation)orientation
+{
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection,
+            @"Foldable simulator orientations are covered by testGesturesAcrossFoldStates");
+  UIDeviceOrientation previousOrientation = XCUIDevice.sharedDevice.orientation;
+  [self addTeardownBlock:^{
+    [XCUIDevice.sharedDevice fb_setDeviceInterfaceOrientation:previousOrientation];
+  }];
+  XCTAssertTrue([[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation]);
+  [self.testedApplication.buttons[@"Scroll"] tap];
+  XCUIElement *table = self.testedApplication.tables[@"probe-table"];
+  // Choose a nearby offscreen row: the phone's landscape table is intentionally
+  // short, and this test checks coordinates rather than the 25-scroll limit.
+  NSUInteger row = (NSUInteger)ceil(table.frame.size.height / 44) + 2;
+  XCUIElement *cell = self.testedApplication.cells[[NSString stringWithFormat:@"probe-row-%lu", (unsigned long)row]];
+  NSError *error = nil;
+  XCTAssertTrue([cell fb_scrollToVisibleWithError:&error], @"%@", error);
+  XCTAssertEqual(self.testedApplication.state, XCUIApplicationStateRunningForeground);
+  XCTAssertGreaterThan([[self measurement][@"scrollY"] doubleValue], 10);
+  XCTAssertTrue([[self measurement][@"fullyVisibleRows"] containsObject:@(row)]);
+  XCTAssertTrue(cell.hittable);
+  XCTAssertGreaterThanOrEqual(CGRectGetMinY(cell.frame), CGRectGetMinY(table.frame) - 1);
+  XCTAssertLessThanOrEqual(CGRectGetMaxY(cell.frame), CGRectGetMaxY(table.frame) + 1);
+}
+
+- (void)testScrollToElementInLandscapeLeft
+{
+  [self verifyLandscapeScrolling:UIDeviceOrientationLandscapeLeft];
+}
+
+- (void)testScrollToElementInLandscapeRight
+{
+  [self verifyLandscapeScrolling:UIDeviceOrientationLandscapeRight];
+}
+
+- (void)testGesturesAcrossFoldStates
+{
+  XCUIDevice *device = XCUIDevice.sharedDevice;
+  XCTSkipIf(!device.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a foldable simulator");
+  NSError *error = nil;
+  NSNumber *originalAngle = [device fb_getSimulatedHingeAngle:&error];
+  XCTAssertNotNil(originalAngle, @"%@", error);
+  [self addTeardownBlock:^{
+    if (nil != originalAngle) {
+      [device fb_setSimulatedHingeAngle:originalAngle.doubleValue error:nil];
+    }
+  }];
+  for (NSNumber *angle in @[@0, @90, @180, @0]) {
+    [self.testedApplication terminate];
+    XCTAssertTrue([device fb_setSimulatedHingeAngle:angle.doubleValue error:&error], @"%@", error);
+    [self launchApplication];
+    [self.testedApplication.buttons[@"coordinate-probe"] tap];
+    self.canvas = self.testedApplication.otherElements[@"coordinate-canvas"];
+    [self selectFixtureDisplay];
+    NSDictionary *geometry = [self measurement];
+    NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+    NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+    CGPoint center = CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2);
+    [self performMoves:@[[self moveFrom:@"viewport" x:frame[0].doubleValue + center.x
+                                      y:frame[1].doubleValue + center.y duration:0],
+                         [self moveFrom:self.canvas x:0 y:-20 duration:200],
+                         [self moveFrom:@"pointer" x:0 y:-20 duration:200]]
+            expectedEnd:CGPointMake(center.x, center.y - 40)];
+    [self.testedApplication.buttons[@"Scroll"] tap];
+    XCUIElement *table = self.testedApplication.tables[@"probe-table"];
+    [table fb_scrollDownByNormalizedDistance:1.0];
+    XCTAssertGreaterThan([[self measurement][@"scrollY"] doubleValue], 10);
+    XCTAssertEqual(self.testedApplication.state, XCUIApplicationStateRunningForeground);
+  }
 }
 
 @end
