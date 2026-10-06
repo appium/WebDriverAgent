@@ -38,7 +38,8 @@
 
 - (void)testDisplayIndependentActionsAfterSelectedDisplayDisappears
 {
-  [self launchApplication];
+  // setUp already opens the Alerts fixture; relaunching would reset that page
+  // and break the subsequent touch tests that share it.
   NSNumber *previous = FBConfiguration.sharedInstance.currentDisplayId;
   [self addTeardownBlock:^{ FBConfiguration.sharedInstance.currentDisplayId = previous; }];
   NSArray *sequences = @[
