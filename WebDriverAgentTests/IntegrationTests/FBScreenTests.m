@@ -11,6 +11,9 @@
 #import "FBIntegrationTestCase.h"
 #import "FBConfiguration.h"
 #import "FBScreen.h"
+#import "FBRunLoopSpinner.h"
+#import "XCUIDevice+FBRotation.h"
+#import "XCUIElement.h"
 #import "FBActiveAppDetectionPoint.h"
 #import "FBExceptions.h"
 #import "FBScreenRecordingRequest.h"
@@ -349,6 +352,38 @@
   NSDictionary *info = [self screenInfoResponse];
   XCTAssertEqualObjects(info[@"error"], @"invalid argument");
   XCTAssertTrue([info[@"message"] containsString:@"Available display ids"]);
+}
+
+- (void)testScreenInfoInBothLandscapeOrientations
+{
+  XCUIElement *window = self.testedApplication.windows.firstMatch;
+  (void)window.frame;
+  XCTSkipIf(window.screen.displayID != XCUIScreen.mainScreen.displayID,
+            @"Requires the fixture on the main display");
+  [self addTeardownBlock:^{
+    [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
+  }];
+  BOOL expectsVisibleBar = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
+  for (NSNumber *orientation in @[@(UIDeviceOrientationLandscapeLeft), @(UIDeviceOrientationLandscapeRight)]) {
+    XCTAssertTrue([[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation.integerValue]);
+    __block NSDictionary *info = nil;
+    // iPad keeps its top status bar in landscape. Wait for rotation to finish
+    // rather than accepting a transient zero crop as a successful result.
+    XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
+      info = [self screenInfoResponse];
+      double width = [info[@"screenSize"][@"width"] doubleValue];
+      double height = [info[@"screenSize"][@"height"] doubleValue];
+      double barWidth = [info[@"statusBarSize"][@"width"] doubleValue];
+      double barHeight = [info[@"statusBarSize"][@"height"] doubleValue];
+      if (nil != info[@"error"] || width <= height || height <= 0) {
+        return NO;
+      }
+      if (barHeight == 0) {
+        return !expectsVisibleBar && barWidth == 0;
+      }
+      return barHeight > 0 && barHeight < height && fabs(barWidth - width) <= 1;
+    }], @"Unexpected landscape screen metadata: %@", info);
+  }
 }
 
 - (void)testScreenInfoIncludesTopStatusBarOnSingleDisplay
