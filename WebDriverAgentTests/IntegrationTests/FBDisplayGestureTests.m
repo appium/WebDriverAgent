@@ -12,6 +12,11 @@
 #import "FBConfiguration.h"
 #import "FBScreen.h"
 #import "FBExceptions.h"
+#import "FBElementCommands.h"
+
+@interface FBElementCommands (CoordinateTests)
++ (nullable XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset element:(XCUIElement *)element error:(NSError **)error;
+@end
 
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBScrolling.h"
@@ -92,6 +97,29 @@
 - (NSDictionary *)moveFrom:(id)origin x:(CGFloat)x y:(CGFloat)y duration:(NSUInteger)duration
 {
   return @{@"type": @"pointerMove", @"origin": origin, @"x": @(x), @"y": @(y), @"duration": @(duration)};
+}
+
+- (void)testNativeApplicationCoordinates
+{
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  for (NSNumber *x in @[@40, @(bounds[0].doubleValue - 40)]) {
+    for (NSNumber *y in @[@40, @(bounds[1].doubleValue - 40)]) {
+      NSUInteger count = [[self measurement][@"count"] unsignedIntegerValue];
+      NSError *error = nil;
+      XCUICoordinate *coordinate = [FBElementCommands gestureCoordinateWithOffset:
+        CGVectorMake(frame[0].doubleValue + x.doubleValue, frame[1].doubleValue + y.doubleValue)
+        element:self.testedApplication error:&error];
+      XCTAssertNotNil(coordinate);
+      XCTAssertNil(error);
+      [coordinate tap];
+      NSDictionary *result = [self measurement];
+      XCTAssertEqual([result[@"count"] unsignedIntegerValue], count + 1);
+      XCTAssertEqualWithAccuracy([result[@"last"][0] doubleValue], x.doubleValue, 1);
+      XCTAssertEqualWithAccuracy([result[@"last"][1] doubleValue], y.doubleValue, 1);
+    }
+  }
 }
 
 - (void)testViewportAndElementCorners
