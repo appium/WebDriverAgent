@@ -36,6 +36,26 @@
 
 @implementation FBW3CTouchActionsIntegrationTestsPart1
 
+- (void)testDisplayIndependentActionsAfterSelectedDisplayDisappears
+{
+  [self launchApplication];
+  NSNumber *previous = FBConfiguration.sharedInstance.currentDisplayId;
+  [self addTeardownBlock:^{ FBConfiguration.sharedInstance.currentDisplayId = previous; }];
+  NSArray *sequences = @[
+    @{@"id": @"keyboard", @"type": @"key", @"actions": @[@{@"type": @"keyDown", @"value": @"a"}, @{@"type": @"keyUp", @"value": @"a"}]},
+    @{@"id": @"finger", @"type": @"pointer", @"parameters": @{@"pointerType": @"touch"}, @"actions": @[@{@"type": @"pause", @"duration": @10}]}
+  ];
+  for (NSDictionary *sequence in sequences) {
+    for (NSNumber *display in @[@1, @987654]) {
+      FBConfiguration.sharedInstance.currentDisplayId = display;
+      NSError *error = nil;
+      FBW3CActionsSynthesizer *synthesizer = [[FBW3CActionsSynthesizer alloc] initWithActions:@[sequence] forApplication:self.testedApplication elementCache:nil error:&error];
+      XCSynthesizedEventRecord *record = [synthesizer synthesizeWithError:&error];
+      XCTAssertNotNil(record, @"Display-independent %@ should succeed: %@", sequence[@"type"], error);
+    }
+  }
+}
+
 - (void)verifyGesture:(NSArray<NSDictionary<NSString *, id> *> *)gesture orientation:(UIDeviceOrientation)orientation
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];

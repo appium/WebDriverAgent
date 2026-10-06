@@ -872,35 +872,7 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
 
 - (nullable XCSynthesizedEventRecord *)synthesizeWithError:(NSError **)error
 {
-  XCUIScreen *screen = [FBScreen currentScreenWithError:error];
-  if (nil == screen) {
-    return nil;
-  }
-  XCSynthesizedEventRecord *eventRecord;
-  self.displayCorrection = CGVectorMake(0, 0);
-  if (screen.displayID == XCUIScreen.mainScreen.displayID) {
-    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
-                                            interfaceOrientation:self.application.interfaceOrientation];
-  } else {
-    if (![XCSynthesizedEventRecord instancesRespondToSelector:@selector(initWithName:displayID:interfaceOrientation:)]) {
-      if (error) {
-        *error = [[FBErrorBuilder.builder
-                   withDescription:@"Actions on a display other than the main one are not supported by this XCTest version"] build];
-      }
-      return nil;
-    }
-    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
-                                                       displayID:(unsigned long long)screen.displayID
-                                            interfaceOrientation:self.application.interfaceOrientation];
-    // Viewport coordinates use the main display's size when rotating screenPoint.
-    // Element coordinates already use their own display. Apply this correction
-    // per gesture item so mixed origins and pointer-relative moves stay aligned.
-    XCUIScreen *mainScreen = XCUIScreen.mainScreen;
-    self.displayCorrection = FBDisplayCoordinateOffset(
-      CGSizeMake(mainScreen.bounds.size.width / mainScreen.scale, mainScreen.bounds.size.height / mainScreen.scale),
-      CGSizeMake(screen.bounds.size.width / screen.scale, screen.bounds.size.height / screen.scale),
-      eventRecord.interfaceOrientation);
-  }
+  BOOL requiresDisplay = NO;
   NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *actionsMapping = [NSMutableDictionary new];
   NSMutableArray<NSString *> *actionIds = [NSMutableArray new];
   for (NSDictionary<NSString *, id> *action in self.actions) {
@@ -932,8 +904,48 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
       continue;
     }
 
+    if ([action[FB_KEY_TYPE] isEqual:FB_ACTION_TYPE_POINTER]) {
+      for (NSDictionary *item in actionItems) {
+        if (![item[FB_ACTION_ITEM_KEY_TYPE] isEqual:FB_ACTION_ITEM_TYPE_PAUSE]) {
+          requiresDisplay = YES;
+          break;
+        }
+      }
+    }
+
     [actionIds addObject:actionId];
     [actionsMapping setObject:action forKey:actionId];
+  }
+  // Keyboard and pause-only sequences have no display coordinates. A display
+  // disappearing must not prevent these input sources from being synthesized.
+  XCUIScreen *screen = requiresDisplay ? [FBScreen currentScreenWithError:error] : XCUIScreen.mainScreen;
+  if (nil == screen) {
+    return nil;
+  }
+  XCSynthesizedEventRecord *eventRecord;
+  self.displayCorrection = CGVectorMake(0, 0);
+  if (screen.displayID == XCUIScreen.mainScreen.displayID) {
+    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
+                                            interfaceOrientation:self.application.interfaceOrientation];
+  } else {
+    if (![XCSynthesizedEventRecord instancesRespondToSelector:@selector(initWithName:displayID:interfaceOrientation:)]) {
+      if (error) {
+        *error = [[FBErrorBuilder.builder
+                   withDescription:@"Actions on a display other than the main one are not supported by this XCTest version"] build];
+      }
+      return nil;
+    }
+    eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"W3C Touch Action"
+                                                       displayID:(unsigned long long)screen.displayID
+                                            interfaceOrientation:self.application.interfaceOrientation];
+    // Viewport coordinates use the main display's size when rotating screenPoint.
+    // Element coordinates already use their own display. Apply this correction
+    // per gesture item so mixed origins and pointer-relative moves stay aligned.
+    XCUIScreen *mainScreen = XCUIScreen.mainScreen;
+    self.displayCorrection = FBDisplayCoordinateOffset(
+      CGSizeMake(mainScreen.bounds.size.width / mainScreen.scale, mainScreen.bounds.size.height / mainScreen.scale),
+      CGSizeMake(screen.bounds.size.width / screen.scale, screen.bounds.size.height / screen.scale),
+      eventRecord.interfaceOrientation);
   }
   for (NSString *actionId in actionIds.copy) {
     NSDictionary<NSString *, id> *actionDescription = [actionsMapping objectForKey:actionId];
