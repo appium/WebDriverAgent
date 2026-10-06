@@ -81,15 +81,15 @@ jobs:
         PLATFORM_VERSION: ${{matrix.test_targets.PLATFORM_VERSION}}
     - name: Prepare simulator
       id: prepareSimulator
-      uses: futureware-tech/simulator-action@v5
+      uses: futureware-tech/simulator-action@v6
       with:
         model: '${{matrix.test_targets.DEVICE_NAME}}'
         os: '${{matrix.test_targets.PLATFORM_NAME}}'
         os_version: '${{matrix.test_targets.PLATFORM_VERSION}}'
         shutdown_after_job: false
         wait_for_boot: true
-    - name: Finalize simulator boot
-      run: node Scripts/ci/wait-for-simulator-idle.mjs "${{steps.prepareSimulator.outputs.udid}}"
+        settle_timeout_seconds: 150
+        settle_cpu_threshold_percent: 30
 
     - run: npm run e2e-test
       name: Run functional tests
