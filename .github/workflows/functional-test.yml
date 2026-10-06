@@ -81,7 +81,7 @@ jobs:
         PLATFORM_VERSION: ${{matrix.test_targets.PLATFORM_VERSION}}
     - name: Prepare simulator
       id: prepareSimulator
-      uses: futureware-tech/simulator-action@v5
+      uses: futureware-tech/simulator-action@v6
       with:
         model: '${{matrix.test_targets.DEVICE_NAME}}'
         os: '${{matrix.test_targets.PLATFORM_NAME}}'
