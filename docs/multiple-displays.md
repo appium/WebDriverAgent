@@ -5,8 +5,9 @@ Set `currentDisplayId` through `POST /session/:sessionId/appium/settings` to sel
 one of these IDs. Do not assume that the main display is the currently visible
 one after folding or unfolding the device.
 
-The setting selects the display for screenshots, MJPEG frames, and newly started
-XCTest screen recordings. MJPEG follows setting changes on the existing
+The setting selects the display for screenshots and MJPEG frames, and passes the
+selected display ID to newly started XCTest screen recordings (see the
+[simulator recording limitation](#xctest-recording-on-the-duo-simulator) below). MJPEG follows setting changes on the existing
 connection; an in-progress recording keeps the display selected when it started.
 An unavailable display causes screenshots and recording requests to fail; MJPEG
 pauses frame delivery until a valid display is selected. Set `currentDisplayId`
@@ -94,9 +95,46 @@ then compare direct XCTest taps and app-recorded input before changing coordinat
 transforms. For Apple's SDK-dependent layout guidance, see
 [Prepare your app for iPhone Duo](https://developer.apple.com/videos/play/tech-talks/111461/).
 
+## XCTest recording on the Duo simulator
+
+On **iOS 27.1 (24A94401), with Xcode 27.2 beta 2**, the native XCTest
+recording path produced black video for the closed Duo's outer display.
+This reproduced after starting WDA afresh while the device was closed, as well
+as after switching from the inner display back to the outer display.
+
+The recorded native `XCTScreenRecordingRequest.screenID` was `1` for the outer
+screen and `3` for the inner screen, matching the selected IDs returned by
+`GET /wda/screens`. Simultaneous outer-display screenshots were correct at
+1398 x 2034 pixels. Nevertheless, each four-second outer recording in the fresh
+runner experiment contained only one black frame at 2006 x 2852 pixels; the
+inner-display recording contained visible content. A successful start/stop
+response is therefore insufficient to verify captured video.
+
+The failure occurs downstream of the selected ID being supplied to XCTest;
+this experiment does not identify the failing internal Apple component or
+establish behavior on other runtimes or physical devices. WDA does not remap
+display IDs to work around it. Use the MJPEG/ffmpeg recording path when affected;
+that path was verified across closed, book, and fully open poses with both MJPEG
+and H.264 output. Set `mjpegFixOrientation` to `true` if upright encoded MJPEG
+pixels are required: the default preserves the existing EXIF-oriented output.
+
+## Waiting for rotated layouts
+
+An application's reported interface orientation can update before its element
+frames settle. On an iPad simulator running iOS 26.5, the gesture fixture's Alerts
+button briefly retained transposed dimensions immediately after rotation;
+resolving an element-origin gesture during that interval missed the button.
+The same failure reproduced on the unmodified WDA baseline. Waiting for the
+fixture's expected landscape geometry resolved it; direct XCTest gesture
+controls also passed. Tests should wait for the application's expected layout
+before resolving coordinates, in addition to keeping its pose stable during a
+command. This observation does not imply that every missed gesture is an
+XCTest defect.
+
 ## Validation and feedback
 
-Duo display behavior has been tested on the iPhone Duo simulator with Xcode 27.1.
+Duo display behavior has been tested on the iPhone Duo simulator with Xcode 27.1
+and Xcode 27.2 beta 2.
 We have not had access to a physical Duo for testing. If you have access to one,
 we would appreciate [reports of its display and capture behavior](https://github.com/appium/WebDriverAgent/issues),
 including the device model, iOS/Xcode and WDA versions, selected display IDs,
