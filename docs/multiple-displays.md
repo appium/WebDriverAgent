@@ -46,6 +46,54 @@ application window on that display. Requests outside those windows fail explicit
 
 This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
 
+## Legacy SDK compatibility windows
+
+Older-SDK apps can run in a compatibility window on iPhone Duo. Selecting the
+correct `currentDisplayId` is still required, but it does not address failures
+in XCTest's handling of that compatibility layout. This is separate from sending
+a gesture to the wrong display.
+
+A controlled comparison on the **iPhone Duo simulator, iOS 27.1 (24A94401)**
+reproduced missed input without WDA. The same coordinate-probe app source was built
+with **SDK 26.5 (Xcode 26.6)** and **SDK 27.2 (Xcode 27.2 beta 2)**, using separate
+bundle IDs. Both were driven by the same Xcode 27.2 beta 2 UI-test runner. The
+runner did not link WDA, and checked that WDA's `FBScreen` class was absent.
+Only pose setup used simulated hinge injection; measured taps used public
+`XCUIElement.tap()` and `coordinate(withNormalizedOffset:).tap()` APIs.
+
+Each configuration tested the element center and four normalized positions.
+The app recorded actual canvas-local touch coordinates and a touch counter;
+returning from a tap without an XCTest error did not count as successful input.
+Closed and fully open poses were repeated with the app order reversed, and the
+second run also covered a 90-degree pose:
+
+| Duo pose | SDK 26.5: touches received / attempted | SDK 27.2: touches received / attempted |
+| --- | --- | --- |
+| Closed (0 degrees) | 10 / 10 | 10 / 10 |
+| Fully open (180 degrees) | 0 / 10 | 10 / 10 |
+| Book (90 degrees) | 0 / 5 | 5 / 5 |
+
+Successful taps differed from the expected canvas-local position by less than
+0.17 points on either axis. The old-SDK app reported a 375 x 667 logical window
+in both closed and open poses. On the inner display, XCTest reported the canvas
+frame as approximately `(469, 6.67, 136.33, 111.67)`, while the app's own window
+coordinates were `(20, 218, 335, 409)`. Different coordinate spaces can legitimately
+have different frames; the evidence of failure is the missing delivered touches,
+not the frame difference alone.
+
+This isolates the observed failure to the Apple compatibility-display,
+accessibility, or XCTest path rather than WDA's gesture-coordinate calculations.
+It does not identify the failing internal Apple component. Results are limited
+to this simulator/runtime, fixture, and SDK pair; physical Duo behavior and other
+SDK combinations remain unverified. Rebuilding the fixture with SDK 27.2 avoided
+the failure in this comparison, but is not a guarantee for every app.
+
+WDA does not apply a speculative coordinate correction for compatibility windows.
+When diagnosing a similar failure, first select the app's display explicitly,
+then compare direct XCTest taps and app-recorded input before changing coordinate
+transforms. For Apple's SDK-dependent layout guidance, see
+[Prepare your app for iPhone Duo](https://developer.apple.com/videos/play/tech-talks/111461/).
+
 ## Validation and feedback
 
 Duo display behavior has been tested on the iPhone Duo simulator with Xcode 27.1.

@@ -294,7 +294,12 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   
   if (nil != element) {
-    // Normalized element coordinates already resolve against their own display.
+    // Normalized element coordinates resolve against the element's own display.
+    // This assumes XCTest can resolve that app's coordinates correctly. On the
+    // Duo iOS 27.1 simulator, an SDK 26.5 compatibility app misses inner-display
+    // taps even in pure XCTest without WDA; the same app built with SDK 27.2 works.
+    // Do not apply the viewport offset as a workaround for this separate issue.
+    // See docs/multiple-displays.md#legacy-sdk-compatibility-windows for evidence.
     self.usesDisplayCorrection = NO;
     if (nil == x && nil == y) {
       return [self hitpointWithElement:element positionOffset:nil error:error];
