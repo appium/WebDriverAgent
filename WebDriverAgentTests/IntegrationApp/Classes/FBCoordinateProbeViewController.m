@@ -106,6 +106,17 @@
   [self.view addSubview:self.table];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  self.measurement[@"rotationInProgress"] = @YES;
+  [self publishMeasurement];
+  [coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+    self.measurement[@"rotationInProgress"] = @NO;
+    [self publishMeasurement];
+  }];
+}
+
 - (void)viewDidLayoutSubviews
 {
   [super viewDidLayoutSubviews];

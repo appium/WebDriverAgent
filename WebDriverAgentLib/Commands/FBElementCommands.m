@@ -9,6 +9,8 @@
 #import "FBElementCommands.h"
 
 #import "FBConfiguration.h"
+#import "FBScreen.h"
+#import "XCUIScreen.h"
 #import "FBKeyboard.h"
 #import "FBRoute.h"
 #import "FBRouteRequest.h"
@@ -698,7 +700,32 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
                                                   element:(XCUIElement *)element
                                                     error:(NSError **)error
 {
-  return FBCoordinateWithAnchorOffset(element, CGVectorMake(0, 0), offset, error);
+  if (element.elementType != XCUIElementTypeApplication) {
+    return FBCoordinateWithAnchorOffset(element, CGVectorMake(0, 0), offset, error);
+  }
+  XCUIScreen *screen = [FBScreen currentScreenWithError:error];
+  if (nil == screen) {
+    return nil;
+  }
+  if (screen.displayID == XCUIScreen.mainScreen.displayID) {
+    return FBCoordinateWithAnchorOffset(element, CGVectorMake(0, 0), offset, error);
+  }
+  // Application-root coordinates are rotated using the main display on Duo.
+  // A window coordinate keeps XCTest's display affinity and rotation intact.
+  CGPoint point = CGPointMake(offset.dx, offset.dy);
+  for (XCUIElement *window in [element childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
+    // Resolve the window before reading its display affinity: an unresolved
+    // element may report displayID == 0.
+    (void)window.frame;
+    CGRect frame = window.wdFrame;
+    if (window.screen.displayID == screen.displayID && CGRectContainsPoint(frame, point)) {
+      return FBCoordinateWithAnchorOffset(window, CGVectorMake(0, 0),
+        CGVectorMake(point.x - frame.origin.x, point.y - frame.origin.y), error);
+    }
+  }
+  [[[FBErrorBuilder builder] withDescriptionFormat:@"No application window on display %lld contains the requested coordinate", screen.displayID]
+    buildError:error];
+  return nil;
 }
 
 /**

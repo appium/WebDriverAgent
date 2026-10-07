@@ -11,7 +11,13 @@
 #import "FBIntegrationTestCase.h"
 #import "FBConfiguration.h"
 #import "FBScreen.h"
+#import "FBRunLoopSpinner.h"
 #import "FBExceptions.h"
+#import "FBElementCommands.h"
+
+@interface FBElementCommands (CoordinateTests)
++ (nullable XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset element:(XCUIElement *)element error:(NSError **)error;
+@end
 
 #import "XCUIApplication+FBTouchAction.h"
 #import "XCUIElement+FBScrolling.h"
@@ -102,6 +108,117 @@
 - (NSDictionary *)moveFrom:(id)origin x:(CGFloat)x y:(CGFloat)y duration:(NSUInteger)duration
 {
   return @{@"type": @"pointerMove", @"origin": origin, @"x": @(x), @"y": @(y), @"duration": @(duration)};
+}
+
+- (void)verifyNativeApplicationCoordinates
+{
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  for (NSNumber *x in @[@40, @(bounds[0].doubleValue - 40)]) {
+    for (NSNumber *y in @[@40, @(bounds[1].doubleValue - 40)]) {
+      NSUInteger count = [[self measurement][@"count"] unsignedIntegerValue];
+      NSError *error = nil;
+      XCUICoordinate *coordinate = [FBElementCommands gestureCoordinateWithOffset:
+        CGVectorMake(frame[0].doubleValue + x.doubleValue, frame[1].doubleValue + y.doubleValue)
+        element:self.testedApplication error:&error];
+      XCTAssertNotNil(coordinate);
+      XCTAssertNil(error);
+      [coordinate tap];
+      NSDictionary *result = [self measurement];
+      XCTAssertEqual([result[@"count"] unsignedIntegerValue], count + 1);
+      XCTAssertEqualWithAccuracy([result[@"last"][0] doubleValue], x.doubleValue, 1);
+      XCTAssertEqualWithAccuracy([result[@"last"][1] doubleValue], y.doubleValue, 1);
+    }
+  }
+}
+
+- (void)testNativeApplicationCoordinates
+{
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)testNativeMainDisplayDefaultCoordinates
+{
+  XCTSkipIf(FBConfiguration.sharedInstance.currentDisplayId.longLongValue != [FBScreen displayID],
+            @"Requires the fixture on the main display");
+  FBConfiguration.sharedInstance.currentDisplayId = nil;
+  [self verifyNativeApplicationCoordinates];
+  FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)verifyNativeCoordinatesInOrientation:(UIDeviceOrientation)orientation
+{
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection,
+            @"Foldable orientations are covered by testNativeCoordinatesAcrossFoldStates");
+  UIDeviceOrientation previousOrientation = XCUIDevice.sharedDevice.orientation;
+  [self addTeardownBlock:^{
+    [XCUIDevice.sharedDevice fb_setDeviceInterfaceOrientation:previousOrientation];
+  }];
+  XCTAssertTrue([XCUIDevice.sharedDevice fb_setDeviceInterfaceOrientation:orientation]);
+  XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
+    NSDictionary *geometry = [self measurement];
+    NSArray<NSNumber *> *size = geometry[@"windowSize"];
+    return size[0].doubleValue > size[1].doubleValue
+      && ![geometry[@"rotationInProgress"] boolValue];
+  }]);
+  [self verifyNativeApplicationCoordinates];
+}
+
+- (void)testNativeCoordinatesInLandscapeLeft
+{
+  [self verifyNativeCoordinatesInOrientation:UIDeviceOrientationLandscapeLeft];
+}
+
+- (void)testNativeCoordinatesInLandscapeRight
+{
+  [self verifyNativeCoordinatesInOrientation:UIDeviceOrientationLandscapeRight];
+}
+
+- (void)testNativeCoordinatesRejectMismatchedWindowDisplay
+{
+  NSNumber *fixtureDisplay = FBConfiguration.sharedInstance.currentDisplayId;
+  NSArray<NSNumber *> *frame = [self measurement][@"canvasWindowRect"];
+  BOOL checkedSecondaryDisplay = NO;
+  for (NSDictionary *screen in [FBScreen screensWithError:nil]) {
+    if ([screen[@"isMain"] boolValue] || [screen[@"displayId"] isEqual:fixtureDisplay]) {
+      continue;
+    }
+    checkedSecondaryDisplay = YES;
+    FBConfiguration.sharedInstance.currentDisplayId = screen[@"displayId"];
+    NSError *error = nil;
+    XCUICoordinate *coordinate = [FBElementCommands gestureCoordinateWithOffset:
+      CGVectorMake(frame[0].doubleValue + frame[2].doubleValue / 2,
+                   frame[1].doubleValue + frame[3].doubleValue / 2)
+      element:self.testedApplication error:&error];
+    XCTAssertNil(coordinate, @"A window on display %@ must not satisfy a request for display %@",
+                 fixtureDisplay, screen[@"displayId"]);
+    XCTAssertNotNil(error);
+  }
+  XCTSkipIf(!checkedSecondaryDisplay, @"Requires an available secondary display without the fixture");
+}
+
+- (void)testNativeCoordinatesAcrossFoldStates
+{
+  XCUIDevice *device = XCUIDevice.sharedDevice;
+  XCTSkipIf(!device.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a foldable simulator");
+  NSError *error = nil;
+  NSNumber *originalAngle = [device fb_getSimulatedHingeAngle:&error];
+  XCTAssertNotNil(originalAngle, @"%@", error);
+  [self addTeardownBlock:^{
+    if (nil != originalAngle) {
+      [device fb_setSimulatedHingeAngle:originalAngle.doubleValue error:nil];
+    }
+  }];
+  for (NSNumber *angle in @[@0, @90, @180, @0]) {
+    [self.testedApplication terminate];
+    XCTAssertTrue([device fb_setSimulatedHingeAngle:angle.doubleValue error:&error], @"%@", error);
+    [self launchApplication];
+    [self.testedApplication.buttons[@"coordinate-probe"] tap];
+    [self selectFixtureDisplay];
+    [self verifyNativeApplicationCoordinates];
+  }
 }
 
 - (void)testViewportAndElementCorners
