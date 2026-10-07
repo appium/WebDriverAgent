@@ -1,3 +1,10 @@
+## [16.14.1](https://github.com/appium/WebDriverAgent/compare/v16.14.0...v16.14.1) (2026-10-07)
+
+### Bug Fixes
+
+* report geometry for the selected display ([#1291](https://github.com/appium/WebDriverAgent/issues/1291)) ([43fa6da](https://github.com/appium/WebDriverAgent/commit/43fa6da647fb8adca21fdbd106d8f73d782d6717))
+* skip accessibility idle checks for WebKit services ([#1293](https://github.com/appium/WebDriverAgent/issues/1293)) ([9d06611](https://github.com/appium/WebDriverAgent/commit/9d06611d1f5d342fd16458f707dca3f3e3ec00fc))
+
 ## [16.14.0](https://github.com/appium/WebDriverAgent/compare/v16.13.6...v16.14.0) (2026-10-04)
 
 ### Features
