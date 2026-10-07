@@ -13,6 +13,14 @@ pauses frame delivery until a valid display is selected. Set `currentDisplayId`
 to `null` to restore the main display. WDA does not automatically switch this
 setting when the device changes pose.
 
+`GET /wda/screen` also follows `currentDisplayId`: `displayId` and `scale`
+belong to the selected screen, and `screenSize` is its size in logical pixels,
+adjusted to the active application's orientation. Unavailable selections return
+an error. The status bar must belong to that display and be visible at its top.
+Hidden containers and side-mounted status UI do not define a top-edge crop;
+`statusBarSize` is zero when no such bar is present. Clients should refresh this
+information after display, orientation, or status-bar changes.
+
 The XCTest point lookup used by WDA has no display argument, including in the
 Xcode 27.1 interfaces checked for this change. When a secondary display is
 selected, WDA uses its active-app fallback instead of that main-display lookup.

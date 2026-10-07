@@ -34,6 +34,7 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
+#import "XCUIScreen.h"
 #import "FBUnattachedAppLauncher.h"
 
 @implementation FBCustomCommands
@@ -162,16 +163,40 @@
 
 + (id<FBResponsePayload>)handleGetScreen:(FBRouteRequest *)request
 {
+  NSError *error = nil;
+  XCUIScreen *screen = [FBScreen currentScreenWithError:&error];
+  if (nil == screen) {
+    return FBResponseWithStatus([FBCommandStatus invalidArgumentErrorWithMessage:error.localizedDescription
+                                                                     traceback:nil]);
+  }
   XCUIApplication *app = XCUIApplication.fb_systemApplication;
-
-  XCUIElement *mainStatusBar = app.statusBars.allElementsBoundByIndex.firstObject;
-  CGSize statusBarSize = (nil == mainStatusBar) ? CGSizeZero : mainStatusBar.frame.size;
-
-#if TARGET_OS_TV || TARGET_OS_WATCH
-  CGSize screenSize = app.frame.size;
-#else
-  CGSize screenSize = FBAdjustDimensionsForApplication(app.wdFrame.size, app.interfaceOrientation);
+  CGSize screenSize = CGSizeMake(CGRectGetWidth(screen.bounds) / screen.scale,
+                                 CGRectGetHeight(screen.bounds) / screen.scale);
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+  XCUIApplication *activeApp = request.session ? request.session.activeApplication : XCUIApplication.fb_activeApplication;
+  screenSize = FBAdjustDimensionsForApplication(screenSize, activeApp.interfaceOrientation);
 #endif
+
+  // SpringBoard can expose hidden status bars belonging to other displays, and
+  // Duo also exposes full-screen containers for its side-mounted status UI.
+  // Only a visible horizontal bar at the top of this display can be subtracted
+  // from a rectangular viewport.
+  CGSize statusBarSize = CGSizeZero;
+  for (XCUIElement *statusBar in app.statusBars.allElementsBoundByIndex) {
+    // Resolve the element before reading its screen: displayID can be zero on
+    // an unresolved query result even when the bar belongs to the main screen.
+    CGRect frame = statusBar.frame;
+    if (statusBar.screen.displayID != screen.displayID || !statusBar.fb_isVisible) {
+      continue;
+    }
+    if (fabs(CGRectGetMinY(frame)) <= 1 && fabs(CGRectGetMinX(frame)) <= 1
+        && fabs(CGRectGetWidth(frame) - screenSize.width) <= 1
+        && CGRectGetHeight(frame) > 0 && CGRectGetHeight(frame) < screenSize.height
+        && CGRectGetHeight(frame) < CGRectGetWidth(frame)) {
+      statusBarSize = frame.size;
+      break;
+    }
+  }
 
   return FBResponseWithObject(
                               @{
@@ -181,8 +206,8 @@
     @"statusBarSize": @{@"width": @(statusBarSize.width),
                         @"height": @(statusBarSize.height),
     },
-    @"displayId": @([FBScreen displayID]),
-    @"scale": @([FBScreen scale]),
+    @"displayId": @(screen.displayID),
+    @"scale": @(screen.scale),
   });
 }
 
