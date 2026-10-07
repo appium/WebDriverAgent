@@ -50,8 +50,11 @@ in the same coordinate space across its drags. Keep the device orientation and
 fold state stable until the command completes; change the display setting between
 commands. Scroll-to-visible takes a fresh parent snapshot for each scroll step.
 
-Native application-root coordinates on a secondary display require a containing
-application window on that display. Requests outside those windows fail explicitly.
+Native application-root coordinates on a secondary display require a
+non-empty application window on that display as a coordinate anchor. Edge and
+outside coordinates are preserved, as on the main display; XCTest determines
+how the gesture is delivered. No hit testing or clamping is performed here.
+Requests fail if no such window exists on the selected display.
 
 This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/pull/1269).
 

@@ -143,9 +143,49 @@
   }
 }
 
+- (void)verifyNativeEdgeCoordinates
+{
+  NSArray<NSNumber *> *size = [self measurement][@"windowSize"];
+  CGFloat width = size[0].doubleValue;
+  CGFloat height = size[1].doubleValue;
+  NSError *error = nil;
+  XCUICoordinate *center = [FBElementCommands gestureCoordinateWithOffset:CGVectorMake(width / 2, height / 2)
+                                                               element:self.testedApplication error:&error];
+  XCTAssertNotNil(center);
+  XCTAssertNil(error);
+  for (NSValue *value in @[
+    [NSValue valueWithCGPoint:CGPointMake(width, height / 2)],
+    [NSValue valueWithCGPoint:CGPointMake(width / 2, height)],
+    [NSValue valueWithCGPoint:CGPointMake(width + 30, height / 2)],
+    [NSValue valueWithCGPoint:CGPointMake(width / 2, height + 30)],
+    [NSValue valueWithCGPoint:CGPointMake(-30, height / 2)],
+    [NSValue valueWithCGPoint:CGPointMake(width / 2, -30)],
+  ]) {
+    CGPoint point = value.CGPointValue;
+    error = nil;
+    XCUICoordinate *coordinate = [FBElementCommands gestureCoordinateWithOffset:CGVectorMake(point.x, point.y)
+                                                                     element:self.testedApplication error:&error];
+    XCTAssertNotNil(coordinate, @"%@", error);
+    XCTAssertNil(error);
+    if (nil == coordinate) {
+      continue;
+    }
+    // Check extrapolation, not just acceptance: boundary points must not clamp.
+    CGPoint expected = [center coordinateWithOffset:CGVectorMake(point.x - width / 2, point.y - height / 2)].screenPoint;
+    XCTAssertEqualWithAccuracy(coordinate.screenPoint.x, expected.x, 1);
+    XCTAssertEqualWithAccuracy(coordinate.screenPoint.y, expected.y, 1);
+  }
+}
+
+- (void)testNativeEdgeCoordinates
+{
+  [self verifyNativeEdgeCoordinates];
+}
+
 - (void)testNativeApplicationCoordinates
 {
   [self verifyNativeApplicationCoordinates];
+  [self verifyNativeEdgeCoordinates];
 }
 
 - (void)testNativeMainDisplayDefaultCoordinates
@@ -156,6 +196,7 @@
   [self verifyNativeApplicationCoordinates];
   FBConfiguration.sharedInstance.currentDisplayId = @([FBScreen displayID]);
   [self verifyNativeApplicationCoordinates];
+  [self verifyNativeEdgeCoordinates];
 }
 
 - (void)verifyNativeCoordinatesInOrientation:(UIDeviceOrientation)orientation
@@ -174,6 +215,7 @@
       && ![geometry[@"rotationInProgress"] boolValue];
   }]);
   [self verifyNativeApplicationCoordinates];
+  [self verifyNativeEdgeCoordinates];
 }
 
 - (void)testNativeCoordinatesInLandscapeLeft
@@ -228,6 +270,7 @@
     [self.testedApplication.buttons[@"coordinate-probe"] tap];
     [self selectFixtureDisplay];
     [self verifyNativeApplicationCoordinates];
+    [self verifyNativeEdgeCoordinates];
   }
 }
 

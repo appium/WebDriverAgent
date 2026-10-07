@@ -712,18 +712,20 @@ static const NSInteger DEFAULT_MAX_PICKER_ATTEMPTS = 25;
   }
   // Application-root coordinates are rotated using the main display on Duo.
   // A window coordinate keeps XCTest's display affinity and rotation intact.
+  // It is only a coordinate anchor, not a hit-test boundary. Preserve edge and
+  // outside offsets just as on the main display; XCTest handles their delivery.
   CGPoint point = CGPointMake(offset.dx, offset.dy);
   for (XCUIElement *window in [element childrenMatchingType:XCUIElementTypeWindow].allElementsBoundByIndex) {
     // Resolve the window before reading its display affinity: an unresolved
     // element may report displayID == 0.
     (void)window.frame;
     CGRect frame = window.wdFrame;
-    if (window.screen.displayID == screen.displayID && CGRectContainsPoint(frame, point)) {
+    if (window.screen.displayID == screen.displayID && !CGRectIsEmpty(frame)) {
       return FBCoordinateWithAnchorOffset(window, CGVectorMake(0, 0),
         CGVectorMake(point.x - frame.origin.x, point.y - frame.origin.y), error);
     }
   }
-  [[[FBErrorBuilder builder] withDescriptionFormat:@"No application window on display %lld contains the requested coordinate", screen.displayID]
+  [[[FBErrorBuilder builder] withDescriptionFormat:@"No non-empty application window on display %lld is available as a coordinate anchor", screen.displayID]
     buildError:error];
   return nil;
 }
