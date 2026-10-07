@@ -60,6 +60,12 @@
 - (void)verifyGesture:(NSArray<NSDictionary<NSString *, id> *> *)gesture orientation:(UIDeviceOrientation)orientation
 {
   [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation];
+  // XCTest may report the new interface orientation while the Alerts button
+  // still has transposed geometry from the rotation transition. The fixture's
+  // button is wider than it is tall in every settled orientation. Wait for that
+  // layout before resolving the W3C action's element-origin coordinates.
+  XCUIElement *button = self.testedApplication.buttons[FBShowAlertButtonName];
+  FBAssertWaitTillBecomesTrue(CGRectGetWidth(button.frame) > CGRectGetHeight(button.frame));
   NSError *error;
   XCTAssertTrue([self.testedApplication fb_performW3CActions:gesture elementCache:nil error:&error]);
   FBAssertWaitTillBecomesTrue(self.testedApplication.alerts.count > 0);
