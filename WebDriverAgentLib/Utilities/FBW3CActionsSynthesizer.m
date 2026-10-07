@@ -172,6 +172,27 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
                                   positionOffset:(nullable NSValue *)positionOffset
                                            error:(NSError **)error
 {
+  XCUIScreen *screen = nil;
+  if (element.elementType == XCUIElementTypeApplication) {
+    screen = [FBScreen currentScreenWithError:error];
+    if (nil == screen) {
+      return nil;
+    }
+  }
+  if (nil != screen && screen.displayID != XCUIScreen.mainScreen.displayID) {
+    // Unlike ordinary elements, application-root coordinates rotate using the
+    // main display. Resolve the client-visible rect's center into viewport
+    // coordinates, then let screenPoint apply the selected-display correction.
+    // Do not use a normalized app center: XCTest may report a portrait app rect
+    // for a landscape window, so its normalized center uses a different space.
+    CGRect frame = element.wdFrame;
+    if (CGRectIsEmpty(frame)) {
+      return [super hitpointWithElement:element positionOffset:positionOffset error:error];
+    }
+    CGPoint offset = nil == positionOffset ? CGPointZero : positionOffset.CGPointValue;
+    CGPoint point = CGPointMake(CGRectGetMidX(frame) + offset.x, CGRectGetMidY(frame) + offset.y);
+    return [super hitpointWithElement:nil positionOffset:[NSValue valueWithCGPoint:point] error:error];
+  }
   if (nil == element || nil == positionOffset) {
     return [super hitpointWithElement:element positionOffset:positionOffset error:error];
   }
@@ -294,13 +315,14 @@ static NSString *const FB_KEY_ACTIONS = @"actions";
   }
   
   if (nil != element) {
-    // Normalized element coordinates resolve against the element's own display.
+    // Application origins are converted to viewport coordinates above and need
+    // its display correction. Ordinary element anchors use their own display.
     // This assumes XCTest can resolve that app's coordinates correctly. On the
     // Duo iOS 27.1 simulator, an SDK 26.5 compatibility app misses inner-display
     // taps even in pure XCTest without WDA; the same app built with SDK 27.2 works.
     // Do not apply the viewport offset as a workaround for this separate issue.
     // See docs/multiple-displays.md#legacy-sdk-compatibility-windows for evidence.
-    self.usesDisplayCorrection = NO;
+    self.usesDisplayCorrection = element.elementType == XCUIElementTypeApplication;
     if (nil == x && nil == y) {
       return [self hitpointWithElement:element positionOffset:nil error:error];
     }

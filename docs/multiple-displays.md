@@ -34,6 +34,14 @@ origins can be mixed within one action sequence; element offsets remain relative
 to the element's center. Element origins require `currentDisplayId` to match the
 element's display; they do not override the selected display. Key-only and
 pause-only sequences do not require the selected display to be available.
+For an application-element origin on a secondary display, compute offsets from
+its returned element rect, just as for any other element. XCTest may report that
+rect with dimensions transposed relative to the application's window; WDA uses
+the returned rect's center plus the requested offset as a viewport point and
+applies the selected-display correction. Do not substitute the window's center
+when calculating an offset for an application-element origin. This is separate
+from the older-SDK compatibility issue below. Main-display application origins
+retain their existing behavior.
 Element scrolling uses the visible area in the same
 coordinate space as the element frame, including on rotated main and secondary displays.
 WDA scrolling rejects an unavailable selected display instead of using an

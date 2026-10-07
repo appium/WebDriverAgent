@@ -14,6 +14,8 @@
 #import "FBRunLoopSpinner.h"
 #import "FBExceptions.h"
 #import "FBElementCommands.h"
+#import "FBElementCache.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 @interface FBElementCommands (CoordinateTests)
 + (nullable XCUICoordinate *)gestureCoordinateWithOffset:(CGVector)offset element:(XCUIElement *)element error:(NSError **)error;
@@ -27,6 +29,7 @@
 @interface FBDisplayGestureTests : FBIntegrationTestCase
 @property (nonatomic) NSNumber *previousDisplayId;
 @property (nonatomic) XCUIElement *canvas;
+@property (nonatomic) FBElementCache *actionElementCache;
 @end
 
 @implementation FBDisplayGestureTests
@@ -35,6 +38,7 @@
 {
   [super setUp];
   self.previousDisplayId = FBConfiguration.sharedInstance.currentDisplayId;
+  self.actionElementCache = nil;
   if (!XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection) {
     [self resetOrientation];
   }
@@ -96,8 +100,9 @@
   NSArray *actions = @[@{
     @"type": @"pointer", @"id": @"finger", @"parameters": @{@"pointerType": @"touch"}, @"actions": items,
   }];
-  XCTAssertTrue([self.testedApplication fb_performW3CActions:actions elementCache:nil error:&error], @"%@", error);
+  XCTAssertTrue([self.testedApplication fb_performW3CActions:actions elementCache:self.actionElementCache error:&error], @"%@", error);
   NSDictionary *result = [self measurement];
+  NSLog(@"W3C_DELIVERED expected=%@ actual=%@ count=%@ phase=%@", NSStringFromCGPoint(expected), result[@"last"], result[@"count"], result[@"phase"]);
   XCTAssertEqual([result[@"count"] unsignedIntegerValue], count + 1);
   XCTAssertEqualObjects(result[@"phase"], @"ended");
   NSArray<NSNumber *> *actual = result[@"last"];
@@ -107,6 +112,11 @@
 
 - (NSDictionary *)moveFrom:(id)origin x:(CGFloat)x y:(CGFloat)y duration:(NSUInteger)duration
 {
+  if (nil != self.actionElementCache && [origin isKindOfClass:XCUIElement.class]) {
+    NSString *uuid = [self.actionElementCache storeElement:origin];
+    XCTAssertNotNil(uuid);
+    origin = @{@"element-6066-11e4-a52e-4f735466cecf": uuid};
+  }
   return @{@"type": @"pointerMove", @"origin": origin, @"x": @(x), @"y": @(y), @"duration": @(duration)};
 }
 
@@ -218,6 +228,79 @@
     [self.testedApplication.buttons[@"coordinate-probe"] tap];
     [self selectFixtureDisplay];
     [self verifyNativeApplicationCoordinates];
+  }
+}
+
+- (void)verifyW3CApplicationOrigin
+{
+  // Resolve serialized element IDs through the same cache as the HTTP API.
+  // Passing raw XCTest objects can hide application-root coordinate errors.
+  self.actionElementCache = [FBElementCache new];
+  NSDictionary *geometry = [self measurement];
+  NSArray<NSNumber *> *bounds = geometry[@"canvasBounds"];
+  NSArray<NSNumber *> *frame = geometry[@"canvasWindowRect"];
+  CGPoint local = CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2 - 20);
+  CGPoint target = CGPointMake(frame[0].doubleValue + local.x, frame[1].doubleValue + local.y);
+  // Use the same rect a client receives, not the window's differently oriented
+  // frame. On Duo the app rect may still have transposed dimensions.
+  CGRect appRect = self.testedApplication.wdFrame;
+  NSDictionary *appMove = [self moveFrom:self.testedApplication
+                                     x:target.x - CGRectGetMidX(appRect)
+                                     y:target.y - CGRectGetMidY(appRect) duration:0];
+  [self performMoves:@[[self moveFrom:@"viewport" x:target.x y:target.y duration:0]] expectedEnd:local];
+  [self performMoves:@[[self moveFrom:self.canvas x:local.x - bounds[0].doubleValue / 2
+                                   y:local.y - bounds[1].doubleValue / 2 duration:0]] expectedEnd:local];
+  NSLog(@"W3C_APPLICATION_ORIGIN display=%@ app=%@ window=%@ target=%@", FBConfiguration.sharedInstance.currentDisplayId,
+        NSStringFromCGRect(appRect), NSStringFromCGRect(self.testedApplication.windows.firstMatch.frame), NSStringFromCGPoint(target));
+  [self performMoves:@[appMove] expectedEnd:local];
+  [self performMoves:@[appMove, [self moveFrom:@"pointer" x:0 y:-20 duration:200]]
+          expectedEnd:CGPointMake(local.x, local.y - 20)];
+  NSMutableDictionary *appDrag = appMove.mutableCopy;
+  appDrag[@"duration"] = @200;
+  [self performMoves:@[[self moveFrom:self.canvas x:0 y:0 duration:0], appDrag,
+                      [self moveFrom:@"pointer" x:0 y:-20 duration:200]]
+          expectedEnd:CGPointMake(local.x, local.y - 20)];
+  [self performMoves:@[appMove, [self moveFrom:self.canvas x:0 y:-40 duration:200],
+                      [self moveFrom:@"pointer" x:0 y:-20 duration:200]]
+          expectedEnd:CGPointMake(bounds[0].doubleValue / 2, bounds[1].doubleValue / 2 - 60)];
+}
+
+- (void)testW3CApplicationOrigin
+{
+  [self verifyW3CApplicationOrigin];
+}
+
+- (void)testW3CApplicationOriginAcrossOrientations
+{
+  XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection, @"Covered by fold states");
+  [self addTeardownBlock:^{ [self resetOrientation]; }];
+  for (NSNumber *orientation in @[@(UIDeviceOrientationLandscapeLeft), @(UIDeviceOrientationLandscapeRight)]) {
+    [self resetOrientation];
+    XCTAssertTrue([[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation.integerValue]);
+    [self verifyW3CApplicationOrigin];
+  }
+}
+
+- (void)testW3CApplicationOriginAcrossFoldStates
+{
+  XCUIDevice *device = XCUIDevice.sharedDevice;
+  XCTSkipIf(!device.fb_canAttemptSimulatedHingeAngleInjection, @"Requires a foldable simulator");
+  NSError *error = nil;
+  NSNumber *originalAngle = [device fb_getSimulatedHingeAngle:&error];
+  XCTAssertNotNil(originalAngle);
+  [self addTeardownBlock:^{ if (nil != originalAngle) { [device fb_setSimulatedHingeAngle:originalAngle.doubleValue error:nil]; } }];
+  for (NSNumber *angle in @[@0, @180, @90, @0]) {
+    [self.testedApplication terminate];
+    XCTAssertTrue([device fb_setSimulatedHingeAngle:angle.doubleValue error:&error], @"%@", error);
+    XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
+      NSNumber *reading = [device fb_getSimulatedHingeAngle:nil];
+      return nil != reading && fabs(reading.doubleValue - angle.doubleValue) < 1;
+    }]);
+    [self launchApplication];
+    [self.testedApplication.buttons[@"coordinate-probe"] tap];
+    self.canvas = self.testedApplication.otherElements[@"coordinate-canvas"];
+    [self selectFixtureDisplay];
+    [self verifyW3CApplicationOrigin];
   }
 }
 
