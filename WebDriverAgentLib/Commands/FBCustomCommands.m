@@ -174,7 +174,14 @@
                                  CGRectGetHeight(screen.bounds) / screen.scale);
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
   XCUIApplication *activeApp = request.session ? request.session.activeApplication : XCUIApplication.fb_activeApplication;
-  screenSize = FBAdjustDimensionsForApplication(screenSize, activeApp.interfaceOrientation);
+  UIInterfaceOrientation orientation = activeApp.interfaceOrientation;
+  // Screen bounds describe the panel's native orientation. Some physical iPads
+  // expose landscape-native bounds even while the application is in portrait.
+  // Normalize the full screen separately from compatibility-mode app frames.
+  if (UIInterfaceOrientationIsPortrait(orientation) && screenSize.width > screenSize.height) {
+    screenSize = CGSizeMake(screenSize.height, screenSize.width);
+  }
+  screenSize = FBAdjustDimensionsForApplication(screenSize, orientation);
 #endif
 
   // SpringBoard can expose hidden status bars belonging to other displays, and

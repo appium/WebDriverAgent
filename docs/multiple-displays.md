@@ -72,7 +72,7 @@ second run also covered a 90-degree pose:
 | --- | --- | --- |
 | Closed (0 degrees) | 10 / 10 | 10 / 10 |
 | Fully open (180 degrees) | 0 / 10 | 10 / 10 |
-| Book (90 degrees) | 0 / 5 | 5 / 5 |
+| Book (90 degrees, approached from fully open) | 0 / 5 | 5 / 5 |
 
 Successful taps differed from the expected canvas-local position by less than
 0.17 points on either axis. The old-SDK app reported a 375 x 667 logical window
@@ -88,6 +88,20 @@ It does not identify the failing internal Apple component. Results are limited
 to this simulator/runtime, fixture, and SDK pair; physical Duo behavior and other
 SDK combinations remain unverified. Rebuilding the fixture with SDK 27.2 avoided
 the failure in this comparison, but is not a guarantee for every app.
+
+A further round trip exercised `0 → 45 → 90 → 135 → 180 → 90 → 0`
+degrees, both with a fresh app launch at each pose and with the same app kept
+running. Each pose used three direct XCTest taps and attempted to switch to a
+scrollable table. The new-SDK fixture received all 42 taps. The old-SDK fixture
+received 24 of 42: taps worked at 0, 45, and 90 degrees while opening and after
+returning to 0, but none arrived at 135, 180, or 90 degrees while closing. In
+those failing states, the direct XCTest tap could not even select the Scroll
+segment. The old-SDK fixture entered scroll mode and scrolled in all eight
+remaining cases. The new-SDK fixture entered scroll mode in all 14 cases;
+12 swipes changed the offset and the last two warm-run swipes were already at
+the end of the table. These observations cover both cold and warm transitions;
+they do not imply that a hinge angle alone determines the active display or
+whether input succeeds. In particular, the two 90-degree states differed.
 
 WDA does not apply a speculative coordinate correction for compatibility windows.
 When diagnosing a similar failure, first select the app's display explicitly,
