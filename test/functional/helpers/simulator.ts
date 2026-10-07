@@ -9,7 +9,7 @@ const LOCAL_SIM_BOOT_TIMEOUT_MS = 60 * 1000 * 5;
  * Locates the simulator these tests should run against.
  *
  * In CI, the workflow boots and settles a simulator ahead of time (via
- * `futureware-tech/simulator-action` + `Scripts/ci/wait-for-simulator-idle.mjs`) and passes its
+ * `futureware-tech/simulator-action` with `settle_timeout_seconds`) and passes its
  * UDID through `SIMULATOR_UDID` - these tests must not boot their own there, since CI applies the
  * settle-wait stability fix once per job, not once per test file.
  *
