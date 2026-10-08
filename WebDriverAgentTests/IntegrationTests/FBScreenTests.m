@@ -362,7 +362,7 @@
   XCTAssertTrue([info[@"message"] containsString:@"Available display ids"]);
 }
 
-- (void)testScreenInfoInBothLandscapeOrientations
+- (void)testScreenInfoAcrossPortraitAndLandscapeOrientations
 {
   XCTSkipIf(XCUIDevice.sharedDevice.fb_canAttemptSimulatedHingeAngleInjection,
             @"Foldable orientations are covered by testScreenInfoAcrossFoldStates");
@@ -374,25 +374,31 @@
     [[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:UIDeviceOrientationPortrait];
   }];
   BOOL expectsVisibleBar = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
-  for (NSNumber *orientation in @[@(UIDeviceOrientationLandscapeLeft), @(UIDeviceOrientationLandscapeRight)]) {
+  for (NSNumber *orientation in @[@(UIDeviceOrientationPortrait),
+                                   @(UIDeviceOrientationLandscapeLeft),
+                                   @(UIDeviceOrientationLandscapeRight),
+                                   @(UIDeviceOrientationPortrait)]) {
     XCTAssertTrue([[XCUIDevice sharedDevice] fb_setDeviceInterfaceOrientation:orientation.integerValue]);
     __block NSDictionary *info = nil;
-    // iPad keeps its top status bar in landscape. Wait for rotation to finish
-    // rather than accepting a transient zero crop as a successful result.
+    BOOL isPortrait = UIDeviceOrientationIsPortrait(orientation.integerValue);
+    // Include portrait before and after rotation: landscape-native iPad panels
+    // must swap their screen bounds back and retain the visible top status bar.
+    // Wait for rotation rather than accepting a transient zero crop.
     XCTAssertTrue([[[FBRunLoopSpinner new] timeout:5] spinUntilTrue:^BOOL {
       info = [self screenInfoResponse];
       double width = [info[@"screenSize"][@"width"] doubleValue];
       double height = [info[@"screenSize"][@"height"] doubleValue];
       double barWidth = [info[@"statusBarSize"][@"width"] doubleValue];
       double barHeight = [info[@"statusBarSize"][@"height"] doubleValue];
-      if (nil != info[@"error"] || width <= height || height <= 0) {
+      if (nil != info[@"error"] || width <= 0 || height <= 0
+          || (isPortrait ? width >= height : width <= height)) {
         return NO;
       }
       if (barHeight == 0) {
-        return !expectsVisibleBar && barWidth == 0;
+        return !expectsVisibleBar && !isPortrait && barWidth == 0;
       }
       return barHeight > 0 && barHeight < height && fabs(barWidth - width) <= 1;
-    }], @"Unexpected landscape screen metadata: %@", info);
+    }], @"Unexpected screen metadata at orientation %@: %@", orientation, info);
   }
 }
 
