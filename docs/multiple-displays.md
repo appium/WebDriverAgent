@@ -60,65 +60,23 @@ This gesture support builds on [#1269](https://github.com/appium/WebDriverAgent/
 
 ## Legacy SDK compatibility windows
 
-Older-SDK apps can run in a compatibility window on iPhone Duo. Selecting the
-correct `currentDisplayId` is still required, but it does not address failures
-in XCTest's handling of that compatibility layout. This is separate from sending
-a gesture to the wrong display.
+“Legacy SDK” here means the SDK used to build the app: the tested older app was
+built with **iOS SDK 26.5 (Xcode 26.6)** and ran in a compatibility window on
+iPhone Duo. It does not refer to the device's iOS version or the SDK used to build
+WDA. See Apple's [SDK-dependent layout guidance](https://developer.apple.com/videos/play/tech-talks/111461/).
 
-A controlled comparison on the **iPhone Duo simulator, iOS 27.1 (24A94401)**
-reproduced missed input without WDA. The same coordinate-probe app source was built
-with **SDK 26.5 (Xcode 26.6)** and **SDK 27.2 (Xcode 27.2 beta 2)**, using separate
-bundle IDs. Both were driven by the same Xcode 27.2 beta 2 UI-test runner. The
-runner did not link WDA, and checked that WDA's `FBScreen` class was absent.
-Only pose setup used simulated hinge injection; measured taps used public
-`XCUIElement.tap()` and `coordinate(withNormalizedOffset:).tap()` APIs.
+On the **iPhone Duo simulator, iOS 27.1 (24A94401), with an Xcode 27.2 beta 2
+UI-test runner**, direct XCTest element and coordinate taps failed to deliver
+input to that app in fully open and some intermediate poses. The same app source
+built with **SDK 27.2** received the taps. The failure reproduced without WDA;
+it is a known limitation observed in the Apple compatibility-layout/XCTest path,
+although the failing internal component has not been identified. Physical devices
+and other SDK/runtime combinations remain unverified.
 
-Each configuration tested the element center and four normalized positions.
-The app recorded actual canvas-local touch coordinates and a touch counter;
-returning from a tap without an XCTest error did not count as successful input.
-Closed and fully open poses were repeated with the app order reversed, and the
-second run also covered a 90-degree pose:
-
-| Duo pose | SDK 26.5: touches received / attempted | SDK 27.2: touches received / attempted |
-| --- | --- | --- |
-| Closed (0 degrees) | 10 / 10 | 10 / 10 |
-| Fully open (180 degrees) | 0 / 10 | 10 / 10 |
-| Book (90 degrees, approached from fully open) | 0 / 5 | 5 / 5 |
-
-Successful taps differed from the expected canvas-local position by less than
-0.17 points on either axis. The old-SDK app reported a 375 x 667 logical window
-in both closed and open poses. On the inner display, XCTest reported the canvas
-frame as approximately `(469, 6.67, 136.33, 111.67)`, while the app's own window
-coordinates were `(20, 218, 335, 409)`. Different coordinate spaces can legitimately
-have different frames; the evidence of failure is the missing delivered touches,
-not the frame difference alone.
-
-This isolates the observed failure to the Apple compatibility-display,
-accessibility, or XCTest path rather than WDA's gesture-coordinate calculations.
-It does not identify the failing internal Apple component. Results are limited
-to this simulator/runtime, fixture, and SDK pair; physical Duo behavior and other
-SDK combinations remain unverified. Rebuilding the fixture with SDK 27.2 avoided
-the failure in this comparison, but is not a guarantee for every app.
-
-A further round trip exercised `0 → 45 → 90 → 135 → 180 → 90 → 0`
-degrees, both with a fresh app launch at each pose and with the same app kept
-running. Each pose used three direct XCTest taps and attempted to switch to a
-scrollable table. The new-SDK fixture received all 42 taps. The old-SDK fixture
-received 24 of 42: taps worked at 0, 45, and 90 degrees while opening and after
-returning to 0, but none arrived at 135, 180, or 90 degrees while closing. In
-those failing states, the direct XCTest tap could not even select the Scroll
-segment. The old-SDK fixture entered scroll mode and scrolled in all eight
-remaining cases. The new-SDK fixture entered scroll mode in all 14 cases;
-12 swipes changed the offset and the last two warm-run swipes were already at
-the end of the table. These observations cover both cold and warm transitions;
-they do not imply that a hinge angle alone determines the active display or
-whether input succeeds. In particular, the two 90-degree states differed.
-
-WDA does not apply a speculative coordinate correction for compatibility windows.
-When diagnosing a similar failure, first select the app's display explicitly,
-then compare direct XCTest taps and app-recorded input before changing coordinate
-transforms. For Apple's SDK-dependent layout guidance, see
-[Prepare your app for iPhone Duo](https://developer.apple.com/videos/play/tech-talks/111461/).
+Select the app's `currentDisplayId` explicitly, but be aware that selecting the
+correct display does not resolve this issue. WDA does not apply a compatibility
+coordinate correction. Rebuilding with SDK 27.2 avoided the failure in the tested
+app; for diagnosis, compare direct XCTest taps with app-recorded input.
 
 ## XCTest recording on the Duo simulator
 
