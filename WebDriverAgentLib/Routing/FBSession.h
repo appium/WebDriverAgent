@@ -108,6 +108,28 @@ extern NSString* const FBSessionWasKilledNotification;
                                        environment:(nullable NSDictionary <NSString *, NSString *> *)environment;
 
 /**
+ Launch an application with given bundle identifier in scope of current session
+ and optionally make it the application under test of this session.
+
+ @param bundleIdentifier Valid bundle identifier of the application to be launched
+ @param shouldWaitForQuiescence whether to wait for quiescence on application startup.
+ If not provided then the setting of the current application under test is inherited.
+ If there is no application under test yet then quiescence is only awaited if asApplicationUnderTest is YES
+ @param arguments The optional array of application command line arguments. The arguments are going to be applied if the application was not running before.
+ @param environment The optional dictionary of environment variables for the application, which is going to be executed. The environment variables are going to be applied if the application was not running before.
+ @param asApplicationUnderTest If YES then the launched application replaces the current application under test
+ of the session (if any), the same way as if it was launched on session startup: other applications launched later
+ inherit its quiescence setting, system alerts over it are respected, its unexpected termination is reported as a crash
+ and it gets terminated on session deletion if shouldTerminateApp is enabled
+ @return The application instance
+ */
+- (XCUIApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+                           shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
+                                         arguments:(nullable NSArray<NSString *> *)arguments
+                                       environment:(nullable NSDictionary <NSString *, NSString *> *)environment
+                            asApplicationUnderTest:(BOOL)asApplicationUnderTest;
+
+/**
  Activate an application with given bundle identifier in scope of current session.
  !This method is only available since Xcode9 SDK
 
