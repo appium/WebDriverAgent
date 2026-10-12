@@ -454,6 +454,8 @@ static NSUInteger _committedTerminationCount = 0;
           && [self.class beginTerminationForGeneration:generation]) {
         @try {
           [app terminate];
+        } @catch (NSException *e) {
+          [FBLogger logFmt:@"%@", e.description];
         } @finally {
           [self.class endTermination];
         }

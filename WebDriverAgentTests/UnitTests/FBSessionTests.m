@@ -47,6 +47,18 @@ static id (^FBSystemApplicationLookup)(void);
 }
 @end
 
+@interface FBAUTTerminationFailureApplicationDouble : FBAUTLaunchApplicationDouble
+@property (nonatomic) BOOL didAttemptTermination;
+@end
+
+@implementation FBAUTTerminationFailureApplicationDouble
+- (void)terminate
+{
+  self.didAttemptTermination = YES;
+  @throw [NSException exceptionWithName:@"TerminationFailure" reason:nil userInfo:nil];
+}
+@end
+
 @interface FBAUTLaunchSession : FBSession
 @property (nonatomic, strong) FBAUTLaunchApplicationDouble *launchApplication;
 @end
@@ -152,6 +164,29 @@ static id (^FBSystemApplicationLookup)(void);
   XCTAssertTrue(app.didTerminate);
   XCTAssertNil([self.session valueForKey:@"testedApplication"]);
   XCTAssertNil(FBSession.activeSession);
+}
+
+- (void)testTerminationFailurePreservesDeletedSessionErrorAndReleasesClaim
+{
+  [self prepareAUTLaunch];
+  FBAUTTerminationFailureApplicationDouble *app = [FBAUTTerminationFailureApplicationDouble new];
+  ((FBAUTLaunchSession *)self.session).launchApplication = app;
+  FBConfiguration.sharedInstance.shouldTerminateApp = YES;
+  FBSession *session = self.session;
+  app.duringLaunch = ^{ [session kill]; };
+
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException, FBSessionDoesNotExistException);
+  XCTAssertTrue(app.didAttemptTermination);
+  XCTAssertNil([self.session valueForKey:@"testedApplication"]);
+  XCTAssertNil(FBSession.activeSession);
+
+  // Creating the next session must succeed even when cleanup termination throws.
+  // A leaked generation claim would make this fail with a session creation error.
+  FBSession *replacement = nil;
+  XCTAssertNoThrow(replacement = [FBSession initWithApplication:nil]);
+  XCTAssertNotNil(replacement);
+  XCTAssertEqual(FBSession.activeSession, replacement);
+  [replacement kill];
 }
 
 - (void)testDeletedSessionPreservesAppWhenTerminationIsDisabled
