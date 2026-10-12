@@ -401,6 +401,22 @@ static NSUInteger _committedTerminationCount = 0;
                                        environment:(nullable NSDictionary <NSString *, NSString *> *)environment
                             asApplicationUnderTest:(BOOL)asApplicationUnderTest
 {
+  NSCondition *condition = self.class.teardownCondition;
+  NSUInteger generation = 0;
+  BOOL shouldTerminateApp = NO;
+  if (asApplicationUnderTest) {
+    [condition lock];
+    BOOL isActive = self == _activeSession;
+    generation = _sessionGeneration;
+    shouldTerminateApp = FBConfiguration.sharedInstance.shouldTerminateApp;
+    [condition unlock];
+    if (!isActive) {
+      @throw [NSException exceptionWithName:FBSessionDoesNotExistException
+                                    reason:@"Session does not exist"
+                                  userInfo:nil];
+    }
+  }
+
   XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
   if (nil == shouldWaitForQuiescence) {
     // Iherit the quiescence check setting from the main app under test by default.
@@ -419,9 +435,34 @@ static NSUInteger _committedTerminationCount = 0;
     [app activate];
   }
   if (asApplicationUnderTest) {
+    BOOL waitForQuiescence = app.fb_shouldWaitForQuiescence;
+    // A DELETE can finish while launch/activate is still waiting for XCTest.
+    // Publish the AUT under the same lock that -kill uses to clear the session.
+    [condition lock];
+    BOOL isActive = self == _activeSession && generation == _sessionGeneration;
+    if (isActive) {
+      self.testedApplication = app;
+      self.shouldAppsWaitForQuiescence = waitForQuiescence;
+    }
+    [condition unlock];
+    if (!isActive) {
+      // The HTTP request may already have been abandoned, but its handler keeps
+      // running. Clean up only while this launch still owns the generation;
+      // a replacement session may already be using the same bundle identifier.
+      if (shouldTerminateApp
+          && ![app fb_isSameAppAs:[[app class] fb_systemApplication]]
+          && [self.class beginTerminationForGeneration:generation]) {
+        @try {
+          [app terminate];
+        } @finally {
+          [self.class endTermination];
+        }
+      }
+      @throw [NSException exceptionWithName:FBSessionDoesNotExistException
+                                    reason:@"Session was deleted during application launch"
+                                  userInfo:nil];
+    }
     [FBLogger logFmt:@"The application '%@' is set as the application under test", bundleIdentifier];
-    self.testedApplication = app;
-    self.shouldAppsWaitForQuiescence = app.fb_shouldWaitForQuiescence;
   }
   if ([app fb_isSameAppAs:self.testedApplication]) {
     self.isTestedApplicationExpectedToRun = YES;

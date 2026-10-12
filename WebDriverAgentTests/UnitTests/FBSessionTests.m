@@ -9,8 +9,48 @@
 #import <XCTest/XCTest.h>
 
 #import "FBSession.h"
+#import "FBSession-Private.h"
+#import "FBExceptions.h"
 #import "FBConfiguration.h"
 #import "XCUIApplicationDouble.h"
+
+// Run teardown at the exact point where launch has started but the AUT has
+// not yet been published. No wall-clock sleeps or simulator launch timing.
+@interface FBAUTLaunchApplicationDouble : XCUIApplicationDouble
+@property (nonatomic, copy) void (^duringLaunch)(void);
+@property (nonatomic, copy) NSArray *launchArguments;
+@property (nonatomic, copy) NSDictionary *launchEnvironment;
+@property (nonatomic) BOOL didLaunch;
+@end
+
+@implementation FBAUTLaunchApplicationDouble
++ (id)fb_systemApplication
+{
+  return nil;
+}
+- (void)launch
+{
+  self.didLaunch = YES;
+  if (self.duringLaunch) {
+    self.duringLaunch();
+  }
+}
+- (BOOL)fb_isSameAppAs:(id)application
+{
+  return self == application;
+}
+@end
+
+@interface FBAUTLaunchSession : FBSession
+@property (nonatomic, strong) FBAUTLaunchApplicationDouble *launchApplication;
+@end
+
+@implementation FBAUTLaunchSession
+- (XCUIApplication *)makeApplicationWithBundleId:(NSString *)bundleIdentifier
+{
+  return (id)self.launchApplication;
+}
+@end
 
 @interface FBSessionTests : XCTestCase
 @property (nonatomic, strong) FBSession *session;
@@ -31,6 +71,9 @@
 
 - (void)tearDown
 {
+  if ([self.session isKindOfClass:FBAUTLaunchSession.class]) {
+    ((FBAUTLaunchSession *)self.session).launchApplication.duringLaunch = nil;
+  }
   [self.session kill];
   FBConfiguration.sharedInstance.shouldTerminateApp = self.shouldTerminateAppValue;
   [super tearDown];
@@ -62,6 +105,82 @@
 {
   [self.session kill];
   XCTAssertNil([FBSession activeSession]);
+}
+
+- (FBAUTLaunchApplicationDouble *)prepareAUTLaunch
+{
+  FBAUTLaunchSession *session = [FBAUTLaunchSession new];
+  session.identifier = NSUUID.UUID.UUIDString;
+  session.launchApplication = [FBAUTLaunchApplicationDouble new];
+  [FBSession markSessionActive:session];
+  self.session = session;
+  return session.launchApplication;
+}
+
+- (void)launchAsAUT
+{
+  [self.session launchApplicationWithBundleId:@"com.facebook.awesome"
+                    shouldWaitForQuiescence:nil
+                                  arguments:nil
+                                environment:nil
+                     asApplicationUnderTest:YES];
+}
+
+- (void)testCompletedLaunchRegistersAUT
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  XCTAssertNoThrow([self launchAsAUT]);
+  XCTAssertEqual([self.session valueForKey:@"testedApplication"], app);
+  XCTAssertFalse(app.didTerminate);
+}
+
+- (void)testDeletedSessionCleansUpInFlightAUTLaunch
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  FBConfiguration.sharedInstance.shouldTerminateApp = YES;
+  FBSession *session = self.session;
+  app.duringLaunch = ^{ [session kill]; };
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException,
+                              FBSessionDoesNotExistException);
+  XCTAssertTrue(app.didTerminate);
+  XCTAssertNil([self.session valueForKey:@"testedApplication"]);
+  XCTAssertNil(FBSession.activeSession);
+}
+
+- (void)testDeletedSessionPreservesAppWhenTerminationIsDisabled
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  FBSession *session = self.session;
+  app.duringLaunch = ^{ [session kill]; };
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException,
+                              FBSessionDoesNotExistException);
+  XCTAssertFalse(app.didTerminate);
+}
+
+- (void)testAbandonedAUTLaunchDoesNotTerminateReplacementSessionApp
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  FBConfiguration.sharedInstance.shouldTerminateApp = YES;
+  FBSession *session = self.session;
+  __block FBSession *replacement;
+  app.duringLaunch = ^{
+    [session kill];
+    replacement = [FBSession initWithApplication:(id)app];
+  };
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException,
+                              FBSessionDoesNotExistException);
+  XCTAssertFalse(app.didTerminate);
+  XCTAssertEqual(FBSession.activeSession, replacement);
+  [replacement kill];
+}
+
+- (void)testAUTLaunchRejectsAnAlreadyDeletedSession
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  [self.session kill];
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException,
+                              FBSessionDoesNotExistException);
+  XCTAssertFalse(app.didLaunch);
 }
 
 @end
