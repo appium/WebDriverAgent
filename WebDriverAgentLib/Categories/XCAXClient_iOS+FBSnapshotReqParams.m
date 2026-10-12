@@ -109,6 +109,14 @@ static id swizzledRequestSnapshotForElement(id self, SEL _cmd, id element, id at
     return original_requestSnapshotForElement(self, _cmd, element, attributes, parameters, error);
   }
 
+  // Remote WKWebView elements belong to a WebKit service, not the host app.
+  // Sending the idle-check AX action to WebContent can crash it (#1290).
+  // Read process metadata only: resolving UI attributes here can reenter
+  // snapshotting. Leave these services on the original snapshot path.
+  if ([application.bundleID hasPrefix:@"com.apple.WebKit."]) {
+    return original_requestSnapshotForElement(self, _cmd, element, attributes, parameters, error);
+  }
+
   NSNumber *pidKey = @(pid);
   @synchronized (unresponsiveApplicationPidsLock) {
     NSDate *markedUnresponsiveAt = unresponsiveApplicationPids[pidKey];
