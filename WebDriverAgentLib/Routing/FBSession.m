@@ -43,7 +43,8 @@ static const NSTimeInterval FB_KILL_WAIT_TIMEOUT_SEC = 35.;
 NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotification";
 
 @interface FBSession ()
-@property (nullable, nonatomic) XCUIApplication *testedApplication;
+// Atomic, since /wda/apps/launch may replace it while a concurrent DELETE /session reads it in -kill
+@property (nullable, atomic) XCUIApplication *testedApplication;
 @property (nonatomic) BOOL isTestedApplicationExpectedToRun;
 @property (nonatomic) BOOL shouldAppsWaitForQuiescence;
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
@@ -387,10 +388,26 @@ static NSUInteger _committedTerminationCount = 0;
                                          arguments:(nullable NSArray<NSString *> *)arguments
                                        environment:(nullable NSDictionary <NSString *, NSString *> *)environment
 {
+  return [self launchApplicationWithBundleId:bundleIdentifier
+                     shouldWaitForQuiescence:shouldWaitForQuiescence
+                                   arguments:arguments
+                                 environment:environment
+                      asApplicationUnderTest:NO];
+}
+
+- (XCUIApplication *)launchApplicationWithBundleId:(NSString *)bundleIdentifier
+                           shouldWaitForQuiescence:(nullable NSNumber *)shouldWaitForQuiescence
+                                         arguments:(nullable NSArray<NSString *> *)arguments
+                                       environment:(nullable NSDictionary <NSString *, NSString *> *)environment
+                            asApplicationUnderTest:(BOOL)asApplicationUnderTest
+{
   XCUIApplication *app = [self makeApplicationWithBundleId:bundleIdentifier];
   if (nil == shouldWaitForQuiescence) {
-    // Iherit the quiescence check setting from the main app under test by default
-    app.fb_shouldWaitForQuiescence = nil != self.testedApplication && self.shouldAppsWaitForQuiescence;
+    // Iherit the quiescence check setting from the main app under test by default.
+    // The first app under test of the session waits for quiescence, as it would on session startup
+    app.fb_shouldWaitForQuiescence = nil == self.testedApplication
+      ? asApplicationUnderTest
+      : self.shouldAppsWaitForQuiescence;
   } else {
     app.fb_shouldWaitForQuiescence = [shouldWaitForQuiescence boolValue];
   }
@@ -400,6 +417,11 @@ static NSUInteger _committedTerminationCount = 0;
     [app launch];
   } else {
     [app activate];
+  }
+  if (asApplicationUnderTest) {
+    [FBLogger logFmt:@"The application '%@' is set as the application under test", bundleIdentifier];
+    self.testedApplication = app;
+    self.shouldAppsWaitForQuiescence = app.fb_shouldWaitForQuiescence;
   }
   if ([app fb_isSameAppAs:self.testedApplication]) {
     self.isTestedApplicationExpectedToRun = YES;

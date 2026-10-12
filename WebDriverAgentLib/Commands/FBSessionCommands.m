@@ -131,7 +131,8 @@
   [request.session launchApplicationWithBundleId:(id)request.arguments[@"bundleId"]
                          shouldWaitForQuiescence:request.arguments[@"shouldWaitForQuiescence"]
                                        arguments:request.arguments[@"arguments"]
-                                     environment:request.arguments[@"environment"]];
+                                     environment:request.arguments[@"environment"]
+                          asApplicationUnderTest:[request.arguments[@"asAppUnderTest"] boolValue]];
   return FBResponseWithOK();
 }
 
