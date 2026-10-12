@@ -14,6 +14,12 @@
 #import "FBConfiguration.h"
 #import "XCUIApplicationDouble.h"
 
+@interface FBSession (SystemApplicationTests)
+- (BOOL)fb_isApplicationSameAsSystemApp:(XCUIApplication *)application timeout:(NSTimeInterval)timeout;
+@end
+
+static id (^FBSystemApplicationLookup)(void);
+
 // Run teardown at the exact point where launch has started but the AUT has
 // not yet been published. No wall-clock sleeps or simulator launch timing.
 @interface FBAUTLaunchApplicationDouble : XCUIApplicationDouble
@@ -26,7 +32,7 @@
 @implementation FBAUTLaunchApplicationDouble
 + (id)fb_systemApplication
 {
-  return nil;
+  return FBSystemApplicationLookup ? FBSystemApplicationLookup() : nil;
 }
 - (void)launch
 {
@@ -74,6 +80,7 @@
   if ([self.session isKindOfClass:FBAUTLaunchSession.class]) {
     ((FBAUTLaunchSession *)self.session).launchApplication.duringLaunch = nil;
   }
+  FBSystemApplicationLookup = nil;
   [self.session kill];
   FBConfiguration.sharedInstance.shouldTerminateApp = self.shouldTerminateAppValue;
   [super tearDown];
@@ -181,6 +188,46 @@
   XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException,
                               FBSessionDoesNotExistException);
   XCTAssertFalse(app.didLaunch);
+}
+
+- (void)testSystemApplicationCheckUsesSuppliedApplication
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  FBSystemApplicationLookup = ^id { return app; };
+  XCTAssertTrue([self.session fb_isApplicationSameAsSystemApp:(id)app timeout:1.]);
+  FBSystemApplicationLookup = ^id { return nil; };
+  XCTAssertFalse([self.session fb_isApplicationSameAsSystemApp:(id)app timeout:1.]);
+}
+
+- (void)testSystemApplicationLookupExceptionSkipsTermination
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  FBConfiguration.sharedInstance.shouldTerminateApp = YES;
+  FBSession *session = self.session;
+  app.duringLaunch = ^{ [session kill]; };
+  FBSystemApplicationLookup = ^id {
+    @throw [NSException exceptionWithName:@"LookupFailure" reason:nil userInfo:nil];
+  };
+  XCTAssertThrowsSpecificNamed([self launchAsAUT], NSException, FBSessionDoesNotExistException);
+  XCTAssertFalse(app.didTerminate);
+}
+
+- (void)testSystemApplicationLookupTimeoutSkipsTermination
+{
+  FBAUTLaunchApplicationDouble *app = [self prepareAUTLaunch];
+  dispatch_semaphore_t releaseLookup = dispatch_semaphore_create(0);
+  XCTestExpectation *finished = [self expectationWithDescription:@"System application lookup finished"];
+  FBSystemApplicationLookup = ^id {
+    dispatch_semaphore_wait(releaseLookup, DISPATCH_TIME_FOREVER);
+    [finished fulfill];
+    return nil;
+  };
+  @try {
+    XCTAssertTrue([self.session fb_isApplicationSameAsSystemApp:(id)app timeout:0.01]);
+  } @finally {
+    dispatch_semaphore_signal(releaseLookup);
+    [self waitForExpectationsWithTimeout:5. handler:nil];
+  }
 }
 
 @end

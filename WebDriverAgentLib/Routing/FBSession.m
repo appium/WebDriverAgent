@@ -50,7 +50,7 @@ NSString *const FBSessionWasKilledNotification = @"FBSessionWasKilledNotificatio
 @property (nonatomic, nullable) FBAlertsMonitor *alertsMonitor;
 @property (nonatomic, readwrite) NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *elementsVisibilityCache;
 
-- (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout;
+- (BOOL)fb_isApplicationSameAsSystemApp:(XCUIApplication *)application timeout:(NSTimeInterval)timeout;
 - (void)fb_terminateTestedApplicationWithTimeout:(NSTimeInterval)timeout generation:(NSUInteger)generation;
 @end
 
@@ -333,7 +333,7 @@ static NSUInteger _committedTerminationCount = 0;
     if (nil != self.testedApplication
         && FBConfiguration.sharedInstance.shouldTerminateApp
         && self.testedApplication.running
-        && ![self fb_isTestedApplicationSameAsSystemAppWithTimeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
+        && ![self fb_isApplicationSameAsSystemApp:self.testedApplication timeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]) {
       // Blocks until the app is either actually terminated or durably given up on (never left
       // pending) - see -fb_terminateTestedApplicationWithTimeout:generation: - so it's safe to
       // report this teardown as finished as soon as this returns.
@@ -450,7 +450,7 @@ static NSUInteger _committedTerminationCount = 0;
       // running. Clean up only while this launch still owns the generation;
       // a replacement session may already be using the same bundle identifier.
       if (shouldTerminateApp
-          && ![app fb_isSameAppAs:[[app class] fb_systemApplication]]
+          && ![self fb_isApplicationSameAsSystemApp:app timeout:FB_IS_SYSTEM_APP_CHECK_TIMEOUT_SEC]
           && [self.class beginTerminationForGeneration:generation]) {
         @try {
           [app terminate];
@@ -503,9 +503,9 @@ static NSUInteger _committedTerminationCount = 0;
 }
 
 // Has no async variant and can block on the shared accessibility channel. Run off-thread and give
-// up after `timeout`, assuming the tested app IS the system app - safer, since it means skipping
+// up after `timeout`, assuming the supplied app IS the system app - safer, since it means skipping
 // termination rather than risking terminating springboard.
-- (BOOL)fb_isTestedApplicationSameAsSystemAppWithTimeout:(NSTimeInterval)timeout
+- (BOOL)fb_isApplicationSameAsSystemApp:(XCUIApplication *)application timeout:(NSTimeInterval)timeout
 {
   __block XCUIApplication *systemApp = nil;
   __block NSException *caughtException = nil;
@@ -514,7 +514,7 @@ static NSUInteger _committedTerminationCount = 0;
     // Undocumented private API; guard in case it hard-asserts off-main like -terminate does on
     // some Xcode/iOS version - uncaught, that would crash the whole process.
     @try {
-      systemApp = XCUIApplication.fb_systemApplication;
+      systemApp = [[application class] fb_systemApplication];
     } @catch (NSException *e) {
       caughtException = e;
     }
@@ -522,10 +522,10 @@ static NSUInteger _committedTerminationCount = 0;
   });
   int64_t timeoutNs = (int64_t)(timeout * NSEC_PER_SEC);
   if (0 != dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, timeoutNs)) || nil != caughtException) {
-    [FBLogger logFmt:@"Could not determine the system application within %@ seconds%@; assuming '%@' might be it and skipping its termination", @(timeout), nil == caughtException ? @"" : [NSString stringWithFormat:@" (%@)", caughtException.description], self.testedApplication.bundleID];
+    [FBLogger logFmt:@"Could not determine the system application within %@ seconds%@; assuming '%@' might be it and skipping its termination", @(timeout), nil == caughtException ? @"" : [NSString stringWithFormat:@" (%@)", caughtException.description], application.bundleID];
     return YES;
   }
-  return [self.testedApplication fb_isSameAppAs:systemApp];
+  return [application fb_isSameAppAs:systemApp];
 }
 
 // -terminate hard-asserts off-main, but -kill can now run on a background queue. Dispatching to
