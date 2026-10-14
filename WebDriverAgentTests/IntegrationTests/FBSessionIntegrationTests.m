@@ -172,6 +172,32 @@ static NSString *const SETTINGS_BUNDLE_ID = @"com.apple.Preferences";
   XCTAssertNoThrow(self.session.activeApplication);
 }
 
+// DELETE /session while /wda/apps/launch is still launching the app as the application under
+// test: whichever of them finishes first, the app must not outlive the session. Settings takes
+// long enough to launch for the deletion to usually land in the middle.
+- (void)testApplicationLaunchedAsApplicationUnderTestDoesNotOutliveConcurrentSessionDeletion
+{
+  [self startSessionWithoutApplicationUnderTest];
+  XCUIApplication *settingsApp = [[XCUIApplication alloc] initWithBundleIdentifier:SETTINGS_BUNDLE_ID];
+  [settingsApp terminate];
+  FBAssertWaitTillBecomesTrue(settingsApp.state == XCUIApplicationStateNotRunning);
+  FBSession *session = self.session;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                 dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    [session kill];
+  });
+  @try {
+    [session launchApplicationWithBundleId:SETTINGS_BUNDLE_ID
+                   shouldWaitForQuiescence:nil
+                                 arguments:nil
+                               environment:nil
+                    asApplicationUnderTest:YES];
+  } @catch (NSException *e) {
+    XCTAssertEqualObjects(e.name, FBSessionDoesNotExistException);
+  }
+  FBAssertWaitTillBecomesTrue(settingsApp.state == XCUIApplicationStateNotRunning);
+}
+
 - (void)testLaunchUnattachedApp
 {
   [FBUnattachedAppLauncher launchAppWithBundleId:SETTINGS_BUNDLE_ID];
