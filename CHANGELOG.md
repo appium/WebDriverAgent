@@ -1,3 +1,9 @@
+## [16.15.0](https://github.com/appium/WebDriverAgent/compare/v16.14.2...v16.15.0) (2026-10-12)
+
+### Features
+
+* add asAppUnderTest flag to /wda/apps/launch ([#1289](https://github.com/appium/WebDriverAgent/issues/1289)) ([f5c0688](https://github.com/appium/WebDriverAgent/commit/f5c068873ff6dcd1ce444d26246c102cc379d5bf))
+
 ## [16.14.2](https://github.com/appium/WebDriverAgent/compare/v16.14.1...v16.14.2) (2026-10-08)
 
 ### Bug Fixes
