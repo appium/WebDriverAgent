@@ -15,6 +15,7 @@
 
 #import "FBErrorBuilder.h"
 #import "FBImageUtils.h"
+#import "FBLogger.h"
 #import "FBMacros.h"
 #import "FBMathUtils.h"
 #import "FBScreenshot.h"
@@ -150,9 +151,11 @@ static bool fb_isLocked;
   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"27.0")) {
     // iOS 27: pressLockButton no longer locks; use a short IOHID Power press.
     // A 0.5s hold can invoke Siri instead of locking the screen.
+    const NSTimeInterval duration = 0.2;
+    [FBLogger logFmt:@"Lock screen: IOHID Power press duration=%.3fs", duration];
     if (![self fb_performIOHIDEventWithPage:0x0C
                                       usage:0x30
-                                   duration:0.1
+                                   duration:duration
                                       error:error]) {
       return NO;
     }
