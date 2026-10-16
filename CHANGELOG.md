@@ -1,3 +1,9 @@
+## [16.15.3](https://github.com/appium/WebDriverAgent/compare/v16.15.2...v16.15.3) (2026-10-16)
+
+### Bug Fixes
+
+* bind the MJPEG server to the USE_IP address ([#1299](https://github.com/appium/WebDriverAgent/issues/1299)) ([53573cf](https://github.com/appium/WebDriverAgent/commit/53573cf3a74fe8db87cb5f38b2cdc7f17e856e4f))
+
 ## [16.15.2](https://github.com/appium/WebDriverAgent/compare/v16.15.1...v16.15.2) (2026-10-16)
 
 ### Bug Fixes
