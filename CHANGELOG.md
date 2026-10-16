@@ -1,3 +1,9 @@
+## [16.15.2](https://github.com/appium/WebDriverAgent/compare/v16.15.1...v16.15.2) (2026-10-16)
+
+### Bug Fixes
+
+* make /health a standalone route ([#1300](https://github.com/appium/WebDriverAgent/issues/1300)) ([eabb56e](https://github.com/appium/WebDriverAgent/commit/eabb56efdc6bca22ae1e8e4e11368de95a31e1c7))
+
 ## [16.15.1](https://github.com/appium/WebDriverAgent/compare/v16.15.0...v16.15.1) (2026-10-16)
 
 ### Bug Fixes
