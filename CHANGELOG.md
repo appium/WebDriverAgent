@@ -1,3 +1,9 @@
+## [16.15.1](https://github.com/appium/WebDriverAgent/compare/v16.15.0...v16.15.1) (2026-10-16)
+
+### Bug Fixes
+
+* clean up AUT launches after session deletion ([#1297](https://github.com/appium/WebDriverAgent/issues/1297)) ([5139caf](https://github.com/appium/WebDriverAgent/commit/5139caf298b08cd22e4ed8ffc94ba74565783c52))
+
 ## [16.15.0](https://github.com/appium/WebDriverAgent/compare/v16.14.2...v16.15.0) (2026-10-12)
 
 ### Features
