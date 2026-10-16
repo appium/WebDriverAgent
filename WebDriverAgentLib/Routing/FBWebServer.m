@@ -133,6 +133,9 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   self.mjpegServer = [[FBMjpegServer alloc] init];
   self.screenshotsBroadcaster = [[FBTCPSocket alloc]
                                  initWithPort:(uint16_t)FBConfiguration.sharedInstance.mjpegServerPort];
+  // Bind to the same address as the HTTP server when USE_IP is set.
+  // nil (the default) keeps listening on all interfaces.
+  self.screenshotsBroadcaster.interface = FBConfiguration.sharedInstance.bindingIPAddress;
   self.mjpegServer.socket = self.screenshotsBroadcaster;
   self.screenshotsBroadcaster.delegate = self.mjpegServer;
   NSError *error;
