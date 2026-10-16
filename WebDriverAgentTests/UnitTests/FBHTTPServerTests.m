@@ -15,6 +15,11 @@
 
 #import "FBHTTPServer.h"
 #import "FBTCPSocket.h"
+#import "FBWebServer.h"
+
+@interface FBWebServer (FBWDATestable)
+- (void)registerServerKeyRouteHandlers;
+@end
 
 static atomic_int gFramingProbeHits;
 
@@ -228,6 +233,24 @@ static NSString *FBCompleteResponse(NSData *data)
                                            didClose:&didClose];
   XCTAssertTrue([response containsString:@"200"], @"%@", response);
   XCTAssertTrue([response containsString:@"pong"], @"%@", response);
+}
+
+- (void)testHealthRespondsWhileRouteQueueIsBlocked
+{
+  FBWebServer *webServer = [FBWebServer new];
+  [webServer setValue:self.server forKey:@"server"];
+  [webServer registerServerKeyRouteHandlers];
+  dispatch_queue_t routeQueue = dispatch_queue_create("com.facebook.wda.test.health", DISPATCH_QUEUE_SERIAL);
+  [self.server setRouteQueue:routeQueue];
+  dispatch_suspend(routeQueue);
+  @try {
+    NSString *response = [self responseClosingFirstForRequest:@"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n"];
+    XCTAssertTrue([response hasPrefix:@"HTTP/1.1 200"], @"%@", response);
+    XCTAssertTrue([response hasSuffix:@"<!DOCTYPE html><html><title>Health Check</title><body><p>I-AM-ALIVE</p></body></html>"], @"%@", response);
+  } @finally {
+    dispatch_resume(routeQueue);
+    dispatch_sync(routeQueue, ^{});
+  }
 }
 
 - (void)testConnectionsTheClientClosesReleaseTheirSockets
