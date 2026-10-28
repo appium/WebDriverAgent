@@ -9,14 +9,17 @@
 
 #import "FBScreenRecordingContainer.h"
 
+#import "FBLogger.h"
 #import "FBScreenRecordingPromise.h"
 
 @interface FBScreenRecordingContainer ()
 
 @property (readwrite) NSUInteger fps;
 @property (readwrite) long long codec;
-@property (readwrite) FBScreenRecordingPromise* screenRecordingPromise;
-@property (readwrite) NSNumber *startedAt;
+@property (readwrite, nullable) FBScreenRecordingPromise* screenRecordingPromise;
+@property (readwrite, nullable) NSNumber *startedAt;
+
+- (void)performAttachmentCleanupForPromise:(FBScreenRecordingPromise *)promise;
 
 @end
 
@@ -44,45 +47,72 @@
   }
 }
 
-- (void)reset;
+- (nullable FBScreenRecordingPromise *)detachScreenRecordingPromiseMatching:(nullable FBScreenRecordingPromise *)expectedPromise
+                                                                   matchAny:(BOOL)matchAny
 {
   @synchronized (self) {
+    if (nil == self.screenRecordingPromise || (!matchAny && self.screenRecordingPromise != expectedPromise)) {
+      return nil;
+    }
+    FBScreenRecordingPromise *detachedPromise = self.screenRecordingPromise;
     self.fps = 0;
     self.codec = 0;
-    if (nil != self.screenRecordingPromise) {
-      [XCTContext runActivityNamed:@"Video Cleanup" block:^(id<XCTActivity> activity){
-        [activity addAttachment:(XCTAttachment *)self.screenRecordingPromise.nativePromise];
-      }];
-      self.screenRecordingPromise = nil;
-    }
+    self.screenRecordingPromise = nil;
     self.startedAt = nil;
+    return detachedPromise;
   }
+}
+
+- (void)performAttachmentCleanupForPromise:(FBScreenRecordingPromise *)promise
+{
+  [XCTContext runActivityNamed:@"Video Cleanup" block:^(id<XCTActivity> activity){
+    [activity addAttachment:(XCTAttachment *)promise.nativePromise];
+  }];
+}
+
+- (void)cleanUpScreenRecordingPromise:(nullable FBScreenRecordingPromise *)promise
+{
+  if (nil == promise || nil == promise.nativePromise) {
+    return;
+  }
+  @try {
+    [self performAttachmentCleanupForPromise:promise];
+  } @catch (NSException *exception) {
+    [FBLogger logFmt:@"Failed to clean up screen recording attachment: %@", exception.reason];
+  }
+}
+
+- (void)reset;
+{
+  FBScreenRecordingPromise *detachedPromise = [self detachScreenRecordingPromiseMatching:nil matchAny:YES];
+  [self cleanUpScreenRecordingPromise:detachedPromise];
 }
 
 - (BOOL)resetIfPromiseIs:(FBScreenRecordingPromise *)screenRecordingPromise
 {
-  // @synchronized is recursive, so -reset may take the very same lock again below.
-  @synchronized (self) {
-    if (self.screenRecordingPromise != screenRecordingPromise) {
-      return NO;
-    }
-    [self reset];
-    return YES;
+  FBScreenRecordingPromise *detachedPromise = [self detachScreenRecordingPromiseMatching:screenRecordingPromise
+                                                                                matchAny:NO];
+  if (nil == detachedPromise) {
+    return NO;
   }
+  [self cleanUpScreenRecordingPromise:detachedPromise];
+  return YES;
 }
 
 - (nullable NSDictionary *)toDictionary
 {
-  if (nil == self.screenRecordingPromise) {
-    return nil;
-  }
+  @synchronized (self) {
+    if (nil == self.screenRecordingPromise) {
+      return nil;
+    }
 
-  return @{
-    @"fps": @(self.fps),
-    @"codec": @(self.codec),
-    @"uuid": [self.screenRecordingPromise identifier].UUIDString ?: [NSNull null],
-    @"startedAt": self.startedAt ?: [NSNull null],
-  };
+    return @{
+      @"fps": @(self.fps),
+      @"codec": @(self.codec),
+      @"uuid": [self.screenRecordingPromise identifier].UUIDString ?: [NSNull null],
+      @"startedAt": self.startedAt ?: [NSNull null],
+    };
+  }
 }
 
 @end
