@@ -66,6 +66,7 @@
     [[FBRoute POST:@"/wda/getPasteboard"].withoutSession respondWithTarget:self action:@selector(handleGetPasteboard:)],
     [[FBRoute GET:@"/wda/batteryInfo"] respondWithTarget:self action:@selector(handleGetBatteryInfo:)],
 #endif
+    [[FBRoute POST:@"/wda/pressButton"].withoutSession respondWithTarget:self action:@selector(handlePressButtonCommand:)],
     [[FBRoute POST:@"/wda/pressButton"] respondWithTarget:self action:@selector(handlePressButtonCommand:)],
 #if TARGET_OS_WATCH
     [[FBRoute POST:@"/wda/rotateDigitalCrown"] respondWithTarget:self action:@selector(handleRotateDigitalCrownCommand:)],
