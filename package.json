@@ -70,7 +70,7 @@
     "async-lock": "^1.0.0",
     "asyncbox": "^6.4.3",
     "axios": "^1.18.0",
-    "teen_process": "^4.2.0"
+    "teen_process": "^5.0.0"
   },
   "devDependencies": {
     "@appium/coresim": "^1.4.0",
