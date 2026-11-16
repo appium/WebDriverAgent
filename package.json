@@ -68,7 +68,7 @@
     "@appium/strongbox": "^2.0.0",
     "@appium/support": "^7.2.6",
     "async-lock": "^1.0.0",
-    "asyncbox": "^6.4.3",
+    "asyncbox": "^7.0.0",
     "axios": "^1.18.0",
     "teen_process": "^4.2.0"
   },
